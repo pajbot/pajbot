@@ -1,0 +1,15 @@
+# Python-specific stuff
+__pycache__
+*.py[cod]
+*$py.class
+
+# Folder created by pip
+src/
+
+config.ini
+
+# PID files
+.*.pid
+
+# Log files
+all.log
