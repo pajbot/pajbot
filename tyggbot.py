@@ -167,8 +167,6 @@ class TyggBot(irc.client.SimpleIRCClient):
         return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
 
     def c_uptime(self):
-        self.privmsg('pajlada', 'test')
-        self.privmsg(self.target, '.w pajlada test')
         return time_since(datetime.now().timestamp(), self.start_time.timestamp())
 
     def c_stream_status(self):
