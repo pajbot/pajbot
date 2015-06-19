@@ -123,8 +123,14 @@ class TyggBot(irc.client.SimpleIRCClient):
         self.whisper_conn.connect()
 
         banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̯̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
-
         self.banned_chars = [x for x in banned_characters]
+
+        self.max_messages_sent = 70
+        self.num_messages_sent = 0
+        self.connection.execute_every(20, self.reset_throttle)
+
+    def reset_throttle(self):
+        self.num_messages_sent = 0
 
     def get_kvi_value(self, key, extra={}):
         return self.kvi.get(key)
@@ -155,10 +161,15 @@ class TyggBot(irc.client.SimpleIRCClient):
         self.load_all()
 
     def privmsg(self, target, message):
+        if self.num_messages_sent > self.max_messages_sent:
+            self.log.error('Skipping this say, because we are sending too many messages.')
+            return False
+
         try:
             if not target:
                 target = self.target
 
+            self.num_messages_sent += 1
             self.connection.privmsg(target, message)
         except Exception as e:
             self.log.error('Exception caught while sending privmsg: {0}'.format(e))
