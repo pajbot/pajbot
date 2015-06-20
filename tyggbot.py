@@ -17,6 +17,9 @@ import irc.client
 
 from command import Filter, Command
 
+class TMI:
+    message_limit = 95
+
 class Source:
     def __init__(self, nick, user, level):
         self.nick = nick
@@ -125,12 +128,11 @@ class TyggBot(irc.client.SimpleIRCClient):
         banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̯̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
         self.banned_chars = [x for x in banned_characters]
 
-        self.max_messages_sent = 70
-        self.num_messages_sent = 0
-        self.connection.execute_every(20, self.reset_throttle)
+        self.num_commands_sent = 0
+        self.connection.execute_every(30, self.reset_command_throttle)
 
-    def reset_throttle(self):
-        self.num_messages_sent = 0
+    def reset_command_throttle(self):
+        self.num_commands_sent = 0
 
     def get_kvi_value(self, key, extra={}):
         return self.kvi.get(key)
@@ -160,8 +162,9 @@ class TyggBot(irc.client.SimpleIRCClient):
         self.sync_to()
         self.load_all()
 
-    def privmsg(self, target, message):
-        if self.num_messages_sent > self.max_messages_sent:
+    def privmsg(self, target, message, priority=False):
+        # Non-prioritized messages are allowed 50% of the message limit
+        if (not priority and self.num_commands_sent > TMI.message_limit/2) or (priority and self.num_commands_sent > TMI.message_limit):
             self.log.error('Skipping this say, because we are sending too many messages.')
             return False
 
@@ -169,8 +172,8 @@ class TyggBot(irc.client.SimpleIRCClient):
             if not target:
                 target = self.target
 
-            self.num_messages_sent += 1
             self.connection.privmsg(target, message)
+            self.num_commands_sent += 1
         except Exception as e:
             self.log.error('Exception caught while sending privmsg: {0}'.format(e))
 
@@ -199,17 +202,17 @@ class TyggBot(irc.client.SimpleIRCClient):
         return self.sched.add_job(job_fn, 'date', args=fn_args, run_date=time)
 
     def _ban(self, username, target=None):
-        self.privmsg(target, '.ban {0}'.format(username))
+        self.privmsg(target, '.ban {0}'.format(username), True)
 
     def ban(self, username, target=None):
         self._ban(username, target)
         self.run_later(self._timeout, username, 1, target, seconds=1)
 
     def unban(self, username, target=None):
-        self.privmsg(target, '.unban {0}'.format(username))
+        self.privmsg(target, '.unban {0}'.format(username), True)
 
     def _timeout(self, username, duration, target=None):
-        self.privmsg(target, '.timeout {0} {1}'.format(username, duration))
+        self.privmsg(target, '.timeout {0} {1}'.format(username, duration), True)
 
     def timeout(self, username, duration, target=None):
         self._timeout(username, duration, target)
