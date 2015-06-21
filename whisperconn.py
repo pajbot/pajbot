@@ -41,9 +41,6 @@ class WhisperConn:
         except Exception as e:
             self.log.error('Exception caught while sending privmsg: {0}'.format(e))
 
-    def on_welcome(self, chatconn, event):
-        self.log.debug('Connected to Whisper server.')
-
     def _connected_checker(self):
         if not self.connection.is_connected():
             self.connection.execute_delayed(self.reconnection_interval,
@@ -56,11 +53,6 @@ class WhisperConn:
             irc.client.SimpleIRCClient.connect(self, self.ip, self.port, self.nickname, self.password, self.nickname)
         except irc.client.ServerConnectionError:
             pass
-
-    def on_disconnect(self, chatconn, event):
-        self.log.debug('Disconnecting from Whisper server')
-        self.connection.execute_delayed(self.reconnection_interval,
-                                        self._connected_checker)
 
     def quit(self):
         self.connection.quit("bye")

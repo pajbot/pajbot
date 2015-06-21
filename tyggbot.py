@@ -410,15 +410,18 @@ class TyggBot:
         cursor.close()
 
     def on_welcome(self, chatconn, event):
-        self.log.debug('Connected to IRC server.')
-        if irc.client.is_channel(self.target):
-            chatconn.join(self.target)
+        if chatconn == self.connection:
+            self.log.debug('Connected to IRC server.')
+            if irc.client.is_channel(self.target):
+                chatconn.join(self.target)
 
-            try:
-                if 'phrases' in self.config and 'welcome' in self.config['phrases']:
-                    self.say(self.config['phrases']['welcome'].format(self))
-            except Exception as e:
-                self.log.error(e)
+                try:
+                    if 'phrases' in self.config and 'welcome' in self.config['phrases']:
+                        self.say(self.config['phrases']['welcome'].format(self))
+                except Exception as e:
+                    self.log.error(e)
+        elif chatconn == self.whisper_conn:
+            self.log.debug('Connected to Whisper server.')
 
     def _connected_checker(self):
         if not self.connection.is_connected():
@@ -435,10 +438,15 @@ class TyggBot:
             pass
 
     def on_disconnect(self, chatconn, event):
-        self.log.debug('Disconnecting')
-        self.sync_to()
-        self.connection.execute_delayed(self.reconnection_interval,
-                                        self._connected_checker)
+        if chatconn == self.connection:
+            self.log.debug('Disconnected from IRC server')
+            self.sync_to()
+            self.connection.execute_delayed(self.reconnection_interval,
+                                            self._connected_checker)
+        elif chatconn == self.whisper_conn:
+            self.log.debug('Disconnecting from Whisper server')
+            self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
+                                              self.whisper_conn._connected_checker)
 
     def get_user_level(self, user):
         if user in self.admins:
