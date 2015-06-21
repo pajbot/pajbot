@@ -17,8 +17,10 @@ import irc.client
 
 from command import Filter, Command
 
+#log = logging.getLogger(__name__)
+
 class TMI:
-    message_limit = 95
+    message_limit = 50
 
 class Source:
     def __init__(self, nick, user, level):
@@ -26,7 +28,7 @@ class Source:
         self.user = user
         self.level = level
 
-class TyggBot(irc.client.SimpleIRCClient):
+class TyggBot:
     """
     Main class for the twitch bot
     """
@@ -59,7 +61,10 @@ class TyggBot(irc.client.SimpleIRCClient):
         return parser.parse_args()
 
     def __init__(self, config, args):
-        irc.client.SimpleIRCClient.__init__(self)
+        self.reactor = irc.client.Reactor()
+        self.connection = self.reactor.server()
+
+        self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
         if 'wolfram' in config['main']:
             Dispatch.wolfram = wolframalpha.Client(config['main']['wolfram'])
@@ -119,9 +124,6 @@ class TyggBot(irc.client.SimpleIRCClient):
 
         self.load_all()
 
-        self.log.debug('MAIN')
-        self.log.debug(self.reactor)
-
         self.whisper_conn = WhisperConn(self.target[1:], self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
 
@@ -133,6 +135,15 @@ class TyggBot(irc.client.SimpleIRCClient):
 
     def reset_command_throttle(self):
         self.num_commands_sent = 0
+
+    def _dispatcher(self, connection, event):
+        do_nothing = lambda c, e: None
+        method = getattr(self, "on_" + event.type, do_nothing)
+        method(connection, event)
+
+    def start(self):
+        """Start the IRC client."""
+        self.reactor.process_forever()
 
     def get_kvi_value(self, key, extra={}):
         return self.kvi.get(key)

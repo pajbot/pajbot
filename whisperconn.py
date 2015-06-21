@@ -5,26 +5,16 @@ from apiwrappers import ChatDepotAPI
 
 import irc.client
 
-class WhisperConn(irc.client.SimpleIRCClient):
+class WhisperConn:
     def __init__(self, target, nickname, password, reactor):
-        irc.client.SimpleIRCClient.__init__(self)
-
         self.reactor = reactor
-
+        self.connection = reactor.server()
         self.log = logging.getLogger('tyggbot')
-
-        self.log.debug('WHISPER')
-        self.log.debug(self.reactor)
 
         self.target = target
         self.nickname = nickname
         self.password = password
         self.reconnection_interval = 5
-
-        self.connection.set_keepalive(60)
-        self.connection.execute_every(5, self.whisper, ('pajlada', 'hello'))
-
-        self.connection.execute_delayed(2, self.whisper, ('pajlada', 'asdadsasd'))
 
         self.ip = '199.9.253.119'
         self.port = 6667
@@ -62,7 +52,6 @@ class WhisperConn(irc.client.SimpleIRCClient):
 
     def connect(self):
         self.log.debug('Connecting to Whisper server... ({0} {1})'.format(self.ip, self.port))
-        self.connection.execute_delayed(2, self.whisper, ('pajlada', 'asdadsasd'))
         try:
             irc.client.SimpleIRCClient.connect(self, self.ip, self.port, self.nickname, self.password, self.nickname)
         except irc.client.ServerConnectionError:
