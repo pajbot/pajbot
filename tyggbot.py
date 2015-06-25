@@ -33,7 +33,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.8.1'
+    version = '0.8.2'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -216,8 +216,8 @@ class TyggBot:
         self.privmsg(target, '.ban {0}'.format(username), True)
 
     def ban(self, username, target=None):
-        self._ban(username, target)
-        self.run_later(self._timeout, username, 1, target, seconds=1)
+        self._timeout(username, 30, target)
+        self.run_later(self._ban, username, 1, target, seconds=1)
 
     def unban(self, username, target=None):
         self.privmsg(target, '.unban {0}'.format(username), True)
