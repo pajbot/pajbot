@@ -127,7 +127,7 @@ class TyggBot:
         self.whisper_conn = WhisperConn(self.target[1:], self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
 
-        banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̯̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
+        banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
         self.banned_chars = [x for x in banned_characters]
 
         self.num_commands_sent = 0
