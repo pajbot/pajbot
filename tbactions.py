@@ -4,6 +4,8 @@ from tyggbot import TyggBot
 from command import Command
 from dispatch import Dispatch
 
+log = logging.getLogger('tyggbot')
+
 class BaseAction:
     type = '??'
 
@@ -33,7 +35,7 @@ class MultiAction(BaseAction):
                 cmd.run(tyggbot, source, extra_msg, event, args)
                 return
             else:
-                logging.getLogger('tyggbot').info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.user, command))
+                log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.user, command))
                 return
 
 class FuncAction(BaseAction):
@@ -58,8 +60,8 @@ class RawFuncAction(BaseAction):
         self.cb()
 
 class SayAction(BaseAction):
-    regex = re.compile('(\$\([a-z:_]+\))')
-    inner_regex = re.compile('([a-z]+:|)([a-z_]+)')
+    regex = re.compile('(\$\([a-z:_0-9]+\))')
+    inner_regex = re.compile('([a-z]+:|)([a-z_0-9]+)')
     type = 'say'
 
     def __init__(self, response):
@@ -88,8 +90,10 @@ class SayAction(BaseAction):
                     cb = TyggBot.instance.get_kvi_value
                 elif path == 'tb':
                     cb = TyggBot.instance.get_value
+                elif path == 'lasttweet':
+                    cb = TyggBot.instance.get_last_tweet
                 else:
-                    logging.getLogger('tyggbot').error('Unimplemented path: {0}'.format(path))
+                    log.error('Unimplemented path: {0}'.format(path))
                     continue
 
             self.subs[sub_key] = (cb, key)
@@ -100,9 +104,9 @@ class SayAction(BaseAction):
 
         for needle, tup in self.subs.items():
             value = str(tup[0](tup[1], extra))
-            logging.getLogger('tyggbot').debug('Replace {0} with {1}'.format(needle, value))
+            log.debug('Replace {0} with {1}'.format(needle, value))
             resp = resp.replace(needle, value)
-            logging.getLogger('tyggbot').debug(resp)
+            log.debug(resp)
 
         return resp
 

@@ -148,6 +148,9 @@ class TyggBot:
     def get_kvi_value(self, key, extra={}):
         return self.kvi.get(key)
 
+    def get_last_tweet(self, key, extra={}):
+        return 'PogChamp'
+
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]
