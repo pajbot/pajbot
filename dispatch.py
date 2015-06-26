@@ -171,12 +171,16 @@ class Dispatch:
 
             aliases = message_parts[0].lower().split('|')
             response = ' '.join(message_parts[1:])
+            update_id = False
 
             # Check if there's already a command with these aliases
             for alias in aliases:
                 if alias in tyggbot.commands:
-                    tyggbot.whisper(source.user, 'The alias {0} is already in use.'.format(alias))
-                    return False
+                    if not tyggbot.commands[alias].action.type == 'say':
+                        tyggbot.whisper(source.user, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
+                        return False
+                    else:
+                        update_id = tyggbot.commands[alias].id
 
             data = {
                     'level': 100,
@@ -190,11 +194,15 @@ class Dispatch:
             tyggbot.sqlconn.ping()
             cursor = tyggbot.sqlconn.cursor()
 
-            query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
+            if update_id == False:
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
+                cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
+                tyggbot.me('{0}, successfully added your command (id {1})'.format(source.user, cursor.lastrowid))
+            else:
+                query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
+                cursor.execute(query, (data['action'], update_id))
+                tyggbot.me('{0}, updated an already existing command! (id {1})'.format(source.user, update_id))
 
-            cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
-
-            tyggbot.me('{0}, successfully added your command (id {1})'.format(source.user, cursor.lastrowid))
 
             tyggbot.sync_to()
             tyggbot._load_commands()
