@@ -169,8 +169,10 @@ class TyggBot:
             try:
                 public_tweets = self.twitter.user_timeline(key)
                 for tweet in public_tweets:
-                    if not tweet.text.startswith('RT '):
-                        return tweet.text
+                    if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
+                        log.info(tweet.created_at)
+                        log.info(datetime.now())
+                        return '{0} ({1} ago)'.format(tweet.text, time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
                 log.error('Exception caught {0}'.format(e))
                 return 'FeelsBadMan'

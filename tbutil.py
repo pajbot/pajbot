@@ -84,9 +84,12 @@ class SyncValue:
         self.value += step
         self.synced = False
 
-def time_since(t1, t2):
+def time_since(t1, t2, format='long'):
     time_diff = t1 - t2
-    num_dict = ['day', 'hour', 'minute', 'second']
+    if format == 'long':
+        num_dict = ['day', 'hour', 'minute', 'second']
+    else:
+        num_dict = ['d', 'h', 'm', 's']
     num = [math.trunc(time_diff / 86400),
            math.trunc(time_diff / 3600 % 24),
            math.trunc(time_diff / 60 % 60),
@@ -97,8 +100,14 @@ def time_since(t1, t2):
     time_arr = []
     while i < 2 and j < 4:
         if num[j] > 0:
-            time_arr.append('{0} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
+            if format == 'long':
+                time_arr.append('{0} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
+            else:
+                time_arr.append('{0}{1}'.format(num[j], num_dict[j]))
             i += 1
         j += 1
 
-    return ' and '.join(time_arr)
+    if format == 'long':
+        return ' and '.join(time_arr)
+    else:
+        return ''.join(time_arr)
