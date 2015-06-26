@@ -5,6 +5,7 @@ import datetime as dt
 
 import pymysql
 import wolframalpha
+import tweepy
 
 from dispatch import Dispatch
 from kvidata import KVIData
@@ -17,7 +18,7 @@ import irc.client
 
 from command import Filter, Command
 
-#log = logging.getLogger(__name__)
+log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 50
@@ -59,6 +60,16 @@ class TyggBot:
         # TODO: Add a log level argument.
 
         return parser.parse_args()
+
+    def init_twitter(self):
+        try:
+            auth = tweepy.OAuthHandler(self.config['twitter']['consumer_key'], self.config['twitter']['consumer_secret'])
+            auth.set_access_token(self.config['twitter']['access_token'], self.config['twitter']['access_token_secret'])
+
+            self.twitter = tweepy.API(auth)
+        except:
+            log.error('Twitter authentication failed.')
+            self.twitter = False
 
     def __init__(self, config, args):
         self.reactor = irc.client.Reactor()
@@ -133,6 +144,11 @@ class TyggBot:
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
 
+        if 'twitter' in config:
+            self.init_twitter()
+        else:
+            self.twitter = None
+
     def reset_command_throttle(self):
         self.num_commands_sent = 0
 
@@ -149,7 +165,19 @@ class TyggBot:
         return self.kvi.get(key)
 
     def get_last_tweet(self, key, extra={}):
-        return 'PogChamp'
+        if self.twitter:
+            try:
+                public_tweets = self.twitter.user_timeline(key)
+                for tweet in public_tweets:
+                    if not tweet.text.startswith('RT '):
+                        return tweet.text
+            except Exception as e:
+                log.error('Exception caught {0}'.format(e))
+                return 'FeelsBadMan'
+        else:
+            return 'Twitter not set up FeelsBadMan'
+
+        return 'FeelsBadMan'
 
     def get_value(self, key, extra={}):
         if key in extra:
