@@ -20,7 +20,7 @@ class WhisperConn:
         self.port = 6667
 
         data = ChatDepotAPI().get(['room_memberships'], {'oauth_token': self.password.split(':')[1]})
-        if data:
+        if data and len(data['memberships']) > 0:
             room = data['memberships'][0]['room']
 
             if room:
