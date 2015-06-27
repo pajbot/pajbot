@@ -386,6 +386,18 @@ class TyggBot:
         self.commands['rem'] = self.commands['remove']
         self.commands['del'] = self.commands['remove']
         self.commands['delete'] = self.commands['remove']
+        self.commands['debug'] = Command()
+        self.commands['debug'].load_from_db({
+            'id': -1,
+            'level': 500,
+            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"command", "action": { "type":"func", "cb":"debug_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
+            'do_sync': False,
+            'delay_all': 5,
+            'delay_user': 15,
+            'enabled': True,
+            'num_uses': 0,
+            'extra_args': None,
+            })
 
         num_commands = 0
         num_aliases = 0
@@ -522,6 +534,9 @@ class TyggBot:
 
     def parse_message(self, msg_raw, nick='testuser', event=None, pretend=False, force=False):
         msg_lower = msg_raw.lower()
+
+        if nick == self.nickname:
+            return False
 
         if not nick and not event:
             self.log.error('No nick or event passed to parse_message')

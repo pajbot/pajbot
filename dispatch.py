@@ -224,6 +224,8 @@ class Dispatch:
                 tyggbot._load_filters()
             else:
                 tyggbot.me('{0}, no banphrase with id {1} found'.format(source.user, banphrase_id))
+        else:
+            tyggbot.whisper(source.user, 'Usage: !remove banphrase (BANPHRASE_ID)')
 
     def remove_win(tyggbot, source, message, event, args):
         tyggbot.kvi.dec('br_wins')
@@ -245,7 +247,7 @@ class Dispatch:
                         tyggbot.whisper(source.user, 'That command is not a normal command, it cannot be removed by you.')
                         return False
 
-                    id =  command.id
+                    id = command.id
                 else:
                     tyggbot.whisper(source.user, 'No command with alias {1} found'.format(source.user, potential_cmd))
                     return False
@@ -267,6 +269,47 @@ class Dispatch:
                 tyggbot._load_commands()
             else:
                 tyggbot.whisper(source.user, 'No command with id {1} found'.format(source.user, id))
+        else:
+            tyggbot.whisper(source.user, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
+
+    def debug_command(tyggbot, source, message, event, args):
+        if message and len(message) > 0:
+            try:
+                id = int(message)
+            except Exception as e:
+                id = -1
+
+            command = False
+
+            if id == -1:
+                potential_cmd = ''.join(message.split(' ')[:1]).lower()
+                if potential_cmd in tyggbot.commands:
+                    command = tyggbot.commands[potential_cmd]
+            else:
+                for key, potential_cmd in tyggbot.commands.items():
+                    if potential_cmd.id == id:
+                        command = potential_cmd
+                        break
+
+            if not command:
+                tyggbot.whisper(source.user, 'No command with found with the given parameters.')
+                return False
+
+            data = {
+                    'id': command.id,
+                    'level': command.level,
+                    'type': command.action.type,
+                    }
+
+            if command.action.type == 'say':
+                data['response'] = command.action.response
+            elif command.action.type == 'func' or command.action.type == 'rawfunc':
+                data['cb'] = command.action.cb.__name__
+
+            tyggbot.whisper(source.user, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
+        else:
+            tyggbot.whisper(source.user, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
+
 
     def say(tyggbot, source, message, event, args):
         if message:
