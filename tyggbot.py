@@ -357,8 +357,8 @@ class TyggBot:
 
         self.commands['reload'] = Command.admin_command(self.reload)
         self.commands['quit'] = Command.admin_command(self.quit)
-        self.commands['ignore'] = Command.admin_command(Dispatch.ignore)
-        self.commands['unignore'] = Command.admin_command(Dispatch.unignore)
+        self.commands['ignore'] = Command.admin_command(Dispatch.ignore, type='func')
+        self.commands['unignore'] = Command.admin_command(Dispatch.unignore, type='func')
 
         num_commands = 0
         num_aliases = 0

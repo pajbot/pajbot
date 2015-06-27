@@ -44,11 +44,17 @@ class Command:
         return cmd
 
     @classmethod
-    def admin_command(cls, action):
-        from tbactions import RawFuncAction
+    def admin_command(cls, action, type='raw_func'):
+        from tbactions import RawFuncAction, FuncAction
         cmd = cls(False)
-        cmd.action = RawFuncAction(action)
         cmd.level = 1000
+        if type == 'raw_func':
+            cmd.action = RawFuncAction(action)
+        elif type == 'func':
+            cmd.action = FuncAction(action)
+        else:
+            log.error('Unknown admin command type: {0}'.format(type))
+            cmd.action = False
         return cmd
 
     def load_from_db(self, data):
