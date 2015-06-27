@@ -359,6 +359,33 @@ class TyggBot:
         self.commands['quit'] = Command.admin_command(self.quit)
         self.commands['ignore'] = Command.admin_command(Dispatch.ignore, type='func')
         self.commands['unignore'] = Command.admin_command(Dispatch.unignore, type='func')
+        self.commands['add'] = Command()
+        self.commands['add'].load_from_db({
+            'id': -1,
+            'level': 500,
+            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"add_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"add_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"add_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
+            'do_sync': False,
+            'delay_all': 5,
+            'delay_user': 15,
+            'enabled': True,
+            'num_uses': 0,
+            'extra_args': None,
+            })
+        self.commands['remove'] = Command()
+        self.commands['remove'].load_from_db({
+            'id': -1,
+            'level': 500,
+            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"remove_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"remove_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"remove_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
+            'do_sync': False,
+            'delay_all': 5,
+            'delay_user': 15,
+            'enabled': True,
+            'num_uses': 0,
+            'extra_args': None,
+            })
+        self.commands['rem'] = self.commands['remove']
+        self.commands['del'] = self.commands['remove']
+        self.commands['delete'] = self.commands['remove']
 
         num_commands = 0
         num_aliases = 0
