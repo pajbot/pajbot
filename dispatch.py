@@ -131,7 +131,7 @@ class Dispatch:
             for filter in tyggbot.filters:
                 if filter.type == 'banphrase':
                     if filter.filter == message:
-                        tyggbot.me('{0}, that banphrase is already active (id {1})'.format(source.user, filter.id))
+                        tyggbot.whisper(source.user, 'That banphrase is already active (id {0})'.format(filter.id))
                         return False
 
             tyggbot.sqlconn.ping()
@@ -143,9 +143,7 @@ class Dispatch:
             cursor.execute('INSERT INTO `tb_filters` (`name`, `type`, `action`, `extra_args`, `filter`) VALUES (%s, %s, %s, %s, %s)',
                     ('Banphrase', 'banphrase', action, extra_args, message))
 
-            tyggbot.me('{0}, successfully added your banphrase (id {1})'.format(source.user, cursor.lastrowid))
-
-            tyggbot.log.debug('{0}, successfully added your banphrase (id {1})'.format(source.user, cursor.lastrowid))
+            tyggbot.whisper(source.user, 'Successfully added your banphrase (id {0})'.format(cursor.lastrowid))
 
             tyggbot.sync_to()
             tyggbot._load_filters()
@@ -197,11 +195,11 @@ class Dispatch:
             if update_id == False:
                 query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
                 cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
-                tyggbot.me('{0}, successfully added your command (id {1})'.format(source.user, cursor.lastrowid))
+                tyggbot.whisper(source.user, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
                 cursor.execute(query, (data['action'], update_id))
-                tyggbot.me('{0}, updated an already existing command! (id {1})'.format(source.user, update_id))
+                tyggbot.whisper(source.user, 'Updated an already existing command! (id {0})'.format(update_id))
 
 
             tyggbot.sync_to()
@@ -218,12 +216,12 @@ class Dispatch:
                     ('banphrase', banphrase_id))
 
             if cursor.rowcount >= 1:
-                tyggbot.me('{0}, successfully removed banphrase with id {1}'.format(source.user, banphrase_id))
+                tyggbot.whisper(source.user, 'Successfully removed banphrase with id {0}'.format(banphrase_id))
                 tyggbot.log.debug('{0}, successfully removed banphrase with id {1}'.format(source.user, banphrase_id))
                 tyggbot.sync_to()
                 tyggbot._load_filters()
             else:
-                tyggbot.me('{0}, no banphrase with id {1} found'.format(source.user, banphrase_id))
+                tyggbot.whisper(source.user, 'No banphrase with id {0} found'.format(banphrase_id))
         else:
             tyggbot.whisper(source.user, 'Usage: !remove banphrase (BANPHRASE_ID)')
 
@@ -264,7 +262,7 @@ class Dispatch:
             cursor.execute('DELETE FROM `tb_commands` WHERE `id`=%s', (id))
 
             if cursor.rowcount >= 1:
-                tyggbot.me('{0}, successfully removed command with id {1}'.format(source.user, id))
+                tyggbot.whisper(source.user, 'Successfully removed command with id {0}'.format(id))
                 tyggbot.sync_to()
                 tyggbot._load_commands()
             else:
