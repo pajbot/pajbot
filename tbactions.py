@@ -60,8 +60,8 @@ class RawFuncAction(BaseAction):
         self.cb()
 
 class SayAction(BaseAction):
-    regex = re.compile('(\$\([a-z:_0-9]+\))')
-    inner_regex = re.compile('([a-z]+:|)([a-z_0-9]+)')
+    regex = re.compile('(\$\([a-zA-Z:_0-9]+\))')
+    inner_regex = re.compile('([a-z]+:|)([a-zA-Z_0-9]+)')
     type = 'say'
 
     def __init__(self, response):
