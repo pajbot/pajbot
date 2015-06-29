@@ -2,8 +2,11 @@ import math
 import re
 import json
 import pymysql
+import logging
 
 from tbutil import time_limit, TimeoutException
+
+log = logging.getLogger('tyggbot')
 
 class Dispatch:
     """
@@ -14,12 +17,9 @@ class Dispatch:
         if message:
             username = message.split(' ')[0].strip().lower()
         else:
-            username = event.source.user.lower()
+            username = source.username
 
-        if username in tyggbot.num_messages:
-            num_lines = tyggbot.num_messages[username].value
-        else:
-            num_lines = 0
+        num_lines = tyggbot.users[username].num_lines
 
         if num_lines > 0:
             tyggbot.say('{0} has typed {1} messages in this channel!'.format(username, num_lines))
@@ -65,7 +65,7 @@ class Dispatch:
                         emote = 'Kreygasm'
                     elif expr_res == 420 or expr_res == 420.0:
                         emote = 'CiGrip'
-                    res = '{2}, {0} {1}'.format(expr_res, emote, event.source.user)
+                    res = '{2}, {0} {1}'.format(expr_res, emote, source.username)
             except TimeoutException as e:
                 res = 'timed out DansGame';
                 tyggbot.log.error('Timeout exception: {0}'.format(e))
@@ -83,7 +83,7 @@ class Dispatch:
 
             url = 'http://multitwitch.tv/'+'/'.join(streams)
 
-            tyggbot.say('{0}, {1}'.format(event.source.user, url))
+            tyggbot.say('{0}, {1}'.format(source.username, url))
 
     def ab(tyggbot, source, message, event, args):
         if message:
@@ -96,7 +96,7 @@ class Dispatch:
                     s += msg_parts[0] + ' ' + c + ' '
                 s += msg_parts[0]
 
-                tyggbot.say('{0}, {1}'.format(source.user, s))
+                tyggbot.say('{0}, {1}'.format(source.username, s))
 
                 return True
 
@@ -113,7 +113,7 @@ class Dispatch:
                     s += msg_parts[0] + ' ' + msg + ' '
                 s += msg_parts[0]
 
-                tyggbot.say('{0}, {1}'.format(source.user, s))
+                tyggbot.say('{0}, {1}'.format(source.username, s))
 
                 return True
 
@@ -131,7 +131,7 @@ class Dispatch:
             for filter in tyggbot.filters:
                 if filter.type == 'banphrase':
                     if filter.filter == message:
-                        tyggbot.whisper(source.user, 'That banphrase is already active (id {0})'.format(filter.id))
+                        tyggbot.whisper(source.username, 'That banphrase is already active (id {0})'.format(filter.id))
                         return False
 
             tyggbot.sqlconn.ping()
@@ -143,15 +143,15 @@ class Dispatch:
             cursor.execute('INSERT INTO `tb_filters` (`name`, `type`, `action`, `extra_args`, `filter`) VALUES (%s, %s, %s, %s, %s)',
                     ('Banphrase', 'banphrase', action, extra_args, message))
 
-            tyggbot.whisper(source.user, 'Successfully added your banphrase (id {0})'.format(cursor.lastrowid))
+            tyggbot.whisper(source.username, 'Successfully added your banphrase (id {0})'.format(cursor.lastrowid))
 
             tyggbot.sync_to()
             tyggbot._load_filters()
 
     def add_win(tyggbot, source, message, event, args):
         tyggbot.kvi.inc('br_wins')
-        tyggbot.me('{0} added a BR win!'.format(source.user))
-        tyggbot.log.debug('{0} added a BR win!'.format(source.user))
+        tyggbot.me('{0} added a BR win!'.format(source.username))
+        tyggbot.log.debug('{0} added a BR win!'.format(source.username))
 
     # !add command ALIAS RESPONSE
     def add_command(tyggbot, source, message, event, args):
@@ -164,7 +164,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(' ')
             if len(message_parts) < 2:
-                tyggbot.whisper(source.user, 'Usage: !add command ALIAS RESPONSE')
+                tyggbot.whisper(source.username, 'Usage: !add command ALIAS RESPONSE')
                 return False
 
             aliases = message_parts[0].lower().split('|')
@@ -175,7 +175,7 @@ class Dispatch:
             for alias in aliases:
                 if alias in tyggbot.commands:
                     if not tyggbot.commands[alias].action.type == 'say':
-                        tyggbot.whisper(source.user, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
+                        tyggbot.whisper(source.username, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
                         return False
                     else:
                         update_id = tyggbot.commands[alias].id
@@ -184,7 +184,7 @@ class Dispatch:
                     'level': 100,
                     'command': '|'.join(aliases),
                     'action': json.dumps({'type': 'say', 'message': response.strip()}),
-                    'description': 'Added by {0}'.format(source.user),
+                    'description': 'Added by {0}'.format(source.username),
                     'delay_all': 10,
                     'delay_user': 30,
                     }
@@ -195,11 +195,11 @@ class Dispatch:
             if update_id == False:
                 query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
                 cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
-                tyggbot.whisper(source.user, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
+                tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
                 cursor.execute(query, (data['action'], update_id))
-                tyggbot.whisper(source.user, 'Updated an already existing command! (id {0})'.format(update_id))
+                tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
 
 
             tyggbot.sync_to()
@@ -216,19 +216,19 @@ class Dispatch:
                     ('banphrase', banphrase_id))
 
             if cursor.rowcount >= 1:
-                tyggbot.whisper(source.user, 'Successfully removed banphrase with id {0}'.format(banphrase_id))
-                tyggbot.log.debug('{0}, successfully removed banphrase with id {1}'.format(source.user, banphrase_id))
+                tyggbot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase_id))
+                tyggbot.log.debug('{0}, successfully removed banphrase with id {1}'.format(source.username, banphrase_id))
                 tyggbot.sync_to()
                 tyggbot._load_filters()
             else:
-                tyggbot.whisper(source.user, 'No banphrase with id {0} found'.format(banphrase_id))
+                tyggbot.whisper(source.username, 'No banphrase with id {0} found'.format(banphrase_id))
         else:
-            tyggbot.whisper(source.user, 'Usage: !remove banphrase (BANPHRASE_ID)')
+            tyggbot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
 
     def remove_win(tyggbot, source, message, event, args):
         tyggbot.kvi.dec('br_wins')
-        tyggbot.me('{0} removed a BR win!'.format(source.user))
-        tyggbot.log.debug('{0} removed a BR win!'.format(source.user))
+        tyggbot.me('{0} removed a BR win!'.format(source.username))
+        tyggbot.log.debug('{0} removed a BR win!'.format(source.username))
 
     def remove_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
@@ -242,18 +242,18 @@ class Dispatch:
                 if potential_cmd in tyggbot.commands:
                     command = tyggbot.commands[potential_cmd]
                     if not command.action.type == 'say':
-                        tyggbot.whisper(source.user, 'That command is not a normal command, it cannot be removed by you.')
+                        tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                         return False
 
                     id = command.id
                 else:
-                    tyggbot.whisper(source.user, 'No command with alias {1} found'.format(source.user, potential_cmd))
+                    tyggbot.whisper(source.username, 'No command with alias {1} found'.format(source.username, potential_cmd))
                     return False
             else:
                 for key, command in tyggbot.commands.items():
                     if command.id == id:
                         if command.action.type is not 'say':
-                            tyggbot.whisper(source.user, 'That command is not a normal command, it cannot be removed by you.')
+                            tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                             return False
 
             tyggbot.sqlconn.ping()
@@ -262,13 +262,13 @@ class Dispatch:
             cursor.execute('DELETE FROM `tb_commands` WHERE `id`=%s', (id))
 
             if cursor.rowcount >= 1:
-                tyggbot.whisper(source.user, 'Successfully removed command with id {0}'.format(id))
+                tyggbot.whisper(source.username, 'Successfully removed command with id {0}'.format(id))
                 tyggbot.sync_to()
                 tyggbot._load_commands()
             else:
-                tyggbot.whisper(source.user, 'No command with id {1} found'.format(source.user, id))
+                tyggbot.whisper(source.username, 'No command with id {1} found'.format(source.username, id))
         else:
-            tyggbot.whisper(source.user, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
+            tyggbot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
     def debug_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
@@ -290,7 +290,7 @@ class Dispatch:
                         break
 
             if not command:
-                tyggbot.whisper(source.user, 'No command with found with the given parameters.')
+                tyggbot.whisper(source.username, 'No command with found with the given parameters.')
                 return False
 
             data = {
@@ -304,9 +304,9 @@ class Dispatch:
             elif command.action.type == 'func' or command.action.type == 'rawfunc':
                 data['cb'] = command.action.cb.__name__
 
-            tyggbot.whisper(source.user, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
+            tyggbot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:
-            tyggbot.whisper(source.user, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
+            tyggbot.whisper(source.username, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
 
 
     def say(tyggbot, source, message, event, args):
@@ -339,11 +339,10 @@ class Dispatch:
     def ban_source(tyggbot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
             if args['notify'] == 1:
-                tyggbot.whisper(event.source.user, 'You have been permanently banned because your message matched our "{0}"-filter.'.format(args['filter'].name))
+                tyggbot.whisper(source.username, 'You have been permanently banned because your message matched our "{0}"-filter.'.format(args['filter'].name))
 
-        username = event.source.user.lower()
-        tyggbot.log.debug('banning {0}'.format(username))
-        tyggbot.ban(username)
+        tyggbot.log.debug('banning {0}'.format(source.username))
+        tyggbot.ban(source.username)
 
     def timeout_source(tyggbot, source, message, event, args):
         if 'time' in args:
@@ -353,13 +352,12 @@ class Dispatch:
 
         if 'filter' in args and 'notify' in args:
             if args['notify'] == 1:
-                tyggbot.whisper(event.source.user, 'You have been timed out for {0} seconds because your message matched our "{1}"-filter.'.format(_time, args['filter'].name))
+                tyggbot.whisper(source.username, 'You have been timed out for {0} seconds because your message matched our "{1}"-filter.'.format(_time, args['filter'].name))
 
         tyggbot.log.debug(args)
 
-        username = event.source.user.lower()
-        tyggbot.log.debug('timeouting {0}'.format(username))
-        tyggbot.timeout(username, _time)
+        tyggbot.log.debug('timeouting {0}'.format(source.username))
+        tyggbot.timeout(source.username, _time)
 
     def single_timeout_source(tyggbot, source, message, event, args):
         if 'time' in args:
@@ -367,9 +365,8 @@ class Dispatch:
         else:
             _time = 600
 
-        username = event.source.user.lower()
-        tyggbot.log.debug('SINGLE timeouting {0}'.format(username))
-        tyggbot._timeout(username, _time)
+        tyggbot.log.debug('SINGLE timeouting {0}'.format(source.username))
+        tyggbot._timeout(source.username, _time)
 
     def welcome_sub(tyggbot, source, message, event, args):
         match = args['match']
@@ -384,6 +381,7 @@ class Dispatch:
         tyggbot.say('Welcome back to Asgard {0}! {1} months in a row! PogChamp'.format(match.group(1), match.group(2)))
 
     def sync_to(tyggbot, source, message, event, args):
+        log.debug('Calling sync_to from chat command...')
         tyggbot.sync_to()
 
     def ignore(tyggbot, source, message, event, args):

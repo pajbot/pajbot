@@ -46,6 +46,14 @@ CREATE TABLE IF NOT EXISTS `tb_settings` (
   `type` set('int','string','list') COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `tb_user` (
+  `id` int(11) NOT NULL,
+  `username` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `username_raw` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Raw username, if they ever let us fetch the "case-specific" username from the IRC connection.',
+  `level` int(11) NOT NULL DEFAULT '100' COMMENT 'Access level, this determines what commands the user can access. 100 = User. 250 = Regular, 500 = Moderator, 1000 = Admin, 2000 = Super admin',
+  `num_lines` int(11) NOT NULL DEFAULT '0' COMMENT 'Number of lines the user has written in chat.'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 ALTER TABLE `tb_commands`
   ADD PRIMARY KEY (`id`);
@@ -62,6 +70,9 @@ ALTER TABLE `tb_ignores`
 ALTER TABLE `tb_settings`
   ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `setting` (`setting`);
 
+ALTER TABLE `tb_user`
+  ADD PRIMARY KEY (`id`), ADD KEY `username` (`username`);
+
 
 ALTER TABLE `tb_commands`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
@@ -70,4 +81,6 @@ ALTER TABLE `tb_filters`
 ALTER TABLE `tb_ignores`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `tb_settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tb_user`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

@@ -3,6 +3,8 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import datetime as dt
 
+from models.user import User, UserManager
+
 import pymysql
 import wolframalpha
 import tweepy
@@ -23,12 +25,6 @@ log = logging.getLogger('tyggbot')
 class TMI:
     message_limit = 50
 
-class Source:
-    def __init__(self, nick, user, level):
-        self.nick = nick
-        self.user = user
-        self.level = level
-
 class TyggBot:
     """
     Main class for the twitch bot
@@ -40,7 +36,6 @@ class TyggBot:
     commands = {}
     filters = []
     settings = {}
-    num_messages = {}
     emotes = {}
     emote_stats = {}
 
@@ -110,6 +105,8 @@ class TyggBot:
         self.kvi = KVIData(self.sqlconn)
         self.tbm = TBMath()
         self.last_sync = time.time()
+
+        self.users = UserManager(self.sqlconn)
 
         # we hardcode admins and moderators for now
         self.admins = ['pajlada', 'tyggbar', 'wallrik']
@@ -309,6 +306,8 @@ class TyggBot:
 
         self.log.debug('Syncing data from TyggBot to the database...')
 
+        self.users.sync()
+
         for trigger, command in self.commands.items():
             if not command.synced:
                 command.sync(cursor)
@@ -319,12 +318,6 @@ class TyggBot:
                 filter.sync(cursor)
                 filter.synced = True
 
-        for username, person in self.num_messages.items():
-            if not person.synced:
-                cursor.execute('INSERT INTO `tb_idata` (`id`, value, type) VALUES(%s, %s, "nl") ON DUPLICATE KEY UPDATE value=%s',
-                        (username, person.value, person.value))
-                person.synced = True
-
         for emote, value in self.emote_stats.items():
             if not value.synced:
                 cursor.execute('INSERT INTO `tb_idata` (`id`, value, type) VALUES(%s, %s, "emote_stats") ON DUPLICATE KEY UPDATE value=%s',
@@ -334,9 +327,6 @@ class TyggBot:
         cursor.close()
 
     def sync_from(self):
-        for nl in self.kvi.fetch_all('nl'):
-            self.num_messages[nl['key']] = SyncValue(nl['value'], True)
-
         for nl in self.kvi.fetch_all('emote_stats'):
             self.emote_stats[nl['key']] = SyncValue(nl['value'], True)
 
@@ -532,28 +522,19 @@ class TyggBot:
 
         return user_level
 
-    def parse_message(self, msg_raw, nick='testuser', event=None, pretend=False, force=False):
+    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False):
         msg_lower = msg_raw.lower()
 
-        if nick == self.nickname:
-            return False
-
-        if not nick and not event:
+        if source is None and not event:
             self.log.error('No nick or event passed to parse_message')
             return False
 
-        if event:
-            nick = event.source.nick
-
         for b in self.banned_chars:
             if b in msg_raw:
-                self.timeout(nick, 120)
+                self.timeout(source.username, 120)
                 return
 
-        user = nick.lower()
-        user_level = self.get_user_level(user)
-
-        self.log.debug('{0}: {1}'.format(nick, msg_raw))
+        self.log.debug('{0}: {1}'.format(source.username, msg_raw))
 
         if 'emotes' in self.settings:
             for emote in self.settings['emotes']:
@@ -564,23 +545,24 @@ class TyggBot:
                         self.emote_stats[emote].increment()
 
         if not force:
-            if user_level < 500:
+            if source.level < 500:
                 for f in self.filters:
                     if f.type == 'regex':
-                        m = f.search(user, msg_lower)
+                        m = f.search(source, msg_lower)
                         if m:
                             self.log.debug('Matched regex filter \'{0}\''.format(f.name))
-                            f.run(self, Source(nick, user, user_level), msg_raw, event, {'match':m})
+                            f.run(self, source, msg_raw, event, {'match':m})
                             # If we've matched a filter, we should not have to run a command.
                             return
                     elif f.type == 'banphrase':
                         if f.filter in msg_lower:
                             self.log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                            f.run(self, Source(nick, user, user_level), msg_raw, event)
+                            f.run(self, source, msg_raw, event)
                             # If we've matched a filter, we should not have to run a command.
                             return
 
-            if user in self.ignores:
+            # TODO: Change to if source.ignored
+            if source.username in self.ignores:
                 return
 
         if msg_lower[:1] == '!':
@@ -589,20 +571,23 @@ class TyggBot:
             msg_raw_parts = msg_raw.split(' ')
             extra_msg = ' '.join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if command in self.commands:
-                if user_level >= self.commands[command].level:
-                    self.commands[command].run(self, Source(nick, user, user_level), extra_msg, event)
+                if source.level >= self.commands[command].level:
+                    self.commands[command].run(self, source, extra_msg, event)
                     return
 
-        if not user in self.num_messages:
-            self.log.debug('{0} just sent his first message in the chat.'.format(user))
-            self.num_messages[user] = SyncValue(1)
-        else:
-            self.num_messages[user].increment()
+        source.num_lines += 1
+        source.needs_sync = True
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
     def on_pubmsg(self, chatconn, event):
+        if event.source.user == self.nickname:
+            return False
+
+        # We use .lower() in case twitch ever starts sending non-lowercased usernames
+        source = self.users[event.source.user.lower()]
+
         cur_time = time.time()
 
         msg = event.arguments[0]
@@ -614,21 +599,21 @@ class TyggBot:
 
             self.log.debug('Ascii ratio: {0}'.format(ratio))
             if (msg_len > 140 and ratio > 0.8) or ratio > 0.91:
-                self.log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(event.source.user, ratio, msg_len))
-                self.timeout(event.source.user, 120)
+                self.log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
+                self.timeout(source.username, 120)
                 return
 
             if msg_len > 450:
-                self.log.debug('Timeouting {0} because of a message length: {1}'.format(event.source.user, msg_len))
-                self.timeout(event.source.user, 20)
-                self.me('{0}, you have been timed out because your message was too long.'.format(event.source.nick))
+                self.log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
+                self.timeout(source.username, 20)
+                self.me('{0}, you have been timed out because your message was too long.'.format(source.nick))
                 return
 
         if cur_time - self.last_sync >= 60:
             self.sync_to()
             self.last_sync = cur_time
 
-        self.parse_message(event.arguments[0], event.source.user, event)
+        self.parse_message(event.arguments[0], source, event)
 
     def quit(self):
         self.sync_to()

@@ -87,16 +87,16 @@ class Command:
     def run(self, tyggbot, source, message, event={}, args={}):
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 500:
-            if not source.user in self.last_run_by_user or cur_time - self.last_run_by_user[source.user] > self.delay_user or source.level >= 500:
+            if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 500:
                 logging.getLogger('tyggbot').info('Running action from Command')
                 args.update(self.extra_args)
                 self.action.run(tyggbot, source, message, event, args)
                 self.num_uses += 1
                 self.synced = False
                 self.last_run = cur_time
-                self.last_run_by_user[source.user] = cur_time
+                self.last_run_by_user[source.username] = cur_time
             else:
-                logging.getLogger('tyggbot').debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[event.source.user], event.source.nick))
+                logging.getLogger('tyggbot').debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
         else:
             logging.getLogger('tyggbot').debug('Command was run {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run))
 
@@ -133,7 +133,7 @@ class Filter:
             return self.regex.match(message)
 
     def search(self, source, message):
-        if not self.source or self.source == source:
+        if not self.source or self.source == source.username:
             return self.regex.search(message)
 
         return None
