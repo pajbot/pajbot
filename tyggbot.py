@@ -566,7 +566,6 @@ class TyggBot:
 
         for emote in self.emotes:
             num = len(emote.regex.findall(msg_raw))
-            log.info('{0} count: {1}'.format(emote.code, num))
             if num > 0:
                 emote.add(num)
 
