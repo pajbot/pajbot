@@ -1,6 +1,5 @@
 import json, time, os, argparse, re, sys, logging, math, random
 from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
 import datetime as dt
 import collections
 
@@ -99,9 +98,6 @@ class TyggBot:
             Dispatch.wolfram = wolframalpha.Client(config['main']['wolfram'])
         else:
             wolfram = None
-
-        self.sched = BackgroundScheduler()
-        self.sched.start()
 
         self.whisper_conn = None
 
@@ -288,16 +284,21 @@ class TyggBot:
         else:
             return time_since(time.time(), self.kvi.get('last_online'))
 
-    def run_later(self, job_fn, *fn_args, **delta_args):
-        time = datetime.now() + dt.timedelta(**delta_args)
-        return self.sched.add_job(job_fn, 'date', args=fn_args, run_date=time)
-
     def _ban(self, username, target=None):
         self.privmsg(target, '.ban {0}'.format(username), True)
 
+    def execute_at(self, at, function, arguments=()):
+        self.reactor.execute_at(at, function, arguments)
+
+    def execute_delayed(self, delay, function, arguments=()):
+        self.reactor.execute_delayed(delay, function, arguments)
+
+    def execute_every(self, period, function, arguments=()):
+        self.reactor.execute_every(period, function, arguments)
+
     def ban(self, username, target=None):
         self._timeout(username, 30, target)
-        self.run_later(self._ban, username, 1, target, seconds=1)
+        self.execute_delayed(1, self._ban, (username, target))
 
     def unban(self, username, target=None):
         self.privmsg(target, '.unban {0}'.format(username), True)
@@ -307,7 +308,7 @@ class TyggBot:
 
     def timeout(self, username, duration, target=None):
         self._timeout(username, duration, target)
-        self.run_later(self._timeout, username, duration, target, seconds=1)
+        self.execute_delayed(1, self._timeout, (username, duration, target))
 
     def whisper(self, username, message):
         if self.whisper_conn:
