@@ -30,21 +30,21 @@ class Emote:
     def __init__(self, code):
         self.code = code
         self.pm = 0
-        self.ttm = 0
+        self.tm = 0
         self.count = 0
-        self.regex = re.compile('(?<![a-zA-Z0-9]){0}(?![a-zA-Z0-9])'.format(code))
+        self.regex = re.compile('(?<![\w]){0}(?![\w])'.format(code))
         self.deque = collections.deque([0]*61)
 
     def add(self, count):
         self.count += count
         self.deque[0] += count
-        self.ttm += count
+        self.tm += count
 
     # Shift the deque and recalculate all relevant values
     def shift(self):
         cur_sum = sum(self.deque)
         self.pm = cur_sum / 60
-        self.ttm = cur_sum
+        self.tm = cur_sum
         self.deque.rotate(1)
         self.deque[60] = 0
 
@@ -216,10 +216,16 @@ class TyggBot:
                 return emote.pm
         return 0
 
-    def get_emote_ttm(self, key, extra={}):
+    def get_emote_tm(self, key, extra={}):
         for emote in self.emotes:
             if key == emote.code:
                 return emote.ttm
+        return 0
+
+    def get_emote_count(self, key, extra={}):
+        for emote in self.emotes:
+            if key == emote.code:
+                return emote.count
         return 0
 
     def get_value(self, key, extra={}):
