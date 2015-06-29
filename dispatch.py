@@ -368,10 +368,10 @@ class Dispatch:
 
     def top3(tyggbot, source, message, event, args):
         cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute('SELECT `id`, `value` FROM `tb_idata` WHERE `type`=\'nl\' ORDER BY `value` DESC LIMIT 3')
+        cursor.execute('SELECT `username`, `num_lines` FROM `tb_user` ORDER BY `num_lines` DESC LIMIT 3')
         users = []
         for messager in cursor:
-            users.append('{0} ({1})'.format(messager['id'], messager['value']))
+            users.append('{0} ({1})'.format(messager['username'], messager['num_lines']))
 
         tyggbot.say('Top 3: {0}'.format(', '.join(users)))
 
