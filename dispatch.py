@@ -308,6 +308,51 @@ class Dispatch:
         else:
             tyggbot.whisper(source.username, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
 
+    def debug_user(tyggbot, source, message, event, args):
+        if message and len(message) > 0:
+            username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users[username]
+
+            if user.id == -1:
+                del tyggbot.users[username]
+                tyggbot.whisper(source.username, 'No user with this username found.')
+                return False
+
+            data = {
+                    'id': user.id,
+                    'level': user.level,
+                    'num_lines': user.num_lines,
+                    }
+
+            tyggbot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
+        else:
+            tyggbot.whisper(source.username, 'Usage: !debug user USERNAME')
+
+    def level(tyggbot, source, message, event, args):
+        if message:
+            msg_args = message.split(' ')
+            if len(msg_args) > 1:
+                username = msg_args[0].lower()
+                new_level = int(msg_args[1])
+                if new_level >= source.level:
+                    tyggbot.whisper(source.username, 'You cannot promote someone to the same or higher level as you ({0}).'.format(source.level))
+                    return False
+
+                user = tyggbot.users.find(username)
+
+                if not user:
+                    tyggbot.whisper(source.username, 'No user with that name found.')
+                    return False
+
+                user.level = new_level
+                user.needs_sync = True
+
+                tyggbot.whisper(source.username, '{0}\'s user level set to {1}'.format(username, new_level))
+
+                return True
+
+        tyggbot.whisper(source.username, 'Usage: !level USERNAME NEW_LEVEL')
+        return False
 
     def say(tyggbot, source, message, event, args):
         if message:

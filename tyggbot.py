@@ -374,8 +374,8 @@ class TyggBot:
         self.commands['debug'] = Command()
         self.commands['debug'].load_from_db({
             'id': -1,
-            'level': 500,
-            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"command", "action": { "type":"func", "cb":"debug_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
+            'level': 250,
+            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":250, "command":"command", "action": { "type":"func", "cb":"debug_command" } }, { "level":250, "command":"user", "action": { "type":"func", "cb":"debug_user" } }, { "level":250, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
             'do_sync': False,
             'delay_all': 5,
             'delay_user': 15,
@@ -383,6 +383,7 @@ class TyggBot:
             'num_uses': 0,
             'extra_args': None,
             })
+        self.commands['level'] = Command.admin_command(Dispatch.level, type='func')
 
         num_commands = 0
         num_aliases = 0

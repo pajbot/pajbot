@@ -36,6 +36,8 @@ class User:
         if self.id == -1:
             cursor.execute('INSERT INTO `tb_user` (`username`, `username_raw`, `level`, `num_lines`) VALUES (%s, %s, %s, %s)',
                     (self.username, self.username_raw, self.level, self.num_lines))
+            log.info('Inserted a new user with id {0}'.format(cursor.lastrowid))
+            self.id = cursor.lastrowid
         else:
             log.debug('Syncing {0} with UPDATE'.format(self.username))
             # TODO: What values should we sync? For now, we only sync level and num_lines
@@ -64,6 +66,13 @@ class UserManager(UserDict):
 
         cursor.close()
         self.sqlconn.autocommit(True)
+
+    def find(self, username):
+        user = self[username]
+        if user.id == -1:
+            del self[username]
+            return None
+        return user
 
     def __getitem__(self, key):
         if key not in self.data:

@@ -44,10 +44,10 @@ class Command:
         return cmd
 
     @classmethod
-    def admin_command(cls, action, type='raw_func'):
+    def admin_command(cls, action, type='raw_func', level=1000):
         from tbactions import RawFuncAction, FuncAction
         cmd = cls(False)
-        cmd.level = 1000
+        cmd.level = level
         if type == 'raw_func':
             cmd.action = RawFuncAction(action)
         elif type == 'func':
