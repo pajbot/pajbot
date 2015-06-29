@@ -35,7 +35,7 @@ class MultiAction(BaseAction):
                 cmd.run(tyggbot, source, extra_msg, event, args)
                 return
             else:
-                log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.user, command))
+                log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.username, command))
                 return
 
 class FuncAction(BaseAction):
@@ -111,4 +111,4 @@ class SayAction(BaseAction):
         return resp
 
     def run(self, tyggbot, source, message, event={}, args={}):
-        tyggbot.say(self.get_response(tyggbot, {'user':source.nick}))
+        tyggbot.say(self.get_response(tyggbot, {'user':source.username}))
