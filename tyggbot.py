@@ -108,11 +108,6 @@ class TyggBot:
 
         self.users = UserManager(self.sqlconn)
 
-        # we hardcode admins and moderators for now
-        self.admins = ['pajlada', 'tyggbar', 'wallrik']
-        self.moderators = ['lars_eh', 'shellsman', 'xx_k', 'hatiso', 'kingvvk', 'rubarthasd']
-        self.regulars = ['volkdrol']
-
         if 'flags' in config:
             self.silent = True if 'silent' in config['flags'] and config['flags']['silent'] == '1' else self.silent
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
@@ -509,18 +504,6 @@ class TyggBot:
             self.log.debug('Disconnecting from Whisper server')
             self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
                                               self.whisper_conn._connected_checker)
-
-    def get_user_level(self, user):
-        if user in self.admins:
-            user_level = 1000
-        elif user in self.moderators:
-            user_level = 500
-        elif user in self.regulars:
-            user_level = 250
-        else:
-            user_level = 100
-
-        return user_level
 
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False):
         msg_lower = msg_raw.lower()
