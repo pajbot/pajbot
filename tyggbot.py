@@ -2,6 +2,7 @@ import json, time, os, argparse, re, sys, logging, math, random
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import datetime as dt
+import collections
 
 from models.user import User, UserManager
 
@@ -24,6 +25,28 @@ log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 50
+
+class Emote:
+    def __init__(self, code):
+        self.code = code
+        self.pm = 0
+        self.ttm = 0
+        self.count = 0
+        self.regex = re.compile('(?<![a-zA-Z0-9]){0}(?![a-zA-Z0-9])'.format(code))
+        self.deque = collections.deque([0]*61)
+
+    def add(self, count):
+        self.count += count
+        self.deque[0] += count
+        self.ttm += count
+
+    # Shift the deque and recalculate all relevant values
+    def shift(self):
+        cur_sum = sum(self.deque)
+        self.pm = cur_sum / 60
+        self.ttm = cur_sum
+        self.deque.rotate(1)
+        self.deque[60] = 0
 
 class TyggBot:
     """
@@ -140,6 +163,21 @@ class TyggBot:
         else:
             self.twitter = None
 
+        self.emotes = [
+                Emote('Kappa'),
+                Emote('PogChamp'),
+                Emote('BabyRage'),
+                Emote('OpieOP'),
+                Emote('KaRappa'),
+                Emote('4Head'),
+            ]
+
+        self.connection.execute_every(1, self.shift_emotes)
+
+    def shift_emotes(self):
+        for emote in self.emotes:
+            emote.shift()
+
     def reset_command_throttle(self):
         self.num_commands_sent = 0
 
@@ -171,6 +209,18 @@ class TyggBot:
             return 'Twitter not set up FeelsBadMan'
 
         return 'FeelsBadMan'
+
+    def get_emote_pm(self, key, extra={}):
+        for emote in self.emotes:
+            if key == emote.code:
+                return emote.pm
+        return 0
+
+    def get_emote_ttm(self, key, extra={}):
+        for emote in self.emotes:
+            if key == emote.code:
+                return emote.ttm
+        return 0
 
     def get_value(self, key, extra={}):
         if key in extra:
@@ -507,6 +557,12 @@ class TyggBot:
 
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False):
         msg_lower = msg_raw.lower()
+
+        for emote in self.emotes:
+            num = len(emote.regex.findall(msg_raw))
+            log.info('{0} count: {1}'.format(emote.code, num))
+            if num > 0:
+                emote.add(num)
 
         if source is None and not event:
             log.error('No nick or event passed to parse_message')

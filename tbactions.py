@@ -92,6 +92,10 @@ class SayAction(BaseAction):
                     cb = TyggBot.instance.get_value
                 elif path == 'lasttweet':
                     cb = TyggBot.instance.get_last_tweet
+                elif path == 'pm':
+                    cb = TyggBot.instance.get_emote_pm
+                elif path == 'ttm':
+                    cb = TyggBot.instance.get_emote_ttm
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue
