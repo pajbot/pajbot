@@ -219,7 +219,7 @@ class TyggBot:
     def get_emote_tm(self, key, extra={}):
         for emote in self.emotes:
             if key == emote.code:
-                return emote.ttm
+                return emote.tm
         return 0
 
     def get_emote_count(self, key, extra={}):
