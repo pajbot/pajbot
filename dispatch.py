@@ -367,6 +367,7 @@ class Dispatch:
                 tyggbot.whisper(username, rest)
 
     def top3(tyggbot, source, message, event, args):
+        tyggbot.sync_to()
         cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
         cursor.execute('SELECT `username`, `num_lines` FROM `tb_user` ORDER BY `num_lines` DESC LIMIT 3')
         users = []
