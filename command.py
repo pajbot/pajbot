@@ -2,6 +2,8 @@ import json, re, logging, time
 
 from dispatch import Dispatch
 
+log = logging.getLogger('tyggbot')
+
 def parse_action(raw_data=None, data=None):
     from tbactions import FuncAction, RawFuncAction, SayAction, MultiAction
     if not data: data = json.loads(raw_data)
@@ -12,7 +14,7 @@ def parse_action(raw_data=None, data=None):
         try:
             action = FuncAction(getattr(Dispatch, data['cb']))
         except AttributeError as e:
-            logging.getLogger('tyggbot').error('AttributeError caught when parsing action: {0}'.format(e))
+            log.error('AttributeError caught when parsing action: {0}'.format(e))
             return None
     elif data['type'] == 'multi':
         action = MultiAction(data['args'], data['default'])
@@ -69,7 +71,7 @@ class Command:
             try:
                 self.extra_args = json.loads(data['extra_args'])
             except Exception as e:
-                logging.getLogger('tyggbot').error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
+                log.error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
 
     def load_args(self, level, action):
         self.level = level
@@ -88,7 +90,7 @@ class Command:
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 500:
             if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 500:
-                logging.getLogger('tyggbot').info('Running action from Command')
+                log.info('Running action from Command')
                 args.update(self.extra_args)
                 self.action.run(tyggbot, source, message, event, args)
                 self.num_uses += 1
@@ -96,9 +98,9 @@ class Command:
                 self.last_run = cur_time
                 self.last_run_by_user[source.username] = cur_time
             else:
-                logging.getLogger('tyggbot').debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
+                log.debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
         else:
-            logging.getLogger('tyggbot').debug('Command was run {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run))
+            log.debug('Command was run {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run))
 
 class Filter:
     def __init__(self, data):
@@ -117,7 +119,7 @@ class Filter:
             try:
                 self.extra_args.update(json.loads(data['extra_args']))
             except Exception as e:
-                logging.getLogger('tyggbot').error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
+                log.error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
 
         self.synced = True
 

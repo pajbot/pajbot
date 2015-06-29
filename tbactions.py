@@ -48,7 +48,7 @@ class FuncAction(BaseAction):
         try:
             self.cb(tyggbot, source, message, event, args)
         except Exception as e:
-            tyggbot.log.error('Uncaught exception: {0}'.format(e))
+            log.error('Uncaught exception: {0}'.format(e))
 
 class RawFuncAction(BaseAction):
     type = 'rawfunc'

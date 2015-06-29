@@ -31,20 +31,20 @@ class Dispatch:
             return False
 
         try:
-            tyggbot.log.debug('Querying wolfram "{0}"'.format(message))
+            log.debug('Querying wolfram "{0}"'.format(message))
             res = Dispatch.wolfram.query(message)
 
             x = 0
             for pod in res.pods:
                 if x == 1:
                     res = '{0}'.format(' '.join(pod.text.splitlines()).strip())
-                    tyggbot.log.debug('Answering with {0}'.format(res))
+                    log.debug('Answering with {0}'.format(res))
                     tyggbot.say(res)
                     break
 
                 x = x + 1
         except Exception as e:
-            tyggbot.log.error('caught exception: {0}'.format(e))
+            log.error('caught exception: {0}'.format(e))
 
     def math(tyggbot, source, message, event, args):
         if message:
@@ -68,9 +68,9 @@ class Dispatch:
                     res = '{2}, {0} {1}'.format(expr_res, emote, source.username)
             except TimeoutException as e:
                 res = 'timed out DansGame';
-                tyggbot.log.error('Timeout exception: {0}'.format(e))
+                log.error('Timeout exception: {0}'.format(e))
             except Exception as e:
-                tyggbot.log.error('Uncaught exception: {0}'.format(e))
+                log.error('Uncaught exception: {0}'.format(e))
                 return
 
             tyggbot.say(res)
@@ -151,7 +151,7 @@ class Dispatch:
     def add_win(tyggbot, source, message, event, args):
         tyggbot.kvi.inc('br_wins')
         tyggbot.me('{0} added a BR win!'.format(source.username))
-        tyggbot.log.debug('{0} added a BR win!'.format(source.username))
+        log.debug('{0} added a BR win!'.format(source.username))
 
     # !add command ALIAS RESPONSE
     def add_command(tyggbot, source, message, event, args):
@@ -167,7 +167,7 @@ class Dispatch:
                 tyggbot.whisper(source.username, 'Usage: !add command ALIAS RESPONSE')
                 return False
 
-            aliases = message_parts[0].lower().split('|')
+            aliases = message_parts[0].lower().replace('!', '').split('|')
             response = ' '.join(message_parts[1:])
             update_id = False
 
@@ -217,7 +217,7 @@ class Dispatch:
 
             if cursor.rowcount >= 1:
                 tyggbot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase_id))
-                tyggbot.log.debug('{0}, successfully removed banphrase with id {1}'.format(source.username, banphrase_id))
+                log.debug('{0}, successfully removed banphrase with id {1}'.format(source.username, banphrase_id))
                 tyggbot.sync_to()
                 tyggbot._load_filters()
             else:
@@ -228,7 +228,7 @@ class Dispatch:
     def remove_win(tyggbot, source, message, event, args):
         tyggbot.kvi.dec('br_wins')
         tyggbot.me('{0} removed a BR win!'.format(source.username))
-        tyggbot.log.debug('{0} removed a BR win!'.format(source.username))
+        log.debug('{0} removed a BR win!'.format(source.username))
 
     def remove_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
@@ -379,7 +379,7 @@ class Dispatch:
     def ban(tyggbot, source, message, event, args):
         if message:
             username = message.split(' ')[0]
-            tyggbot.log.debug('banning {0}'.format(username))
+            log.debug('banning {0}'.format(username))
             tyggbot.ban(username)
 
     def ban_source(tyggbot, source, message, event, args):
@@ -387,7 +387,7 @@ class Dispatch:
             if args['notify'] == 1:
                 tyggbot.whisper(source.username, 'You have been permanently banned because your message matched our "{0}"-filter.'.format(args['filter'].name))
 
-        tyggbot.log.debug('banning {0}'.format(source.username))
+        log.debug('banning {0}'.format(source.username))
         tyggbot.ban(source.username)
 
     def timeout_source(tyggbot, source, message, event, args):
@@ -400,9 +400,9 @@ class Dispatch:
             if args['notify'] == 1:
                 tyggbot.whisper(source.username, 'You have been timed out for {0} seconds because your message matched our "{1}"-filter.'.format(_time, args['filter'].name))
 
-        tyggbot.log.debug(args)
+        log.debug(args)
 
-        tyggbot.log.debug('timeouting {0}'.format(source.username))
+        log.debug('timeouting {0}'.format(source.username))
         tyggbot.timeout(source.username, _time)
 
     def single_timeout_source(tyggbot, source, message, event, args):
@@ -411,7 +411,7 @@ class Dispatch:
         else:
             _time = 600
 
-        tyggbot.log.debug('SINGLE timeouting {0}'.format(source.username))
+        log.debug('SINGLE timeouting {0}'.format(source.username))
         tyggbot._timeout(source.username, _time)
 
     def welcome_sub(tyggbot, source, message, event, args):
@@ -451,3 +451,11 @@ class Dispatch:
                 tyggbot.say('No longer ignoring {0}'.format(message))
             else:
                 tyggbot.say('I\'m not ignoring {0} DansGame'.format(message))
+
+    def tweet(tyggbot, source, message, event, args):
+        if message and len(message) > 1 and len(message) < 140 and tyggbot.twitter:
+            try:
+                log.info('sending tweet: {0}'.format(message))
+                tyggbot.twitter.update_status(status=message)
+            except Exception as e:
+                log.error('Caught an exception: {0}'.format(e))

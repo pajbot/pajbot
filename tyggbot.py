@@ -14,7 +14,7 @@ from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
 from whisperconn import WhisperConn
-from tbutil import init_logging, SyncValue, time_since
+from tbutil import SyncValue, time_since
 
 import irc.client
 
@@ -96,7 +96,6 @@ class TyggBot:
 
         self.start_time = datetime.now()
 
-        self.log = init_logging('all.log', 'tyggbot')
 
         self.config = config
         self.target = config['main']['target']
@@ -115,7 +114,7 @@ class TyggBot:
         self.silent = True if args.silent else self.silent
 
         if self.silent:
-            self.log.info('Silent mode enabled')
+            log.info('Silent mode enabled')
 
         self.sync_from()
 
@@ -183,7 +182,7 @@ class TyggBot:
         elif key in self.settings:
             return self.settings[key]
 
-        self.log.warning('Unknown key passed to get_value: {0}'.format(key))
+        log.warning('Unknown key passed to get_value: {0}'.format(key))
         return '???'
 
     def get_cursor(self):
@@ -201,7 +200,7 @@ class TyggBot:
     def privmsg(self, target, message, priority=False):
         # Non-prioritized messages are allowed 50% of the message limit
         if (not priority and self.num_commands_sent > TMI.message_limit/2) or (priority and self.num_commands_sent > TMI.message_limit):
-            self.log.error('Skipping this say, because we are sending too many messages.')
+            log.error('Skipping this say, because we are sending too many messages.')
             return False
 
         try:
@@ -211,7 +210,7 @@ class TyggBot:
             self.connection.privmsg(target, message)
             self.num_commands_sent += 1
         except Exception as e:
-            self.log.error('Exception caught while sending privmsg: {0}'.format(e))
+            log.error('Exception caught while sending privmsg: {0}'.format(e))
 
     def c_time_norway(self):
         return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
@@ -256,10 +255,10 @@ class TyggBot:
 
     def whisper(self, username, message):
         if self.whisper_conn:
-            self.log.debug('Sending whisper {0} to {1}'.format(message, username))
+            log.debug('Sending whisper {0} to {1}'.format(message, username))
             self.whisper_conn.whisper(username, message)
         else:
-            self.log.debug('No whisper conn set up.')
+            log.debug('No whisper conn set up.')
 
     def say(self, message, target=None, force=False):
         if force or not self.silent:
@@ -267,14 +266,14 @@ class TyggBot:
 
             if len(message) >= 1:
                 if message[0] == '.' or message[0] == '/':
-                    self.log.warning('Message we attempted to send started with . or /, skipping.')
+                    log.warning('Message we attempted to send started with . or /, skipping.')
                     return
 
-                self.log.info('Sending message: {0}'.format(message))
+                log.info('Sending message: {0}'.format(message))
 
                 self.privmsg(target, message[:400])
             else:
-                self.log.warning('Message too short, skipping...')
+                log.warning('Message too short, skipping...')
 
     def me(self, message, target=None, force=False):
         if force or not self.silent:
@@ -282,24 +281,24 @@ class TyggBot:
 
             if len(message) >= 1:
                 if message[0] == '.' or message[0] == '/':
-                    self.log.warning('Message we attempted to send started with . or /, skipping.')
+                    log.warning('Message we attempted to send started with . or /, skipping.')
                     return
 
-                self.log.info('Sending message: {0}'.format(message))
+                log.info('Sending message: {0}'.format(message))
 
                 self.privmsg(target, '.me ' + message[:400])
             else:
-                self.log.warning('Message too short, skipping...')
+                log.warning('Message too short, skipping...')
 
     def sync_to(self):
         if self.dev:
-            self.log.debug('Dev mode is enabled, not syncing data.')
+            log.debug('Dev mode is enabled, not syncing data.')
             return
 
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
 
-        self.log.debug('Syncing data from TyggBot to the database...')
+        log.debug('Syncing data from TyggBot to the database...')
 
         self.users.sync()
 
@@ -399,14 +398,14 @@ class TyggBot:
                             self.commands[alias] = cmd
                             num_aliases += 1
                         else:
-                            self.log.error('Command !{0} is already in use'.format(alias))
+                            log.error('Command !{0} is already in use'.format(alias))
 
                 num_commands += 1
             except Exception as e:
-                self.log.error('Exception caught when loading command: {0}'.format(e))
+                log.error('Exception caught when loading command: {0}'.format(e))
                 continue
 
-        self.log.debug('Loaded {0} commands ({1} aliases)'.format(num_commands, num_aliases))
+        log.debug('Loaded {0} commands ({1} aliases)'.format(num_commands, num_aliases))
         cursor.close()
 
     def _load_filters(self):
@@ -426,10 +425,10 @@ class TyggBot:
                     self.filters.append(filter)
                     num_filters += 1
             except Exception as e:
-                self.log.error('Exception caught when loading filter: {0}'.format(e))
+                log.error('Exception caught when loading filter: {0}'.format(e))
                 continue
 
-        self.log.debug('Loaded {0} filters'.format(num_filters))
+        log.debug('Loaded {0} filters'.format(num_filters))
         cursor.close()
 
     def _load_settings(self):
@@ -448,9 +447,9 @@ class TyggBot:
                 elif row['type'] == 'list':
                     self.settings[row['setting']] = row['value'].split(',')
                 else:
-                    self.log.error('Invalid setting type: {0}'.format(row['type']))
+                    log.error('Invalid setting type: {0}'.format(row['type']))
             except Exception as e:
-                self.log.error('Exception caught when loading setting: {0}'.format(e))
+                log.error('Exception caught when loading setting: {0}'.format(e))
                 continue
 
         cursor.close()
@@ -469,7 +468,7 @@ class TyggBot:
 
     def on_welcome(self, chatconn, event):
         if chatconn == self.connection:
-            self.log.debug('Connected to IRC server.')
+            log.debug('Connected to IRC server.')
             if irc.client.is_channel(self.target):
                 chatconn.join(self.target)
 
@@ -477,9 +476,9 @@ class TyggBot:
                     if 'phrases' in self.config and 'welcome' in self.config['phrases']:
                         self.say(self.config['phrases']['welcome'].format(self))
                 except Exception as e:
-                    self.log.error(e)
+                    log.error(e)
         elif chatconn == self.whisper_conn:
-            self.log.debug('Connected to Whisper server.')
+            log.debug('Connected to Whisper server.')
 
     def _connected_checker(self):
         if not self.connection.is_connected():
@@ -489,7 +488,7 @@ class TyggBot:
             self.connect()
 
     def connect(self):
-        self.log.debug('Connecting to IRC server...')
+        log.debug('Connecting to IRC server...')
         try:
             irc.client.SimpleIRCClient.connect(self, self.server, self.port, self.nickname, self.password, self.nickname)
         except irc.client.ServerConnectionError:
@@ -497,12 +496,12 @@ class TyggBot:
 
     def on_disconnect(self, chatconn, event):
         if chatconn == self.connection:
-            self.log.debug('Disconnected from IRC server')
+            log.debug('Disconnected from IRC server')
             self.sync_to()
             self.connection.execute_delayed(self.reconnection_interval,
                                             self._connected_checker)
         elif chatconn == self.whisper_conn:
-            self.log.debug('Disconnecting from Whisper server')
+            log.debug('Disconnecting from Whisper server')
             self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
                                               self.whisper_conn._connected_checker)
 
@@ -510,7 +509,7 @@ class TyggBot:
         msg_lower = msg_raw.lower()
 
         if source is None and not event:
-            self.log.error('No nick or event passed to parse_message')
+            log.error('No nick or event passed to parse_message')
             return False
 
         for b in self.banned_chars:
@@ -518,7 +517,7 @@ class TyggBot:
                 self.timeout(source.username, 120)
                 return
 
-        self.log.debug('{0}: {1}'.format(source.username, msg_raw))
+        log.debug('{0}: {1}'.format(source.username, msg_raw))
 
         if 'emotes' in self.settings:
             for emote in self.settings['emotes']:
@@ -534,13 +533,13 @@ class TyggBot:
                     if f.type == 'regex':
                         m = f.search(source, msg_lower)
                         if m:
-                            self.log.debug('Matched regex filter \'{0}\''.format(f.name))
+                            log.debug('Matched regex filter \'{0}\''.format(f.name))
                             f.run(self, source, msg_raw, event, {'match':m})
                             # If we've matched a filter, we should not have to run a command.
                             return
                     elif f.type == 'banphrase':
                         if f.filter in msg_lower:
-                            self.log.debug('Matched banphrase filter \'{0}\''.format(f.name))
+                            log.debug('Matched banphrase filter \'{0}\''.format(f.name))
                             f.run(self, source, msg_raw, event)
                             # If we've matched a filter, we should not have to run a command.
                             return
@@ -581,14 +580,14 @@ class TyggBot:
             non_alnum = sum(not c.isalnum() for c in msg)
             ratio = non_alnum/msg_len
 
-            self.log.debug('Ascii ratio: {0}'.format(ratio))
+            log.debug('Ascii ratio: {0}'.format(ratio))
             if (msg_len > 140 and ratio > 0.8) or ratio > 0.91:
-                self.log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
+                log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
                 self.timeout(source.username, 120)
                 return
 
             if msg_len > 450:
-                self.log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
+                log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
                 self.timeout(source.username, 20)
                 self.me('{0}, you have been timed out because your message was too long.'.format(source.nick))
                 return
@@ -605,7 +604,7 @@ class TyggBot:
             if 'phrases' in self.config and 'quit' in self.config['phrases']:
                 self.say(self.config['phrases']['quit'].format(self))
         except Exception as e:
-            self.log.error(e)
+            log.error(e)
 
         self.connection.quit("bye")
 

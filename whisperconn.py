@@ -5,11 +5,12 @@ from apiwrappers import ChatDepotAPI
 
 import irc.client
 
+log = logging.getLogger('tyggbot')
+
 class WhisperConn:
     def __init__(self, target, nickname, password, reactor):
         self.reactor = reactor
         self.connection = reactor.server()
-        self.log = logging.getLogger('tyggbot')
 
         self.target = target
         self.nickname = nickname
@@ -29,7 +30,7 @@ class WhisperConn:
                 self.port = int(self.port)
 
     def whisper(self, username, message):
-        self.log.debug('Sending whisper: {0} {1}'.format(username, message))
+        log.debug('Sending whisper: {0} {1}'.format(username, message))
         self.privmsg('#jtv', '/w {0} {1}'.format(username, message))
 
     def privmsg(self, target, message):
@@ -39,7 +40,7 @@ class WhisperConn:
 
             self.connection.privmsg(target, message)
         except Exception as e:
-            self.log.error('Exception caught while sending privmsg: {0}'.format(e))
+            log.error('Exception caught while sending privmsg: {0}'.format(e))
 
     def _connected_checker(self):
         if not self.connection.is_connected():
@@ -48,7 +49,7 @@ class WhisperConn:
             self.connect()
 
     def connect(self):
-        self.log.debug('Connecting to Whisper server... ({0} {1})'.format(self.ip, self.port))
+        log.debug('Connecting to Whisper server... ({0} {1})'.format(self.ip, self.port))
         try:
             irc.client.SimpleIRCClient.connect(self, self.ip, self.port, self.nickname, self.password, self.nickname)
         except irc.client.ServerConnectionError:

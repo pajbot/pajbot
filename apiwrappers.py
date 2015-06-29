@@ -1,6 +1,9 @@
 import urllib.parse
 import urllib.request
 import json
+import logging
+
+log = logging.getLogger('tyggbot')
 
 class APIBase:
     @staticmethod
@@ -14,7 +17,7 @@ class APIBase:
         try:
             return response.read().decode('utf-8')
         except Exception as e:
-            print(e)
+            log.error(e)
             return None
 
         return None
@@ -32,7 +35,7 @@ class APIBase:
             else:
                 return data
         except Exception as e:
-            print(e)
+            log.error(e)
             return None
 
         return None

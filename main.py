@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
 import threading, os, sys, time, configparser, signal, argparse, logging, json
+from tbutil import init_logging
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+init_logging('all.log', 'tyggbot')
+
+log = logging.getLogger('tyggbot')
 
 import pika
 import pymysql
@@ -11,8 +17,6 @@ from daemon import Daemon
 
 def pika_listen(channel):
     channel.start_consuming()
-
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 config = configparser.ConfigParser()
 
@@ -37,10 +41,10 @@ def command_consume(ch, method, properties, body):
     global tyggbot
 
     if not properties.headers or 'user' not in properties.headers:
-        tyggbot.log.warning('no user header found')
+        log.warning('no user header found')
         return False
 
-    tyggbot.log.info("Received '{0}' from Squirrel".format(body))
+    log.info("Received '{0}' from Squirrel".format(body))
 
     tyggbot.parse_message(body.decode('utf-8'), properties.headers['user'], force=True)
 
@@ -63,7 +67,7 @@ class TBDaemon(Daemon):
 
         queue_name = '{0}_tb_commands'.format(tyggbot.nickname)
 
-        tyggbot.log.info('Listening to queue \'{0}\''.format(queue_name))
+        log.info('Listening to queue \'{0}\''.format(queue_name))
 
         channel.queue_declare(queue=queue_name, auto_delete=True, arguments=channel_arguments)
 
