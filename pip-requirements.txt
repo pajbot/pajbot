@@ -4,5 +4,4 @@ colorama
 pytz
 irc
 tweepy
-
--e git+https://github.com/renshawbay/pika-python3#egg=pika-python3
+autobahn[twisted]

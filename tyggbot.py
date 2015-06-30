@@ -1,4 +1,4 @@
-import json, time, os, argparse, re, sys, logging, math, random
+import json, time, os, argparse, re, sys, logging, math, random, threading
 from datetime import datetime
 import datetime as dt
 import collections
@@ -64,6 +64,7 @@ class Setting:
             log.error('Exception caught when loading setting: {0}'.format(e))
 
         return None
+
 
 class TyggBot:
     """
@@ -194,6 +195,54 @@ class TyggBot:
             ]
 
         self.connection.execute_every(1, self.shift_emotes)
+
+        if 'websocket' in config and config['websocket']['enabled'] == '1':
+            self.ws_clients = []
+            self.init_websocket_server()
+
+    def init_websocket_server(self):
+        import twisted
+        from twisted.internet import reactor
+
+        twisted.python.log.startLogging(sys.stdout)
+
+        from autobahn.twisted.websocket import WebSocketServerFactory, \
+                WebSocketServerProtocol
+
+        class MyServerProtocol(WebSocketServerProtocol):
+            def onConnect(self, request):
+                log.info('Client connecting: {0}'.format(request.peer))
+
+            def onOpen(self):
+                log.info('WebSocket connection open. {0}'.format(self))
+                TyggBot.instance.ws_clients.append(self)
+
+            def onMessage(self, payload, isBinary):
+                if isBinary:
+                    log.info('Binary message received: {0} bytes'.format(len(payload)))
+                else:
+                    TyggBot.instance.me('Recieved message: {0}'.format(payload.decode('utf8')))
+                    log.info('Text message received: {0}'.format(payload.decode('utf8')))
+
+            def onClose(self, wasClean, code, reason):
+                log.info('WebSocket connection closed: {0}'.format(reason))
+                TyggBot.instance.ws_clients.remove(self)
+
+        factory = WebSocketServerFactory()
+        factory.protocol = MyServerProtocol
+
+        def reactor_run(reactor, factory, port):
+            log.info(reactor)
+            log.info(factory)
+            log.info(port)
+            reactor.listenTCP(port, factory)
+            reactor.run(installSignalHandlers=0)
+
+        reactor_thread = threading.Thread(target=reactor_run, args=(reactor, factory, int(self.config['websocket']['port'])))
+        reactor_thread.daemon = True
+        reactor_thread.start()
+
+        self.ws_factory = factory
 
     def shift_emotes(self):
         for emote in self.emotes:
@@ -595,6 +644,10 @@ class TyggBot:
         if source is None and not event:
             log.error('No nick or event passed to parse_message')
             return False
+
+        if source.username == 'pajlada':
+            for client in self.ws_clients:
+                client.sendMessage('{0}: {1}'.format(source.username, msg_raw).encode('utf8'), False)
 
         if self.settings['ban_characters']:
             for b in self.banned_chars:

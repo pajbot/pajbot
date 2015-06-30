@@ -3,20 +3,21 @@
 import threading, os, sys, time, configparser, signal, argparse, logging, json
 from tbutil import init_logging
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 init_logging('all.log', 'tyggbot')
 
 log = logging.getLogger('tyggbot')
 
-import pika
 import pymysql
 
 from kvidata import KVIData
 from tyggbot import TyggBot
 from daemon import Daemon
-
-def pika_listen(channel):
-    channel.start_consuming()
 
 config = configparser.ConfigParser()
 
@@ -37,17 +38,6 @@ if not 'sql' in config:
 tyggbot = None
 args = None
 
-def command_consume(ch, method, properties, body):
-    global tyggbot
-
-    if not properties.headers or 'user' not in properties.headers:
-        log.warning('no user header found')
-        return False
-
-    log.info("Received '{0}' from Squirrel".format(body))
-
-    tyggbot.parse_message(body.decode('utf-8'), properties.headers['user'], force=True)
-
 class TBDaemon(Daemon):
     def run(self):
         global tyggbot
@@ -57,27 +47,6 @@ class TBDaemon(Daemon):
 
         tyggbot.connect()
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-                host='localhost'))
-        channel = connection.channel()
-
-        channel_arguments = {
-                'x-expires': 750,
-                }
-
-        queue_name = '{0}_tb_commands'.format(tyggbot.nickname)
-
-        log.info('Listening to queue \'{0}\''.format(queue_name))
-
-        channel.queue_declare(queue=queue_name, auto_delete=True, arguments=channel_arguments)
-
-        channel.basic_consume(command_consume,
-                              queue=queue_name,
-                              no_ack=True)
-
-        pika_thread = threading.Thread(target=pika_listen, args={channel})
-        pika_thread.daemon = True
-
         def on_sigterm(signal, frame):
             tyggbot.quit()
             sys.exit(0)
@@ -85,7 +54,6 @@ class TBDaemon(Daemon):
         signal.signal(signal.SIGTERM, on_sigterm)
 
         try:
-            pika_thread.start()
             tyggbot.start()
         except KeyboardInterrupt:
             tyggbot.quit()
