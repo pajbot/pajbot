@@ -47,6 +47,24 @@ class Emote:
         self.deque.rotate(1)
         self.deque[60] = 0
 
+class Setting:
+    def parse(type, value):
+        try:
+            if type == 'int':
+                return int(value)
+            elif type == 'string':
+                return value
+            elif type == 'list':
+                return value.split(',')
+            elif type == 'bool':
+                return int(value) == 1
+            else:
+                log.error('Invalid setting type: {0}'.format(type))
+        except Exception as e:
+            log.error('Exception caught when loading setting: {0}'.format(e))
+
+        return None
+
 class TyggBot:
     """
     Main class for the twitch bot
@@ -67,6 +85,13 @@ class TyggBot:
     """ Singleton instance of TyggBot, one instance of the script
     should never have two active classes."""
     instance = None
+
+    default_settings = {
+            'broadcaster': 'test_broadcaster',
+            'ban_ascii': True,
+            'ban_msg_length': True,
+            'ban_characters': True,
+        }
 
     def parse_args():
         parser = argparse.ArgumentParser()
@@ -496,18 +521,15 @@ class TyggBot:
         self.settings = {}
 
         for row in cursor:
-            try:
-                if row['type'] == 'int':
-                    self.settings[row['setting']] = int(row['value'])
-                elif row['type'] == 'string':
-                    self.settings[row['setting']] = row['value']
-                elif row['type'] == 'list':
-                    self.settings[row['setting']] = row['value'].split(',')
-                else:
-                    log.error('Invalid setting type: {0}'.format(row['type']))
-            except Exception as e:
-                log.error('Exception caught when loading setting: {0}'.format(e))
-                continue
+            self.settings[row['setting']] = Setting.parse(row['type'], row['value'])
+            if self.settings[row['setting']] is None:
+                log.error('ERROR LOADING SETTING {0}'.format(row['setting']))
+
+        for setting in self.default_settings:
+            if setting not in self.settings:
+                self.settings[setting] = self.default_settings[setting]
+
+        log.info(self.settings)
 
         cursor.close()
 
@@ -574,11 +596,12 @@ class TyggBot:
             log.error('No nick or event passed to parse_message')
             return False
 
-        for b in self.banned_chars:
-            if b in msg_raw:
-                self.timeout(source.username, 120)
-                self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained banned ascii characters.')
-                return
+        if self.settings['ban_characters']:
+            for b in self.banned_chars:
+                if b in msg_raw:
+                    self.timeout(source.username, 120)
+                    self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained banned ascii characters.')
+                    return
 
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
@@ -644,17 +667,19 @@ class TyggBot:
             ratio = non_alnum/msg_len
 
             log.debug('Ascii ratio: {0}'.format(ratio))
-            if (msg_len > 140 and ratio > 0.8) or ratio > 0.91:
-                log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
-                self.timeout(source.username, 120)
-                self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
-                return
+            if self.settings['ban_ascii']:
+                if (msg_len > 140 and ratio > 0.8) or ratio > 0.91:
+                    log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
+                    self.timeout(source.username, 120)
+                    self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
+                    return
 
-            if msg_len > 450:
-                log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                self.timeout(source.username, 20)
-                self.whisper(source.username, 'You have been timed out for 20 seconds because your message was too long.')
-                return
+            if self.settings['ban_msg_length']:
+                if msg_len > 450:
+                    log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
+                    self.timeout(source.username, 20)
+                    self.whisper(source.username, 'You have been timed out for 20 seconds because your message was too long.')
+                    return
 
         if cur_time - self.last_sync >= 60:
             self.sync_to()

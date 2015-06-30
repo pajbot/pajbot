@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `tb_settings` (
   `id` int(11) NOT NULL,
   `setting` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   `value` text COLLATE utf8_unicode_ci NOT NULL,
-  `type` set('int','string','list') COLLATE utf8_unicode_ci NOT NULL
+  `type` set('int','string','list','bool') COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `tb_user` (
