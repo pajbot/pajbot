@@ -52,6 +52,7 @@ class WhisperConn:
         log.debug('Connecting to Whisper server... ({0} {1})'.format(self.ip, self.port))
         try:
             irc.client.SimpleIRCClient.connect(self, self.ip, self.port, self.nickname, self.password, self.nickname)
+            self.connection.cap('REQ', 'twitch.tv/commands')
         except irc.client.ServerConnectionError:
             pass
 

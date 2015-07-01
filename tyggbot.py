@@ -1,9 +1,21 @@
-import json, time, os, argparse, re, sys, logging, math, random, threading
-from datetime import datetime
-import datetime as dt
+import json
+import time
+import os
+import argparse
+import re
+import sys
+import logging
+import math
+import random
+import threading
 import collections
 
+from datetime import datetime
+import datetime as dt
+
 from models.user import User, UserManager
+
+from apiwrappers import TwitchAPI
 
 import pymysql
 import wolframalpha
@@ -79,6 +91,7 @@ class TyggBot:
     settings = {}
     emotes = {}
     emote_stats = {}
+    twitchapi = False
 
     silent = False
     dev = False
@@ -118,6 +131,8 @@ class TyggBot:
         self.reactor = irc.client.Reactor()
         self.connection = self.reactor.server()
 
+        self.twitchapi = TwitchAPI(type='api')
+
         self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
         if 'wolfram' in config['main']:
@@ -141,9 +156,14 @@ class TyggBot:
 
         self.start_time = datetime.now()
 
-
         self.config = config
-        self.target = config['main']['target']
+        if 'streamer' in config['main']:
+            self.streamer = config['main']['streamer']
+            self.channel = '#' + self.streamer
+        elif 'target' in config['main']:
+            self.channel = config['main']['target']
+            self.streamer = self.channel[1:]
+
         self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], db=config['sql']['db'], charset='utf8')
         self.sqlconn.autocommit(True)
         self.kvi = KVIData(self.sqlconn)
@@ -163,15 +183,13 @@ class TyggBot:
 
         self.sync_from()
 
-        self.server = config['main']['server']
-        self.port = int(config['main']['port'])
         self.nickname = config['main']['nickname']
         self.password = config['main']['password']
         self.reconnection_interval = 5
 
         self.load_all()
 
-        self.whisper_conn = WhisperConn(self.target[1:], self.nickname, self.password, self.reactor)
+        self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
 
         banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
@@ -323,17 +341,17 @@ class TyggBot:
         self.sync_to()
         self.load_all()
 
-    def privmsg(self, target, message, priority=False):
+    def privmsg(self, message, priority=False, channel=None):
         # Non-prioritized messages are allowed 50% of the message limit
         if (not priority and self.num_commands_sent > TMI.message_limit/2) or (priority and self.num_commands_sent > TMI.message_limit):
             log.error('Skipping this say, because we are sending too many messages.')
             return False
 
         try:
-            if not target:
-                target = self.target
+            if channel is None:
+                channel = self.channel
 
-            self.connection.privmsg(target, message)
+            self.connection.privmsg(channel, message)
             self.num_commands_sent += 1
         except Exception as e:
             log.error('Exception caught while sending privmsg: {0}'.format(e))
@@ -358,8 +376,8 @@ class TyggBot:
         else:
             return time_since(time.time(), self.kvi.get('last_online'))
 
-    def _ban(self, username, target=None):
-        self.privmsg(target, '.ban {0}'.format(username), True)
+    def _ban(self, username):
+        self.privmsg('.ban {0}'.format(username), True)
 
     def execute_at(self, at, function, arguments=()):
         self.reactor.execute_at(at, function, arguments)
@@ -370,19 +388,19 @@ class TyggBot:
     def execute_every(self, period, function, arguments=()):
         self.reactor.execute_every(period, function, arguments)
 
-    def ban(self, username, target=None):
-        self._timeout(username, 30, target)
-        self.execute_delayed(1, self._ban, (username, target))
+    def ban(self, username):
+        self._timeout(username, 30)
+        self.execute_delayed(1, self._ban, (username))
 
-    def unban(self, username, target=None):
-        self.privmsg(target, '.unban {0}'.format(username), True)
+    def unban(self, username):
+        self.privmsg('.unban {0}'.format(username), True)
 
-    def _timeout(self, username, duration, target=None):
-        self.privmsg(target, '.timeout {0} {1}'.format(username, duration), True)
+    def _timeout(self, username, duration):
+        self.privmsg('.timeout {0} {1}'.format(username, duration), True)
 
-    def timeout(self, username, duration, target=None):
-        self._timeout(username, duration, target)
-        self.execute_delayed(1, self._timeout, (username, duration, target))
+    def timeout(self, username, duration):
+        self._timeout(username, duration)
+        self.execute_delayed(1, self._timeout, (username, duration))
 
     def whisper(self, username, message):
         if self.whisper_conn:
@@ -391,7 +409,7 @@ class TyggBot:
         else:
             log.debug('No whisper conn set up.')
 
-    def say(self, message, target=None, force=False):
+    def say(self, message, force=False):
         if force or not self.silent:
             message = message.strip()
 
@@ -402,11 +420,11 @@ class TyggBot:
 
                 log.info('Sending message: {0}'.format(message))
 
-                self.privmsg(target, message[:400])
+                self.privmsg(message[:400])
             else:
                 log.warning('Message too short, skipping...')
 
-    def me(self, message, target=None, force=False):
+    def me(self, message, force=False):
         if force or not self.silent:
             message = message.strip()
 
@@ -417,7 +435,7 @@ class TyggBot:
 
                 log.info('Sending message: {0}'.format(message))
 
-                self.privmsg(target, '.me ' + message[:400])
+                self.privmsg('.me ' + message[:400])
             else:
                 log.warning('Message too short, skipping...')
 
@@ -597,8 +615,8 @@ class TyggBot:
     def on_welcome(self, chatconn, event):
         if chatconn == self.connection:
             log.debug('Connected to IRC server.')
-            if irc.client.is_channel(self.target):
-                chatconn.join(self.target)
+            if irc.client.is_channel(self.channel):
+                chatconn.join(self.channel)
 
                 try:
                     if 'phrases' in self.config and 'welcome' in self.config['phrases']:
@@ -616,11 +634,27 @@ class TyggBot:
             self.connect()
 
     def connect(self):
+        log.debug('Fetching random IRC server...')
+        data = self.twitchapi.get(['channels', self.streamer, 'chat_properties'])
+        if data and len(data['chat_servers']) > 0:
+            server = random.choice(data['chat_servers'])
+            ip, port = server.split(':')
+            port = int(port)
+
+            try:
+                irc.client.SimpleIRCClient.connect(self, ip, port, self.nickname, self.password, self.nickname)
+                self.connection.cap('REQ', 'twitch.tv/membership')
+                self.connection.cap('REQ', 'twitch.tv/commands')
+                #self.connection.cap('REQ', 'twitch.tv/tags')
+                return True
+            except irc.client.ServerConnectionError:
+                pass
         log.debug('Connecting to IRC server...')
-        try:
-            irc.client.SimpleIRCClient.connect(self, self.server, self.port, self.nickname, self.password, self.nickname)
-        except irc.client.ServerConnectionError:
-            pass
+
+        self.connection.execute_delayed(self.reconnection_interval,
+                                        self._connected_checker)
+
+        return False
 
     def on_disconnect(self, chatconn, event):
         if chatconn == self.connection:
@@ -699,6 +733,14 @@ class TyggBot:
 
         source.num_lines += 1
         source.needs_sync = True
+
+    def on_whisper(self, chatconn, event):
+        # We use .lower() in case twitch ever starts sending non-lowercased usernames
+        source = self.users[event.source.user.lower()]
+
+        if source.level >= 250:
+            # Only regulars and above can send commands through whispers
+            self.parse_message(event.arguments[0], source, event)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)

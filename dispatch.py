@@ -79,7 +79,7 @@ class Dispatch:
         if message:
             streams = message.strip().split(' ')
             if len(streams) == 1:
-                streams.insert(0, tyggbot.target[1:])
+                streams.insert(0, tyggbot.streamer)
 
             url = 'http://multitwitch.tv/'+'/'.join(streams)
 
