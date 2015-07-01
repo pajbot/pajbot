@@ -104,7 +104,6 @@ class TyggBot:
             'broadcaster': 'test_broadcaster',
             'ban_ascii': True,
             'ban_msg_length': True,
-            'ban_characters': True,
         }
 
     def parse_args():
@@ -200,9 +199,6 @@ class TyggBot:
 
         self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
-
-        banned_characters = '͖͈̞̩͎̻̫̫̜͉̠̫͕̭̭̫̫̹̗̹͈̼̠̖͍͚̥͈̮̼͕̠̤̻ด้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็้็็็็็'
-        self.banned_chars = [x for x in banned_characters]
 
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
@@ -688,17 +684,6 @@ class TyggBot:
             log.error('No nick or event passed to parse_message')
             return False
 
-        if source.username == 'pajlada':
-            for client in self.ws_clients:
-                client.sendMessage('{0}: {1}'.format(source.username, msg_raw).encode('utf8'), False)
-
-        if self.settings['ban_characters']:
-            for b in self.banned_chars:
-                if b in msg_raw:
-                    self.timeout(source.username, 120)
-                    self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained banned ascii characters.')
-                    return
-
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
         if 'emotes' in self.settings:
@@ -800,5 +785,6 @@ class TyggBot:
             log.error(e)
 
         self.connection.quit("bye")
+        self.execute_delayed(1, sys.exit)
 
 #from tbactions import TBAction, FuncAction, RawFuncAction, SayAction
