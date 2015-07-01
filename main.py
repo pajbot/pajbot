@@ -21,7 +21,8 @@ def load_config(path):
     import configparser
     config = configparser.ConfigParser()
 
-    res = config.read(path)
+    configfile = os.path.dirname(os.path.realpath(__file__)) + '/' + path
+    res = config.read(configfile)
 
     if len(res) == 0:
         log.error('{0} missing. Check out install/config.example.ini'.format(path))

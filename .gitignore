@@ -6,10 +6,12 @@ __pycache__
 # Folder created by pip
 src/
 
-config.ini
-
 # PID files
 .*.pid
 
-# Log folders
+# Log folder
 logs/
+
+# Config folder
+configs/
+config.ini
