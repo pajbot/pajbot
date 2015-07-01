@@ -11,5 +11,5 @@ config.ini
 # PID files
 .*.pid
 
-# Log files
-all.log
+# Log folders
+logs/

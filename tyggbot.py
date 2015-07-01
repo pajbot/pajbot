@@ -110,6 +110,15 @@ class TyggBot:
     def parse_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('action', choices=('start', 'stop', 'restart', 'normal'), nargs='?')
+        parser.add_argument('--config', '-c',
+                           default='config.ini',
+                           help='Specify which config file to use (default: config.ini)')
+        parser.add_argument('--logfile',
+                           default='all.log',
+                           help='Log file name')
+        parser.add_argument('--pidfile',
+                           default='.bot.pid',
+                           help='Log file name')
         parser.add_argument('--silent',
                 action='count',
                 help='Decides whether the bot should be silent or not')
@@ -596,8 +605,6 @@ class TyggBot:
             if setting not in self.settings:
                 self.settings[setting] = self.default_settings[setting]
 
-        log.info(self.settings)
-
         cursor.close()
 
     def _load_ignores(self):
@@ -640,6 +647,8 @@ class TyggBot:
             server = random.choice(data['chat_servers'])
             ip, port = server.split(':')
             port = int(port)
+
+            log.debug('Fetched {0}:{1}'.format(ip, port))
 
             try:
                 irc.client.SimpleIRCClient.connect(self, ip, port, self.nickname, self.password, self.nickname)

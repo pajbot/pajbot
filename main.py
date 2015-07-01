@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import threading, os, sys, time, configparser, signal, argparse, logging, json
-from tbutil import init_logging
+import threading, os, sys, time, signal, argparse, logging, json
 
 try:
     basestring
@@ -9,7 +8,6 @@ except NameError:
     basestring = str
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
-init_logging('all.log', 'tyggbot')
 
 log = logging.getLogger('tyggbot')
 
@@ -19,31 +17,33 @@ from kvidata import KVIData
 from tyggbot import TyggBot
 from daemon import Daemon
 
-config = configparser.ConfigParser()
+def load_config(path):
+    import configparser
+    config = configparser.ConfigParser()
 
-res = config.read('config.ini')
+    res = config.read(path)
 
-if len(res) == 0:
-    print('config.ini missing. Check out config.example.ini for the relevant data')
-    sys.exit(0)
+    if len(res) == 0:
+        log.error('{0} missing. Check out install/config.example.ini'.format(path))
+        sys.exit(0)
 
-if not 'main' in config:
-    print('Missing section [main] in config.ini')
-    sys.exit(0)
+    if not 'main' in config:
+        log.error('Missing section [main] in {0}'.format(path))
+        sys.exit(0)
 
-if not 'sql' in config:
-    print('Missing section [sql] in config.ini')
-    sys.exit(0)
+    if not 'sql' in config:
+        log.error('Missing section [sql] in {0}'.format(path))
+        sys.exit(0)
 
-tyggbot = None
-args = None
+    return config
 
 class TBDaemon(Daemon):
-    def run(self):
-        global tyggbot
-        global args
+    def __init__(self, pidfile, args):
+        self.pidfile = pidfile
+        self.args = args
 
-        tyggbot = TyggBot(config, args)
+    def run(self):
+        tyggbot = TyggBot(load_config(self.args.config), self.args)
 
         tyggbot.connect()
 
@@ -60,19 +60,25 @@ class TBDaemon(Daemon):
             pass
 
 def handle_exceptions(exctype, value, tb):
-    logging.getLogger('tyggbot').error('Logging an uncaught exception', exc_info=(exctype, value, tb))
+    log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
 if __name__ == "__main__":
+    from tbutil import init_logging
+
     sys.excepthook = handle_exceptions
-    pid_path = os.path.dirname(os.path.realpath(__file__)) + '/.bot.pid'
 
     args = TyggBot.parse_args()
 
+    pidfile = os.path.dirname(os.path.realpath(__file__)) + '/' + args.pidfile
+
+    init_logging(args.logfile, 'tyggbot')
+    daemon = TBDaemon(pidfile, args)
+
     if args.action == 'start':
-        TBDaemon(pid_path).start()
+        daemon.start()
     elif args.action == 'stop':
-        TBDaemon(pid_path).stop()
+        daemon.stop()
     elif args.action == 'restart':
-        TBDaemon(pid_path).restart()
+        daemon.restart()
     else:
-        TBDaemon(pid_path).run()
+        daemon.run()
