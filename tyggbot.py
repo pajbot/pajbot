@@ -439,7 +439,7 @@ class TyggBot:
 
     def ban(self, username):
         self._timeout(username, 30)
-        self.execute_delayed(1, self._ban, (username))
+        self.execute_delayed(1, self._ban, (username, ))
 
     def unban(self, username):
         self.privmsg('.unban {0}'.format(username), True)
