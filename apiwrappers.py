@@ -72,13 +72,14 @@ class StreamtipAPI(APIBase):
                 }
 
 class TwitchAPI(APIBase):
-    def __init__(self, client_id, oauth, type='kraken'):
+    def __init__(self, client_id=None, oauth=None, type='kraken'):
         APIBase.__init__(self)
 
         self.base_url = 'https://api.twitch.tv/{0}/'.format(type)
 
         self.headers = {
                 'Accept': 'application/vnd.twitchtv.v3+json',
-                'Client-ID': client_id,
-                'Authorization': 'OAuth ' + oauth
                 }
+
+        if client_id: self.headers['Client-ID'] = client_id
+        if oauth: self.headers['Authorization'] = 'OAuth ' + oauth
