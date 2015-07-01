@@ -43,7 +43,7 @@ class Emote:
         self.pm = 0
         self.tm = 0
         self.count = 0
-        self.regex = re.compile('(?<![\w]){0}(?![\w])'.format(code))
+        self.regex = re.compile('(?<![^ ]){0}(?![^ ])'.format(code))
         self.deque = collections.deque([0]*61)
 
     def add(self, count):
