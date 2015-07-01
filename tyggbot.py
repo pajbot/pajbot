@@ -196,8 +196,8 @@ class TyggBot:
 
         self.connection.execute_every(1, self.shift_emotes)
 
+        self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
-            self.ws_clients = []
             self.init_websocket_server()
 
     def init_websocket_server(self):
