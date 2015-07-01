@@ -215,6 +215,33 @@ class TyggBot:
                 Emote('OpieOP'),
                 Emote('KaRappa'),
                 Emote('4Head'),
+                Emote('DansGame'),
+                Emote('Kreygasm'),
+                Emote('\(puke\)'),
+                Emote('forsenSambool'),
+                Emote('forsenSS'),
+                Emote('forsenAbort'),
+                Emote('forsenBanned'),
+                Emote('forsenMoney'),
+                Emote('forsenDDK'),
+                Emote('forsen30'),
+                Emote('forsenBoys'),
+                Emote('forsenRP'),
+                Emote('forsenW'),
+                Emote('forsenSleeper'),
+                Emote('forsenSwag'),
+                Emote('forsenPlugdj'),
+                Emote('forsenWot'),
+                Emote('forsenOP'),
+                Emote('forsenTriple'),
+                Emote('forsenKev'),
+                Emote('forsenSnus'),
+                Emote('forsenKappa'),
+                Emote('forsenGasm'),
+                Emote('forsenBM'),
+                Emote('forsenODO'),
+                Emote('forsenWOW'),
+                Emote('forsenBeast'),
             ]
 
         self.connection.execute_every(1, self.shift_emotes)
@@ -222,6 +249,23 @@ class TyggBot:
         self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
+            self.execute_every(1, self.refresh_emote_data)
+
+
+    def refresh_emote_data(self):
+        if len(self.ws_clients) > 0:
+            emote_data = {}
+            for emote in self.emotes:
+                emote_data[emote.code] = {
+                        'code': emote.code,
+                        'pm': emote.pm,
+                        'tm': emote.tm,
+                        'count': emote.count,
+                        }
+
+            payload = json.dumps(emote_data, separators=(',',':')).encode('utf8')
+            for client in self.ws_clients:
+                client.sendMessage(payload, False)
 
     def init_websocket_server(self):
         import twisted
