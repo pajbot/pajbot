@@ -18,7 +18,11 @@ class MultiAction(BaseAction):
 
         for command in args:
             cmd = Command.from_json(command)
-            self.commands[command['command']] = cmd
+            for alias in command['command'].split('|'):
+                if alias not in self.commands:
+                    self.commands[alias] = cmd
+                else:
+                    log.error('Alias {0} for this multiaction is already in use.'.format(alias))
 
     def run(self, tyggbot, source, message, event={}, args={}):
         if message:
