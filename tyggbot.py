@@ -831,5 +831,3 @@ class TyggBot:
 
         self.connection.quit("bye")
         self.execute_delayed(1, sys.exit)
-
-#from tbactions import TBAction, FuncAction, RawFuncAction, SayAction

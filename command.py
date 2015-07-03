@@ -5,11 +5,13 @@ from dispatch import Dispatch
 log = logging.getLogger('tyggbot')
 
 def parse_action(raw_data=None, data=None):
-    from tbactions import FuncAction, RawFuncAction, SayAction, MultiAction
+    from tbactions import FuncAction, RawFuncAction, SayAction, MeAction, MultiAction
     if not data: data = json.loads(raw_data)
 
     if data['type'] == 'say':
         action = SayAction(data['message'])
+    elif data['type'] == 'me':
+        action = MeAction(data['message'])
     elif data['type'] == 'func':
         try:
             action = FuncAction(getattr(Dispatch, data['cb']))

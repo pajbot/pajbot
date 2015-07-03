@@ -59,10 +59,10 @@ class RawFuncAction(BaseAction):
     def run(self, tyggbot, source, message, event={}, args={}):
         self.cb()
 
-class SayAction(BaseAction):
+class MessageAction(BaseAction):
+    type = 'message'
     regex = re.compile('(\$\([a-zA-Z:_0-9]+\))')
     inner_regex = re.compile('([a-z]+:|)([a-zA-Z_0-9]+)')
-    type = 'say'
 
     def __init__(self, response):
         self.response = response
@@ -104,7 +104,6 @@ class SayAction(BaseAction):
 
             self.subs[sub_key] = (cb, key)
 
-    # XXX: Is a regex replace faster than a normal string replace?
     def get_response(self, tyggbot, extra):
         resp = self.response
 
@@ -117,4 +116,12 @@ class SayAction(BaseAction):
         return resp
 
     def run(self, tyggbot, source, message, event={}, args={}):
+        raise NotImplementedError('Please implement the run method.')
+
+class SayAction(MessageAction):
+    def run(self, tyggbot, source, message, event={}, args={}):
         tyggbot.say(self.get_response(tyggbot, {'user':source.username}))
+
+class MeAction(MessageAction):
+    def run(self, tyggbot, source, message, event={}, args={}):
+        tyggbot.me(self.get_response(tyggbot, {'user':source.username}))

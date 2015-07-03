@@ -168,13 +168,13 @@ class Dispatch:
                 return False
 
             aliases = message_parts[0].lower().replace('!', '').split('|')
-            response = ' '.join(message_parts[1:])
+            response = ' '.join(message_parts[1:]).strip()
             update_id = False
 
             # Check if there's already a command with these aliases
             for alias in aliases:
                 if alias in tyggbot.commands:
-                    if not tyggbot.commands[alias].action.type == 'say':
+                    if not tyggbot.commands[alias].action.type == 'message':
                         tyggbot.whisper(source.username, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
                         return False
                     else:
@@ -183,11 +183,15 @@ class Dispatch:
             data = {
                     'level': 100,
                     'command': '|'.join(aliases),
-                    'action': json.dumps({'type': 'say', 'message': response.strip()}),
                     'description': 'Added by {0}'.format(source.username),
                     'delay_all': 10,
                     'delay_user': 30,
                     }
+
+            if response.startswith('/me') or response.startswith('.me'):
+                data['action'] = json.dumps({'type': 'me', 'message': response[3:].strip()})
+            else:
+                data['action'] = json.dumps({'type': 'say', 'message': response})
 
             tyggbot.sqlconn.ping()
             cursor = tyggbot.sqlconn.cursor()
@@ -241,7 +245,7 @@ class Dispatch:
                 potential_cmd = ''.join(message.split(' ')[:1]).lower()
                 if potential_cmd in tyggbot.commands:
                     command = tyggbot.commands[potential_cmd]
-                    if not command.action.type == 'say':
+                    if not command.action.type == 'message':
                         tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                         return False
 
@@ -252,7 +256,7 @@ class Dispatch:
             else:
                 for key, command in tyggbot.commands.items():
                     if command.id == id:
-                        if command.action.type is not 'say':
+                        if command.action.type is not 'message':
                             tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                             return False
 
@@ -299,7 +303,7 @@ class Dispatch:
                     'type': command.action.type,
                     }
 
-            if command.action.type == 'say':
+            if command.action.type == 'message':
                 data['response'] = command.action.response
             elif command.action.type == 'func' or command.action.type == 'rawfunc':
                 data['cb'] = command.action.cb.__name__
