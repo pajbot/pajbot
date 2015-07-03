@@ -242,6 +242,7 @@ class TyggBot:
                 Emote('forsenODO'),
                 Emote('forsenWOW'),
                 Emote('forsenBeast'),
+                Emote('xD'),
             ]
 
         self.connection.execute_every(1, self.shift_emotes)
