@@ -463,3 +463,12 @@ class Dispatch:
                 tyggbot.twitter.update_status(status=message)
             except Exception as e:
                 log.error('Caught an exception: {0}'.format(e))
+
+    def eval(tyggbot, source, message, event, args):
+        if tyggbot.dev and message and len(message) > 0:
+            try:
+                exec(message)
+            except:
+                log.exception('Exception caught while trying to evaluate code: "{0}"'.format(message))
+        else:
+            log.error('Eval cannot be used like that.')

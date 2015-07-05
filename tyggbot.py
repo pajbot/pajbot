@@ -83,7 +83,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.2'
+    version = '0.9.3'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -582,6 +582,7 @@ class TyggBot:
             'extra_args': None,
             })
         self.commands['level'] = Command.admin_command(Dispatch.level, type='func')
+        self.commands['eval'] = Command.admin_command(Dispatch.eval, type='func', level=2000)
 
         num_commands = 0
         num_aliases = 0
