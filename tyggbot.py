@@ -83,7 +83,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.3'
+    version = '0.9.4'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -108,16 +108,9 @@ class TyggBot:
 
     def parse_args():
         parser = argparse.ArgumentParser()
-        parser.add_argument('action', choices=('start', 'stop', 'restart', 'normal'), nargs='?')
         parser.add_argument('--config', '-c',
                            default='config.ini',
                            help='Specify which config file to use (default: config.ini)')
-        parser.add_argument('--logfile',
-                           default='all.log',
-                           help='Log file name')
-        parser.add_argument('--pidfile',
-                           default='.bot.pid',
-                           help='Log file name')
         parser.add_argument('--silent',
                 action='count',
                 help='Decides whether the bot should be silent or not')
@@ -830,5 +823,7 @@ class TyggBot:
         except Exception as e:
             log.error(e)
 
-        self.connection.quit("bye")
-        self.execute_delayed(1, sys.exit)
+
+        self.connection.quit('bye')
+        if self.whisper_conn:
+            self.whisper_conn.connection.quit('bye')

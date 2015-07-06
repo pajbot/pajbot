@@ -15,7 +15,6 @@ import pymysql
 
 from kvidata import KVIData
 from tyggbot import TyggBot
-from daemon import Daemon
 
 def load_config(path):
     import configparser
@@ -38,27 +37,22 @@ def load_config(path):
 
     return config
 
-class TBDaemon(Daemon):
-    def __init__(self, pidfile, args):
-        self.pidfile = pidfile
-        self.args = args
+def run(args):
+    tyggbot = TyggBot(load_config(args.config), args)
 
-    def run(self):
-        tyggbot = TyggBot(load_config(self.args.config), self.args)
+    tyggbot.connect()
 
-        tyggbot.connect()
+    def on_sigterm(signal, frame):
+        tyggbot.quit()
+        sys.exit(0)
 
-        def on_sigterm(signal, frame):
-            tyggbot.quit()
-            sys.exit(0)
+    signal.signal(signal.SIGTERM, on_sigterm)
 
-        signal.signal(signal.SIGTERM, on_sigterm)
-
-        try:
-            tyggbot.start()
-        except KeyboardInterrupt:
-            tyggbot.quit()
-            pass
+    try:
+        tyggbot.start()
+    except KeyboardInterrupt:
+        tyggbot.quit()
+        pass
 
 def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
@@ -70,16 +64,5 @@ if __name__ == "__main__":
 
     args = TyggBot.parse_args()
 
-    pidfile = os.path.dirname(os.path.realpath(__file__)) + '/' + args.pidfile
-
-    init_logging(args.logfile, 'tyggbot')
-    daemon = TBDaemon(pidfile, args)
-
-    if args.action == 'start':
-        daemon.start()
-    elif args.action == 'stop':
-        daemon.stop()
-    elif args.action == 'restart':
-        daemon.restart()
-    else:
-        daemon.run()
+    init_logging('tyggbot')
+    run(args)

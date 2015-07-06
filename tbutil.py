@@ -1,4 +1,4 @@
-import os, logging, threading, signal, math
+import os, logging, threading, signal, math, sys
 
 from colorama import Fore, Back, Style
 from contextlib import contextmanager
@@ -22,19 +22,31 @@ class ColoredFormatter(logging.Formatter):
             record.levelname = levelname_color
         return logging.Formatter.format(self, record)
 
-def init_logging(filename, app='tyggbot'):
-    base_path = os.path.dirname(os.path.realpath(__file__))
+def init_logging(app='tyggbot'):
+    class LogFilter(logging.Filter):
+        def __init__(self, level):
+            self.level = level
+
+        def filter(self, record):
+            return record.levelno < self.level
+
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
-    fh = logging.FileHandler(base_path + '/' + filename)
-    fh.setFormatter(logging.Formatter('%(asctime)-24s [%(levelname)-7s] %(message)s'))
+    colored_formatter = ColoredFormatter("[%(levelname)-20s] %(message)s")
+    log_filter = LogFilter(logging.WARNING)
 
-    ch = logging.StreamHandler()
-    ch.setFormatter(ColoredFormatter("[%(levelname)-20s] %(message)s"))
+    logger_stdout = logging.StreamHandler(sys.stdout)
+    logger_stdout.setFormatter(colored_formatter)
+    logger_stdout.addFilter(log_filter)
+    logger_stdout.setLevel(logging.DEBUG)
 
-    logging.getLogger(app).addHandler(fh)
-    logging.getLogger(app).addHandler(ch)
+    logger_stderr = logging.StreamHandler(sys.stderr)
+    logger_stderr.setFormatter(colored_formatter)
+    logger_stderr.setLevel(logging.WARNING)
+
+    logging.getLogger().addHandler(logger_stdout)
+    logging.getLogger().addHandler(logger_stderr)
 
     return log
 
