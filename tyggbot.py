@@ -507,10 +507,6 @@ class TyggBot:
                 log.warning('Message too short, skipping...')
 
     def sync_to(self):
-        if self.dev:
-            log.debug('Dev mode is enabled, not syncing data.')
-            return
-
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
 
