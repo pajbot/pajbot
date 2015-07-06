@@ -120,13 +120,38 @@ class TyggBot:
 
     def init_twitter(self):
         try:
-            auth = tweepy.OAuthHandler(self.config['twitter']['consumer_key'], self.config['twitter']['consumer_secret'])
-            auth.set_access_token(self.config['twitter']['access_token'], self.config['twitter']['access_token_secret'])
+            self.twitter_auth = tweepy.OAuthHandler(self.config['twitter']['consumer_key'], self.config['twitter']['consumer_secret'])
+            self.twitter_auth.set_access_token(self.config['twitter']['access_token'], self.config['twitter']['access_token_secret'])
 
-            self.twitter = tweepy.API(auth)
+            self.twitter = tweepy.API(self.twitter_auth)
+
+            self.connect_to_twitter_stream()
         except:
-            log.error('Twitter authentication failed.')
+            log.exception('Twitter authentication failed.')
             self.twitter = False
+
+    def connect_to_twitter_stream(self):
+        try:
+            class MyStreamListener(tweepy.StreamListener):
+                relevant_users = [
+                        'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf'
+                        ]
+
+                def on_status(self, tweet):
+                    if tweet.user.screen_name.lower() in self.relevant_users:
+                        if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
+                            TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tweet.text.replace("\n", " ")))
+
+                def on_error(self, status):
+                    log.warning('Unhandled in twitter stream: {0}'.format(status))
+
+            if not self.twitter_stream:
+                listener = MyStreamListener()
+                self.twitter_stream = tweepy.Stream(self.twitter_auth, listener, retry_420=3*60, daemonize_thread=True)
+
+            self.twitter_stream.userstream(_with='followings', replies='all', async=True)
+        except:
+            log.exception('Exception caught while trying to connect to the twitter stream')
 
     def __init__(self, config, args):
         self.reactor = irc.client.Reactor()
@@ -196,6 +221,7 @@ class TyggBot:
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
 
+        self.twitter_stream = False
         if 'twitter' in config:
             self.init_twitter()
         else:
@@ -330,9 +356,7 @@ class TyggBot:
                 public_tweets = self.twitter.user_timeline(key)
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                        log.info(tweet.created_at)
-                        log.info(datetime.now())
-                        return '{0} ({1} ago)'.format(tweet.text, time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
+                        return '{0} ({1} ago)'.format(tweet.text.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
                 log.error('Exception caught {0}'.format(e))
                 return 'FeelsBadMan'
@@ -823,6 +847,8 @@ class TyggBot:
         except Exception as e:
             log.error(e)
 
+        if self.twitter_stream:
+            self.twitter_stream.disconnect()
 
         self.connection.quit('bye')
         if self.whisper_conn:

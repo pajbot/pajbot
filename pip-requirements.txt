@@ -3,5 +3,6 @@ pymysql
 colorama
 pytz
 irc
-tweepy
 autobahn[twisted]
+#tweepy
+git+git://github.com/pajlada/tweepy.git
