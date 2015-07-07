@@ -84,7 +84,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.4.1'
+    version = '0.9.4.2'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -126,7 +126,8 @@ class TyggBot:
 
             self.twitter = tweepy.API(self.twitter_auth)
 
-            self.connect_to_twitter_stream()
+            if self.use_twitter_stream:
+                self.connect_to_twitter_stream()
         except:
             log.exception('Twitter authentication failed.')
             self.twitter = False
@@ -227,6 +228,7 @@ class TyggBot:
 
         self.twitter_stream = False
         if 'twitter' in config:
+            self.use_twitter_stream = 'streaming' in config['twitter'] and config['twitter']['streaming'] == '1'
             self.init_twitter()
         else:
             self.twitter = None
