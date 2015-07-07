@@ -14,6 +14,7 @@ from datetime import datetime
 import datetime as dt
 
 from models.user import User, UserManager
+from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
 
@@ -83,7 +84,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.4'
+    version = '0.9.4.1'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -154,6 +155,11 @@ class TyggBot:
             log.exception('Exception caught while trying to connect to the twitter stream')
 
     def __init__(self, config, args):
+        self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], db=config['sql']['db'], charset='utf8')
+        self.sqlconn.autocommit(True)
+
+        update_database(self.sqlconn)
+
         self.reactor = irc.client.Reactor()
         self.connection = self.reactor.server()
 
@@ -190,8 +196,6 @@ class TyggBot:
             self.channel = config['main']['target']
             self.streamer = self.channel[1:]
 
-        self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], db=config['sql']['db'], charset='utf8')
-        self.sqlconn.autocommit(True)
         self.kvi = KVIData(self.sqlconn)
         self.tbm = TBMath()
         self.last_sync = time.time()
@@ -849,3 +853,5 @@ class TyggBot:
         self.connection.quit('bye')
         if self.whisper_conn:
             self.whisper_conn.connection.quit('bye')
+
+        sys.exit(0)
