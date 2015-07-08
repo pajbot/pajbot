@@ -21,10 +21,15 @@ class Dispatch:
 
         num_lines = tyggbot.users[username].num_lines
 
+        phrase_data = {
+                'username': username,
+                'num_lines': num_lines
+                }
+
         if num_lines > 0:
-            tyggbot.say('{0} has typed {1} messages in this channel!'.format(username, num_lines))
+            tyggbot.say(tyggbot.phrases['nl'].format(**phrase_data))
         else:
-            tyggbot.say('{0} hasn\'t typed anything in this channel... BibleThump'.format(username))
+            tyggbot.say(tyggbot.phrases['nl_0'].format(**phrase_data))
 
     def query(tyggbot, source, message, event, args):
         if Dispatch.wolfram is None:
@@ -423,12 +428,21 @@ class Dispatch:
 
         tyggbot.kvi.inc('active_subs')
 
-        tyggbot.say('Welcome to Asgard {0}! aiaKiss'.format(match.group(1)))
+        phrase_data = {
+                'username': match.group(1)
+                }
+
+        tyggbot.say(tyggbot.phrases['new_sub'].format(phrase_data))
 
     def resub(tyggbot, source, message, event, args):
         match = args['match']
 
-        tyggbot.say('Welcome back to Asgard {0}! {1} months in a row! PogChamp'.format(match.group(1), match.group(2)))
+        phrase_data = {
+                'username': match.group(1),
+                'num_months': match.group(2)
+                }
+
+        tyggbot.say(tyggbot.phrases['new_sub'].format(phrase_data))
 
     def sync_to(tyggbot, source, message, event, args):
         log.debug('Calling sync_to from chat command...')

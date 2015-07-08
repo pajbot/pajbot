@@ -84,7 +84,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.4.2'
+    version = '0.9.4.3'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -155,11 +155,41 @@ class TyggBot:
         except:
             log.exception('Exception caught while trying to connect to the twitter stream')
 
+    def load_default_phrases(self):
+        default_phrases = {
+                'welcome': False,
+                'quit': False,
+                'nl': '{username} has typed {num_lines} in this channel!',
+                'nl_0': '{username} has not typed any messages in this channel BibleThump',
+                'new_sub': 'Sub hype! {username} just subscribed PogChamp',
+                'resub': 'Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
+                }
+        if 'phrases' in self.config:
+            self.phrases = {}
+
+            for phrase_key, phrase_value in self.config['phrases'].items():
+                log.debug('Including from config {0}: {1}'.format(phrase_key, phrase_value))
+                if len(phrase_value.strip()) <= 0:
+                    self.phrases[phrase_key] = False
+                else:
+                    self.phrases[phrase_key] = phrase_value
+
+            for phrase_key, phrase_value in default_phrases.items():
+                if phrase_key not in self.phrases:
+                    log.debug('Overriding from default {0}: {1}'.format(phrase_key, phrase_value))
+                    self.phrases[phrase_key] = phrase_value
+        else:
+            self.phrases = default_phrases
+
     def __init__(self, config, args):
+        self.config = config
+
         self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], db=config['sql']['db'], charset='utf8')
         self.sqlconn.autocommit(True)
 
         update_database(self.sqlconn)
+
+        self.load_default_phrases()
 
         self.reactor = irc.client.Reactor()
         self.connection = self.reactor.server()
@@ -189,7 +219,6 @@ class TyggBot:
 
         self.start_time = datetime.now()
 
-        self.config = config
         if 'streamer' in config['main']:
             self.streamer = config['main']['streamer']
             self.channel = '#' + self.streamer
@@ -686,11 +715,16 @@ class TyggBot:
             if irc.client.is_channel(self.channel):
                 chatconn.join(self.channel)
 
-                try:
-                    if 'phrases' in self.config and 'welcome' in self.config['phrases']:
-                        self.say(self.config['phrases']['welcome'].format(self))
-                except Exception as e:
-                    log.error(e)
+                if self.phrases['welcome']:
+                    phrase_data = {
+                            'nickname': self.nickname,
+                            'version': self.version,
+                            }
+
+                    try:
+                        self.say(self.phrases['welcome'].format(**phrase_data))
+                    except Exception as e:
+                        log.error(e)
         elif chatconn == self.whisper_conn:
             log.debug('Connected to Whisper server.')
 
@@ -843,11 +877,16 @@ class TyggBot:
 
     def quit(self):
         self.sync_to()
-        try:
-            if 'phrases' in self.config and 'quit' in self.config['phrases']:
-                self.say(self.config['phrases']['quit'].format(self))
-        except Exception as e:
-            log.error(e)
+        if self.phrases['quit']:
+            phrase_data = {
+                    'nickname': self.nickname,
+                    'version': self.version,
+                    }
+
+            try:
+                self.say(self.phrases['quit'].format(**phrase_data))
+            except Exception as e:
+                log.error(e)
 
         if self.twitter_stream:
             self.twitter_stream.disconnect()
