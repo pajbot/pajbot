@@ -432,7 +432,7 @@ class Dispatch:
                 'username': match.group(1)
                 }
 
-        tyggbot.say(tyggbot.phrases['new_sub'].format(phrase_data))
+        tyggbot.say(tyggbot.phrases['new_sub'].format(**phrase_data))
 
     def resub(tyggbot, source, message, event, args):
         match = args['match']
@@ -442,7 +442,7 @@ class Dispatch:
                 'num_months': match.group(2)
                 }
 
-        tyggbot.say(tyggbot.phrases['resub'].format(phrase_data))
+        tyggbot.say(tyggbot.phrases['resub'].format(**phrase_data))
 
     def sync_to(tyggbot, source, message, event, args):
         log.debug('Calling sync_to from chat command...')
