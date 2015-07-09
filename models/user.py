@@ -21,6 +21,7 @@ class User:
             user.username_raw = row['username_raw']
             user.level = row['level']
             user.num_lines = row['num_lines']
+            user.subscriber = row['subscriber'] == 1
         else:
             # We found a user in the database!
             user.id = -1 # An ID of -1 means it will be inserted on sync
@@ -29,18 +30,19 @@ class User:
             user.level = 100
             user.num_lines = 0
             user.needs_sync = True
+            user.subscriber = False
 
         return user
 
     def sync(self, cursor):
         if self.id == -1:
-            cursor.execute('INSERT INTO `tb_user` (`username`, `username_raw`, `level`, `num_lines`) VALUES (%s, %s, %s, %s)',
-                    (self.username, self.username_raw, self.level, self.num_lines))
+            cursor.execute('INSERT INTO `tb_user` (`username`, `username_raw`, `level`, `num_lines`, `subscriber`) VALUES (%s, %s, %s, %s, %s)',
+                    (self.username, self.username_raw, self.level, self.num_lines, self.subscriber))
             self.id = cursor.lastrowid
         else:
             # TODO: What values should we sync? For now, we only sync level and num_lines
-            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s WHERE `id`=%s',
-                    (self.level, self.num_lines, self.id))
+            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s, `subscriber`=%s WHERE `id`=%s',
+                    (self.level, self.num_lines, self.subscriber, self.id))
         self.needs_sync = False
 
 class UserManager(UserDict):

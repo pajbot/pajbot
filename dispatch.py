@@ -486,3 +486,18 @@ class Dispatch:
                 log.exception('Exception caught while trying to evaluate code: "{0}"'.format(message))
         else:
             log.error('Eval cannot be used like that.')
+
+    def check_sub(tyggbot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+        else:
+            username = source.username
+
+        user = tyggbot.users.find(username)
+        if user:
+            if user.subscriber:
+                tyggbot.say('{0} is a subscriber PogChamp'.format(user.username))
+            else:
+                tyggbot.say('{0} is not a subscriber FeelsBadMan'.format(user.username))
+        else:
+            tyggbot.say('{0} was not found in the user database'.format(username))

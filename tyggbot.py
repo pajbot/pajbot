@@ -84,7 +84,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.4.3'
+    version = '0.9.4.4'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -159,7 +159,7 @@ class TyggBot:
         default_phrases = {
                 'welcome': False,
                 'quit': False,
-                'nl': '{username} has typed {num_lines} in this channel!',
+                'nl': '{username} has typed {num_lines} messages in this channel!',
                 'nl_0': '{username} has not typed any messages in this channel BibleThump',
                 'new_sub': 'Sub hype! {username} just subscribed PogChamp',
                 'resub': 'Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
@@ -749,7 +749,7 @@ class TyggBot:
                 irc.client.SimpleIRCClient.connect(self, ip, port, self.nickname, self.password, self.nickname)
                 self.connection.cap('REQ', 'twitch.tv/membership')
                 self.connection.cap('REQ', 'twitch.tv/commands')
-                #self.connection.cap('REQ', 'twitch.tv/tags')
+                self.connection.cap('REQ', 'twitch.tv/tags')
                 return True
             except irc.client.ServerConnectionError:
                 pass
@@ -771,8 +771,17 @@ class TyggBot:
             self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
                                               self.whisper_conn._connected_checker)
 
-    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False):
+    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
         msg_lower = msg_raw.lower()
+
+        for tag in tags:
+            if tag['key'] == 'subscriber':
+                if source.subscriber and tag['value'] == '0':
+                    source.subscriber = False
+                    source.needs_sync = True
+                elif not source.subscriber and tag['value'] == '1':
+                    source.subscriber = True
+                    source.needs_sync = True
 
         for emote in self.emotes:
             num = len(emote.regex.findall(msg_raw))
@@ -873,7 +882,7 @@ class TyggBot:
             self.sync_to()
             self.last_sync = cur_time
 
-        self.parse_message(event.arguments[0], source, event)
+        self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     def quit(self):
         self.sync_to()
