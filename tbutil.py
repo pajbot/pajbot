@@ -34,7 +34,7 @@ def init_logging(app='tyggbot'):
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
-    colored_formatter = ColoredFormatter("[%(levelname)-20s] %(message)s")
+    colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
     log_filter = LogFilter(logging.WARNING)
 
     logger_stdout = logging.StreamHandler(sys.stdout)
