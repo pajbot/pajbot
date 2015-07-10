@@ -102,6 +102,10 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_emote_tm
                 elif path == 'ecount':
                     cb = TyggBot.instance.get_emote_count
+                elif path == 'epmrecord':
+                    cb = TyggBot.instance.get_emote_pm_record
+                elif path == 'etmrecord':
+                    cb = TyggBot.instance.get_emote_tm_record
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue

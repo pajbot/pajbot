@@ -8,12 +8,12 @@ import logging
 import math
 import random
 import threading
-import collections
 
 from datetime import datetime
 import datetime as dt
 
 from models.user import User, UserManager
+from models.emote import Emote
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -38,28 +38,6 @@ log = logging.getLogger('tyggbot')
 class TMI:
     message_limit = 50
 
-class Emote:
-    def __init__(self, code):
-        self.code = code
-        self.pm = 0
-        self.tm = 0
-        self.count = 0
-        self.regex = re.compile('(?<![^ ]){0}(?![^ ])'.format(code))
-        self.deque = collections.deque([0]*61)
-
-    def add(self, count):
-        self.count += count
-        self.deque[0] += count
-        self.tm += count
-
-    # Shift the deque and recalculate all relevant values
-    def shift(self):
-        cur_sum = sum(self.deque)
-        self.pm = cur_sum / 60
-        self.tm = cur_sum
-        self.deque.rotate(1)
-        self.deque[60] = 0
-
 class Setting:
     def parse(type, value):
         try:
@@ -77,7 +55,6 @@ class Setting:
             log.error('Exception caught when loading setting: {0}'.format(e))
 
         return None
-
 
 class TyggBot:
     """
@@ -262,50 +239,12 @@ class TyggBot:
         else:
             self.twitter = None
 
-        self.emotes = [
-                Emote('Kappa'),
-                Emote('PogChamp'),
-                Emote('BabyRage'),
-                Emote('OpieOP'),
-                Emote('KaRappa'),
-                Emote('4Head'),
-                Emote('DansGame'),
-                Emote('Kreygasm'),
-                Emote('\(puke\)'),
-                Emote('forsenSambool'),
-                Emote('forsenSS'),
-                Emote('forsenAbort'),
-                Emote('forsenBanned'),
-                Emote('forsenMoney'),
-                Emote('forsenDDK'),
-                Emote('forsen30'),
-                Emote('forsenBoys'),
-                Emote('forsenRP'),
-                Emote('forsenW'),
-                Emote('forsenSleeper'),
-                Emote('forsenSwag'),
-                Emote('forsenPlugdj'),
-                Emote('forsenWot'),
-                Emote('forsenOP'),
-                Emote('forsenTriple'),
-                Emote('forsenKev'),
-                Emote('forsenSnus'),
-                Emote('forsenKappa'),
-                Emote('forsenGasm'),
-                Emote('forsenBM'),
-                Emote('forsenODO'),
-                Emote('forsenWOW'),
-                Emote('forsenBeast'),
-                Emote('xD'),
-            ]
-
         self.connection.execute_every(1, self.shift_emotes)
 
         self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
-
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
@@ -416,6 +355,18 @@ class TyggBot:
         for emote in self.emotes:
             if key == emote.code:
                 return emote.count
+        return 0
+
+    def get_emote_pm_record(self, key, extra={}):
+        for emote in self.emotes:
+            if key == emote.code:
+                return emote.pm_record
+        return 0
+
+    def get_emote_tm_record(self, key, extra={}):
+        for emote in self.emotes:
+            if key == emote.code:
+                return emote.tm_record
         return 0
 
     def get_value(self, key, extra={}):
@@ -559,11 +510,8 @@ class TyggBot:
                 filter.sync(cursor)
                 filter.synced = True
 
-        for emote, value in self.emote_stats.items():
-            if not value.synced:
-                cursor.execute('INSERT INTO `tb_idata` (`id`, value, type) VALUES(%s, %s, "emote_stats") ON DUPLICATE KEY UPDATE value=%s',
-                        (emote, value.value, value.value))
-                value.synced = True
+        for emote in self.emotes:
+            emote.sync(cursor)
 
         cursor.close()
 
@@ -576,6 +524,7 @@ class TyggBot:
         self._load_filters()
         self._load_settings()
         self._load_ignores()
+        self._load_emotes()
 
     def _load_commands(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
@@ -706,6 +655,18 @@ class TyggBot:
 
         for row in cursor:
             self.ignores.append(row['username'])
+
+        cursor.close()
+
+    def _load_emotes(self):
+        cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
+
+        cursor.execute('SELECT * FROM `tb_emote`')
+
+        self.emotes = []
+
+        for row in cursor:
+            self.emotes.append(Emote.load_from_row(row))
 
         cursor.close()
 
