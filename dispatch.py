@@ -214,6 +214,58 @@ class Dispatch:
             tyggbot.sync_to()
             tyggbot._load_commands()
 
+    # !add funccommand ALIAS CALLBACK
+    def add_funccommand(tyggbot, source, message, event, args):
+        if message and len(message) > 0:
+            # Split up the message into multiple arguments
+            # Usage example:
+            # !add command ping Pong!
+            # This would add the command !ping, with the response being Pong!
+
+            # Make sure we got both an alias and a response
+            message_parts = message.split(' ')
+            if len(message_parts) < 2:
+                tyggbot.whisper(source.username, 'Usage: !add funccommand ALIAS CALLBACK')
+                return False
+
+            aliases = message_parts[0].lower().replace('!', '').split('|')
+            callback = message_parts[1].strip()
+            update_id = False
+
+            # Check if there's already a command with these aliases
+            for alias in aliases:
+                if alias in tyggbot.commands:
+                    if not tyggbot.commands[alias].action.type == 'message':
+                        tyggbot.whisper(source.username, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
+                        return False
+                    else:
+                        update_id = tyggbot.commands[alias].id
+
+            data = {
+                    'level': 100,
+                    'command': '|'.join(aliases),
+                    'action': json.dumps({'type': 'func', 'cb': callback}),
+                    'description': 'Added by {0}'.format(source.username),
+                    'delay_all': 10,
+                    'delay_user': 30,
+                    }
+
+            tyggbot.sqlconn.ping()
+            cursor = tyggbot.sqlconn.cursor()
+
+            if update_id == False:
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
+                cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
+                tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
+            else:
+                query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
+                cursor.execute(query, (data['action'], update_id))
+                tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
+
+
+            tyggbot.sync_to()
+            tyggbot._load_commands()
+
     def remove_banphrase(tyggbot, source, message, event, args):
         if message and len(message) > 0:
             banphrase_id = int(message)
@@ -250,7 +302,7 @@ class Dispatch:
                 potential_cmd = ''.join(message.split(' ')[:1]).lower()
                 if potential_cmd in tyggbot.commands:
                     command = tyggbot.commands[potential_cmd]
-                    if not command.action.type == 'message':
+                    if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
                         tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                         return False
 
@@ -261,7 +313,7 @@ class Dispatch:
             else:
                 for key, command in tyggbot.commands.items():
                     if command.id == id:
-                        if command.action.type is not 'message':
+                        if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
                             tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
                             return False
 
