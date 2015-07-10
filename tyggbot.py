@@ -68,7 +68,6 @@ class TyggBot:
     filters = []
     settings = {}
     emotes = {}
-    emote_stats = {}
     twitchapi = False
 
     silent = False
@@ -516,8 +515,7 @@ class TyggBot:
         cursor.close()
 
     def sync_from(self):
-        for nl in self.kvi.fetch_all('emote_stats'):
-            self.emote_stats[nl['key']] = SyncValue(nl['value'], True)
+        pass
 
     def load_all(self):
         self._load_commands()
@@ -754,14 +752,6 @@ class TyggBot:
             return False
 
         log.debug('{0}: {1}'.format(source.username, msg_raw))
-
-        if 'emotes' in self.settings:
-            for emote in self.settings['emotes']:
-                if emote in msg_raw:
-                    if emote not in self.emote_stats:
-                        self.emote_stats[emote] = SyncValue(1)
-                    else:
-                        self.emote_stats[emote].increment()
 
         if not force:
             if source.level < 500:
