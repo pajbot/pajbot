@@ -1,6 +1,10 @@
 import json, re, logging, time
 
-from dispatch import Dispatch
+try:
+    from userdispatch import UserDispatch
+    Dispatch = UserDispatch
+except:
+    from dispatch import Dispatch
 
 log = logging.getLogger('tyggbot')
 
