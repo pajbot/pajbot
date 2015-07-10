@@ -1,12 +1,15 @@
 import json, re, logging, time
 
+log = logging.getLogger('tyggbot')
+
 try:
     from userdispatch import UserDispatch
     Dispatch = UserDispatch
+    log.info('Using UserDispatch')
 except:
+    log.exception('No user dispatch available')
     from dispatch import Dispatch
 
-log = logging.getLogger('tyggbot')
 
 def parse_action(raw_data=None, data=None):
     from tbactions import FuncAction, RawFuncAction, SayAction, MeAction, MultiAction

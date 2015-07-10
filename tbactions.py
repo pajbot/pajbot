@@ -2,7 +2,6 @@ import json, re, logging
 
 from tyggbot import TyggBot
 from command import Command
-from dispatch import Dispatch
 
 log = logging.getLogger('tyggbot')
 
