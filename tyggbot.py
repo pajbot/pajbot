@@ -61,7 +61,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.5.0'
+    version = '0.9.5.1'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -191,6 +191,7 @@ class TyggBot:
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['time_norway'] = self.c_time_norway
         self.data_cb['bot_uptime'] = self.c_uptime
+        self.data_cb['time_since_latest_deck'] = self.c_time_since_latest_deck
         self.ignores = []
 
         self.start_time = datetime.now()
@@ -427,6 +428,9 @@ class TyggBot:
             return time_since(time.time(), self.kvi.get('last_offline'))
         else:
             return time_since(time.time(), self.kvi.get('last_online'))
+
+    def c_time_since_latest_deck(self):
+        return time_since(time.time(), self.kvi.get('latest_deck_time'))
 
     def _ban(self, username):
         self.privmsg('.ban {0}'.format(username), True)
