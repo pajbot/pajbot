@@ -61,7 +61,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.5.1'
+    version = '0.9.5.2'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}

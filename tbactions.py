@@ -35,11 +35,9 @@ class MultiAction(BaseAction):
         if command in self.commands:
             cmd = self.commands[command]
             if source.level >= cmd.level:
-                cmd.run(tyggbot, source, extra_msg, event, args)
-                return
+                return cmd.run(tyggbot, source, extra_msg, event, args)
             else:
                 log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.username, command))
-                return
 
 class FuncAction(BaseAction):
     type = 'func'
@@ -49,7 +47,7 @@ class FuncAction(BaseAction):
 
     def run(self, tyggbot, source, message, event={}, args={}):
         try:
-            self.cb(tyggbot, source, message, event, args)
+            return self.cb(tyggbot, source, message, event, args)
         except Exception as e:
             log.exception('Uncaught exception in FuncAction')
 
@@ -60,7 +58,7 @@ class RawFuncAction(BaseAction):
         self.cb = cb
 
     def run(self, tyggbot, source, message, event={}, args={}):
-        self.cb()
+        return self.cb()
 
 class MessageAction(BaseAction):
     type = 'message'

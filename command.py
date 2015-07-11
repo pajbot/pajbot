@@ -101,11 +101,12 @@ class Command:
             if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 500:
                 log.info('Running action from Command')
                 args.update(self.extra_args)
-                self.action.run(tyggbot, source, message, event, args)
+                ret = self.action.run(tyggbot, source, message, event, args)
                 self.num_uses += 1
                 self.synced = False
-                self.last_run = cur_time
-                self.last_run_by_user[source.username] = cur_time
+                if ret is not False:
+                    self.last_run = cur_time
+                    self.last_run_by_user[source.username] = cur_time
             else:
                 log.debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
         else:
