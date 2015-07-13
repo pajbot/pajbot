@@ -62,8 +62,8 @@ class RawFuncAction(BaseAction):
 
 class MessageAction(BaseAction):
     type = 'message'
-    regex = re.compile('(\$\([a-zA-Z:_0-9]+\))')
-    inner_regex = re.compile('([a-z]+:|)([a-zA-Z_0-9]+)')
+    regex = re.compile('(\$\([a-zA-Z:_0-9 ]+\))')
+    inner_regex = re.compile('([a-z]+:|)([a-zA-Z_0-9 ]+)')
 
     def __init__(self, response):
         self.response = response
