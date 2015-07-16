@@ -97,8 +97,8 @@ class Command:
     # (cur_time - self.last_run) = time since last run
     def run(self, tyggbot, source, message, event={}, args={}):
         cur_time = time.time()
-        if cur_time - self.last_run > self.delay_all or source.level >= 500:
-            if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 500:
+        if cur_time - self.last_run > self.delay_all or source.level >= 2000:
+            if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
                 log.info('Running action from Command')
                 args.update(self.extra_args)
                 ret = self.action.run(tyggbot, source, message, event, args)
