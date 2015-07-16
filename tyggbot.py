@@ -8,6 +8,7 @@ import logging
 import math
 import random
 import threading
+import requests
 
 from datetime import datetime
 import datetime as dt
@@ -785,6 +786,7 @@ class TyggBot:
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
         if not force:
+            if source.level < 500:
                 if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
                 regex = r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))'
 
