@@ -22,10 +22,11 @@ class APIBase:
 
         return None
 
-    def getraw(self, endpoints, parameters={}):
-        url = self.base_url + '/'.join(endpoints) + ('' if len(parameters) == 0 else '?'+urllib.parse.urlencode(parameters))
+    def get_url(self, endpoints=[], parameters={}):
+        return self.base_url + '/'.join(endpoints) + ('' if len(parameters) == 0 else '?'+urllib.parse.urlencode(parameters))
 
-        return APIBase._get(url, self.headers)
+    def getraw(self, endpoints=[], parameters={}):
+        return APIBase._get(self.get_url(endpoints, parameters), self.headers)
 
     def get(self, endpoints, parameters={}):
         try:
@@ -34,6 +35,22 @@ class APIBase:
                 return json.loads(data)
             else:
                 return data
+        except Exception as e:
+            log.error(e)
+            return None
+
+        return None
+
+    def post(self, endpoints=[], parameters={}, data={}):
+        try:
+            req = urllib.request.Request(self.get_url(endpoints, parameters), urllib.parse.urlencode(data).encode('utf-8'), self.headers)
+            response = urllib.request.urlopen(req)
+        except Exception as e:
+            log.error(e)
+            return None
+
+        try:
+            return response.read().decode('utf-8')
         except Exception as e:
             log.error(e)
             return None
