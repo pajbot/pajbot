@@ -32,6 +32,7 @@ from tbutil import SyncValue, time_since
 import irc.client
 
 from command import Filter, Command
+from actions import Action, ActionQueue
 
 log = logging.getLogger('tyggbot')
 
@@ -245,6 +246,8 @@ class TyggBot:
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
+
+        self.actionQ = ActionQueue()
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
@@ -734,6 +737,30 @@ class TyggBot:
             self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
                                               self.whisper_conn._connected_checker)
 
+    def check_msg_content(self, source, msg_raw, event):
+        for f in self.filters:
+            if f.type == 'regex':
+                m = f.search(source, msg_lower)
+                if m:
+                    log.debug('Matched regex filter \'{0}\''.format(f.name))
+                    f.run(self, source, msg_raw, event, {'match':m})
+                    return True
+                elif f.type == 'banphrase':
+                    if f.filter in msg_lower:
+                        log.debug('Matched banphrase filter \'{0}\''.format(f.name))
+                        f.run(self, source, msg_raw, event)
+                        return True
+        return False # message was ok
+
+    def check_link_content(self, source, content, event):
+        return self.check_msg_content(source, content, event) # same check as for normal chat messages, probably should be changed
+
+    def check_url(self, _url):
+        try: r = requests.get(_url['url'])
+        except: return
+        self.check_link_content(_url['source'], r.text, _url['event'])
+        return
+
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
         msg_lower = msg_raw.lower()
 
@@ -758,21 +785,18 @@ class TyggBot:
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
         if not force:
-            if source.level < 500:
-                for f in self.filters:
-                    if f.type == 'regex':
-                        m = f.search(source, msg_lower)
-                        if m:
-                            log.debug('Matched regex filter \'{0}\''.format(f.name))
-                            f.run(self, source, msg_raw, event, {'match':m})
-                            # If we've matched a filter, we should not have to run a command.
-                            return
-                    elif f.type == 'banphrase':
-                        if f.filter in msg_lower:
-                            log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                            f.run(self, source, msg_raw, event)
-                            # If we've matched a filter, we should not have to run a command.
-                            return
+                if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
+                regex = r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))'
+
+                 #probably shit regex, but kind of works
+                urls = re.finditer(regex, msg_raw)
+                for i in urls:
+                    url = i.group(0)
+                    if not (url.startswith('http://') or url.startswith('https://')): url = 'http://' + url
+                    _url['url'] = url
+                    _url['source'] = source
+                    _url['event'] = event                    
+                    self.actionQ.add(self.check_url, args = [ _url ])
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
