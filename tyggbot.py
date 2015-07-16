@@ -61,7 +61,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.5.2'
+    version = '0.9.5.5'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -820,7 +820,7 @@ class TyggBot:
 
             log.debug('Ascii ratio: {0}'.format(ratio))
             if self.settings['ban_ascii']:
-                if (msg_len > 140 and ratio > 0.8) or ratio > 0.91:
+                if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
                     self.timeout(source.username, 120)
                     self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')

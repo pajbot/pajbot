@@ -146,7 +146,7 @@ class Dispatch:
             extra_args = json.dumps({'time': 300, 'notify':1})
 
             cursor.execute('INSERT INTO `tb_filters` (`name`, `type`, `action`, `extra_args`, `filter`) VALUES (%s, %s, %s, %s, %s)',
-                    ('Banphrase', 'banphrase', action, extra_args, message))
+                    ('Banphrase', 'banphrase', action, extra_args, message.lower()))
 
             tyggbot.whisper(source.username, 'Successfully added your banphrase (id {0})'.format(cursor.lastrowid))
 
@@ -486,6 +486,11 @@ class Dispatch:
 
         tyggbot.say(tyggbot.phrases['new_sub'].format(**phrase_data))
 
+        if len(tyggbot.ws_clients) > 0:
+            payload = json.dumps({'new_sub': {'username':phrase_data['username']}}, separators=(',',':')).encode('utf8')
+            for client in tyggbot.ws_clients:
+                client.sendMessage(payload, False)
+
     def resub(tyggbot, source, message, event, args):
         match = args['match']
 
@@ -495,6 +500,11 @@ class Dispatch:
                 }
 
         tyggbot.say(tyggbot.phrases['resub'].format(**phrase_data))
+
+        if len(tyggbot.ws_clients) > 0:
+            payload = json.dumps({'new_sub': {'username':phrase_data['username'], 'num_months': phrase_data['num_months']}}, separators=(',',':')).encode('utf8')
+            for client in tyggbot.ws_clients:
+                client.sendMessage(payload, False)
 
     def sync_to(tyggbot, source, message, event, args):
         log.debug('Calling sync_to from chat command...')
