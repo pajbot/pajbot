@@ -34,6 +34,7 @@ import irc.client
 
 from command import Filter, Command
 from actions import Action, ActionQueue
+from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
@@ -254,6 +255,7 @@ class TyggBot:
             self.safeBrowsingAPI = None
 
         self.actionQ = ActionQueue()
+        self.linkChecker = LinkChecker()
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
@@ -758,22 +760,6 @@ class TyggBot:
                         return True
         return False # message was ok
 
-    def check_link_content(self, source, content, event):
-        return self.check_msg_content(source, content, event) # same check as for normal chat messages, probably should be changed
-
-    def check_url(self, _url):
-        if self.safeBrowsingAPI:
-            if self.safeBrowsingAPI.check_url(_url['url']): # harmful url detected
-                log.debug('Safe Browsing API detected harmful url: {0}'.format(_url['url']))
-                if _url['source']:
-                    self.timeout(_url['source'].username, 20) #replace with something more useful
-                return
-                
-        try: r = requests.get(_url['url'])
-        except: return
-        self.check_link_content(_url['source'], r.text, _url['event'])
-        return
-
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
         msg_lower = msg_raw.lower()
 
@@ -800,18 +786,10 @@ class TyggBot:
         if not force:
             if source.level < 500:
                 if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
-                regex = r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))'
-
-                 #probably shit regex, but kind of works
-                urls = re.finditer(regex, msg_raw)
-                for i in urls:
-                    url = i.group(0)
-                    if not (url.startswith('http://') or url.startswith('https://')): url = 'http://' + url
-                    _url = {}
-                    _url['url'] = url
-                    _url['source'] = source
-                    _url['event'] = event                    
-                    self.actionQ.add(self.check_url, args = [ _url ])
+                urls = self.linkChecker.findUrlsInMessage(msg_raw)
+                for url in urls:
+                    action = Action(self.timeout, args = [source.username, 20]) # action which will be taken when a bad link is found
+                    self.actionQ.add(self.linkChecker.check_url, args= [ url, action ]) # que up a check on the url
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:

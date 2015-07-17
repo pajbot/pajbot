@@ -6,7 +6,10 @@ class Action:
     args = []
     kwargs = {}
 
-    def __init__(self):
+    def __init__(self, f=None, args=[], kwargs={}):
+        self.func = f
+        self.args = args
+        self.kwargs = kwargs
         return
 
 class ActionQueue:
@@ -18,11 +21,9 @@ class ActionQueue:
     def action_parser(self):
         while True:
             action = self.Q.get()
-            if action.args is None: action.args = []
-            if action.kwargs is None: action.kwargs = {}
             action.func(*action.args, **action.kwargs)
 
-    def add(self, f, args=None, kwargs=None):
+    def add(self, f, args=[], kwargs={}):
         action = Action()
         action.func = f
 
