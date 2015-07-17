@@ -795,6 +795,7 @@ class TyggBot:
                 for i in urls:
                     url = i.group(0)
                     if not (url.startswith('http://') or url.startswith('https://')): url = 'http://' + url
+                    _url = {}
                     _url['url'] = url
                     _url['source'] = source
                     _url['event'] = event                    
