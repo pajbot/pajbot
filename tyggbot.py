@@ -17,7 +17,7 @@ from models.user import User, UserManager
 from models.emote import Emote
 from scripts.database import update_database
 
-from apiwrappers import TwitchAPI
+from apiwrappers import TwitchAPI, SafeBrowsingAPI
 
 import pymysql
 import wolframalpha
@@ -247,6 +247,11 @@ class TyggBot:
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
+
+        if 'safebrowsingapi' in self.config['main']:
+            self.safeBrowsingAPI = SafeBrowsingAPI(self.config['main']['safebrowsingapi'], self.nickname, self.version)
+        else:
+            self.safeBrowsingAPI = None
 
         self.actionQ = ActionQueue()
 
@@ -757,6 +762,13 @@ class TyggBot:
         return self.check_msg_content(source, content, event) # same check as for normal chat messages, probably should be changed
 
     def check_url(self, _url):
+        if self.safeBrowsingAPI:
+            if self.safeBrowsingAPI.check_url(_url['url']): # harmful url detected
+                log.debug('Safe Browsing API detected harmful url: {0}'.format(_url['url']))
+                if _url['source']:
+                    self.timeout(_url['source'].username, 20) #replace with something more useful
+                return
+                
         try: r = requests.get(_url['url'])
         except: return
         self.check_link_content(_url['source'], r.text, _url['event'])
