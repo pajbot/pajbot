@@ -6,3 +6,5 @@ irc
 autobahn[twisted]
 #tweepy
 git+git://github.com/pajlada/tweepy.git
+beautifulsoup4
+requests
