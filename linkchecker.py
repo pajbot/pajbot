@@ -1,8 +1,15 @@
 from actions import Action, ActionQueue
 from bs4 import BeautifulSoup
+from apiwrappers import SafeBrowsingAPI
+import re
+import requests
 
 class LinkChecker:
-    def __init__(self):
+    def __init__(self, bot):
+        if 'safebrowsingapi' in bot.config['main']:
+            self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
+        else:
+            self.safeBrowsingAPI = None
         return
 
     def check_url(self, url, action):
@@ -10,16 +17,18 @@ class LinkChecker:
             if self.safeBrowsingAPI.check_url(url): # harmful url detected
                 action.f(*action.args, **action.kwargs) # execute the specified action
                 return
-                
+
         try: r = requests.get(url)
         except: return
-        
-        soup = BeautifulSoup(r.text, 'html.parser')
+
+        try: soup = BeautifulSoup(r.text, 'html.parser')
+        except: return
+
         urls = []
         for link in soup.find_all('a'): # get a list of links to external sites
             url = link.get('href')
-            if url.startswith('http://') or url.startswith('https://')
-            urls.append(url)
+            if url.startswith('http://') or url.startswith('https://'):
+                urls.append(url)
 
         for url in urls: # check if the site links to anything dangerous
             if self.safeBrowsingAPI:

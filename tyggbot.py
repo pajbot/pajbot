@@ -17,7 +17,7 @@ from models.user import User, UserManager
 from models.emote import Emote
 from scripts.database import update_database
 
-from apiwrappers import TwitchAPI, SafeBrowsingAPI
+from apiwrappers import TwitchAPI
 
 import pymysql
 import wolframalpha
@@ -249,13 +249,8 @@ class TyggBot:
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
 
-        if 'safebrowsingapi' in self.config['main']:
-            self.safeBrowsingAPI = SafeBrowsingAPI(self.config['main']['safebrowsingapi'], self.nickname, self.version)
-        else:
-            self.safeBrowsingAPI = None
-
         self.actionQ = ActionQueue()
-        self.linkChecker = LinkChecker()
+        self.linkChecker = LinkChecker(self)
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:

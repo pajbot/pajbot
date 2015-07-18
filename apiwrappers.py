@@ -111,7 +111,7 @@ class SafeBrowsingAPI:
 
     def check_url(self, url):
         base_url = 'https://sb-ssl.google.com/safebrowsing/api/lookup?client=' + self.appname + '&key=' + self.apikey + '&appver=' + self.appvers + '&pver=3.1&url='
-        url2 = base_url + urllib.parse.quote(url)
+        url2 = base_url + urllib.parse.quote(url, '')
         r = requests.get(url2)
         if r.status_code == 200: return True # malware or phishing
         return False # some handling of error codes should be added, they're just ignored for now
