@@ -15,7 +15,7 @@ class LinkChecker:
     def check_url(self, url, action):
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(url): # harmful url detected
-                action.f(*action.args, **action.kwargs) # execute the specified action
+                action.func(*action.args, **action.kwargs) # execute the specified action
                 return
 
         try: r = requests.get(url)
@@ -33,7 +33,7 @@ class LinkChecker:
         for url in urls: # check if the site links to anything dangerous
             if self.safeBrowsingAPI:
                 if self.safeBrowsingAPI.check_url(url): # harmful url detected
-                    action.f(*action.args, **action.kwargs) # execute the specified action
+                    action.func(*action.args, **action.kwargs) # execute the specified action
                     return           
 
         #if we got here, the site is clean for our standards            
