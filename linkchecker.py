@@ -1,6 +1,8 @@
 from actions import Action, ActionQueue
 from bs4 import BeautifulSoup
 from apiwrappers import SafeBrowsingAPI
+from tbutil import time_limit
+
 import re
 import requests
 
@@ -18,9 +20,22 @@ class LinkChecker:
                 action.func(*action.args, **action.kwargs) # execute the specified action
                 return
 
-        try: r = requests.get(url)
+        try: r = requests.head(url, allow_redirects=True)
         except: return
+        checkcontenttype = ('content-type' in r.headers and r.headers['content-type'] == 'application/octet-stream')
+        checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
+        if checkcontenttype or checkdispotype: # triggering a download not allowed
+            action.func(*action.args, **action.kwargs)
+
+        if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
+            return
+
+        try:
+            with time_limit(2):
+                r = requests.get(url)
+        except: return  
+            
         try: soup = BeautifulSoup(r.text, 'html.parser')
         except: return
 
