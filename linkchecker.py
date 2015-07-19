@@ -5,6 +5,12 @@ from tbutil import time_limit
 
 import re
 import requests
+import logging
+import os
+import time
+from multiprocessing import Process
+
+log = logging.getLogger() 
 
 class LinkChecker:
     def __init__(self, bot):
@@ -20,8 +26,12 @@ class LinkChecker:
                 action.func(*action.args, **action.kwargs) # execute the specified action
                 return
 
-        try: r = requests.head(url, allow_redirects=True)
+        connection_timeout = 2
+        read_timeout = 1
+
+        try: r = requests.head(url, allow_redirects=True, timeout=connection_timeout)
         except: return
+
         checkcontenttype = ('content-type' in r.headers and r.headers['content-type'] == 'application/octet-stream')
         checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
@@ -29,19 +39,51 @@ class LinkChecker:
             action.func(*action.args, **action.kwargs)
 
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
+            return # can't analyze non-html content
+
+        maximum_size = 1024*1024*10 #10 MB
+        receive_timeout = 3
+
+        html = ''
+        try:
+            response = requests.get(url=url, stream=True, timeout=(connection_timeout, read_timeout))
+     
+            content_length = response.headers.get('Content-Length')
+            if content_length and int(response.headers.get('Content-Length')) > maximum_size:
+                log.error('This file is too big!')
+                return
+     
+            size = 0
+            start = time.time()
+
+            for chunk in response.iter_content(1024):
+                if time.time() - start > receive_timeout:
+                    log.error('The site took too long to load')
+                    return
+     
+                size += len(chunk)
+                if size > maximum_size:
+                    log.error('This file is too big! (fake header)')
+                    return
+                html += str(chunk)
+     
+        except requests.exceptions.ConnectTimeout as e:
+            log.error('Connection timed out while checking {0}'.format(url))
+            return
+        except requests.exceptions.ReadTimeout as e:
+            log.error('Reading timed out while checking {0}'.format(url))
+        except:
+            log.exception('Unhandled exception')
             return
 
-        try:
-            with time_limit(2):
-                r = requests.get(url)
-        except: return  
-            
-        try: soup = BeautifulSoup(r.text, 'html.parser')
+        try: soup = BeautifulSoup(html, 'html.parser')
         except: return
 
         urls = []
         for link in soup.find_all('a'): # get a list of links to external sites
             url = link.get('href')
+            if url is None:
+                continue
             if url.startswith('http://') or url.startswith('https://'):
                 urls.append(url)
 

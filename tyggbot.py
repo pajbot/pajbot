@@ -741,6 +741,8 @@ class TyggBot:
                                               self.whisper_conn._connected_checker)
 
     def check_msg_content(self, source, msg_raw, event):
+        msg_lower = msg_raw.lower()
+
         for f in self.filters:
             if f.type == 'regex':
                 m = f.search(source, msg_lower)
