@@ -291,6 +291,38 @@ class Dispatch:
         tyggbot.me('{0} removed a BR win!'.format(source.username))
         log.debug('{0} removed a BR win!'.format(source.username))
 
+    def add_alias(tyggbot, source, message, event, args):
+        if message and len(message) > 0:
+            tyggbot.sqlconn.ping()
+            cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
+            parts = message.split(' ')
+            if len(parts) < 2:
+                tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
+                return
+
+            if parts[0] not in tyggbot.commands:
+                tyggbot.whisper(source.username, 'No command called "{0}" found'.format(parts[0]))
+                return
+
+            new_aliases = parts[1].split('|')
+            for alias in new_aliases:
+                if alias in tyggbot.commands:
+                    tyggbot.whisper(source.username, 'Alias {0} is already used by a command'.format(alias))
+                    return
+                tyggbot.commands[alias] = tyggbot.commands[parts[0]]
+                
+
+            commid = tyggbot.commands[parts[0]].id
+            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=" + str(commid))
+            for row in cursor:
+                names = row['command']
+                names += '|' + parts[1]
+
+            cursor.execute("UPDATE `tb_commands` SET `command`='" + names + "' WHERE `id`=" + str(commid))
+            
+        else:
+            tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
+
     def remove_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
             try:
