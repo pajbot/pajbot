@@ -8,7 +8,6 @@ import requests
 import logging
 import os
 import time
-from multiprocessing import Process
 
 log = logging.getLogger() 
 
