@@ -17,6 +17,8 @@ class LinkChecker:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
         else:
             self.safeBrowsingAPI = None
+
+        self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))')
         return
 
     def check_url(self, url, action):
@@ -97,9 +99,8 @@ class LinkChecker:
         return
 
     def findUrlsInMessage(self, msg_raw):
-        regex = r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))'
 
-        _urls = re.finditer(regex, msg_raw)
+        _urls = self.regex.finditer(msg_raw)
         urls = []
         for i in _urls:
             url = i.group(0)
