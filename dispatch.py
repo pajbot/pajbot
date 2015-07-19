@@ -313,12 +313,12 @@ class Dispatch:
                 
 
             commid = tyggbot.commands[parts[0]].id
-            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=" + str(commid))
+            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
             for row in cursor:
                 names = row['command']
                 names += '|' + parts[1]
 
-            cursor.execute("UPDATE `tb_commands` SET `command`='" + names + "' WHERE `id`=" + str(commid))
+            cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
             
         else:
             tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
