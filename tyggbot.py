@@ -29,7 +29,7 @@ from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
 from whisperconn import WhisperConn
-from tbutil import SyncValue, time_since
+from tbutil import SyncValue, time_since, tweet_prettify_urls
 
 import irc.client
 
@@ -123,7 +123,7 @@ class TyggBot:
                 def on_status(self, tweet):
                     if tweet.user.screen_name.lower() in self.relevant_users:
                         if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                            tw = tweet_prettifyUrls(tweet)
+                            tw = tweet_prettify_urls(tweet)
                             TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace("\n", " ")))
 
                 def on_error(self, status):
@@ -349,7 +349,7 @@ class TyggBot:
                 public_tweets = self.twitter.user_timeline(key)
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                        tw = tweet_prettifyUrls(tweet) 
+                        tw = tweet_prettify_urls(tweet)
                         return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
                 log.error('Exception caught {0}'.format(e))
@@ -888,10 +888,3 @@ class TyggBot:
             self.whisper_conn.connection.quit('bye')
 
         sys.exit(0)
-
-def tweet_prettifyUrls(tweet):
-    tw = tweet.text
-    for u in tweet.entities['urls']:
-        tw = tw.replace(u['url'], u['expanded_url'])
-
-    return tweet
