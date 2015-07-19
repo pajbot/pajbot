@@ -310,7 +310,6 @@ class Dispatch:
                     tyggbot.whisper(source.username, 'Alias {0} is already used by a command'.format(alias))
                     return
                 tyggbot.commands[alias] = tyggbot.commands[parts[0]]
-                
 
             commid = tyggbot.commands[parts[0]].id
             cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
@@ -319,7 +318,8 @@ class Dispatch:
                 names += '|' + parts[1]
 
             cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
-            
+
+            tyggbot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(new_aliases), parts[0]))
         else:
             tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
 
@@ -333,10 +333,12 @@ class Dispatch:
                 return
 
             parts = message.split('|')
+            num_removed = 0
+            commands_not_found = []
             for alias in parts:
                 if alias not in tyggbot.commands:
-                    tyggbot.whisper(source.username, 'No command called "{0}" found'.format(parts[0]))
-                    return
+                    commands_not_found.append(alias)
+                    continue
                     
                 commid = tyggbot.commands[alias].id
                 cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
@@ -349,10 +351,15 @@ class Dispatch:
                     tyggbot.whisper(source.username, "{0} is the only remaining alias for this command and can't be removed.".format(alias))
                     return
 
+                num_removed += 1
                 names = '|'.join(namelist)
                 cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
                 del tyggbot.commands[alias]
-            
+
+            whisper_str = 'Successfully removed {0} aliases.'.format(num_removed)
+            if len(commands_not_found) > 0:
+                whisper_str += ' ({0} not found)'.format(', '.join(commands_not_found))
+            tyggbot.whisper(source.username, whisper_str)
         else:
             tyggbot.whisper(source.username, "Usage: !remove alias existingalias")
 
