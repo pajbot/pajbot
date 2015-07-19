@@ -38,6 +38,7 @@ from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
+
 class TMI:
     message_limit = 50
 
@@ -121,7 +122,8 @@ class TyggBot:
                 def on_status(self, tweet):
                     if tweet.user.screen_name.lower() in self.relevant_users:
                         if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                            TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tweet.text.replace("\n", " ")))
+                            tw = tweet_prettifyUrls(tweet)
+                            TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace("\n", " ")))
 
                 def on_error(self, status):
                     log.warning('Unhandled in twitter stream: {0}'.format(status))
@@ -336,7 +338,8 @@ class TyggBot:
                 public_tweets = self.twitter.user_timeline(key)
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                        return '{0} ({1} ago)'.format(tweet.text.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
+                        tw = tweet_prettifyUrls(tweet) 
+                        return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
                 log.error('Exception caught {0}'.format(e))
                 return 'FeelsBadMan'
@@ -874,3 +877,10 @@ class TyggBot:
             self.whisper_conn.connection.quit('bye')
 
         sys.exit(0)
+
+def tweet_prettifyUrls(tweet):
+    tw = tweet.text
+    for u in tweet.entities['urls']:
+        tw = tw.replace(u['url'], u['expanded_url'])
+
+    return tweet
