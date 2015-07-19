@@ -883,4 +883,4 @@ def tweet_prettifyUrls(tweet):
     for u in tweet.entities['urls']:
         tw = tw.replace(u['url'], u['expanded_url'])
 
-    return tw
+    return tweet
