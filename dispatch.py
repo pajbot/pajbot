@@ -313,12 +313,12 @@ class Dispatch:
                 
 
             commid = tyggbot.commands[parts[0]].id
-            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=" + str(commid))
+            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
             for row in cursor:
                 names = row['command']
                 names += '|' + parts[1]
 
-            cursor.execute("UPDATE `tb_commands` SET `command`='" + names + "' WHERE `id`=" + str(commid))
+            cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
             
         else:
             tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
@@ -339,18 +339,18 @@ class Dispatch:
                     return
                     
                 commid = tyggbot.commands[alias].id
-                cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=" + str(commid))
+                cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
                 for row in cursor:
                     names = row['command']
 
                 namelist = names.split('|')
                 namelist.remove(alias)
                 if len(namelist) == 0:
-                    tyggbot.whisper(source.username, "{0} is the only remaining alias for this command and can'be removed.".format(alias))
+                    tyggbot.whisper(source.username, "{0} is the only remaining alias for this command and can't be removed.".format(alias))
                     return
 
                 names = '|'.join(namelist)
-                cursor.execute("UPDATE `tb_commands` SET `command`='" + names + "' WHERE `id`=" + str(commid))
+                cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
                 del tyggbot.commands[alias]
             
         else:
