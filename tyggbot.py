@@ -9,6 +9,7 @@ import math
 import random
 import threading
 import requests
+import subprocess
 
 from datetime import datetime
 import datetime as dt
@@ -217,6 +218,16 @@ class TyggBot:
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
 
         self.silent = True if args.silent else self.silent
+
+        if self.dev:
+            try:
+                current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
+                latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
+                commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
+                self.version = '{0} DEV ({1}, {2}, commit {3})'.format(self.version, current_branch, latest_commit, commit_number)
+                log.info(current_branch)
+            except:
+                log.exception('what')
 
         if self.silent:
             log.info('Silent mode enabled')
