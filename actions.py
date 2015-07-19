@@ -16,6 +16,7 @@ class ActionQueue:
     def __init__(self):
         self.Q = queue.Queue()
         t = threading.Thread(target=self.action_parser)
+        t.daemon = True
         t.start()
 
     def action_parser(self):

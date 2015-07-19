@@ -124,3 +124,10 @@ def time_since(t1, t2, format='long'):
         return ' and '.join(time_arr)
     else:
         return ''.join(time_arr)
+
+def tweet_prettify_urls(tweet):
+    tw = tweet.text
+    for u in tweet.entities['urls']:
+        tw = tw.replace(u['url'], u['expanded_url'])
+
+    return tw

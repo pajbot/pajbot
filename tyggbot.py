@@ -9,6 +9,7 @@ import math
 import random
 import threading
 import requests
+import subprocess
 
 from datetime import datetime
 import datetime as dt
@@ -28,7 +29,7 @@ from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
 from whisperconn import WhisperConn
-from tbutil import SyncValue, time_since
+from tbutil import SyncValue, time_since, tweet_prettify_urls
 
 import irc.client
 
@@ -56,7 +57,7 @@ class Setting:
             else:
                 log.error('Invalid setting type: {0}'.format(type))
         except Exception as e:
-            log.error('Exception caught when loading setting: {0}'.format(e))
+            log.exception('Exception caught when loading setting')
 
         return None
 
@@ -122,7 +123,7 @@ class TyggBot:
                 def on_status(self, tweet):
                     if tweet.user.screen_name.lower() in self.relevant_users:
                         if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                            tw = tweet_prettifyUrls(tweet)
+                            tw = tweet_prettify_urls(tweet)
                             TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace("\n", " ")))
 
                 def on_error(self, status):
@@ -219,6 +220,16 @@ class TyggBot:
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
 
         self.silent = True if args.silent else self.silent
+
+        if self.dev:
+            try:
+                current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
+                latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
+                commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
+                self.version = '{0} DEV ({1}, {2}, commit {3})'.format(self.version, current_branch, latest_commit, commit_number)
+                log.info(current_branch)
+            except:
+                log.exception('what')
 
         if self.silent:
             log.info('Silent mode enabled')
@@ -338,10 +349,10 @@ class TyggBot:
                 public_tweets = self.twitter.user_timeline(key)
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                        tw = tweet_prettifyUrls(tweet) 
+                        tw = tweet_prettify_urls(tweet)
                         return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
-                log.error('Exception caught {0}'.format(e))
+                log.exception('Exception caught while getting last tweet')
                 return 'FeelsBadMan'
         else:
             return 'Twitter not set up FeelsBadMan'
@@ -416,7 +427,7 @@ class TyggBot:
             self.connection.privmsg(channel, message)
             self.num_commands_sent += 1
         except Exception as e:
-            log.error('Exception caught while sending privmsg: {0}'.format(e))
+            log.exception('Exception caught while sending privmsg')
 
     def c_time_norway(self):
         return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
@@ -610,7 +621,7 @@ class TyggBot:
 
                 num_commands += 1
             except Exception as e:
-                log.error('Exception caught when loading command: {0}'.format(e))
+                log.exception('Exception caught when loading command')
                 continue
 
         log.debug('Loaded {0} commands ({1} aliases)'.format(num_commands, num_aliases))
@@ -633,7 +644,7 @@ class TyggBot:
                     self.filters.append(filter)
                     num_filters += 1
             except Exception as e:
-                log.error('Exception caught when loading filter: {0}'.format(e))
+                log.exception('Exception caught when loading filter')
                 continue
 
         log.debug('Loaded {0} filters'.format(num_filters))
@@ -696,7 +707,7 @@ class TyggBot:
                     try:
                         self.say(self.phrases['welcome'].format(**phrase_data))
                     except Exception as e:
-                        log.error(e)
+                        log.exception('Exception caught while trying to say welcome phrase')
         elif chatconn == self.whisper_conn:
             log.debug('Connected to Whisper server.')
 
@@ -867,7 +878,7 @@ class TyggBot:
             try:
                 self.say(self.phrases['quit'].format(**phrase_data))
             except Exception as e:
-                log.error(e)
+                log.exception('Exception caught while trying to say quit phrase')
 
         if self.twitter_stream:
             self.twitter_stream.disconnect()
@@ -877,10 +888,3 @@ class TyggBot:
             self.whisper_conn.connection.quit('bye')
 
         sys.exit(0)
-
-def tweet_prettifyUrls(tweet):
-    tw = tweet.text
-    for u in tweet.entities['urls']:
-        tw = tw.replace(u['url'], u['expanded_url'])
-
-    return tweet
