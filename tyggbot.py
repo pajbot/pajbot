@@ -57,7 +57,7 @@ class Setting:
             else:
                 log.error('Invalid setting type: {0}'.format(type))
         except Exception as e:
-            log.error('Exception caught when loading setting: {0}'.format(e))
+            log.exception('Exception caught when loading setting')
 
         return None
 
@@ -352,7 +352,7 @@ class TyggBot:
                         tw = tweet_prettify_urls(tweet)
                         return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception as e:
-                log.error('Exception caught {0}'.format(e))
+                log.exception('Exception caught while getting last tweet')
                 return 'FeelsBadMan'
         else:
             return 'Twitter not set up FeelsBadMan'
@@ -427,7 +427,7 @@ class TyggBot:
             self.connection.privmsg(channel, message)
             self.num_commands_sent += 1
         except Exception as e:
-            log.error('Exception caught while sending privmsg: {0}'.format(e))
+            log.exception('Exception caught while sending privmsg')
 
     def c_time_norway(self):
         return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
@@ -621,7 +621,7 @@ class TyggBot:
 
                 num_commands += 1
             except Exception as e:
-                log.error('Exception caught when loading command: {0}'.format(e))
+                log.exception('Exception caught when loading command')
                 continue
 
         log.debug('Loaded {0} commands ({1} aliases)'.format(num_commands, num_aliases))
@@ -644,7 +644,7 @@ class TyggBot:
                     self.filters.append(filter)
                     num_filters += 1
             except Exception as e:
-                log.error('Exception caught when loading filter: {0}'.format(e))
+                log.exception('Exception caught when loading filter')
                 continue
 
         log.debug('Loaded {0} filters'.format(num_filters))
@@ -707,7 +707,7 @@ class TyggBot:
                     try:
                         self.say(self.phrases['welcome'].format(**phrase_data))
                     except Exception as e:
-                        log.error(e)
+                        log.exception('Exception caught while trying to say welcome phrase')
         elif chatconn == self.whisper_conn:
             log.debug('Connected to Whisper server.')
 
@@ -878,7 +878,7 @@ class TyggBot:
             try:
                 self.say(self.phrases['quit'].format(**phrase_data))
             except Exception as e:
-                log.error(e)
+                log.exception('Exception caught while trying to say quit phrase')
 
         if self.twitter_stream:
             self.twitter_stream.disconnect()
