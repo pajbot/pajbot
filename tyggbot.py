@@ -8,6 +8,7 @@ import logging
 import math
 import random
 import threading
+import requests
 
 from datetime import datetime
 import datetime as dt
@@ -32,6 +33,8 @@ from tbutil import SyncValue, time_since
 import irc.client
 
 from command import Filter, Command
+from actions import Action, ActionQueue
+from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
@@ -245,6 +248,9 @@ class TyggBot:
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
+
+        self.actionQ = ActionQueue()
+        self.linkChecker = LinkChecker(self)
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
@@ -734,6 +740,23 @@ class TyggBot:
             self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
                                               self.whisper_conn._connected_checker)
 
+    def check_msg_content(self, source, msg_raw, event):
+        msg_lower = msg_raw.lower()
+
+        for f in self.filters:
+            if f.type == 'regex':
+                m = f.search(source, msg_lower)
+                if m:
+                    log.debug('Matched regex filter \'{0}\''.format(f.name))
+                    f.run(self, source, msg_raw, event, {'match':m})
+                    return True
+                elif f.type == 'banphrase':
+                    if f.filter in msg_lower:
+                        log.debug('Matched banphrase filter \'{0}\''.format(f.name))
+                        f.run(self, source, msg_raw, event)
+                        return True
+        return False # message was ok
+
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
         msg_lower = msg_raw.lower()
 
@@ -759,20 +782,11 @@ class TyggBot:
 
         if not force:
             if source.level < 500:
-                for f in self.filters:
-                    if f.type == 'regex':
-                        m = f.search(source, msg_lower)
-                        if m:
-                            log.debug('Matched regex filter \'{0}\''.format(f.name))
-                            f.run(self, source, msg_raw, event, {'match':m})
-                            # If we've matched a filter, we should not have to run a command.
-                            return
-                    elif f.type == 'banphrase':
-                        if f.filter in msg_lower:
-                            log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                            f.run(self, source, msg_raw, event)
-                            # If we've matched a filter, we should not have to run a command.
-                            return
+                if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
+                urls = self.linkChecker.findUrlsInMessage(msg_raw)
+                for url in urls:
+                    action = Action(self.timeout, args = [source.username, 20]) # action which will be taken when a bad link is found
+                    self.actionQ.add(self.linkChecker.check_url, args= [ url, action ]) # que up a check on the url
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
