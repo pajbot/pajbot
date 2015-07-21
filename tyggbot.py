@@ -66,7 +66,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.5.5'
+    version = '0.9.6.0'
     date_fmt = '%H:%M'
     #date_fmt = '%A %B '
     commands = {}
@@ -764,11 +764,11 @@ class TyggBot:
                     log.debug('Matched regex filter \'{0}\''.format(f.name))
                     f.run(self, source, msg_raw, event, {'match':m})
                     return True
-                elif f.type == 'banphrase':
-                    if f.filter in msg_lower:
-                        log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                        f.run(self, source, msg_raw, event)
-                        return True
+            elif f.type == 'banphrase':
+                if f.filter in msg_lower:
+                    log.debug('Matched banphrase filter \'{0}\''.format(f.name))
+                    f.run(self, source, msg_raw, event)
+                    return True
         return False # message was ok
 
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
