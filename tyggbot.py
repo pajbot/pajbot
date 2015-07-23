@@ -177,6 +177,14 @@ class TyggBot:
         self.connection = self.reactor.server()
 
         self.twitchapi = TwitchAPI(type='api')
+        if 'twitchapi' in self.config:
+            client_id = None
+            oauth = None
+            if 'client_id' in self.config['twitchapi']: client_id = self.config['twitchapi']['client_id']
+            if 'oauth' in self.config['twitchapi']: oauth = self.config['twitchapi']['oauth']
+            self.krakenapi = TwitchAPI(client_id, oauth, type='kraken')
+        else:
+            self.krakenapi = False
 
         self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
@@ -248,6 +256,10 @@ class TyggBot:
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
 
+        self.num_offlines = 0
+        if self.krakenapi:
+            self.connection.execute_every(20, self.refresh_stream_status)
+
         self.twitter_stream = False
         if 'twitter' in config:
             self.use_twitter_stream = 'streaming' in config['twitter'] and config['twitter']['streaming'] == '1'
@@ -264,6 +276,38 @@ class TyggBot:
 
         self.actionQ = ActionQueue()
         self.linkChecker = LinkChecker(self)
+
+    def refresh_stream_status(self):
+        if not self.krakenapi: return
+
+        data = self.krakenapi.get(['streams', self.streamer])
+        if data:
+            try:
+                log.info(data)
+                status = 'stream' in data and data['stream'] is not None
+
+                self.say('Stream status: {0}'.format(status))
+
+                if status == True:
+                    self.kvi.set('stream_status', 1)
+                    self.kvi.set('last_online', int(time.time()));
+                    self.num_offlines = 0
+                elif status == False:
+                    stream_status = self.kvi.get('stream_status')
+                    if (stream_status == 1 and self.num_offlines > 10) or stream_status == 0:
+                        self.kvi.set('stream_status', 0)
+                        self.kvi.set('last_offline', int(time.time()))
+                    else:
+                        self.kvi.set('last_online', int(time.time()));
+                    self.num_offlines += 1
+
+                log.info('Stream status: {0}'.format('Online' if status else 'Offline'))
+                return True
+            except:
+                log.exception('Caught exception while trying to update stream status')
+                return False
+
+        return False
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
