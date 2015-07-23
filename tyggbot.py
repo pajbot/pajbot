@@ -283,7 +283,6 @@ class TyggBot:
         data = self.krakenapi.get(['streams', self.streamer])
         if data:
             try:
-                log.info(data)
                 status = 'stream' in data and data['stream'] is not None
 
                 if status == True:
@@ -300,12 +299,8 @@ class TyggBot:
                     self.num_offlines += 1
 
                 log.info('Stream status: {0}'.format('Online' if status else 'Offline'))
-                return True
             except:
                 log.exception('Caught exception while trying to update stream status')
-                return False
-
-        return False
 
     def refresh_emote_data(self):
         if len(self.ws_clients) > 0:
