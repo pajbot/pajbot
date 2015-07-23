@@ -286,8 +286,6 @@ class TyggBot:
                 log.info(data)
                 status = 'stream' in data and data['stream'] is not None
 
-                self.say('Stream status: {0}'.format(status))
-
                 if status == True:
                     self.kvi.set('stream_status', 1)
                     self.kvi.set('last_online', int(time.time()));
