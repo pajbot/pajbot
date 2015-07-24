@@ -30,7 +30,7 @@ def init_logging(app='tyggbot'):
         def filter(self, record):
             return record.levelno < self.level
 
-    logging.getLogger().setLevel(logging.DEBUG)
+    #logging.getLogger().setLevel(logging.DEBUG)
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 

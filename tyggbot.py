@@ -860,7 +860,7 @@ class TyggBot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        if source.level >= 500:
+        if source.level >= 420:
             # Only moderators and above can send commands through whispers
             self.parse_message(event.arguments[0], source, event)
 
