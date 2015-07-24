@@ -250,6 +250,12 @@ class TyggBot:
         self.password = config['main']['password']
         self.reconnection_interval = 5
 
+        # Initialize MOTD-printing
+        self.motd_iterator = 0
+        self.motd_minute = 0
+        self.motd_messages = []
+        self.connection.execute_every(60, self.motd_tick)
+
         self.load_all()
 
         self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
@@ -257,12 +263,6 @@ class TyggBot:
 
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
-
-        # Initialize MOTD-printing
-        self.motd_iterator = 0
-        self.motd_minute = 0
-        self.motd_messages = []
-        self.connection.execute_every(60, self.motd_tick)
 
         self.num_offlines = 0
         if self.krakenapi:
