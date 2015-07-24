@@ -45,7 +45,6 @@ class Emote:
         if self.tm > self.tm_record: self.tm_record = self.tm
 
     def sync(self, cursor):
-        log.info('Syncing emote {0} ({1}, {2})'.format(self.code, self.pm, self.tm))
         cursor.execute('UPDATE `tb_emote` SET `deque`=%s, `pm_record`=%s, `tm_record`=%s, `count`=%s WHERE `id`=%s',
                 (json.dumps(list(self.deque)), self.pm_record, self.tm_record, self.count, self.id))
 

@@ -317,8 +317,6 @@ class TyggBot:
                     else:
                         self.kvi.set('last_online', int(time.time()));
                     self.num_offlines += 1
-
-                log.info('Stream status: {0}'.format('Online' if status else 'Offline'))
             except:
                 log.exception('Caught exception while trying to update stream status')
 
