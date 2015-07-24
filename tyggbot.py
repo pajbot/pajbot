@@ -86,6 +86,8 @@ class TyggBot:
             'broadcaster': 'test_broadcaster',
             'ban_ascii': True,
             'ban_msg_length': True,
+            'motd_interval_offline': 60,
+            'motd_interval_online': 5,
         }
 
     def parse_args():
@@ -256,6 +258,12 @@ class TyggBot:
         self.num_commands_sent = 0
         self.connection.execute_every(30, self.reset_command_throttle)
 
+        # Initialize MOTD-printing
+        self.motd_iterator = 0
+        self.motd_minute = 0
+        self.motd_messages = []
+        self.connection.execute_every(60, self.motd_tick)
+
         self.num_offlines = 0
         if self.krakenapi:
             self.connection.execute_every(20, self.refresh_stream_status)
@@ -276,6 +284,18 @@ class TyggBot:
 
         self.actionQ = ActionQueue()
         self.linkChecker = LinkChecker(self)
+
+    def motd_tick(self):
+        if len(self.motd_messages) == 0: return
+
+        self.motd_minute += 1
+        stream_status = self.kvi.get('stream_status')
+        interval = self.settings['motd_interval_online'] if stream_status == 1 else self.settings['motd_interval_offline']
+        if self.motd_minute >= interval:
+            log.debug('Sending MOTD message.')
+            self.say(self.motd_messages[self.motd_iterator % len(self.motd_messages)])
+            self.motd_minute = 0
+            self.motd_iterator += 1
 
     def refresh_stream_status(self):
         if not self.krakenapi: return
@@ -584,6 +604,7 @@ class TyggBot:
         self._load_settings()
         self._load_ignores()
         self._load_emotes()
+        self._load_motd()
 
     def _load_commands(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
@@ -726,6 +747,18 @@ class TyggBot:
 
         for row in cursor:
             self.emotes.append(Emote.load_from_row(row))
+
+        cursor.close()
+
+    def _load_motd(self):
+        cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
+
+        cursor.execute('SELECT * FROM `tb_motd` WHERE `enabled`=1')
+
+        self.motd_messages = []
+
+        for row in cursor:
+            self.motd_messages.append(row['message'])
 
         cursor.close()
 
