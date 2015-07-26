@@ -299,10 +299,6 @@ class TyggBot:
     def update_subscribers(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
 
-        log.info(len(subscribers))
-        log.info(subscribers)
-        log.info(len(subscribers))
-
         for username, user in self.users.items():
             if user.subscriber:
                 user.subscriber = False
