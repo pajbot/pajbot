@@ -18,3 +18,21 @@ def get_chatters(channel):
         log.exception('Uncaught exception in get_chatters')
 
     return []
+
+def get_subscribers(twitchapi, channel):
+    limit = 100
+    offset = 0
+    subscribers = []
+
+    try:
+        data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})
+        while data['_total'] > limit + offset:
+            for sub in data['subscriptions']:
+                subscribers.append(sub['user']['name'])
+
+            offset += limit
+            data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})
+    except:
+        log.exception('Caught an exception while trying to get subscribers')
+
+    return subscribers
