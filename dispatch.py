@@ -627,10 +627,10 @@ class Dispatch:
     def check_sub(tyggbot, source, message, event, args):
         if message:
             username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(username)
         else:
-            username = source.username
+            user = source
 
-        user = tyggbot.users.find(username)
         if user:
             if user.subscriber:
                 tyggbot.say('{0} is a subscriber PogChamp'.format(user.username))
@@ -638,3 +638,24 @@ class Dispatch:
                 tyggbot.say('{0} is not a subscriber FeelsBadMan'.format(user.username))
         else:
             tyggbot.say('{0} was not found in the user database'.format(username))
+
+    def last_seen(tyggbot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+
+            user = tyggbot.users.find(username)
+            if user:
+                tyggbot.say('{0} was last seen {1}, last active {2}'.format(user.username, user.last_seen, user.last_active))
+
+    def points(tyggbot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(username)
+        else:
+            user = source
+
+        if user:
+            if user == source:
+                tyggbot.say('{0}, you have {1} points.'.format(source.username, user.points))
+            else:
+                tyggbot.say('{0}, {1} has {2} points.'.format(source.username, user.username, user.points))
