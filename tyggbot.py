@@ -14,7 +14,7 @@ import subprocess
 from datetime import datetime
 import datetime as dt
 
-from helpers import get_chatters
+from helpers import get_chatters, get_subscribers
 from models.user import User, UserManager
 from models.emote import Emote
 from scripts.database import update_database
@@ -287,8 +287,31 @@ class TyggBot:
         self.linkChecker = LinkChecker(self)
 
         self.connection.execute_every(5*60, lambda: self.actionQ.add(self.update_chatters))
-
         self.actionQ.add(self.update_chatters)
+
+        try:
+            if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
+                self.execute_every(30*60, lambda: self.actionQ.add(self.update_subscribers))
+        except:
+            pass
+
+    # async?
+    def update_subscribers(self):
+        subscribers = get_subscribers(self.krakenapi, self.streamer)
+
+        log.info(len(subscribers))
+        log.info(subscribers)
+        log.info(len(subscribers))
+
+        for username, user in self.users.items():
+            if user.subscriber:
+                user.subscriber = False
+                user.needs_sync = True
+
+        for subscriber in subscribers:
+            user = self.users[subscriber]
+            user.subscriber = True
+            user.needs_sync = True
 
     # async?
     def update_chatters(self):
