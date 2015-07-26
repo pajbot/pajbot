@@ -19,16 +19,24 @@ def get_chatters(channel):
 
     return []
 
+"""
+Returns a list of subscribers
+"""
 def get_subscribers(twitchapi, channel):
     limit = 100
     offset = 0
     subscribers = []
+    num_subs = 0
 
     try:
         data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})
-        while data['_total'] > limit + offset:
+        num_subs = data['_total']-1
+        while len(data['subscriptions']) > 0:
             for sub in data['subscriptions']:
                 subscribers.append(sub['user']['name'])
+
+            if data['_total'] < limit + offset:
+                break
 
             offset += limit
             data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})

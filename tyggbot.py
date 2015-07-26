@@ -298,6 +298,7 @@ class TyggBot:
     # async?
     def update_subscribers(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
+        self.kvi.insert('active_subs', len(subscribers)-1)
 
         for username, user in self.users.items():
             if user.subscriber:
