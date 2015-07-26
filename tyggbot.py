@@ -14,6 +14,7 @@ import subprocess
 from datetime import datetime
 import datetime as dt
 
+from helpers import get_chatters
 from models.user import User, UserManager
 from models.emote import Emote
 from scripts.database import update_database
@@ -285,6 +286,20 @@ class TyggBot:
         self.actionQ = ActionQueue()
         self.linkChecker = LinkChecker(self)
 
+        self.connection.execute_every(5*60, lambda: self.actionQ.add(self.update_chatters))
+
+        self.actionQ.add(self.update_chatters)
+
+    # async?
+    def update_chatters(self):
+        chatters = get_chatters(self.streamer)
+
+        points = 1 if self.is_online() else 0
+
+        for chatter in chatters:
+            user = self.users[chatter]
+            user.touch(points * (5 if user.subscriber else 1))
+
     def motd_tick(self):
         if len(self.motd_messages) == 0: return
 
@@ -489,6 +504,9 @@ class TyggBot:
 
     def c_uptime(self):
         return time_since(datetime.now().timestamp(), self.start_time.timestamp())
+
+    def is_online(self):
+        return self.kvi.get('stream_status') == 1
 
     def c_stream_status(self):
         if self.kvi.get('stream_status') == 1:
@@ -884,8 +902,7 @@ class TyggBot:
                     self.commands[command].run(self, source, extra_msg, event)
                     return
 
-        source.num_lines += 1
-        source.needs_sync = True
+        source.wrote_message()
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames

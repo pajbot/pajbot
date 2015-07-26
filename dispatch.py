@@ -3,6 +3,7 @@ import re
 import json
 import pymysql
 import logging
+import collections
 
 from tbutil import time_limit, TimeoutException
 
@@ -451,11 +452,13 @@ class Dispatch:
                 tyggbot.whisper(source.username, 'No user with this username found.')
                 return False
 
-            data = {
-                    'id': user.id,
-                    'level': user.level,
-                    'num_lines': user.num_lines,
-                    }
+            data = collections.OrderedDict()
+            data['id'] = user.id
+            data['level'] = user.level
+            data['num_lines'] = user.num_lines
+            data['points'] = user.points
+            data['last_seen'] = user.last_seen
+            data['last_active'] = user.last_active
 
             tyggbot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:

@@ -13,7 +13,7 @@ def update_database(sqlconn):
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
     log.info(cursor)
 
-    latest_db_version = 3
+    latest_db_version = 5
     version = 0
 
     if cursor.rowcount > 0:
@@ -32,6 +32,10 @@ def update_database(sqlconn):
             queries.append("CREATE TABLE `tb_emote` ( `id` INT NOT NULL AUTO_INCREMENT , `code` VARCHAR(64) NOT NULL COMMENT 'All regexes for emotes are escaped. so if the emote code is (ditto) the regex will be \\(ditto\\)' , `deque` TEXT NULL DEFAULT NULL COMMENT 'Dump of the emote deque, so the state can be saved properly' , `pm_record` INT NOT NULL DEFAULT '0' , `tm_record` INT NOT NULL DEFAULT '0' , `count` INT NOT NULL DEFAULT '0', PRIMARY KEY (`id`) ) ENGINE = InnoDB;");
         elif version == 3:
             queries.append("CREATE TABLE `tb_motd` ( `id` INT NOT NULL AUTO_INCREMENT , `message` VARCHAR(400) NOT NULL , `enabled` BOOLEAN NOT NULL DEFAULT TRUE , PRIMARY KEY (`id`) ) ENGINE = InnoDB;")
+        elif version == 4:
+            queries.append("ALTER TABLE `tb_user` ADD `points` INT NOT NULL DEFAULT '0' AFTER `level`;")
+        elif version == 5:
+            queries.append("ALTER TABLE `tb_user` ADD `last_seen` DATETIME NULL DEFAULT NULL , ADD `last_active` DATETIME NULL DEFAULT NULL ;")
 
         for query in queries:
             cursor.execute(query)

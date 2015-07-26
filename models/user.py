@@ -1,6 +1,7 @@
 import logging
 from collections import UserDict
 import pymysql
+import datetime
 
 log = logging.getLogger('tyggbot')
 
@@ -22,6 +23,9 @@ class User:
             user.level = row['level']
             user.num_lines = row['num_lines']
             user.subscriber = row['subscriber'] == 1
+            user.points = row['points']
+            user.last_seen = row['last_seen']
+            user.last_active = row['last_active']
         else:
             # We found a user in the database!
             user.id = -1 # An ID of -1 means it will be inserted on sync
@@ -31,19 +35,35 @@ class User:
             user.num_lines = 0
             user.needs_sync = True
             user.subscriber = False
+            user.points = 0
+            user.last_seen = None
+            user.last_active = None
 
         return user
 
     def sync(self, cursor):
+        _last_seen = None if not self.last_seen else self.last_seen.strftime('%Y-%m-%d %H:%M:%S')
+        _last_active = None if not self.last_active else self.last_active.strftime('%Y-%m-%d %H:%M:%S')
         if self.id == -1:
-            cursor.execute('INSERT INTO `tb_user` (`username`, `username_raw`, `level`, `num_lines`, `subscriber`) VALUES (%s, %s, %s, %s, %s)',
-                    (self.username, self.username_raw, self.level, self.num_lines, self.subscriber))
+            cursor.execute('INSERT INTO `tb_user` (`username`, `username_raw`, `level`, `num_lines`, `subscriber`, `points`, `last_seen`, `last_active`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                    (self.username, self.username_raw, self.level, self.num_lines, self.subscriber, self.points, _last_seen, _last_active))
             self.id = cursor.lastrowid
         else:
             # TODO: What values should we sync? For now, we only sync level and num_lines
-            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s, `subscriber`=%s WHERE `id`=%s',
-                    (self.level, self.num_lines, self.subscriber, self.id))
+            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s, `subscriber`=%s, `points`=%s, `last_seen`=%s, `last_active`=%s WHERE `id`=%s',
+                    (self.level, self.num_lines, self.subscriber, self.points, _last_seen, _last_active, self.id))
         self.needs_sync = False
+
+    def touch(self, add_points=0):
+        self.last_seen = datetime.datetime.now()
+        self.points += add_points
+        self.needs_sync = True
+
+    def wrote_message(self):
+        self.last_active = datetime.datetime.now()
+        self.last_seen = datetime.datetime.now()
+        self.num_lines += 1
+        self.needs_sync = True
 
 class UserManager(UserDict):
     def __init__(self, sqlconn):

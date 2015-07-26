@@ -23,6 +23,20 @@ class APIBase:
 
         return None
 
+    @staticmethod
+    def _get_json(url, headers={}):
+        try:
+            data = APIBase._get(url, headers)
+            if data:
+                return json.loads(data)
+            else:
+                return data
+        except Exception as e:
+            log.exception('Caught exception while trying to parse json data.')
+            return None
+
+        return None
+
     def get_url(self, endpoints=[], parameters={}):
         return self.base_url + '/'.join(endpoints) + ('' if len(parameters) == 0 else '?'+urllib.parse.urlencode(parameters))
 
