@@ -67,21 +67,13 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '0.9.6.0'
-    date_fmt = '%H:%M'
-    #date_fmt = '%A %B '
-    commands = {}
-    filters = []
-    settings = {}
-    emotes = {}
-    twitchapi = False
-
-    silent = False
-    dev = False
-
     """ Singleton instance of TyggBot, one instance of the script
-    should never have two active classes."""
+    should never have two active classes. """
     instance = None
+
+    version = '0.9.6.1'
+    date_fmt = '%H:%M'
+    update_chatters_interval = 5
 
     default_settings = {
             'broadcaster': 'test_broadcaster',
@@ -89,6 +81,7 @@ class TyggBot:
             'ban_msg_length': True,
             'motd_interval_offline': 60,
             'motd_interval_online': 5,
+            'max_msg_length': 350,
         }
 
     def parse_args():
@@ -229,6 +222,9 @@ class TyggBot:
         if 'flags' in config:
             self.silent = True if 'silent' in config['flags'] and config['flags']['silent'] == '1' else self.silent
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
+        else:
+            self.silent = False
+            self.dev = False
 
         self.silent = True if args.silent else self.silent
 
@@ -286,7 +282,7 @@ class TyggBot:
         self.actionQ = ActionQueue()
         self.linkChecker = LinkChecker(self)
 
-        self.connection.execute_every(5*60, lambda: self.actionQ.add(self.update_chatters))
+        self.connection.execute_every(self.update_chatters_interval*60, lambda: self.actionQ.add(self.update_chatters))
         self.actionQ.add(self.update_chatters)
 
         try:
@@ -314,10 +310,16 @@ class TyggBot:
     def update_chatters(self):
         chatters = get_chatters(self.streamer)
 
-        points = 1 if self.is_online() else 0
+        online = self.is_online()
+
+        points = 1 if online else 0
 
         for chatter in chatters:
             user = self.users[chatter]
+            if online:
+                user.minutes_in_chat_online += self.update_chatters_interval
+            else:
+                user.minutes_in_chat_offline += self.update_chatters_interval
             user.touch(points * (5 if user.subscriber else 1))
 
     def motd_tick(self):
@@ -956,17 +958,18 @@ class TyggBot:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
                     self.timeout(source.username, 120)
-                    self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
+                    #self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
                     return
 
             if self.settings['ban_msg_length']:
-                if msg_len > 450:
+                max_msg_length = self.settings['max_msg_length']
+                if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                    self.timeout(source.username, 20)
-                    self.whisper(source.username, 'You have been timed out for 20 seconds because your message was too long.')
+                    self.timeout(source.username, 120)
+                    #self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
                     return
 
-        if cur_time - self.last_sync >= 60:
+        if cur_time - self.last_sync >= 10*60:
             self.sync_to()
             self.last_sync = cur_time
 
