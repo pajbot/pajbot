@@ -17,6 +17,7 @@ import datetime as dt
 from helpers import get_chatters, get_subscribers
 from models.user import User, UserManager
 from models.emote import Emote
+from models.setting import Setting
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -42,24 +43,6 @@ log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 50
-
-class Setting:
-    def parse(type, value):
-        try:
-            if type == 'int':
-                return int(value)
-            elif type == 'string':
-                return value
-            elif type == 'list':
-                return value.split(',')
-            elif type == 'bool':
-                return int(value) == 1
-            else:
-                log.error('Invalid setting type: {0}'.format(type))
-        except Exception as e:
-            log.exception('Exception caught when loading setting')
-
-        return None
 
 class TyggBot:
     """
