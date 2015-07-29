@@ -14,14 +14,14 @@ class Action:
 
 class ActionQueue:
     def __init__(self):
-        self.Q = queue.Queue()
+        self.queue = queue.Queue()
         t = threading.Thread(target=self.action_parser)
         t.daemon = True
         t.start()
 
     def action_parser(self):
         while True:
-            action = self.Q.get()
+            action = self.queue.get()
             action.func(*action.args, **action.kwargs)
 
     def add(self, f, args=[], kwargs={}):
@@ -33,4 +33,4 @@ class ActionQueue:
         self._add(action)
 
     def _add(self, action):
-        self.Q.put(action)
+        self.queue.put(action)

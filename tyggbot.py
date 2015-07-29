@@ -40,7 +40,6 @@ from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
-
 class TMI:
     message_limit = 50
 
@@ -279,15 +278,15 @@ class TyggBot:
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
 
-        self.actionQ = ActionQueue()
+        self.action_queue = ActionQueue()
         self.linkChecker = LinkChecker(self)
 
-        #self.connection.execute_every(self.update_chatters_interval*60, lambda: self.actionQ.add(self.update_chatters))
-        #self.actionQ.add(self.update_chatters)
+        #self.connection.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters))
+        #self.action_queue.add(self.update_chatters)
 
         try:
             if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
-                self.execute_every(30*60, lambda: self.actionQ.add(self.update_subscribers))
+                self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers))
         except:
             pass
 
@@ -908,7 +907,7 @@ class TyggBot:
                 urls = self.linkChecker.findUrlsInMessage(msg_raw)
                 for url in urls:
                     action = Action(self.timeout, args = [source.username, 20]) # action which will be taken when a bad link is found
-                    self.actionQ.add(self.linkChecker.check_url, args= [ url, action ]) # que up a check on the url
+                    self.action_queue.add(self.linkChecker.check_url, args= [ url, action ]) # que up a check on the url
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
