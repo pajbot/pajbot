@@ -235,7 +235,7 @@ class TyggBot:
         self.motd_iterator = 0
         self.motd_minute = 0
         self.motd_messages = []
-        self.connection.execute_every(60, self.motd_tick)
+        self.execute_every(60, self.motd_tick)
 
         self.load_all()
 
@@ -243,11 +243,11 @@ class TyggBot:
         self.whisper_conn.connect()
 
         self.num_commands_sent = 0
-        self.connection.execute_every(30, self.reset_command_throttle)
+        self.execute_every(30, self.reset_command_throttle)
 
         self.num_offlines = 0
         if self.krakenapi:
-            self.connection.execute_every(20, self.refresh_stream_status)
+            self.execute_every(20, self.refresh_stream_status)
 
         self.twitter_stream = False
         if 'twitter' in config:
@@ -256,17 +256,19 @@ class TyggBot:
         else:
             self.twitter = None
 
-        self.connection.execute_every(1, self.shift_emotes)
+        self.execute_every(1, self.shift_emotes)
 
         self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
 
+        # Actions here are run in a separate thread.
+        # This means actions should NOT access any database-related stuff.
         self.action_queue = ActionQueue()
         self.linkChecker = LinkChecker(self)
 
-        #self.connection.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters))
+        #self.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters))
         #self.action_queue.add(self.update_chatters)
 
         try:
@@ -275,7 +277,6 @@ class TyggBot:
         except:
             pass
 
-    # async?
     def update_subscribers(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
         self.kvi.insert('active_subs', len(subscribers)-1)
@@ -290,7 +291,6 @@ class TyggBot:
             user.subscriber = True
             user.needs_sync = True
 
-    # async?
     def update_chatters(self):
         chatters = get_chatters(self.streamer)
 
@@ -805,8 +805,8 @@ class TyggBot:
 
     def _connected_checker(self):
         if not self.connection.is_connected():
-            self.connection.execute_delayed(self.reconnection_interval,
-                                            self._connected_checker)
+            self.execute_delayed(self.reconnection_interval,
+                                 self._connected_checker)
 
             self.connect()
 
@@ -830,8 +830,8 @@ class TyggBot:
                 pass
         log.debug('Connecting to IRC server...')
 
-        self.connection.execute_delayed(self.reconnection_interval,
-                                        self._connected_checker)
+        self.execute_delayed(self.reconnection_interval,
+                             self._connected_checker)
 
         return False
 
@@ -839,12 +839,12 @@ class TyggBot:
         if chatconn == self.connection:
             log.debug('Disconnected from IRC server')
             self.sync_to()
-            self.connection.execute_delayed(self.reconnection_interval,
-                                            self._connected_checker)
+            self.execute_delayed(self.reconnection_interval,
+                                 self._connected_checker)
         elif chatconn == self.whisper_conn:
             log.debug('Disconnecting from Whisper server')
-            self.whisper_conn.execute_delayed(self.whisper_conn.reconnection_interval,
-                                              self.whisper_conn._connected_checker)
+            self.execute_delayed(self.whisper_conn.reconnection_interval,
+                                 self.whisper_conn._connected_checker)
 
     def check_msg_content(self, source, msg_raw, event):
         msg_lower = msg_raw.lower()
