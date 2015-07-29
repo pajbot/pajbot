@@ -88,7 +88,6 @@ class UserManager(UserDict):
         for user in [user for k, user in self.data.items() if user.needs_sync]:
             user.sync(cursor)
 
-        cursor.commit()
         cursor.close()
         self.sqlconn.autocommit(True)
 

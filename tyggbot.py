@@ -219,12 +219,12 @@ class TyggBot:
 
         self.users = UserManager(self.sqlconn)
 
+        self.silent = False
+        self.dev = False
+
         if 'flags' in config:
             self.silent = True if 'silent' in config['flags'] and config['flags']['silent'] == '1' else self.silent
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
-        else:
-            self.silent = False
-            self.dev = False
 
         self.silent = True if args.silent else self.silent
 
@@ -282,8 +282,8 @@ class TyggBot:
         self.actionQ = ActionQueue()
         self.linkChecker = LinkChecker(self)
 
-        self.connection.execute_every(self.update_chatters_interval*60, lambda: self.actionQ.add(self.update_chatters))
-        self.actionQ.add(self.update_chatters)
+        #self.connection.execute_every(self.update_chatters_interval*60, lambda: self.actionQ.add(self.update_chatters))
+        #self.actionQ.add(self.update_chatters)
 
         try:
             if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
