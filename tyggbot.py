@@ -175,6 +175,8 @@ class TyggBot:
 
         TyggBot.instance = self
 
+        self.is_online = False
+
         self.base_path = os.path.dirname(os.path.realpath(__file__))
         self.data = {}
         self.data_cb = {}
@@ -292,13 +294,11 @@ class TyggBot:
     def update_chatters(self):
         chatters = get_chatters(self.streamer)
 
-        online = self.is_online()
-
-        points = 1 if online else 0
+        points = 1 if self.is_online else 0
 
         for chatter in chatters:
             user = self.users[chatter]
-            if online:
+            if self.is_online:
                 user.minutes_in_chat_online += self.update_chatters_interval
             else:
                 user.minutes_in_chat_offline += self.update_chatters_interval
@@ -325,12 +325,14 @@ class TyggBot:
                 status = 'stream' in data and data['stream'] is not None
 
                 if status == True:
+                    self.is_online = True
                     self.kvi.set('stream_status', 1)
                     self.kvi.set('last_online', int(time.time()));
                     self.num_offlines = 0
                 elif status == False:
                     stream_status = self.kvi.get('stream_status')
                     if (stream_status == 1 and self.num_offlines > 10) or stream_status == 0:
+                        self.is_online = False
                         self.kvi.set('stream_status', 0)
                         self.kvi.set('last_offline', int(time.time()))
                     else:
