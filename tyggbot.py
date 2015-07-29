@@ -263,22 +263,32 @@ class TyggBot:
             self.init_websocket_server()
             self.execute_every(1, self.refresh_emote_data)
 
-        # Actions here are run in a separate thread.
+        # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
         self.action_queue = ActionQueue()
+        self.action_queue.start()
+
+        # For actions that need to access the mainthread, there's the mainthread_queue
+        self.mainthread_queue = ActionQueue()
+        self.execute_every(1, self.mainthread_queue.parse_action)
+
         self.linkChecker = LinkChecker(self)
 
-        #self.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters))
-        #self.action_queue.add(self.update_chatters)
+        # Update chatters
+        self.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters_stage1))
+        self.action_queue.add(self.update_chatters_stage1)
 
         try:
             if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
-                self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers))
+                self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers_stage1))
         except:
             pass
 
-    def update_subscribers(self):
+    def update_subscribers_stage1(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
+        self.mainthread_queue.add(self.update_subscribers_stage2, args=[subscribers])
+
+    def update_subscribers_stage2(self, subscribers):
         self.kvi.insert('active_subs', len(subscribers)-1)
 
         for username, user in self.users.items():
@@ -291,9 +301,11 @@ class TyggBot:
             user.subscriber = True
             user.needs_sync = True
 
-    def update_chatters(self):
+    def update_chatters_stage1(self):
         chatters = get_chatters(self.streamer)
+        self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
 
+    def update_chatters_stage2(self, chatters):
         points = 1 if self.is_online else 0
 
         for chatter in chatters:
@@ -308,13 +320,17 @@ class TyggBot:
         if len(self.motd_messages) == 0: return
 
         self.motd_minute += 1
-        stream_status = self.kvi.get('stream_status')
-        interval = self.settings['motd_interval_online'] if stream_status == 1 else self.settings['motd_interval_offline']
+        interval = self.settings['motd_interval_online'] if self.is_online else self.settings['motd_interval_offline']
         if self.motd_minute >= interval:
-            log.debug('Sending MOTD message.')
-            self.say(self.motd_messages[self.motd_iterator % len(self.motd_messages)])
-            self.motd_minute = 0
-            self.motd_iterator += 1
+            self.motd_cycle()
+
+    def motd_cycle(self):
+        if len(self.motd_messages) == 0: return
+
+        log.debug('Sending MOTD message in the cycle.')
+        self.say(self.motd_messages[self.motd_iterator % len(self.motd_messages)])
+        self.motd_minute = 0
+        self.motd_iterator += 1
 
     def refresh_stream_status(self):
         if not self.krakenapi: return

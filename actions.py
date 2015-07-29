@@ -10,19 +10,33 @@ class Action:
         self.func = f
         self.args = args
         self.kwargs = kwargs
-        return
+
+    def run(self):
+        self.func(*self.args, **self.kwargs)
 
 class ActionQueue:
     def __init__(self):
         self.queue = queue.Queue()
-        t = threading.Thread(target=self.action_parser)
+
+    """ Starts a thread which will continuously check the queue for actions. """
+    def start(self):
+        t = threading.Thread(target=self._action_parser)
         t.daemon = True
         t.start()
 
-    def action_parser(self):
+    """ Start a loop which waits and things to be added into the queue.
+    Note: This is a blocking method, and should be run in a separate thread
+    This method is started automatically if ActionQueue is declared threaded. """
+    def _action_parser(self):
         while True:
             action = self.queue.get()
-            action.func(*action.args, **action.kwargs)
+            action.run()
+
+    """ Run a single action in the queue if the queue is not empty. """
+    def parse_action(self):
+        if not self.queue.empty():
+            action = self.queue.get()
+            action.run()
 
     def add(self, f, args=[], kwargs={}):
         action = Action()
