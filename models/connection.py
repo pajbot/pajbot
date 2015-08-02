@@ -1,4 +1,3 @@
-import from llist import dllist, dllistnode
 import irc
 import random
 
@@ -21,10 +20,39 @@ class ConnectionManager:
         self.tyggbot = tyggbot
         self.message_limit = message_limit
 
-        self.connlist = dllist()
+        self.connlist = []
 
     def start(self):
         for i in range(0, backup_conns_number):
+            newconn = self.make_new_connection()
+            self.connlist.append(newconn)
+
+        self.reactor.execute_every(4, self.run_maintenance)
+        self.reactor.execute_every(30, self.reset_msg_throttle)
+
+    def reset_msg_throttle(self):
+        for connection in self.connlist:
+            connection.num_msgs_sent = 0
+
+    def run_maintenance(self):
+        clean_conns_count = 0
+        tmp = [] #new list of connections
+        for connection in self.connlist:
+            if not connection.conn.is_connected():              
+                continue # don't want this connection in the new list
+
+            if connection.num_msgs_sent == 0:
+                if clean_conns_count >= self.back_conns_number: #we have more connections than needed
+                    connection.conn.close()
+                    continue # don't want this connection
+                else:                
+                    clean_conns_count += 1
+
+            tmp.append(connection)
+
+        self.connlist = tmp #replace the old list with the newly constructed one
+        need_more = self.backup_conns_number - clean_conns_count
+        for i in range(0, need_more): # add as many fresh connections as needed
             newconn = self.make_new_connection()
             self.connlist.append(newconn)
 
@@ -61,4 +89,12 @@ class ConnectionManager:
         return
 
     def privmsg(self, channel, message):
-        return
+        i = 0
+        while((not self.connlist[i].is_connected()) and self.connlist[i].num_msgs_sent >= self.message_limit):
+            i += 1 #find a usable connection
+
+        self.connlist[i].num_msgs_sent += 1
+        self.connlist[i].privmsg(channel, message)
+
+        if self.connlist[i].num_msgs_sent >= self.message_limit:
+            self.run_maintenance()
