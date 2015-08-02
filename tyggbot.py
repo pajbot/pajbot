@@ -18,6 +18,7 @@ from helpers import get_chatters, get_subscribers
 from models.user import User, UserManager
 from models.emote import Emote
 from models.setting import Setting
+from models.connection import Connection, ConnectionManager
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -143,6 +144,8 @@ class TyggBot:
 
     def __init__(self, config, args):
         self.config = config
+        self.nickname = config['main']['nickname']
+        self.password = config['main']['password']
 
         self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], db=config['sql']['db'], charset='utf8')
         self.sqlconn.autocommit(True)
@@ -152,7 +155,7 @@ class TyggBot:
         self.load_default_phrases()
 
         self.reactor = irc.client.Reactor()
-        self.connection = self.reactor.server()
+        self.connection_manager = ConnectionManager(self.reactor, self.nickname, self.password)
 
         self.twitchapi = TwitchAPI(type='api')
         if 'twitchapi' in self.config:
@@ -227,8 +230,6 @@ class TyggBot:
 
         self.sync_from()
 
-        self.nickname = config['main']['nickname']
-        self.password = config['main']['password']
         self.reconnection_interval = 5
 
         # Initialize MOTD-printing
@@ -242,7 +243,6 @@ class TyggBot:
         self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
 
-        self.num_commands_sent = 0
         self.execute_every(30, self.reset_command_throttle)
 
         self.num_offlines = 0
@@ -507,17 +507,11 @@ class TyggBot:
         self.load_all()
 
     def privmsg(self, message, priority=False, channel=None):
-        # Non-prioritized messages are allowed 50% of the message limit
-        if (not priority and self.num_commands_sent > TMI.message_limit/2) or (priority and self.num_commands_sent > TMI.message_limit):
-            log.error('Skipping this say, because we are sending too many messages.')
-            return False
-
         try:
             if channel is None:
                 channel = self.channel
 
-            self.connection.privmsg(channel, message)
-            self.num_commands_sent += 1
+            self.connection_manager.privmsg(channel, message)
         except Exception as e:
             log.exception('Exception caught while sending privmsg')
 
@@ -801,66 +795,25 @@ class TyggBot:
         cursor.close()
 
     def on_welcome(self, chatconn, event):
-        if chatconn == self.connection:
+        if chatconn == self.whisper_conn:
+            log.debug('Connected to Whisper server.')
+        else:
             log.debug('Connected to IRC server.')
             if irc.client.is_channel(self.channel):
                 chatconn.join(self.channel)
 
-                if self.phrases['welcome']:
-                    phrase_data = {
-                            'nickname': self.nickname,
-                            'version': self.version,
-                            }
-
-                    try:
-                        self.say(self.phrases['welcome'].format(**phrase_data))
-                    except Exception as e:
-                        log.exception('Exception caught while trying to say welcome phrase')
-        elif chatconn == self.whisper_conn:
-            log.debug('Connected to Whisper server.')
-
-    def _connected_checker(self):
-        if not self.connection.is_connected():
-            self.execute_delayed(self.reconnection_interval,
-                                 self._connected_checker)
-
-            self.connect()
-
     def connect(self):
-        log.debug('Fetching random IRC server...')
-        data = self.twitchapi.get(['channels', self.streamer, 'chat_properties'])
-        if data and len(data['chat_servers']) > 0:
-            server = random.choice(data['chat_servers'])
-            ip, port = server.split(':')
-            port = int(port)
-
-            log.debug('Fetched {0}:{1}'.format(ip, port))
-
-            try:
-                irc.client.SimpleIRCClient.connect(self, ip, port, self.nickname, self.password, self.nickname)
-                self.connection.cap('REQ', 'twitch.tv/membership')
-                self.connection.cap('REQ', 'twitch.tv/commands')
-                self.connection.cap('REQ', 'twitch.tv/tags')
-                return True
-            except irc.client.ServerConnectionError:
-                pass
-        log.debug('Connecting to IRC server...')
-
-        self.execute_delayed(self.reconnection_interval,
-                             self._connected_checker)
-
-        return False
+        return self.connection_manager.start()
 
     def on_disconnect(self, chatconn, event):
-        if chatconn == self.connection:
-            log.debug('Disconnected from IRC server')
-            self.sync_to()
-            self.execute_delayed(self.reconnection_interval,
-                                 self._connected_checker)
-        elif chatconn == self.whisper_conn:
+        if chatconn == self.whisper_conn:
             log.debug('Disconnecting from Whisper server')
             self.execute_delayed(self.whisper_conn.reconnection_interval,
                                  self.whisper_conn._connected_checker)
+
+       else:
+            log.debug('Disconnected from IRC server')
+            self.connection_manager.on_disconnect(chatconn)
 
     def check_msg_content(self, source, msg_raw, event):
         msg_lower = msg_raw.lower()
