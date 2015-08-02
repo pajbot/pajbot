@@ -155,7 +155,7 @@ class TyggBot:
         self.load_default_phrases()
 
         self.reactor = irc.client.Reactor()
-        self.connection_manager = ConnectionManager(self.reactor, self.nickname, self.password)
+        self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit)
 
         self.twitchapi = TwitchAPI(type='api')
         if 'twitchapi' in self.config:
@@ -242,8 +242,6 @@ class TyggBot:
 
         self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
         self.whisper_conn.connect()
-
-        self.execute_every(30, self.reset_command_throttle)
 
         self.num_offlines = 0
         if self.krakenapi:
@@ -419,9 +417,6 @@ class TyggBot:
     def shift_emotes(self):
         for emote in self.emotes:
             emote.shift()
-
-    def reset_command_throttle(self):
-        self.num_commands_sent = 0
 
     def _dispatcher(self, connection, event):
         do_nothing = lambda c, e: None
