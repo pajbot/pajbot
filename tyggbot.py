@@ -419,9 +419,10 @@ class TyggBot:
             emote.shift()
 
     def _dispatcher(self, connection, event):
-        do_nothing = lambda c, e: None
-        method = getattr(self, "on_" + event.type, do_nothing)
-        method(connection, event)
+        if connection == self.connection_manager.connlist[0].conn:
+            do_nothing = lambda c, e: None
+            method = getattr(self, "on_" + event.type, do_nothing)
+            method(connection, event)
 
     def start(self):
         """Start the IRC client."""
@@ -501,7 +502,7 @@ class TyggBot:
         self.sync_to()
         self.load_all()
 
-    def privmsg(self, message, priority=False, channel=None):
+    def privmsg(self, message, channel=None):
         try:
             if channel is None:
                 channel = self.channel
@@ -537,7 +538,7 @@ class TyggBot:
         return time_since(time.time(), self.kvi.get('latest_deck_time'))
 
     def _ban(self, username):
-        self.privmsg('.ban {0}'.format(username), True)
+        self.privmsg('.ban {0}'.format(username))
 
     def execute_at(self, at, function, arguments=()):
         self.reactor.execute_at(at, function, arguments)
@@ -553,10 +554,10 @@ class TyggBot:
         self.execute_delayed(1, self._ban, (username, ))
 
     def unban(self, username):
-        self.privmsg('.unban {0}'.format(username), True)
+        self.privmsg('.unban {0}'.format(username))
 
     def _timeout(self, username, duration):
-        self.privmsg('.timeout {0} {1}'.format(username, duration), True)
+        self.privmsg('.timeout {0} {1}'.format(username, duration))
 
     def timeout(self, username, duration):
         self._timeout(username, duration)
@@ -806,7 +807,7 @@ class TyggBot:
             self.execute_delayed(self.whisper_conn.reconnection_interval,
                                  self.whisper_conn._connected_checker)
 
-       else:
+        else:
             log.debug('Disconnected from IRC server')
             self.connection_manager.on_disconnect(chatconn)
 
@@ -939,7 +940,7 @@ class TyggBot:
         if self.twitter_stream:
             self.twitter_stream.disconnect()
 
-        self.connection.quit('bye')
+        #self.connection.quit('bye')
         if self.whisper_conn:
             self.whisper_conn.connection.quit('bye')
 
