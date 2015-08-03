@@ -12,6 +12,9 @@ class Connection:
         
         return
 
+    def reduce_msgs_sent(self):
+        self.num_msgs_sent -= 1
+
 class ConnectionManager:
     def __init__(self, reactor, tyggbot, message_limit):
         self.backup_conns_number = 2
@@ -38,14 +41,9 @@ class ConnectionManager:
             self.tyggbot.say(self.tyggbot.phrases['welcome'].format(**phrase_data))
 
             self.reactor.execute_every(4, self.run_maintenance)
-            self.reactor.execute_every(30, self.reset_msg_throttle)
             return True
         except:
             return False
-
-    def reset_msg_throttle(self):
-        for connection in self.connlist:
-            connection.num_msgs_sent = 0
 
     def run_maintenance(self):
         clean_conns_count = 0
@@ -117,6 +115,7 @@ class ConnectionManager:
 
         self.connlist[i].num_msgs_sent += 1
         self.connlist[i].conn.privmsg(channel, message)
+        self.reactor.execute_delayed(31, self.connlist[i].reduce_msgs_sent)
 
         if self.connlist[i].num_msgs_sent >= self.message_limit:
             self.run_maintenance()
