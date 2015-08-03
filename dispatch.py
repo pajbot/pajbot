@@ -659,3 +659,19 @@ class Dispatch:
                 tyggbot.say('{0}, you have {1} points.'.format(source.username, user.points))
             else:
                 tyggbot.say('{0}, {1} has {2} points.'.format(source.username, user.username, user.points))
+
+    def remindme(tyggbot, source, message, event, args):
+        if not message:
+            return False
+
+        parts = message.split(' ')
+        if len(parts) < 2:
+            # Not enough arguments
+            return False
+
+        delay = int(parts[0])
+        extra_message = '{0}, {1}'.format(source.username, ' '.join(parts[1:]).strip())
+
+        log.info(extra_message)
+
+        tyggbot.execute_delayed(delay, tyggbot.say, (extra_message, ))
