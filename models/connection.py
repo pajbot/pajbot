@@ -3,7 +3,7 @@ import random
 
 import logging
 
-log = logging.getLogger() 
+log = logging.getLogger('tyggbot')
 
 class Connection:
     def __init__(self, conn):
@@ -25,7 +25,7 @@ class ConnectionManager:
     def start(self):
         log.debug("Starting connection manager")
         if True:
-            for i in range(0, self.backup_conns_number):
+            for i in range(0, self.backup_conns_number+1):
                 newconn = self.make_new_connection()
                 self.connlist.append(newconn)
 
@@ -43,11 +43,13 @@ class ConnectionManager:
         clean_conns_count = 0
         tmp = [] #new list of connections
         for connection in self.connlist:
-            if not connection.conn.is_connected():              
+            if not connection.conn.is_connected():
+                log.debug("Removing connection because not connected")              
                 continue # don't want this connection in the new list
 
             if connection.num_msgs_sent == 0:
                 if clean_conns_count >= self.backup_conns_number: #we have more connections than needed
+                    log.debug("Removing connection because we have enough backup")
                     connection.conn.close()
                     continue # don't want this connection
                 else:                
@@ -57,9 +59,17 @@ class ConnectionManager:
 
         self.connlist = tmp #replace the old list with the newly constructed one
         need_more = self.backup_conns_number - clean_conns_count
+
         for i in range(0, need_more): # add as many fresh connections as needed
             newconn = self.make_new_connection()
             self.connlist.append(newconn)
+
+    def get_main_conn(self):
+        for connection in self.connlist:
+            if connection.conn.is_connected():
+                return connection.conn
+
+        log.error("No connection with is_connected() found")
 
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
@@ -74,6 +84,7 @@ class ConnectionManager:
 
             try:
                 newconn = self.reactor.server().connect(ip, port, self.tyggbot.nickname, self.tyggbot.password, self.tyggbot.nickname)
+                log.debug('Connecting to IRC server...')
                 newconn.cap('REQ', 'twitch.tv/membership')
                 newconn.cap('REQ', 'twitch.tv/commands')
                 newconn.cap('REQ', 'twitch.tv/tags')
@@ -82,7 +93,6 @@ class ConnectionManager:
                 return connection
             except irc.client.ServerConnectionError:
                 return
-            log.debug('Connecting to IRC server...')
 
         else:
             log.error("No proper data returned when fetching IRC servers")
@@ -94,7 +104,7 @@ class ConnectionManager:
 
     def privmsg(self, channel, message):
         i = 0
-        while((not self.connlist[i].conn.is_connected()) and self.connlist[i].num_msgs_sent >= self.message_limit):
+        while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
             i += 1 #find a usable connection
 
         self.connlist[i].num_msgs_sent += 1

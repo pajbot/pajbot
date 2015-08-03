@@ -281,6 +281,7 @@ class TyggBot:
                 self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers_stage1))
         except:
             pass
+    log.debug("finished tygg init")
 
     def update_subscribers_stage1(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
@@ -419,7 +420,7 @@ class TyggBot:
             emote.shift()
 
     def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.connlist[0].conn:
+        if connection == self.connection_manager.get_main_conn():
             do_nothing = lambda c, e: None
             method = getattr(self, "on_" + event.type, do_nothing)
             method(connection, event)
