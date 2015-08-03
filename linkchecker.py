@@ -9,7 +9,7 @@ import logging
 import os
 import time
 
-log = logging.getLogger() 
+log = logging.getLogger('tyggbot') 
 
 class LinkChecker:
     def __init__(self, bot):
