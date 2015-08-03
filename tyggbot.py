@@ -272,7 +272,7 @@ class TyggBot:
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
-        self.linkChecker = LinkChecker(self)
+        self.link_checker = LinkChecker(self)
 
         # Update chatters
         self.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters_stage1))
@@ -905,10 +905,10 @@ class TyggBot:
         if not force:
             if source.level < 500:
                 if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
-                urls = self.linkChecker.findUrlsInMessage(msg_raw)
+                urls = self.link_checker.findUrlsInMessage(msg_raw)
                 for url in urls:
                     action = Action(self.timeout, args = [source.username, 20]) # action which will be taken when a bad link is found
-                    self.action_queue.add(self.linkChecker.check_url, args= [ url, action ]) # que up a check on the url
+                    self.action_queue.add(self.link_checker.check_url, args= [ url, action ]) # que up a check on the url
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
