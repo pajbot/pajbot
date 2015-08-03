@@ -24,15 +24,23 @@ class ConnectionManager:
 
     def start(self):
         log.debug("Starting connection manager")
-        if True:
+        try:
             for i in range(0, self.backup_conns_number+1):
                 newconn = self.make_new_connection()
                 self.connlist.append(newconn)
 
+            if self.tyggbot.phrases['welcome']:
+                phrase_data = {
+                    'nickname': self.tyggbot.nickname,
+                    'version': self.tyggbot.version,
+                     }
+
+            self.tyggbot.say(self.tyggbot.phrases['welcome'].format(**phrase_data))
+
             self.reactor.execute_every(4, self.run_maintenance)
             self.reactor.execute_every(30, self.reset_msg_throttle)
             return True
-        else:
+        except:
             return False
 
     def reset_msg_throttle(self):

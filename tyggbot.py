@@ -281,7 +281,6 @@ class TyggBot:
                 self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers_stage1))
         except:
             pass
-    log.debug("finished tygg init")
 
     def update_subscribers_stage1(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
