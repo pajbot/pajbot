@@ -1,6 +1,7 @@
 import queue
 import threading
 
+
 class Action:
     func = None
     args = []
@@ -13,6 +14,7 @@ class Action:
 
     def run(self):
         self.func(*self.args, **self.kwargs)
+
 
 class ActionQueue:
     def __init__(self):

@@ -2,23 +2,18 @@ import json
 import time
 import os
 import argparse
-import re
 import sys
 import logging
-import math
-import random
 import threading
-import requests
 import subprocess
 
 from datetime import datetime
-import datetime as dt
 
 from helpers import get_chatters, get_subscribers
-from models.user import User, UserManager
+from models.user import UserManager
 from models.emote import Emote
 from models.setting import Setting
-from models.connection import Connection, ConnectionManager
+from models.connection import ConnectionManager
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -32,18 +27,20 @@ from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
 from whisperconn import WhisperConn
-from tbutil import SyncValue, time_since, tweet_prettify_urls
+from tbutil import time_since, tweet_prettify_urls
 
 import irc.client
 
-from command import Filter, Command
+from command import Filter
 from actions import Action, ActionQueue
 from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
+
 class TMI:
     message_limit = 50
+
 
 class TyggBot:
     """
@@ -54,7 +51,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '0.9.7.0'
+    version = '0.9.8.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
 
@@ -65,16 +62,18 @@ class TyggBot:
             'motd_interval_offline': 60,
             'motd_interval_online': 5,
             'max_msg_length': 350,
-        }
+            }
 
     def parse_args():
         parser = argparse.ArgumentParser()
         parser.add_argument('--config', '-c',
-                           default='config.ini',
-                           help='Specify which config file to use (default: config.ini)')
+                            default='config.ini',
+                            help='Specify which config file to use '
+                                    '(default: config.ini)')
         parser.add_argument('--silent',
-                action='count',
-                help='Decides whether the bot should be silent or not')
+                            action='count',
+                            help='Decides whether the bot should be '
+                            'silent or not')
         # TODO: Add a log level argument.
 
         return parser.parse_args()
@@ -96,8 +95,8 @@ class TyggBot:
         try:
             class MyStreamListener(tweepy.StreamListener):
                 relevant_users = [
-                        'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf'
-                        ]
+                    'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf'
+                    ]
 
                 def on_status(self, tweet):
                     if tweet.user.screen_name.lower() in self.relevant_users:
@@ -110,7 +109,7 @@ class TyggBot:
 
             if not self.twitter_stream:
                 listener = MyStreamListener()
-                self.twitter_stream = tweepy.Stream(self.twitter_auth, listener, retry_420=3*60, daemonize_thread=True)
+                self.twitter_stream = tweepy.Stream(self.twitter_auth, listener, retry_420=3 * 60, daemonize_thread=True)
 
             self.twitter_stream.userstream(_with='followings', replies='all', async=True)
         except:
@@ -161,8 +160,10 @@ class TyggBot:
         if 'twitchapi' in self.config:
             client_id = None
             oauth = None
-            if 'client_id' in self.config['twitchapi']: client_id = self.config['twitchapi']['client_id']
-            if 'oauth' in self.config['twitchapi']: oauth = self.config['twitchapi']['oauth']
+            if 'client_id' in self.config['twitchapi']:
+                client_id = self.config['twitchapi']['client_id']
+            if 'oauth' in self.config['twitchapi']:
+                oauth = self.config['twitchapi']['oauth']
             self.krakenapi = TwitchAPI(client_id, oauth, type='kraken')
         else:
             self.krakenapi = False
@@ -172,7 +173,7 @@ class TyggBot:
         if 'wolfram' in config['main']:
             Dispatch.wolfram = wolframalpha.Client(config['main']['wolfram'])
         else:
-            wolfram = None
+            Dispatch.wolfram = None
 
         self.whisper_conn = None
 
@@ -266,28 +267,38 @@ class TyggBot:
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
-        # For actions that need to access the mainthread, there's the mainthread_queue
+        """
+        For actions that need to access the main thread,
+        we can use the mainthread_queue.
+        """
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
         self.link_checker = LinkChecker(self)
 
-        # Update chatters
-        self.execute_every(self.update_chatters_interval*60, lambda: self.action_queue.add(self.update_chatters_stage1))
-        self.action_queue.add(self.update_chatters_stage1)
+        """
+        Update chatters every `update_chatters_interval' minutes.
+        By default, this is set to run every 5 minutes.
+        """
+        self.execute_every(self.update_chatters_interval * 60,
+                           self.action_queue.add,
+                           (self.update_chatters_stage1, ))
 
         try:
             if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
-                self.execute_every(30*60, lambda: self.action_queue.add(self.update_subscribers_stage1))
+                self.execute_every(30 * 60,
+                                   self.action_queue.add,
+                                   (self.update_subscribers_stage1, ))
         except:
             pass
 
     def update_subscribers_stage1(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
-        self.mainthread_queue.add(self.update_subscribers_stage2, args=[subscribers])
+        self.mainthread_queue.add(self.update_subscribers_stage2,
+                                  args=[subscribers])
 
     def update_subscribers_stage2(self, subscribers):
-        self.kvi.insert('active_subs', len(subscribers)-1)
+        self.kvi.insert('active_subs', len(subscribers) - 1)
 
         for username, user in self.users.items():
             if user.subscriber:
@@ -315,7 +326,8 @@ class TyggBot:
             user.touch(points * (5 if user.subscriber else 1))
 
     def motd_tick(self):
-        if len(self.motd_messages) == 0: return
+        if len(self.motd_messages) == 0:
+            return
 
         self.motd_minute += 1
         interval = self.settings['motd_interval_online'] if self.is_online else self.settings['motd_interval_offline']
@@ -323,7 +335,8 @@ class TyggBot:
             self.motd_cycle()
 
     def motd_cycle(self):
-        if len(self.motd_messages) == 0: return
+        if len(self.motd_messages) == 0:
+            return
 
         log.debug('Sending MOTD message in the cycle.')
         self.say(self.motd_messages[self.motd_iterator % len(self.motd_messages)])
@@ -331,26 +344,27 @@ class TyggBot:
         self.motd_iterator += 1
 
     def refresh_stream_status(self):
-        if not self.krakenapi: return
+        if not self.krakenapi:
+            return
 
         data = self.krakenapi.get(['streams', self.streamer])
         if data:
             try:
                 status = 'stream' in data and data['stream'] is not None
 
-                if status == True:
+                if status is True:
                     self.is_online = True
                     self.kvi.set('stream_status', 1)
-                    self.kvi.set('last_online', int(time.time()));
+                    self.kvi.set('last_online', int(time.time()))
                     self.num_offlines = 0
-                elif status == False:
+                elif status is False:
                     stream_status = self.kvi.get('stream_status')
                     if (stream_status == 1 and self.num_offlines > 10) or stream_status == 0:
                         self.is_online = False
                         self.kvi.set('stream_status', 0)
                         self.kvi.set('last_offline', int(time.time()))
                     else:
-                        self.kvi.set('last_online', int(time.time()));
+                        self.kvi.set('last_online', int(time.time()))
                     self.num_offlines += 1
             except:
                 log.exception('Caught exception while trying to update stream status')
@@ -366,7 +380,7 @@ class TyggBot:
                         'count': emote.count,
                         }
 
-            payload = json.dumps(emote_data, separators=(',',':')).encode('utf8')
+            payload = json.dumps(emote_data, separators=(',', ':')).encode('utf8')
             for client in self.ws_clients:
                 client.sendMessage(payload, False)
 
@@ -419,7 +433,7 @@ class TyggBot:
             emote.shift()
 
     def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.get_main_conn():
+        if connection == self.connection_manager.get_main_conn() or connection == self.whisper_conn.connection:
             do_nothing = lambda c, e: None
             method = getattr(self, "on_" + event.type, do_nothing)
             method(connection, event)
@@ -439,7 +453,7 @@ class TyggBot:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
                         tw = tweet_prettify_urls(tweet)
                         return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
-            except Exception as e:
+            except Exception:
                 log.exception('Exception caught while getting last tweet')
                 return 'FeelsBadMan'
         else:
@@ -508,7 +522,7 @@ class TyggBot:
                 channel = self.channel
 
             self.connection_manager.privmsg(channel, message)
-        except Exception as e:
+        except Exception:
             log.exception('Exception caught while sending privmsg')
 
     def c_time_norway(self):
@@ -706,7 +720,7 @@ class TyggBot:
                             log.error('Command !{0} is already in use'.format(alias))
 
                 num_commands += 1
-            except Exception as e:
+            except Exception:
                 log.exception('Exception caught when loading command')
                 continue
 
@@ -729,7 +743,7 @@ class TyggBot:
                 if filter.is_enabled():
                     self.filters.append(filter)
                     num_filters += 1
-            except Exception as e:
+            except Exception:
                 log.exception('Exception caught when loading filter')
                 continue
 
@@ -819,14 +833,14 @@ class TyggBot:
                 m = f.search(source, msg_lower)
                 if m:
                     log.debug('Matched regex filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event, {'match':m})
+                    f.run(self, source, msg_raw, event, {'match': m})
                     return True
             elif f.type == 'banphrase':
                 if f.filter in msg_lower:
                     log.debug('Matched banphrase filter \'{0}\''.format(f.name))
                     f.run(self, source, msg_raw, event)
                     return True
-        return False # message was ok
+        return False  # message was ok
 
     def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
         msg_lower = msg_raw.lower()
@@ -853,11 +867,16 @@ class TyggBot:
 
         if not force:
             if source.level < 500:
-                if self.check_msg_content(source, msg_raw, event): return # If we've matched a filter, we should not have to run a command.
+                if self.check_msg_content(source, msg_raw, event):
+                    # If we've matched a filter, we should not have to run a command.
+                    return
                 urls = self.link_checker.findUrlsInMessage(msg_raw)
                 for url in urls:
-                    action = Action(self.timeout, args = [source.username, 20]) # action which will be taken when a bad link is found
-                    self.action_queue.add(self.link_checker.check_url, args= [ url, action ]) # que up a check on the url
+                    # TODO: Keep a list of already-checked URLs, with their results.
+                    # Action which will be taken when a bad link is found
+                    action = Action(self.timeout, args=[source.username, 20])
+                    # Queue up a check on the URL
+                    self.action_queue.add(self.link_checker.check_url, args=[url, action])
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
@@ -900,14 +919,14 @@ class TyggBot:
 
         if msg_len > 70:
             non_alnum = sum(not c.isalnum() for c in msg)
-            ratio = non_alnum/msg_len
+            ratio = non_alnum / msg_len
 
             log.debug('Ascii ratio: {0}'.format(ratio))
             if self.settings['ban_ascii']:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
                     self.timeout(source.username, 120)
-                    #self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
+                    # self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
                     return
 
             if self.settings['ban_msg_length']:
@@ -915,10 +934,10 @@ class TyggBot:
                 if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
                     self.timeout(source.username, 120)
-                    #self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
+                    # self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
                     return
 
-        if cur_time - self.last_sync >= 10*60:
+        if cur_time - self.last_sync >= 10 * 60:
             self.sync_to()
             self.last_sync = cur_time
 
@@ -934,13 +953,12 @@ class TyggBot:
 
             try:
                 self.say(self.phrases['quit'].format(**phrase_data))
-            except Exception as e:
+            except Exception:
                 log.exception('Exception caught while trying to say quit phrase')
 
         if self.twitter_stream:
             self.twitter_stream.disconnect()
 
-        #self.connection.quit('bye')
         if self.whisper_conn:
             self.whisper_conn.connection.quit('bye')
 

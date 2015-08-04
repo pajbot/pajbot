@@ -9,6 +9,7 @@ from tbutil import time_limit, TimeoutException
 
 log = logging.getLogger('tyggbot')
 
+
 class Dispatch:
     """
     Methods in this class accessible from commands
@@ -73,7 +74,7 @@ class Dispatch:
                         emote = 'CiGrip'
                     res = '{2}, {0} {1}'.format(expr_res, emote, source.username)
             except TimeoutException as e:
-                res = 'timed out DansGame';
+                res = 'timed out DansGame'
                 log.error('Timeout exception: {0}'.format(e))
             except Exception as e:
                 log.error('Uncaught exception: {0}'.format(e))
@@ -87,7 +88,7 @@ class Dispatch:
             if len(streams) == 1:
                 streams.insert(0, tyggbot.streamer)
 
-            url = 'http://multitwitch.tv/'+'/'.join(streams)
+            url = 'http://multitwitch.tv/' + '/'.join(streams)
 
             tyggbot.say('{0}, {1}'.format(source.username, url))
 
@@ -143,8 +144,8 @@ class Dispatch:
             tyggbot.sqlconn.ping()
             cursor = tyggbot.sqlconn.cursor()
 
-            action = json.dumps({'type':'func', 'cb':'timeout_source'})
-            extra_args = json.dumps({'time': 300, 'notify':1})
+            action = json.dumps({'type': 'func', 'cb': 'timeout_source'})
+            extra_args = json.dumps({'time': 300, 'notify': 1})
 
             cursor.execute('INSERT INTO `tb_filters` (`name`, `type`, `action`, `extra_args`, `filter`) VALUES (%s, %s, %s, %s, %s)',
                     ('Banphrase', 'banphrase', action, extra_args, message.lower()))
@@ -202,15 +203,14 @@ class Dispatch:
             tyggbot.sqlconn.ping()
             cursor = tyggbot.sqlconn.cursor()
 
-            if update_id == False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
+            if update_id is False:
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
                 cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
                 tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
                 cursor.execute(query, (data['action'], update_id))
                 tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
-
 
             tyggbot.sync_to()
             tyggbot._load_commands()
@@ -254,15 +254,14 @@ class Dispatch:
             tyggbot.sqlconn.ping()
             cursor = tyggbot.sqlconn.cursor()
 
-            if update_id == False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' +', '.join(['%s']*len(data)) + ')'
+            if update_id is False:
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
                 cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
                 tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
                 cursor.execute(query, (data['action'], update_id))
                 tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
-
 
             tyggbot.sync_to()
             tyggbot._load_commands()
@@ -340,7 +339,7 @@ class Dispatch:
                 if alias not in tyggbot.commands:
                     commands_not_found.append(alias)
                     continue
-                    
+
                 commid = tyggbot.commands[alias].id
                 cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
                 for row in cursor:
@@ -368,7 +367,7 @@ class Dispatch:
         if message and len(message) > 0:
             try:
                 id = int(message)
-            except Exception as e:
+            except Exception:
                 id = -1
 
             if id == -1:
@@ -408,7 +407,7 @@ class Dispatch:
         if message and len(message) > 0:
             try:
                 id = int(message)
-            except Exception as e:
+            except Exception:
                 id = -1
 
             command = False
@@ -562,7 +561,7 @@ class Dispatch:
         tyggbot.say(tyggbot.phrases['new_sub'].format(**phrase_data))
 
         if len(tyggbot.ws_clients) > 0:
-            payload = json.dumps({'new_sub': {'username':phrase_data['username']}}, separators=(',',':')).encode('utf8')
+            payload = json.dumps({'new_sub': {'username': phrase_data['username']}}, separators=(',', ':')).encode('utf8')
             for client in tyggbot.ws_clients:
                 client.sendMessage(payload, False)
 
@@ -577,7 +576,7 @@ class Dispatch:
         tyggbot.say(tyggbot.phrases['resub'].format(**phrase_data))
 
         if len(tyggbot.ws_clients) > 0:
-            payload = json.dumps({'new_sub': {'username':phrase_data['username'], 'num_months': phrase_data['num_months']}}, separators=(',',':')).encode('utf8')
+            payload = json.dumps({'new_sub': {'username': phrase_data['username'], 'num_months': phrase_data['num_months']}}, separators=(',', ':')).encode('utf8')
             for client in tyggbot.ws_clients:
                 client.sendMessage(payload, False)
 

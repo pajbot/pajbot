@@ -7,6 +7,7 @@ import irc.client
 
 log = logging.getLogger('tyggbot')
 
+
 class WhisperConn:
     def __init__(self, target, nickname, password, reactor):
         self.reactor = reactor

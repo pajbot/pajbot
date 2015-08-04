@@ -2,6 +2,7 @@ import logging
 
 log = logging.getLogger('tyggbot')
 
+
 class Setting:
     def parse(type, value):
         try:
@@ -15,7 +16,7 @@ class Setting:
                 return int(value) == 1
             else:
                 log.error('Invalid setting type: {0}'.format(type))
-        except Exception as e:
+        except Exception:
             log.exception('Exception caught when loading setting')
 
         return None

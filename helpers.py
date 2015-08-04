@@ -4,6 +4,7 @@ from apiwrappers import APIBase
 
 log = logging.getLogger('tyggbot')
 
+
 def get_chatters(channel):
     url = 'http://tmi.twitch.tv/group/user/{0}/chatters'.format(channel)
 
@@ -19,18 +20,17 @@ def get_chatters(channel):
 
     return []
 
-"""
-Returns a list of subscribers
-"""
+
 def get_subscribers(twitchapi, channel):
+    """
+    Returns a list of subscribers
+    """
     limit = 100
     offset = 0
     subscribers = []
-    num_subs = 0
 
     try:
-        data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})
-        num_subs = data['_total']-1
+        data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit': limit, 'offset': offset})
         while len(data['subscriptions']) > 0:
             for sub in data['subscriptions']:
                 subscribers.append(sub['user']['name'])
@@ -39,7 +39,7 @@ def get_subscribers(twitchapi, channel):
                 break
 
             offset += limit
-            data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit':limit, 'offset':offset})
+            data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit': limit, 'offset': offset})
     except:
         log.exception('Caught an exception while trying to get subscribers')
 

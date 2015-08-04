@@ -1,12 +1,15 @@
-import json, re, logging
+import re
+import logging
 
 from tyggbot import TyggBot
 from command import Command
 
 log = logging.getLogger('tyggbot')
 
+
 class BaseAction:
     type = '??'
+
 
 class MultiAction(BaseAction):
     type = 'multi'
@@ -39,6 +42,7 @@ class MultiAction(BaseAction):
             else:
                 log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.username, command))
 
+
 class FuncAction(BaseAction):
     type = 'func'
 
@@ -48,8 +52,9 @@ class FuncAction(BaseAction):
     def run(self, tyggbot, source, message, event={}, args={}):
         try:
             return self.cb(tyggbot, source, message, event, args)
-        except Exception as e:
+        except Exception:
             log.exception('Uncaught exception in FuncAction')
+
 
 class RawFuncAction(BaseAction):
     type = 'rawfunc'
@@ -59,6 +64,7 @@ class RawFuncAction(BaseAction):
 
     def run(self, tyggbot, source, message, event={}, args={}):
         return self.cb()
+
 
 class MessageAction(BaseAction):
     type = 'message'
@@ -123,10 +129,12 @@ class MessageAction(BaseAction):
     def run(self, tyggbot, source, message, event={}, args={}):
         raise NotImplementedError('Please implement the run method.')
 
+
 class SayAction(MessageAction):
     def run(self, tyggbot, source, message, event={}, args={}):
-        tyggbot.say(self.get_response(tyggbot, {'user':source.username}))
+        tyggbot.say(self.get_response(tyggbot, {'user': source.username}))
+
 
 class MeAction(MessageAction):
     def run(self, tyggbot, source, message, event={}, args={}):
-        tyggbot.me(self.get_response(tyggbot, {'user':source.username}))
+        tyggbot.me(self.get_response(tyggbot, {'user': source.username}))

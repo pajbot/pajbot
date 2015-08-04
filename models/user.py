@@ -5,6 +5,7 @@ import datetime
 
 log = logging.getLogger('tyggbot')
 
+
 class User:
     def __init__(self):
         self.needs_sync = False
@@ -30,7 +31,7 @@ class User:
             user.minutes_in_chat_offline = row['minutes_in_chat_offline']
         else:
             # We found a user in the database!
-            user.id = -1 # An ID of -1 means it will be inserted on sync
+            user.id = -1  # An ID of -1 means it will be inserted on sync
             user.username = username.lower()
             user.username_raw = user.username
             user.level = 100
@@ -68,6 +69,7 @@ class User:
         self.last_seen = datetime.datetime.now()
         self.num_lines += 1
         self.needs_sync = True
+
 
 class UserManager(UserDict):
     def __init__(self, sqlconn):

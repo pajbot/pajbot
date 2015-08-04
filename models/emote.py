@@ -1,10 +1,10 @@
 import logging
-import pymysql
 import re
 import json
 import collections
 
 log = logging.getLogger('tyggbot')
+
 
 class Emote:
     def __init__(self):
@@ -23,7 +23,7 @@ class Emote:
         if row['deque']:
             emote.deque = collections.deque(json.loads(row['deque']))
         else:
-            emote.deque = collections.deque([0]*61)
+            emote.deque = collections.deque([0] * 61)
         emote.count = row['count']
         emote.pm_record = row['pm_record']
         emote.tm_record = row['tm_record']
@@ -41,8 +41,10 @@ class Emote:
         cur_sum = sum(self.deque)
         self.pm = cur_sum / 60
         self.tm = cur_sum
-        if self.pm > self.pm_record: self.pm_record = self.pm
-        if self.tm > self.tm_record: self.tm_record = self.tm
+        if self.pm > self.pm_record:
+            self.pm_record = self.pm
+        if self.tm > self.tm_record:
+            self.tm_record = self.tm
 
     def sync(self, cursor):
         cursor.execute('UPDATE `tb_emote` SET `deque`=%s, `pm_record`=%s, `tm_record`=%s, `count`=%s WHERE `id`=%s',

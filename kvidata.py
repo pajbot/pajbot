@@ -1,5 +1,6 @@
 import pymysql
 
+
 class KVIData:
     def __init__(self, sqlconn):
         self.sqlconn = sqlconn

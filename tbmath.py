@@ -1,6 +1,7 @@
 import ast
 import operator as op
 
+
 class TBMath:
     """
     Source: http://stackoverflow.com/a/9558001
@@ -22,11 +23,11 @@ class TBMath:
         return self.eval_(ast.parse(expr, mode='eval').body)
 
     def eval_(self, node):
-        if isinstance(node, ast.Num): # <number>
+        if isinstance(node, ast.Num):  # <number>
             return node.n
-        elif isinstance(node, ast.BinOp): # <left> <operator> <right>
+        elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
             return self.operators[type(node.op)](self.eval_(node.left), self.eval_(node.right))
-        elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
+        elif isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
             return self.operators[type(node.op)](self.eval_(node.operand))
         else:
             raise TypeError(node)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import threading, os, sys, time, signal, argparse, logging, json
+import os
+import sys
+import signal
+import logging
 
 try:
     basestring
@@ -11,10 +14,8 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 log = logging.getLogger('tyggbot')
 
-import pymysql
-
-from kvidata import KVIData
 from tyggbot import TyggBot
+
 
 def load_config(path):
     import configparser
@@ -27,15 +28,16 @@ def load_config(path):
         log.error('{0} missing. Check out install/config.example.ini'.format(path))
         sys.exit(0)
 
-    if not 'main' in config:
+    if 'main' not in config:
         log.error('Missing section [main] in {0}'.format(path))
         sys.exit(0)
 
-    if not 'sql' in config:
+    if 'sql' not in config:
         log.error('Missing section [sql] in {0}'.format(path))
         sys.exit(0)
 
     return config
+
 
 def run(args):
     tyggbot = TyggBot(load_config(args.config), args)
@@ -53,6 +55,7 @@ def run(args):
     except KeyboardInterrupt:
         tyggbot.quit()
         pass
+
 
 def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))

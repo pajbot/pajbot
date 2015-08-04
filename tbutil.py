@@ -1,6 +1,10 @@
-import os, logging, threading, signal, math, sys
+import logging
+import threading
+import signal
+import math
+import sys
 
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 from contextlib import contextmanager
 
 COLORS = {
@@ -10,6 +14,7 @@ COLORS = {
     'CRITICAL': Fore.YELLOW,
     'ERROR': Fore.RED
 }
+
 
 class ColoredFormatter(logging.Formatter):
     def __init__(self, msg):
@@ -22,6 +27,7 @@ class ColoredFormatter(logging.Formatter):
             record.levelname = levelname_color
         return logging.Formatter.format(self, record)
 
+
 def init_logging(app='tyggbot'):
     class LogFilter(logging.Filter):
         def __init__(self, level):
@@ -30,7 +36,6 @@ def init_logging(app='tyggbot'):
         def filter(self, record):
             return record.levelno < self.level
 
-    #logging.getLogger().setLevel(logging.DEBUG)
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
@@ -50,6 +55,7 @@ def init_logging(app='tyggbot'):
     logging.getLogger().addHandler(logger_stderr)
 
     return log
+
 
 class LogThread(threading.Thread):
     """LogThread should always e used in preference to threading.Thread.
@@ -73,9 +79,11 @@ class LogThread(threading.Thread):
             self._real_run()
         except Exception as e:
             self.on_exception(e)
-            #logging.exception('Exception during LogThread.run')
 
-class TimeoutException(Exception): pass
+
+class TimeoutException(Exception):
+    pass
+
 
 @contextmanager
 def time_limit(seconds):
@@ -88,6 +96,7 @@ def time_limit(seconds):
     finally:
         signal.alarm(0)
 
+
 class SyncValue:
     def __init__(self, value, synced=False):
         self.value = value
@@ -96,6 +105,7 @@ class SyncValue:
     def increment(self, step=1):
         self.value += step
         self.synced = False
+
 
 def time_since(t1, t2, format='long'):
     time_diff = t1 - t2
@@ -124,6 +134,7 @@ def time_since(t1, t2, format='long'):
         return ' and '.join(time_arr)
     else:
         return ''.join(time_arr)
+
 
 def tweet_prettify_urls(tweet):
     tw = tweet.text

@@ -1,4 +1,7 @@
-import json, re, logging, time
+import json
+import re
+import logging
+import time
 
 log = logging.getLogger('tyggbot')
 
@@ -12,8 +15,9 @@ except:
 
 
 def parse_action(raw_data=None, data=None):
-    from tbactions import FuncAction, RawFuncAction, SayAction, MeAction, MultiAction
-    if not data: data = json.loads(raw_data)
+    from tbactions import FuncAction, SayAction, MeAction, MultiAction
+    if not data:
+        data = json.loads(raw_data)
 
     if data['type'] == 'say':
         action = SayAction(data['message'])
@@ -31,6 +35,7 @@ def parse_action(raw_data=None, data=None):
         raise Exception('Unknown action type: {0}'.format(data['type']))
 
     return action
+
 
 class Command:
     def __init__(self, do_sync=True):
@@ -50,7 +55,8 @@ class Command:
     @classmethod
     def from_json(cls, json):
         cmd = cls()
-        if 'level' in json: cmd.level = json['level']
+        if 'level' in json:
+            cmd.level = json['level']
         cmd.action = parse_action(data=json['action'])
         return cmd
 
@@ -87,7 +93,7 @@ class Command:
         self.action = action
 
     def is_enabled(self):
-        return self.enabled == 1 and not self.action is None
+        return self.enabled == 1 and self.action is not None
 
     def sync(self, cursor):
         if self.do_sync:
@@ -98,7 +104,7 @@ class Command:
     def run(self, tyggbot, source, message, event={}, args={}):
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 2000:
-            if not source.username in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
+            if source.username not in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
                 log.info('Running action from Command')
                 args.update(self.extra_args)
                 ret = self.action.run(tyggbot, source, message, event, args)
@@ -111,6 +117,7 @@ class Command:
                 log.debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
         else:
             log.debug('Command was run {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run))
+
 
 class Filter:
     def __init__(self, data):
@@ -134,7 +141,7 @@ class Filter:
         self.synced = True
 
     def is_enabled(self):
-        return self.enabled == 1 and not self.action is None
+        return self.enabled == 1 and self.action is not None
 
     def sync(self, cursor):
         cursor.execute('UPDATE `tb_filters` SET `num_uses`=%s WHERE `id`=%s', (self.num_uses, self.id))

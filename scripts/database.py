@@ -2,12 +2,13 @@ import logging
 
 log = logging.getLogger('tyggbot')
 
-"""
-This function will handle all database changes
 
-TODO: Also let it create all tables if none exist.
-"""
 def update_database(sqlconn):
+    """
+    This function will handle all database changes
+
+    TODO: Also let it create all tables if none exist.
+    """
     cursor = sqlconn.cursor()
 
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
@@ -29,7 +30,7 @@ def update_database(sqlconn):
         if version == 1:
             queries.append("ALTER TABLE `tb_user` ADD `subscriber` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Keeps track of whether the user is a subscriber or not. This is only updated when the user actually types in chat, so the information might be outdated if the person stops typing in chat.' ;")
         elif version == 2:
-            queries.append("CREATE TABLE `tb_emote` ( `id` INT NOT NULL AUTO_INCREMENT , `code` VARCHAR(64) NOT NULL COMMENT 'All regexes for emotes are escaped. so if the emote code is (ditto) the regex will be \\(ditto\\)' , `deque` TEXT NULL DEFAULT NULL COMMENT 'Dump of the emote deque, so the state can be saved properly' , `pm_record` INT NOT NULL DEFAULT '0' , `tm_record` INT NOT NULL DEFAULT '0' , `count` INT NOT NULL DEFAULT '0', PRIMARY KEY (`id`) ) ENGINE = InnoDB;");
+            queries.append("CREATE TABLE `tb_emote` ( `id` INT NOT NULL AUTO_INCREMENT , `code` VARCHAR(64) NOT NULL COMMENT 'All regexes for emotes are escaped. so if the emote code is (ditto) the regex will be \\(ditto\\)' , `deque` TEXT NULL DEFAULT NULL COMMENT 'Dump of the emote deque, so the state can be saved properly' , `pm_record` INT NOT NULL DEFAULT '0' , `tm_record` INT NOT NULL DEFAULT '0' , `count` INT NOT NULL DEFAULT '0', PRIMARY KEY (`id`) ) ENGINE = InnoDB;")
         elif version == 3:
             queries.append("CREATE TABLE `tb_motd` ( `id` INT NOT NULL AUTO_INCREMENT , `message` VARCHAR(400) NOT NULL , `enabled` BOOLEAN NOT NULL DEFAULT TRUE , PRIMARY KEY (`id`) ) ENGINE = InnoDB;")
         elif version == 4:
