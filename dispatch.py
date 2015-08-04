@@ -669,8 +669,6 @@ class Dispatch:
             return False
 
         delay = int(parts[0])
-        extra_message = '{0}, {1}'.format(source.username, ' '.join(parts[1:]).strip())
-
-        log.info(extra_message)
+        extra_message = '{0} {1}'.format(source.username, ' '.join(parts[1:]).strip())
 
         tyggbot.execute_delayed(delay, tyggbot.say, (extra_message, ))
