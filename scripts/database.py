@@ -14,7 +14,7 @@ def update_database(sqlconn):
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
     log.info(cursor)
 
-    latest_db_version = 6
+    latest_db_version = 7
     version = 0
 
     if cursor.rowcount > 0:
@@ -39,6 +39,8 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_user` ADD `last_seen` DATETIME NULL DEFAULT NULL , ADD `last_active` DATETIME NULL DEFAULT NULL ;")
         elif version == 6:
             queries.append("ALTER TABLE `tb_user` ADD `minutes_in_chat_online` INT NOT NULL DEFAULT '0' , ADD `minutes_in_chat_offline` INT NOT NULL DEFAULT '0' ;")
+        elif version == 7:
+            queries.append("ALTER TABLE `tb_commands` ADD `cost` INT NOT NULL DEFAULT '0' AFTER `num_uses`;")
 
         for query in queries:
             cursor.execute(query)

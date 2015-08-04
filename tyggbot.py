@@ -567,6 +567,11 @@ class TyggBot:
         self._timeout(username, 30)
         self.execute_delayed(1, self._ban, (username, ))
 
+    def ban_user(self, user):
+        if not user.ban_immune:
+            self._timeout(username, 30)
+            self.execute_delayed(1, self._ban, (username, ))
+
     def unban(self, username):
         self.privmsg('.unban {0}'.format(username))
 
@@ -576,6 +581,11 @@ class TyggBot:
     def timeout(self, username, duration):
         self._timeout(username, duration)
         self.execute_delayed(1, self._timeout, (username, duration))
+
+    def timeout_user(self, user, duration):
+        if not user.ban_immune:
+            self._timeout(user.username, duration)
+            self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, message):
         if self.whisper_conn:
@@ -669,8 +679,6 @@ class TyggBot:
             'do_sync': False,
             'delay_all': 5,
             'delay_user': 15,
-            'enabled': True,
-            'num_uses': 0,
             'extra_args': None,
             })
         self.commands['remove'] = Command()
@@ -681,8 +689,6 @@ class TyggBot:
             'do_sync': False,
             'delay_all': 5,
             'delay_user': 15,
-            'enabled': True,
-            'num_uses': 0,
             'extra_args': None,
             })
         self.commands['rem'] = self.commands['remove']
@@ -696,8 +702,6 @@ class TyggBot:
             'do_sync': False,
             'delay_all': 5,
             'delay_user': 15,
-            'enabled': True,
-            'num_uses': 0,
             'extra_args': None,
             })
         self.commands['level'] = Command.admin_command(Dispatch.level, type='func')
@@ -925,7 +929,7 @@ class TyggBot:
             if self.settings['ban_ascii']:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
-                    self.timeout(source.username, 120)
+                    self.timeout_user(source, 120)
                     # self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
                     return
 
@@ -933,7 +937,7 @@ class TyggBot:
                 max_msg_length = self.settings['max_msg_length']
                 if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                    self.timeout(source.username, 120)
+                    self.timeout_user(source, 120)
                     # self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
                     return
 

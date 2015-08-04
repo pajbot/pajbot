@@ -51,6 +51,7 @@ class Command:
         self.enabled = 1
         self.do_sync = do_sync
         self.type = '?'
+        self.cost = 0
 
     @classmethod
     def from_json(cls, json):
@@ -80,8 +81,21 @@ class Command:
         self.action = parse_action(data['action'])
         self.delay_all = data['delay_all']
         self.delay_user = data['delay_user']
-        self.enabled = data['enabled']
-        self.num_uses = data['num_uses']
+        try:
+            self.enabled = data['enabled']
+        except:
+            self.enabled = True
+
+        try:
+            self.num_uses = data['num_uses']
+        except:
+            self.num_uses = 0
+
+        try:
+            self.cost = data['cost']
+        except:
+            self.cost = 0
+
         if data['extra_args']:
             try:
                 self.extra_args = json.loads(data['extra_args'])
@@ -102,6 +116,11 @@ class Command:
 
     # (cur_time - self.last_run) = time since last run
     def run(self, tyggbot, source, message, event={}, args={}):
+        if self.cost > 0:
+            if not source.spend(self.cost):
+                # The user does not have enough points to spend!
+                return False
+
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 2000:
             if source.username not in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:

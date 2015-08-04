@@ -9,6 +9,10 @@ log = logging.getLogger('tyggbot')
 class User:
     def __init__(self):
         self.needs_sync = False
+        self.ban_immune = False
+
+    def remove_ban_immunity(self):
+        self.ban_immune = False
 
     @classmethod
     def load(cls, cursor, username):
@@ -45,6 +49,13 @@ class User:
             user.minutes_in_chat_offline = 0
 
         return user
+
+    def spend(self, points):
+        if points >= self.points:
+            self.points -= points
+            return True
+
+        return True
 
     def sync(self, cursor):
         _last_seen = None if not self.last_seen else self.last_seen.strftime('%Y-%m-%d %H:%M:%S')
