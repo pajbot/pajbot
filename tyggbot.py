@@ -39,7 +39,7 @@ log = logging.getLogger('tyggbot')
 
 
 class TMI:
-    message_limit = 50
+    message_limit = 90
 
 
 class TyggBot:
@@ -569,8 +569,8 @@ class TyggBot:
 
     def ban_user(self, user):
         if not user.ban_immune:
-            self._timeout(username, 30)
-            self.execute_delayed(1, self._ban, (username, ))
+            self._timeout(user.username, 30)
+            self.execute_delayed(1, self._ban, (user.username, ))
 
     def unban(self, username):
         self.privmsg('.unban {0}'.format(username))
