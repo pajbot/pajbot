@@ -658,6 +658,8 @@ class Dispatch:
                 tyggbot.say('{0}, you have {1} points.'.format(source.username, user.points))
             else:
                 tyggbot.say('{0}, {1} has {2} points.'.format(source.username, user.username, user.points))
+        else:
+            return False
 
     def remindme(tyggbot, source, message, event, args):
         if not message:
