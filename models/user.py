@@ -14,6 +14,9 @@ class User:
     def remove_ban_immunity(self):
         self.ban_immune = False
 
+    def __eq__(self, other):
+        return self.username == other.username
+
     @classmethod
     def load(cls, cursor, username):
         user = cls()
@@ -50,12 +53,13 @@ class User:
 
         return user
 
-    def spend(self, points):
-        if points >= self.points:
-            self.points -= points
+    def spend(self, points_to_spend):
+        if points_to_spend <= self.points:
+            self.points -= points_to_spend
+            self.needs_sync = True
             return True
 
-        return True
+        return False
 
     def sync(self, cursor):
         _last_seen = None if not self.last_seen else self.last_seen.strftime('%Y-%m-%d %H:%M:%S')
