@@ -1,8 +1,10 @@
 import irc
 import random
 import requests
-import queue
+from queue import Queue
 import threading
+import json
+import pymysql
 
 import logging
 
@@ -19,7 +21,7 @@ class WhisperConnection:
         self.conn = conn
         self.num_msgs_sent = 0
         self.name = name
-        self.oauth = oauths
+        self.oauth = oauth
 
         return
 
@@ -52,7 +54,7 @@ class WhisperConnectionManager:
             cursor.execute("SELECT name, oauth FROM tb_whisper_accs LIMIT %s", self.num_of_conns)
             for row in cursor:
                 newconn = self.make_new_connection(row['name'], row['oauth'])
-                self.connlist.append(WhisperConnection(newconn, row['name'], row['oauth']))
+                self.connlist.append(newconn)
 
             self.reactor.execute_every(4, self.run_maintenance)
             t = threading.Thread(target=self.whisper_sender) # start a loop sending whispers in a thread
@@ -81,10 +83,13 @@ class WhisperConnectionManager:
             i = 0
             while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
                 i += 1  # find a usable connection
+                if i >= len(self.connlist):
+                    i = 0
+
             log.debug('Sending whisper: {0} {1}'.format(username, message))
             self.connlist[i].conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
             self.connlist[i].num_msgs_sent += 1
-            self.connlist[i].execute_in(self.time_interval, self.connlist[i].reduce_msgs_sent)
+            self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
 
     def run_maintenance(self):
         for connection in self.connlist:
@@ -106,7 +111,7 @@ class WhisperConnectionManager:
         server = random.choice(self.servers_list)
         ip, port = server.split(':')
         port = int(port)
-        log.debug("Whispers: Connection to server {0}", server)
+        log.debug("Whispers: Connection to server {0}".format(server))
 
         newconn = self.reactor.server().connect(ip, port, name, oauth, name)
         newconn.cap('REQ', 'twitch.tv/commands')
