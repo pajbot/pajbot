@@ -1,4 +1,3 @@
-import irc
 import random
 import requests
 from queue import Queue
@@ -9,6 +8,7 @@ import pymysql
 import logging
 
 log = logging.getLogger('tyggbot')
+
 
 class Whisper:
     def __init__(self, target, message):
@@ -41,7 +41,7 @@ class WhisperConnectionManager:
         self.whispers = Queue()
 
     def __contains__(self, connection):
-        return connection in [ connection.conn for connection in self.connlist ]
+        return connection in [connection.conn for c in self.connlist]
 
     def start(self):
         log.debug("Starting connection manager")
@@ -57,7 +57,7 @@ class WhisperConnectionManager:
                 self.connlist.append(newconn)
 
             self.reactor.execute_every(4, self.run_maintenance)
-            t = threading.Thread(target=self.whisper_sender) # start a loop sending whispers in a thread
+            t = threading.Thread(target=self.whisper_sender)  # start a loop sending whispers in a thread
             t.daemon = True
             t.start()
             return True
@@ -99,7 +99,6 @@ class WhisperConnectionManager:
                 newconn = self.make_new_connection(connection.name, connection.oauth)
                 self.connlist.append(newconn)
 
-
     def get_main_conn(self):
         for connection in self.connlist:
             if connection.conn.is_connected():
@@ -116,7 +115,6 @@ class WhisperConnectionManager:
         newconn = self.reactor.server().connect(ip, port, name, oauth, name)
         newconn.cap('REQ', 'twitch.tv/commands')
         return WhisperConnection(newconn, name, oauth)
-        
 
     def on_disconnect(self, conn):
         conn.reconnect()
