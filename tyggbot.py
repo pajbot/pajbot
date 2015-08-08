@@ -14,6 +14,7 @@ from models.user import UserManager
 from models.emote import Emote
 from models.setting import Setting
 from models.connection import ConnectionManager
+from models.whisperconnection import WhisperConnectionManager
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -26,7 +27,6 @@ from dispatch import Dispatch
 from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
-from whisperconn import WhisperConn
 from tbutil import time_since, tweet_prettify_urls
 
 import irc.client
@@ -40,6 +40,8 @@ log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 90
+    whispers_message_limit = 50
+    whispers_limit_interval = 30  # in seconds
 
 
 class TyggBot:
@@ -175,7 +177,7 @@ class TyggBot:
         else:
             Dispatch.wolfram = None
 
-        self.whisper_conn = None
+        self.whisper_manager = None
 
         TyggBot.instance = self
 
@@ -243,8 +245,8 @@ class TyggBot:
 
         self.load_all()
 
-        self.whisper_conn = WhisperConn(self.streamer, self.nickname, self.password, self.reactor)
-        self.whisper_conn.connect()
+        self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
+        self.whisper_manager.start()
 
         self.num_offlines = 0
         if self.krakenapi:
@@ -439,7 +441,7 @@ class TyggBot:
             emote.shift()
 
     def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.get_main_conn() or connection == self.whisper_conn.connection:
+        if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
             do_nothing = lambda c, e: None
             method = getattr(self, "on_" + event.type, do_nothing)
             method(connection, event)
@@ -594,8 +596,8 @@ class TyggBot:
             self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, message):
-        if self.whisper_conn and self.whisper_conn.connection.is_connected():
-            self.whisper_conn.whisper(username, message)
+        if self.whisper_manager:
+            self.whisper_manager.whisper(username, message)
         else:
             log.debug('No whisper conn set up.')
 
@@ -814,7 +816,7 @@ class TyggBot:
         cursor.close()
 
     def on_welcome(self, chatconn, event):
-        if chatconn == self.whisper_conn:
+        if chatconn in self.whisper_manager:
             log.debug('Connected to Whisper server.')
         else:
             log.debug('Connected to IRC server.')
@@ -825,10 +827,9 @@ class TyggBot:
         return self.connection_manager.start()
 
     def on_disconnect(self, chatconn, event):
-        if chatconn == self.whisper_conn:
+        if chatconn in self.whisper_manager:
             log.debug('Disconnecting from Whisper server')
-            self.execute_delayed(self.whisper_conn.reconnection_interval,
-                                 self.whisper_conn._connected_checker)
+            self.whisper_manager.on_disconnect(chatconn)
 
         else:
             log.debug('Disconnected from IRC server')
@@ -967,7 +968,7 @@ class TyggBot:
         if self.twitter_stream:
             self.twitter_stream.disconnect()
 
-        if self.whisper_conn:
-            self.whisper_conn.connection.quit('bye')
+        if self.whisper_manager:
+            self.whisper_manager.quit()
 
         sys.exit(0)
