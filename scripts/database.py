@@ -14,7 +14,7 @@ def update_database(sqlconn):
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
     log.info(cursor)
 
-    latest_db_version = 7
+    latest_db_version = 8
     version = 0
 
     if cursor.rowcount > 0:
@@ -41,6 +41,8 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_user` ADD `minutes_in_chat_online` INT NOT NULL DEFAULT '0' , ADD `minutes_in_chat_offline` INT NOT NULL DEFAULT '0' ;")
         elif version == 7:
             queries.append("ALTER TABLE `tb_commands` ADD `cost` INT NOT NULL DEFAULT '0' AFTER `num_uses`;")
+        elif version == 8:
+            queries.append("ALTER TABLE `tb_commands` ADD `can_execute_with_whisper` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Decides whether the command can be used through whispers or not.' AFTER `cost`;")
 
         for query in queries:
             cursor.execute(query)

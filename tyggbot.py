@@ -180,6 +180,8 @@ class TyggBot:
         TyggBot.instance = self
 
         self.is_online = False
+        self.ascii_timeout_duration = 120
+        self.msg_length_timeout_duration = 120
 
         self.base_path = os.path.dirname(os.path.realpath(__file__))
         self.data = {}
@@ -357,7 +359,11 @@ class TyggBot:
                     self.kvi.set('stream_status', 1)
                     self.kvi.set('last_online', int(time.time()))
                     self.num_offlines = 0
+                    self.ascii_timeout_duration = 120
+                    self.msg_length_timeout_duration = 120
                 elif status is False:
+                    self.ascii_timeout_duration = 10
+                    self.msg_length_timeout_duration = 10
                     stream_status = self.kvi.get('stream_status')
                     if (stream_status == 1 and self.num_offlines > 10) or stream_status == 0:
                         self.is_online = False
@@ -588,8 +594,7 @@ class TyggBot:
             self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, message):
-        if self.whisper_conn:
-            log.debug('Sending whisper {0} to {1}'.format(message, username))
+        if self.whisper_conn and self.whisper_conn.connection.is_connected():
             self.whisper_conn.whisper(username, message)
         else:
             log.debug('No whisper conn set up.')
@@ -846,7 +851,7 @@ class TyggBot:
                     return True
         return False  # message was ok
 
-    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}):
+    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
 
         for tag in tags:
@@ -869,7 +874,7 @@ class TyggBot:
 
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
-        if not force:
+        if not force and not whisper:
             if source.level < 500:
                 if self.check_msg_content(source, msg_raw, event):
                     # If we've matched a filter, we should not have to run a command.
@@ -893,7 +898,9 @@ class TyggBot:
             extra_msg = ' '.join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if command in self.commands:
                 if source.level >= self.commands[command].level:
-                    self.commands[command].run(self, source, extra_msg, event)
+                    command = self.commands[command]
+                    if (whisper and (command.can_execute_with_whisper or source.level >= 420)) or not whisper:
+                        command.run(self, source, extra_msg, event)
                     return
 
         source.wrote_message()
@@ -901,10 +908,7 @@ class TyggBot:
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
-
-        if source.level >= 420:
-            # Only moderators and above can send commands through whispers
-            self.parse_message(event.arguments[0], source, event)
+        self.parse_message(event.arguments[0], source, event, whisper=True)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
@@ -929,7 +933,7 @@ class TyggBot:
             if self.settings['ban_ascii']:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
-                    self.timeout_user(source, 120)
+                    self.timeout_user(source, self.ascii_timeout_duration)
                     # self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
                     return
 
@@ -937,7 +941,7 @@ class TyggBot:
                 max_msg_length = self.settings['max_msg_length']
                 if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                    self.timeout_user(source, 120)
+                    self.timeout_user(source, self.msg_length_timeout_duration)
                     # self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
                     return
 

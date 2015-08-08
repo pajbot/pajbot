@@ -52,6 +52,7 @@ class Command:
         self.do_sync = do_sync
         self.type = '?'
         self.cost = 0
+        self.can_execute_with_whisper = False
 
     @classmethod
     def from_json(cls, json):
@@ -66,6 +67,7 @@ class Command:
         from tbactions import RawFuncAction, FuncAction
         cmd = cls(False)
         cmd.level = level
+        cmd.can_execute_with_whisper = True
         if type == 'raw_func':
             cmd.action = RawFuncAction(action)
         elif type == 'func':
@@ -95,6 +97,11 @@ class Command:
             self.cost = data['cost']
         except:
             self.cost = 0
+
+        try:
+            self.can_execute_with_whisper = data['can_execute_with_whisper']
+        except:
+            self.can_execute_with_whisper = False
 
         if data['extra_args']:
             try:
