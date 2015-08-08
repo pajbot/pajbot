@@ -41,7 +41,7 @@ class WhisperConnectionManager:
         self.whispers = Queue()
 
     def __contains__(self, connection):
-        return connection in [connection.conn for c in self.connlist]
+        return connection in [c.conn for c in self.connlist]
 
     def start(self):
         log.debug("Starting connection manager")
@@ -51,9 +51,9 @@ class WhisperConnectionManager:
 
             self.tyggbot.sqlconn.ping()
             cursor = self.tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT name, oauth FROM tb_whisper_accs LIMIT %s", self.num_of_conns)
+            cursor.execute("SELECT `username`, `oauth` FROM `tb_whisper_account` WHERE `enabled`=1 ORDER BY RAND() LIMIT %s", self.num_of_conns)
             for row in cursor:
-                newconn = self.make_new_connection(row['name'], row['oauth'])
+                newconn = self.make_new_connection(row['username'], row['oauth'])
                 self.connlist.append(newconn)
 
             self.reactor.execute_every(4, self.run_maintenance)
