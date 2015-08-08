@@ -23,8 +23,6 @@ class WhisperConnection:
         self.name = name
         self.oauth = oauth
 
-        return
-
     def reduce_msgs_sent(self):
         self.num_msgs_sent -= 1
 
@@ -43,34 +41,50 @@ class WhisperConnectionManager:
     def __contains__(self, connection):
         return connection in [c.conn for c in self.connlist]
 
-    def start(self):
+    def start(self, accounts=[]):
         log.debug("Starting connection manager")
         try:
+            # Update available group servers.
+            # This will also be run at an interval to make sure it's up to date
             self.update_servers_list()
             self.reactor.execute_every(3600, self.update_servers_list)
 
+            # Run the maintenance function every 4 seconds.
+            # The maintenance function is responsible for reconnecting lost connections.
+            self.reactor.execute_every(4, self.run_maintenance)
+
+            # Fetch additional whisper accounts from the database
             self.tyggbot.sqlconn.ping()
             cursor = self.tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
             cursor.execute("SELECT `username`, `oauth` FROM `tb_whisper_account` WHERE `enabled`=1 ORDER BY RAND() LIMIT %s", self.num_of_conns)
             for row in cursor:
-                newconn = self.make_new_connection(row['username'], row['oauth'])
-                self.connlist.append(newconn)
+                accounts.append(row)
 
-            self.reactor.execute_every(4, self.run_maintenance)
-            t = threading.Thread(target=self.whisper_sender)  # start a loop sending whispers in a thread
+            # Start the connections.
+            t = threading.Thread(target=self.start_connections, args=[accounts])
             t.daemon = True
             t.start()
+
             return True
         except:
             log.exception("WhisperConnectionManager: Unhandled exception")
             return False
+
+    def start_connections(self, accounts):
+        for account in accounts:
+            newconn = self.make_new_connection(account['username'], account['oauth'])
+            self.connlist.append(newconn)
+
+        t = threading.Thread(target=self.whisper_sender)  # start a loop sending whispers in a thread
+        t.daemon = True
+        t.start()
 
     def quit(self):
         for connection in self.connlist:
             connection.conn.quit('bye')
 
     def update_servers_list(self):
-            log.debug("Getting a list of whisper servers")
+            log.debug("Refreshing list of whisper servers")
             servers_list = json.loads(requests.get("http://tmi.twitch.tv/servers?cluster=group").text)
             self.servers_list = servers_list['servers']
 

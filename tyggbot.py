@@ -40,8 +40,8 @@ log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 90
-    whispers_message_limit = 50
-    whispers_limit_interval = 30  # in seconds
+    whispers_message_limit = 5
+    whispers_limit_interval = 5  # in seconds
 
 
 class TyggBot:
@@ -246,7 +246,7 @@ class TyggBot:
         self.load_all()
 
         self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
-        self.whisper_manager.start()
+        self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password}])
 
         self.num_offlines = 0
         if self.krakenapi:
