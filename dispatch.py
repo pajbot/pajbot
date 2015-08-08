@@ -426,11 +426,11 @@ class Dispatch:
                 tyggbot.whisper(source.username, 'No command with found with the given parameters.')
                 return False
 
-            data = {
-                    'id': command.id,
-                    'level': command.level,
-                    'type': command.action.type,
-                    }
+            data = collections.OrderedDict()
+            data['id'] = command.id
+            data['level'] = command.level
+            data['type'] = command.action.type
+            data['cost'] = command.cost
 
             if command.action.type == 'message':
                 data['response'] = command.action.response
