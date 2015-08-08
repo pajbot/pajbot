@@ -14,7 +14,7 @@ def update_database(sqlconn):
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
     log.info(cursor)
 
-    latest_db_version = 8
+    latest_db_version = 9
     version = 0
 
     if cursor.rowcount > 0:
@@ -43,6 +43,8 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_commands` ADD `cost` INT NOT NULL DEFAULT '0' AFTER `num_uses`;")
         elif version == 8:
             queries.append("ALTER TABLE `tb_commands` ADD `can_execute_with_whisper` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Decides whether the command can be used through whispers or not.' AFTER `cost`;")
+        elif version == 9:
+            queries.append("CREATE TABLE `tb_whisper_account` ( `username` VARCHAR(128) NOT NULL , `oauth` VARCHAR(128) NOT NULL , `enabled` BOOLEAN NOT NULL DEFAULT TRUE , PRIMARY KEY (`username`) ) ENGINE = InnoDB;")
 
         for query in queries:
             cursor.execute(query)
