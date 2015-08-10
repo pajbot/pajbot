@@ -559,6 +559,7 @@ class Dispatch:
                 }
 
         tyggbot.say(tyggbot.phrases['new_sub'].format(**phrase_data))
+        tyggbot.users[phrase_data['username']].subscriber = True
 
         if len(tyggbot.ws_clients) > 0:
             payload = json.dumps({'new_sub': {'username': phrase_data['username']}}, separators=(',', ':')).encode('utf8')
@@ -574,6 +575,7 @@ class Dispatch:
                 }
 
         tyggbot.say(tyggbot.phrases['resub'].format(**phrase_data))
+        tyggbot.users[phrase_data['username']].subscriber = True
 
         if len(tyggbot.ws_clients) > 0:
             payload = json.dumps({'new_sub': {'username': phrase_data['username'], 'num_months': phrase_data['num_months']}}, separators=(',', ':')).encode('utf8')
