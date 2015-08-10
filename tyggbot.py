@@ -716,8 +716,8 @@ class TyggBot:
             'level': 250,
             'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":250, "command":"command", "action": { "type":"func", "cb":"debug_command" } }, { "level":250, "command":"user", "action": { "type":"func", "cb":"debug_user" } }, { "level":250, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
             'do_sync': False,
-            'delay_all': 5,
-            'delay_user': 15,
+            'delay_all': 0,
+            'delay_user': 1,
             'extra_args': None,
             })
         self.commands['level'] = Command.admin_command(Dispatch.level, type='func')
