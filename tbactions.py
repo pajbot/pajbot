@@ -109,6 +109,8 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_emote_pm_record
                 elif path == 'etmrecord':
                     cb = TyggBot.instance.get_emote_tm_record
+                elif path == 'source':
+                    cb = TyggBot.instance.get_source_value
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue
@@ -132,9 +134,14 @@ class MessageAction(BaseAction):
 
 class SayAction(MessageAction):
     def run(self, tyggbot, source, message, event={}, args={}):
-        tyggbot.say(self.get_response(tyggbot, {'user': source.username}))
+        tyggbot.say(self.get_response(tyggbot, {'user': source.username, 'source': source}))
 
 
 class MeAction(MessageAction):
     def run(self, tyggbot, source, message, event={}, args={}):
-        tyggbot.me(self.get_response(tyggbot, {'user': source.username}))
+        tyggbot.me(self.get_response(tyggbot, {'user': source.username, 'source': source}))
+
+
+class WhisperAction(MessageAction):
+    def run(self, tyggbot, source, message, event={}, args={}):
+        tyggbot.whisper(source.username, self.get_response(tyggbot, {'user': source.username, 'source': source}))

@@ -15,7 +15,7 @@ except:
 
 
 def parse_action(raw_data=None, data=None):
-    from tbactions import FuncAction, SayAction, MeAction, MultiAction
+    from tbactions import FuncAction, SayAction, MeAction, MultiAction, WhisperAction
     if not data:
         data = json.loads(raw_data)
 
@@ -23,6 +23,8 @@ def parse_action(raw_data=None, data=None):
         action = SayAction(data['message'])
     elif data['type'] == 'me':
         action = MeAction(data['message'])
+    elif data['type'] == 'whisper':
+        action = WhisperAction(data['message'])
     elif data['type'] == 'func':
         try:
             action = FuncAction(getattr(Dispatch, data['cb']))

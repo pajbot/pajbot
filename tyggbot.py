@@ -499,6 +499,15 @@ class TyggBot:
                 return emote.tm_record
         return 0
 
+    def get_source_value(self, key, extra={}):
+        val = '!!ERROR!!'
+        try:
+            val = getattr(extra['source'], key)
+        except:
+            log.exception('Caught exception in get_source_value')
+
+        return val
+
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]
