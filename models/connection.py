@@ -10,6 +10,7 @@ class Connection:
     def __init__(self, conn):
         self.conn = conn
         self.num_msgs_sent = 0
+        self.in_channel = False
 
         return
 
@@ -33,6 +34,8 @@ class ConnectionManager:
             for i in range(0, self.backup_conns_number + 1):
                 newconn = self.make_new_connection()
                 self.connlist.append(newconn)
+
+            self.get_main_conn()
 
             if self.tyggbot.phrases['welcome']:
                 phrase_data = {
@@ -72,9 +75,17 @@ class ConnectionManager:
             newconn = self.make_new_connection()
             self.connlist.append(newconn)
 
+        self.get_main_conn()
+
     def get_main_conn(self):
         for connection in self.connlist:
             if connection.conn.is_connected():
+                if not connection.in_channel:
+                    if irc.client.is_channel(self.tyggbot.channel):
+                        connection.conn.join(self.tyggbot.channel)
+                        log.debug("Joined channel")
+                        connection.in_channel = True
+
                 return connection.conn
 
         log.error("No connection with is_connected() found")
@@ -107,7 +118,7 @@ class ConnectionManager:
             return None
 
     def on_disconnect(self, chatconn):
-        chatconn.reconnect()
+        self.run_maintenance()
         return
 
     def privmsg(self, channel, message):

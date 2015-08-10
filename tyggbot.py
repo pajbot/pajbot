@@ -829,8 +829,6 @@ class TyggBot:
             log.debug('Connected to Whisper server.')
         else:
             log.debug('Connected to IRC server.')
-            if irc.client.is_channel(self.channel):
-                chatconn.join(self.channel)
 
     def connect(self):
         return self.connection_manager.start()
