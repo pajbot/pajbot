@@ -118,6 +118,7 @@ class ConnectionManager:
             return None
 
     def on_disconnect(self, chatconn):
+        self.run_maintenance()
         return
 
     def privmsg(self, channel, message):
