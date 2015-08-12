@@ -11,7 +11,7 @@ from datetime import datetime
 
 from helpers import get_chatters, get_subscribers
 from models.user import UserManager
-from models.emote import Emote
+from models.emote import EmoteManager
 from models.setting import Setting
 from models.connection import ConnectionManager
 from models.whisperconnection import WhisperConnectionManager
@@ -210,6 +210,7 @@ class TyggBot:
         self.last_sync = time.time()
 
         self.users = UserManager(self.sqlconn)
+        self.emotes = EmoteManager(self.sqlconn)
 
         self.silent = False
         self.dev = False
@@ -232,8 +233,6 @@ class TyggBot:
 
         if self.silent:
             log.info('Silent mode enabled')
-
-        self.sync_from()
 
         self.reconnection_interval = 5
 
@@ -259,7 +258,7 @@ class TyggBot:
         else:
             self.twitter = None
 
-        self.execute_every(1, self.shift_emotes)
+        self.execute_every(1, self.emotes.shift)
 
         self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
@@ -436,10 +435,6 @@ class TyggBot:
 
         self.ws_factory = factory
 
-    def shift_emotes(self):
-        for emote in self.emotes:
-            emote.shift()
-
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
             do_nothing = lambda c, e: None
@@ -470,33 +465,33 @@ class TyggBot:
         return 'FeelsBadMan'
 
     def get_emote_pm(self, key, extra={}):
-        for emote in self.emotes:
-            if key == emote.code:
-                return emote.pm
+        emote = self.emotes.find(key)
+        if emote:
+            return emote.pm
         return 0
 
     def get_emote_tm(self, key, extra={}):
-        for emote in self.emotes:
-            if key == emote.code:
-                return emote.tm
+        emote = self.emotes.find(key)
+        if emote:
+            return emote.tm
         return 0
 
     def get_emote_count(self, key, extra={}):
-        for emote in self.emotes:
-            if key == emote.code:
-                return emote.count
+        emote = self.emotes.find(key)
+        if emote:
+            return emote.count
         return 0
 
     def get_emote_pm_record(self, key, extra={}):
-        for emote in self.emotes:
-            if key == emote.code:
-                return emote.pm_record
+        emote = self.emotes.find(key)
+        if emote:
+            return emote.pm_record
         return 0
 
     def get_emote_tm_record(self, key, extra={}):
-        for emote in self.emotes:
-            if key == emote.code:
-                return emote.tm_record
+        emote = self.emotes.find(key)
+        if emote:
+            return emote.tm_record
         return 0
 
     def get_source_value(self, key, extra={}):
@@ -642,6 +637,7 @@ class TyggBot:
 
     def sync_to(self):
         self.sqlconn.ping()
+        self.sqlconn.autocommit(False)
         cursor = self.sqlconn.cursor()
 
         log.debug('Syncing data from TyggBot to the database...')
@@ -658,21 +654,19 @@ class TyggBot:
                 filter.sync(cursor)
                 filter.synced = True
 
-        for emote in self.emotes:
-            emote.sync(cursor)
+        self.emotes.sync()
 
+        self.sqlconn.commit()
+        self.sqlconn.autocommit(True)
         cursor.close()
-
-    def sync_from(self):
-        pass
 
     def load_all(self):
         self._load_commands()
         self._load_filters()
         self._load_settings()
         self._load_ignores()
-        self._load_emotes()
         self._load_motd()
+        self.emotes.load()
 
     def _load_commands(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
@@ -800,18 +794,6 @@ class TyggBot:
 
         cursor.close()
 
-    def _load_emotes(self):
-        cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
-
-        cursor.execute('SELECT * FROM `tb_emote`')
-
-        self.emotes = []
-
-        for row in cursor:
-            self.emotes.append(Emote.load_from_row(row))
-
-        cursor.close()
-
     def _load_motd(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
 
@@ -870,8 +852,18 @@ class TyggBot:
                 elif not source.subscriber and tag['value'] == '1':
                     source.subscriber = True
                     source.needs_sync = True
+            elif tag['key'] == 'emotes' and tag['value']:
+                emote_data = tag['value'].split('/')
+                for emote in emote_data:
+                    try:
+                        emote_id, emote_occurrence = emote.split(':')
+                        emote_count = emote_occurrence.count(',') + 1
+                        self.emotes[int(emote_id)].add(emote_count)
+                        log.info('{0}: {1}'.format(emote_id, emote_count))
+                    except:
+                        log.exception('Exception caught while splitting emote data')
 
-        for emote in self.emotes:
+        for emote in self.emotes.custom_data:
             num = len(emote.regex.findall(msg_raw))
             if num > 0:
                 emote.add(num)
@@ -911,7 +903,8 @@ class TyggBot:
                         command.run(self, source, extra_msg, event)
                     return
 
-        source.wrote_message()
+        if not whisper:
+            source.wrote_message()
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames

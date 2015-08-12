@@ -14,7 +14,7 @@ def update_database(sqlconn):
     cursor.execute("SELECT `value` FROM `tb_settings` WHERE `setting`='db_version'")
     log.info(cursor)
 
-    latest_db_version = 9
+    latest_db_version = 11
     version = 0
 
     if cursor.rowcount > 0:
@@ -45,6 +45,10 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_commands` ADD `can_execute_with_whisper` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Decides whether the command can be used through whispers or not.' AFTER `cost`;")
         elif version == 9:
             queries.append("CREATE TABLE `tb_whisper_account` ( `username` VARCHAR(128) NOT NULL , `oauth` VARCHAR(128) NOT NULL , `enabled` BOOLEAN NOT NULL DEFAULT TRUE , PRIMARY KEY (`username`) ) ENGINE = InnoDB;")
+        elif version == 10:
+            queries.append("ALTER TABLE `tb_emote` ADD `emote_id` INT NULL DEFAULT NULL AFTER `id`, ADD UNIQUE (`emote_id`) ;")
+        elif version == 11:
+            queries.append("ALTER TABLE `tb_emote` ADD `emote_hash` VARCHAR(32) NULL DEFAULT NULL COMMENT 'Used for BTTV Emotes.' AFTER `emote_id`;")
 
         for query in queries:
             cursor.execute(query)

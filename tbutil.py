@@ -7,6 +7,8 @@ import sys
 from colorama import Fore, Style
 from contextlib import contextmanager
 
+log = logging.getLogger('tyggbot')
+
 COLORS = {
     'WARNING': Fore.YELLOW,
     'INFO': Fore.WHITE,
@@ -142,3 +144,18 @@ def tweet_prettify_urls(tweet):
         tw = tw.replace(u['url'], u['expanded_url'])
 
     return tw
+
+
+def load_config(path):
+    import configparser
+    import os
+    config = configparser.ConfigParser()
+
+    configfile = os.path.dirname(os.path.realpath(__file__)) + '/' + path
+    res = config.read(configfile)
+
+    if len(res) == 0:
+        log.error('{0} missing. Check out install/config.example.ini'.format(path))
+        sys.exit(0)
+
+    return config

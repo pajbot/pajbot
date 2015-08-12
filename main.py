@@ -17,30 +17,19 @@ log = logging.getLogger('tyggbot')
 from tyggbot import TyggBot
 
 
-def load_config(path):
-    import configparser
-    config = configparser.ConfigParser()
-
-    configfile = os.path.dirname(os.path.realpath(__file__)) + '/' + path
-    res = config.read(configfile)
-
-    if len(res) == 0:
-        log.error('{0} missing. Check out install/config.example.ini'.format(path))
-        sys.exit(0)
+def run(args):
+    from tbutil import load_config
+    config = load_config(args.config)
 
     if 'main' not in config:
-        log.error('Missing section [main] in {0}'.format(path))
+        log.error('Missing section [main] in config')
         sys.exit(0)
 
     if 'sql' not in config:
-        log.error('Missing section [sql] in {0}'.format(path))
+        log.error('Missing section [sql] in config')
         sys.exit(0)
 
-    return config
-
-
-def run(args):
-    tyggbot = TyggBot(load_config(args.config), args)
+    tyggbot = TyggBot(config, args)
 
     tyggbot.connect()
 
