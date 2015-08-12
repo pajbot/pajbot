@@ -862,6 +862,11 @@ class TyggBot:
                         log.info('{0}: {1}'.format(emote_id, emote_count))
                     except:
                         log.exception('Exception caught while splitting emote data')
+            elif tag['key'] == 'display-name' and tag['value']:
+                try:
+                    source.update_username(tag['value'])
+                except:
+                    log.exception('Exception caught while updating a users username')
 
         for emote in self.emotes.custom_data:
             num = len(emote.regex.findall(msg_raw))

@@ -14,6 +14,15 @@ class User:
     def remove_ban_immunity(self):
         self.ban_immune = False
 
+    """
+    Update the capitalization of a users username.
+    """
+    def update_username(self, new_username):
+        if self.username_raw != new_username:
+            # The capitalization has changed!
+            self.username_raw = new_username
+            self.needs_sync = True
+
     def __eq__(self, other):
         return self.username == other.username
 
@@ -70,8 +79,8 @@ class User:
             self.id = cursor.lastrowid
         else:
             # TODO: What values should we sync? For now, we only sync level and num_lines
-            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s, `subscriber`=%s, `points`=%s, `last_seen`=%s, `last_active`=%s, `minutes_in_chat_online`=%s, `minutes_in_chat_offline`=%s WHERE `id`=%s',
-                    (self.level, self.num_lines, self.subscriber, self.points, _last_seen, _last_active, self.minutes_in_chat_online, self.minutes_in_chat_offline, self.id))
+            cursor.execute('UPDATE `tb_user` SET `level`=%s, `num_lines`=%s, `subscriber`=%s, `points`=%s, `last_seen`=%s, `last_active`=%s, `minutes_in_chat_online`=%s, `minutes_in_chat_offline`=%s, `username_raw`=%s WHERE `id`=%s',
+                    (self.level, self.num_lines, self.subscriber, self.points, _last_seen, _last_active, self.minutes_in_chat_online, self.minutes_in_chat_offline, self.username_raw, self.id))
         self.needs_sync = False
 
     def touch(self, add_points=0):
