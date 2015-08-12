@@ -64,6 +64,7 @@ class TyggBot:
             'motd_interval_offline': 60,
             'motd_interval_online': 5,
             'max_msg_length': 350,
+            'lines_offline': True,
             }
 
     def parse_args():
@@ -908,7 +909,7 @@ class TyggBot:
                         command.run(self, source, extra_msg, event)
                     return
 
-        if not whisper:
+        if not whisper and (self.is_online or self.settings['lines_offline']):
             source.wrote_message()
 
     def on_whisper(self, chatconn, event):
