@@ -28,7 +28,7 @@ class WhisperConnection:
 
 
 class WhisperConnectionManager:
-    def __init__(self, reactor, tyggbot, target, message_limit, time_interval, num_of_conns=10):
+    def __init__(self, reactor, tyggbot, target, message_limit, time_interval, num_of_conns=30):
         self.reactor = reactor
         self.tyggbot = tyggbot
         self.message_limit = message_limit
