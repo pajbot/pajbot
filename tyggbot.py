@@ -467,28 +467,27 @@ class TyggBot:
         emote = self.emotes.find(key)
         if emote:
             return emote.tm
-        return 0
+        return None
 
     def get_emote_count(self, key, extra={}):
         emote = self.emotes.find(key)
         if emote:
             return emote.count
-        return 0
+        return None
 
     def get_emote_tm_record(self, key, extra={}):
         emote = self.emotes.find(key)
         if emote:
             return emote.tm_record
-        return 0
+        return None
 
     def get_source_value(self, key, extra={}):
-        val = '!!ERROR!!'
         try:
-            val = getattr(extra['source'], key)
+            return getattr(extra['source'], key)
         except:
             log.exception('Caught exception in get_source_value')
 
-        return val
+        return None
 
     def get_value(self, key, extra={}):
         if key in extra:
@@ -501,7 +500,7 @@ class TyggBot:
             return self.settings[key]
 
         log.warning('Unknown key passed to get_value: {0}'.format(key))
-        return '???'
+        return None
 
     def get_cursor(self):
         self.sqlconn.ping()
