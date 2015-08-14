@@ -93,14 +93,19 @@ class EmoteManager(UserDict):
         cursor.execute('SELECT * FROM `tb_emote`')
         for row in cursor:
             emote = Emote.load_from_row(row)
-            if row['emote_id']:
-                self.data[emote.emote_id] = emote
-                self.data[emote.code] = emote
-            else:
-                self.data['custom_' + emote.code] = emote
-                self.custom_data.append(emote)
+            self.add_to_data(emote)
 
         cursor.close()
+
+    def add_to_data(self, emote):
+        if emote.emote_id:
+            self.data[emote.emote_id] = emote
+            if emote.code:
+                self.data[emote.code] = emote
+        else:
+            self.custom_data.append(emote)
+            if emote.code:
+                self.data['custom_' + emote.code] = emote
 
     def __getitem__(self, key):
         if key not in self.data:
@@ -111,7 +116,8 @@ class EmoteManager(UserDict):
                 return None
 
             log.info('Adding new emote with ID {0}'.format(value))
-            self.data[key] = Emote.load(self.get_cursor(), value)
+            emote = Emote.load(self.get_cursor(), value)
+            self.add_to_data(emote)
 
         return self.data[key]
 

@@ -851,6 +851,8 @@ class TyggBot:
                             # The emote we just detected is new, set its code.
                             first_index, last_index = emote_indices[0].split('-')
                             emote.code = msg_raw[int(first_index):int(last_index) + 1]
+                            if emote.code not in self.emotes:
+                                self.emotes[emote.code] = emote
                     except:
                         log.exception('Exception caught while splitting emote data')
             elif tag['key'] == 'display-name' and tag['value']:
