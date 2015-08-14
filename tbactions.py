@@ -89,7 +89,6 @@ class MessageAction(BaseAction):
 
     def init_parse(self):
         for sub_key in self.argument_regex.findall(self.response):
-            log.info(sub_key)
             inner_match = self.argument_inner_regex.search(sub_key)
             if inner_match:
                 argument_num = inner_match.group(1)
@@ -107,23 +106,18 @@ class MessageAction(BaseAction):
                 if found:
                     continue
 
-                log.info('adding argument sub')
                 self.argument_subs.append(Substitution(None, argument=argument_num))
 
         for sub_key in self.regex.findall(self.response):
             if sub_key in self.subs:
                 # We already matched this variable
-                log.debug('already matched this')
                 continue
 
             inner_match = self.inner_regex.search(sub_key)
-            log.info(self.response)
-            log.info(inner_match)
 
             if inner_match:
                 path = inner_match.group(1)
                 key = inner_match.group(2)
-                log.info('Matched key {0}'.format(key))
                 key_type = key[:1]
                 key_value = key[1:]
 
