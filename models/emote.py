@@ -1,8 +1,7 @@
 import logging
-from collections import UserDict, deque
+from collections import UserDict
 import pymysql
 import re
-import json
 
 log = logging.getLogger('tyggbot')
 
@@ -10,10 +9,9 @@ log = logging.getLogger('tyggbot')
 class Emote:
     def __init__(self):
         self.id = -1  # An ID of -1 means the emote will be inserted on sync
+        self.emote_id = None
         self.code = None  # This value will be inserted when the update_emotes script is called, if necessary.
-        self.pm = 0
         self.tm = 0
-        self.pm_record = 0
         self.tm_record = 0
         self.count = 0
         self.needs_sync = False
@@ -26,7 +24,6 @@ class Emote:
         emote.emote_id = emote_id
         emote.regex = None
         emote.needs_sync = True
-        emote.deque = deque([0] * 61)
 
         return emote
 
@@ -38,44 +35,31 @@ class Emote:
         emote.code = row['code']
         if not emote.emote_id:
             emote.regex = re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(emote.code)))
-        if row['deque']:
-            emote.deque = deque(json.loads(row['deque']))
-        else:
-            emote.deque = deque([0] * 61)
         emote.count = row['count']
-        emote.pm_record = row['pm_record']
         emote.tm_record = row['tm_record']
-        emote.recalculate()
 
         return emote
 
-    def add(self, count):
+    def add(self, count, reactor):
         self.count += count
-        self.deque[0] += count
         self.tm += count
         self.needs_sync = True
         if self.tm > self.tm_record:
             self.tm_record = self.tm
 
-    # Recaculate the per-minute and this-minute stats from the deque data
-    def recalculate(self):
-        cur_sum = sum(self.deque)
-        self.tm = cur_sum
+        reactor.execute_delayed(60, self.reduce, (count, ))
 
-        # TODO: Phase out pm_record
-        self.pm = cur_sum / 60
-        if self.pm > self.pm_record:
-            self.pm_record = self.pm
+    def reduce(self, count):
+        self.tm -= count
 
     def sync(self, cursor):
-        cursor.execute('UPDATE `tb_emote` SET `deque`=%s, `pm_record`=%s, `tm_record`=%s, `count`=%s WHERE `id`=%s',
-                (json.dumps(list(self.deque)), self.pm_record, self.tm_record, self.count, self.id))
-
-    # Call recalculate and shift the deque
-    def shift(self):
-        self.recalculate()
-        self.deque.rotate(1)
-        self.deque[60] = 0
+        if self.id == -1:
+            cursor.execute('INSERT INTO `tb_emote` (`emote_id`, `code`, `tm_record`, `count`) VALUES (%s, %s, %s, %s)',
+                    (self.emote_id, self.code, self.tm_record, self.count))
+            self.id = cursor.lastrowid
+        else:
+            cursor.execute('UPDATE `tb_emote` SET `tm_record`=%s, `count`=%s WHERE `id`=%s',
+                    (self.tm_record, self.count, self.id))
 
 
 class EmoteManager(UserDict):
@@ -100,10 +84,6 @@ class EmoteManager(UserDict):
 
         cursor.close()
         self.sqlconn.autocommit(True)
-
-    def shift(self):
-        for k, emote in self.data.items():
-            emote.shift()
 
     def load(self):
         self.data = {}

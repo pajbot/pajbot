@@ -99,14 +99,10 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_value
                 elif path == 'lasttweet':
                     cb = TyggBot.instance.get_last_tweet
-                elif path == 'epm':
-                    cb = TyggBot.instance.get_emote_pm
                 elif path == 'etm':
                     cb = TyggBot.instance.get_emote_tm
                 elif path == 'ecount':
                     cb = TyggBot.instance.get_emote_count
-                elif path == 'epmrecord':
-                    cb = TyggBot.instance.get_emote_pm_record
                 elif path == 'etmrecord':
                     cb = TyggBot.instance.get_emote_tm_record
                 elif path == 'source':

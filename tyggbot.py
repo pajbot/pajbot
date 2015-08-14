@@ -212,6 +212,7 @@ class TyggBot:
 
         self.users = UserManager(self.sqlconn)
         self.emotes = EmoteManager(self.sqlconn)
+        self.emotes.load()
 
         self.silent = False
         self.dev = False
@@ -258,8 +259,6 @@ class TyggBot:
             self.init_twitter()
         else:
             self.twitter = None
-
-        self.execute_every(1, self.emotes.shift)
 
         self.ws_clients = []
         if 'websocket' in config and config['websocket']['enabled'] == '1':
@@ -383,7 +382,6 @@ class TyggBot:
             for emote in self.emotes:
                 emote_data[emote.code] = {
                         'code': emote.code,
-                        'pm': emote.pm,
                         'tm': emote.tm,
                         'count': emote.count,
                         }
@@ -465,12 +463,6 @@ class TyggBot:
 
         return 'FeelsBadMan'
 
-    def get_emote_pm(self, key, extra={}):
-        emote = self.emotes.find(key)
-        if emote:
-            return emote.pm
-        return 0
-
     def get_emote_tm(self, key, extra={}):
         emote = self.emotes.find(key)
         if emote:
@@ -481,12 +473,6 @@ class TyggBot:
         emote = self.emotes.find(key)
         if emote:
             return emote.count
-        return 0
-
-    def get_emote_pm_record(self, key, extra={}):
-        emote = self.emotes.find(key)
-        if emote:
-            return emote.pm_record
         return 0
 
     def get_emote_tm_record(self, key, extra={}):
@@ -667,7 +653,6 @@ class TyggBot:
         self._load_settings()
         self._load_ignores()
         self._load_motd()
-        self.emotes.load()
 
     def _load_commands(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
@@ -858,9 +843,14 @@ class TyggBot:
                 for emote in emote_data:
                     try:
                         emote_id, emote_occurrence = emote.split(':')
-                        emote_count = emote_occurrence.count(',') + 1
-                        self.emotes[int(emote_id)].add(emote_count)
-                        log.info('{0}: {1}'.format(emote_id, emote_count))
+                        emote_indices = emote_occurrence.split(',')
+                        emote_count = len(emote_indices)
+                        emote = self.emotes[int(emote_id)]
+                        emote.add(emote_count, self.reactor)
+                        if emote.id == -1 and emote.code is None:
+                            # The emote we just detected is new, set its code.
+                            first_index, last_index = emote_indices[0].split('-')
+                            emote.code = msg_raw[int(first_index):int(last_index) + 1]
                     except:
                         log.exception('Exception caught while splitting emote data')
             elif tag['key'] == 'display-name' and tag['value']:
@@ -872,7 +862,7 @@ class TyggBot:
         for emote in self.emotes.custom_data:
             num = len(emote.regex.findall(msg_raw))
             if num > 0:
-                emote.add(num)
+                emote.add(num, self.reactor)
 
         if source is None and not event:
             log.error('No nick or event passed to parse_message')
