@@ -431,6 +431,8 @@ class Dispatch:
             data['level'] = command.level
             data['type'] = command.action.type
             data['cost'] = command.cost
+            data['cd_all'] = command.delay_all
+            data['cd_user'] = command.delay_user
 
             if command.action.type == 'message':
                 data['response'] = command.action.response
