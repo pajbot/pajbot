@@ -125,11 +125,6 @@ class Command:
 
     # (cur_time - self.last_run) = time since last run
     def run(self, tyggbot, source, message, event={}, args={}):
-        if self.cost > 0:
-            if not source.spend(self.cost):
-                # The user does not have enough points to spend!
-                return False
-
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 2000:
             if source.username not in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
@@ -139,6 +134,11 @@ class Command:
                 self.num_uses += 1
                 self.synced = False
                 if ret is not False:
+                    if self.cost > 0:
+                        # Only spend points if the action did not fail
+                        if not source.spend(self.cost):
+                            # The user does not have enough points to spend!
+                            return False
                     self.last_run = cur_time
                     self.last_run_by_user[source.username] = cur_time
             else:
