@@ -602,7 +602,7 @@ class TyggBot:
 
                 log.info('Sending message: {0}'.format(message))
 
-                self.privmsg(message[:400])
+                self.privmsg(message[:510])
             else:
                 log.warning('Message too short, skipping...')
 

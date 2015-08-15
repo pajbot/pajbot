@@ -1,9 +1,44 @@
 import irc
+from irc.client import InvalidCharacters, MessageTooLong, ServerNotConnectedError
+import socket
 import random
 
 import logging
 
 log = logging.getLogger('tyggbot')
+
+
+class CustomServerConnection(irc.client.ServerConnection):
+    """
+    We override the default irc.clientServerConnection because want to be able
+    to send strings that are 2048(?) bytes long. This is not in accordance with the IRC
+    standards, but it's the limit the Twitch IRC servers use.
+    """
+    def send_raw(self, string):
+        """Send raw string to the server.
+
+        The string will be padded with appropriate CR LF.
+        """
+        # The string should not contain any carriage return other than the
+        # one added here.
+        if '\n' in string:
+            raise InvalidCharacters(
+                "Carriage returns not allowed in privmsg(text)")
+        bytes = string.encode('utf-8') + b'\r\n'
+        # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
+        # clients should not transmit more than 512 bytes.
+        # However, Twitch have raised that limit to 2048 in their servers.
+        if len(bytes) > 2048:
+            raise MessageTooLong(
+                "Messages limited to 2048 bytes including CR/LF")
+        if self.socket is None:
+            raise ServerNotConnectedError("Not connected.")
+        sender = getattr(self.socket, 'write', self.socket.send)
+        try:
+            sender(bytes)
+        except socket.error:
+            # Ouch!
+            self.disconnect("Connection reset by peer.")
 
 
 class Connection:
@@ -102,7 +137,10 @@ class ConnectionManager:
             log.debug('Fetched {0}:{1}'.format(ip, port))
 
             try:
-                newconn = self.reactor.server().connect(ip, port, self.tyggbot.nickname, self.tyggbot.password, self.tyggbot.nickname)
+                newconn = CustomServerConnection(self.reactor)
+                with self.reactor.mutex:
+                    self.reactor.connections.append(newconn)
+                newconn.connect(ip, port, self.tyggbot.nickname, self.tyggbot.password, self.tyggbot.nickname)
                 log.debug('Connecting to IRC server...')
                 newconn.cap('REQ', 'twitch.tv/membership')
                 newconn.cap('REQ', 'twitch.tv/commands')
