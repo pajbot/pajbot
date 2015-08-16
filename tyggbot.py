@@ -297,8 +297,9 @@ class TyggBot:
 
     def update_subscribers_stage1(self):
         subscribers = get_subscribers(self.krakenapi, self.streamer)
-        self.mainthread_queue.add(self.update_subscribers_stage2,
-                                  args=[subscribers])
+        if len(subscribers) > 0:
+            self.mainthread_queue.add(self.update_subscribers_stage2,
+                                      args=[subscribers])
 
     def update_subscribers_stage2(self, subscribers):
         self.kvi.insert('active_subs', len(subscribers) - 1)
