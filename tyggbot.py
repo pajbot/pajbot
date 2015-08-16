@@ -315,7 +315,8 @@ class TyggBot:
 
     def update_chatters_stage1(self):
         chatters = get_chatters(self.streamer)
-        self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
+        if len(chatters) > 0:
+            self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
 
     def update_chatters_stage2(self, chatters):
         points = 1 if self.is_online else 0
