@@ -118,7 +118,7 @@ def time_since(t1, t2, format='long'):
     num = [math.trunc(time_diff / 86400),
            math.trunc(time_diff / 3600 % 24),
            math.trunc(time_diff / 60 % 60),
-           math.trunc(time_diff % 60)]
+           round(time_diff % 60, 1)]
 
     i = 0
     j = 0
@@ -126,7 +126,7 @@ def time_since(t1, t2, format='long'):
     while i < 2 and j < 4:
         if num[j] > 0:
             if format == 'long':
-                time_arr.append('{0} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
+                time_arr.append('{0:g} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
             else:
                 time_arr.append('{0}{1}'.format(num[j], num_dict[j]))
             i += 1
