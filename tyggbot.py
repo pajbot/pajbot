@@ -486,13 +486,13 @@ class TyggBot:
     def get_emote_count(self, key, extra={}):
         emote = self.emotes.find(key)
         if emote:
-            return emote.count
+            return '{0:,d}'.format(emote.count)
         return None
 
     def get_emote_tm_record(self, key, extra={}):
         emote = self.emotes.find(key)
         if emote:
-            return emote.tm_record
+            return '{0:,d}'.format(emote.tm_record)
         return None
 
     def get_source_value(self, key, extra={}):
