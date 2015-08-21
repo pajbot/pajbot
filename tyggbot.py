@@ -40,8 +40,8 @@ log = logging.getLogger('tyggbot')
 
 class TMI:
     message_limit = 90
-    whispers_message_limit = 5
-    whispers_limit_interval = 5  # in seconds
+    whispers_message_limit = 3
+    whispers_limit_interval = 3  # in seconds
 
 
 class TyggBot:
