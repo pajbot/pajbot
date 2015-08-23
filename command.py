@@ -128,6 +128,10 @@ class Command:
         cur_time = time.time()
         if cur_time - self.last_run > self.delay_all or source.level >= 2000:
             if source.username not in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
+                if self.cost > 0 and source.points < self.cost:
+                    # User does not have enough points to use the command
+                    return False
+
                 log.info('Running action from Command')
                 args.update(self.extra_args)
                 ret = self.action.run(tyggbot, source, message, event, args)
