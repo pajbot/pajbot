@@ -391,6 +391,8 @@ class TyggBot:
                 log.exception('Caught exception while trying to update stream status')
 
     def refresh_emote_data(self):
+        # TODO: this is broken
+        return
         if len(self.ws_clients) > 0:
             emote_data = {}
             for emote in self.emotes:
