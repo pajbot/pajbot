@@ -93,8 +93,8 @@ class ConnectionManager:
                 log.debug("Removing connection because not connected")
                 continue  # don't want this connection in the new list
 
-            if connection.num_msgs_sent == 0:
-                if clean_conns_count >= self.backup_conns_number:  # we have more connections than needed
+            if connection.num_msgs_sent <= 5:
+                if clean_conns_count >= self.backup_conns_number and connection.num_msgs_sent == 0:  # we have more connections than needed
                     log.debug("Removing connection because we have enough backup")
                     connection.conn.close()
                     continue  # don't want this connection
