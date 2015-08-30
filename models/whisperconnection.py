@@ -132,6 +132,7 @@ class WhisperConnectionManager:
 
     def on_disconnect(self, conn):
         conn.reconnect()
+        conn.cap('REQ', 'twitch.tv/commands')
         return
 
     def whisper(self, target, message):
