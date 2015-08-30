@@ -88,10 +88,11 @@ class User:
         self.points += add_points
         self.needs_sync = True
 
-    def wrote_message(self):
+    def wrote_message(self, add_line=True):
         self.last_active = datetime.datetime.now()
         self.last_seen = datetime.datetime.now()
-        self.num_lines += 1
+        if add_line:
+            self.num_lines += 1
         self.needs_sync = True
 
 

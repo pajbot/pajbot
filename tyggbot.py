@@ -914,8 +914,7 @@ class TyggBot:
                         command.run(self, source, extra_msg, event)
                     return
 
-        if not whisper and (self.is_online or self.settings['lines_offline']):
-            source.wrote_message()
+        source.wrote_message(not whisper and (self.is_online or self.settings['lines_offline']))
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
