@@ -607,8 +607,8 @@ class TyggBot:
         else:
             log.debug('No whisper conn set up.')
 
-    def say(self, message, force=False):
-        if force or not self.silent:
+    def say(self, message, channel=None):
+        if not self.silent:
             message = message.strip()
 
             if len(message) >= 1:
@@ -618,12 +618,10 @@ class TyggBot:
 
                 log.info('Sending message: {0}'.format(message))
 
-                self.privmsg(message[:510])
-            else:
-                log.warning('Message too short, skipping...')
+                self.privmsg(message[:510], channel)
 
-    def me(self, message, force=False):
-        if force or not self.silent:
+    def me(self, message, channel=None):
+        if not self.silent:
             message = message.strip()
 
             if len(message) >= 1:
@@ -633,9 +631,7 @@ class TyggBot:
 
                 log.info('Sending message: {0}'.format(message))
 
-                self.privmsg('.me ' + message[:400])
-            else:
-                log.warning('Message too short, skipping...')
+                self.privmsg('.me ' + message[:500], channel)
 
     def sync_to(self):
         self.sqlconn.ping()
