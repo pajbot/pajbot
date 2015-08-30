@@ -118,7 +118,7 @@ class WhisperConnectionManager:
             if connection.conn.is_connected():
                 return connection.conn
 
-        log.error("No connection with is_connected() found")
+        log.error("No connection with is_connected() found in WhisperConnectionManager")
 
     def make_new_connection(self, name, oauth):
         server = random.choice(self.servers_list)

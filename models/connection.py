@@ -123,7 +123,7 @@ class ConnectionManager:
 
                 return connection.conn
 
-        log.error("No connection with is_connected() found")
+        log.error("No connection with is_connected() found in ConnectionManager")
 
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
