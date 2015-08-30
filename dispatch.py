@@ -17,11 +17,17 @@ class Dispatch:
 
     def nl(tyggbot, source, message, event, args):
         if message:
-            username = message.split(' ')[0].strip().lower()
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+            if user:
+                username = user.username_raw
+                num_lines = user.num_lines
+            else:
+                username = tmp_username
+                num_lines = 0
         else:
-            username = source.username
-
-        num_lines = tyggbot.users[username].num_lines
+            username = source.username_raw
+            num_lines = source.num_lines
 
         phrase_data = {
                 'username': username,
