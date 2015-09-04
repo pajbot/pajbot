@@ -106,7 +106,7 @@ class TyggBot:
         try:
             class MyStreamListener(tweepy.StreamListener):
                 relevant_users = [
-                    'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf'
+                    'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf', 'nymn_hs'
                     ]
 
                 def on_status(self, tweet):
