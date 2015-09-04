@@ -96,9 +96,11 @@ class LinkChecker:
 
         except requests.exceptions.ConnectTimeout:
             log.error('Connection timed out while checking {0}'.format(url))
+            self.cache_url(url, True)
             return
         except requests.exceptions.ReadTimeout:
             log.error('Reading timed out while checking {0}'.format(url))
+            self.cache_url(url, True)
             return
         except:
             log.exception('Unhandled exception')
