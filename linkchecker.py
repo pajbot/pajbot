@@ -10,19 +10,44 @@ log = logging.getLogger('tyggbot')
 
 
 class LinkChecker:
-    def __init__(self, bot):
+    def __init__(self, bot, run_later):
         if 'safebrowsingapi' in bot.config['main']:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
         else:
             self.safeBrowsingAPI = None
 
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))')
+        self.run_later = run_later
+        self.cache = {} #cache[url] = True means url is safe, False means the link is bad
         return
 
+    def delete_from_cache(self, url):
+        log.debug("LinkChecker: Removing url {0} from cache".format(url)) 
+        del self.cache[url]
+
+    def cache_url(self, url, safe):
+        log.debug("LinkChecker: Caching url {0}".format(url))
+        self.cache[url] = safe
+        self.run_later(20, self.delete_from_cache, (url, ))
+
+    def counteract_bad_url(self, url, action=None, want_to_cache=True):
+        log.debug("LinkChecker: BAD URL FOUND {0}".format(url))
+        if action:
+            action.run()
+        if want_to_cache:
+            self.cache_url(url, False)
+
     def check_url(self, url, action):
+        log.debug("LinkChecker: Checking url {0}".format(url))
+        if url in self.cache:
+            log.debug("LinkChecker: Url {0} found in cache".format(url))
+            if not self.cache[url]: #link is bad
+                self.counteract_bad_url(url, action, False)
+            return
+
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                action.func(*action.args, **action.kwargs)  # execute the specified action
+                self.counteract_bad_url(url, action)
                 return
 
         connection_timeout = 2
@@ -37,7 +62,8 @@ class LinkChecker:
         checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
         if checkcontenttype or checkdispotype:  # triggering a download not allowed
-            action.func(*action.args, **action.kwargs)
+            self.counteract_bad_url(url, action)
+            return
 
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
             return  # can't analyze non-html content
@@ -82,6 +108,7 @@ class LinkChecker:
         except:
             return
 
+        original_url = url
         urls = []
         for link in soup.find_all('a'):  # get a list of links to external sites
             url = link.get('href')
@@ -93,11 +120,12 @@ class LinkChecker:
         for url in urls:  # check if the site links to anything dangerous
             if self.safeBrowsingAPI:
                 if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                    action.func(*action.args, **action.kwargs)  # execute the specified action
+                    self.counteract_bad_url(original_url, action)
+                    self.counteract_bad_url(url)
                     return
 
         # if we got here, the site is clean for our standards
-
+        self.cache_url(original_url, True)
         return
 
     def findUrlsInMessage(self, msg_raw):

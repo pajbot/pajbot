@@ -289,7 +289,7 @@ class TyggBot:
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
-        self.link_checker = LinkChecker(self)
+        self.link_checker = LinkChecker(self, self.execute_delayed)
 
         """
         Update chatters every `update_chatters_interval' minutes.
