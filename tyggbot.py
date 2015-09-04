@@ -90,9 +90,17 @@ class TyggBot:
 
             if self.use_twitter_stream:
                 self.connect_to_twitter_stream()
+                self.execute_every(60 * 5, self.check_twitter_connection)
         except:
             log.exception('Twitter authentication failed.')
             self.twitter = False
+
+    def check_twitter_connection(self):
+        try:
+            if self.twitter_stream.running is False:
+                self.connect_to_twitter_stream()
+        except:
+            log.exception('Caught exception while checking twitter connection')
 
     def connect_to_twitter_stream(self):
         try:
