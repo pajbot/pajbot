@@ -42,5 +42,6 @@ def get_subscribers(twitchapi, channel):
             data = twitchapi.get(['channels', channel, 'subscriptions'], {'limit': limit, 'offset': offset})
     except:
         log.exception('Caught an exception while trying to get subscribers')
+        return []
 
     return subscribers
