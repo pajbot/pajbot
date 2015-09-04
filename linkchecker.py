@@ -99,6 +99,7 @@ class LinkChecker:
             return
         except requests.exceptions.ReadTimeout:
             log.error('Reading timed out while checking {0}'.format(url))
+            return
         except:
             log.exception('Unhandled exception')
             return
