@@ -713,3 +713,13 @@ class Dispatch:
         extra_message = '{0} {1}'.format(source.username, ' '.join(parts[1:]).strip())
 
         tyggbot.execute_delayed(delay, tyggbot.say, (extra_message, ))
+
+    def ord(tyggbot, source, message, event, args):
+        if not message:
+            return False
+
+        try:
+            ord_code = ord(message[0])
+            tyggbot.say(str(ord_code))
+        except:
+            return False
