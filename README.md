@@ -41,8 +41,8 @@ PM2
 
 
 ### Set up the bot
-1. Create
-2. Start the bot using PM2: `pm2 start main.py --name="NAME_OF_BOT" --output="/path/to/output.log" --error="/path/to/error.out" --merge-logs -- --config configs/config.ini`
+1. Create a config file according to the specifications in [wiki](https://github.com/pajlada/tyggbot/wiki/Config-File) and save it somewhere in the root code folder. (TODO: configs should be able to be located anywhere...)
+2. Start the bot using PM2: `pm2 start main.py --name="NAME_OF_BOT" --output="/path/to/output.log" --error="/path/to/error.out" --merge-logs -- --config path/to//config.ini`
 
 ## Disclaimer
 
