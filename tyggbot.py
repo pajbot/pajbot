@@ -124,6 +124,7 @@ class TyggBot:
                 'quit': False,
                 'nl': '{username} has typed {num_lines} messages in this channel!',
                 'nl_0': '{username} has not typed any messages in this channel BibleThump',
+                'nl_pos': '{username} is rank {nl_pos} line-farmer in this channel!',
                 'new_sub': 'Sub hype! {username} just subscribed PogChamp',
                 'resub': 'Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
                 }

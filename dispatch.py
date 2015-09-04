@@ -39,6 +39,35 @@ class Dispatch:
         else:
             tyggbot.say(tyggbot.phrases['nl_0'].format(**phrase_data))
 
+    def nl_pos(tyggbot, source, message, event, args):
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+            if user:
+                username = user.username_raw
+                num_lines = user.num_lines
+            else:
+                username = tmp_username
+                num_lines = 0
+        else:
+            username = source.username_raw
+            num_lines = source.num_lines
+
+        phrase_data = {
+                'username': username,
+                'num_lines': num_lines
+                }
+
+        if num_lines <= 0:
+            tyggbot.say(tyggbot.phrases['nl_0'].format(**phrase_data))
+        else:
+            cursor = tyggbot.get_dictcursor()
+            cursor.execute('SELECT COUNT(*) as `pos` FROM `tb_user` WHERE `num_lines`>%s', (num_lines, ))
+            row = cursor.fetchone()
+            if row:
+                phrase_data['nl_pos'] = row['pos'] + 1
+                tyggbot.say(tyggbot.phrases['nl_pos'].format(**phrase_data))
+
     def query(tyggbot, source, message, event, args):
         if Dispatch.wolfram is None:
             return False
