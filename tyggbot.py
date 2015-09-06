@@ -157,6 +157,7 @@ class TyggBot:
         self.config = config
         self.nickname = config['main']['nickname']
         self.password = config['main']['password']
+        self.default_settings['broadcaster'] = config['main']['streamer']
 
         try:
             self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], charset='utf8')
