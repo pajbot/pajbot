@@ -131,7 +131,7 @@ class LinkChecker:
         self.cache_url(original_url, True)
         return
 
-    def findUrlsInMessage(self, msg_raw):
+    def find_urls_in_message(self, msg_raw):
 
         _urls = self.regex.finditer(msg_raw)
         urls = []

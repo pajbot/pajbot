@@ -897,7 +897,7 @@ class TyggBot:
                 if self.check_msg_content(source, msg_raw, event):
                     # If we've matched a filter, we should not have to run a command.
                     return
-                urls = self.link_checker.findUrlsInMessage(msg_raw)
+                urls = self.link_checker.find_urls_in_message(msg_raw)
                 for url in urls:
                     # TODO: Keep a list of already-checked URLs, with their results.
                     # Action which will be taken when a bad link is found
