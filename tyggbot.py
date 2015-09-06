@@ -15,6 +15,7 @@ from models.emote import EmoteManager
 from models.setting import Setting
 from models.connection import ConnectionManager
 from models.whisperconnection import WhisperConnectionManager
+from models.linkchecker import LinkChecker
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -33,7 +34,6 @@ import irc.client
 
 from command import Filter
 from actions import Action, ActionQueue
-from linkchecker import LinkChecker
 
 log = logging.getLogger('tyggbot')
 
