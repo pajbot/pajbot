@@ -141,4 +141,4 @@ class LinkChecker:
                 url = 'https://' + url
             urls.append(url)
 
-        return urls
+        return set(urls)
