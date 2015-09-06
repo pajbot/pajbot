@@ -952,7 +952,7 @@ class TyggBot:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
                     self.timeout_user(source, self.ascii_timeout_duration)
-                    # self.whisper(source.username, 'You have been timed out for 120 seconds because your message contained too many ascii characters.')
+                    self.whisper(source.username, 'You have been timed out for {0} seconds because your message contained too many ascii characters.'.format(self.ascii_timeout_duration))
                     return
 
             if self.settings['ban_msg_length']:
@@ -960,7 +960,7 @@ class TyggBot:
                 if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
                     self.timeout_user(source, self.msg_length_timeout_duration)
-                    # self.whisper(source.username, 'You have been timed out for 120 seconds because your message was too long.')
+                    self.whisper(source.username, 'You have been timed out for {0} seconds because your message was too long.'.format(self.msg_length_timeout_duration))
                     return
 
         if cur_time - self.last_sync >= 10 * 60:
