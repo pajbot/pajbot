@@ -46,7 +46,7 @@ class User:
             user.minutes_in_chat_online = row['minutes_in_chat_online']
             user.minutes_in_chat_offline = row['minutes_in_chat_offline']
         else:
-            # We found a user in the database!
+            # No user was found with this username, create a new one!
             user.id = -1  # An ID of -1 means it will be inserted on sync
             user.username = username.lower()
             user.username_raw = user.username
