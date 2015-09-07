@@ -10,26 +10,47 @@ import urllib.parse
 
 log = logging.getLogger('tyggbot')
 
-def is_subdomain(x, y): #is x a subdomain of y?
+
+def is_subdomain(x, y):
+    """ Returns True if x is a subdomain of y, otherwise return False.
+
+    Example:
+    is_subdomain('pajlada.se', 'pajlada.se') = True
+    is_subdomain('test.pajlada.se', 'pajlada.se') = True
+    is_subdomain('test.pajlada.se', 'pajlada.com') = True
+    """
     if y.startswith('www.'):
         y = y[4:]
     return x.endswith('.' + y) or x == y
 
-def is_subpath(x, y): #is x a subpath of y?
+
+def is_subpath(x, y):
+    """ Returns True if x is a subpath of y, otherwise return False.
+
+    Example:
+    is_subpath('/a/', '/b/') = False
+    is_subpath('/a/', '/a/') = True
+    is_subpath('/a/abc', '/a/') = True
+    is_subpath('/a/', '/a/abc') = False
+    """
     if y.endswith('/'):
         return x.startswith(y) or x == y[:-1]
     else:
         return x.startswith(y + '/') or x == y
 
-def is_same_url(x, y): # are x and y essentially the same urls
+
+def is_same_url(x, y):
+    """ Returns True if x and y should be parsed as the same URLs, otherwise return False.  """
     parsed_x = x.parsed
     parsed_y = y.parsed
     return parsed_x.netloc == parsed_y.netloc and parsed_x.path.strip('/') == parsed_y.path.strip('/') and parsed_x.query == parsed_y.query
+
 
 class Url:
     def __init__(self, url):
         self.url = url
         self.parsed = urllib.parse.urlparse(url)
+
 
 class LinkCheckerCache:
     def __init__(self):
@@ -48,8 +69,8 @@ class LinkCheckerCache:
     def __delitem__(self, url):
         del self.cache[url.strip('/')]
 
-class LinkChecker:
 
+class LinkChecker:
     def __init__(self, bot, run_later):
         if 'safebrowsingapi' in bot.config['main']:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
@@ -85,7 +106,8 @@ class LinkChecker:
         if want_to_blacklist:
             self.blacklist_url(url.url, url.parsed)
 
-    def unlist_url(self, url, list_type, parsed_url = None): #list_type = 'blacklist' or 'whitelist'
+    def unlist_url(self, url, list_type, parsed_url=None):
+        """ list_type is either 'blacklist' or 'whitelist' """
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
 
@@ -106,7 +128,7 @@ class LinkChecker:
 
         cursor.execute("DELETE FROM `tb_link_" + list_type + "` WHERE `domain`=%s AND `path`=%s", (domain, path))
 
-    def blacklist_url(self, url, parsed_url = None):
+    def blacklist_url(self, url, parsed_url=None):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
 
@@ -130,7 +152,7 @@ class LinkChecker:
 
         cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s)", (domain, path))
 
-    def whitelist_url(self, url, parsed_url = None):
+    def whitelist_url(self, url, parsed_url=None):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
         if parsed_url is None:
@@ -152,7 +174,7 @@ class LinkChecker:
 
         cursor.execute("INSERT INTO `tb_link_whitelist` VALUES(%s, %s)", (domain, path))
 
-    def is_blacklisted(self, url, parsed_url = None):
+    def is_blacklisted(self, url, parsed_url=None):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
@@ -174,9 +196,9 @@ class LinkChecker:
 
         return False
 
-    def is_whitelisted(self, url, parsed_url = None):
+    def is_whitelisted(self, url, parsed_url=None):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
-        if parsed_url is None:        
+        if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
         domain = parsed_url.netloc
         path = parsed_url.path
@@ -196,7 +218,13 @@ class LinkChecker:
 
         return False
 
-    def basic_check(self, url, action): # 1 means link is ok, -1 means link is bad, 0 means further analysis needed
+    def basic_check(self, url, action):
+        """
+        Return values:
+        1 = Link is OK
+        -1 = Link is bad
+        0 = Link needs further analysis
+        """
         if url.url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url.url))
             if not self.cache[url]:  # link is bad
@@ -219,7 +247,8 @@ class LinkChecker:
     def check_url(self, url, action):
         url = Url(url)
         if len(url.parsed.netloc.split('.')) < 2:
-            return # shit url
+            # The URL is broken, ignore it
+            return
 
         try:
             self._check_url(url, action)
@@ -240,7 +269,7 @@ class LinkChecker:
         except:
             self.cache_url(url.url, True)
             return
- 
+
         checkcontenttype = ('content-type' in r.headers and r.headers['content-type'] == 'application/octet-stream')
         checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
@@ -259,7 +288,6 @@ class LinkChecker:
                 self.counteract_bad_url(url, action)
                 self.counteract_bad_url(redirected_url)
                 return
-
 
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
             return  # can't analyze non-html content
@@ -323,7 +351,7 @@ class LinkChecker:
             url = Url(url)
 
             if is_subdomain(url.parsed.netloc, original_url.parsed.netloc):
-                #log.debug("Skipping because internal link")
+                # log.debug("Skipping because internal link")
                 continue
             res = self.basic_check(url, action)
             if res == -1:
