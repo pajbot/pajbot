@@ -4,9 +4,14 @@ from apiwrappers import SafeBrowsingAPI
 import re
 import requests
 import logging
+import pymysql
 import time
+import urllib.parse
 
 log = logging.getLogger('tyggbot')
+
+def is_subdomain(x, y): #is x a subdomain of y?
+    return x.endswith('.' + y) or x == y
 
 
 class LinkChecker:
@@ -15,6 +20,8 @@ class LinkChecker:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
         else:
             self.safeBrowsingAPI = None
+
+        self.sqlconn = bot.sqlconn
 
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))')
         self.run_later = run_later
@@ -30,19 +37,110 @@ class LinkChecker:
         self.cache[url] = safe
         self.run_later(20, self.delete_from_cache, (url, ))
 
-    def counteract_bad_url(self, url, action=None, want_to_cache=True):
+    def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=True):
         log.debug("LinkChecker: BAD URL FOUND {0}".format(url))
         if action:
             action.run()
         if want_to_cache:
             self.cache_url(url, False)
+        if want_to_blacklist:
+            self.blacklist_url(url)
+
+    def blacklist_url(self, url):
+        if not (url.startswith('http://') or url.startswith('https://')):
+            url = 'http://' + url
+
+        self.sqlconn.ping()
+        cursor = self.sqlconn.cursor()
+        parsed_url = urllib.parse.urlparse(url)
+        domain = parsed_url.netloc
+        path = parsed_url.path
+
+        domain_parts = domain.split('.')
+        if domain.startswith('www'):
+            domain = '.'.join(domain_parts[1:])
+        if path.endswith('/'):
+            path = path[:-1]
+
+        cursor.execute("INSERT INTO tb_linkchecker_blacklist VALUES(%s, %s)", (domain, path))
+
+    def whitelist_url(self, url):
+        if not (url.startswith('http://') or url.startswith('https://')):
+            url = 'http://' + url
+
+        self.sqlconn.ping()
+        cursor = self.sqlconn.cursor()
+        parsed_url = urllib.parse.urlparse(url)
+        domain = parsed_url.netloc
+        path = parsed_url.path
+
+        domain_parts = domain.split('.')
+        if domain.startswith('www'):
+            domain = '.'.join(domain_parts[1:])
+        if path.endswith('/'):
+            path = path[:-1]
+        if path == '':
+            path = '/'
+
+        cursor.execute("INSERT INTO tb_linkchecker_whitelist VALUES(%s, %s)", (domain, path))
+
+    def is_blacklisted(self, url):
+        cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
+        parsed_url = urllib.parse.urlparse(url)
+        domain = parsed_url.netloc
+        path = parsed_url.path
+        if path == '':
+            path = '/'
+
+        domain_split = domain.split('.')
+
+        domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
+        cursor.execute("SELECT * FROM tb_linkchecker_blacklist WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
+        for row in cursor:
+            if is_subdomain(domain, row['domain']):
+                if path.startswith(row['path']):
+                    return True
+
+        return False
+
+    def is_whitelisted(self, url):
+        cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
+        parsed_url = urllib.parse.urlparse(url)
+        domain = parsed_url.netloc
+        path = parsed_url.path
+        if path == '':
+            path = '/'
+
+        domain_split = domain.split('.')
+
+        domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
+        cursor.execute("SELECT * FROM tb_linkchecker_whitelist WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
+        for row in cursor:
+            if is_subdomain(domain, row['domain']):
+                if path.startswith(row['path']):
+                    return True
+
+        return False
 
     def check_url(self, url, action):
+        self.sqlconn.ping()
         log.debug("LinkChecker: Checking url {0}".format(url))
+
         if url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url))
             if not self.cache[url]:  # link is bad
                 self.counteract_bad_url(url, action, False)
+            return
+
+
+        if self.is_whitelisted(url):
+            log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url))
+            self.cache_url(url, True)
+            return
+
+        if self.is_blacklisted(url):
+            log.debug("LinkChecker: Url {0} is blacklisted".format(url))
+            self.counteract_bad_url(url, action, want_to_blacklist=False)
             return
 
         if self.safeBrowsingAPI:
@@ -126,6 +224,11 @@ class LinkChecker:
                     self.counteract_bad_url(original_url, action)
                     self.counteract_bad_url(url)
                     return
+
+            if self.is_blacklisted(url):
+                self.log("LinkChecker: url {0} links to a blacklisted url {1}!".format(original_url, url))
+                self.counteract_bad_url(original_url, want_to_blacklist=False) #don't blacklist, to avoid an infinite "blacklisting crawl"
+                return
 
         # if we got here, the site is clean for our standards
         self.cache_url(original_url, True)
