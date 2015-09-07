@@ -132,7 +132,6 @@ class LinkChecker:
         return
 
     def find_urls_in_message(self, msg_raw):
-
         _urls = self.regex.finditer(msg_raw)
         urls = []
         for i in _urls:
