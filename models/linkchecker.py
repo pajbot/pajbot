@@ -19,6 +19,27 @@ def is_subpath(x, y): #is x a subpath of y?
     else:
         return x.startswith(y + '/') or x == y
 
+def is_same_url(x, y): # are x and y essentially the same urls
+    parsed_x = urllib.parse.urlsplit(x)
+    parsed_y = urllib.parse.urlsplit(y)
+    return parsed_x.netloc == parsed_y.netloc and parsed_x.path.strip('/') == parsed_y.path.strip('/') and parsed_x.query == parsed_y.query
+
+class LinkCheckerCache:
+    def __init__(self):
+        self.cache = {}
+        return
+
+    def __getitem__(self, url):
+        return self.cache[url.strip('/')]
+
+    def __setitem__(self, url, safe):
+        self.cache[url.strip('/')] = safe
+
+    def __contains__(self, url):
+        return url.strip('/') in self.cache
+
+    def __delitem__(self, url):
+        del self.cache[url.strip('/')]
 
 class LinkChecker:
 
@@ -32,14 +53,18 @@ class LinkChecker:
 
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)')
         self.run_later = run_later
-        self.cache = {}  # cache[url] = True means url is safe, False means the link is bad
+        self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
         return
 
     def delete_from_cache(self, url):
-        log.debug("LinkChecker: Removing url {0} from cache".format(url))
-        del self.cache[url]
+        if url in self.cache:
+            log.debug("LinkChecker: Removing url {0} from cache".format(url))
+            del self.cache[url]
 
     def cache_url(self, url, safe):
+        if url in self.cache and self.cache[url] == safe:
+            return
+
         log.debug("LinkChecker: Caching url {0}".format(url))
         self.cache[url] = safe
         self.run_later(20, self.delete_from_cache, (url, ))
@@ -57,6 +82,9 @@ class LinkChecker:
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
 
+        if self.is_blacklisted(url):
+            return
+
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
         parsed_url = urllib.parse.urlparse(url)
@@ -68,12 +96,17 @@ class LinkChecker:
             domain = '.'.join(domain_parts[1:])
         if path.endswith('/'):
             path = path[:-1]
+        if path == '':
+            path = '/'
 
         cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s)", (domain, path))
 
     def whitelist_url(self, url):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
+
+        if self.is_whitelisted(url):
+            return
 
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
@@ -172,8 +205,9 @@ class LinkChecker:
             return
 
         redirected_url = r.url
-        if self.basic_check(redirected_url, action):
-            return
+        if not is_same_url(url, redirected_url):
+            if self.basic_check(redirected_url, action):
+                return
 
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
@@ -239,6 +273,7 @@ class LinkChecker:
                 urls.append(url)
 
         for url in urls:  # check if the site links to anything dangerous
+            log.debug("Checking sublink {0}".format(url))
             res = self.basic_check(url, action)
             if res == -1:
                 return
@@ -251,17 +286,19 @@ class LinkChecker:
                 return           
 
             redirected_url = r.url
-            res = self.basic_check(redirected_url, action)
-            if res == -1:
-                self.counteract_bad_url(url, want_to_blacklist=False)
-                self.counteract_bad_url(original_url)
-                self.counteract_bad_url(original_redirected_url)
-                return
-            elif res == 1:
-                continue
+            if not is_same_url(url, redirected_url):
+                res = self.basic_check(redirected_url, action)
+                if res == -1:
+                    self.counteract_bad_url(url, want_to_blacklist=False)
+                    self.counteract_bad_url(original_url)
+                    self.counteract_bad_url(original_redirected_url)
+                    return
+                elif res == 1:
+                    continue
 
             if self.safeBrowsingAPI:
                 if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
+                    log.debug("Evil sublink {0} by google API".format(url))
                     self.counteract_bad_url(original_url, action)
                     self.counteract_bad_url(original_redirected_url)
                     self.counteract_bad_url(url)
@@ -280,6 +317,8 @@ class LinkChecker:
             url = i.group(0)
             if not (url.startswith('http://') or url.startswith('https://')):
                 url = 'http://' + url
+            if not(url[-1].isalpha() or url[-1].isnumeric() or url[-1] == '/'):
+                url = url[:-1]
             urls.append(url)
 
         return set(urls)
