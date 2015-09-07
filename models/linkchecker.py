@@ -129,39 +129,41 @@ class LinkChecker:
 
         return False
 
-    def check_url(self, url, action):
-        self.sqlconn.ping()
-        log.debug("LinkChecker: Checking url {0}".format(url))
-
+    def basic_check(self, url, action): # 1 means link is ok, -1 means link is bad, 0 means further analysis needed
         if url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url))
             if not self.cache[url]:  # link is bad
                 self.counteract_bad_url(url, action, False)
-            return
+                return -1
+            return 1
 
         if self.is_whitelisted(url):
             log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url))
             self.cache_url(url, True)
-            return
+            return 1
 
         if self.is_blacklisted(url):
             log.debug("LinkChecker: Url {0} is blacklisted".format(url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
-            return
+            return -1
 
-        if self.safeBrowsingAPI:
-            if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                self.counteract_bad_url(url, action)
-                return
+        return 0
+
+    def check_url(self, url, action):
+        self.sqlconn.ping()
+        log.debug("LinkChecker: Checking url {0}".format(url))
+
+        if self.basic_check(url, action):
+            return
 
         connection_timeout = 2
         read_timeout = 1
-
         try:
             r = requests.head(url, allow_redirects=True, timeout=connection_timeout)
         except:
+            log.exception("LinkChecker: Unhandled exception")
             return
-
+ 
         checkcontenttype = ('content-type' in r.headers and r.headers['content-type'] == 'application/octet-stream')
         checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
@@ -169,9 +171,20 @@ class LinkChecker:
             self.counteract_bad_url(url, action)
             return
 
+        redirected_url = r.url
+        if self.basic_check(redirected_url, action):
+            return
+
+        if self.safeBrowsingAPI:
+            if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
+                log.debug("Bad url because google api")
+                self.counteract_bad_url(url, action)
+                self.counteract_bad_url(redirected_url)
+                return
+
+
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
             return  # can't analyze non-html content
-
         maximum_size = 1024 * 1024 * 10  # 10 MB
         receive_timeout = 3
 
@@ -216,6 +229,7 @@ class LinkChecker:
             return
 
         original_url = url
+        original_redirected_url = redirected_url
         urls = []
         for link in soup.find_all('a'):  # get a list of links to external sites
             url = link.get('href')
@@ -225,19 +239,38 @@ class LinkChecker:
                 urls.append(url)
 
         for url in urls:  # check if the site links to anything dangerous
-            if self.safeBrowsingAPI:
-                if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                    self.counteract_bad_url(original_url, action)
-                    self.counteract_bad_url(url)
-                    return
-
-            if self.is_blacklisted(url):
-                self.log("LinkChecker: url {0} links to a blacklisted url {1}!".format(original_url, url))
-                self.counteract_bad_url(original_url, want_to_blacklist=False) #don't blacklist, to avoid an infinite "blacklisting crawl"
+            res = self.basic_check(url, action)
+            if res == -1:
                 return
+            elif res == 1:
+                continue
+            
+            try:
+                r = requests.head(url, allow_redirects=True, timeout=connection_timeout)
+            except:
+                return           
+
+            redirected_url = r.url
+            res = self.basic_check(redirected_url, action)
+            if res == -1:
+                self.counteract_bad_url(url, want_to_blacklist=False)
+                self.counteract_bad_url(original_url)
+                self.counteract_bad_url(original_redirected_url)
+                return
+            elif res == 1:
+                continue
+
+            if self.safeBrowsingAPI:
+                if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
+                    self.counteract_bad_url(original_url, action)
+                    self.counteract_bad_url(original_redirected_url)
+                    self.counteract_bad_url(url)
+                    self.counteract_bad_url(redirected_url)
+                    return
 
         # if we got here, the site is clean for our standards
         self.cache_url(original_url, True)
+        self.cache_url(original_redirected_url, True)
         return
 
     def find_urls_in_message(self, msg_raw):
@@ -246,7 +279,7 @@ class LinkChecker:
         for i in _urls:
             url = i.group(0)
             if not (url.startswith('http://') or url.startswith('https://')):
-                url = 'https://' + url
+                url = 'http://' + url
             urls.append(url)
 
         return set(urls)
