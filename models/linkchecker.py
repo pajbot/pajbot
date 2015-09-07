@@ -13,8 +13,15 @@ log = logging.getLogger('tyggbot')
 def is_subdomain(x, y): #is x a subdomain of y?
     return x.endswith('.' + y) or x == y
 
+def is_subpath(x, y): #is x a subpath of y?
+    if y.endswith('/'):
+        return x.startswith(y) or x == y[:-1]
+    else:
+        return x.startswith(y + '/') or x == y
+
 
 class LinkChecker:
+
     def __init__(self, bot, run_later):
         if 'safebrowsingapi' in bot.config['main']:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
@@ -98,7 +105,7 @@ class LinkChecker:
         cursor.execute("SELECT * FROM `tb_link_blacklist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
-                if path.startswith(row['path']):
+                if is_subpath(path, row['path']):
                     return True
 
         return False
@@ -117,7 +124,7 @@ class LinkChecker:
         cursor.execute("SELECT * FROM `tb_link_whitelist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
-                if path.startswith(row['path']):
+                if is_subpath(path, row['path']):
                     return True
 
         return False
