@@ -19,6 +19,27 @@ def is_subpath(x, y): #is x a subpath of y?
     else:
         return x.startswith(y + '/') or x == y
 
+def is_same_url(x, y): # are x and y essentially the same urls
+    parsed_x = urllib.parse.urlsplit(x)
+    parsed_y = urllib.parse.urlsplit(y)
+    return parsed_x.netloc == parsed_y.netloc and parsed_x.path.strip('/') == parsed_y.path.strip('/') and parsed_x.query == parsed_y.query
+
+class LinkCheckerCache:
+    def __init__(self):
+        self.cache = {}
+        return
+
+    def __getitem__(self, url):
+        return self.cache[url.strip('/')]
+
+    def __setitem__(self, url, safe):
+        self.cache[url.strip('/')] = safe
+
+    def __contains__(self, url):
+        return url.strip('/') in self.cache
+
+    def __delitem__(self, url):
+        del self.cache[url.strip('/')]
 
 class LinkChecker:
 
@@ -32,14 +53,18 @@ class LinkChecker:
 
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)')
         self.run_later = run_later
-        self.cache = {}  # cache[url] = True means url is safe, False means the link is bad
+        self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
         return
 
     def delete_from_cache(self, url):
-        log.debug("LinkChecker: Removing url {0} from cache".format(url))
-        del self.cache[url]
+        if url in self.cache:
+            log.debug("LinkChecker: Removing url {0} from cache".format(url))
+            del self.cache[url]
 
     def cache_url(self, url, safe):
+        if url in self.cache and self.cache[url] == safe:
+            return
+
         log.debug("LinkChecker: Caching url {0}".format(url))
         self.cache[url] = safe
         self.run_later(20, self.delete_from_cache, (url, ))
@@ -57,6 +82,9 @@ class LinkChecker:
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
 
+        if self.is_blacklisted(url):
+            return
+
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
         parsed_url = urllib.parse.urlparse(url)
@@ -68,12 +96,17 @@ class LinkChecker:
             domain = '.'.join(domain_parts[1:])
         if path.endswith('/'):
             path = path[:-1]
+        if path == '':
+            path = '/'
 
         cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s)", (domain, path))
 
     def whitelist_url(self, url):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
+
+        if self.is_whitelisted(url):
+            return
 
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
@@ -129,39 +162,41 @@ class LinkChecker:
 
         return False
 
-    def check_url(self, url, action):
-        self.sqlconn.ping()
-        log.debug("LinkChecker: Checking url {0}".format(url))
-
+    def basic_check(self, url, action): # 1 means link is ok, -1 means link is bad, 0 means further analysis needed
         if url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url))
             if not self.cache[url]:  # link is bad
                 self.counteract_bad_url(url, action, False)
-            return
+                return -1
+            return 1
 
         if self.is_whitelisted(url):
             log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url))
             self.cache_url(url, True)
-            return
+            return 1
 
         if self.is_blacklisted(url):
             log.debug("LinkChecker: Url {0} is blacklisted".format(url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
-            return
+            return -1
 
-        if self.safeBrowsingAPI:
-            if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                self.counteract_bad_url(url, action)
-                return
+        return 0
+
+    def check_url(self, url, action):
+        self.sqlconn.ping()
+        log.debug("LinkChecker: Checking url {0}".format(url))
+
+        if self.basic_check(url, action):
+            return
 
         connection_timeout = 2
         read_timeout = 1
-
         try:
             r = requests.head(url, allow_redirects=True, timeout=connection_timeout)
         except:
+            log.exception("LinkChecker: Unhandled exception")
             return
-
+ 
         checkcontenttype = ('content-type' in r.headers and r.headers['content-type'] == 'application/octet-stream')
         checkdispotype = ('disposition-type' in r.headers and r.headers['disposition-type'] == 'attachment')
 
@@ -169,9 +204,21 @@ class LinkChecker:
             self.counteract_bad_url(url, action)
             return
 
+        redirected_url = r.url
+        if not is_same_url(url, redirected_url):
+            if self.basic_check(redirected_url, action):
+                return
+
+        if self.safeBrowsingAPI:
+            if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
+                log.debug("Bad url because google api")
+                self.counteract_bad_url(url, action)
+                self.counteract_bad_url(redirected_url)
+                return
+
+
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
             return  # can't analyze non-html content
-
         maximum_size = 1024 * 1024 * 10  # 10 MB
         receive_timeout = 3
 
@@ -216,6 +263,7 @@ class LinkChecker:
             return
 
         original_url = url
+        original_redirected_url = redirected_url
         urls = []
         for link in soup.find_all('a'):  # get a list of links to external sites
             url = link.get('href')
@@ -225,19 +273,41 @@ class LinkChecker:
                 urls.append(url)
 
         for url in urls:  # check if the site links to anything dangerous
-            if self.safeBrowsingAPI:
-                if self.safeBrowsingAPI.check_url(url):  # harmful url detected
-                    self.counteract_bad_url(original_url, action)
-                    self.counteract_bad_url(url)
-                    return
-
-            if self.is_blacklisted(url):
-                self.log("LinkChecker: url {0} links to a blacklisted url {1}!".format(original_url, url))
-                self.counteract_bad_url(original_url, want_to_blacklist=False) #don't blacklist, to avoid an infinite "blacklisting crawl"
+            log.debug("Checking sublink {0}".format(url))
+            res = self.basic_check(url, action)
+            if res == -1:
                 return
+            elif res == 1:
+                continue
+            
+            try:
+                r = requests.head(url, allow_redirects=True, timeout=connection_timeout)
+            except:
+                return           
+
+            redirected_url = r.url
+            if not is_same_url(url, redirected_url):
+                res = self.basic_check(redirected_url, action)
+                if res == -1:
+                    self.counteract_bad_url(url, want_to_blacklist=False)
+                    self.counteract_bad_url(original_url)
+                    self.counteract_bad_url(original_redirected_url)
+                    return
+                elif res == 1:
+                    continue
+
+            if self.safeBrowsingAPI:
+                if self.safeBrowsingAPI.check_url(redirected_url):  # harmful url detected
+                    log.debug("Evil sublink {0} by google API".format(url))
+                    self.counteract_bad_url(original_url, action)
+                    self.counteract_bad_url(original_redirected_url)
+                    self.counteract_bad_url(url)
+                    self.counteract_bad_url(redirected_url)
+                    return
 
         # if we got here, the site is clean for our standards
         self.cache_url(original_url, True)
+        self.cache_url(original_redirected_url, True)
         return
 
     def find_urls_in_message(self, msg_raw):
@@ -246,7 +316,9 @@ class LinkChecker:
         for i in _urls:
             url = i.group(0)
             if not (url.startswith('http://') or url.startswith('https://')):
-                url = 'https://' + url
+                url = 'http://' + url
+            if not(url[-1].isalpha() or url[-1].isnumeric() or url[-1] == '/'):
+                url = url[:-1]
             urls.append(url)
 
         return set(urls)
