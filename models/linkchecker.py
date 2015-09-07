@@ -347,12 +347,13 @@ class LinkChecker:
                 urls.append(url)
 
         for url in urls:  # check if the site links to anything dangerous
-            log.debug("Checking sublink {0}".format(url))
             url = Url(url)
 
             if is_subdomain(url.parsed.netloc, original_url.parsed.netloc):
                 # log.debug("Skipping because internal link")
                 continue
+
+            log.debug("Checking sublink {0}".format(url))
             res = self.basic_check(url, action)
             if res == -1:
                 return
