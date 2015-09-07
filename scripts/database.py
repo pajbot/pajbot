@@ -17,7 +17,7 @@ def update_database(sqlconn):
         pass
     log.info(cursor)
 
-    latest_db_version = 12
+    latest_db_version = 13
     version = 0
 
     if cursor.rowcount > 0:
@@ -90,6 +90,8 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_emote` ADD `emote_hash` VARCHAR(32) NULL DEFAULT NULL COMMENT 'Used for BTTV Emotes.' AFTER `emote_id`;")
         elif version == 12:
             queries.append("ALTER TABLE `tb_emote` DROP `deque`, DROP `pm_record`;")
+        elif version == 13:
+            queries.append("CREATE TABLE `tb_link_data` ( `id` INT NOT NULL AUTO_INCREMENT , `url` TEXT NOT NULL , `times_linked` INT NOT NULL DEFAULT '0' , `first_linked` DATETIME NOT NULL , `last_linked` DATETIME NOT NULL , PRIMARY KEY (`id`) ) ENGINE = InnoDB COMMENT = 'Stores statistics about links that are posted in the twitch chat.';")
 
         for query in queries:
             cursor.execute(query)

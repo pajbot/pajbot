@@ -16,6 +16,7 @@ from models.setting import Setting
 from models.connection import ConnectionManager
 from models.whisperconnection import WhisperConnectionManager
 from models.linkchecker import LinkChecker
+from models.linktracker import LinkTracker
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -300,6 +301,7 @@ class TyggBot:
         self.execute_every(1, self.mainthread_queue.parse_action)
 
         self.link_checker = LinkChecker(self, self.execute_delayed)
+        self.link_tracker = LinkTracker(self.sqlconn)
 
         """
         Update chatters every `update_chatters_interval' minutes.
@@ -664,6 +666,8 @@ class TyggBot:
 
         self.emotes.sync()
 
+        self.link_tracker.sync()
+
         self.sqlconn.commit()
         self.sqlconn.autocommit(True)
         cursor.close()
@@ -898,9 +902,12 @@ class TyggBot:
                 if self.check_msg_content(source, msg_raw, event):
                     # If we've matched a filter, we should not have to run a command.
                     return
-                urls = self.link_checker.find_urls_in_message(msg_raw)
-                for url in urls:
-                    # TODO: Keep a list of already-checked URLs, with their results.
+
+            urls = self.link_checker.find_urls_in_message(msg_raw)
+            for url in urls:
+                self.link_tracker.add(url)
+
+                if source.level < 500:
                     # Action which will be taken when a bad link is found
                     action = Action(self.timeout, args=[source.username, 20])
                     # Queue up a check on the URL
