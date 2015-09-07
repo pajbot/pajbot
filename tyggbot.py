@@ -706,7 +706,7 @@ class TyggBot:
         self.commands['remove'].load_from_db({
             'id': -1,
             'level': 500,
-            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"remove_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"remove_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"remove_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"remove_alias" } } ] }',
+            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"remove_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"remove_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"remove_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"remove_alias" } }, { "level":500, "command":"link", "action": { "type":"func", "cb":"remove_link" } } ] }',
             'do_sync': False,
             'delay_all': 5,
             'delay_user': 15,

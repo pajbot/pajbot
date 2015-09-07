@@ -457,6 +457,21 @@ class Dispatch:
 
         tyggbot.whisper(source.username, 'Successfully added your links')
 
+    def remove_link(tyggbot, source, message, event, args):
+        parts = message.split(' ')
+        if parts[0] not in ['blacklist', 'whitelist']:
+            tyggbot.whisper(source.username, 'Usage !remove link whitelist|blacklist http://yourlink.com secondlink.com http://this.org/banned_path/')
+            return
+
+        try:
+            for link in parts[1:]:
+                tyggbot.link_checker.unlist_url(link, parts[0])
+        except:
+            log.exception("Unhandled exception in add_link")
+            tyggbot.whisper(source.username, "Some error occurred white adding your links")
+
+        tyggbot.whisper(source.username, 'Successfully removed your links')
+
     def debug_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
             try:
