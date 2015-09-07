@@ -85,6 +85,27 @@ class LinkChecker:
         if want_to_blacklist:
             self.blacklist_url(url.url, url.parsed)
 
+    def unlist_url(self, url, list_type, parsed_url = None): #list_type = 'blacklist' or 'whitelist'
+        if not (url.startswith('http://') or url.startswith('https://')):
+            url = 'http://' + url
+
+        if parsed_url is None:
+            parsed_url = urllib.parse.urlparse(url)
+
+        self.sqlconn.ping()
+        cursor = self.sqlconn.cursor()
+        domain = parsed_url.netloc
+        path = parsed_url.path
+
+        if domain.startswith('www.'):
+            domain = domain[4:]
+        if path.endswith('/'):
+            path = path[:-1]
+        if path == '':
+            path = '/'
+
+        cursor.execute("DELETE FROM `tb_link_" + list_type + "` WHERE `domain`=%s AND `path`=%s", (domain, path))
+
     def blacklist_url(self, url, parsed_url = None):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
