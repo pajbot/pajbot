@@ -62,7 +62,7 @@ class LinkChecker:
         if path.endswith('/'):
             path = path[:-1]
 
-        cursor.execute("INSERT INTO tb_linkchecker_blacklist VALUES(%s, %s)", (domain, path))
+        cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s)", (domain, path))
 
     def whitelist_url(self, url):
         if not (url.startswith('http://') or url.startswith('https://')):
@@ -82,7 +82,7 @@ class LinkChecker:
         if path == '':
             path = '/'
 
-        cursor.execute("INSERT INTO tb_linkchecker_whitelist VALUES(%s, %s)", (domain, path))
+        cursor.execute("INSERT INTO `tb_link_whitelist` VALUES(%s, %s)", (domain, path))
 
     def is_blacklisted(self, url):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
@@ -95,7 +95,7 @@ class LinkChecker:
         domain_split = domain.split('.')
 
         domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
-        cursor.execute("SELECT * FROM tb_linkchecker_blacklist WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
+        cursor.execute("SELECT * FROM `tb_link_blacklist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
                 if path.startswith(row['path']):
@@ -114,7 +114,7 @@ class LinkChecker:
         domain_split = domain.split('.')
 
         domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
-        cursor.execute("SELECT * FROM tb_linkchecker_whitelist WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
+        cursor.execute("SELECT * FROM `tb_link_whitelist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
                 if path.startswith(row['path']):
@@ -131,7 +131,6 @@ class LinkChecker:
             if not self.cache[url]:  # link is bad
                 self.counteract_bad_url(url, action, False)
             return
-
 
         if self.is_whitelisted(url):
             log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url))

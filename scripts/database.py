@@ -17,7 +17,7 @@ def update_database(sqlconn):
         pass
     log.info(cursor)
 
-    latest_db_version = 13
+    latest_db_version = 14
     version = 0
 
     if cursor.rowcount > 0:
@@ -92,6 +92,9 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_emote` DROP `deque`, DROP `pm_record`;")
         elif version == 13:
             queries.append("CREATE TABLE `tb_link_data` ( `id` INT NOT NULL AUTO_INCREMENT , `url` TEXT NOT NULL , `times_linked` INT NOT NULL DEFAULT '0' , `first_linked` DATETIME NOT NULL , `last_linked` DATETIME NOT NULL , PRIMARY KEY (`id`) ) ENGINE = InnoDB COMMENT = 'Stores statistics about links that are posted in the twitch chat.';")
+        elif version == 14:
+            queries.append("CREATE TABLE `tb_link_blacklist` ( `domain` VARCHAR(256) NOT NULL , `path` TEXT NOT NULL ) ENGINE = InnoDB COMMENT = 'Stores a list of blacklisted links.';")
+            queries.append("CREATE TABLE `tb_link_whitelist` ( `domain` VARCHAR(256) NOT NULL , `path` TEXT NOT NULL ) ENGINE = InnoDB COMMENT = 'Stores a list of whitelisted links.';")
 
         for query in queries:
             cursor.execute(query)
