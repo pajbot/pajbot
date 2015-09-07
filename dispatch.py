@@ -5,8 +5,6 @@ import pymysql
 import logging
 import collections
 
-from models.linkchecker import LinkChecker
-
 from tbutil import time_limit, TimeoutException
 
 log = logging.getLogger('tyggbot')
@@ -456,9 +454,8 @@ class Dispatch:
         except:
             log.exception("Unhandled exception in add_link")
             tyggbot.whisper(source.username, "Some error occurred white adding your links")
-        
-        tyggbot.whisper(source.username, 'Successfully added your links')
 
+        tyggbot.whisper(source.username, 'Successfully added your links')
 
     def debug_command(tyggbot, source, message, event, args):
         if message and len(message) > 0:
