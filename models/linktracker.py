@@ -60,7 +60,18 @@ class LinkTracker:
             netloc = url_data.netloc[4:]
         else:
             netloc = url_data.netloc
-        url = netloc + url_data.path
+
+        if url_data.path.endswith('/'):
+            path = url_data.path[:-1]
+        else:
+            path = url_data.path
+
+        if len(url_data.query) > 0:
+            query = '?' + url_data.query
+        else:
+            query = ''
+
+        url = netloc + path + query
         if url not in self.links:
             self.links[url] = LinkTrackerLink.load(self.sqlconn.cursor(pymysql.cursors.DictCursor), url)
 
