@@ -13,6 +13,7 @@ Examples of twitch channels where the bot is run:
 | potatisbot | [RosenMVP](http://twitch.tv/rosenmvp) | [pajlada](http://twitch.tv/pajlada) |
 | pajbot | [pajlada](http://twitch.tv/pajlada) | [pajlada](http://twitch.tv/pajlada) |
 | lanbot144 | [Landon144](http://twitch.tv/landon144) | [pajlada](http://twitch.tv/pajlada) |
+| Snookibot | [SnookiPoof](http://twitch.tv/snookipoof) | [Dorsens](http://twitch.tv/dorsens) |
 
 TODO: Continue working on the installation instructions.
 
