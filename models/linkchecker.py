@@ -11,6 +11,8 @@ import urllib.parse
 log = logging.getLogger('tyggbot')
 
 def is_subdomain(x, y): #is x a subdomain of y?
+    if y.startswith('www.'):
+        y = y[4:]
     return x.endswith('.' + y) or x == y
 
 def is_subpath(x, y): #is x a subpath of y?
@@ -98,9 +100,8 @@ class LinkChecker:
         domain = parsed_url.netloc
         path = parsed_url.path
 
-        domain_parts = domain.split('.')
-        if domain.startswith('www'):
-            domain = '.'.join(domain_parts[1:])
+        if domain.startswith('www.'):
+            domain = domain[4:]
         if path.endswith('/'):
             path = path[:-1]
         if path == '':
@@ -121,9 +122,8 @@ class LinkChecker:
         domain = parsed_url.netloc
         path = parsed_url.path
 
-        domain_parts = domain.split('.')
-        if domain.startswith('www'):
-            domain = '.'.join(domain_parts[1:])
+        if domain.startswith('www.'):
+            domain = domain[4:]
         if path.endswith('/'):
             path = path[:-1]
         if path == '':
