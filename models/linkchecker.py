@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from apiwrappers import SafeBrowsingAPI
 
+import sys
 import re
 import requests
 import logging
@@ -77,7 +78,18 @@ class LinkChecker:
         else:
             self.safeBrowsingAPI = None
 
-        self.sqlconn = bot.sqlconn
+        try:
+            self.sqlconn = pymysql.connect(unix_socket=bot.config['sql']['unix_socket'], user=bot.config['sql']['user'], passwd=bot.config['sql']['passwd'], charset='utf8')
+            self.sqlconn.select_db(bot.config['sql']['db'])
+        except pymysql.err.OperationalError as e:
+            error_code, error_message = e.args
+            if error_code == 1045:
+                log.error('Access denied to database with user \'{0}\'. Review your config file.'.format(bot.config['sql']['user']))
+            elif error_code == 1044:
+                log.error('Access denied to database \'{0}\' with user \'{1}\'. Make sure the database \'{0}\' exists and user \'{1}\' has full access to it.'.format(bot.config['sql']['db'], bot.config['sql']['user']))
+            else:
+                log.error(e)
+            sys.exit(1)
 
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)')
         self.run_later = run_later
@@ -353,7 +365,7 @@ class LinkChecker:
                 # log.debug("Skipping because internal link")
                 continue
 
-            log.debug("Checking sublink {0}".format(url))
+            log.debug("Checking sublink {0}".format(url.url))
             res = self.basic_check(url, action)
             if res == -1:
                 return
