@@ -441,13 +441,17 @@ class Dispatch:
     def add_link(tyggbot, source, message, event, args):
         parts = message.split(' ')
         if parts[0] not in ['blacklist', 'whitelist']:
-            tyggbot.whisper(source.username, 'Usage !add link whitelist|blacklist http://yourlink.com secondlink.com http://this.org/banned_path/')
+            tyggbot.whisper(source.username, 'Usage !add link whitelist|blacklist (level of blacklisting, default is 1) http://yourlink.com secondlink.com http://this.org/banned_path/')
             return
 
         try:
             if parts[0] == 'blacklist':
-                for link in parts[1:]:
-                    tyggbot.link_checker.blacklist_url(link)
+                if not parts[1].isnumeric():
+                    for link in parts[1:]:
+                        tyggbot.link_checker.blacklist_url(link)
+                else:
+                    for link in parts[2:]:
+                        tyggbot.link_checker.blacklist_url(link, level=int(parts[1]))
             if parts[0] == 'whitelist':
                 for link in parts[1:]:
                     tyggbot.link_checker.whitelist_url(link)
