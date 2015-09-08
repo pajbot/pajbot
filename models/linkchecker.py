@@ -142,7 +142,7 @@ class LinkChecker:
 
         cursor.execute("DELETE FROM `tb_link_" + list_type + "` WHERE `domain`=%s AND `path`=%s", (domain, path))
 
-    def blacklist_url(self, url, parsed_url=None):
+    def blacklist_url(self, url, parsed_url=None, level=1):
         if not (url.startswith('http://') or url.startswith('https://')):
             url = 'http://' + url
 
@@ -164,7 +164,7 @@ class LinkChecker:
         if path == '':
             path = '/'
 
-        cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s)", (domain, path))
+        cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s, %s)", (domain, path, level))
 
     def whitelist_url(self, url, parsed_url=None):
         if not (url.startswith('http://') or url.startswith('https://')):
@@ -188,7 +188,7 @@ class LinkChecker:
 
         cursor.execute("INSERT INTO `tb_link_whitelist` VALUES(%s, %s)", (domain, path))
 
-    def is_blacklisted(self, url, parsed_url=None):
+    def is_blacklisted(self, url, parsed_url=None, sublink=False):
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
@@ -207,7 +207,8 @@ class LinkChecker:
         for row in cursor:
             if is_subdomain(domain, row['domain']):
                 if is_subpath(path, row['path']):
-                    return True
+                    if sublink and row['level'] >= 1: # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
+                        return True
 
         return False
 
@@ -234,7 +235,7 @@ class LinkChecker:
 
         return False
 
-    def basic_check(self, url, action):
+    def basic_check(self, url, action, sublink=False):
         """
         Return values:
         1 = Link is OK
@@ -253,7 +254,7 @@ class LinkChecker:
             self.cache_url(url.url, True)
             return 1
 
-        if self.is_blacklisted(url.url, url.parsed):
+        if self.is_blacklisted(url.url, url.parsed, sublink):
             log.debug("LinkChecker: Url {0} is blacklisted".format(url.url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             return -1
@@ -370,7 +371,7 @@ class LinkChecker:
                 continue
 
             log.debug("Checking sublink {0}".format(url.url))
-            res = self.basic_check(url, action)
+            res = self.basic_check(url, action, sublink=True)
             if res == -1:
                 return
             elif res == 1:
@@ -383,7 +384,7 @@ class LinkChecker:
 
             redirected_url = Url(r.url)
             if not is_same_url(url, redirected_url):
-                res = self.basic_check(redirected_url, action)
+                res = self.basic_check(redirected_url, action, sublink=True)
                 if res == -1:
                     self.counteract_bad_url(url, want_to_blacklist=False)
                     self.counteract_bad_url(original_url)
