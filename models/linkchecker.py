@@ -202,7 +202,7 @@ class LinkChecker:
         if len(domain_split) < 2:
             return False
 
-        domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
+        domain_tail = domain_split[-2] + '.' + domain_split[-1]
         cursor.execute("SELECT * FROM `tb_link_blacklist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
@@ -225,7 +225,7 @@ class LinkChecker:
         if len(domain_split) < 2:
             return
 
-        domain_tail = '.' + domain_split[-2] + '.' + domain_split[-1]
+        domain_tail = domain_split[-2] + '.' + domain_split[-1]
         cursor.execute("SELECT * FROM `tb_link_whitelist` WHERE `domain` LIKE %s OR `domain`=%s", ('%' + domain_tail, domain))
         for row in cursor:
             if is_subdomain(domain, row['domain']):
