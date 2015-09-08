@@ -187,6 +187,7 @@ class LinkChecker:
         cursor.execute("INSERT INTO `tb_link_whitelist` VALUES(%s, %s)", (domain, path))
 
     def is_blacklisted(self, url, parsed_url=None):
+        self.sqlconn.ping()
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
@@ -209,6 +210,7 @@ class LinkChecker:
         return False
 
     def is_whitelisted(self, url, parsed_url=None):
+        self.sqlconn.ping()
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
