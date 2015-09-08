@@ -91,6 +91,8 @@ class LinkChecker:
                 log.error(e)
             sys.exit(1)
 
+        self.sqlconn.autocommit(True)
+
         self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)')
         self.run_later = run_later
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
