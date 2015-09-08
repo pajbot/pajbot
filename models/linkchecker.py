@@ -241,7 +241,7 @@ class LinkChecker:
         """
         if url.url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url.url))
-            if not self.cache[url]:  # link is bad
+            if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False)
                 return -1
             return 1
