@@ -207,7 +207,7 @@ class LinkChecker:
         for row in cursor:
             if is_subdomain(domain, row['domain']):
                 if is_subpath(path, row['path']):
-                    if sublink and row['level'] >= 1: # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
+                    if sublink and row['level'] >= 1:  # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
                         return True
 
         return False
@@ -245,7 +245,7 @@ class LinkChecker:
         if url.url in self.cache:
             log.debug("LinkChecker: Url {0} found in cache".format(url.url))
             if not self.cache[url.url]:  # link is bad
-                self.counteract_bad_url(url, action, False)
+                self.counteract_bad_url(url, action, False, False)
                 return -1
             return 1
 
