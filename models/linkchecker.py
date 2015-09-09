@@ -207,7 +207,9 @@ class LinkChecker:
         for row in cursor:
             if is_subdomain(domain, row['domain']):
                 if is_subpath(path, row['path']):
-                    if sublink and row['level'] >= 1:  # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
+                    if not sublink:
+                        return True
+                    elif row['level'] >= 1:  # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
                         return True
 
         return False
@@ -373,6 +375,9 @@ class LinkChecker:
             log.debug("Checking sublink {0}".format(url.url))
             res = self.basic_check(url, action, sublink=True)
             if res == -1:
+                self.counteract_bad_url(url)
+                self.counteract_bad_url(original_url, want_to_blacklist=False)
+                self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
                 return
             elif res == 1:
                 continue
@@ -386,9 +391,9 @@ class LinkChecker:
             if not is_same_url(url, redirected_url):
                 res = self.basic_check(redirected_url, action, sublink=True)
                 if res == -1:
-                    self.counteract_bad_url(url, want_to_blacklist=False)
-                    self.counteract_bad_url(original_url)
-                    self.counteract_bad_url(original_redirected_url)
+                    self.counteract_bad_url(url)
+                    self.counteract_bad_url(original_url, want_to_blacklist=False)
+                    self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
                     return
                 elif res == 1:
                     continue
