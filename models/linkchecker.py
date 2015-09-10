@@ -59,16 +59,16 @@ class LinkCheckerCache:
         return
 
     def __getitem__(self, url):
-        return self.cache[url.strip('/')]
+        return self.cache[url.strip('/').lower()]
 
     def __setitem__(self, url, safe):
-        self.cache[url.strip('/')] = safe
+        self.cache[url.strip('/').lower()] = safe
 
     def __contains__(self, url):
-        return url.strip('/') in self.cache
+        return url.strip('/').lower() in self.cache
 
     def __delitem__(self, url):
-        del self.cache[url.strip('/')]
+        del self.cache[url.strip('/').lower()]
 
 
 class LinkChecker:
@@ -93,7 +93,7 @@ class LinkChecker:
 
         self.sqlconn.autocommit(True)
 
-        self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)')
+        self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)', re.IGNORECASE)
         self.run_later = run_later
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
         return
@@ -143,7 +143,7 @@ class LinkChecker:
         cursor.execute("DELETE FROM `tb_link_" + list_type + "` WHERE `domain`=%s AND `path`=%s", (domain, path))
 
     def blacklist_url(self, url, parsed_url=None, level=1):
-        if not (url.startswith('http://') or url.startswith('https://')):
+        if not (url.lower().startswith('http://') or url.lower().startswith('https://')):
             url = 'http://' + url
 
         if parsed_url is None:
@@ -154,8 +154,8 @@ class LinkChecker:
 
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
-        domain = parsed_url.netloc
-        path = parsed_url.path
+        domain = parsed_url.netloc.lower()
+        path = parsed_url.path.lower()
 
         if domain.startswith('www.'):
             domain = domain[4:]
@@ -167,7 +167,7 @@ class LinkChecker:
         cursor.execute("INSERT INTO `tb_link_blacklist` VALUES(%s, %s, %s)", (domain, path, level))
 
     def whitelist_url(self, url, parsed_url=None):
-        if not (url.startswith('http://') or url.startswith('https://')):
+        if not (url.lower().startswith('http://') or url.lower().startswith('https://')):
             url = 'http://' + url
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
@@ -176,8 +176,8 @@ class LinkChecker:
 
         self.sqlconn.ping()
         cursor = self.sqlconn.cursor()
-        domain = parsed_url.netloc
-        path = parsed_url.path
+        domain = parsed_url.netloc.lower()
+        path = parsed_url.path.lower()
 
         if domain.startswith('www.'):
             domain = domain[4:]
@@ -193,8 +193,8 @@ class LinkChecker:
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
-        domain = parsed_url.netloc
-        path = parsed_url.path
+        domain = parsed_url.netloc.lower()
+        path = parsed_url.path.lower()
         if path == '':
             path = '/'
 
@@ -219,8 +219,8 @@ class LinkChecker:
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
-        domain = parsed_url.netloc
-        path = parsed_url.path
+        domain = parsed_url.netloc.lower()
+        path = parsed_url.path.lower()
         if path == '':
             path = '/'
 
