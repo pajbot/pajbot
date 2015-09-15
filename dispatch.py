@@ -594,6 +594,24 @@ class Dispatch:
             log.debug('banning {0}'.format(username))
             tyggbot.ban(username)
 
+    def paid_timeout(tyggbot, source, message, event, args):
+        if 'time' in args:
+            _time = int(args['time'])
+        else:
+            _time = 600
+
+        if message:
+            username = message.split(' ')[0]
+            if len(username) < 2:
+                return False
+
+            tyggbot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
+            tyggbot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !unbanme to unban yourself for points forsenMoney'.format(source.username, _time, tyggbot.nickname))
+            tyggbot.timeout(username, _time)
+            return True
+
+        return False
+
     def ban_source(tyggbot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
             if args['notify'] == 1:
