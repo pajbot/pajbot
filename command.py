@@ -42,7 +42,7 @@ def parse_action(raw_data=None, data=None):
 class Command:
     def __init__(self, do_sync=True):
         self.id = -1
-        self.extra_args = {}
+        self.extra_args = {'command': self}
         self.synced = True
         self.last_run = 0
         self.last_run_by_user = {}
@@ -107,7 +107,7 @@ class Command:
 
         if data['extra_args']:
             try:
-                self.extra_args = json.loads(data['extra_args'])
+                self.extra_args.update(json.loads(data['extra_args']))
             except Exception as e:
                 log.error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
 
