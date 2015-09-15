@@ -161,7 +161,7 @@ class TyggBot:
         self.default_settings['broadcaster'] = config['main']['streamer']
 
         try:
-            self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], charset='utf8')
+            self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], charset='utf8mb4')
             self.sqlconn.select_db(config['sql']['db'])
         except pymysql.err.OperationalError as e:
             error_code, error_message = e.args
@@ -698,8 +698,8 @@ class TyggBot:
             'level': 500,
             'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"add_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"add_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"add_command" } }, { "level":2000, "command":"funccommand", "action": { "type":"func", "cb":"add_funccommand" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"add_alias" } }, { "level":500, "command":"link", "action": { "type":"func", "cb":"add_link" } } ] }',
             'do_sync': False,
-            'delay_all': 5,
-            'delay_user': 15,
+            'delay_all': 0,
+            'delay_user': 1,
             'extra_args': None,
             })
         self.commands['remove'] = Command()
@@ -708,8 +708,8 @@ class TyggBot:
             'level': 500,
             'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"remove_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"remove_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"remove_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"remove_alias" } }, { "level":500, "command":"link", "action": { "type":"func", "cb":"remove_link" } } ] }',
             'do_sync': False,
-            'delay_all': 5,
-            'delay_user': 15,
+            'delay_all': 0,
+            'delay_user': 1,
             'extra_args': None,
             })
         self.commands['rem'] = self.commands['remove']

@@ -318,8 +318,10 @@ class Dispatch:
                 tyggbot._load_filters()
             else:
                 tyggbot.whisper(source.username, 'No banphrase with id {0} found'.format(banphrase_id))
+                return False
         else:
             tyggbot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
+            return False
 
     def remove_win(tyggbot, source, message, event, args):
         tyggbot.kvi.dec('br_wins')
