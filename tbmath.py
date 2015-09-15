@@ -9,7 +9,7 @@ class TBMath:
     # supported operators
     operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
                  ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-                 ast.USub: op.neg}
+                 ast.USub: op.neg, ast.RShift: op.rshift, ast.LShift: op.lshift}
 
     def eval_expr(self, expr):
         """
