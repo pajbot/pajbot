@@ -456,7 +456,7 @@ class TyggBot:
             reactor.listenTCP(port, factory)
             reactor.run(installSignalHandlers=0)
 
-        reactor_thread = threading.Thread(target=reactor_run, args=(reactor, factory, int(self.config['websocket']['port'])))
+        reactor_thread = threading.Thread(target=reactor_run, args=(reactor, factory, int(self.config['websocket']['port'])), name='WebSocketThread')
         reactor_thread.daemon = True
         reactor_thread.start()
 

@@ -22,7 +22,7 @@ class ActionQueue:
 
     """ Starts a thread which will continuously check the queue for actions. """
     def start(self):
-        t = threading.Thread(target=self._action_parser)
+        t = threading.Thread(target=self._action_parser, name='ActionQueueThread')
         t.daemon = True
         t.start()
 

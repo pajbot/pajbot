@@ -90,7 +90,7 @@ class ConnectionManager:
     def run_maintenance(self):
         if self.maintenance_lock:
             return
-        
+
         self.maintenance_lock = True
         clean_conns_count = 0
         tmp = []  # new list of connections

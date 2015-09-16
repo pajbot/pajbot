@@ -34,6 +34,7 @@ class WhisperConnectionManager:
         self.message_limit = message_limit
         self.time_interval = time_interval
         self.num_of_conns = num_of_conns
+        self.whisper_thread = None
 
         self.connlist = []
         self.whispers = Queue()
@@ -63,7 +64,7 @@ class WhisperConnectionManager:
                 accounts.append(row)
 
             # Start the connections.
-            t = threading.Thread(target=self.start_connections, args=[accounts])
+            t = threading.Thread(target=self.start_connections, args=[accounts], name='WhisperConnectionStarterThread')
             t.daemon = True
             t.start()
 
@@ -77,9 +78,9 @@ class WhisperConnectionManager:
             newconn = self.make_new_connection(account['username'], account['oauth'])
             self.connlist.append(newconn)
 
-        t = threading.Thread(target=self.whisper_sender)  # start a loop sending whispers in a thread
-        t.daemon = True
-        t.start()
+        self.whisper_thread = threading.Thread(target=self.whisper_sender, name='WhisperThread')  # start a loop sending whispers in a thread
+        self.whisper_thread.daemon = True
+        self.whisper_thread.start()
 
     def quit(self):
         for connection in self.connlist:
@@ -110,7 +111,7 @@ class WhisperConnectionManager:
     def run_maintenance(self):
         if self.maintenance_lock:
             return
-        
+
         self.maintenance_lock = True
         for connection in self.connlist:
             if not connection.conn.is_connected():
