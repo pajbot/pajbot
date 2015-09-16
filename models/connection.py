@@ -63,6 +63,8 @@ class ConnectionManager:
 
         self.connlist = []
 
+        self.maintenance_lock = False
+
     def start(self):
         log.debug("Starting connection manager")
         try:
@@ -86,6 +88,10 @@ class ConnectionManager:
             return False
 
     def run_maintenance(self):
+        if self.maintenance_lock:
+            return
+        
+        self.maintenance_lock = True
         clean_conns_count = 0
         tmp = []  # new list of connections
         for connection in self.connlist:
@@ -111,6 +117,7 @@ class ConnectionManager:
             self.connlist.append(newconn)
 
         self.get_main_conn()
+        self.maintenance_lock = False
 
     def get_main_conn(self):
         for connection in self.connlist:
