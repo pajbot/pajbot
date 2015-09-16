@@ -124,6 +124,8 @@ class ConnectionManager:
                 return connection.conn
 
         log.error("No connection with is_connected() found in ConnectionManager")
+        self.run_maintenance()
+        return self.get_main_conn()
 
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
