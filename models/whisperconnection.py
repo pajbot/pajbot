@@ -38,6 +38,8 @@ class WhisperConnectionManager:
         self.connlist = []
         self.whispers = Queue()
 
+        self.maintenance_lock = False
+
     def __contains__(self, connection):
         return connection in [c.conn for c in self.connlist]
 
@@ -106,12 +108,18 @@ class WhisperConnectionManager:
             self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
 
     def run_maintenance(self):
+        if self.maintenance_lock:
+            return
+        
+        self.maintenance_lock = True
         for connection in self.connlist:
             if not connection.conn.is_connected():
                 connection.conn.close()
                 self.connlist.remove(connection)
                 newconn = self.make_new_connection(connection.name, connection.oauth)
                 self.connlist.append(newconn)
+
+        self.maintenance_lock = False
 
     def get_main_conn(self):
         for connection in self.connlist:
