@@ -1,11 +1,13 @@
 import random
-import requests
 from queue import Queue
 import threading
 import json
+import logging
+
+import requests
 import pymysql
 
-import logging
+from .connection import CustomServerConnection
 
 log = logging.getLogger('tyggbot')
 
@@ -135,7 +137,10 @@ class WhisperConnectionManager:
         port = int(port)
         log.debug("Whispers: Connection to server {0}".format(server))
 
-        newconn = self.reactor.server().connect(ip, port, name, oauth, name)
+        newconn = CustomServerConnection(self.reactor)
+        with self.reactor.mutex:
+            self.reactor.connections.append(newconn)
+        newconn.connect(ip, port, name, oauth, name)
         newconn.cap('REQ', 'twitch.tv/commands')
         return WhisperConnection(newconn, name, oauth)
 
