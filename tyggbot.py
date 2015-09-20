@@ -17,6 +17,7 @@ from models.connection import ConnectionManager
 from models.whisperconnection import WhisperConnectionManager
 from models.linkchecker import LinkChecker
 from models.linktracker import LinkTracker
+from models.pyramidparser import PyramidParser
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -66,6 +67,7 @@ class TyggBot:
             'motd_interval_online': 5,
             'max_msg_length': 350,
             'lines_offline': True,
+            'parse_pyramids': False,
             }
 
     def parse_args():
@@ -302,6 +304,7 @@ class TyggBot:
 
         self.link_checker = LinkChecker(self, self.execute_delayed)
         self.link_tracker = LinkTracker(self.sqlconn)
+        self.pyramid_parser = PyramidParser(self)
 
         """
         Update chatters every `update_chatters_interval' minutes.
@@ -885,6 +888,9 @@ class TyggBot:
                     source.update_username(tag['value'])
                 except:
                     log.exception('Exception caught while updating a users username')
+
+        if self.settings['parse_pyramids']:
+            self.pyramid_parser.parse_line(msg_raw, source)
 
         for emote in self.emotes.custom_data:
             num = len(emote.regex.findall(msg_raw))
