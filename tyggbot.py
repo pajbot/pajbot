@@ -855,8 +855,12 @@ class TyggBot:
                     return True
         return False  # message was ok
 
-    def parse_message(self, msg_raw, source=None, event=None, pretend=False, force=False, tags={}, whisper=False):
+    def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
+
+        if source is None:
+            log.error('No valid user passed to parse_message')
+            return False
 
         for tag in tags:
             if tag['key'] == 'subscriber':
@@ -897,13 +901,9 @@ class TyggBot:
             if num > 0:
                 emote.add(num, self.reactor)
 
-        if source is None and not event:
-            log.error('No nick or event passed to parse_message')
-            return False
-
         log.debug('{0}: {1}'.format(source.username, msg_raw))
 
-        if not force and not whisper:
+        if not whisper:
             if source.level < 500:
                 if self.check_msg_content(source, msg_raw, event):
                     # If we've matched a filter, we should not have to run a command.
