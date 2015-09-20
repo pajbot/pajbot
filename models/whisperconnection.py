@@ -95,20 +95,23 @@ class WhisperConnectionManager:
 
     def whisper_sender(self):
         while True:
-            whisp = self.whispers.get()
-            username = whisp.target
-            message = whisp.message
+            try:
+                whisp = self.whispers.get()
+                username = whisp.target
+                message = whisp.message
 
-            i = 0
-            while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
-                i += 1  # find a usable connection
-                if i >= len(self.connlist):
-                    i = 0
+                i = 0
+                while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
+                    i += 1  # find a usable connection
+                    if i >= len(self.connlist):
+                        i = 0
 
-            log.debug('Sending whisper: {0} {1}'.format(username, message))
-            self.connlist[i].conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
-            self.connlist[i].num_msgs_sent += 1
-            self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
+                log.debug('Sending whisper: {0} {1}'.format(username, message))
+                self.connlist[i].conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
+                self.connlist[i].num_msgs_sent += 1
+                self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
+            except:
+                log.exception('Caught an exception in the whisper_sender function')
 
     def run_maintenance(self):
         if self.maintenance_lock:
