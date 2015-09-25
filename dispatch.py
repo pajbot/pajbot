@@ -741,7 +741,9 @@ class Dispatch:
 
             user = tyggbot.users.find(username)
             if user:
-                tyggbot.say('{0} was last seen {1}, last active {2}'.format(user.username, user.last_seen, user.last_active))
+                tyggbot.say('{0}, {1} was last seen {2}, last active {3}'.format(source.username_raw, user.username, user.last_seen, user.last_active))
+            else:
+                tyggbot.say('{0}, No user with that name found.'.format(source.username_raw))
 
     def points(tyggbot, source, message, event, args):
         if message:
