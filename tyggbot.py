@@ -7,7 +7,6 @@ import subprocess
 
 from datetime import datetime
 
-from helpers import get_chatters, get_subscribers
 from models.user import UserManager
 from models.emote import EmoteManager
 from models.setting import Setting
@@ -54,7 +53,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '1.4.0'
+    version = '1.4.1b'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
 
@@ -183,17 +182,15 @@ class TyggBot:
         self.reactor = irc.client.Reactor()
         self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit)
 
-        self.twitchapi = TwitchAPI(type='api')
+        client_id = None
+        oauth = None
         if 'twitchapi' in self.config:
-            client_id = None
-            oauth = None
             if 'client_id' in self.config['twitchapi']:
                 client_id = self.config['twitchapi']['client_id']
             if 'oauth' in self.config['twitchapi']:
                 oauth = self.config['twitchapi']['oauth']
-            self.krakenapi = TwitchAPI(client_id, oauth, type='kraken')
-        else:
-            self.krakenapi = False
+
+        self.twitchapi = TwitchAPI(client_id, oauth)
 
         self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
@@ -274,8 +271,7 @@ class TyggBot:
         self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password}])
 
         self.num_offlines = 0
-        if self.krakenapi:
-            self.execute_every(20, self.refresh_stream_status)
+        self.execute_every(20, self.refresh_stream_status)
 
         self.twitter_stream = False
         if 'twitter' in config:
@@ -310,7 +306,7 @@ class TyggBot:
                            (self.update_chatters_stage1, ))
 
         try:
-            if self.krakenapi and self.config['twitchapi']['update_subscribers'] == '1':
+            if self.config['twitchapi']['update_subscribers'] == '1':
                 self.execute_every(30 * 60,
                                    self.action_queue.add,
                                    (self.update_subscribers_stage1, ))
@@ -318,7 +314,22 @@ class TyggBot:
             pass
 
     def update_subscribers_stage1(self):
-        subscribers = get_subscribers(self.krakenapi, self.streamer)
+        limit = 100
+        offset = 0
+        subscribers = []
+
+        try:
+            subs = self.twitchapi.get_subscribers(self.streamer, limit, offset)
+            while len(subs) > 0:
+                for sub in subs:
+                    subscribers.append(sub['user']['name'])
+
+                offset += limit
+                subs = self.twitchapi.get_subscribers(self.streamer, limit, offset)
+        except:
+            log.exception('Caught an exception while trying to get subscribers')
+            return
+
         if len(subscribers) > 0:
             self.mainthread_queue.add(self.update_subscribers_stage2,
                                       args=[subscribers])
@@ -337,7 +348,7 @@ class TyggBot:
             user.needs_sync = True
 
     def update_chatters_stage1(self):
-        chatters = get_chatters(self.streamer)
+        chatters = self.twitchapi.get_chatters(self.streamer)
         if len(chatters) > 0:
             self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
 
@@ -371,34 +382,32 @@ class TyggBot:
         self.motd_iterator += 1
 
     def refresh_stream_status(self):
-        if not self.krakenapi:
-            return
+        try:
+            status = self.twitchapi.get_status(self.streamer)
+            if status['error'] is True:
+                log.error('An error occured while fetching stream status')
+                return
 
-        data = self.krakenapi.get(['streams', self.streamer])
-        if data:
-            try:
-                status = 'stream' in data and data['stream'] is not None
-
-                if status is True:
-                    self.is_online = True
-                    self.kvi.set('stream_status', 1)
+            if status['online']:
+                self.is_online = True
+                self.kvi.set('stream_status', 1)
+                self.kvi.set('last_online', int(time.time()))
+                self.num_offlines = 0
+                self.ascii_timeout_duration = 120
+                self.msg_length_timeout_duration = 120
+            else:
+                self.ascii_timeout_duration = 10
+                self.msg_length_timeout_duration = 10
+                stream_status = self.kvi.get('stream_status')
+                if (stream_status == 1 and self.num_offlines >= 10) or stream_status == 0:
+                    self.is_online = False
+                    self.kvi.set('stream_status', 0)
+                    self.kvi.set('last_offline', int(time.time()))
+                else:
                     self.kvi.set('last_online', int(time.time()))
-                    self.num_offlines = 0
-                    self.ascii_timeout_duration = 120
-                    self.msg_length_timeout_duration = 120
-                elif status is False:
-                    self.ascii_timeout_duration = 10
-                    self.msg_length_timeout_duration = 10
-                    stream_status = self.kvi.get('stream_status')
-                    if (stream_status == 1 and self.num_offlines > 10) or stream_status == 0:
-                        self.is_online = False
-                        self.kvi.set('stream_status', 0)
-                        self.kvi.set('last_offline', int(time.time()))
-                    else:
-                        self.kvi.set('last_online', int(time.time()))
-                    self.num_offlines += 1
-            except:
-                log.exception('Caught exception while trying to update stream status')
+                self.num_offlines += 1
+        except:
+            log.exception('Uncaught exception while refreshing stream status')
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
