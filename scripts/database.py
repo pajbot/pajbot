@@ -17,7 +17,7 @@ def update_database(sqlconn):
         pass
     log.info(cursor)
 
-    latest_db_version = 15
+    latest_db_version = 16
     version = 0
 
     if cursor.rowcount > 0:
@@ -97,6 +97,14 @@ def update_database(sqlconn):
             queries.append("CREATE TABLE `tb_link_whitelist` ( `domain` VARCHAR(256) NOT NULL , `path` TEXT NOT NULL ) ENGINE = InnoDB COMMENT = 'Stores a list of whitelisted links.';")
         elif version == 15:
             queries.append("ALTER TABLE `tb_link_blacklist` ADD COLUMN level int(11) DEFAULT 1;")
+        elif version == 16:
+            values = ['stream_status', 'last_online', 'last_offline']
+            for value in values:
+                cursor.execute("SELECT * FROM `tb_idata` WHERE `id`='" + value + "' AND `type`='value'")
+                if cursor.rowcount == 0:
+                    cursor.execute("INSERT INTO `tb_idata` (`id`, `type`, `value`) VALUES ('" + value + "', 'value', 0)")
+                else:
+                    log.info('{0} already added to the database.'.format(value))
 
         for query in queries:
             cursor.execute(query)
