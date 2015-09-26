@@ -212,7 +212,19 @@ class TwitchAPI(APIBase):
         return chatters
 
     def get_status(self, streamer):
-        data = self.get(['streams', streamer], base='https://api.twitch.tv/kraken/')
+        try:
+            data = self.get(['streams', streamer], base='https://api.twitch.tv/kraken/')
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting stream status.')
+                data = None
+            else:
+                log.exception('Unhandled HTTP error code')
+                data = None
+        except:
+            log.exception('Unhandled exception in TwitchAPI.get_status')
+            data = None
+
         ret = {
                 'error': True,
                 'online': False,
