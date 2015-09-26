@@ -845,7 +845,7 @@ class TyggBot:
             if num > 0:
                 emote.add(num, self.reactor)
 
-        log.debug('{0}: {1}'.format(source.username, msg_raw))
+        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
         if not whisper:
             if source.level < 500:
@@ -905,7 +905,7 @@ class TyggBot:
             non_alnum = sum(not c.isalnum() for c in msg)
             ratio = non_alnum / msg_len
 
-            log.debug('Ascii ratio: {0}'.format(ratio))
+            # TODO: Implement a better anti-ascii feature.
             if self.settings['ban_ascii']:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))

@@ -132,7 +132,6 @@ class Command:
                     # User does not have enough points to use the command
                     return False
 
-                log.info('Running action from Command')
                 args.update(self.extra_args)
                 ret = self.action.run(tyggbot, source, message, event, args)
                 self.num_uses += 1
