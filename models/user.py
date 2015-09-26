@@ -52,7 +52,6 @@ class User:
             user.username_raw = user.username
             user.level = 100
             user.num_lines = 0
-            user.needs_sync = True
             user.subscriber = False
             user.points = 0
             user.last_seen = None
@@ -120,7 +119,7 @@ class UserManager(UserDict):
 
     def find(self, username):
         user = self[username]
-        if user.id == -1:
+        if user.id == -1 and user.needs_sync is False:
             del self[username]
             return None
         return user
