@@ -1,10 +1,8 @@
-import json
 import time
 import os
 import argparse
 import sys
 import logging
-import threading
 import subprocess
 
 from datetime import datetime
@@ -18,6 +16,7 @@ from models.whisperconnection import WhisperConnectionManager
 from models.linkchecker import LinkChecker
 from models.linktracker import LinkTracker
 from models.pyramidparser import PyramidParser
+from models.websocket import WebSocketManager
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
@@ -55,7 +54,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '1.3.0'
+    version = '1.4.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
 
@@ -285,11 +284,6 @@ class TyggBot:
         else:
             self.twitter = None
 
-        self.ws_clients = []
-        if 'websocket' in config and config['websocket']['enabled'] == '1':
-            self.init_websocket_server()
-            self.execute_every(1, self.refresh_emote_data)
-
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
         self.action_queue = ActionQueue()
@@ -305,6 +299,7 @@ class TyggBot:
         self.link_checker = LinkChecker(self, self.execute_delayed)
         self.link_tracker = LinkTracker(self.sqlconn)
         self.pyramid_parser = PyramidParser(self)
+        self.websocket_manager = WebSocketManager(self)
 
         """
         Update chatters every `update_chatters_interval' minutes.
@@ -404,66 +399,6 @@ class TyggBot:
                     self.num_offlines += 1
             except:
                 log.exception('Caught exception while trying to update stream status')
-
-    def refresh_emote_data(self):
-        # TODO: this is broken
-        return
-        if len(self.ws_clients) > 0:
-            emote_data = {}
-            for emote in self.emotes:
-                emote_data[emote.code] = {
-                        'code': emote.code,
-                        'tm': emote.tm,
-                        'count': emote.count,
-                        }
-
-            payload = json.dumps(emote_data, separators=(',', ':')).encode('utf8')
-            for client in self.ws_clients:
-                client.sendMessage(payload, False)
-
-    def init_websocket_server(self):
-        import twisted
-        from twisted.internet import reactor
-
-        twisted.python.log.startLogging(sys.stdout)
-
-        from autobahn.twisted.websocket import WebSocketServerFactory, \
-                WebSocketServerProtocol
-
-        class MyServerProtocol(WebSocketServerProtocol):
-            def onConnect(self, request):
-                log.info('Client connecting: {0}'.format(request.peer))
-
-            def onOpen(self):
-                log.info('WebSocket connection open. {0}'.format(self))
-                TyggBot.instance.ws_clients.append(self)
-
-            def onMessage(self, payload, isBinary):
-                if isBinary:
-                    log.info('Binary message received: {0} bytes'.format(len(payload)))
-                else:
-                    TyggBot.instance.me('Recieved message: {0}'.format(payload.decode('utf8')))
-                    log.info('Text message received: {0}'.format(payload.decode('utf8')))
-
-            def onClose(self, wasClean, code, reason):
-                log.info('WebSocket connection closed: {0}'.format(reason))
-                TyggBot.instance.ws_clients.remove(self)
-
-        factory = WebSocketServerFactory()
-        factory.protocol = MyServerProtocol
-
-        def reactor_run(reactor, factory, port):
-            log.info(reactor)
-            log.info(factory)
-            log.info(port)
-            reactor.listenTCP(port, factory)
-            reactor.run(installSignalHandlers=0)
-
-        reactor_thread = threading.Thread(target=reactor_run, args=(reactor, factory, int(self.config['websocket']['port'])), name='WebSocketThread')
-        reactor_thread.daemon = True
-        reactor_thread.start()
-
-        self.ws_factory = factory
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:

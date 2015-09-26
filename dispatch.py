@@ -656,10 +656,8 @@ class Dispatch:
         tyggbot.say(tyggbot.phrases['new_sub'].format(**phrase_data))
         tyggbot.users[phrase_data['username']].subscriber = True
 
-        if len(tyggbot.ws_clients) > 0:
-            payload = json.dumps({'new_sub': {'username': phrase_data['username']}}, separators=(',', ':')).encode('utf8')
-            for client in tyggbot.ws_clients:
-                client.sendMessage(payload, False)
+        payload = {'username': phrase_data['username']}
+        tyggbot.websocket_manager.emit('new_sub', payload)
 
     def resub(tyggbot, source, message, event, args):
         match = args['match']
@@ -672,10 +670,8 @@ class Dispatch:
         tyggbot.say(tyggbot.phrases['resub'].format(**phrase_data))
         tyggbot.users[phrase_data['username']].subscriber = True
 
-        if len(tyggbot.ws_clients) > 0:
-            payload = json.dumps({'new_sub': {'username': phrase_data['username'], 'num_months': phrase_data['num_months']}}, separators=(',', ':')).encode('utf8')
-            for client in tyggbot.ws_clients:
-                client.sendMessage(payload, False)
+        payload = {'username': phrase_data['username'], 'num_months': phrase_data['num_months']}
+        tyggbot.websocket_manager.emit('resub', payload)
 
     def sync_to(tyggbot, source, message, event, args):
         log.debug('Calling sync_to from chat command...')
