@@ -12,7 +12,6 @@ class APIBase:
         self.strict = strict
 
     def _get(self, url, headers={}):
-        log.info(url)
         try:
             req = urllib.request.Request(url, None, headers)
             response = urllib.request.urlopen(req)
