@@ -606,7 +606,7 @@ class Dispatch:
                 return False
 
             tyggbot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
-            tyggbot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !unbanme to unban yourself for points forsenMoney'.format(source.username, _time, tyggbot.nickname))
+            tyggbot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, tyggbot.nickname))
             tyggbot.timeout(username, _time)
             return True
 

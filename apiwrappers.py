@@ -182,7 +182,6 @@ class TwitchAPI(APIBase):
         """
         try:
             data = self.get(['channels', streamer, 'subscriptions'], {'limit': limit, 'offset': offset}, base='https://api.twitch.tv/kraken/')
-            log.info(data)
             if data:
                 return data['subscriptions']
         except urllib.error.HTTPError as e:
@@ -217,6 +216,9 @@ class TwitchAPI(APIBase):
         except urllib.error.HTTPError as e:
             if e.code == 502:
                 log.warning('Bad Gateway when getting stream status.')
+                data = None
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting stream status.')
                 data = None
             else:
                 log.exception('Unhandled HTTP error code')
