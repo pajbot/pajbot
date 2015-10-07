@@ -612,6 +612,11 @@ class Dispatch:
 
         return False
 
+    def set_game(tyggbot, source, message, event, args):
+        if message:
+            tyggbot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
+            tyggbot.twitchapi.set_game(tyggbot.streamer, message)
+
     def ban_source(tyggbot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
             if args['notify'] == 1:
