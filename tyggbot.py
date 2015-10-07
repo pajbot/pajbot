@@ -837,7 +837,7 @@ class TyggBot:
                 except:
                     log.exception('Exception caught while updating a users username')
 
-        if self.settings['parse_pyramids']:
+        if self.settings['parse_pyramids'] and whisper is False:
             self.pyramid_parser.parse_line(msg_raw, source)
 
         for emote in self.emotes.custom_data:
