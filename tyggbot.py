@@ -154,25 +154,27 @@ class TyggBot:
         else:
             self.phrases = default_phrases
 
+    def create_sqlconn(self):
+        try:
+            return pymysql.connect(unix_socket=self.config['sql']['unix_socket'], user=self.config['sql']['user'], passwd=self.config['sql']['passwd'], db=self.config['sql']['db'], charset='utf8mb4')
+        except pymysql.err.OperationalError as e:
+            error_code, error_message = e.args
+            if error_code == 1045:
+                log.error('Access denied to database with user \'{0}\'. Review your config file.'.format(self.config['sql']['user']))
+            elif error_code == 1044:
+                log.error('Access denied to database \'{0}\' with user \'{1}\'. Make sure the database \'{0}\' exists and user \'{1}\' has full access to it.'.format(self.config['sql']['db'], self.config['sql']['user']))
+            else:
+                log.error(e)
+
+        return None
+
     def __init__(self, config, args):
         self.config = config
         self.nickname = config['main']['nickname']
         self.password = config['main']['password']
         self.default_settings['broadcaster'] = config['main']['streamer']
 
-        try:
-            self.sqlconn = pymysql.connect(unix_socket=config['sql']['unix_socket'], user=config['sql']['user'], passwd=config['sql']['passwd'], charset='utf8mb4')
-            self.sqlconn.select_db(config['sql']['db'])
-        except pymysql.err.OperationalError as e:
-            error_code, error_message = e.args
-            if error_code == 1045:
-                log.error('Access denied to database with user \'{0}\'. Review your config file.'.format(config['sql']['user']))
-            elif error_code == 1044:
-                log.error('Access denied to database \'{0}\' with user \'{1}\'. Make sure the database \'{0}\' exists and user \'{1}\' has full access to it.'.format(config['sql']['db'], config['sql']['user']))
-            else:
-                log.error(e)
-            sys.exit(1)
-
+        self.sqlconn = self.create_sqlconn()
         self.sqlconn.autocommit(True)
 
         update_database(self.sqlconn)
