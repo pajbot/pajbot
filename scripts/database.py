@@ -17,7 +17,7 @@ def update_database(sqlconn):
         pass
     log.info(cursor)
 
-    latest_db_version = 16
+    latest_db_version = 17
     version = 0
 
     if cursor.rowcount > 0:
@@ -105,6 +105,8 @@ def update_database(sqlconn):
                     cursor.execute("INSERT INTO `tb_idata` (`id`, `type`, `value`) VALUES ('" + value + "', 'value', 0)")
                 else:
                     log.info('{0} already added to the database.'.format(value))
+        elif version == 17:
+            queries.append("CREATE TABLE `tb_deck` ( `id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(256) NOT NULL DEFAULT '' , `class` VARCHAR(64) NOT NULL DEFAULT 'undefined' , `link` VARCHAR(128) NOT NULL , `first_used` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `last_used` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `times_used` INT NOT NULL DEFAULT '0', PRIMARY KEY (`id`) ) ENGINE = InnoDB;")
 
         for query in queries:
             cursor.execute(query)
