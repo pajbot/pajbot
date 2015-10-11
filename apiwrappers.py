@@ -203,6 +203,13 @@ class TwitchAPI(APIBase):
             ch = data['chatters']
 
             chatters = ch['moderators'] + ch['staff'] + ch['admins'] + ch['global_mods'] + ch['viewers']
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting stream status.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting stream status.')
+            else:
+                log.exception('Unhandled HTTP error code')
         except KeyError:
             log.exception('Caught exception while trying to get chatters for streamer {0}'.format(streamer))
         except:
@@ -211,24 +218,14 @@ class TwitchAPI(APIBase):
         return chatters
 
     def get_status(self, streamer):
-        try:
-            data = self.get(['streams', streamer], base='https://api.twitch.tv/kraken/')
-        except urllib.error.HTTPError as e:
-            if e.code == 502:
-                log.warning('Bad Gateway when getting stream status.')
-                data = None
-            elif e.code == 503:
-                log.warning('Service Unavailable when getting stream status.')
-                data = None
-            else:
-                log.exception('Unhandled HTTP error code')
-                data = None
-        except:
-            log.exception('Unhandled exception in TwitchAPI.get_status')
-            data = None
-
-        ret = {
+        """Returns information about a user or stream on twitch.
+        This method will _ALWAYS_ return a dictionary with a bunch of data.
+        Check if the key 'error' is set to False to know there's some valid data in there.
+        The key 'exists' is set to False if the user does not exist, True if the user exists and None if we don't know.
+        """
+        stream_status = {
                 'error': True,
+                'exists': None,
                 'online': False,
                 'viewers': -1,
                 'game': None,
@@ -237,21 +234,36 @@ class TwitchAPI(APIBase):
                 'followers': -1,
                 'views': -1,
                 }
-        if data:
-            try:
-                ret['online'] = 'stream' in data and data['stream'] is not None
-                if ret['online']:
-                    ret['viewers'] = data['stream']['viewers']
-                    ret['game'] = data['stream']['game']
-                    ret['title'] = data['stream']['channel']['status']
-                    ret['created_at'] = data['stream']['created_at']
-                    ret['followers'] = data['stream']['channel']['followers']
-                    ret['views'] = data['stream']['channel']['views']
-                ret['error'] = False
-            except:
-                log.exception('Exception caught while getting stream status')
+        data = None
 
-        return ret
+        try:
+            data = self.get(['streams', streamer], base='https://api.twitch.tv/kraken/')
+            stream_status['error'] = False
+
+            stream_status['online'] = 'stream' in data and data['stream'] is not None
+            if stream_status['online']:
+                stream_status['viewers'] = data['stream']['viewers']
+                stream_status['game'] = data['stream']['game']
+                stream_status['title'] = data['stream']['channel']['status']
+                stream_status['created_at'] = data['stream']['created_at']
+                stream_status['followers'] = data['stream']['channel']['followers']
+                stream_status['views'] = data['stream']['channel']['views']
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                stream_status['exists'] = False
+                data = json.loads(e.read().decode('utf-8'))
+            elif e.code == 502:
+                log.warning('Bad Gateway when getting stream status.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting stream status.')
+            else:
+                log.exception('Unhandled HTTP error code')
+        except KeyError:
+            log.exception('Some key in get_status does not exist. FIX!')
+        except:
+            log.exception('Unhandled exception in TwitchAPI.get_status')
+
+        return stream_status
 
     def set_game(self, streamer, game):
         """Updates the streamers game on twitch.
