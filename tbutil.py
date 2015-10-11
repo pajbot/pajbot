@@ -38,6 +38,10 @@ def init_logging(app='tyggbot'):
         def filter(self, record):
             return record.levelno < self.level
 
+    # Uncomment the line below if you want full debug messages from everything!
+    # This includes all debug messages from the IRC libraries, which can be useful for debugging.
+    # logging.basicConfig(level=logging.DEBUG)
+
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
