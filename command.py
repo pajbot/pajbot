@@ -157,7 +157,10 @@ class Filter:
         self.action = parse_action(data['action'])
         self.filter = data['filter']
         self.type = data['type']
-        self.regex = re.compile(data['filter'].lower())
+        try:
+            self.regex = re.compile(data['filter'].lower())
+        except Exception as e:
+            log.exception('Uncaught exception in filter')
         self.source = data['source']
         self.num_uses = data['num_uses']
         self.enabled = data['enabled']
