@@ -17,7 +17,7 @@ def is_subdomain(x, y):
     Example:
     is_subdomain('pajlada.se', 'pajlada.se') = True
     is_subdomain('test.pajlada.se', 'pajlada.se') = True
-    is_subdomain('test.pajlada.se', 'pajlada.com') = True
+    is_subdomain('test.pajlada.se', 'pajlada.com') = False
     """
     if y.startswith('www.'):
         y = y[4:]
@@ -46,6 +46,20 @@ def is_same_url(x, y):
     return parsed_x.netloc == parsed_y.netloc and parsed_x.path.strip('/') == parsed_y.path.strip('/') and parsed_x.query == parsed_y.query
 
 
+def find_unique_urls(regex, message):
+    _urls = regex.finditer(message)
+    urls = []
+    for i in _urls:
+        url = i.group(0)
+        if not (url.startswith('http://') or url.startswith('https://')):
+            url = 'http://' + url
+        if not(url[-1].isalpha() or url[-1].isnumeric() or url[-1] == '/'):
+            url = url[:-1]
+        urls.append(url)
+
+    return set(urls)
+
+
 class Url:
     def __init__(self, url):
         self.url = url
@@ -71,6 +85,8 @@ class LinkCheckerCache:
 
 
 class LinkChecker:
+    regex_str = r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)'
+
     def __init__(self, bot, run_later):
         if 'safebrowsingapi' in bot.config['main']:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
@@ -80,10 +96,9 @@ class LinkChecker:
         self.sqlconn = bot.create_sqlconn()
         self.sqlconn.autocommit(True)
 
-        self.regex = re.compile(r'((http:\/\/)|\b)(\w|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)', re.IGNORECASE)
+        self.regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
         self.run_later = run_later
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
-        return
 
     def delete_from_cache(self, url):
         if url in self.cache:
@@ -400,14 +415,4 @@ class LinkChecker:
         return
 
     def find_urls_in_message(self, msg_raw):
-        _urls = self.regex.finditer(msg_raw)
-        urls = []
-        for i in _urls:
-            url = i.group(0)
-            if not (url.startswith('http://') or url.startswith('https://')):
-                url = 'http://' + url
-            if not(url[-1].isalpha() or url[-1].isnumeric() or url[-1] == '/'):
-                url = url[:-1]
-            urls.append(url)
-
-        return set(urls)
+        return find_unique_urls(self.regex, msg_raw)
