@@ -27,6 +27,24 @@ class User:
         return self.username == other.username
 
     @classmethod
+    def test_user(cls, username):
+        user = cls()
+
+        user.id = 123
+        user.username = username.lower()
+        user.username_raw = username
+        user.level = 2000
+        user.num_lines = 0
+        user.subscriber = True
+        user.points = 1234
+        user.last_seen = None
+        user.last_active = None
+        user.minutes_in_chat_online = 5
+        user.minutes_in_chat_offline = 15
+
+        return user
+
+    @classmethod
     def load(cls, cursor, username):
         user = cls()
 
@@ -99,6 +117,14 @@ class UserManager(UserDict):
     def __init__(self, sqlconn):
         UserDict.__init__(self)
         self.sqlconn = sqlconn
+
+    @classmethod
+    def init_for_tests(cls):
+        users = cls(None)
+
+        users['pajlada'] = User.test_user('PajladA')
+
+        return users
 
     def get_cursor(self):
         self.sqlconn.ping()
