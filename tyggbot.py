@@ -53,7 +53,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '1.4.1b'
+    version = '1.4.3'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
 
@@ -168,11 +168,27 @@ class TyggBot:
 
         return None
 
-    def __init__(self, config, args):
+    def load_config(self, config):
         self.config = config
+
+        if config is None:
+            return
+
         self.nickname = config['main']['nickname']
         self.password = config['main']['password']
+
         self.default_settings['broadcaster'] = config['main']['streamer']
+
+    def __init__(self, config=None, args=None):
+        TyggBot.instance = self
+
+        self.nickname = 'tyggbot'
+        self.password = 'abcdef'
+
+        self.load_config(config)
+
+        if config is None:
+            return
 
         self.sqlconn = self.create_sqlconn()
         self.sqlconn.autocommit(True)
@@ -202,8 +218,6 @@ class TyggBot:
             Dispatch.wolfram = None
 
         self.whisper_manager = None
-
-        TyggBot.instance = self
 
         self.is_online = False
         self.ascii_timeout_duration = 120
@@ -461,6 +475,16 @@ class TyggBot:
     def get_source_value(self, key, extra={}):
         try:
             return getattr(extra['source'], key)
+        except:
+            log.exception('Caught exception in get_source_value')
+
+        return None
+
+    def get_user_value(self, key, extra={}):
+        try:
+            user = self.users.find(extra['argument'])
+            if user:
+                return getattr(user, key)
         except:
             log.exception('Caught exception in get_source_value')
 

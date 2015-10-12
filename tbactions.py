@@ -76,7 +76,7 @@ class RawFuncAction(BaseAction):
 class MessageAction(BaseAction):
     type = 'message'
     regex = re.compile('(\$\([a-zA-Z:;_0-9 ]+\))')
-    inner_regex = re.compile(r'([a-z]+)(:[a-zA-Z_0-9 ]+|;[0-9]+)')
+    inner_regex = re.compile(r'([a-z]+)(;[0-9]+|)(:[a-zA-Z_0-9 ]+|)')
     argument_regex = re.compile('(\$\([0-9]+\))')
     argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
@@ -117,9 +117,16 @@ class MessageAction(BaseAction):
 
             if inner_match:
                 path = inner_match.group(1)
-                key = inner_match.group(2)
-                key_type = key[:1]
-                key_value = key[1:]
+                argument = inner_match.group(2)[1:]
+                key = inner_match.group(3)[1:]
+
+                if len(argument) == 0:
+                    argument = None
+                else:
+                    argument = int(argument)
+
+                if len(key) == 0:
+                    key = None
 
                 if path == 'kvi':
                     cb = TyggBot.instance.get_kvi_value
@@ -135,14 +142,14 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_emote_tm_record
                 elif path == 'source':
                     cb = TyggBot.instance.get_source_value
+                elif path == 'user':
+                    cb = TyggBot.instance.get_user_value
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue
 
-                if key_type == ':':
-                    self.subs[sub_key] = Substitution(cb, key=key_value)
-                elif key_type == ';':
-                    self.subs[sub_key] = Substitution(cb, argument=int(key_value))
+                sub = Substitution(cb, key=key, argument=argument)
+                self.subs[sub_key] = sub
 
     def get_argument_value(message, index):
         if not message:
@@ -164,7 +171,10 @@ class MessageAction(BaseAction):
             log.debug('Replacing {0} with {1}'.format(needle, value))
 
         for needle, sub in self.subs.items():
-            if sub.key:
+            if sub.key and sub.argument:
+                param = sub.key
+                extra['argument'] = MessageAction.get_argument_value(extra['message'], sub.argument - 1)
+            elif sub.key:
                 param = sub.key
             elif sub.argument:
                 param = MessageAction.get_argument_value(extra['message'], sub.argument - 1)

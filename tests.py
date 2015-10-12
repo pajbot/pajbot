@@ -50,5 +50,61 @@ class TestURLMethods(unittest.TestCase):
         # TODO: The protocol of a URL is entirely thrown away, this behaviour should probably be changed.
         self.assertEqual(find_unique_urls(regex, 'https://pajlada.se/ https://pajlada.se'), {'http://pajlada.se/', 'http://pajlada.se'})
 
+
+class ActionsTester(unittest.TestCase):
+    def setUp(self):
+        from tyggbot import TyggBot
+        from models.user import User, UserManager
+        self.tyggbot = TyggBot()
+        self.tyggbot.users = UserManager.init_for_tests()
+        self.source = User()
+        self.source.id = 123
+        self.source.username = 'pajlada'
+        self.source.username_raw = 'PajladA'
+
+    def test_message_action_parse(self):
+        from tbactions import SayAction
+
+        values = [
+                {
+                    'message': 'hi',
+                    'num_argument_subs': 0,
+                    'num_subs': 0,
+                    'arguments': '',
+                }, {
+                    'message': 'Hello $(source:username)!',
+                    'num_argument_subs': 0,
+                    'num_subs': 1,
+                    'arguments': '',
+                }, {
+                    'message': 'Testing $(1)',
+                    'num_argument_subs': 1,
+                    'num_subs': 0,
+                    'arguments': 'a b c',
+                }, {
+                    'message': 'Testing $(1) $(2)',
+                    'num_argument_subs': 2,
+                    'num_subs': 0,
+                    'arguments': '',
+                }, {
+                    'message': 'Testing $(1) $(2) $(1)',
+                    'num_argument_subs': 2,
+                    'num_subs': 0,
+                    'arguments': '',
+                }, {
+                    'message': '$(user;1:username_raw) has $(user;1:points) points.',
+                    'num_argument_subs': 0,
+                    'num_subs': 2,
+                    'arguments': 'pajlada',
+                },
+                ]
+
+        for data in values:
+            action = SayAction(data['message'])
+            self.assertEqual(len(action.argument_subs), data['num_argument_subs'], 'Wrong amount of argument substitutions for "{0}"'.format(data['message']))
+            self.assertEqual(len(action.subs), data['num_subs'], 'Wrong amount of substitutions for "{0}"'.format(data['message']))
+
+            print(action.get_response(self.tyggbot, {'source': self.source, 'message': data['arguments']}))
+
 if __name__ == '__main__':
     unittest.main()
