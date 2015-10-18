@@ -225,7 +225,6 @@ class Dispatch:
             data = {
                     'level': 100,
                     'command': '|'.join(aliases),
-                    'description': 'Added by {0}'.format(source.username),
                     'delay_all': 10,
                     'delay_user': 30,
                     }
@@ -239,8 +238,8 @@ class Dispatch:
             cursor = tyggbot.sqlconn.cursor()
 
             if update_id is False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
-                cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
+                cursor.execute(query, (data['level'], data['command'], data['action'], data['delay_all'], data['delay_user']))
                 tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
@@ -281,7 +280,6 @@ class Dispatch:
                     'level': 100,
                     'command': '|'.join(aliases),
                     'action': json.dumps({'type': 'func', 'cb': callback}),
-                    'description': 'Added by {0}'.format(source.username),
                     'delay_all': 10,
                     'delay_user': 30,
                     }
@@ -290,8 +288,8 @@ class Dispatch:
             cursor = tyggbot.sqlconn.cursor()
 
             if update_id is False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `description`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
-                cursor.execute(query, (data['level'], data['command'], data['action'], data['description'], data['delay_all'], data['delay_user']))
+                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
+                cursor.execute(query, (data['level'], data['command'], data['action'], data['delay_all'], data['delay_user']))
                 tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
             else:
                 query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
