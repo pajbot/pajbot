@@ -897,19 +897,20 @@ class TyggBot:
             if source.username in self.ignores:
                 return
 
+        add_line = not whisper and (self.is_online or self.settings['lines_offline'])
+
         if msg_lower[:1] == '!':
             msg_lower_parts = msg_lower.split(' ')
-            command = msg_lower_parts[0][1:]
+            trigger = msg_lower_parts[0][1:]
             msg_raw_parts = msg_raw.split(' ')
-            extra_msg = ' '.join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
-            if command in self.commands:
-                if source.level >= self.commands[command].level:
-                    command = self.commands[command]
-                    if (whisper and (command.can_execute_with_whisper or source.level >= 420)) or not whisper:
-                        command.run(self, source, extra_msg, event)
-                    return
+            remaining_message = ' '.join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
+            if trigger in self.commands:
+                command = self.commands[trigger]
+                command.run(self, source, remaining_message, event=event, whisper=whisper)
+                # If a command is executed, we do not count the message as a line
+                add_line = False
 
-        source.wrote_message(not whisper and (self.is_online or self.settings['lines_offline']))
+        source.wrote_message(add_line)
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames

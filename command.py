@@ -40,6 +40,10 @@ def parse_action(raw_data=None, data=None):
 
 
 class Command:
+    MIN_WHISPER_LEVEL = 420
+    BYPASS_DELAY_LEVEL = 2000
+    BYPASS_SUB_ONLY_LEVEL = 500
+
     def __init__(self, do_sync=True):
         self.id = -1
         self.extra_args = {'command': self}
@@ -55,6 +59,7 @@ class Command:
         self.type = '?'
         self.cost = 0
         self.can_execute_with_whisper = False
+        self.sub_only = False
 
     @classmethod
     def from_json(cls, json):
@@ -115,9 +120,14 @@ class Command:
             self.cost = 0
 
         try:
-            self.can_execute_with_whisper = data['can_execute_with_whisper']
+            self.can_execute_with_whisper = int(data['can_execute_with_whisper']) == 1
         except:
             self.can_execute_with_whisper = False
+
+        try:
+            self.sub_only = int(data['sub_only']) == 1
+        except:
+            self.sub_only = False
 
         if data['extra_args']:
             try:
@@ -137,31 +147,49 @@ class Command:
             cursor.execute('UPDATE `tb_commands` SET `num_uses`=%s WHERE `id`=%s', (self.num_uses, self.id))
             self.synced = True
 
-    # (cur_time - self.last_run) = time since last run
-    def run(self, tyggbot, source, message, event={}, args={}):
-        cur_time = time.time()
-        if cur_time - self.last_run > self.delay_all or source.level >= 2000:
-            if source.username not in self.last_run_by_user or cur_time - self.last_run_by_user[source.username] > self.delay_user or source.level >= 2000:
-                if self.cost > 0 and source.points < self.cost:
-                    # User does not have enough points to use the command
-                    return False
+    def run(self, tyggbot, source, message, event={}, args={}, whisper=False):
+        if source.level < self.level:
+            # User does not have a high enough power level to run this command
+            return False
 
-                args.update(self.extra_args)
-                ret = self.action.run(tyggbot, source, message, event, args)
-                self.num_uses += 1
-                self.synced = False
-                if ret is not False:
-                    if self.cost > 0:
-                        # Only spend points if the action did not fail
-                        if not source.spend(self.cost):
-                            # The user does not have enough points to spend!
-                            return False
-                    self.last_run = cur_time
-                    self.last_run_by_user[source.username] = cur_time
-            else:
-                log.debug('{1} ran command {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run_by_user[source.username], source.username))
-        else:
-            log.debug('Command was run {0:.2f} seconds ago, waiting...'.format(cur_time - self.last_run))
+        if whisper and self.can_execute_with_whisper is False and source.level < Command.MIN_WHISPER_LEVEL:
+            # This user cannot execute the command through a whisper
+            return False
+
+        if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL:
+            # User is now a sub or a moderator, and cannot use the command.
+            return False
+
+        cur_time = time.time()
+        time_since_last_run = cur_time - self.last_run
+
+        if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
+            log.debug('Command was run {0:.2f} seconds ago, waiting...'.format(time_since_last_run))
+            return False
+
+        time_since_last_run_user = cur_time - self.last_run_by_user.get(source.username, 0)
+
+        if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
+            log.debug('{0} ran command {1:.2f} seconds ago, waiting...'.format(source.username, time_since_last_run_user))
+            return False
+
+        if self.cost > 0 and source.points < self.cost:
+            # User does not have enough points to use the command
+            return False
+
+        args.update(self.extra_args)
+        ret = self.action.run(tyggbot, source, message, event, args)
+        if ret is not False:
+            self.num_uses += 1
+            self.synced = False
+            if self.cost > 0:
+                # Only spend points if the action did not fail
+                if not source.spend(self.cost):
+                    # The user does not have enough points to spend!
+                    log.warning('{0} used points he does not have.'.format(source.username))
+                    return False
+            self.last_run = cur_time
+            self.last_run_by_user[source.username] = cur_time
 
 
 class Filter:
