@@ -75,8 +75,8 @@ class RawFuncAction(BaseAction):
 
 class MessageAction(BaseAction):
     type = 'message'
-    regex = re.compile('(\$\([a-zA-Z:;_0-9 ]+\))')
-    inner_regex = re.compile(r'([a-z]+)(;[0-9]+|)(:[a-zA-Z_0-9 ]+|)')
+    regex = re.compile('(\$\([a-zA-Z:;_0-9 \/]+\))')
+    inner_regex = re.compile(r'([a-z]+)(;[0-9]+|)(:[a-zA-Z_0-9 \/]+|)')
     argument_regex = re.compile('(\$\([0-9]+\))')
     argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
@@ -144,6 +144,8 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_source_value
                 elif path == 'user':
                     cb = TyggBot.instance.get_user_value
+                elif path == 'time':
+                    cb = TyggBot.instance.get_time_value
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue

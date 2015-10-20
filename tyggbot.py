@@ -491,6 +491,15 @@ class TyggBot:
 
         return None
 
+    def get_time_value(self, key, extra={}):
+        try:
+            tz = timezone(key)
+            return datetime.now(tz).strftime(self.date_fmt)
+        except:
+            log.exception('Unhandled exception in get_time_value')
+
+        return None
+
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]
@@ -526,6 +535,7 @@ class TyggBot:
             log.exception('Exception caught while sending privmsg')
 
     def c_time_norway(self):
+        log.warning('DEPRECATED: use $(time:Europe/Oslo) instead')
         return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
 
     def c_uptime(self):
