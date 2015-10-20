@@ -39,6 +39,33 @@ class Dispatch:
         else:
             tyggbot.say(tyggbot.phrases['nl_0'].format(**phrase_data))
 
+    def point_pos(tyggbot, source, message, event, args):
+        user = None
+
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+
+        if not user:
+            user = source
+
+        phrase_data = {
+                'points': user.points
+                }
+
+        if user == source:
+            phrase_data['username_w_verb'] = 'You are'
+        else:
+            phrase_data['username_w_verb'] = '{0} is'.format(user.username_raw)
+
+        if user.points > 0:
+            cursor = tyggbot.get_dictcursor()
+            cursor.execute('SELECT COUNT(*) as `pos` FROM `tb_user` WHERE `points`>%s', (user.points, ))
+            row = cursor.fetchone()
+            if row:
+                phrase_data['point_pos'] = row['pos'] + 1
+                tyggbot.whisper(source.username, tyggbot.phrases['point_pos'].format(**phrase_data))
+
     def nl_pos(tyggbot, source, message, event, args):
         if message:
             tmp_username = message.split(' ')[0].strip().lower()

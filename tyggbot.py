@@ -136,6 +136,7 @@ class TyggBot:
                 'nl_pos': '{username} is rank {nl_pos} line-farmer in this channel!',
                 'new_sub': 'Sub hype! {username} just subscribed PogChamp',
                 'resub': 'Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
+                'point_pos': '{username_w_verb} rank {point_pos} point-hoarder in this channel with {points} points.',
                 }
         if 'phrases' in self.config:
             self.phrases = {}
