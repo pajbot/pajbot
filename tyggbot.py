@@ -65,6 +65,7 @@ class TyggBot:
             'max_msg_length': 350,
             'lines_offline': True,
             'parse_pyramids': False,
+            'check_links': True,
             }
 
     def parse_args():
@@ -884,11 +885,12 @@ class TyggBot:
             for url in urls:
                 self.link_tracker.add(url)
 
-                if source.level < 500:
-                    # Action which will be taken when a bad link is found
-                    action = Action(self.timeout, args=[source.username, 20])
-                    # Queue up a check on the URL
-                    self.action_queue.add(self.link_checker.check_url, args=[url, action])
+                if self.settings['check_links']:
+                    if source.level < 500:
+                        # Action which will be taken when a bad link is found
+                        action = Action(self.timeout, args=[source.username, 20])
+                        # Queue up a check on the URL
+                        self.action_queue.add(self.link_checker.check_url, args=[url, action])
 
             # TODO: Change to if source.ignored
             if source.username in self.ignores:
