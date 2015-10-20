@@ -16,18 +16,18 @@ from models.linkchecker import LinkChecker
 from models.linktracker import LinkTracker
 from models.pyramidparser import PyramidParser
 from models.websocket import WebSocketManager
+from models.twitter import TwitterManager
 from scripts.database import update_database
 
 from apiwrappers import TwitchAPI
 
 import pymysql
 import wolframalpha
-import tweepy
 
 from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
-from tbutil import time_since, tweet_prettify_urls
+from tbutil import time_since
 
 import irc.client
 
@@ -52,7 +52,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '1.4.3'
+    version = '1.4.4'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
 
@@ -81,51 +81,6 @@ class TyggBot:
         # TODO: Add a log level argument.
 
         return parser.parse_args()
-
-    def init_twitter(self):
-        try:
-            self.twitter_auth = tweepy.OAuthHandler(self.config['twitter']['consumer_key'], self.config['twitter']['consumer_secret'])
-            self.twitter_auth.set_access_token(self.config['twitter']['access_token'], self.config['twitter']['access_token_secret'])
-
-            self.twitter = tweepy.API(self.twitter_auth)
-
-            if self.use_twitter_stream:
-                self.connect_to_twitter_stream()
-                self.execute_every(60 * 5, self.check_twitter_connection)
-        except:
-            log.exception('Twitter authentication failed.')
-            self.twitter = False
-
-    def check_twitter_connection(self):
-        try:
-            if self.twitter_stream.running is False:
-                self.connect_to_twitter_stream()
-        except:
-            log.exception('Caught exception while checking twitter connection')
-
-    def connect_to_twitter_stream(self):
-        try:
-            class MyStreamListener(tweepy.StreamListener):
-                relevant_users = [
-                    'tyggbar', 'forsensc2', 'pajtest', 'rubarthasdf', 'nymn_hs'
-                    ]
-
-                def on_status(self, tweet):
-                    if tweet.user.screen_name.lower() in self.relevant_users:
-                        if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                            tw = tweet_prettify_urls(tweet)
-                            TyggBot.instance.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace("\n", " ")))
-
-                def on_error(self, status):
-                    log.warning('Unhandled in twitter stream: {0}'.format(status))
-
-            if not self.twitter_stream:
-                listener = MyStreamListener()
-                self.twitter_stream = tweepy.Stream(self.twitter_auth, listener, retry_420=3 * 60, daemonize_thread=True)
-
-            self.twitter_stream.userstream(_with='followings', replies='all', async=True)
-        except:
-            log.exception('Exception caught while trying to connect to the twitter stream')
 
     def load_default_phrases(self):
         default_phrases = {
@@ -282,20 +237,11 @@ class TyggBot:
         self.motd_messages = []
         self.execute_every(60, self.motd_tick)
 
-        self.load_all()
-
         self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
         self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password}])
 
         self.num_offlines = 0
         self.execute_every(20, self.refresh_stream_status)
-
-        self.twitter_stream = False
-        if 'twitter' in config:
-            self.use_twitter_stream = 'streaming' in config['twitter'] and config['twitter']['streaming'] == '1'
-            self.init_twitter()
-        else:
-            self.twitter = None
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
@@ -313,6 +259,9 @@ class TyggBot:
         self.link_tracker = LinkTracker(self.sqlconn)
         self.pyramid_parser = PyramidParser(self)
         self.websocket_manager = WebSocketManager(self)
+        self.twitter_manager = TwitterManager(self)
+
+        self.load_all()
 
         """
         Update chatters every `update_chatters_interval' minutes.
@@ -440,20 +389,7 @@ class TyggBot:
         return self.kvi.get(key)
 
     def get_last_tweet(self, key, extra={}):
-        if self.twitter:
-            try:
-                public_tweets = self.twitter.user_timeline(key)
-                for tweet in public_tweets:
-                    if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
-                        tw = tweet_prettify_urls(tweet)
-                        return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
-            except Exception:
-                log.exception('Exception caught while getting last tweet')
-                return 'FeelsBadMan'
-        else:
-            return 'Twitter not set up FeelsBadMan'
-
-        return 'FeelsBadMan'
+        return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_tm(self, key, extra={}):
         emote = self.emotes.find(key)
@@ -662,20 +598,21 @@ class TyggBot:
         self._load_settings()
         self._load_ignores()
         self._load_motd()
+        self.twitter_manager.load_relevant_users()
 
     def _load_commands(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
 
         from command import Command
 
-        cursor.execute('SELECT * FROM `tb_commands`')
-
         self.commands = {}
 
         self.commands['reload'] = Command.admin_command(self.reload)
         self.commands['quit'] = Command.admin_command(self.quit)
-        self.commands['ignore'] = Command.dispatch_command('ignore')
-        self.commands['unignore'] = Command.dispatch_command('unignore')
+        self.commands['ignore'] = Command.dispatch_command('ignore', level=1000)
+        self.commands['unignore'] = Command.dispatch_command('unignore', level=1000)
+        self.commands['twitterfollow'] = Command.dispatch_command('twitter_follow', level=1000)
+        self.commands['twitterunfollow'] = Command.dispatch_command('twitter_unfollow', level=1000)
         self.commands['add'] = Command()
         self.commands['add'].load_from_db({
             'id': -1,
@@ -714,6 +651,8 @@ class TyggBot:
 
         num_commands = 0
         num_aliases = 0
+
+        cursor.execute('SELECT * FROM `tb_commands`')
 
         for row in cursor:
             try:
@@ -981,8 +920,7 @@ class TyggBot:
             except Exception:
                 log.exception('Exception caught while trying to say quit phrase')
 
-        if self.twitter_stream:
-            self.twitter_stream.disconnect()
+        self.twitter_manager.quit()
 
         if self.whisper_manager:
             self.whisper_manager.quit()

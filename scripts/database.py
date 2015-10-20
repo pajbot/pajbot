@@ -16,7 +16,7 @@ def update_database(sqlconn):
     except:
         pass
 
-    latest_db_version = 19
+    latest_db_version = 20
     version = 0
 
     if cursor.rowcount > 0:
@@ -110,6 +110,8 @@ def update_database(sqlconn):
             queries.append("ALTER TABLE `tb_user` ADD `twitch_access_token` VARCHAR(128) NULL DEFAULT NULL , ADD `twitch_refresh_token` VARCHAR(128) NULL DEFAULT NULL , ADD `discord_user_id` VARCHAR(32) NULL DEFAULT NULL ;")
         elif version == 19:
             queries.append("ALTER TABLE `tb_commands` ADD `sub_only` BOOLEAN NOT NULL DEFAULT FALSE AFTER `can_execute_with_whisper`;")
+        elif version == 20:
+            queries.append("CREATE TABLE `tb_twitter_following` ( `id` INT NOT NULL AUTO_INCREMENT , `username` VARCHAR(32) NOT NULL , PRIMARY KEY (`id`) ) ENGINE = InnoDB;")
 
         for query in queries:
             cursor.execute(query)

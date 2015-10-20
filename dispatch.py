@@ -818,3 +818,13 @@ class Dispatch:
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         tyggbot.privmsg('.timeout {0} 1'.format(source.username))
+
+    def twitter_follow(tyggbot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+            tyggbot.twitter_manager.follow_user(username)
+
+    def twitter_unfollow(tyggbot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+            tyggbot.twitter_manager.unfollow_user(username)
