@@ -69,12 +69,12 @@ class Dispatch:
                 tyggbot.say(tyggbot.phrases['nl_pos'].format(**phrase_data))
 
     def query(tyggbot, source, message, event, args):
-        if Dispatch.wolfram is None:
+        if tyggbot.wolfram is None:
             return False
 
         try:
             log.debug('Querying wolfram "{0}"'.format(message))
-            res = Dispatch.wolfram.query(message)
+            res = tyggbot.wolfram.query(message)
 
             x = 0
             for pod in res.pods:

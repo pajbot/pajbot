@@ -65,6 +65,20 @@ class Command:
         return cmd
 
     @classmethod
+    def dispatch_command(cls, cb, level=1000):
+        cmd = cls()
+        cmd.load_from_db({
+            'id': -1,
+            'level': level,
+            'action': '{"type": "func", "cb":"' + cb + '"}',
+            'do_sync': False,
+            'delay_all': 0,
+            'delay_user': 1,
+            'extra_args': None,
+            })
+        return cmd
+
+    @classmethod
     def admin_command(cls, action, type='raw_func', level=1000):
         from tbactions import RawFuncAction, FuncAction
         cmd = cls(False)

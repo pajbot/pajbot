@@ -24,7 +24,6 @@ import pymysql
 import wolframalpha
 import tweepy
 
-from dispatch import Dispatch
 from kvidata import KVIData
 from tbmath import TBMath
 from pytz import timezone
@@ -213,9 +212,9 @@ class TyggBot:
         self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
         if 'wolfram' in config['main']:
-            Dispatch.wolfram = wolframalpha.Client(config['main']['wolfram'])
+            self.wolfram = wolframalpha.Client(config['main']['wolfram'])
         else:
-            Dispatch.wolfram = None
+            self.wolfram = None
 
         self.whisper_manager = None
 
@@ -663,8 +662,8 @@ class TyggBot:
 
         self.commands['reload'] = Command.admin_command(self.reload)
         self.commands['quit'] = Command.admin_command(self.quit)
-        self.commands['ignore'] = Command.admin_command(Dispatch.ignore, type='func')
-        self.commands['unignore'] = Command.admin_command(Dispatch.unignore, type='func')
+        self.commands['ignore'] = Command.dispatch_command('ignore')
+        self.commands['unignore'] = Command.dispatch_command('unignore')
         self.commands['add'] = Command()
         self.commands['add'].load_from_db({
             'id': -1,
@@ -698,8 +697,8 @@ class TyggBot:
             'delay_user': 1,
             'extra_args': None,
             })
-        self.commands['level'] = Command.admin_command(Dispatch.level, type='func')
-        self.commands['eval'] = Command.admin_command(Dispatch.eval, type='func', level=2000)
+        self.commands['level'] = Command.dispatch_command('level', 1000)
+        self.commands['eval'] = Command.dispatch_command('eval', 2000)
 
         num_commands = 0
         num_aliases = 0
@@ -722,7 +721,9 @@ class TyggBot:
                 log.exception('Exception caught when loading command')
                 continue
 
-        log.debug('Loaded {0} commands ({1} aliases)'.format(num_commands, num_aliases))
+        num_aliases -= num_commands
+
+        log.debug('Loaded {0} commands ({1} additional aliases)'.format(num_commands, num_aliases))
         cursor.close()
 
     def _load_filters(self):
