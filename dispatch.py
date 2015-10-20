@@ -809,3 +809,12 @@ class Dispatch:
             tyggbot.say(str(ord_code))
         except:
             return False
+
+    def unban_source(tyggbot, source, message, event, args):
+        """Unban the user who ran the command."""
+        tyggbot.privmsg('.unban {0}'.format(source.username))
+
+    def untimeout_source(tyggbot, source, message, event, args):
+        """Untimeout the user who ran the command.
+        This is like unban except it will only remove timeouts, not permanent bans."""
+        tyggbot.privmsg('.timeout {0} 1'.format(source.username))
