@@ -157,10 +157,6 @@ class Filter:
         self.action = parse_action(data['action'])
         self.filter = data['filter']
         self.type = data['type']
-        try:
-            self.regex = re.compile(data['filter'].lower())
-        except Exception as e:
-            log.exception('Uncaught exception in filter')
         self.source = data['source']
         self.num_uses = data['num_uses']
         self.enabled = data['enabled']
@@ -173,6 +169,12 @@ class Filter:
                 log.error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
 
         self.synced = True
+
+        try:
+            self.regex = re.compile(data['filter'].lower())
+        except Exception as e:
+            log.exception('Uncaught exception in filter {0}'.format(self.name))
+            self.enabled = False
 
     def is_enabled(self):
         return self.enabled == 1 and self.action is not None
