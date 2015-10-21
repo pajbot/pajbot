@@ -611,6 +611,8 @@ class TyggBot:
         self.commands['quit'] = Command.admin_command(self.quit)
         self.commands['ignore'] = Command.dispatch_command('ignore', level=1000)
         self.commands['unignore'] = Command.dispatch_command('unignore', level=1000)
+        self.commands['permaban'] = Command.dispatch_command('permaban', level=1000)
+        self.commands['unpermaban'] = Command.dispatch_command('unpermaban', level=1000)
         self.commands['twitterfollow'] = Command.dispatch_command('twitter_follow', level=1000)
         self.commands['twitterunfollow'] = Command.dispatch_command('twitter_unfollow', level=1000)
         self.commands['add'] = Command()
@@ -784,6 +786,10 @@ class TyggBot:
             log.error('No valid user passed to parse_message')
             return False
 
+        if source.banned:
+            self.ban(source.username)
+            return False
+
         for tag in tags:
             if tag['key'] == 'subscriber':
                 if source.subscriber and tag['value'] == '0':
@@ -842,9 +848,8 @@ class TyggBot:
                         # Queue up a check on the URL
                         self.action_queue.add(self.link_checker.check_url, args=[url, action])
 
-            # TODO: Change to if source.ignored
-            if source.username in self.ignores:
-                return
+        if source.ignored:
+            return False
 
         add_line = not whisper and (self.is_online or self.settings['lines_offline'])
 

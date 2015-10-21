@@ -708,26 +708,76 @@ class Dispatch:
         tyggbot.sync_to()
 
     def ignore(tyggbot, source, message, event, args):
-        if message and len(message) > 1:
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+
+            if not user:
+                tyggbot.whisper(source.username, 'No user with that name found.')
+                return False
+
+            if user.ignored:
+                tyggbot.whisper(source.username, 'User is already ignored.')
+                return Falsee
+
+            user.ignored = True
+            user.needs_sync = True
             message = message.lower()
-            if message in tyggbot.ignores:
-                tyggbot.say('Already ignoring {0}'.format(message))
-            else:
-                tyggbot.ignores.append(message)
-                tyggbot.say('Now ignoring {0}'.format(message))
-                cursor = tyggbot.get_cursor()
-                cursor.execute('INSERT INTO `tb_ignores` (username) VALUES (%s)', (message))
+            tyggbot.whisper(source.username, 'Now ignoring {0}'.format(user.username))
 
     def unignore(tyggbot, source, message, event, args):
-        if message and len(message) > 1:
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+
+            if not user:
+                tyggbot.whisper(source.username, 'No user with that name found.')
+                return False
+
+            if user.ignored is False:
+                tyggbot.whisper(source.username, 'User is not ignored.')
+                return Falsee
+
+            user.ignored = False
+            user.needs_sync = True
             message = message.lower()
-            if message in tyggbot.ignores:
-                tyggbot.ignores.remove(message)
-                cursor = tyggbot.get_cursor()
-                cursor.execute('DELETE FROM `tb_ignores` WHERE username=%s', (message))
-                tyggbot.say('No longer ignoring {0}'.format(message))
-            else:
-                tyggbot.say('I\'m not ignoring {0} DansGame'.format(message))
+            tyggbot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
+
+    def permaban(tyggbot, source, message, event, args):
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+
+            if not user:
+                tyggbot.whisper(source.username, 'No user with that name found.')
+                return False
+
+            if user.banned:
+                tyggbot.whisper(source.username, 'User is already permabanned.')
+                return Falsee
+
+            user.banned = True
+            user.needs_sync = True
+            message = message.lower()
+            tyggbot.whisper(source.username, '{0} has now been permabanned.'.format(user.username))
+
+    def unpermaban(tyggbot, source, message, event, args):
+        if message:
+            tmp_username = message.split(' ')[0].strip().lower()
+            user = tyggbot.users.find(tmp_username)
+
+            if not user:
+                tyggbot.whisper(source.username, 'No user with that name found.')
+                return False
+
+            if user.banned is False:
+                tyggbot.whisper(source.username, 'User is not permabanned.')
+                return Falsee
+
+            user.banned = False
+            user.needs_sync = True
+            message = message.lower()
+            tyggbot.whisper(source.username, '{0} is no longer permabanned'.format(user.username))
 
     def tweet(tyggbot, source, message, event, args):
         if message and len(message) > 1 and len(message) < 140 and tyggbot.twitter:

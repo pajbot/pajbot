@@ -163,3 +163,14 @@ def load_config(path):
         sys.exit(0)
 
     return config
+
+
+def create_insert_query(table, values):
+    value_keys = ','.join(['`{}`'.format(x) for x in values])
+    value_values = ','.join(['%s' for x in values])
+    return 'INSERT INTO `{table}` ({value_keys}) VALUES ({value_values})'.format(table=table, value_keys=value_keys, value_values=value_values)
+
+
+def create_update_query(table, values, extra=''):
+    values_formatted = ','.join(['`{}`=%s'.format(x) for x in values])
+    return 'UPDATE `{table}` SET {values_formatted} {extra}'.format(table=table, values_formatted=values_formatted, extra=extra)
