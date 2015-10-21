@@ -127,6 +127,8 @@ class ConnectionManager:
                         connection.conn.join(self.tyggbot.channel)
                         log.debug("Joined channel")
                         connection.in_channel = True
+                    if self.tyggbot.control_hub and irc.client.is_channel(self.tyggbot.control_hub):
+                        connection.conn.join(self.tyggbot.control_hub)
 
                 return connection.conn
 

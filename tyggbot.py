@@ -199,6 +199,11 @@ class TyggBot:
             self.channel = config['main']['target']
             self.streamer = self.channel[1:]
 
+        if 'control_hub' in config['main']:
+            self.control_hub = config['main']['control_hub']
+        else:
+            self.control_hub = None
+
         self.kvi = KVIData(self.sqlconn)
         self.tbm = TBMath()
         self.last_sync = time.time()
