@@ -106,7 +106,7 @@ class WhisperConnectionManager:
                     if i >= len(self.connlist):
                         i = 0
 
-                log.debug('Sending whisper: {0} {1}'.format(username, message))
+                log.debug('Sending whisper to {0}: {1}'.format(username, message))
                 self.connlist[i].conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
                 self.connlist[i].num_msgs_sent += 1
                 self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
