@@ -32,29 +32,30 @@ class TwitterManager:
                 self.twitter_client = None
 
     def load_relevant_users(self):
-        cursor = self.bot.get_dictcursor()
-        cursor.execute('SELECT * FROM `tb_twitter_following`')
-        self.listener.relevant_users = []
-        for row in cursor:
-            self.listener.relevant_users.append(row['username'])
+        if self.listener:
+            cursor = self.bot.get_dictcursor()
+            cursor.execute('SELECT * FROM `tb_twitter_following`')
+            self.listener.relevant_users = []
+            for row in cursor:
+                self.listener.relevant_users.append(row['username'])
 
     def follow_user(self, username):
         """Add `username` to our relevant_users list."""
-        self.initialize_listener()
-        if username not in self.listener.relevant_users:
-            self.listener.relevant_users.append(username)
-            cursor = self.bot.get_cursor()
-            cursor.execute('INSERT INTO `tb_twitter_following` (`username`) VALUES (%s)', [username])
-            log.info('Now following {0}'.format(username))
+        if self.listener:
+            if username not in self.listener.relevant_users:
+                self.listener.relevant_users.append(username)
+                cursor = self.bot.get_cursor()
+                cursor.execute('INSERT INTO `tb_twitter_following` (`username`) VALUES (%s)', [username])
+                log.info('Now following {0}'.format(username))
 
     def unfollow_user(self, username):
         """Stop following `username`, if we are following him."""
-        self.initialize_listener()
-        if username in self.listener.relevant_users:
-            self.listener.relevant_users.remove(username)
-            cursor = self.bot.get_cursor()
-            cursor.execute('DELETE FROM `tb_twitter_following` WHERE `username`=%s', [username])
-            log.info('No longer following {0}'.format(username))
+        if self.listener:
+            if username in self.listener.relevant_users:
+                self.listener.relevant_users.remove(username)
+                cursor = self.bot.get_cursor()
+                cursor.execute('DELETE FROM `tb_twitter_following` WHERE `username`=%s', [username])
+                log.info('No longer following {0}'.format(username))
 
     def initialize_listener(self):
         if self.listener is None:
