@@ -718,7 +718,7 @@ class Dispatch:
 
             if user.ignored:
                 tyggbot.whisper(source.username, 'User is already ignored.')
-                return Falsee
+                return False
 
             user.ignored = True
             user.needs_sync = True
@@ -736,7 +736,7 @@ class Dispatch:
 
             if user.ignored is False:
                 tyggbot.whisper(source.username, 'User is not ignored.')
-                return Falsee
+                return False
 
             user.ignored = False
             user.needs_sync = True
@@ -754,7 +754,7 @@ class Dispatch:
 
             if user.banned:
                 tyggbot.whisper(source.username, 'User is already permabanned.')
-                return Falsee
+                return False
 
             user.banned = True
             user.needs_sync = True
@@ -772,7 +772,7 @@ class Dispatch:
 
             if user.banned is False:
                 tyggbot.whisper(source.username, 'User is not permabanned.')
-                return Falsee
+                return False
 
             user.banned = False
             user.needs_sync = True
