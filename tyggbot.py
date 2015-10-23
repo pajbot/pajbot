@@ -221,16 +221,6 @@ class TyggBot:
 
         self.silent = True if args.silent else self.silent
 
-        if self.dev:
-            try:
-                current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
-                latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
-                commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
-                self.version = '{0} DEV ({1}, {2}, commit {3})'.format(self.version, current_branch, latest_commit, commit_number)
-                log.info(current_branch)
-            except:
-                log.exception('what')
-
         if self.silent:
             log.info('Silent mode enabled')
 
@@ -667,18 +657,19 @@ class TyggBot:
                 cmd.load_from_db(row)
 
                 if cmd.is_enabled():
+                    num_commands += 1
                     for alias in row['command'].split('|'):
                         if alias not in self.commands:
                             self.commands[alias] = cmd
                             num_aliases += 1
                         else:
                             log.error('Command !{0} is already in use'.format(alias))
-
-                num_commands += 1
             except Exception:
                 log.exception('Exception caught when loading command')
                 continue
 
+        log.info(num_commands)
+        log.info(num_aliases)
         num_aliases -= num_commands
 
         log.debug('Loaded {0} commands ({1} additional aliases)'.format(num_commands, num_aliases))
@@ -724,6 +715,16 @@ class TyggBot:
                 self.settings[setting] = self.default_settings[setting]
 
         cursor.close()
+
+        if self.dev:
+            try:
+                current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
+                latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
+                commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
+                self.version = '{0} DEV ({1}, {2}, commit {3}, db version {4})'.format(self.version, current_branch, latest_commit, commit_number, self.settings['db_version'])
+                log.info(current_branch)
+            except:
+                log.exception('what')
 
     def _load_ignores(self):
         cursor = self.sqlconn.cursor(pymysql.cursors.DictCursor)
