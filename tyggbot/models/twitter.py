@@ -1,15 +1,27 @@
 import logging
 from datetime import datetime
 
-import tweepy
+from tyggbot.tbutil import time_since, tweet_prettify_urls
+from tyggbot.models.db import DBManager, Base
 
-from tbutil import time_since, tweet_prettify_urls
+import tweepy
+from sqlalchemy import Column, Integer, String
 
 log = logging.getLogger('tyggbot')
+
+class TwitterUser(Base):
+    __tablename__ = 'tb_twitter_following'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(32))
+
+    def __init__(self, username):
+        self.username = username
 
 class TwitterManager:
     def __init__(self, bot):
         self.bot = bot
+        self.db_session = DBManager.create_session()
 
         self.twitter_client = None
         self.twitter_stream = None
@@ -31,31 +43,34 @@ class TwitterManager:
                 log.exception('Twitter authentication failed.')
                 self.twitter_client = None
 
-    def load_relevant_users(self):
+    def commit(self):
+        self.db_session.commit()
+
+    def reload(self):
         if self.listener:
-            cursor = self.bot.get_dictcursor()
-            cursor.execute('SELECT * FROM `tb_twitter_following`')
             self.listener.relevant_users = []
-            for row in cursor:
-                self.listener.relevant_users.append(row['username'])
+            for user in self.db_session.query(TwitterUser):
+                self.listener.relevant_users.append(user.username)
 
     def follow_user(self, username):
         """Add `username` to our relevant_users list."""
         if self.listener:
             if username not in self.listener.relevant_users:
+                self.db_session.add(TwitterUser(username))
                 self.listener.relevant_users.append(username)
-                cursor = self.bot.get_cursor()
-                cursor.execute('INSERT INTO `tb_twitter_following` (`username`) VALUES (%s)', [username])
                 log.info('Now following {0}'.format(username))
 
     def unfollow_user(self, username):
         """Stop following `username`, if we are following him."""
         if self.listener:
             if username in self.listener.relevant_users:
-                self.listener.relevant_users.remove(username)
-                cursor = self.bot.get_cursor()
-                cursor.execute('DELETE FROM `tb_twitter_following` WHERE `username`=%s', [username])
-                log.info('No longer following {0}'.format(username))
+                user = self.db_session.query(TwitterUser).filter_by(username=username).one_or_none()
+                if user:
+                    self.db_session.delete(user)
+                    self.listener.relevant_users.remove(username)
+                    log.info('No longer following {0}'.format(username))
+                else:
+                    log.warning('Trying to unfollow someone we are not following')
 
     def initialize_listener(self):
         if self.listener is None:

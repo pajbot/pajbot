@@ -1,9 +1,18 @@
+# The library we use for all DB Transactions
+sqlalchemy
+
+# The library we use for handling DB Revisions
+alembic
+
+# My version of tweepy, which allows us to start the twitter thread as a daemon.
+git+git://github.com/pajlada/tweepy.git
+
+# The IRC Library we use to connect to the chat servers
+irc
+
 wolframalpha
-pymysql
 colorama
 pytz
-irc
 autobahn[twisted]
-git+git://github.com/pajlada/tweepy.git
 beautifulsoup4
 requests

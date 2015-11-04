@@ -4,12 +4,22 @@ import threading
 import json
 import logging
 
-import requests
-import pymysql
+from tyggbot.models.connection import CustomServerConnection
+from tyggbot.models.db import DBManager, Base
 
-from .connection import CustomServerConnection
+import requests
+from sqlalchemy import Column, String, Boolean
+
 
 log = logging.getLogger('tyggbot')
+
+
+class WhisperAccount(Base):
+    __tablename__ = 'tb_whisper_account'
+
+    username = Column(String(128), primary_key=True)
+    oauth = Column(String(128))
+    enabled = Column(Boolean)
 
 
 class Whisper:
@@ -31,6 +41,7 @@ class WhisperConnection:
 
 class WhisperConnectionManager:
     def __init__(self, reactor, tyggbot, target, message_limit, time_interval, num_of_conns=30):
+        self.db_session = DBManager.create_session()
         self.reactor = reactor
         self.tyggbot = tyggbot
         self.message_limit = message_limit
@@ -59,11 +70,12 @@ class WhisperConnectionManager:
             self.reactor.execute_every(4, self.run_maintenance)
 
             # Fetch additional whisper accounts from the database
-            self.tyggbot.sqlconn.ping()
-            cursor = self.tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT `username`, `oauth` FROM `tb_whisper_account` WHERE `enabled`=1 ORDER BY RAND() LIMIT %s", self.num_of_conns)
-            for row in cursor:
-                accounts.append(row)
+            for account in self.db_session.query(WhisperAccount).filter_by(enabled=True):
+                account_data = {
+                        'username': account.username,
+                        'oauth': account.oauth
+                        }
+                accounts.append(account_data)
 
             # Start the connections.
             t = threading.Thread(target=self.start_connections, args=[accounts], name='WhisperConnectionStarterThread')
