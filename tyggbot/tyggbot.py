@@ -98,11 +98,22 @@ class TyggBot:
     def load_config(self, config):
         self.config = config
 
-        if config is None:
-            return
+        self.nickname = config['main'].get('nickname', 'tyggbot')
+        self.password = config['main'].get('password', 'abcdef')
 
-        self.nickname = config['main']['nickname']
-        self.password = config['main']['password']
+        if 'streamer' in config['main']:
+            self.streamer = config['main']['streamer']
+            self.channel = '#' + self.streamer
+        elif 'target' in config['main']:
+            self.channel = config['main']['target']
+            self.streamer = self.channel[1:]
+
+        if 'wolfram' in config['main']:
+            self.wolfram = wolframalpha.Client(config['main']['wolfram'])
+        else:
+            self.wolfram = None
+
+        self.control_hub = config['main'].get('control_hub', None)
 
         self.silent = False
         self.dev = False
@@ -113,16 +124,10 @@ class TyggBot:
 
         DBManager.init(self.config['main']['db'])
 
-    def __init__(self, config=None, args=None):
+    def __init__(self, config, args=None):
         TyggBot.instance = self
 
-        self.nickname = 'tyggbot'
-        self.password = 'abcdef'
-
         self.load_config(config)
-
-        if config is None:
-            return
 
         self.load_default_phrases()
 
@@ -141,11 +146,12 @@ class TyggBot:
             sys.exit(1)
 
         self.reactor = irc.client.Reactor()
+        self.start_time = datetime.now()
 
         self.users = UserManager()
         self.commands = CommandManager().reload()
         self.filters = FilterManager().reload()
-        self.settings = SettingManager({'broadcaster': self.config['main']['streamer']}).reload()
+        self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager().reload()
@@ -192,24 +198,18 @@ class TyggBot:
 
         self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit)
 
-        client_id = None
-        oauth = None
+        twitch_client_id = None
+        twitch_oauth = None
         if 'twitchapi' in self.config:
-            if 'client_id' in self.config['twitchapi']:
-                client_id = self.config['twitchapi']['client_id']
-            if 'oauth' in self.config['twitchapi']:
-                oauth = self.config['twitchapi']['oauth']
+            twitch_client_id = self.config['twitchapi'].get('client_id', None)
+            twitch_oauth = self.config['twitchapi'].get('oauth', None)
 
-        self.twitchapi = TwitchAPI(client_id, oauth)
+        self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
 
         self.reactor.add_global_handler('all_events', self._dispatcher, -10)
 
-        if 'wolfram' in config['main']:
-            self.wolfram = wolframalpha.Client(config['main']['wolfram'])
-        else:
-            self.wolfram = None
-
-        self.whisper_manager = None
+        self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
+        self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password, 'can_send_whispers': self.config.getboolean('main', 'add_self_as_whisper_account')}])
 
         self.is_online = False
         self.ascii_timeout_duration = 120
@@ -224,20 +224,6 @@ class TyggBot:
         self.data_cb['bot_uptime'] = self.c_uptime
         self.data_cb['time_since_latest_deck'] = self.c_time_since_latest_deck
 
-        self.start_time = datetime.now()
-
-        if 'streamer' in config['main']:
-            self.streamer = config['main']['streamer']
-            self.channel = '#' + self.streamer
-        elif 'target' in config['main']:
-            self.channel = config['main']['target']
-            self.streamer = self.channel[1:]
-
-        if 'control_hub' in config['main']:
-            self.control_hub = config['main']['control_hub']
-        else:
-            self.control_hub = None
-
         self.tbm = TBMath()
         self.last_sync = time.time()
 
@@ -247,9 +233,6 @@ class TyggBot:
             log.info('Silent mode enabled')
 
         self.reconnection_interval = 5
-
-        self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
-        self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password}])
 
         self.num_offlines = 0
         self.execute_every(20, self.refresh_stream_status)

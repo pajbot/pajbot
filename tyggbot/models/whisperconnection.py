@@ -3,6 +3,7 @@ from queue import Queue
 import threading
 import json
 import logging
+import time
 
 from tyggbot.models.connection import CustomServerConnection
 from tyggbot.models.db import DBManager, Base
@@ -29,11 +30,12 @@ class Whisper:
 
 
 class WhisperConnection:
-    def __init__(self, conn, name, oauth):
+    def __init__(self, conn, name, oauth, can_send_whispers=True):
         self.conn = conn
         self.num_msgs_sent = 0
         self.name = name
         self.oauth = oauth
+        self.can_send_whispers = can_send_whispers
 
     def reduce_msgs_sent(self):
         self.num_msgs_sent -= 1
@@ -89,7 +91,7 @@ class WhisperConnectionManager:
 
     def start_connections(self, accounts):
         for account in accounts:
-            newconn = self.make_new_connection(account['username'], account['oauth'])
+            newconn = self.make_new_connection(account['username'], account['oauth'], account.get('can_send_whispers', True))
             self.connlist.append(newconn)
 
         self.whisper_thread = threading.Thread(target=self.whisper_sender, name='WhisperThread')  # start a loop sending whispers in a thread
@@ -112,16 +114,18 @@ class WhisperConnectionManager:
                 username = whisp.target
                 message = whisp.message
 
-                i = 0
-                while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
-                    i += 1  # find a usable connection
-                    if i >= len(self.connlist):
-                        i = 0
+                valid_connection = None
+                while valid_connection is None:
+                    random_connection = random.choice(self.connlist)
+                    if random_connection.conn.is_connected() and random_connection.num_msgs_sent < self.message_limit and random_connection.can_send_whispers is True:
+                        valid_connection = random_connection
+                    else:
+                        time.sleep(0.1)
 
-                log.debug('Sending whisper to {0}: {1}'.format(username, message))
-                self.connlist[i].conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
-                self.connlist[i].num_msgs_sent += 1
-                self.connlist[i].conn.execute_delayed(self.time_interval, self.connlist[i].reduce_msgs_sent)
+                log.debug('Sending whisper to {0} from {2}: {1}'.format(username, message, valid_connection.name))
+                valid_connection.conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
+                valid_connection.num_msgs_sent += 1
+                valid_connection.conn.execute_delayed(self.time_interval, valid_connection.reduce_msgs_sent)
             except:
                 log.exception('Caught an exception in the whisper_sender function')
 
@@ -134,7 +138,7 @@ class WhisperConnectionManager:
             if not connection.conn.is_connected():
                 connection.conn.close()
                 self.connlist.remove(connection)
-                newconn = self.make_new_connection(connection.name, connection.oauth)
+                newconn = self.make_new_connection(connection.name, connection.oauth, connection.can_send_whispers)
                 self.connlist.append(newconn)
 
         self.maintenance_lock = False
@@ -146,7 +150,7 @@ class WhisperConnectionManager:
 
         log.error("No connection with is_connected() found in WhisperConnectionManager")
 
-    def make_new_connection(self, name, oauth):
+    def make_new_connection(self, name, oauth, can_send_whispers=True):
         server = random.choice(self.servers_list)
         ip, port = server.split(':')
         port = int(port)
@@ -157,7 +161,12 @@ class WhisperConnectionManager:
             self.reactor.connections.append(newconn)
         newconn.connect(ip, port, name, oauth, name)
         newconn.cap('REQ', 'twitch.tv/commands')
-        return WhisperConnection(newconn, name, oauth)
+
+        # For debugging purposes
+        newconn.cap('REQ', 'twitch.tv/membership')
+        newconn.cap('REQ', 'twitch.tv/tags')
+
+        return WhisperConnection(newconn, name, oauth, can_send_whispers)
 
     def on_disconnect(self, conn):
         conn.reconnect()
