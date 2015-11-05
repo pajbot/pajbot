@@ -225,7 +225,6 @@ class TyggBot:
         self.data_cb['time_since_latest_deck'] = self.c_time_since_latest_deck
 
         self.tbm = TBMath()
-        self.last_sync = time.time()
 
         self.silent = True if args.silent else self.silent
 
@@ -643,11 +642,12 @@ class TyggBot:
             for url in urls:
                 self.link_tracker.add(url)
 
-                if self.settings['check_links']:
-                    if source.level < 500:
-                        # Action which will be taken when a bad link is found
-                        action = Action(self.timeout, args=[source.username, 20])
-                        # Queue up a check on the URL
+                if self.settings['check_links'] and source.level < 500:
+                    # Action which will be taken when a bad link is found
+                    action = Action(self.timeout, args=[source.username, 20])
+                    # First we perform a basic check
+                    if self.link_checker.simple_check(url, action) == LinkChecker.RET_FURTHER_ANALYSIS:
+                        # If the basic check returns no relevant data, we queue up a proper check on the URL
                         self.action_queue.add(self.link_checker.check_url, args=[url, action])
 
         if source.ignored:
@@ -683,8 +683,6 @@ class TyggBot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        cur_time = time.time()
-
         msg = event.arguments[0]
         msg_len = len(msg)
 
@@ -708,17 +706,15 @@ class TyggBot:
                     self.whisper(source.username, 'You have been timed out for {0} seconds because your message was too long.'.format(self.msg_length_timeout_duration))
                     return
 
-        if cur_time - self.last_sync >= 10 * 60:
-            self.commit_all()
-            self.last_sync = cur_time
-
         self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     @time_method
     def reload_all(self):
         log.info('Reloading all...')
         for key, manager in self.reloadable.items():
+            log.debug('Reloading {0}'.format(key))
             manager.reload()
+            log.debug('Done with {0}'.format(key))
         log.info('ok!')
 
     @time_method
