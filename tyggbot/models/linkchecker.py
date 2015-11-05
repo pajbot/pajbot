@@ -8,7 +8,6 @@ import requests
 import logging
 import time
 import urllib.parse
-from sqlalchemy import or_
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.mysql import TEXT
 
@@ -154,8 +153,8 @@ class LinkChecker:
     def __init__(self, bot, run_later):
         self.db_session = DBManager.create_session()
 
-        self.blacklisted_urls = []
-        self.whitelisted_urls = []
+        self.blacklisted_links = []
+        self.whitelisted_links = []
 
         if 'safebrowsingapi' in bot.config['main']:
             self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
@@ -227,7 +226,7 @@ class LinkChecker:
             parsed_url = urllib.parse.urlparse(url)
 
         if self.is_blacklisted(url, parsed_url):
-            return
+            return False
 
         domain = parsed_url.netloc.lower()
         path = parsed_url.path.lower()
@@ -242,6 +241,7 @@ class LinkChecker:
         link = BlacklistedLink(domain, path, level)
         self.db_session.add(link)
         self.blacklisted_links.append(link)
+        return True
 
     def whitelist_url(self, url, parsed_url=None):
         if not (url.lower().startswith('http://') or url.lower().startswith('https://')):
@@ -277,8 +277,7 @@ class LinkChecker:
         if len(domain_split) < 2:
             return False
 
-        domain_tail = domain_split[-2] + '.' + domain_split[-1]
-        for link in self.db_session.query(BlacklistedLink).filter(or_(BlacklistedLink.domain.like('%{}'.format(domain_tail)), BlacklistedLink.domain == domain)):
+        for link in self.blacklisted_links:
             if link.is_subdomain(domain):
                 if link.is_subpath(path):
                     if not sublink:
@@ -300,8 +299,7 @@ class LinkChecker:
         if len(domain_split) < 2:
             return False
 
-        domain_tail = domain_split[-2] + '.' + domain_split[-1]
-        for link in self.db_session.query(WhitelistedLink).filter(or_(WhitelistedLink.domain.like('%{}'.format(domain_tail)), WhitelistedLink.domain == domain)):
+        for link in self.whitelisted_links:
             if link.is_subdomain(domain):
                 if link.is_subpath(path):
                     return True
@@ -324,20 +322,28 @@ class LinkChecker:
             log.debug("LinkChecker: Url {0} found in cache".format(url.url))
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
-                return -1
-            return 1
+                return self.RET_BAD_LINK
+            return self.RET_GOOD_LINK
 
         if self.is_whitelisted(url.url, url.parsed):
             log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url.url))
             self.cache_url(url.url, True)
-            return 1
+            return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
             log.debug("LinkChecker: Url {0} is blacklisted".format(url.url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
-            return -1
+            return self.RET_BAD_LINK
 
-        return 0
+        return self.RET_FURTHER_ANALYSIS
+
+    def simple_check(self, url, action):
+        url = Url(url)
+        if len(url.parsed.netloc.split('.')) < 2:
+            # The URL is broken, ignore it
+            return self.RET_FURTHER_ANALYSIS
+
+        return self.basic_check(url, action)
 
     def check_url(self, url, action):
         url = Url(url)
@@ -353,6 +359,7 @@ class LinkChecker:
     def _check_url(self, url, action):
         log.debug("LinkChecker: Checking url {0}".format(url.url))
 
+        # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
         if res == LinkChecker.RET_GOOD_LINK:
             return
