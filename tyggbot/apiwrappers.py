@@ -14,7 +14,7 @@ class APIBase:
     def _get(self, url, headers={}):
         try:
             req = urllib.request.Request(url, None, headers)
-            response = urllib.request.urlopen(req)
+            response = urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             # If strict is True, return the proper HTTP error. Otherwise
             if self.strict:
@@ -81,7 +81,7 @@ class APIBase:
         try:
             encoded_data = urllib.parse.urlencode(data).encode('utf-8')
             req = urllib.request.Request(url, data=encoded_data, headers=self.headers, method=method)
-            return urllib.request.urlopen(req)
+            return urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             # Irregular HTTP code
             if e.code in [422]:
