@@ -154,7 +154,10 @@ def tweet_prettify_urls(tweet):
 def load_config(path):
     import configparser
     import os
-    config = configparser.ConfigParser()
+    defaults = {
+            'add_self_as_whisper_account': '1',
+            }
+    config = configparser.ConfigParser(defaults=defaults)
 
     real_path = os.path.realpath(path)
     res = config.read(real_path)
