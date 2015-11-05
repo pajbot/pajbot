@@ -13,21 +13,21 @@ class User(Base):
     __tablename__ = 'tb_user'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(128))
+    username = Column(String(128), nullable=False, index=True, unique=True)
     username_raw = Column(String(128))
-    level = Column(Integer)
-    points = Column(Integer)
-    num_lines = Column(Integer)
-    subscriber = Column(Boolean)
+    level = Column(Integer, nullable=False, default=100)
+    points = Column(Integer, nullable=False, default=0)
+    num_lines = Column(Integer, nullable=False, default=0)
+    subscriber = Column(Boolean, nullable=False, default=False)
     last_seen = Column(DateTime)
     last_active = Column(DateTime)
-    minutes_in_chat_online = Column(Integer)
-    minutes_in_chat_offline = Column(Integer)
-    twitch_access_token = Column(String(128))
-    twitch_refresh_token = Column(String(128))
-    discord_user_id = Column(String(32))
-    ignored = Column(Boolean)
-    banned = Column(Boolean)
+    minutes_in_chat_online = Column(Integer, nullable=False, default=0)
+    minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
+    twitch_access_token = Column(String(128), nullable=True)
+    twitch_refresh_token = Column(String(128), nullable=True)
+    discord_user_id = Column(String(32), nullable=True)
+    ignored = Column(Boolean, nullable=False, default=False)
+    banned = Column(Boolean, nullable=False, default=False)
     ban_immune = False
 
     def __init__(self, username):
@@ -129,11 +129,13 @@ class UserManager(UserDict):
 
     def bulk_load(self, usernames):
         for user in self.db_session.query(User).filter(User.username.in_(usernames)):
-            usernames.remove(user.username)
+            try:
+                usernames.remove(user.username)
+            except:
+                log.exception('Exception caught while removing {0} from the usernames list'.format(user.username))
             self.data[user.username] = user
 
         for username in usernames:
-            log.info('{0} is a new user.'.format(username))
             # New user!
             user = User(username=username)
             self.db_session.add(user)
