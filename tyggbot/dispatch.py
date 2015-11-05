@@ -229,7 +229,7 @@ class Dispatch:
             tyggbot.whisper(source.username, 'Updated the given banphrase')
 
     def add_win(tyggbot, source, message, event, args):
-        tyggbot.kvi.inc('br_wins')
+        tyggbot.kvi['br_wins'].inc()
         tyggbot.me('{0} added a BR win!'.format(source.username))
         log.debug('{0} added a BR win!'.format(source.username))
 
@@ -340,7 +340,7 @@ class Dispatch:
             return False
 
     def remove_win(tyggbot, source, message, event, args):
-        tyggbot.kvi.dec('br_wins')
+        tyggbot.kvi['br_wins'].dec()
         tyggbot.me('{0} removed a BR win!'.format(source.username))
         log.debug('{0} removed a BR win!'.format(source.username))
 
@@ -665,7 +665,7 @@ class Dispatch:
     def welcome_sub(tyggbot, source, message, event, args):
         match = args['match']
 
-        tyggbot.kvi.inc('active_subs')
+        tyggbot.kvi['active_subs'].inc()
 
         phrase_data = {
                 'username': match.group(1)
