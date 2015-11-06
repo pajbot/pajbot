@@ -313,10 +313,9 @@ class TyggBot:
 
         log.debug('Updating {0} chatters'.format(len(chatters)))
 
-        self.users.bulk_load(chatters)
+        u_chatters = self.users.bulk_load(chatters)
 
-        for chatter in chatters:
-            user = self.users[chatter]
+        for user in u_chatters:
             if self.is_online:
                 user.minutes_in_chat_online += self.update_chatters_interval
             else:

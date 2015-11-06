@@ -128,18 +128,24 @@ class UserManager(UserDict):
         return user
 
     def bulk_load(self, usernames):
+        """ Takes a list of usernames, and returns a list of User objects """
+        users = []
         for user in self.db_session.query(User).filter(User.username.in_(usernames)):
             try:
                 usernames.remove(user.username)
             except:
                 log.exception('Exception caught while removing {0} from the usernames list'.format(user.username))
             self.data[user.username] = user
+            users.append(user)
 
         for username in usernames:
             # New user!
             user = User(username=username)
             self.db_session.add(user)
             self.data[username] = user
+            users.append(user)
+
+        return users
 
     def __getitem__(self, key):
         if key not in self.data:
