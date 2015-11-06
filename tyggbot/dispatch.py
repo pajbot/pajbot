@@ -662,6 +662,64 @@ class Dispatch:
         log.debug('SINGLE timeouting {0}'.format(source.username))
         tyggbot._timeout(source.username, _time)
 
+    def set_deck(tyggbot, source, message, event, args):
+        """Dispatch method for setting the current deck.
+        The command takes a link as its argument.
+        If the link is an already-added deck, the deck should be set as the current deck
+        and its last use date should be set to now.
+        Usage: !setdeck imgur.com/abcdefgh"""
+
+        if message:
+            deck, new_deck = tyggbot.decks.set_current_deck(message)
+            if new_deck is True:
+                tyggbot.whisper(source.username, 'This deck is a new deck. Its ID is {deck.id}'.format(deck=deck))
+            else:
+                tyggbot.whisper(source.username, 'Updated an already-existing deck. Its ID is {deck.id}'.format(deck=deck))
+                tyggbot.decks.commit()
+
+            tyggbot.say('Successfully updated the latest deck.')
+            return True
+
+        return False
+
+    def update_deck(tyggbot, source, message, event, args):
+        """Dispatch method for updating a deck.
+        By default this will update things for the current deck, but you can update
+        any deck assuming you know its ID.
+        Usage: !updatedeck --name Midrange Secret --class paladin
+        """
+
+        if message:
+            options, response = tyggbot.decks.parse_update_arguments(message)
+            if options is False:
+                tyggbot.whisper(source.username, 'Invalid update deck command')
+                return False
+
+            if 'id' in options:
+                deck = tyggbot.decks.get_by_id(options['id'])
+                # We remove id from options here so we can tell the user what
+                # they have updated.
+                del options['id']
+            else:
+                deck = tyggbot.decks.current_deck
+
+            if deck is None:
+                tyggbot.whisper(source.username, 'No valid deck to update.')
+                return False
+
+            if len(options) == 0:
+                tyggbot.whisper(source.username, 'You have given me nothing to update with the deck!')
+                return False
+
+            deck.set(**options)
+            tyggbot.decks.commit()
+            tyggbot.whisper(source.username, 'Updated deck with ID {deck.id}. Updated {list}'.format(deck=deck, list=', '.join([key for key in options])))
+
+            return True
+        else:
+            tyggbot.whisper(source.username, 'Usage example: !updatedeck --name Midrange Secret --class paladin')
+            return False
+
     def welcome_sub(tyggbot, source, message, event, args):
         match = args['match']
 

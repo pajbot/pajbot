@@ -177,6 +177,8 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_user_value
                 elif path == 'time':
                     cb = TyggBot.instance.get_time_value
+                elif path == 'curdeck':
+                    cb = TyggBot.instance.decks.action_get_curdeck
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue

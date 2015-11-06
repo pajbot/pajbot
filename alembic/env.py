@@ -10,10 +10,6 @@ from logging.config import fileConfig
 sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 from tyggbot.tyggbot import TyggBot
-try:
-    from tyggbot.models.deck import Deck
-except:
-    pass
 from tyggbot.tbutil import load_config
 
 tag = context.get_tag_argument()

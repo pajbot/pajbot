@@ -21,6 +21,7 @@ from .models.command import CommandManager
 from .models.setting import SettingManager
 from .models.motd import MOTDManager
 from .models.kvi import KVIManager
+from .models.deck import DeckManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -149,6 +150,7 @@ class TyggBot:
         self.start_time = datetime.now()
 
         self.users = UserManager()
+        self.decks = DeckManager().reload()
         self.commands = CommandManager().reload()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
@@ -169,6 +171,7 @@ class TyggBot:
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
                 'linkchecker': self.link_checker,
+                'decks': self.decks,
                 }
 
         # Commitable managers
@@ -181,6 +184,7 @@ class TyggBot:
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
                 'linkchecker': self.link_checker,
+                'decks': self.decks,
                 'linktracker': self.link_tracker,
                 'users': self.users,
                 }

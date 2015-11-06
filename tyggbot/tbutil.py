@@ -4,6 +4,7 @@ import signal
 import math
 import sys
 import time
+import datetime
 
 from colorama import Fore, Style
 from contextlib import contextmanager
@@ -141,6 +142,10 @@ def time_since(t1, t2, format='long'):
         return ' and '.join(time_arr)
     else:
         return ''.join(time_arr)
+
+
+def time_ago(dt, format='long'):
+    return time_since(datetime.datetime.now().timestamp(), dt.timestamp(), format=format)
 
 
 def tweet_prettify_urls(tweet):
