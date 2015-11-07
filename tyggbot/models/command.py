@@ -259,7 +259,6 @@ class CommandManager(UserDict):
         return len(aliases)
 
     def remove_command(self, command):
-        log.info(command)
         aliases = command.command.split('|')
         for alias in aliases:
             if alias in self.data:
