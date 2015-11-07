@@ -129,6 +129,9 @@ class UserManager(UserDict):
 
     def bulk_load(self, usernames):
         """ Takes a list of usernames, and returns a list of User objects """
+
+        # First we make sure the list is unique
+        usernames = set(usernames)
         users = []
         for user in self.db_session.query(User).filter(User.username.in_(usernames)):
             try:
