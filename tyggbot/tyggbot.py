@@ -277,13 +277,28 @@ class TyggBot:
         subscribers = []
 
         try:
-            subs = self.twitchapi.get_subscribers(self.streamer, limit, offset)
-            while len(subs) > 0:
-                for sub in subs:
-                    subscribers.append(sub['user']['name'])
+            retry_same = 0
+            while True:
+                subs, retry_same, error = self.twitchapi.get_subscribers(self.streamer, limit, offset, 0 if retry_same is False else retry_same)
 
-                offset += limit
-                subs = self.twitchapi.get_subscribers(self.streamer, limit, offset)
+                if error is True:
+                    log.error('Too many attempts, aborting')
+                    return False
+
+                if retry_same is False:
+                    offset += limit
+                    if len(subs) == 0:
+                        # We don't need to retry, and the last query finished propery
+                        # Break out of the loop and start fiddling with the subs!
+                        log.debug('Done!')
+                        break
+                    else:
+                        log.debug('Fetched {0} subs'.format(len(subs)))
+                        subscribers.extend(subs)
+
+                if retry_same is not False:
+                    # In case the next attempt is a retry, wait for 3 seconds
+                    time.sleep(3)
         except:
             log.exception('Caught an exception while trying to get subscribers')
             return
@@ -295,17 +310,14 @@ class TyggBot:
     def update_subscribers_stage2(self, subscribers):
         self.kvi['active_subs'].set(len(subscribers) - 1)
 
-        self.users.bulk_load(subscribers)
+        loaded_subscribers = self.users.bulk_load(subscribers)
 
         for username, user in self.users.items():
             if user.subscriber:
                 user.subscriber = False
-                user.needs_sync = True
 
-        for subscriber in subscribers:
-            user = self.users[subscriber]
+        for user in loaded_subscribers:
             user.subscriber = True
-            user.needs_sync = True
 
     def update_chatters_stage1(self):
         chatters = self.twitchapi.get_chatters(self.streamer)
@@ -598,10 +610,8 @@ class TyggBot:
             if tag['key'] == 'subscriber':
                 if source.subscriber and tag['value'] == '0':
                     source.subscriber = False
-                    source.needs_sync = True
                 elif not source.subscriber and tag['value'] == '1':
                     source.subscriber = True
-                    source.needs_sync = True
             elif tag['key'] == 'emotes' and tag['value']:
                 emote_data = tag['value'].split('/')
                 for emote in emote_data:
