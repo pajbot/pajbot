@@ -53,10 +53,15 @@ class DeckManager(UserList):
         self.db_session = DBManager.create_session()
         self.current_deck = None
 
-    def get_by_id(self, id):
-        for deck in self.data:
-            if id == deck.id:
-                return deck
+    def find(self, id=None, link=None):
+        if id is not None:
+            for deck in self.data:
+                if id == deck.id:
+                    return deck
+        elif link is not None:
+            for deck in self.data:
+                if link == deck.link:
+                    return deck
         return None
 
     def action_get_curdeck(self, key, extra={}):
@@ -67,6 +72,20 @@ class DeckManager(UserList):
             log.exception('Caught exception in DeckManager::action_get_curdeck')
 
         return None
+
+    def refresh_current_deck(self):
+        self.current_deck = None
+        for deck in self.data:
+            if self.current_deck is None or deck.last_used > self.current_deck.last_used:
+                self.current_deck = deck
+
+    def remove_deck(self, deck):
+        self.data.remove(deck)
+        self.db_session.delete(deck)
+        self.commit()
+        if deck == self.current_deck:
+            log.info('refreshing current deck')
+            self.refresh_current_deck()
 
     def set_current_deck(self, deck_link):
         for deck in self.data:

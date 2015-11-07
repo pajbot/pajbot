@@ -696,7 +696,7 @@ class Dispatch:
                 return False
 
             if 'id' in options:
-                deck = tyggbot.decks.get_by_id(options['id'])
+                deck = tyggbot.decks.find(id=options['id'])
                 # We remove id from options here so we can tell the user what
                 # they have updated.
                 del options['id']
@@ -718,6 +718,38 @@ class Dispatch:
             return True
         else:
             tyggbot.whisper(source.username, 'Usage example: !updatedeck --name Midrange Secret --class paladin')
+            return False
+
+    def remove_deck(tyggbot, source, message, event, args):
+        """Dispatch method for removing a deck.
+        Usage: !removedeck imgur.com/abcdef
+        OR
+        !removedeck 123
+        """
+
+        if message:
+            id = None
+            try:
+                id = int(message)
+            except Exception:
+                pass
+
+            deck = tyggbot.decks.find(id=id, link=message)
+
+            if deck is None:
+                tyggbot.whisper(source.username, 'No deck matching your parameters found.')
+                return False
+
+            try:
+                tyggbot.decks.remove_deck(deck)
+                tyggbot.whisper(source.username, 'Successfully removed the deck.')
+            except:
+                log.exception('An exception occured while attempting to remove the deck')
+                tyggbot.whisper(source.username, 'An error occured while removing your deck.')
+                return False
+            return True
+        else:
+            tyggbot.whisper(source.username, 'Usage example: !removedeck http://imgur.com/abc')
             return False
 
     def welcome_sub(tyggbot, source, message, event, args):
