@@ -55,11 +55,12 @@ class LinkTracker:
 
         url = netloc + path + query
         if url not in self.links:
-            link = self.db_session.query(LinkTrackerLink).filter_by(url=url).one_or_none()
-            if link is None:
-                link = LinkTrackerLink(url=url)
-                self.db_session.add(link)
+            for link in self.db_session.query(LinkTrackerLink).filter_by(url=url):
+                self.links[link.url] = link
 
+        if url not in self.links:
+            link = LinkTrackerLink(url=url)
+            self.db_session.add(link)
             self.links[url] = link
 
         self.links[url].increment()
