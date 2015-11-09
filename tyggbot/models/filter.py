@@ -35,6 +35,7 @@ class Filter(Base):
         self.extra_extra_args = None
         self.num_uses = 0
         self.enabled = True
+        self.regex = None
         self.set(action=action, filter=filter, **options)
 
     def set(self, **options):
@@ -60,12 +61,12 @@ class Filter(Base):
     def init_on_load(self):
         self.action = parse_action(self.action_json)
         self.extra_args = {'filter': self}
+        self.regex = None
         if self.extra_extra_args:
             try:
                 self.extra_args.update(json.loads(self.extra_extra_args))
             except:
                 log.exception('Unhandled exception caught while loading Filter extra arguments ({0})'.format(self.extra_extra_args))
-        self.regex = None
         try:
             self.regex = re.compile(self.filter.lower())
         except Exception:
@@ -103,8 +104,7 @@ class FilterManager(UserList):
         num_filters = 0
         for filter in self.db_session.query(Filter).filter_by(enabled=True):
             num_filters += 1
-            if filter.is_enabled():
-                self.data.append(filter)
+            self.data.append(filter)
 
         log.info('Loaded {0} filters'.format(num_filters))
         return self
