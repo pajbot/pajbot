@@ -14,7 +14,7 @@ class APIBase:
     def _get(self, url, headers={}):
         try:
             req = urllib.request.Request(url, None, headers)
-            response = urllib.request.urlopen(req)
+            response = urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             # If strict is True, return the proper HTTP error. Otherwise
             if self.strict:
@@ -81,7 +81,7 @@ class APIBase:
         try:
             encoded_data = urllib.parse.urlencode(data).encode('utf-8')
             req = urllib.request.Request(url, data=encoded_data, headers=self.headers, method=method)
-            return urllib.request.urlopen(req)
+            return urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             # Irregular HTTP code
             if e.code in [422]:
@@ -170,7 +170,7 @@ class TwitchAPI(APIBase):
         if oauth:
             self.headers['Authorization'] = 'OAuth ' + oauth
 
-    def get_subscribers(self, streamer, limit=25, offset=0):
+    def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
 
         Arguments:
@@ -180,19 +180,22 @@ class TwitchAPI(APIBase):
         limit -- Maximum number of subscribers fetched. (default: 25)
         offset - Offset for pagination. (default: 0)
         """
+
+        if attempt > 2:
+            return False, False, True
         try:
             data = self.get(['channels', streamer, 'subscriptions'], {'limit': limit, 'offset': offset}, base='https://api.twitch.tv/kraken/')
             if data:
-                return data['subscriptions']
+                return [u['user']['name'] for u in data['subscriptions']], False, False
         except urllib.error.HTTPError as e:
             # Non-standard HTTP Code returned.
             log.warning('Non-standard HTTP Code returned while fetching subscribers: {0}'.format(e.code))
             log.info(e)
             log.info(e.fp.read())
-            return []
         except:
             log.exception('Unhandled exception caught in TwitchAPI.get_subscribers')
-            return []
+
+        return [], attempt + 1, False
 
     def get_chatters(self, streamer):
         """Returns a list of chatters in the stream."""

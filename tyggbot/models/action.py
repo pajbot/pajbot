@@ -1,10 +1,39 @@
+import json
 import re
 import logging
 
-from tyggbot import TyggBot
-from command import Command
-
 log = logging.getLogger('tyggbot')
+
+
+def parse_action(raw_data=None, data=None):
+    try:
+        from tyggbot.userdispatch import UserDispatch
+        Dispatch = UserDispatch
+    except:
+        log.exception('aaaa')
+        from tyggbot.dispatch import Dispatch
+
+    if not data:
+        data = json.loads(raw_data)
+
+    if data['type'] == 'say':
+        action = SayAction(data['message'])
+    elif data['type'] == 'me':
+        action = MeAction(data['message'])
+    elif data['type'] == 'whisper':
+        action = WhisperAction(data['message'])
+    elif data['type'] == 'func':
+        try:
+            action = FuncAction(getattr(Dispatch, data['cb']))
+        except AttributeError as e:
+            log.error('AttributeError caught when parsing action: {0}'.format(e))
+            return None
+    elif data['type'] == 'multi':
+        action = MultiAction(data['args'], data['default'])
+    else:
+        raise Exception('Unknown action type: {0}'.format(data['type']))
+
+    return action
 
 
 class Substitution:
@@ -22,6 +51,7 @@ class MultiAction(BaseAction):
     type = 'multi'
 
     def __init__(self, args, default):
+        from tyggbot.models.command import Command
         self.commands = {}
         self.default = default
 
@@ -88,6 +118,7 @@ class MessageAction(BaseAction):
         self.init_parse()
 
     def init_parse(self):
+        from tyggbot.tyggbot import TyggBot
         for sub_key in self.argument_regex.findall(self.response):
             inner_match = self.argument_inner_regex.search(sub_key)
             if inner_match:
@@ -146,6 +177,8 @@ class MessageAction(BaseAction):
                     cb = TyggBot.instance.get_user_value
                 elif path == 'time':
                     cb = TyggBot.instance.get_time_value
+                elif path == 'curdeck':
+                    cb = TyggBot.instance.decks.action_get_curdeck
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue

@@ -1,11 +1,15 @@
 import math
 import re
-import json
-import pymysql
 import logging
 import collections
+import json
 
-from tbutil import time_limit, TimeoutException
+from tyggbot.models.user import User
+from tyggbot.models.filter import Filter
+from tyggbot.tbutil import time_limit, TimeoutException
+
+from sqlalchemy import desc
+from sqlalchemy import func
 
 log = logging.getLogger('tyggbot')
 
@@ -59,12 +63,9 @@ class Dispatch:
             phrase_data['username_w_verb'] = '{0} is'.format(user.username_raw)
 
         if user.points > 0:
-            cursor = tyggbot.get_dictcursor()
-            cursor.execute('SELECT COUNT(*) as `pos` FROM `tb_user` WHERE `points`>%s', (user.points, ))
-            row = cursor.fetchone()
-            if row:
-                phrase_data['point_pos'] = row['pos'] + 1
-                tyggbot.whisper(source.username, tyggbot.phrases['point_pos'].format(**phrase_data))
+            query_data = tyggbot.users.db_session.query(func.count(User.id)).filter(User.points > user.points).one()
+            phrase_data['point_pos'] = int(query_data[0]) + 1
+            tyggbot.whisper(source.username, tyggbot.phrases['point_pos'].format(**phrase_data))
 
     def nl_pos(tyggbot, source, message, event, args):
         if message:
@@ -88,12 +89,9 @@ class Dispatch:
         if num_lines <= 0:
             tyggbot.say(tyggbot.phrases['nl_0'].format(**phrase_data))
         else:
-            cursor = tyggbot.get_dictcursor()
-            cursor.execute('SELECT COUNT(*) as `pos` FROM `tb_user` WHERE `num_lines`>%s', (num_lines, ))
-            row = cursor.fetchone()
-            if row:
-                phrase_data['nl_pos'] = row['pos'] + 1
-                tyggbot.say(tyggbot.phrases['nl_pos'].format(**phrase_data))
+            query_data = tyggbot.users.db_session.query(func.count(User.id)).filter(User.num_lines > user.num_lines).one()
+            phrase_data['nl_pos'] = int(query_data[0]) + 1
+            tyggbot.say(tyggbot.phrases['nl_pos'].format(**phrase_data))
 
     def query(tyggbot, source, message, event, args):
         if tyggbot.wolfram is None:
@@ -195,273 +193,288 @@ class Dispatch:
         tyggbot.silent = False
 
     def add_banphrase(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            # Step 1: Check if there's already a filter for this banphrase
-            for filter in tyggbot.filters:
-                if filter.type == 'banphrase':
-                    if filter.filter == message:
-                        tyggbot.whisper(source.username, 'That banphrase is already active (id {0})'.format(filter.id))
-                        return False
+        """Dispatch method for creating and editing banphrases.
+        Usage: !add banphrase BANPHRASE [options]
+        Multiple options available:
+        --length LENGTH
+        --perma/--no-perma
+        --notify/--no-notify
+        """
 
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor()
+        if message:
+            options, response = tyggbot.filters.parse_banphrase_arguments(message)
 
-            action = json.dumps({'type': 'func', 'cb': 'timeout_source'})
-            extra_args = json.dumps({'time': 300, 'notify': 1})
+            if options is False:
+                tyggbot.whisper(source.username, 'Invalid banphrase')
+                return False
 
-            cursor.execute('INSERT INTO `tb_filters` (`name`, `type`, `action`, `extra_args`, `filter`) VALUES (%s, %s, %s, %s, %s)',
-                    ('Banphrase', 'banphrase', action, extra_args, message.lower()))
+            options['extra_args'] = {
+                    'notify': options.get('notify', Filter.DEFAULT_NOTIFY),
+                    'time': options.get('time', Filter.DEFAULT_TIMEOUT_LENGTH),
+                    }
 
-            tyggbot.whisper(source.username, 'Successfully added your banphrase (id {0})'.format(cursor.lastrowid))
+            is_perma = options.get('perma', None)
+            if is_perma is True:
+                options['action'] = {
+                        'type': 'func',
+                        'cb': 'ban_source'
+                        }
+            elif is_perma is False:
+                options['action'] = {
+                        'type': 'func',
+                        'cb': 'timeout_source'
+                        }
 
-            tyggbot.sync_to()
-            tyggbot._load_filters()
+            # XXX: For now, we do .lower() on the banphrase.
+            banphrase = response.lower()
+            if len(banphrase) == 0:
+                tyggbot.whisper(source.username, 'No banphrase given')
+                return False
+
+            filter, new_filter = tyggbot.filters.add_banphrase(banphrase, **options)
+
+            if new_filter is True:
+                tyggbot.whisper(source.username, 'Inserted your banphrase (ID: {filter.id})'.format(filter=filter))
+                return True
+
+            options['extra_args'] = {}
+            try:
+                options['extra_args'] = json.loads(filter.extra_extra_args)
+            except:
+                pass
+
+            if 'notify' in options:
+                options['extra_args']['notify'] = options['notify']
+            if 'time' in options:
+                options['extra_args']['time'] = options['time']
+
+            filter.set(**options)
+            tyggbot.whisper(source.username, 'Updated the given banphrase (ID: {filter.id}) with ({what})'.format(filter=filter, what=', '.join([key for key in options])))
 
     def add_win(tyggbot, source, message, event, args):
-        tyggbot.kvi.inc('br_wins')
+        tyggbot.kvi['br_wins'].inc()
         tyggbot.me('{0} added a BR win!'.format(source.username))
         log.debug('{0} added a BR win!'.format(source.username))
 
-    # !add command ALIAS RESPONSE
     def add_command(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            # Split up the message into multiple arguments
-            # Usage example:
-            # !add command ping Pong!
-            # This would add the command !ping, with the response being Pong!
+        """Dispatch method for creating and editing commands.
+        Usage: !add command ALIAS [options] RESPONSE
+        Multiple options available:
+        --whisper
+        --cd CD
+        --usercd USERCD
+        --level LEVEL
+        """
 
+        if message:
             # Make sure we got both an alias and a response
-            message_parts = message.split(' ')
+            message_parts = message.split()
             if len(message_parts) < 2:
-                tyggbot.whisper(source.username, 'Usage: !add command ALIAS RESPONSE')
+                tyggbot.whisper(source.username, 'Usage: !add command ALIAS [options] RESPONSE')
                 return False
 
-            aliases = message_parts[0].lower().replace('!', '').split('|')
-            response = ' '.join(message_parts[1:]).strip()
-            update_id = False
+            options, response = tyggbot.commands.parse_command_arguments(message_parts[1:])
 
-            # Check if there's already a command with these aliases
-            for alias in aliases:
-                if alias in tyggbot.commands:
-                    if not tyggbot.commands[alias].action.type == 'message':
-                        tyggbot.whisper(source.username, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
-                        return False
-                    else:
-                        update_id = tyggbot.commands[alias].id
+            if options is False:
+                tyggbot.whisper(source.username, 'Invalid command')
+                return False
 
-            data = {
-                    'level': 100,
-                    'command': '|'.join(aliases),
-                    'delay_all': 10,
-                    'delay_user': 30,
+            alias_str = message_parts[0]
+            type = 'say'
+            if options['whisper'] is True:
+                type = 'whisper'
+            elif response.startswith('/me') or response.startswith('.me'):
+                type = 'me'
+            action = {
+                    'type': type,
+                    'message': response,
                     }
 
-            if response.startswith('/me') or response.startswith('.me'):
-                data['action'] = json.dumps({'type': 'me', 'message': response[3:].strip()})
-            else:
-                data['action'] = json.dumps({'type': 'say', 'message': response})
+            command, new_command = tyggbot.commands.create_command(alias_str, action=action)
+            if new_command is True:
+                tyggbot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
+                return True
 
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor()
+            if len(action['message']) > 0:
+                options['action'] = action
+            command.set(**options)
+            tyggbot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
-            if update_id is False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
-                cursor.execute(query, (data['level'], data['command'], data['action'], data['delay_all'], data['delay_user']))
-                tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
-            else:
-                query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
-                cursor.execute(query, (data['action'], update_id))
-                tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
-
-            tyggbot.sync_to()
-            tyggbot._load_commands()
-
-    # !add funccommand ALIAS CALLBACK
     def add_funccommand(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            # Split up the message into multiple arguments
-            # Usage example:
-            # !add command ping Pong!
-            # This would add the command !ping, with the response being Pong!
-
+        """Dispatch method for creating and editing function commands.
+        Usage: !add command ALIAS [options] CALLBACK
+        Multiple options available:
+        --whisper
+        --cd CD
+        --usercd USERCD
+        --level LEVEL
+        """
+        if message:
             # Make sure we got both an alias and a response
             message_parts = message.split(' ')
             if len(message_parts) < 2:
-                tyggbot.whisper(source.username, 'Usage: !add funccommand ALIAS CALLBACK')
+                tyggbot.whisper(source.username, 'Usage: !add funccommand ALIAS [options] CALLBACK')
                 return False
 
-            aliases = message_parts[0].lower().replace('!', '').split('|')
-            callback = message_parts[1].strip()
-            update_id = False
+            options, response = tyggbot.commands.parse_command_arguments(message_parts[1:])
 
-            # Check if there's already a command with these aliases
-            for alias in aliases:
-                if alias in tyggbot.commands:
-                    if not tyggbot.commands[alias].action.type == 'message':
-                        tyggbot.whisper(source.username, 'The alias {0} is already in use, and cannot be replaced.'.format(alias))
-                        return False
-                    else:
-                        update_id = tyggbot.commands[alias].id
+            if options is False:
+                tyggbot.whisper(source.username, 'Invalid command')
+                return False
 
-            data = {
-                    'level': 100,
-                    'command': '|'.join(aliases),
-                    'action': json.dumps({'type': 'func', 'cb': callback}),
-                    'delay_all': 10,
-                    'delay_user': 30,
+            alias_str = message_parts[0]
+            action = {
+                    'type': 'func',
+                    'cb': response.strip(),
                     }
 
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor()
+            command, new_command = tyggbot.commands.create_command(alias_str, action=action)
+            if new_command is True:
+                tyggbot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
+                return True
 
-            if update_id is False:
-                query = 'INSERT INTO `tb_commands` (`level`, `command`, `action`, `delay_all`, `delay_user`) VALUES (' + ', '.join(['%s'] * len(data)) + ')'
-                cursor.execute(query, (data['level'], data['command'], data['action'], data['delay_all'], data['delay_user']))
-                tyggbot.whisper(source.username, 'Successfully added your command (id {0})'.format(cursor.lastrowid))
-            else:
-                query = 'UPDATE `tb_commands` SET `action`=%s WHERE `id`=%s'
-                cursor.execute(query, (data['action'], update_id))
-                tyggbot.whisper(source.username, 'Updated an already existing command! (id {0})'.format(update_id))
-
-            tyggbot.sync_to()
-            tyggbot._load_commands()
+            if len(action['message']) > 0:
+                options['action'] = action
+            command.set(**options)
+            tyggbot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
     def remove_banphrase(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            banphrase_id = int(message)
+        if message:
+            id = None
+            filter = None
+            try:
+                id = int(message)
+            except Exception:
+                pass
 
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor()
-
-            cursor.execute('DELETE FROM `tb_filters` WHERE `type`=%s AND `id`=%s',
-                    ('banphrase', banphrase_id))
-
-            if cursor.rowcount >= 1:
-                tyggbot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase_id))
-                log.debug('{0}, successfully removed banphrase with id {1}'.format(source.username, banphrase_id))
-                tyggbot.sync_to()
-                tyggbot._load_filters()
+            if id is not None:
+                filter = tyggbot.filters.get(id=id)
             else:
-                tyggbot.whisper(source.username, 'No banphrase with id {0} found'.format(banphrase_id))
+                filter = tyggbot.filters.get(phrase=message)
+
+            if filter is None:
+                tyggbot.whisper(source.username, 'No banphrase with the given parameters found')
                 return False
+
+            tyggbot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(filter.id))
+            tyggbot.filters.remove_filter(filter)
         else:
             tyggbot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
             return False
 
     def remove_win(tyggbot, source, message, event, args):
-        tyggbot.kvi.dec('br_wins')
+        tyggbot.kvi['br_wins'].dec()
         tyggbot.me('{0} removed a BR win!'.format(source.username))
         log.debug('{0} removed a BR win!'.format(source.username))
 
     def add_alias(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-            parts = message.split(' ')
-            if len(parts) < 2:
+        """Dispatch method for adding aliases to already-existing commands.
+        Usage: !add alias EXISTING_ALIAS NEW_ALIAS_1 NEW_ALIAS_2 ...
+        """
+
+        if message:
+            # Make sure we got both an existing alias and at least one new alias
+            message_parts = message.split()
+            if len(message_parts) < 2:
                 tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
-                return
+                return False
 
-            if parts[0] not in tyggbot.commands:
-                tyggbot.whisper(source.username, 'No command called "{0}" found'.format(parts[0]))
-                return
+            existing_alias = message_parts[0]
+            new_aliases = re.split('\|| ', ' '.join(message_parts[1:]))
+            added_aliases = []
+            already_used_aliases = []
 
-            new_aliases = parts[1].split('|')
-            for alias in new_aliases:
+            if existing_alias not in tyggbot.commands:
+                tyggbot.whisper(source.username, 'No command called "{0}" found'.format(existing_alias))
+                return False
+
+            command = tyggbot.commands[existing_alias]
+
+            for alias in set(new_aliases):
                 if alias in tyggbot.commands:
-                    tyggbot.whisper(source.username, 'Alias {0} is already used by a command'.format(alias))
-                    return
-                tyggbot.commands[alias] = tyggbot.commands[parts[0]]
+                    already_used_aliases.append(alias)
+                else:
+                    added_aliases.append(alias)
+                    tyggbot.commands[alias] = command
 
-            commid = tyggbot.commands[parts[0]].id
-            cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
-            for row in cursor:
-                names = row['command']
-                names += '|' + parts[1]
-
-            cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
-
-            tyggbot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(new_aliases), parts[0]))
+            if len(added_aliases) > 0:
+                command.command += '|' + '|'.join(added_aliases)
+                tyggbot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(added_aliases), existing_alias))
+            if len(already_used_aliases) > 0:
+                tyggbot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
         else:
             tyggbot.whisper(source.username, "Usage: !add alias existingalias newalias")
 
     def remove_alias(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-            parts = message.split(' ')
-            if len(parts) > 1:
-                tyggbot.whisper(source.username, "Usage: !remove alias existingalias")
-                return
+        """Dispatch method for removing aliases from a command.
+        Usage: !remove alias EXISTING_ALIAS_1 EXISTING_ALIAS_2"""
+        if message:
+            aliases = re.split('\|| ', message.lower())
+            log.info(aliases)
+            if len(aliases) < 1:
+                tyggbot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
+                return False
 
-            parts = message.split('|')
             num_removed = 0
             commands_not_found = []
-            for alias in parts:
+            for alias in aliases:
                 if alias not in tyggbot.commands:
                     commands_not_found.append(alias)
                     continue
 
-                commid = tyggbot.commands[alias].id
-                cursor.execute("SELECT * FROM `tb_commands` WHERE `id`=%s", (commid))
-                for row in cursor:
-                    names = row['command']
+                command = tyggbot.commands[alias]
 
-                namelist = names.split('|')
-                namelist.remove(alias)
-                if len(namelist) == 0:
+                current_aliases = command.command.split('|')
+                current_aliases.remove(alias)
+
+                if len(current_aliases) == 0:
                     tyggbot.whisper(source.username, "{0} is the only remaining alias for this command and can't be removed.".format(alias))
-                    return
+                    continue
 
+                command.command = '|'.join(current_aliases)
                 num_removed += 1
-                names = '|'.join(namelist)
-                cursor.execute("UPDATE `tb_commands` SET `command`=%s WHERE `id`=%s", (names, commid))
                 del tyggbot.commands[alias]
 
-            whisper_str = 'Successfully removed {0} aliases.'.format(num_removed)
+            whisper_str = ''
+            if num_removed > 0:
+                whisper_str = 'Successfully removed {0} aliases.'.format(num_removed)
             if len(commands_not_found) > 0:
-                whisper_str += ' ({0} not found)'.format(', '.join(commands_not_found))
-            tyggbot.whisper(source.username, whisper_str)
+                whisper_str += ' Aliases {0} not found'.format(', '.join(commands_not_found))
+            if len(whisper_str) > 0:
+                tyggbot.whisper(source.username, whisper_str)
         else:
-            tyggbot.whisper(source.username, "Usage: !remove alias existingalias")
+            tyggbot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
 
     def remove_command(tyggbot, source, message, event, args):
-        if message and len(message) > 0:
+        if message:
+            id = None
+            command = None
             try:
                 id = int(message)
             except Exception:
-                id = -1
+                pass
 
-            if id == -1:
+            if id is None:
                 potential_cmd = ''.join(message.split(' ')[:1]).lower()
                 if potential_cmd in tyggbot.commands:
                     command = tyggbot.commands[potential_cmd]
-                    if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
-                        tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
-                        return False
-
-                    id = command.id
-                else:
-                    tyggbot.whisper(source.username, 'No command with alias {1} found'.format(source.username, potential_cmd))
-                    return False
+                    log.info('got command: {0}'.format(command))
             else:
-                for key, command in tyggbot.commands.items():
-                    if command.id == id:
-                        if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
-                            tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
-                            return False
+                for key, check_command in tyggbot.commands.items():
+                    if check_command.id == id:
+                        command = check_command
+                        break
 
-            tyggbot.sqlconn.ping()
-            cursor = tyggbot.sqlconn.cursor()
+            if command is None:
+                tyggbot.whisper(source.username, 'No command with the given parameters found')
+                return False
 
-            cursor.execute('DELETE FROM `tb_commands` WHERE `id`=%s', (id))
+            if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
+                tyggbot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
+                return False
 
-            if cursor.rowcount >= 1:
-                tyggbot.whisper(source.username, 'Successfully removed command with id {0}'.format(id))
-                tyggbot.sync_to()
-                tyggbot._load_commands()
-            else:
-                tyggbot.whisper(source.username, 'No command with id {1} found'.format(source.username, id))
+            tyggbot.whisper(source.username, 'Successfully removed command with id {0}'.format(command.id))
+            tyggbot.commands.remove_command(command)
         else:
             tyggbot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
@@ -604,12 +617,10 @@ class Dispatch:
                 tyggbot.whisper(username, rest)
 
     def top3(tyggbot, source, message, event, args):
-        tyggbot.sync_to()
-        cursor = tyggbot.sqlconn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute('SELECT `username`, `num_lines` FROM `tb_user` ORDER BY `num_lines` DESC LIMIT 3')
+        """Prints out the top 3 chatters"""
         users = []
-        for messager in cursor:
-            users.append('{0} ({1})'.format(messager['username'], messager['num_lines']))
+        for user in tyggbot.users.db_session.query(User).order_by(desc(User.num_lines))[:3]:
+            users.append('{user.username_raw} ({user.num_lines})'.format(user=user))
 
         tyggbot.say('Top 3: {0}'.format(', '.join(users)))
 
@@ -674,10 +685,100 @@ class Dispatch:
         log.debug('SINGLE timeouting {0}'.format(source.username))
         tyggbot._timeout(source.username, _time)
 
+    def set_deck(tyggbot, source, message, event, args):
+        """Dispatch method for setting the current deck.
+        The command takes a link as its argument.
+        If the link is an already-added deck, the deck should be set as the current deck
+        and its last use date should be set to now.
+        Usage: !setdeck imgur.com/abcdefgh"""
+
+        if message:
+            deck, new_deck = tyggbot.decks.set_current_deck(message)
+            if new_deck is True:
+                tyggbot.whisper(source.username, 'This deck is a new deck. Its ID is {deck.id}'.format(deck=deck))
+            else:
+                tyggbot.whisper(source.username, 'Updated an already-existing deck. Its ID is {deck.id}'.format(deck=deck))
+                tyggbot.decks.commit()
+
+            tyggbot.say('Successfully updated the latest deck.')
+            return True
+
+        return False
+
+    def update_deck(tyggbot, source, message, event, args):
+        """Dispatch method for updating a deck.
+        By default this will update things for the current deck, but you can update
+        any deck assuming you know its ID.
+        Usage: !updatedeck --name Midrange Secret --class paladin
+        """
+
+        if message:
+            options, response = tyggbot.decks.parse_update_arguments(message)
+            if options is False:
+                tyggbot.whisper(source.username, 'Invalid update deck command')
+                return False
+
+            if 'id' in options:
+                deck = tyggbot.decks.find(id=options['id'])
+                # We remove id from options here so we can tell the user what
+                # they have updated.
+                del options['id']
+            else:
+                deck = tyggbot.decks.current_deck
+
+            if deck is None:
+                tyggbot.whisper(source.username, 'No valid deck to update.')
+                return False
+
+            if len(options) == 0:
+                tyggbot.whisper(source.username, 'You have given me nothing to update with the deck!')
+                return False
+
+            deck.set(**options)
+            tyggbot.decks.commit()
+            tyggbot.whisper(source.username, 'Updated deck with ID {deck.id}. Updated {list}'.format(deck=deck, list=', '.join([key for key in options])))
+
+            return True
+        else:
+            tyggbot.whisper(source.username, 'Usage example: !updatedeck --name Midrange Secret --class paladin')
+            return False
+
+    def remove_deck(tyggbot, source, message, event, args):
+        """Dispatch method for removing a deck.
+        Usage: !removedeck imgur.com/abcdef
+        OR
+        !removedeck 123
+        """
+
+        if message:
+            id = None
+            try:
+                id = int(message)
+            except Exception:
+                pass
+
+            deck = tyggbot.decks.find(id=id, link=message)
+
+            if deck is None:
+                tyggbot.whisper(source.username, 'No deck matching your parameters found.')
+                return False
+
+            try:
+                tyggbot.decks.remove_deck(deck)
+                tyggbot.whisper(source.username, 'Successfully removed the deck.')
+            except:
+                log.exception('An exception occured while attempting to remove the deck')
+                tyggbot.whisper(source.username, 'An error occured while removing your deck.')
+                return False
+            return True
+        else:
+            tyggbot.whisper(source.username, 'Usage example: !removedeck http://imgur.com/abc')
+            return False
+
     def welcome_sub(tyggbot, source, message, event, args):
         match = args['match']
 
-        tyggbot.kvi.inc('active_subs')
+        tyggbot.kvi['active_subs'].inc()
 
         phrase_data = {
                 'username': match.group(1)
@@ -878,3 +979,15 @@ class Dispatch:
         if message:
             username = message.split(' ')[0].strip().lower()
             tyggbot.twitter_manager.unfollow_user(username)
+
+    def reload(tyggbot, source, message, event, args):
+        if message and message in tyggbot.reloadable:
+            tyggbot.reloadable[message].reload()
+        else:
+            tyggbot.reload_all()
+
+    def commit(tyggbot, source, message, event, args):
+        if message and message in tyggbot.commitable:
+            tyggbot.commitable[message].commit()
+        else:
+            tyggbot.commit_all()
