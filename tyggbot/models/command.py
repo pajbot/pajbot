@@ -181,7 +181,7 @@ class Command(Base):
     def is_enabled(self):
         return self.enabled == 1 and self.action is not None
 
-    def run(self, tyggbot, source, message, event={}, args={}, whisper=False):
+    def run(self, bot, source, message, event={}, args={}, whisper=False):
         if self.action is None:
             log.warning('This command is not available.')
             return False
@@ -216,7 +216,7 @@ class Command(Base):
             return False
 
         args.update(self.extra_args)
-        ret = self.action.run(tyggbot, source, message, event, args)
+        ret = self.action.run(bot, source, message, event, args)
         if ret is not False:
             self.num_uses += 1
             if self.cost > 0:

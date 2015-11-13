@@ -87,9 +87,9 @@ class Filter(Base):
 
         return None
 
-    def run(self, tyggbot, source, message, event={}, args={}):
+    def run(self, bot, source, message, event={}, args={}):
         args.update(self.extra_args)
-        self.action.run(tyggbot, source, message, event, args)
+        self.action.run(bot, source, message, event, args)
         self.num_uses += 1
 
 

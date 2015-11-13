@@ -63,7 +63,7 @@ class MultiAction(BaseAction):
                 else:
                     log.error('Alias {0} for this multiaction is already in use.'.format(alias))
 
-    def run(self, tyggbot, source, message, event={}, args={}):
+    def run(self, bot, source, message, event={}, args={}):
         if message:
             msg_lower_parts = message.lower().split(' ')
             command = msg_lower_parts[0]
@@ -75,7 +75,7 @@ class MultiAction(BaseAction):
         if command in self.commands:
             cmd = self.commands[command]
             if source.level >= cmd.level:
-                return cmd.run(tyggbot, source, extra_msg, event, args)
+                return cmd.run(bot, source, extra_msg, event, args)
             else:
                 log.info('User {0} tried running a sub-command he had no access to ({1}).'.format(source.username, command))
 
@@ -86,9 +86,9 @@ class FuncAction(BaseAction):
     def __init__(self, cb):
         self.cb = cb
 
-    def run(self, tyggbot, source, message, event={}, args={}):
+    def run(self, bot, source, message, event={}, args={}):
         try:
-            return self.cb(tyggbot, source, message, event, args)
+            return self.cb(bot, source, message, event, args)
         except Exception:
             log.exception('Uncaught exception in FuncAction')
 
@@ -99,7 +99,7 @@ class RawFuncAction(BaseAction):
     def __init__(self, cb):
         self.cb = cb
 
-    def run(self, tyggbot, source, message, event={}, args={}):
+    def run(self, bot, source, message, event={}, args={}):
         return self.cb()
 
 
@@ -196,7 +196,7 @@ class MessageAction(BaseAction):
             pass
         return ''
 
-    def get_response(self, tyggbot, extra):
+    def get_response(self, bot, extra):
         resp = self.response
 
         for sub in self.argument_subs:
@@ -231,26 +231,26 @@ class MessageAction(BaseAction):
                 'message': message,
                 }
 
-    def run(self, tyggbot, source, message, event={}, args={}):
+    def run(self, bot, source, message, event={}, args={}):
         raise NotImplementedError('Please implement the run method.')
 
 
 class SayAction(MessageAction):
-    def run(self, tyggbot, source, message, event={}, args={}):
-        resp = self.get_response(tyggbot, self.get_extra_data(source, message))
+    def run(self, bot, source, message, event={}, args={}):
+        resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
-            tyggbot.say(resp)
+            bot.say(resp)
 
 
 class MeAction(MessageAction):
-    def run(self, tyggbot, source, message, event={}, args={}):
-        resp = self.get_response(tyggbot, self.get_extra_data(source, message))
+    def run(self, bot, source, message, event={}, args={}):
+        resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
-            tyggbot.me(resp)
+            bot.me(resp)
 
 
 class WhisperAction(MessageAction):
-    def run(self, tyggbot, source, message, event={}, args={}):
-        resp = self.get_response(tyggbot, self.get_extra_data(source, message))
+    def run(self, bot, source, message, event={}, args={}):
+        resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
-            tyggbot.whisper(source.username, resp)
+            bot.whisper(source.username, resp)
