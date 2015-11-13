@@ -126,10 +126,12 @@ class FilterManager(UserList):
                 # Banphrase already exists
                 return filter, False
 
-        filter = Filter(action={
-            'type': 'func',
-            'cb': 'timeout_source'
-            },
+        default_action = {
+                'type': 'func',
+                'cb': 'timeout_source'
+                }
+
+        filter = Filter(action=options.get('action', default_action),
             filter=phrase,
             name=options.get('name', 'Banphrase'),
             type='banphrase',

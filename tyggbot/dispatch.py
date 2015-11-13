@@ -195,10 +195,14 @@ class Dispatch:
     def add_banphrase(tyggbot, source, message, event, args):
         if message:
             parser = argparse.ArgumentParser()
-            # parser.add_argument('--whisper', dest='whisper', action='store_true')
-            parser.add_argument('--length', type=int)
+            parser.add_argument('--length', dest='length', type=int)
+            parser.add_argument('--time', dest='length', type=int)
+            parser.add_argument('--duration', dest='length', type=int)
             parser.add_argument('--notify', dest='notify', action='store_true')
-            parser.set_defaults(length=Filter.DEFAULT_TIMEOUT_LENGTH, notify=False)
+            parser.add_argument('--no-notify', dest='notify', action='store_false')
+            parser.add_argument('--perma', dest='perma', action='store_true')
+            parser.add_argument('--no-perma', dest='perma', action='store_false')
+            parser.set_defaults(length=Filter.DEFAULT_TIMEOUT_LENGTH, notify=True, perma=False)
 
             try:
                 args, unknown = parser.parse_known_args(message.split())
@@ -214,7 +218,13 @@ class Dispatch:
                     'notify': options['notify'],
                     'time': options['length'],
                     }
-            banphrase = ' '.join(unknown)
+            if options.get('perma', False) is True:
+                options['action'] = {
+                        'type': 'func',
+                        'cb': 'ban_source'
+                        }
+            # XXX: For now, we do .lower() on the banphrase.
+            banphrase = ' '.join(unknown).lower()
             if len(banphrase) == 0:
                 tyggbot.whisper(source.username, 'No banphrase given')
                 return False
