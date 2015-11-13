@@ -1,5 +1,6 @@
 import json
 import re
+import argparse
 import logging
 from collections import UserList
 
@@ -27,6 +28,7 @@ class Filter(Base):
     num_uses = Column(Integer)
 
     DEFAULT_TIMEOUT_LENGTH = 300
+    DEFAULT_NOTIFY = True
 
     def __init__(self, action, filter, **options):
         self.id = None
@@ -137,7 +139,7 @@ class FilterManager(UserList):
             type='banphrase',
             extra_args={
                 'time': options.get('length', Filter.DEFAULT_TIMEOUT_LENGTH),
-                'notify': options.get('notify', 1),
+                'notify': options.get('notify', True),
                 }
             )
         self.data.append(filter)
@@ -148,3 +150,28 @@ class FilterManager(UserList):
     def remove_filter(self, filter):
         self.db_session.delete(filter)
         self.data.remove(filter)
+
+    def parse_banphrase_arguments(self, message):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--length', dest='time', type=int)
+        parser.add_argument('--time', dest='time', type=int)
+        parser.add_argument('--duration', dest='time', type=int)
+        parser.add_argument('--notify', dest='notify', action='store_true')
+        parser.add_argument('--no-notify', dest='notify', action='store_false')
+        parser.add_argument('--perma', dest='perma', action='store_true')
+        parser.add_argument('--no-perma', dest='perma', action='store_false')
+        parser.set_defaults(time=None, perma=None, notify=None)
+
+        try:
+            args, unknown = parser.parse_known_args(message.split())
+        except SystemExit:
+            return False, False
+        except:
+            log.exception('Unhandled exception in add_command')
+            return False, False
+
+        # Strip options of any values that are set as None
+        options = {k: v for k, v in vars(args).items() if v is not None}
+        response = ' '.join(unknown)
+
+        return options, response

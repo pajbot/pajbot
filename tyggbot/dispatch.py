@@ -2,7 +2,7 @@ import math
 import re
 import logging
 import collections
-import argparse
+import json
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
@@ -193,38 +193,40 @@ class Dispatch:
         tyggbot.silent = False
 
     def add_banphrase(tyggbot, source, message, event, args):
-        if message:
-            parser = argparse.ArgumentParser()
-            parser.add_argument('--length', dest='length', type=int)
-            parser.add_argument('--time', dest='length', type=int)
-            parser.add_argument('--duration', dest='length', type=int)
-            parser.add_argument('--notify', dest='notify', action='store_true')
-            parser.add_argument('--no-notify', dest='notify', action='store_false')
-            parser.add_argument('--perma', dest='perma', action='store_true')
-            parser.add_argument('--no-perma', dest='perma', action='store_false')
-            parser.set_defaults(length=Filter.DEFAULT_TIMEOUT_LENGTH, notify=True, perma=False)
+        """Dispatch method for creating and editing banphrases.
+        Usage: !add banphrase BANPHRASE [options]
+        Multiple options available:
+        --length LENGTH
+        --perma/--no-perma
+        --notify/--no-notify
+        """
 
-            try:
-                args, unknown = parser.parse_known_args(message.split())
-            except SystemExit:
+        if message:
+            options, response = tyggbot.filters.parse_banphrase_arguments(message)
+
+            if options is False:
                 tyggbot.whisper(source.username, 'Invalid banphrase')
                 return False
-            except:
-                log.exception('Unhandled exception in add_banphrase')
-                return False
 
-            options = vars(args)
             options['extra_args'] = {
-                    'notify': options['notify'],
-                    'time': options['length'],
+                    'notify': options.get('notify', Filter.DEFAULT_NOTIFY),
+                    'time': options.get('time', Filter.DEFAULT_TIMEOUT_LENGTH),
                     }
-            if options.get('perma', False) is True:
+
+            is_perma = options.get('perma', None)
+            if is_perma is True:
                 options['action'] = {
                         'type': 'func',
                         'cb': 'ban_source'
                         }
+            elif is_perma is False:
+                options['action'] = {
+                        'type': 'func',
+                        'cb': 'timeout_source'
+                        }
+
             # XXX: For now, we do .lower() on the banphrase.
-            banphrase = ' '.join(unknown).lower()
+            banphrase = response.lower()
             if len(banphrase) == 0:
                 tyggbot.whisper(source.username, 'No banphrase given')
                 return False
@@ -235,8 +237,19 @@ class Dispatch:
                 tyggbot.whisper(source.username, 'Inserted your banphrase (ID: {filter.id})'.format(filter=filter))
                 return True
 
+            options['extra_args'] = {}
+            try:
+                options['extra_args'] = json.loads(filter.extra_extra_args)
+            except:
+                pass
+
+            if 'notify' in options:
+                options['extra_args']['notify'] = options['notify']
+            if 'time' in options:
+                options['extra_args']['time'] = options['time']
+
             filter.set(**options)
-            tyggbot.whisper(source.username, 'Updated the given banphrase')
+            tyggbot.whisper(source.username, 'Updated the given banphrase (ID: {filter.id}) with ({what})'.format(filter=filter, what=', '.join([key for key in options])))
 
     def add_win(tyggbot, source, message, event, args):
         tyggbot.kvi['br_wins'].inc()
