@@ -279,7 +279,7 @@ class Dispatch:
                 tyggbot.whisper(source.username, 'Invalid command')
                 return False
 
-            alias_str = message_parts[0]
+            alias_str = message_parts[0].replace('!', '')
             type = 'say'
             if options['whisper'] is True:
                 type = 'whisper'
@@ -455,7 +455,7 @@ class Dispatch:
                 pass
 
             if id is None:
-                potential_cmd = ''.join(message.split(' ')[:1]).lower()
+                potential_cmd = ''.join(message.split(' ')[:1]).lower().replace('!', '')
                 if potential_cmd in tyggbot.commands:
                     command = tyggbot.commands[potential_cmd]
                     log.info('got command: {0}'.format(command))
