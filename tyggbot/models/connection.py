@@ -54,11 +54,11 @@ class Connection:
 
 
 class ConnectionManager:
-    def __init__(self, reactor, tyggbot, message_limit):
+    def __init__(self, reactor, bot, message_limit):
         self.backup_conns_number = 2
 
         self.reactor = reactor
-        self.tyggbot = tyggbot
+        self.bot = bot
         self.message_limit = message_limit
 
         self.connlist = []
@@ -74,13 +74,13 @@ class ConnectionManager:
 
             self.get_main_conn()
 
-            if self.tyggbot.phrases['welcome']:
+            if self.bot.phrases['welcome']:
                 phrase_data = {
-                    'nickname': self.tyggbot.nickname,
-                    'version': self.tyggbot.version,
+                    'nickname': self.bot.nickname,
+                    'version': self.bot.version,
                      }
 
-            self.tyggbot.say(self.tyggbot.phrases['welcome'].format(**phrase_data))
+            self.bot.say(self.bot.phrases['welcome'].format(**phrase_data))
 
             self.reactor.execute_every(4, self.run_maintenance)
             return True
@@ -123,12 +123,12 @@ class ConnectionManager:
         for connection in self.connlist:
             if connection.conn.is_connected():
                 if not connection.in_channel:
-                    if irc.client.is_channel(self.tyggbot.channel):
-                        connection.conn.join(self.tyggbot.channel)
+                    if irc.client.is_channel(self.bot.channel):
+                        connection.conn.join(self.bot.channel)
                         log.debug("Joined channel")
                         connection.in_channel = True
-                    if self.tyggbot.control_hub and irc.client.is_channel(self.tyggbot.control_hub):
-                        connection.conn.join(self.tyggbot.control_hub)
+                    if self.bot.control_hub and irc.client.is_channel(self.bot.control_hub):
+                        connection.conn.join(self.bot.control_hub)
 
                 return connection.conn
 
@@ -139,7 +139,7 @@ class ConnectionManager:
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
         log.debug('Fetching random IRC server...')
-        data = self.tyggbot.twitchapi.get(['channels', self.tyggbot.streamer, 'chat_properties'])
+        data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'chat_properties'])
         if data and len(data['chat_servers']) > 0:
             server = random.choice(data['chat_servers'])
             ip, port = server.split(':')
@@ -151,7 +151,7 @@ class ConnectionManager:
                 newconn = CustomServerConnection(self.reactor)
                 with self.reactor.mutex:
                     self.reactor.connections.append(newconn)
-                newconn.connect(ip, port, self.tyggbot.nickname, self.tyggbot.password, self.tyggbot.nickname)
+                newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname)
                 log.debug('Connecting to IRC server...')
                 newconn.cap('REQ', 'twitch.tv/membership')
                 newconn.cap('REQ', 'twitch.tv/commands')
