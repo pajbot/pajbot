@@ -641,7 +641,7 @@ class Dispatch:
             if len(username) < 2:
                 return False
 
-            username_user = bot.user.find(username)
+            username_user = bot.users.find(username)
             if username_user is None:
                 bot.whisper(source.username, 'This user does not exist FailFish')
                 return False
