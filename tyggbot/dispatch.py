@@ -279,7 +279,7 @@ class Dispatch:
                 bot.whisper(source.username, 'Invalid command')
                 return False
 
-            alias_str = message_parts[0].replace('!', '')
+            alias_str = message_parts[0].replace('!', '').lower()
             type = 'say'
             if options['whisper'] is True:
                 type = 'whisper'
