@@ -641,6 +641,21 @@ class Dispatch:
             if len(username) < 2:
                 return False
 
+            username_user = bot.user.find(username)
+            if username_user is None:
+                bot.whisper(source.username, 'This user does not exist FailFish')
+                return False
+
+            """
+            if username_user == source:
+                bot.whisper(source.username, 'You can\'t timeout yourself FailFish')
+                return False
+                """
+
+            if username_user.level >= 500:
+                bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
+                return False
+
             bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
             bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
             bot.timeout(username, _time)
