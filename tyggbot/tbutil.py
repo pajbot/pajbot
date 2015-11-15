@@ -208,6 +208,15 @@ def time_method(f):
         return ret
     return wrap
 
+def time_nonclass_method(f):
+    def wrap(*args):
+        time1 = time.time()
+        ret = f(*args)
+        time2 = time.time()
+        log.debug('{0.__name__} function took {1:.3f} ms'.format(f, (time2 - time1) * 1000.0))
+        return ret
+    return wrap
+
 def print_traceback():
     import traceback
     traceback.print_stack()
