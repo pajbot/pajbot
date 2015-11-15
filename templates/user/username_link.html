@@ -1,0 +1,4 @@
+{% if user.subscriber %}
+<div class="pui badge subscriber"></div>
+{% endif %}
+<a class="pui user l{{ user.level }}" href="/user/{{ user.username }}">{{ user.username_raw }}</a>

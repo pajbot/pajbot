@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% set active_page = 'points' %}
+{% block title %}Points{% endblock %}
+{% block body %}
+<h2>Check your own Points and Rank</h2>
+<div id="check_points" class="ui form">
+    <form>
+        <div class="field username">
+            <input type="text" placeholder="Username">
+        </div>
+        <button class="ui submit button">Submit</button>
+    </form>
+    <div class="ui response hidden"></div>
+</div>
+<h2>Points</h2>
+<div id="top_users">
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set rank = 1 %}
+            {% set index = 1 %}
+            {% set last_points = -1337 %}
+            {% for user in top_30_users %}
+                {% if not user.points == last_points %}
+                    {% set rank = index %}
+                {% endif %}
+                {% set last_points = user.points %}
+                {% include 'list/user.html' %}
+                {% set index = index + 1 %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+$('#check_points .submit.button')
+.api({
+    action: 'get_user',
+    beforeSend: function(settings) {
+        settings.urlData = {
+            username: $('#check_points div.field.username input').val()
+        };
+        return settings;
+    },
+    successTest: function(response) {
+        return response.error == false || true;
+    },
+    onSuccess: function(response) {
+        var el = $('#check_points .response');
+        el.addClass('message green');
+        el.removeClass('red');
+        el.html('User <a href="/user/' + response.username + '"><strong class="username">' + response.username + '</strong></a> has <strong class="points">' + response.points + '</strong> points and is ranked <strong class="rank">' + response.rank + '</strong>.');
+        if (el.hasClass('hidden')) {
+            el.transition({
+                animation: 'slide down',
+                duration: '500ms',
+            });
+        }
+    },
+    onFailure: function(response) {
+        var el = $('#check_points .response');
+        el.addClass('message red');
+        el.removeClass('green');
+        el.html('No user with the name <strong class="username">XXX</strong> found.');
+        el.find('strong.username').text($('#check_points div.field.username input').val());
+        if (el.hasClass('hidden')) {
+            el.transition({
+                animation: 'slide down',
+                duration: '500ms',
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

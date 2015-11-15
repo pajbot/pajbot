@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% set active_page = 'stats' %}
+{% block title %}Profile - {{ user.username_raw}}{% endblock %}
+{% block body %}
+<div id="userprofile">
+    {% include 'user/username_link.html' %}
+    <h2>{{ user.username_raw }}</h2>
+    <table class="ui very basic table">
+        <tbody>
+            <tr>
+                <th>Level</th>
+                <td>
+                    {% if user.level < 250 %}
+                    User
+                    {% elif user.level < 500 %}
+                    Dank Helper
+                    {% elif user.level < 1000 %}
+                    Moderator
+                    {% elif user.level < 1500 %}
+                    Super Moderator/Broadcaster
+                    {% elif user.level < 2500 %}
+                    Admin
+                    {% else %}
+                    ???
+                    {% endif %} ({{ user.level }})
+                </td>
+            </tr>
+            <tr>
+                <th>Points</th>
+                <td>{{ user.points }} (Rank {{ user.rank }})</td>
+            </tr>
+            <tr>
+                <th>Messages sent</th>
+                <td>{{ user.num_lines }}</td>
+            </tr>
+            <tr>
+                <th>Last seen</th>
+                <td>{{ user.last_seen }}</td>
+            </tr>
+            <tr>
+                <th>Last active in chat</th>
+                <td>{{ user.last_active }}</td>
+            </tr>
+            <tr>
+                <th>Time spent watching the stream</th>
+                <td>{{ user.minutes_in_chat_online }}</td>
+            </tr>
+        </tbody>
+    </table>
+    aaaaa
+</div>
+TODO: put more shit here
+{% endblock %}
