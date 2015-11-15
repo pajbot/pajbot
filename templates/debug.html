@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% set active_page = 'debug' %}
+{% block title %}Debug{% endblock %}
+{% block body %}
+<h2>Debug elements! woo</h2>
+<div id="check_points" class="ui form">
+    <form>
+        <div class="field username">
+            <input type="text" placeholder="Username">
+        </div>
+        <button class="ui submit button">Submit</button>
+    </form>
+    <div class="ui response hidden"></div>
+    <div class="ui response message green red">aa</a>
+</div>
+{% endblock %}

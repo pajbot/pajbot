@@ -63,6 +63,16 @@ class MultiAction(BaseAction):
                 else:
                     log.error('Alias {0} for this multiaction is already in use.'.format(alias))
 
+    @classmethod
+    def ready_built(cls, commands):
+        """Useful if you already have a dictionary
+        with commands pre-built.
+        """
+
+        multiaction = cls(args=[], default=None)
+        multiaction.commands = commands
+        return multiaction
+
     def run(self, bot, source, message, event={}, args={}):
         if message:
             msg_lower_parts = message.lower().split(' ')
@@ -159,28 +169,31 @@ class MessageAction(BaseAction):
                 if len(key) == 0:
                     key = None
 
-                if path == 'kvi':
-                    cb = TyggBot.instance.get_kvi_value
-                elif path == 'tb':
-                    cb = TyggBot.instance.get_value
-                elif path == 'lasttweet':
-                    cb = TyggBot.instance.get_last_tweet
-                elif path == 'etm':
-                    cb = TyggBot.instance.get_emote_tm
-                elif path == 'ecount':
-                    cb = TyggBot.instance.get_emote_count
-                elif path == 'etmrecord':
-                    cb = TyggBot.instance.get_emote_tm_record
-                elif path == 'source':
-                    cb = TyggBot.instance.get_source_value
-                elif path == 'user':
-                    cb = TyggBot.instance.get_user_value
-                elif path == 'time':
-                    cb = TyggBot.instance.get_time_value
-                elif path == 'curdeck':
-                    cb = TyggBot.instance.decks.action_get_curdeck
-                else:
-                    log.error('Unimplemented path: {0}'.format(path))
+                try:
+                    if path == 'kvi':
+                        cb = TyggBot.instance.get_kvi_value
+                    elif path == 'tb':
+                        cb = TyggBot.instance.get_value
+                    elif path == 'lasttweet':
+                        cb = TyggBot.instance.get_last_tweet
+                    elif path == 'etm':
+                        cb = TyggBot.instance.get_emote_tm
+                    elif path == 'ecount':
+                        cb = TyggBot.instance.get_emote_count
+                    elif path == 'etmrecord':
+                        cb = TyggBot.instance.get_emote_tm_record
+                    elif path == 'source':
+                        cb = TyggBot.instance.get_source_value
+                    elif path == 'user':
+                        cb = TyggBot.instance.get_user_value
+                    elif path == 'time':
+                        cb = TyggBot.instance.get_time_value
+                    elif path == 'curdeck':
+                        cb = TyggBot.instance.decks.action_get_curdeck
+                    else:
+                        log.error('Unimplemented path: {0}'.format(path))
+                        continue
+                except:
                     continue
 
                 sub = Substitution(cb, key=key, argument=argument)

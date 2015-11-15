@@ -1,0 +1,145 @@
+.pui.command,
+.pui.argument
+{
+    font-family: monospace;
+    border-radius: .285rem;
+    background: #f8f8f9;
+    padding: .4em;
+    line-height: 18px;
+    box-shadow: 0 0 0 1px rgba(34,36,38,.22) inset, 0 0 0 0 transparent;
+    display: inline-block;
+}
+
+div.pui.badge {
+    padding: 0;
+    float: none!important;
+    margin: 0;
+    height: 18px;
+    min-width: 18px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.pui.badge.subscriber {
+    background-size: 100%;
+}
+
+.pui.badge.staff {
+    background: #200f33 url('/static/images/badge_staff.svg');
+    background-size: 100%;
+}
+
+.pui.badge.broadcaster {
+    background: #e71818 url('/static/images/badge_broadcaster.svg');
+    background-size: 100%;
+}
+
+.pui.badge.moderator {
+    background: #34ae0a url('/static/images/badge_mod.svg');
+    background-size: 100%;
+}
+
+.pui.badge.turbo {
+    background: #6441a5 url('/static/images/badge_turbo.svg');
+    background-size: 100%;
+}
+
+
+div.pui.class {
+    display: inline-block;
+    vertical-align: middle;
+    height: 32px;
+    min-width: 32px;
+}
+
+div.pui.class.druid { background: url('/static/images/class_druid_32.png') no-repeat; }
+div.pui.class.hunter { background: url('/static/images/class_hunter_32.png') no-repeat; }
+div.pui.class.mage { background: url('/static/images/class_mage_32.png') no-repeat; }
+div.pui.class.paladin { background: url('/static/images/class_paladin_32.png') no-repeat; }
+div.pui.class.priest { background: url('/static/images/class_priest_32.png') no-repeat; }
+div.pui.class.rogue { background: url('/static/images/class_rogue_32.png') no-repeat; }
+div.pui.class.shaman { background: url('/static/images/class_shaman_32.png') no-repeat; }
+div.pui.class.warlock { background: url('/static/images/class_warlock_32.png') no-repeat; }
+div.pui.class.warrior { background: url('/static/images/class_warrior_32.png') no-repeat; }
+div.pui.class.undefined { background: url('/static/images/class_undefined_32.png') no-repeat; }
+
+.pui.user {
+    font-weight: bold;
+}
+
+.user.l2000 {
+    color: #f0f;
+}
+
+.user.l1000 {
+    color: #922;
+}
+
+.user.l500
+{
+    color: #44f;
+}
+
+.user.l420,
+.user.l421
+{
+    color: #292;
+}
+
+.user.l501
+{
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-gradient(linear,  left top,  right top, 
+        color-stop(0.00, red), 
+        color-stop(50%, yellow),
+        color-stop(1.00, green));
+}
+
+.user.l123
+{
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-gradient(linear,  left top,  right top, 
+        color-stop(0.00, red), 
+        color-stop(16%, orange),
+        color-stop(32%, yellow),
+        color-stop(48%, green),
+        color-stop(60%, blue),
+        color-stop(76%, indigo),
+        color-stop(1.00, violet));
+}
+
+@media (min-height: 320px) {
+    .footer.form-page {
+        position: absolute !important;
+        bottom: 0;
+        width: 100%;
+    }
+}
+
+.main.body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.main.header,
+.main.footer {
+    flex: none;
+}
+
+.main.container {
+    margin-left: 1em;
+    flex: 1 0 auto;
+    padding: var(--space) var(--space) 0;
+    padding-top: 50px;
+    width: 100%;
+}
+
+#check_points {
+    width: 30%;
+    min-width: 300px;
+}

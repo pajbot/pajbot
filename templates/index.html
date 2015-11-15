@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% set active_page = 'home' %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<h3>
+This is the website for <strong>{{ bot.name }}</strong> that runs in <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
+</h3>
+<h3>TODO</h3>
+<ul>
+    <li>Write some more default shit here</li>
+    <li>Each bot should have the possibility to add their own text here. Use markdown in tb_settings maybe?</li>
+</ul>
+{% endblock %}

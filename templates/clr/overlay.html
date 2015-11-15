@@ -1,0 +1,112 @@
+<html>
+    <head>
+        <title>test</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <style>
+body {
+    font-family: 'Arial', sans-serif;
+        color: #fff;
+}
+div.exploding {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+}
+
+div.notifications {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 1.25em;
+    font-weight: 600;
+}
+        </style>
+<script type="text/javascript">
+$(document).ready(function() {
+    connect_to_ws();
+});
+
+var isopen = false;
+var ws_host = 'wss://pajlada.se';
+var ws_port = '2320';
+
+function add_random_box(color)
+{
+    var numRand = Math.floor(Math.random() * 501);
+    var divsize = 100;
+    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+    var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+    $newdiv = $("<div class='exploding'></div>").css({
+        'left': posx + 'px',
+        'top': posy + 'px',
+        'background-color': color
+    });
+    $newdiv.appendTo('body').delay(2000).fadeIn(100, function () {
+        //$(this).remove();
+        //makeDiv();
+    });
+}
+
+var message_id = 0;
+
+function add_notification(message)
+{
+    var new_notification = $('<div>' + message + '</div>').appendTo('div.notifications').hide().fadeIn(2000, function() {
+        new_notification.delay(4500).fadeOut(1000, function() {
+            new_notification.remove();
+        });
+    });
+}
+
+function connect_to_ws()
+{
+    if (isopen) {
+        return;
+    }
+    console.log('Connecting to websocket....');
+    var host = ws_host;
+    var port = ws_port;
+    socket = new WebSocket(host + ':' + port);
+    socket.binaryType = "arraybuffer";
+    socket.onopen = function() {
+        console.log('Connected!');
+        isopen = true;
+    }
+
+    socket.onmessage = function(e) {
+        if (typeof e.data == "string") {
+            var json_data = JSON.parse(e.data);
+            console.log(json_data);
+            if (json_data['event'] !== undefined) {
+                switch (json_data['event']) {
+                    case 'new_box':
+                        add_random_box(json_data['data']['color']);
+                        break;
+                    case 'timeout':
+                        add_notification(json_data['data']['user'] + ' just timed out ' + json_data['data']['victim'] + ' EleGiggle');
+                        break;
+                }
+            }
+        } else {
+            var arr = new Uint8Array(e.data);
+            var hex = '';
+            for (var i = 0; i < arr.length; i++) {
+                hex += ('00' + arr[i].toString(16)).substr(-2);
+            }
+            //add_row('Binary message received: ' + hex);
+        }
+    }
+
+    socket.onclose = function(e) {
+        socket = null;
+        isopen = false;
+        setTimeout(connect_to_ws, 2500);
+    }
+}
+</script>
+    </head>
+    <body>
+        <div class="notifications"></div>
+    </body>
+</html>
+

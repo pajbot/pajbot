@@ -42,15 +42,16 @@ class Command(Base):
     DEFAULT_CD_USER = 15
     DEFAULT_LEVEL = 100
 
-    def __init__(self):
-        self.id = None
-        self.level = 100
+    def __init__(self, **options):
+        self.id = options.get('id', None)
+        self.level = options.get('level', 100)
         self.action = None
         self.extra_args = {'command': self}
-        self.delay_all = Command.DEFAULT_CD_ALL
-        self.delay_user = Command.DEFAULT_CD_USER
+        self.delay_all = options.get('delay_all', Command.DEFAULT_CD_ALL)
+        self.delay_user = options.get('delay_user', Command.DEFAULT_CD_USER)
+        self.description = options.get('description', None)
         self.num_uses = 0
-        self.level = Command.DEFAULT_LEVEL
+        self.level = options.get('level', Command.DEFAULT_LEVEL)
         self.enabled = True
         self.type = '?'
         self.cost = 0
@@ -58,6 +59,7 @@ class Command(Base):
         self.sub_only = False
         self.created = datetime.datetime.now()
         self.last_updated = datetime.datetime.now()
+        self.command = options.get('command', None)
 
         self.last_run = 0
         self.last_run_by_user = {}
@@ -101,25 +103,22 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def dispatch_command(cls, cb, level=1000):
-        cmd = cls()
-        cmd.load_from_db({
-            'id': -1,
-            'level': level,
-            'action': '{"type": "func", "cb":"' + cb + '"}',
-            'delay_all': 0,
-            'delay_user': 1,
-            'extra_args': None,
-            })
+    def dispatch_command(cls, cb, **options):
+        cmd = cls(**options)
+        cmd.action = parse_action('{"type": "func", "cb": "' + cb + '"}')
         return cmd
 
     @classmethod
-    def tyggbot_command(cls, method_name, level=1000):
+    def tyggbot_command(cls, method_name, level=1000, **options):
         from tyggbot.tyggbot import TyggBot
         cmd = cls()
         cmd.level = level
+        cmd.description = options.get('description', None)
         cmd.can_execute_with_whisper = True
-        cmd.action = RawFuncAction(getattr(TyggBot.instance, method_name))
+        try:
+            cmd.action = RawFuncAction(getattr(TyggBot.instance, method_name))
+        except:
+            pass
         return cmd
 
     @classmethod
@@ -129,7 +128,10 @@ class Command(Base):
         cmd.level = level
         cmd.can_execute_with_whisper = True
         if type == 'raw_func':
-            cmd.action = RawFuncAction(getattr(TyggBot.instance, action))
+            try:
+                cmd.action = RawFuncAction(getattr(TyggBot.instance, action))
+            except:
+                pass
         elif type == 'func':
             cmd.action = FuncAction(action)
         else:
@@ -137,42 +139,12 @@ class Command(Base):
             cmd.action = False
         return cmd
 
-    def load_from_db(self, data):
-        self.id = data['id']
-        self.level = data['level']
-        self.action = parse_action(data['action'])
-        self.delay_all = data['delay_all']
-        self.delay_user = data['delay_user']
-        try:
-            self.enabled = data['enabled']
-        except:
-            self.enabled = True
-
-        try:
-            self.num_uses = data['num_uses']
-        except:
-            self.num_uses = 0
-
-        try:
-            self.cost = data['cost']
-        except:
-            self.cost = 0
-
-        try:
-            self.can_execute_with_whisper = int(data['can_execute_with_whisper']) == 1
-        except:
-            self.can_execute_with_whisper = False
-
-        try:
-            self.sub_only = int(data['sub_only']) == 1
-        except:
-            self.sub_only = False
-
-        if data['extra_args']:
-            try:
-                self.extra_args.update(json.loads(data['extra_args']))
-            except Exception as e:
-                log.error('Exception caught while loading Filter extra arguments ({0}): {1}'.format(data['extra_args'], e))
+    @classmethod
+    def multiaction_command(cls, **options):
+        from tyggbot.models.action import MultiAction
+        cmd = cls(**options)
+        cmd.action = MultiAction.ready_built(options.get('commands'))
+        return cmd
 
     def load_args(self, level, action):
         self.level = level
@@ -234,6 +206,9 @@ class CommandManager(UserDict):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
 
+    def __del__(self):
+        self.db_session.close()
+
     def commit(self):
         self.db_session.commit()
 
@@ -277,47 +252,124 @@ class CommandManager(UserDict):
             num_commands += 1
             num_aliases += self.add_command(command)
 
-        self.data['reload'] = Command.dispatch_command('reload', level=1000)
-        self.data['commit'] = Command.dispatch_command('commit', level=1000)
-        self.data['quit'] = Command.tyggbot_command('quit')
-        self.data['ignore'] = Command.dispatch_command('ignore', level=1000)
-        self.data['unignore'] = Command.dispatch_command('unignore', level=1000)
-        self.data['permaban'] = Command.dispatch_command('permaban', level=1000)
-        self.data['unpermaban'] = Command.dispatch_command('unpermaban', level=1000)
-        self.data['twitterfollow'] = Command.dispatch_command('twitter_follow', level=1000)
-        self.data['twitterunfollow'] = Command.dispatch_command('twitter_unfollow', level=1000)
-        self.data['add'] = Command()
-        self.data['add'].load_from_db({
-            'id': -1,
-            'level': 500,
-            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"add_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"add_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"add_command" } }, { "level":2000, "command":"funccommand", "action": { "type":"func", "cb":"add_funccommand" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"add_alias" } }, { "level":500, "command":"link", "action": { "type":"func", "cb":"add_link" } } ] }',
-            'delay_all': 0,
-            'delay_user': 1,
-            'extra_args': None,
-            })
-        self.data['remove'] = Command()
-        self.data['remove'].load_from_db({
-            'id': -1,
-            'level': 500,
-            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":500, "command":"banphrase", "action": { "type":"func", "cb":"remove_banphrase" } }, { "level":500, "command":"win", "action": { "type":"func", "cb":"remove_win" } }, { "level":500, "command":"command", "action": { "type":"func", "cb":"remove_command" } }, { "level":500, "command":"nothing", "action": { "type":"say", "message":"" } }, { "level":500, "command":"alias", "action": { "type":"func", "cb":"remove_alias" } }, { "level":500, "command":"link", "action": { "type":"func", "cb":"remove_link" } } ] }',
-            'delay_all': 0,
-            'delay_user': 1,
-            'extra_args': None,
-            })
+        self.data['reload'] = Command.dispatch_command('reload',
+                level=1000,
+                description='Reload a bunch of data from the database')
+        self.data['commit'] = Command.dispatch_command('commit',
+                level=1000,
+                description='Commit data from the bot to the database')
+        self.data['quit'] = Command.tyggbot_command('quit',
+                level=1000,
+                description='Shut down the bot, this will most definitely restart it if set up properly')
+        self.data['ignore'] = Command.dispatch_command('ignore',
+                level=1000,
+                description='Ignore a user, which means he can\'t run any commands')
+        self.data['unignore'] = Command.dispatch_command('unignore',
+                level=1000,
+                description='Unignore a user')
+        self.data['permaban'] = Command.dispatch_command('permaban',
+                level=1000,
+                description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again')
+        self.data['unpermaban'] = Command.dispatch_command('unpermaban',
+                level=1000,
+                description='Remove a permanent ban from a user')
+        self.data['twitterfollow'] = Command.dispatch_command('twitter_follow',
+                level=1000,
+                description='Start listening for tweets for the given user')
+        self.data['twitterunfollow'] = Command.dispatch_command('twitter_unfollow',
+                level=1000,
+                description='Stop listening for tweets for the given user')
+        self.data['add'] = Command.multiaction_command(
+                level=500,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                commands={
+                    'command': Command.dispatch_command('add_command',
+                        level=500,
+                        description='Add a command!'),
+                    'banphrase': Command.dispatch_command('add_banphrase',
+                        level=500,
+                        description='Add a banphrase!'),
+                    'win': Command.dispatch_command('add_win',
+                        level=500,
+                        description='Add a win to something!'),
+                    'funcaction': Command.dispatch_command('add_funccommand',
+                        level=2000,
+                        description='Add a command that uses a command'),
+                    'alias': Command.dispatch_command('add_alias',
+                        level=500,
+                        description='Adds an alias to an already existing command'),
+                    'link': Command.multiaction_command(
+                        level=500,
+                        delay_all=0,
+                        delay_user=0,
+                        default=None,
+                        commands={
+                            'blacklist': Command.dispatch_command('add_link',  # TODO
+                                level=500,
+                                description='Unblacklist a link'),
+                            'whitelist': Command.dispatch_command('add_link',  # TODO
+                                level=500,
+                                description='Unwhitelist a link'),
+                            }
+                        )
+                    })
+        self.data['remove'] = Command.multiaction_command(
+                level=500,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                commands={
+                    'command': Command.dispatch_command('remove_command',
+                        level=500,
+                        description='Remove a command!'),
+                    'banphrase': Command.dispatch_command('remove_banphrase',
+                        level=500,
+                        description='Remove a banphrase!'),
+                    'win': Command.dispatch_command('remove_win',
+                        level=500,
+                        description='Remove a win to something!'),
+                    'alias': Command.dispatch_command('remove_alias',
+                        level=500,
+                        description='Removes an alias to an already existing command'),
+                    'link': Command.multiaction_command(
+                        level=500,
+                        delay_all=0,
+                        delay_user=0,
+                        default=None,
+                        commands={
+                            'blacklist': Command.dispatch_command('remove_link',  # TODO
+                                level=500,
+                                description='Blacklist a link'),
+                            'whitelist': Command.dispatch_command('remove_link',  # TODO
+                                level=500,
+                                description='Whitelist a link'),
+                            }
+                        )
+                    })
         self.data['rem'] = self.data['remove']
         self.data['del'] = self.data['remove']
         self.data['delete'] = self.data['remove']
-        self.data['debug'] = Command()
-        self.data['debug'].load_from_db({
-            'id': -1,
-            'level': 250,
-            'action': '{ "type":"multi", "default":"nothing", "args": [ { "level":250, "command":"command", "action": { "type":"func", "cb":"debug_command" } }, { "level":250, "command":"user", "action": { "type":"func", "cb":"debug_user" } }, { "level":250, "command":"nothing", "action": { "type":"say", "message":"" } } ] }',
-            'delay_all': 0,
-            'delay_user': 1,
-            'extra_args': None,
-            })
-        self.data['level'] = Command.dispatch_command('level', 1000)
-        self.data['eval'] = Command.dispatch_command('eval', 2000)
+        self.data['debug'] = Command.multiaction_command(
+                level=250,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                commands={
+                    'command': Command.dispatch_command('debug_command',
+                        level=250,
+                        description='Debug a command'),
+                    'user': Command.dispatch_command('debug_user',
+                        level=250,
+                        description='Debug a user'),
+                    })
+        self.data['level'] = Command.dispatch_command('level',
+                level=1000,
+                description='Set a users level')
+        self.data['eval'] = Command.dispatch_command('eval',
+                level=2000,
+                description='Run a raw python command. Debug mode only')
 
         log.info('Loaded {0} commands with {1} aliases'.format(num_commands, num_aliases))
         return self

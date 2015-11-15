@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% set active_page = 'commands' %}
+{% block title %}Commands{% endblock %}
+{% block body %}
+<h2>Commands</h2>
+<div id="commands">
+<div class="ui top attached tabular menu">
+    <a class="item active" data-tab="custom-commands">Regular Commands</a>
+    {% if point_commands|length > 0 %}
+        <a class="item" data-tab="point-commands">Point Commands</a>
+    {% endif %}
+    {% if moderator_commands|length > 0 %}
+        <a class="item" data-tab="moderator-commands">Moderator Commands</a>
+    {% endif %}
+</div>
+<div class="ui bottom attached tab segment active" data-tab="custom-commands">
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Output/Description</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for command in custom_commands %}
+    <tr>
+        <td>
+            {% include 'command/usage.html' %}
+        </td>
+        <td class="pemote">{{ command.description }}</td>
+    </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="ui bottom attached tab segment" data-tab="point-commands">
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Cost</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for command in point_commands %}
+    <tr>
+        <td>{% include 'command/usage.html' %}</td>
+        <td>{{ command.cost }}</td>
+        <td class="pemote">{{ command.description }}</td>
+    </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="ui bottom attached tab segment" data-tab="moderator-commands">
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for command in moderator_commands %}
+    <tr>
+        <td>{% include 'command/usage.html' %}</td>
+        <td class="pemote">{{ command.description }}</td>
+    </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+$('#commands .menu .item')
+.tab({
+    context: $('#commands')
+});
+</script>
+{% endblock %}

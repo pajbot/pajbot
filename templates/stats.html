@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% set active_page = 'stats' %}
+{% block title %}Stats{% endblock %}
+{% block body %}
+<h2>Stats</h2>
+<div id="stats">
+    <h3>Top 5 Commands</h3>
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Command</th>
+                <th># Uses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for command in top_5_commands %}
+                <tr>
+                    <td>{{ command.main_alias }}</td>
+                    <td>{{ command.num_uses|number_format }}</td>
+                </tr>
+            {% endfor %}
+    </table>
+    {% if 'linefarming' in modules %}
+        <h3>Top 5 Line Farmers</h3>
+        <table class="ui very basic table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Lines</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in top_5_line_farmers %}
+                    <tr>
+                        <td>{% include 'user/username_link.html' %}</td>
+                        <td>{{ user.num_lines }}</td>
+                    </tr>
+                {% endfor %}
+        </table>
+    {% endif %}
+</div>
+<p class="pemote">TODO: Put random stats here. the design here will be BrokeBack though</p>
+{% endblock %}
