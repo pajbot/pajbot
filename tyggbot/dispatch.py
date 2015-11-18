@@ -89,7 +89,7 @@ class Dispatch:
         if num_lines <= 0:
             bot.say(bot.phrases['nl_0'].format(**phrase_data))
         else:
-            query_data = bot.users.db_session.query(func.count(User.id)).filter(User.num_lines > user.num_lines).one()
+            query_data = bot.users.db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
             phrase_data['nl_pos'] = int(query_data[0]) + 1
             bot.say(bot.phrases['nl_pos'].format(**phrase_data))
 
