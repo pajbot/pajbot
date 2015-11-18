@@ -944,6 +944,21 @@ class Dispatch:
         else:
             bot.say('{0} was not found in the user database'.format(username))
 
+    def check_mod(bot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+            user = bot.users.find(username)
+        else:
+            user = source
+
+        if user:
+            if user.moderator:
+                bot.say('{0} is a moderator PogChamp'.format(user.username))
+            else:
+                bot.say('{0} is not a moderator FeelsBadMan (or has not typed in chat)'.format(user.username))
+        else:
+            bot.say('{0} was not found in the user database'.format(username))
+
     def last_seen(bot, source, message, event, args):
         if message:
             username = message.split(' ')[0].strip().lower()
