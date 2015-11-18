@@ -302,7 +302,7 @@ class CommandManager(UserDict):
                     'win': Command.dispatch_command('add_win',
                         level=500,
                         description='Add a win to something!'),
-                    'funcaction': Command.dispatch_command('add_funccommand',
+                    'funccommand': Command.dispatch_command('add_funccommand',
                         level=2000,
                         description='Add a command that uses a command'),
                     'alias': Command.dispatch_command('add_alias',
