@@ -478,38 +478,52 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
-    def add_link(bot, source, message, event, args):
+    def add_link_blacklist(bot, source, message, event, args):
         parts = message.split(' ')
-        if parts[0] not in ['blacklist', 'whitelist']:
-            bot.whisper(source.username, 'Usage !add link whitelist|blacklist (level of blacklisting, default is 1) http://yourlink.com secondlink.com http://this.org/banned_path/')
-            return
-
         try:
-            if parts[0] == 'blacklist':
-                if not parts[1].isnumeric():
-                    for link in parts[1:]:
-                        bot.link_checker.blacklist_url(link)
-                else:
-                    for link in parts[2:]:
-                        bot.link_checker.blacklist_url(link, level=int(parts[1]))
-            if parts[0] == 'whitelist':
+            if not parts[0].isnumeric():
+                for link in parts:
+                    bot.link_checker.blacklist_url(link)
+            else:
                 for link in parts[1:]:
-                    bot.link_checker.whitelist_url(link)
+                    bot.link_checker.blacklist_url(link, level=int(parts[0]))
         except:
             log.exception("Unhandled exception in add_link")
             bot.whisper(source.username, "Some error occurred white adding your links")
 
         bot.whisper(source.username, 'Successfully added your links')
 
-    def remove_link(bot, source, message, event, args):
+    def add_link_whitelist(bot, source, message, event, args):
         parts = message.split(' ')
         if parts[0] not in ['blacklist', 'whitelist']:
-            bot.whisper(source.username, 'Usage !remove link whitelist|blacklist http://yourlink.com secondlink.com http://this.org/banned_path/')
+            bot.whisper(source.username, 'Usage !add link whitelist|blacklist (level of blacklisting, default is 1) http://yourlink.com secondlink.com http://this.org/banned_path/')
             return
 
         try:
-            for link in parts[1:]:
-                bot.link_checker.unlist_url(link, parts[0])
+            for link in parts:
+                bot.link_checker.whitelist_url(link)
+        except:
+            log.exception("Unhandled exception in add_link")
+            bot.whisper(source.username, "Some error occurred white adding your links")
+
+        bot.whisper(source.username, 'Successfully added your links')
+
+    def remove_link_blacklist(bot, source, message, event, args):
+        parts = message.split(' ')
+        try:
+            for link in parts:
+                bot.link_checker.unlist_url(link, 'blacklist')
+        except:
+            log.exception("Unhandled exception in add_link")
+            bot.whisper(source.username, "Some error occurred white adding your links")
+
+        bot.whisper(source.username, 'Successfully removed your links')
+
+    def remove_link_whitelist(bot, source, message, event, args):
+        parts = message.split(' ')
+        try:
+            for link in parts:
+                bot.link_checker.unlist_url(link, 'whitelist')
         except:
             log.exception("Unhandled exception in add_link")
             bot.whisper(source.username, "Some error occurred white adding your links")

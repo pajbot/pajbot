@@ -306,10 +306,10 @@ class CommandManager(UserDict):
                         delay_user=0,
                         default=None,
                         commands={
-                            'blacklist': Command.dispatch_command('add_link',  # TODO
+                            'blacklist': Command.dispatch_command('add_link_blacklist',
                                 level=500,
                                 description='Unblacklist a link'),
-                            'whitelist': Command.dispatch_command('add_link',  # TODO
+                            'whitelist': Command.dispatch_command('add_link_whitelist',
                                 level=500,
                                 description='Unwhitelist a link'),
                             }
@@ -339,10 +339,10 @@ class CommandManager(UserDict):
                         delay_user=0,
                         default=None,
                         commands={
-                            'blacklist': Command.dispatch_command('remove_link',  # TODO
+                            'blacklist': Command.dispatch_command('remove_link_blacklist',
                                 level=500,
                                 description='Blacklist a link'),
-                            'whitelist': Command.dispatch_command('remove_link',  # TODO
+                            'whitelist': Command.dispatch_command('remove_link_whitelist',
                                 level=500,
                                 description='Whitelist a link'),
                             }
