@@ -31,12 +31,14 @@ class Command(Base):
     cost = Column(Integer)
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean)
+    mod_only = Column(Boolean)
     created = Column(DateTime)
     last_updated = Column(DateTime)
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
     BYPASS_SUB_ONLY_LEVEL = 500
+    BYPASS_MOD_ONLY_LEVEL = 500
 
     DEFAULT_CD_ALL = 5
     DEFAULT_CD_USER = 15
@@ -57,6 +59,7 @@ class Command(Base):
         self.cost = 0
         self.can_execute_with_whisper = False
         self.sub_only = False
+        self.mod_only = False
         self.created = datetime.datetime.now()
         self.last_updated = datetime.datetime.now()
         self.command = options.get('command', None)
@@ -81,6 +84,7 @@ class Command(Base):
         self.cost = options.get('cost', self.cost)
         self.can_execute_with_whisper = options.get('can_execute_with_whisper', self.can_execute_with_whisper)
         self.sub_only = options.get('sub_only', self.sub_only)
+        self.mod_only = options.get('mod_only', self.mod_only)
 
     @orm.reconstructor
     def init_on_load(self):
@@ -167,7 +171,11 @@ class Command(Base):
             return False
 
         if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL:
-            # User is now a sub or a moderator, and cannot use the command.
+            # User is not a sub or a moderator, and cannot use the command.
+            return False
+
+        if self.mod_only and source.moderator is False and source.level < Command.BYPASS_MOD_ONLY_LEVEL:
+            # User is not a twitch moderator, or a bot moderator
             return False
 
         cur_time = time.time()
@@ -380,6 +388,8 @@ class CommandManager(UserDict):
         parser.add_argument('--cd', type=int, dest='delay_all')
         parser.add_argument('--usercd', type=int, dest='delay_user')
         parser.add_argument('--level', type=int, dest='level')
+        parser.add_argument('--modonly', dest='mod_only', action='store_true')
+        parser.add_argument('--no-modonly', dest='mod_only', action='store_false')
 
         try:
             args, unknown = parser.parse_known_args(message)

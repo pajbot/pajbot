@@ -634,6 +634,8 @@ class TyggBot:
                     source.update_username(tag['value'])
                 except:
                     log.exception('Exception caught while updating a users username')
+            elif tag['key'] == 'user-type':
+                source.moderator = tag['value'] == 'mod' or source.username == self.streamer
 
         if self.settings['parse_pyramids'] and whisper is False:
             self.pyramid_parser.parse_line(msg_raw, source)
