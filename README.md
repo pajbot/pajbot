@@ -15,6 +15,7 @@ Examples of twitch channels where the bot is run:
 | lanbot144 | [Landon144](http://twitch.tv/landon144) | [pajlada](http://twitch.tv/pajlada) |
 | Snookibot | [SnookiPoof](http://twitch.tv/snookipoof) | [Dorsens](http://twitch.tv/dorsens) |
 | LinneasBot | [linneafly](http://twitch.tv/linneafly) | [GiggleArrows](http://twitch.tv/gigglearrows) |
+| wowsobot | [imaqtpie](http://twitch.tv/imaqtpie) | [pajlada](http://twitch.tv/pajlada) |
 
 TODO: Continue working on the installation instructions.
 
