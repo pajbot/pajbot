@@ -52,6 +52,8 @@ class TwitterManager:
             for user in self.db_session.query(TwitterUser):
                 self.listener.relevant_users.append(user.username)
 
+        return self
+
     def follow_user(self, username):
         """Add `username` to our relevant_users list."""
         if self.listener:

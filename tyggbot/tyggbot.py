@@ -159,7 +159,7 @@ class TyggBot:
         self.emotes = EmoteManager().reload()
         self.link_tracker = LinkTracker()
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
-        self.twitter_manager = TwitterManager(self)
+        self.twitter_manager = TwitterManager(self).reload()
 
         # Reloadable managers
         self.reloadable = {
