@@ -335,7 +335,7 @@ class Dispatch:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
 
-            if len(action['message']) > 0:
+            if len(action['cb']) > 0:
                 options['action'] = action
             command.set(**options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
