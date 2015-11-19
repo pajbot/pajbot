@@ -29,6 +29,7 @@ class User(Base):
     ignored = Column(Boolean, nullable=False, default=False)
     banned = Column(Boolean, nullable=False, default=False)
     ban_immune = False
+    moderator = False
 
     def __init__(self, username):
         self.id = None
@@ -47,6 +48,7 @@ class User(Base):
         self.discord_user_id = None
         self.ignored = False
         self.banned = False
+        self.moderator = False
 
         self.ban_immune = False
 
