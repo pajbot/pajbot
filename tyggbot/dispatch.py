@@ -264,6 +264,7 @@ class Dispatch:
         --cd CD
         --usercd USERCD
         --level LEVEL
+        --modonly/--no-modonly
         """
 
         if message:
@@ -291,7 +292,7 @@ class Dispatch:
                     'message': response,
                     }
 
-            command, new_command = bot.commands.create_command(alias_str, action=action)
+            command, new_command = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
@@ -309,6 +310,7 @@ class Dispatch:
         --cd CD
         --usercd USERCD
         --level LEVEL
+        --modonly/--no-modonly
         """
         if message:
             # Make sure we got both an alias and a response
@@ -329,7 +331,7 @@ class Dispatch:
                     'cb': response.strip(),
                     }
 
-            command, new_command = bot.commands.create_command(alias_str, action=action)
+            command, new_command = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
@@ -561,6 +563,7 @@ class Dispatch:
             data['cost'] = command.cost
             data['cd_all'] = command.delay_all
             data['cd_user'] = command.delay_user
+            data['mod_only'] = command.mod_only
 
             if command.action.type == 'message':
                 data['response'] = command.action.response
@@ -939,6 +942,21 @@ class Dispatch:
                 bot.say('{0} is a subscriber PogChamp'.format(user.username))
             else:
                 bot.say('{0} is not a subscriber FeelsBadMan'.format(user.username))
+        else:
+            bot.say('{0} was not found in the user database'.format(username))
+
+    def check_mod(bot, source, message, event, args):
+        if message:
+            username = message.split(' ')[0].strip().lower()
+            user = bot.users.find(username)
+        else:
+            user = source
+
+        if user:
+            if user.moderator:
+                bot.say('{0} is a moderator PogChamp'.format(user.username))
+            else:
+                bot.say('{0} is not a moderator FeelsBadMan (or has not typed in chat)'.format(user.username))
         else:
             bot.say('{0} was not found in the user database'.format(username))
 
