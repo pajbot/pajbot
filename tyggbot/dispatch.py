@@ -285,6 +285,7 @@ class Dispatch:
                 type = 'whisper'
             elif response.startswith('/me') or response.startswith('.me'):
                 type = 'me'
+                response = ' '.join(response.split(' ')[1:])
             action = {
                     'type': type,
                     'message': response,
