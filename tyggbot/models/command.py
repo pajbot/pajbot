@@ -288,7 +288,7 @@ class CommandManager(UserDict):
                 level=1000,
                 description='Stop listening for tweets for the given user')
         self.data['add'] = Command.multiaction_command(
-                level=500,
+                level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
@@ -321,7 +321,11 @@ class CommandManager(UserDict):
                                 level=500,
                                 description='Unwhitelist a link'),
                             }
-                        )
+                        ),
+                    'highlight': Command.dispatch_command('add_highlight',
+                        level=100,
+                        mod_only=True,
+                        description='Creates an highlight at the current timestamp'),
                     })
         self.data['remove'] = Command.multiaction_command(
                 level=500,
