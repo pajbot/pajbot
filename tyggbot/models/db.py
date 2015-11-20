@@ -14,9 +14,14 @@ class DBManager:
         DBManager.engine = create_engine(url)
         DBManager.Session = sessionmaker(bind=DBManager.engine)
 
-    def create_session():
+    def create_session(**options):
+        """
+        Useful options:
+        expire_on_commit=False
+        """
+
         try:
-            return DBManager.Session()
+            return DBManager.Session(**options)
         except:
             log.exception('Unhandled exception while creating a session')
 
