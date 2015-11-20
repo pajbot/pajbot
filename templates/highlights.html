@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% set active_page = 'highlights' %}
+{% block title %}Highlights{% endblock %}
+{% block body %}
+<h2>Highlights</h2>
+{% for highlight in highlights %}
+{% include 'highlight/list.html' %}
+{% endfor %}
+
+{% for stream_chunk in stream_chunks %}
+<h3>Chunk {{ stream_chunk.id }}</h3>
+<ul>
+{% for highlight in stream_chunk.highlights %}
+<li>
+    {{ highlight.id }} - {{ highlight.created_at|date_format }}
+    <a href="{{ highlight.video_url }}">Video link</a><br />
+    {% if highlight.description %}
+   <em>{{ highlight.description }}</em><br />
+    {% endif %}
+</li>
+{% endfor %}
+</ul>
+<hr/>
+{% endfor %}
+{% endblock %}

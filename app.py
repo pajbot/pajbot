@@ -16,6 +16,7 @@ from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
+from tyggbot.models.stream import StreamChunk
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -277,6 +278,21 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/highlights')
+def highlights():
+    highlights = []
+    stream_chunks = []
+    session = DBManager.create_session()
+    stream_chunks = session.query(StreamChunk).order_by(StreamChunk.chunk_start.desc()).all()
+    stream_chunks = [stream_chunk for stream_chunk in stream_chunks if len(stream_chunk.highlights) > 0]
+    for stream_chunk in stream_chunks:
+        stream_chunk.highlights = sorted(stream_chunk.highlights, key=lambda x: x.created_at, reverse=True)
+    session.close()
+    return render_template('highlights.html',
+            highlights=highlights,
+            stream_chunks=stream_chunks)
+
+
 @app.route('/discord')
 def discord():
     return render_template('discord.html')
@@ -290,6 +306,13 @@ def clr_overlay(widget_id):
                 widget={})
     else:
         return render_template('errors/404.html'), 404
+
+@app.template_filter()
+def date_format(value, format='full'):
+    if format == 'full':
+        date_format = '%Y-%m-%d %H:%M:%S'
+
+    return value.strftime(date_format)
 
 @app.template_filter()
 def number_format(value, tsep=',', dsep='.'):

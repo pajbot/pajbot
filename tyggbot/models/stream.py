@@ -1,10 +1,13 @@
 import logging
 import datetime
 import argparse
+import math
+import collections
 
 from tyggbot.models.db import DBManager, Base
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.mysql import BIGINT
+from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 from sqlalchemy import inspect
 
@@ -66,6 +69,7 @@ class StreamChunkHighlight(Base):
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
+    video_url = None
 
     DEFAULT_OFFSET = 0
 
@@ -76,12 +80,50 @@ class StreamChunkHighlight(Base):
         self.description = options.get('description', None)
 
         self.stream_chunk = stream_chunk
+        self.refresh_video_url()
 
         stream_chunk.highlights.append(self)
+
+    @orm.reconstructor
+    def on_load(self):
+        self.refresh_video_url()
+
+    def refresh_video_url(self):
+        if self.stream_chunk.video_url is None:
+            self.video_url = None
+        else:
+            date_diff = self.created_at - self.stream_chunk.chunk_start
+            total_seconds = date_diff.total_seconds()
+            total_seconds -= abs(self.highlight_offset)
+            timedata = collections.OrderedDict()
+            timedata['h'] = math.trunc(total_seconds / 3600)
+            timedata['m'] = math.trunc(total_seconds / 60 % 60)
+            timedata['s'] = math.trunc(total_seconds % 60)
+            # XXX: Is it an issue if the format is like this: ?t=03m
+            # i.e. a time format with minutes but _not_ seconds? try it out
+            timestamp = ''.join(['{value:02d}{key}'.format(value=value, key=key) for key, value in timedata.items() if value > 0])
+            self.video_url = '{stream_chunk.video_url}?t={timestamp}'.format(stream_chunk=self.stream_chunk, timestamp=timestamp)
 
 class StreamManager:
     NUM_OFFLINES_REQUIRED = 10
     STATUS_CHECK_INTERVAL = 20  # in seconds
+
+    def fetch_video_url(self, broadcast_id):
+        """
+        TODO: Should we fetch the thumbnail as well?
+        """
+
+        try:
+            data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'})
+
+            for video in data['videos']:
+                if video['broadcast_id'] == broadcast_id:
+                    # we found the relevant video!
+                    return video['url']
+        except:
+            log.exception('Uncaught exception in fetch_video_url')
+
+        return None
 
     def __init__(self, bot):
         self.bot = bot
@@ -199,6 +241,21 @@ class StreamManager:
                 self.first_offline = None
                 self.bot.ascii_timeout_duration = 120
                 self.bot.msg_length_timeout_duration = 120
+
+                # TODO: only try to fetch video url after 10 minutes?
+                if self.current_stream_chunk.video_url is None:
+                    log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
+                    video_url = self.fetch_video_url(self.current_stream_chunk.broadcast_id)
+                    if video_url is not None:
+                        log.info('Successfully fetched a video url: {0}'.format(video_url))
+                        session = DBManager.create_session(expire_on_commit=False)
+                        session.add(self.current_stream_chunk)
+                        self.current_stream_chunk.video_url = video_url
+                        session.commit()
+                        session.close()
+                        log.info('successfully commited it and shit')
+                    else:
+                        log.info('Not video for broadcast found')
             else:
                 self.bot.ascii_timeout_duration = 10
                 self.bot.msg_length_timeout_duration = 10
