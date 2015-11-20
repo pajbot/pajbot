@@ -45,6 +45,7 @@ class Command(Base):
     DEFAULT_LEVEL = 100
 
     def __init__(self, **options):
+        # TODO: Bad code duplication, we should just call set from here
         self.id = options.get('id', None)
         self.level = options.get('level', 100)
         self.action = None
@@ -56,10 +57,10 @@ class Command(Base):
         self.level = options.get('level', Command.DEFAULT_LEVEL)
         self.enabled = True
         self.type = '?'
-        self.cost = 0
-        self.can_execute_with_whisper = False
-        self.sub_only = False
-        self.mod_only = False
+        self.cost = options.get('cost', 0)
+        self.can_execute_with_whisper = options.get('can_execute_with_whisper', False)
+        self.sub_only = options.get('sub_only', False)
+        self.mod_only = options.get('mod_only', False)
         self.created = datetime.datetime.now()
         self.last_updated = datetime.datetime.now()
         self.command = options.get('command', None)

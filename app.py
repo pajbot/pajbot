@@ -141,7 +141,7 @@ def commands():
     moderator_commands = []
 
     for command in bot_commands_list:
-        if command.level > 100:
+        if command.level > 100 or command.mod_only:
             moderator_commands.append(command)
         elif command.cost > 0:
             point_commands.append(command)
@@ -202,7 +202,7 @@ def commands():
         return render_template('commands.html',
                 custom_commands=custom_commands,
                 point_commands=point_commands,
-                moderator_commands=sorted(moderator_commands, key=lambda c: c.level))
+                moderator_commands=sorted(moderator_commands, key=lambda c: c.level if c.mod_only is False else 500))
     except Exception:
         log.exception('Unhandled exception in commands() render_template')
         return 'abc'
