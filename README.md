@@ -30,12 +30,12 @@ TODO: Continue working on the installation instructions.
 The guide below will make sure the bot runs, and optionally how to run it as a [PM2](https://github.com/Unitech/pm2) service. The instructions below are tested on Ubuntu Server 14.0.4
 
 ### Requirements
- * MySQL 5.6
+ * MySQL 5+ (Tested with 5.6)
  * Python 3 (Tested with 3.4)
  * PM2 (optional)
 
 ### Install required dependencies
-1. Install MySQL 5.6: `sudo apt-get install mysql-server-5.6`
+1. Install MySQL: `sudo apt-get install mysql-server`
 2. In the bot root folder:<br/>`pip3 install -r pip-requirements.txt --user`<br/>If `pip3` is not installed, install it by typing `sudo apt-get install python3-pip`
 
 ### Set up a MySQL user
