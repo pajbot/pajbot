@@ -112,14 +112,17 @@ class StreamManager:
     STATUS_CHECK_INTERVAL = 20  # seconds
     VIDEO_URL_CHECK_INTERVAL = 60 * 5  # seconds
 
-    def fetch_video_url(self, broadcast_id):
+    def fetch_video_url(self, stream_chunk):
         try:
             data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'}, base='https://api.twitch.tv/kraken/')
 
             for video in data['videos']:
-                if video['broadcast_id'] == broadcast_id:
-                    # we found the relevant video!
-                    return video['url'], video['preview']
+                if video['broadcast_type'] == 'archive':
+                    recorded_at = parse_twitch_datetime(video['recorded_at'])
+                    time_diff = stream_chunk.chunk_start - recorded_at
+                    if abs(time_diff.total_seconds()) < 5:
+                        # we found the relevant video!
+                        return video['url'], video['preview']
         except urllib.error.HTTPError as e:
             raw_data = e.read().decode('utf-8')
             log.exception('OMGScoots')
@@ -274,7 +277,7 @@ class StreamManager:
             return
 
         log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
-        video_url, video_preview_image_url = self.fetch_video_url(self.current_stream_chunk.broadcast_id)
+        video_url, video_preview_image_url = self.fetch_video_url(self.current_stream_chunk)
         if video_url is not None:
             log.info('Successfully fetched a video url: {0}'.format(video_url))
             session = DBManager.create_session(expire_on_commit=False)
