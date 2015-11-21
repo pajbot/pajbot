@@ -3,6 +3,7 @@ import datetime
 import argparse
 import math
 import collections
+import urllib
 
 from tyggbot.models.db import DBManager, Base
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
@@ -57,6 +58,7 @@ class StreamChunk(Base):
         self.stream_id = stream.id
         self.broadcast_id = broadcast_id
         self.video_url = None
+        self.video_preview_image_url = None
         self.chunk_start = parse_twitch_datetime(created_at)
         self.chunk_end = None
 
@@ -107,24 +109,25 @@ class StreamChunkHighlight(Base):
 
 class StreamManager:
     NUM_OFFLINES_REQUIRED = 10
-    STATUS_CHECK_INTERVAL = 20  # in seconds
+    STATUS_CHECK_INTERVAL = 20  # seconds
+    VIDEO_URL_CHECK_INTERVAL = 60 * 5  # seconds
 
     def fetch_video_url(self, broadcast_id):
-        """
-        TODO: Should we fetch the thumbnail as well?
-        """
-
         try:
-            data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'})
+            data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'}, base='https://api.twitch.tv/kraken/')
 
             for video in data['videos']:
                 if video['broadcast_id'] == broadcast_id:
                     # we found the relevant video!
-                    return video['url']
+                    return video['url'], video['preview']
+        except urllib.error.HTTPError as e:
+            raw_data = e.read().decode('utf-8')
+            log.exception('OMGScoots')
+            log.info(raw_data)
         except:
             log.exception('Uncaught exception in fetch_video_url')
 
-        return None
+        return None, None
 
     def __init__(self, bot):
         self.bot = bot
@@ -135,6 +138,7 @@ class StreamManager:
         self.first_offline = None
 
         self.bot.execute_every(self.STATUS_CHECK_INTERVAL, self.refresh_stream_status)
+        self.bot.execute_every(self.VIDEO_URL_CHECK_INTERVAL, self.refresh_video_url)
 
         """
         This will load the latest stream so we can post an accurate
@@ -178,7 +182,7 @@ class StreamManager:
         self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
-        session = DBManager.create_session()
+        session = DBManager.create_session(expire_on_commit=False)
 
         stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
 
@@ -200,12 +204,10 @@ class StreamManager:
                         title=status['title'])
                 session.add(stream)
                 session.commit()
-                stream.expunge()
                 log.info('added stream!')
             stream_chunk = StreamChunk(stream, status['broadcast_id'], status['created_at'])
             session.add(stream_chunk)
             session.commit()
-            stream_chunk.expunge()
             stream.stream_chunks.append(stream_chunk)
             log.info('Created stream chunk')
 
@@ -214,15 +216,13 @@ class StreamManager:
 
         log.info('added shit to current_stream etc')
 
-        session.expunge_all()
         session.close()
 
     def go_offline(self):
-        session = DBManager.create_session()
+        session = DBManager.create_session(expire_on_commit=False)
         session.add(self.current_stream)
         session.add(self.current_stream_chunk)
         session.commit()
-        session.expunge_all()
         session.close()
 
     def refresh_stream_status(self):
@@ -242,21 +242,6 @@ class StreamManager:
                 self.first_offline = None
                 self.bot.ascii_timeout_duration = 120
                 self.bot.msg_length_timeout_duration = 120
-
-                # TODO: only try to fetch video url after 10 minutes?
-                if self.current_stream_chunk.video_url is None:
-                    log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
-                    video_url = self.fetch_video_url(self.current_stream_chunk.broadcast_id)
-                    if video_url is not None:
-                        log.info('Successfully fetched a video url: {0}'.format(video_url))
-                        session = DBManager.create_session(expire_on_commit=False)
-                        session.add(self.current_stream_chunk)
-                        self.current_stream_chunk.video_url = video_url
-                        session.commit()
-                        session.close()
-                        log.info('successfully commited it and shit')
-                    else:
-                        log.info('Not video for broadcast found')
             else:
                 self.bot.ascii_timeout_duration = 10
                 self.bot.msg_length_timeout_duration = 10
@@ -277,6 +262,30 @@ class StreamManager:
                     self.num_offlines += 1
         except:
             log.exception('Uncaught exception while refreshing stream status')
+
+    def refresh_video_url(self):
+        if self.online is False:
+            return
+
+        if self.current_stream_chunk is None or self.current_stream is None:
+            return
+
+        if self.current_stream_chunk.video_url is not None:
+            return
+
+        log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
+        video_url, video_preview_image_url = self.fetch_video_url(self.current_stream_chunk.broadcast_id)
+        if video_url is not None:
+            log.info('Successfully fetched a video url: {0}'.format(video_url))
+            session = DBManager.create_session(expire_on_commit=False)
+            session.add(self.current_stream_chunk)
+            self.current_stream_chunk.video_url = video_url
+            self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+            session.commit()
+            session.close()
+            log.info('successfully commited it and shit')
+        else:
+            log.info('Not video for broadcast found')
 
     def create_highlight(self, **options):
         """
