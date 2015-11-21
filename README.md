@@ -27,26 +27,27 @@ TODO: Continue working on the installation instructions.
 
 ## Detailed install
 
-The guide below will set up the bot to run as a [PM2](https://github.com/Unitech/pm2) service.
+The guide below will make sure the bot runs, and optionally how to run it as a [PM2](https://github.com/Unitech/pm2) service. The instructions below are tested on Ubuntu Server 14.0.4
 
 ### Requirements
-MySQL 5.6
-Python 3 (Tested with 3.4)
-PM2
+ * MySQL 5.6
+ * Python 3 (Tested with 3.4)
+ * PM2 (optional)
 
 ### Install required dependencies
-1. Install and set up MySQL 5.6 on your server. For Ubuntu 14.04, this you would type this: `sudo apt-get install mysql-server-5.6`.
-2. Install PM2
+1. Install MySQL 5.6: `sudo apt-get install mysql-server-5.6`
+2. In the bot root folder:<br/>`pip3 install -r pip-requirements.txt --user`<br/>If `pip3` is not installed, install it by typing `sudo apt-get install python3-pip`
 
 ### Set up a MySQL user
-1. Open up a MySQL CLI logged in as root.
-2. Type in the following commands:
+1. Open up the MySQL Terminal as root by typing<br/>`mysql -u root -p`
+2. In the MySQL terminal, create a database for the bot:<br/>`CREATE DATABASE tyggbot CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+3. Again in the MySQL terminal, create our user and grant it all privileges on the newly created database:<br/>`GRANT ALL PRIVILEGES ON tyggbot.* TO 'tyggbot'@'localhost' IDENTIFIED BY 'password';`
 
 
 ### Set up the bot
-1. Create a config file according to the specifications in [wiki](https://github.com/pajlada/tyggbot/wiki/Config-File) and save it somewhere in the root code folder. (TODO: configs should be able to be located anywhere...)
-2. Start the bot using PM2: `pm2 start main.py --name="NAME_OF_BOT" --output="/path/to/output.log" --error="/path/to/error.out" --merge-logs -- --config path/to//config.ini`
+1. Create a config file according to the specifications in [wiki](https://github.com/pajlada/tyggbot/wiki/Config-File) and save it somewhere.
+2. Start the bot by typing `./main.py` in the root folder.
 
-## Disclaimer
-
-The code is most likely messy and ugly, this is my first "full scale" python project.
+### Run the bot as a PM2 service (optional)
+1. Install PM2 `npm install -g pm2`
+2. Create a PM2 service that runs the bot `pm2 start main.py --name="NAME_OF_BOT" --output="/path/to/output.log" --error="/path/to/error.out" --merge-logs -- --config /path/to/config.ini`
