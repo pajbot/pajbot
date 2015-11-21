@@ -16,7 +16,7 @@ from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
-from tyggbot.models.stream import StreamChunk
+from tyggbot.models.stream import Stream
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -280,17 +280,15 @@ def about():
 
 @app.route('/highlights')
 def highlights():
-    highlights = []
-    stream_chunks = []
     session = DBManager.create_session()
-    stream_chunks = session.query(StreamChunk).order_by(StreamChunk.chunk_start.desc()).all()
-    stream_chunks = [stream_chunk for stream_chunk in stream_chunks if len(stream_chunk.highlights) > 0]
-    for stream_chunk in stream_chunks:
-        stream_chunk.highlights = sorted(stream_chunk.highlights, key=lambda x: x.created_at, reverse=True)
+    streams = session.query(Stream).order_by(Stream.stream_start.desc()).all()
+    for stream in streams:
+        stream.stream_chunks = sorted(stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
+        for stream_chunk in stream.stream_chunks:
+            stream_chunk.highlights = sorted(stream_chunk.highlights, key=lambda x: x.created_at, reverse=True)
     session.close()
     return render_template('highlights.html',
-            highlights=highlights,
-            stream_chunks=stream_chunks)
+            streams=streams)
 
 
 @app.route('/discord')
