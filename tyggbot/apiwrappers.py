@@ -236,6 +236,7 @@ class TwitchAPI(APIBase):
                 'created_at': None,
                 'followers': -1,
                 'views': -1,
+                'broadcast_id': None,
                 }
         data = None
 
@@ -251,6 +252,7 @@ class TwitchAPI(APIBase):
                 stream_status['created_at'] = data['stream']['created_at']
                 stream_status['followers'] = data['stream']['channel']['followers']
                 stream_status['views'] = data['stream']['channel']['views']
+                stream_status['broadcast_id'] = data['stream']['_id']
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 stream_status['exists'] = False

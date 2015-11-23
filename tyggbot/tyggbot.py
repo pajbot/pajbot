@@ -22,6 +22,7 @@ from .models.setting import SettingManager
 from .models.motd import MOTDManager
 from .models.kvi import KVIManager
 from .models.deck import DeckManager
+from .models.stream import StreamManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -160,6 +161,7 @@ class TyggBot:
         self.link_tracker = LinkTracker()
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
+        self.stream_manager = StreamManager(self)
 
         # Reloadable managers
         self.reloadable = {
@@ -215,7 +217,6 @@ class TyggBot:
         self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
         self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password, 'can_send_whispers': self.config.getboolean('main', 'add_self_as_whisper_account')}])
 
-        self.is_online = False
         self.ascii_timeout_duration = 120
         self.msg_length_timeout_duration = 120
 
@@ -236,9 +237,6 @@ class TyggBot:
             log.info('Silent mode enabled')
 
         self.reconnection_interval = 5
-
-        self.num_offlines = 0
-        self.execute_every(20, self.refresh_stream_status)
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
@@ -336,35 +334,9 @@ class TyggBot:
                 user.minutes_in_chat_online += self.update_chatters_interval
             else:
                 user.minutes_in_chat_offline += self.update_chatters_interval
-            user.touch(points * (5 if user.subscriber else 1))
-
-    def refresh_stream_status(self):
-        try:
-            status = self.twitchapi.get_status(self.streamer)
-            if status['error'] is True:
-                log.error('An error occured while fetching stream status')
-                return
-
-            if status['online']:
-                self.is_online = True
-                self.kvi['stream_status'].set(1)
-                self.kvi['last_online'].set(int(time.time()))
-                self.num_offlines = 0
-                self.ascii_timeout_duration = 120
-                self.msg_length_timeout_duration = 120
-            else:
-                self.ascii_timeout_duration = 10
-                self.msg_length_timeout_duration = 10
-                stream_status = self.kvi['stream_status'].get()
-                if (stream_status == 1 and self.num_offlines >= 10) or stream_status == 0:
-                    self.is_online = False
-                    self.kvi['stream_status'].set(0)
-                    self.kvi['last_offline'].set(int(time.time()))
-                else:
-                    self.kvi['last_online'].set(int(time.time()))
-                self.num_offlines += 1
-        except:
-            log.exception('Uncaught exception while refreshing stream status')
+            num_points = points * (5 if user.subscriber else 1)
+            log.debug('Granting {0} points to {1}'.format(num_points, user.username))
+            user.touch(num_points)
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
@@ -460,22 +432,21 @@ class TyggBot:
     def c_uptime(self):
         return time_since(datetime.now().timestamp(), self.start_time.timestamp())
 
+    @property
     def is_online(self):
-        return self.kvi['stream_status'].get() == 1
+        return self.stream_manager.online
 
     def c_stream_status(self):
-        if self.kvi['stream_status'].get() == 1:
-            return 'online'
-        else:
-            return 'offline'
+        return 'online' if self.stream_manager.online else 'offline'
 
     def c_status_length(self):
-        stream_status = self.kvi['stream_status'].get()
-
-        if stream_status == 1:
-            return time_since(time.time(), self.kvi['last_offline'].get())
+        if self.stream_manager.online:
+            return time_since(time.time(), self.stream_manager.current_stream.stream_start.timestamp())
         else:
-            return time_since(time.time(), self.kvi['last_online'].get())
+            if self.stream_manager.last_stream is not None:
+                return time_since(time.time(), self.stream_manager.last_stream.stream_end.timestamp())
+            else:
+                return 'No recorded stream FeelsBadMan '
 
     def c_time_since_latest_deck(self):
         return time_since(time.time(), self.kvi['latest_deck_time'].get())

@@ -143,3 +143,21 @@ div.pui.class.undefined { background: url('/static/images/class_undefined_32.png
     width: 30%;
     min-width: 300px;
 }
+
+div.video_thumbnail {
+    position: relative;
+    width: 240px;
+    height: 135px;
+    overflow: hidden;
+}
+
+div.video_thumbnail img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 100%;
+    width: auto;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+}

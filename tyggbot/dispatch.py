@@ -336,7 +336,7 @@ class Dispatch:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
 
-            if len(action['message']) > 0:
+            if len(action['cb']) > 0:
                 options['action'] = action
             command.set(**options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
@@ -1039,3 +1039,31 @@ class Dispatch:
             bot.commitable[message].commit()
         else:
             bot.commit_all()
+
+    def add_highlight(bot, source, message, event, args):
+        """Dispatch method for creating highlights
+        Usage: !add highlight [options] DESCRIPTION
+        Options available:
+        --offset SECONDS
+        """
+
+        # Failsafe in case the user does not send a message
+        message = message if message else ''
+
+        options, description = bot.stream_manager.parse_highlight_arguments(message)
+
+        if options is False:
+            bot.whisper(source.username, 'Invalid highlight arguments.')
+            return False
+
+        if len(description) > 0:
+            options['description'] = description
+
+        res = bot.stream_manager.create_highlight(**options)
+
+        if res is True:
+            bot.whisper(source.username, 'Successfully created your highlight')
+        else:
+            bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
+
+        log.info('Create a highlight at the current timestamp!')

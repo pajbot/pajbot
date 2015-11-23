@@ -16,13 +16,14 @@ from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
+from tyggbot.models.stream import Stream
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask import render_template
 from flask import Markup
-from flask import make_response
-from flask import jsonify
+# from flask import make_response
+# from flask import jsonify
 from sqlalchemy import func
 
 init_logging('tyggbot')
@@ -141,7 +142,7 @@ def commands():
     moderator_commands = []
 
     for command in bot_commands_list:
-        if command.level > 100:
+        if command.level > 100 or command.mod_only:
             moderator_commands.append(command)
         elif command.cost > 0:
             point_commands.append(command)
@@ -202,7 +203,7 @@ def commands():
         return render_template('commands.html',
                 custom_commands=custom_commands,
                 point_commands=point_commands,
-                moderator_commands=sorted(moderator_commands, key=lambda c: c.level))
+                moderator_commands=sorted(moderator_commands, key=lambda c: c.level if c.mod_only is False else 500))
     except Exception:
         log.exception('Unhandled exception in commands() render_template')
         return 'abc'
@@ -222,7 +223,7 @@ def user_profile(username):
     session = DBManager.create_session()
     user = session.query(User).filter_by(username=username).one_or_none()
     if user is None:
-        return make_response(jsonify({'error': 'Not found'}), 404)
+        return render_template('no_user.html'), 404
 
     rank = session.query(func.Count(User.id)).filter(User.points > user.points).one()
     rank = rank[0] + 1
@@ -277,6 +278,19 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/highlights')
+def highlights():
+    session = DBManager.create_session()
+    streams = session.query(Stream).order_by(Stream.stream_start.desc()).all()
+    for stream in streams:
+        stream.stream_chunks = sorted(stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
+        for stream_chunk in stream.stream_chunks:
+            stream_chunk.highlights = sorted(stream_chunk.highlights, key=lambda x: x.created_at, reverse=True)
+    session.close()
+    return render_template('highlights.html',
+            streams=streams)
+
+
 @app.route('/discord')
 def discord():
     return render_template('discord.html')
@@ -290,6 +304,13 @@ def clr_overlay(widget_id):
                 widget={})
     else:
         return render_template('errors/404.html'), 404
+
+@app.template_filter()
+def date_format(value, format='full'):
+    if format == 'full':
+        date_format = '%Y-%m-%d %H:%M:%S'
+
+    return value.strftime(date_format)
 
 @app.template_filter()
 def number_format(value, tsep=',', dsep='.'):
@@ -371,8 +392,8 @@ def time_since(t1, t2, format='long'):
 
 
 @app.template_filter('time_ago')
-def time_ago(t):
-    return time_since(datetime.now().timestamp(), t.timestamp())
+def time_ago(t, format='long'):
+    return time_since(datetime.now().timestamp(), t.timestamp(), format)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
