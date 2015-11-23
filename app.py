@@ -244,6 +244,7 @@ def points():
     top_30_users = []
     for user in session.query(User).order_by(User.points.desc())[:30]:
         top_30_users.append(user)
+    session.close()
     return render_template('points.html',
             top_30_users=top_30_users)
 
@@ -260,6 +261,7 @@ def stats():
     if 'linefarming' in modules:
         session = DBManager.create_session()
         top_5_line_farmers = session.query(User).order_by(User.num_lines.desc())[:5]
+        session.close()
     else:
         top_5_line_farmers = []
 
