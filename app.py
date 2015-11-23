@@ -392,8 +392,8 @@ def time_since(t1, t2, format='long'):
 
 
 @app.template_filter('time_ago')
-def time_ago(t):
-    return time_since(datetime.now().timestamp(), t.timestamp())
+def time_ago(t, format='long'):
+    return time_since(datetime.now().timestamp(), t.timestamp(), format)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
