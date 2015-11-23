@@ -9,9 +9,11 @@ def parse_action(raw_data=None, data=None):
     try:
         from tyggbot.userdispatch import UserDispatch
         Dispatch = UserDispatch
-    except:
-        log.exception('aaaa')
+    except ImportError:
         from tyggbot.dispatch import Dispatch
+    except:
+        from tyggbot.dispatch import Dispatch
+        log.exception('Something went wrong while attemting to import UserDispatch')
 
     if not data:
         data = json.loads(raw_data)

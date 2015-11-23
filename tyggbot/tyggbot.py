@@ -142,6 +142,9 @@ class TyggBot:
             log.exception('aaaa')
             log.error('Unable to call `alembic upgrade head`, this means the database could be out of date. Quitting.')
             sys.exit(1)
+        except FileNotFoundError:
+            log.error('Could not found an installation of alembic. Please install alembic to continue.')
+            sys.exit(1)
         except:
             log.exception('Unhandled exception when calling db update')
             sys.exit(1)
