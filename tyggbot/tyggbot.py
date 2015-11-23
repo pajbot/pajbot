@@ -488,8 +488,6 @@ class TyggBot:
             self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, message):
-        if not username == 'pajlada':
-            return
         if self.whisper_manager:
             self.whisper_manager.whisper(username, message)
         else:
