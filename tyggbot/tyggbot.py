@@ -217,7 +217,6 @@ class TyggBot:
         self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
         self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password, 'can_send_whispers': self.config.getboolean('main', 'add_self_as_whisper_account')}])
 
-        self.is_online = False
         self.ascii_timeout_duration = 120
         self.msg_length_timeout_duration = 120
 
@@ -335,7 +334,9 @@ class TyggBot:
                 user.minutes_in_chat_online += self.update_chatters_interval
             else:
                 user.minutes_in_chat_offline += self.update_chatters_interval
-            user.touch(points * (5 if user.subscriber else 1))
+            num_points = points * (5 if user.subscriber else 1)
+            log.debug('Granting {0} points to {1}'.format(num_points, user.username))
+            user.touch(num_points)
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
@@ -431,6 +432,7 @@ class TyggBot:
     def c_uptime(self):
         return time_since(datetime.now().timestamp(), self.start_time.timestamp())
 
+    @property
     def is_online(self):
         return self.stream_manager.online
 
@@ -486,6 +488,8 @@ class TyggBot:
             self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, message):
+        if not username == 'pajlada':
+            return
         if self.whisper_manager:
             self.whisper_manager.whisper(username, message)
         else:

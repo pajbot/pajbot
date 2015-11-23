@@ -28,7 +28,7 @@ class Stream(Base):
     stream_end = Column(DateTime, nullable=True)
     ended = Column(Boolean, nullable=False, default=False)
 
-    stream_chunks = relationship('StreamChunk', backref='stream', lazy='subquery')
+    stream_chunks = relationship('StreamChunk', backref='stream', lazy='joined')
 
     def __init__(self, created_at, **options):
         self.id = None
@@ -51,7 +51,8 @@ class StreamChunk(Base):
     chunk_start = Column(DateTime, nullable=False)
     chunk_end = Column(DateTime, nullable=True)
 
-    highlights = relationship('StreamChunkHighlight', backref='stream_chunk', lazy='subquery')
+    highlights = relationship('StreamChunkHighlight', backref='stream_chunk', lazy='joined')
+    # highlights = []
 
     def __init__(self, stream, broadcast_id, created_at, **options):
         self.id = None
@@ -63,6 +64,8 @@ class StreamChunk(Base):
         self.chunk_end = None
 
         self.stream = stream
+
+        self.highlights = []
 
 class StreamChunkHighlight(Base):
     __tablename__ = 'tb_stream_chunk_highlight'
@@ -147,12 +150,15 @@ class StreamManager:
         This will load the latest stream so we can post an accurate
         "time since last online" figure.
         """
-        session = DBManager.create_session()
+        session = DBManager.create_session(expire_on_commit=False)
         self.current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
         self.last_stream = session.query(Stream).filter_by(ended=True).order_by(Stream.stream_end.desc()).first()
-        if self.current_stream and len(self.current_stream.stream_chunks) > 0:
-            sorted_chunks = sorted(self.current_stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
-            self.current_stream_chunk = sorted_chunks[0]
+        # if self.current_stream and len(self.current_stream.stream_chunks) > 0:
+        if self.current_stream:
+            # sorted_chunks = sorted(self.current_stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
+            # self.current_stream_chunk = sorted_chunks[0]
+            self.current_stream_chunk = session.query(StreamChunk).filter_by(stream_id=self.current_stream.id).order_by(StreamChunk.chunk_start.desc()).first()
+            log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
         session.expunge_all()
         session.close()
 
@@ -168,7 +174,17 @@ class StreamManager:
         log.info('commiting something?')
 
     def create_stream_chunk(self, status):
-        session = DBManager.create_session()
+
+        if self.current_stream_chunk is not None:
+            # There's already a stream chunk started!
+            session = DBManager.create_session(expire_on_commit=False)
+            self.current_stream_chunk.chunk_end = datetime.datetime.now()
+            session.add(self.current_stream_chunk)
+            session.commit()
+            session.close()
+            self.current_stream_chunk = None
+
+        session = DBManager.create_session(expire_on_commit=False)
         stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
         if stream_chunk is None:
             log.info('Creating stream chunk, from create_stream_chunk')
@@ -241,6 +257,10 @@ class StreamManager:
                 if self.current_stream_chunk is None:
                     self.create_stream_chunk(status)
                     self.current_stream.refresh(status)
+                if self.current_stream_chunk.broadcast_id != status['broadcast_id']:
+                    log.debug('Detected a new chunk!')
+                    self.create_stream_chunk(status)
+
                 self.num_offlines = 0
                 self.first_offline = None
                 self.bot.ascii_timeout_duration = 120
@@ -296,6 +316,9 @@ class StreamManager:
         """
         if self.online is False or self.current_stream_chunk is None:
             return 'The stream is not online'
+
+        if self.current_stream_chunk.video_url is None:
+            return 'No video URL fetched for this chunk yet, try in 5 minutes'
 
         try:
             highlight = StreamChunkHighlight(self.current_stream_chunk, **options)
