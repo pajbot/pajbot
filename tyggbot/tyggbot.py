@@ -278,11 +278,14 @@ class TyggBot:
         limit = 100
         offset = 0
         subscribers = []
+        log.info('Starting stage1 subscribers update')
 
         try:
             retry_same = 0
             while True:
+                log.debug('Beginning sub request {0} {1}'.format(limit, offset))
                 subs, retry_same, error = self.twitchapi.get_subscribers(self.streamer, limit, offset, 0 if retry_same is False else retry_same)
+                log.debug('got em!')
 
                 if error is True:
                     log.error('Too many attempts, aborting')
@@ -301,26 +304,39 @@ class TyggBot:
 
                 if retry_same is not False:
                     # In case the next attempt is a retry, wait for 3 seconds
+                    log.debug('waiting for 3 seconds...')
                     time.sleep(3)
+                    log.debug('waited enough!')
+            log.debug('Finished with the while True loop!')
         except:
             log.exception('Caught an exception while trying to get subscribers')
             return
 
+        log.info('Ended stage1 subscribers update')
         if len(subscribers) > 0:
+            log.info('Got some subscribers, so we are pushing them to stage 2!')
             self.mainthread_queue.add(self.update_subscribers_stage2,
                                       args=[subscribers])
+            log.info('Pushed them now.')
 
     def update_subscribers_stage2(self, subscribers):
+        log.debug('begiunning stage 2 of update subs')
         self.kvi['active_subs'].set(len(subscribers) - 1)
 
+        log.debug('Bulk loading subs...')
         loaded_subscribers = self.users.bulk_load(subscribers)
+        log.debug('ok!')
 
+        log.debug('settings all loaded users as non-subs')
         for username, user in self.users.items():
             if user.subscriber:
                 user.subscriber = False
 
+        log.debug('ok!, setting loaded subs as subs')
         for user in loaded_subscribers:
             user.subscriber = True
+
+        log.debug('end of stage 2 of update subs')
 
     def update_chatters_stage1(self):
         chatters = self.twitchapi.get_chatters(self.streamer)
