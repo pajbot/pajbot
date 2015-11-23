@@ -105,9 +105,14 @@ class StreamChunkHighlight(Base):
             timedata['h'] = math.trunc(total_seconds / 3600)
             timedata['m'] = math.trunc(total_seconds / 60 % 60)
             timedata['s'] = math.trunc(total_seconds % 60)
+            pretimedata = {
+                    'h': 0,
+                    'm': timedata['h'],
+                    's': timedata['h'] + timedata['m']
+                    }
             # XXX: Is it an issue if the format is like this: ?t=03m
             # i.e. a time format with minutes but _not_ seconds? try it out
-            timestamp = ''.join(['{value:02d}{key}'.format(value=value, key=key) for key, value in timedata.items() if value > 0])
+            timestamp = ''.join(['{value:02d}{key}'.format(value=value, key=key) for key, value in timedata.items() if value > 0 or pretimedata[key] > 0])
             self.video_url = '{stream_chunk.video_url}?t={timestamp}'.format(stream_chunk=self.stream_chunk, timestamp=timestamp)
 
 class StreamManager:
