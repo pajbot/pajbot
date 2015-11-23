@@ -45,6 +45,7 @@ class Command(Base):
     DEFAULT_LEVEL = 100
 
     def __init__(self, **options):
+        # TODO: Bad code duplication, we should just call set from here
         self.id = options.get('id', None)
         self.level = options.get('level', 100)
         self.action = None
@@ -56,10 +57,10 @@ class Command(Base):
         self.level = options.get('level', Command.DEFAULT_LEVEL)
         self.enabled = True
         self.type = '?'
-        self.cost = 0
-        self.can_execute_with_whisper = False
-        self.sub_only = False
-        self.mod_only = False
+        self.cost = options.get('cost', 0)
+        self.can_execute_with_whisper = options.get('can_execute_with_whisper', False)
+        self.sub_only = options.get('sub_only', False)
+        self.mod_only = options.get('mod_only', False)
         self.created = datetime.datetime.now()
         self.last_updated = datetime.datetime.now()
         self.command = options.get('command', None)
@@ -288,7 +289,7 @@ class CommandManager(UserDict):
                 level=1000,
                 description='Stop listening for tweets for the given user')
         self.data['add'] = Command.multiaction_command(
-                level=500,
+                level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
@@ -321,7 +322,11 @@ class CommandManager(UserDict):
                                 level=500,
                                 description='Unwhitelist a link'),
                             }
-                        )
+                        ),
+                    'highlight': Command.dispatch_command('add_highlight',
+                        level=100,
+                        mod_only=True,
+                        description='Creates an highlight at the current timestamp'),
                     })
         self.data['remove'] = Command.multiaction_command(
                 level=500,

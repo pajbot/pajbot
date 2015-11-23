@@ -15,6 +15,7 @@
         ('/decks', 'decks', 'Decks'),
         ('/points', 'points', 'Points'),
         ('/stats', 'stats', 'Stats'),
+        ('/highlights', 'highlights', 'Highlights'),
     ] %}
 {% else %}
     {% set nav_bar_header = [
@@ -22,6 +23,7 @@
         ('/commands', 'commands', 'Commands'),
         ('/points', 'points', 'Points'),
         ('/stats', 'stats', 'Stats'),
+        ('/highlights', 'highlights', 'Highlights'),
     ] %}
 {% endif %}
 {% set nav_bar_footer = [
@@ -34,6 +36,20 @@
         {% for href, id, caption in nav_bar_header %}
         <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">{{ caption }}</a>
         {% endfor %}
+        <div class="right menu">
+            <div class="item">
+                <div class="ui transparent icon input">
+                    <form id="usersearch">
+                        <div class="ui action input">
+                            <input type="text" name="username" class="username" placeholder="Username">
+                            <button class="ui icon button">
+                                <i class="search icon"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </header>
 <main class="main container">

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% set active_page = 'highlights' %}
+{% block title %}Highlights{% endblock %}
+{% block body %}
+<h2>Highlights</h2>
+{% for highlight in highlights %}
+{% include 'highlight/list.html' %}
+{% endfor %}
+
+<div class="ui divided items">
+{% for stream in streams %}
+{% for stream_chunk in stream.stream_chunks if stream_chunk.highlights|length > 0 and stream_chunk.video_url %}
+{% for highlight in stream_chunk.highlights %}
+<div class="item">
+    <!--{{ highlight.id }} - {{ highlight.created_at|date_format }}-->
+    <div class="ui image video_thumbnail">
+        <img src="{{ stream_chunk.video_preview_image_url }}"/>
+    </div>
+    <div class="content">
+        {% if stream.title|length > 80 %}
+            <div class="header">{{ stream.title[:80] }}...</div>
+        {% else %}
+            <div class="header">{{ stream.title }}</div>
+        {% endif %}
+        <div class="meta">
+            <span class="date">{{ highlight.created_at|time_ago }} ago | {{ highlight.created_at|date_format }}</span>
+        </div>
+        <div class="description">
+            <div>Link: <a href="{{ highlight.video_url }}">{{ highlight.video_url }}</a></div>
+            {% if highlight.description %}
+                <p class="pemote">{{ highlight.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endblock %}

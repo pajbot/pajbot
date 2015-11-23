@@ -1,5 +1,5 @@
 <span class="pui command">
-{% if command.level > 100 and command.level < 500 %}<div class="pui badge turbo"></div>{% elif command.level >= 500 and command.level < 1000 %}<div class="pui badge moderator"></div>{% elif command.level == 1000 %}<div class="pui badge broadcaster"></div>{% elif command.level > 1000 %}<div class="pui badge staff"></div>{% endif %}
+    {% if command.mod_only or (command.level >= 500 and command.level < 1000) %}<div class="pui badge moderator"></div>{% elif command.level > 100 and command.level < 500 %}<div class="pui badge turbo"></div>{% elif command.level == 1000 %}<div class="pui badge broadcaster"></div>{% elif command.level > 1000 %}<div class="pui badge staff"></div>{% endif %}
     {% if command.json_description and command.json_description.get('usage', 'norma') == 'whisper' %}
     /w {{ bot.name }}
     {% endif %}
