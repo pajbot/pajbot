@@ -22,8 +22,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask import render_template
 from flask import Markup
-from flask import make_response
-from flask import jsonify
+# from flask import make_response
+# from flask import jsonify
 from sqlalchemy import func
 
 init_logging('tyggbot')
@@ -223,7 +223,7 @@ def user_profile(username):
     session = DBManager.create_session()
     user = session.query(User).filter_by(username=username).one_or_none()
     if user is None:
-        return make_response(jsonify({'error': 'Not found'}), 404)
+        return render_template('no_user.html'), 404
 
     rank = session.query(func.Count(User.id)).filter(User.points > user.points).one()
     rank = rank[0] + 1
