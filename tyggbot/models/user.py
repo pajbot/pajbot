@@ -5,6 +5,7 @@ import datetime
 from tyggbot.models.db import DBManager, Base
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import orm
 
 log = logging.getLogger('tyggbot')
 
@@ -51,6 +52,26 @@ class User(Base):
         self.moderator = False
 
         self.ban_immune = False
+        self.tags = []
+
+    @orm.reconstructor
+    def on_load(self):
+        self.tags = []
+
+    def tag_as(self, tag):
+        if tag not in self.tags:
+            log.debug('{0} has been tagged as a {1}'.format(self.username, tag))
+            self.tags.append(tag)
+            return True
+
+        return False
+
+    def remove_tag(self, tag):
+        try:
+            self.tags.remove(tag)
+            log.debug('{0} has been un-tagged as a {1}'.format(self.username, tag))
+        except ValueError:
+            pass
 
     def remove_ban_immunity(self):
         self.ban_immune = False
