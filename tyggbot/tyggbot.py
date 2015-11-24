@@ -612,10 +612,28 @@ class TyggBot:
                         emote_count = len(emote_indices)
                         emote = self.emotes[int(emote_id)]
                         emote.add(emote_count, self.reactor)
+                        first_index, last_index = emote_indices[0].split('-')
+                        emote_code = msg_raw[int(first_index):int(last_index) + 1]
+
+                        tag_as = None
+                        if emote_code.startswith('trump'):
+                            tag_as = 'trump_sub'
+                        elif emote_code.startswith('eloise'):
+                            tag_as = 'eloise_sub'
+                        elif emote_code.startswith('forsen'):
+                            tag_as = 'forsen_sub'
+                        elif emote_code.startswith('nostam'):
+                            tag_as = 'nostam_sub'
+                        elif emote_code.startswith('reynad'):
+                            tag_as = 'reynad_sub'
+
+                        if tag_as is not None:
+                            if source.tag_as(tag_as) is True:
+                                self.execute_delayed(60 * 60 * 24, source.remove_tag, (tag_as, ))
+
                         if emote.id is None and emote.code is None:
                             # The emote we just detected is new, set its code.
-                            first_index, last_index = emote_indices[0].split('-')
-                            emote.code = msg_raw[int(first_index):int(last_index) + 1]
+                            emote.code = emote_code
                             if emote.code not in self.emotes:
                                 self.emotes[emote.code] = emote
                     except:
