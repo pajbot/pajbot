@@ -326,9 +326,12 @@ class TyggBot:
         log.debug('ok!')
 
         log.debug('settings all loaded users as non-subs')
+        self.users.reset_subs()
+        """
         for username, user in self.users.items():
             if user.subscriber:
                 user.subscriber = False
+                """
 
         log.debug('ok!, setting loaded subs as subs')
         for user in loaded_subscribers:

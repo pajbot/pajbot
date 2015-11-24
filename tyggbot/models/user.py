@@ -163,6 +163,13 @@ class UserManager(UserDict):
 
         return self.data[key]
 
+    def reset_subs(self):
+        for user in self.db_session.query(User).filter_by(subscriber=True):
+            if user.username not in self.data:
+                self.data[user.username] = user
+
+            user.subscriber = False
+
     """ Load all users WutFace
     def reload(self):
         self.data = {}
