@@ -354,7 +354,6 @@ class TyggBot:
             else:
                 user.minutes_in_chat_offline += self.update_chatters_interval
             num_points = points * (5 if user.subscriber else 1)
-            log.debug('Granting {0} points to {1}'.format(num_points, user.username))
             user.touch(num_points)
 
     def _dispatcher(self, connection, event):
