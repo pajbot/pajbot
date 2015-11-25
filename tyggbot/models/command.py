@@ -328,6 +328,7 @@ class CommandManager(UserDict):
                         mod_only=True,
                         description='Creates an highlight at the current timestamp'),
                     })
+        self.data['edit'] = self.data['add']
         self.data['remove'] = Command.multiaction_command(
                 level=500,
                 delay_all=0,
