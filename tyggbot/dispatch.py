@@ -498,9 +498,6 @@ class Dispatch:
 
     def add_link_whitelist(bot, source, message, event, args):
         parts = message.split(' ')
-        if parts[0] not in ['blacklist', 'whitelist']:
-            bot.whisper(source.username, 'Usage !add link whitelist|blacklist (level of blacklisting, default is 1) http://yourlink.com secondlink.com http://this.org/banned_path/')
-            return
 
         try:
             for link in parts:
