@@ -353,6 +353,7 @@ class StreamManager:
     def parse_highlight_arguments(self, message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--offset', dest='offset', type=int)
+        parser.add_argument('--id', dest='id', type=int)
 
         try:
             args, unknown = parser.parse_known_args(message.split())
@@ -367,3 +368,18 @@ class StreamManager:
         response = ' '.join(unknown)
 
         return options, response
+
+    def update_highlight(self, id, **options):
+        """
+        Returns True if a highlight was modified, otherwise return False
+        """
+
+        if 'offset' in options:
+            options['highlight_offset'] = options.pop('offset')
+
+        session = DBManager.create_session()
+        num_rows = session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).update(options)
+        session.commit()
+        session.close()
+
+        return (num_rows == 1)

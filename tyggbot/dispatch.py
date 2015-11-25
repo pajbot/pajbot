@@ -1056,11 +1056,24 @@ class Dispatch:
         if len(description) > 0:
             options['description'] = description
 
-        res = bot.stream_manager.create_highlight(**options)
+        if 'id' in options:
+            id = options['id']
+            del options['id']
+            if len(options) > 0:
+                res = bot.stream_manager.update_highlight(id, **options)
 
-        if res is True:
-            bot.whisper(source.username, 'Successfully created your highlight')
+                if res is True:
+                    bot.whisper(source.username, 'Successfully updated your highlight ({0})'.format(', '.join([key for key in options])))
+                else:
+                    bot.whisper(source.username, 'A highlight with this ID does not exist.')
+            else:
+                bot.whisper(source.username, 'Nothing to update! Give me some arguments')
         else:
-            bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
+            res = bot.stream_manager.create_highlight(**options)
 
-        log.info('Create a highlight at the current timestamp!')
+            if res is True:
+                bot.whisper(source.username, 'Successfully created your highlight')
+            else:
+                bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
+
+            log.info('Create a highlight at the current timestamp!')
