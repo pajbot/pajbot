@@ -608,6 +608,10 @@ class TyggBot:
             self.ban(source.username)
             return False
 
+        # If a user types when timed out, we assume he's been unbanned for a good reason and remove his flag.
+        if source.timed_out is True:
+            source.timed_out = False
+
         for tag in tags:
             if tag['key'] == 'subscriber':
                 if source.subscriber and tag['value'] == '0':

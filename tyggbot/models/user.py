@@ -54,9 +54,12 @@ class User(Base):
         self.ban_immune = False
         self.tags = []
 
+        self.timed_out = False
+
     @orm.reconstructor
     def on_load(self):
         self.tags = []
+        self.timed_out = False
 
     def tag_as(self, tag):
         if tag not in self.tags:

@@ -3,6 +3,7 @@ import re
 import logging
 import collections
 import json
+import datetime
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
@@ -656,24 +657,38 @@ class Dispatch:
             if len(username) < 2:
                 return False
 
-            username_user = bot.users.find(username)
-            if username_user is None:
+            victim = bot.users.find(username)
+            if victim is None:
                 bot.whisper(source.username, 'This user does not exist FailFish')
                 return False
 
             """
-            if username_user == source:
+            if victim == source:
                 bot.whisper(source.username, 'You can\'t timeout yourself FailFish')
                 return False
                 """
 
-            if username_user.level >= 500:
+            if victim.level >= 500:
                 bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
                 return False
 
-            bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
-            bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
-            bot.timeout(username, _time)
+            now = datetime.datetime.now()
+            if victim.timed_out is True and victim.timeout_end > now:
+                victim.timeout_end += datetime.timedelta(seconds=_time)
+                bot.whisper(victim.username, '{victim.username}, you were timed out for an additional {time} seconds by {source.username}'.format(
+                    victim=victim,
+                    source=source,
+                    time=_time))
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(args['command'].cost, username, _time))
+                num_seconds = int((victim.timeout_end - now).total_seconds())
+                bot._timeout(username, num_seconds)
+            else:
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for an {2} seconds.'.format(args['command'].cost, username, _time))
+                bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
+                bot._timeout(username, _time)
+                victim.timed_out = True
+                victim.timeout_start = now
+                victim.timeout_end = now + datetime.timedelta(seconds=_time)
             return True
 
         return False
@@ -1009,11 +1024,13 @@ class Dispatch:
     def unban_source(bot, source, message, event, args):
         """Unban the user who ran the command."""
         bot.privmsg('.unban {0}'.format(source.username))
+        source.timed_out = False
 
     def untimeout_source(bot, source, message, event, args):
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         bot.privmsg('.timeout {0} 1'.format(source.username))
+        source.timed_out = False
 
     def twitter_follow(bot, source, message, event, args):
         if message:
