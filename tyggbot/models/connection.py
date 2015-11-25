@@ -54,8 +54,10 @@ class Connection:
 
 
 class ConnectionManager:
-    def __init__(self, reactor, bot, message_limit):
-        self.backup_conns_number = 2
+    def __init__(self, reactor, bot, message_limit, streamer, backup_conns=2):
+        self.backup_conns_number = backup_conns
+        self.streamer = streamer
+        self.channel = '#' + self.streamer
 
         self.reactor = reactor
         self.bot = bot
@@ -123,23 +125,20 @@ class ConnectionManager:
         for connection in self.connlist:
             if connection.conn.is_connected():
                 if not connection.in_channel:
-                    if irc.client.is_channel(self.bot.channel):
-                        connection.conn.join(self.bot.channel)
+                    if irc.client.is_channel(self.channel):
+                        connection.conn.join(self.channel)
                         log.debug("Joined channel")
                         connection.in_channel = True
-                    if self.bot.control_hub and irc.client.is_channel(self.bot.control_hub):
-                        connection.conn.join(self.bot.control_hub)
 
                 return connection.conn
 
-        log.error("No connection with is_connected() found in ConnectionManager")
         self.run_maintenance()
         return self.get_main_conn()
 
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
         log.debug('Fetching random IRC server...')
-        data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'chat_properties'])
+        data = self.bot.twitchapi.get(['channels', self.streamer, 'chat_properties'])
         if data and len(data['chat_servers']) > 0:
             server = random.choice(data['chat_servers'])
             ip, port = server.split(':')

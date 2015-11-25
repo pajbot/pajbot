@@ -116,8 +116,6 @@ class TyggBot:
         else:
             self.wolfram = None
 
-        self.control_hub = config['main'].get('control_hub', None)
-
         self.silent = False
         self.dev = False
 
@@ -206,7 +204,13 @@ class TyggBot:
 
         self.parse_version()
 
-        self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit)
+        self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit, streamer=self.streamer)
+        chub = self.config['main'].get('control_hub', None)
+        if chub is not None:
+            self.control_hub = ConnectionManager(self.reactor, self, TMI.message_limit, streamer=chub, backup_conns=1)
+            log.info('start pls')
+        else:
+            self.control_hub = None
 
         twitch_client_id = None
         twitch_oauth = None
@@ -363,7 +367,7 @@ class TyggBot:
             user.touch(num_points)
 
     def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager:
+        if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
             do_nothing = lambda c, e: None
             method = getattr(self, "on_" + event.type, do_nothing)
             method(connection, event)
@@ -445,7 +449,10 @@ class TyggBot:
             if channel is None:
                 channel = self.channel
 
-            self.connection_manager.privmsg(channel, message)
+            if self.control_hub is not None and self.control_hub.channel == channel:
+                self.control_hub.privmsg(channel, message)
+            else:
+                self.connection_manager.privmsg(channel, message)
         except Exception:
             log.exception('Exception caught while sending privmsg')
 
