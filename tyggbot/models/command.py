@@ -167,7 +167,7 @@ class Command(Base):
             # User does not have a high enough power level to run this command
             return False
 
-        if whisper and self.can_execute_with_whisper is False and source.level < Command.MIN_WHISPER_LEVEL:
+        if whisper and self.can_execute_with_whisper is False and source.level < Command.MIN_WHISPER_LEVEL and source.moderator is False:
             # This user cannot execute the command through a whisper
             return False
 
