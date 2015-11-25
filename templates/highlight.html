@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% set active_page = 'highlights' %}
+{% block title %}Highlight - {{ highlight.id }}{% endblock %}
+{% block body %}
+<h2>{{ stream.title }}</h2>
+<div class="ui image video_thumbnail">
+    <img src="{{ stream_chunk.video_preview_image_url }}"/>
+</div>
+<table class="ui very basic table">
+    <tbody>
+        <tr>
+            <th>Created at</th>
+            <td><span class="date">{{ highlight.created_at|time_ago }} ago | {{ highlight.created_at|date_format }}</span></td>
+        </tr>
+        {% if description %}
+        <tr>
+            <th>Description</th>
+            <td>{{ highlight.description }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <th>Link</th>
+            <td><a href="{{ highlight.video_url }}">{{ highlight.video_url }}</a></td>
+        </tr>
+        <tr>
+            <th>ID</th>
+            <td>{{ highlight.id }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

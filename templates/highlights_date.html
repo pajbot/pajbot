@@ -2,26 +2,23 @@
 {% set active_page = 'highlights' %}
 {% block title %}Highlights{% endblock %}
 {% block body %}
-<h2>Highlights</h2>
-{% for highlight in highlights %}
-{% include 'highlight/list.html' %}
-{% endfor %}
-
+<h2>Highlights on {{ date|strftime('%Y-%m-%d') }}</h2>
+{% if highlights|length == 0 %}
+<p>No highlights were found on this date</p>
+{% else %}
 <div class="ui divided items">
-{% for stream in streams %}
-{% for stream_chunk in stream.stream_chunks if stream_chunk.highlights|length > 0 and stream_chunk.video_url %}
-{% for highlight in stream_chunk.highlights %}
+{% for highlight in highlights %}
 <div class="item">
     <div class="ui image video_thumbnail">
-        <img src="{{ stream_chunk.video_preview_image_url }}"/>
+        <img src="{{ highlight.stream_chunk.video_preview_image_url }}"/>
     </div>
     <div class="content">
 <div class="header">
     <a href="/highlights/{{ highlight.created_at|strftime('%Y-%m-%d') }}/{{ highlight.id }}" style="color: #0e407f;">
-        {% if stream.title|length > 80 %}
-            {{ stream.title[:80] }}...
+        {% if highlight.stream_chunk.stream.title|length > 80 %}
+            {{ highlight.stream_chunk.stream.title[:80] }}...
         {% else %}
-            {{ stream.title }}
+            {{ highlight.stream_chunk.stream.title }}
         {% endif %}
         </a>
     </div>
@@ -37,6 +34,5 @@
     </div>
 </div>
 {% endfor %}
-{% endfor %}
-{% endfor %}
+{% endif %}
 {% endblock %}

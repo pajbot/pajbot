@@ -8,7 +8,7 @@ import json
 import math
 import logging
 # import random
-from datetime import datetime
+import datetime
 
 from tyggbot.web.models import api
 from tyggbot.web.models import errors
@@ -16,16 +16,17 @@ from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
-from tyggbot.models.stream import Stream
+from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask import render_template
 from flask import Markup
+from flask import redirect
 # from flask import make_response
 # from flask import jsonify
-from sqlalchemy import func
+from sqlalchemy import func, cast, Date
 
 init_logging('tyggbot')
 log = logging.getLogger('tyggbot')
@@ -289,8 +290,42 @@ def contact():
 def about():
     return render_template('about.html')
 
+@app.route('/highlights/<date>/')
+def highlight_list_date(date):
+    # Make sure we were passed a valid date
+    try:
+        parsed_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+    except ValueError:
+        # Invalid date
+        return redirect('/highlights/', 303)
+    session = DBManager.create_session()
+    highlights = session.query(StreamChunkHighlight).filter(cast(StreamChunkHighlight.created_at, Date) == parsed_date).order_by(StreamChunkHighlight.created_at.desc()).all()
 
-@app.route('/highlights')
+    try:
+        return render_template('highlights_date.html',
+                highlights=highlights,
+                date=parsed_date)
+    finally:
+        session.close()
+
+@app.route('/highlights/<date>/<highlight_id>', defaults={'highlight_title': None})
+@app.route('/highlights/<date>/<highlight_id>-<highlight_title>')
+def highlight_id(date, highlight_id, highlight_title=None):
+    session = DBManager.create_session()
+    highlight = session.query(StreamChunkHighlight).filter_by(id=highlight_id).first()
+    if highlight is None:
+        session.close()
+        return render_template('highlight_404.html'), 404
+    else:
+        stream_chunk = highlight.stream_chunk
+        stream = stream_chunk.stream
+        session.close()
+    return render_template('highlight.html',
+            highlight=highlight,
+            stream_chunk=stream_chunk,
+            stream=stream)
+
+@app.route('/highlights/')
 def highlights():
     session = DBManager.create_session()
     streams = session.query(Stream).order_by(Stream.stream_start.desc()).all()
@@ -323,6 +358,10 @@ def date_format(value, format='full'):
         date_format = '%Y-%m-%d %H:%M:%S'
 
     return value.strftime(date_format)
+
+@app.template_filter('strftime')
+def time_strftime(value, format):
+    return value.strftime(format)
 
 @app.template_filter()
 def number_format(value, tsep=',', dsep='.'):
@@ -405,7 +444,7 @@ def time_since(t1, t2, format='long'):
 
 @app.template_filter('time_ago')
 def time_ago(t, format='long'):
-    return time_since(datetime.now().timestamp(), t.timestamp(), format)
+    return time_since(datetime.datetime.now().timestamp(), t.timestamp(), format)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
