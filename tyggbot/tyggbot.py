@@ -53,7 +53,7 @@ class TyggBot:
     should never have two active classes. """
     instance = None
 
-    version = '2.0.3'
+    version = '2.0.4'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
