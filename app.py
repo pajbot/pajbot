@@ -146,7 +146,7 @@ def index():
     return render_template('index.html',
             custom_content=custom_content)
 
-@app.route('/commands')
+@app.route('/commands/')
 def commands():
     custom_commands = []
     point_commands = []
@@ -220,7 +220,7 @@ def commands():
         return 'abc'
 
 
-@app.route('/decks')
+@app.route('/decks/')
 def decks():
     session = DBManager.create_session()
     decks = session.query(Deck).order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
