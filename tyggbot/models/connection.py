@@ -137,7 +137,7 @@ class ConnectionManager:
 
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
-        log.debug('Fetching random IRC server...')
+        log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
         data = self.bot.twitchapi.get(['channels', self.streamer, 'chat_properties'])
         if data and len(data['chat_servers']) > 0:
             server = random.choice(data['chat_servers'])
