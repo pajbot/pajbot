@@ -23,6 +23,7 @@ from .models.motd import MOTDManager
 from .models.kvi import KVIManager
 from .models.deck import DeckManager
 from .models.stream import StreamManager
+from .models.webcontent import WebContent
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since

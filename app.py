@@ -17,6 +17,7 @@ from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
 from tyggbot.models.stream import Stream
+from tyggbot.models.webcontent import WebContent
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -55,6 +56,9 @@ DBManager.init(config['main']['db'])
 
 session = DBManager.create_session()
 num_decks = session.query(func.count(Deck.id)).scalar()
+custom_web_content = {}
+for web_content in session.query(WebContent).filter(WebContent.content is not None):
+    custom_web_content[web_content.page] = web_content.content
 session.close()
 
 has_decks = num_decks > 0
@@ -133,7 +137,13 @@ update_commands()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    custom_content = custom_web_content.get('home', '')
+    try:
+        custom_content = Markup(markdown.markdown(custom_content))
+    except:
+        log.exception('Unhandled exception in def index')
+    return render_template('index.html',
+            custom_content=custom_content)
 
 @app.route('/commands')
 def commands():
