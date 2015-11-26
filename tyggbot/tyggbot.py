@@ -787,3 +787,13 @@ class TyggBot:
             self.whisper_manager.quit()
 
         sys.exit(0)
+
+    def apply_filter(self, resp, filter):
+        available_filters = {
+                'strftime': lambda var, args: var.strftime(args[0]),
+                'lower': lambda var, args: var.lower(),
+                'upper': lambda var, args: var.upper(),
+                }
+        if filter.name in available_filters:
+            return available_filters[filter.name](resp, filter.arguments)
+        return resp

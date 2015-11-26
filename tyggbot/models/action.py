@@ -39,10 +39,17 @@ def parse_action(raw_data=None, data=None):
 
 
 class Substitution:
-    def __init__(self, cb, key=None, argument=None):
+    def __init__(self, cb, key=None, argument=None, filter=None):
         self.cb = cb
         self.key = key
         self.argument = argument
+        self.filter = filter
+
+
+class SubstitutionFilter:
+    def __init__(self, name, arguments):
+        self.name = name
+        self.arguments = arguments
 
 
 class BaseAction:
@@ -117,8 +124,7 @@ class RawFuncAction(BaseAction):
 
 class MessageAction(BaseAction):
     type = 'message'
-    regex = re.compile('(\$\([a-zA-Z:;_0-9 \/]+\))')
-    inner_regex = re.compile(r'([a-z]+)(;[0-9]+|)(:[a-zA-Z_0-9 \/]+|)')
+    regex = re.compile(r'\$\(([a-z]+)(;[0-9]+)?(:[\w]+)?(\|[a-zA-Z0-9]+(\([\w%: +-]+\))?)?\)')
     argument_regex = re.compile('(\$\([0-9]+\))')
     argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
@@ -151,55 +157,59 @@ class MessageAction(BaseAction):
 
                 self.argument_subs.append(Substitution(None, argument=argument_num))
 
-        for sub_key in self.regex.findall(self.response):
-            if sub_key in self.subs:
+        for sub_key in self.regex.finditer(self.response):
+            sub_string = sub_key.group(0)
+            path = sub_key.group(1)
+            argument = sub_key.group(2)
+            if argument is not None:
+                argument = int(argument[1:])
+            key = sub_key.group(3)
+            if key is not None:
+                key = key[1:]
+            filter = sub_key.group(4)
+            if filter is not None:
+                filter = filter[1:]
+                filter_argument = sub_key.group(5)
+                if filter_argument is not None:
+                    filter = filter[:-len(filter_argument)]
+                    filter_argument = [filter_argument[1:-1]]
+                else:
+                    filter_argument = []
+                filter = SubstitutionFilter(filter, filter_argument)
+
+            if sub_string in self.subs:
                 # We already matched this variable
                 continue
 
-            inner_match = self.inner_regex.search(sub_key)
-
-            if inner_match:
-                path = inner_match.group(1)
-                argument = inner_match.group(2)[1:]
-                key = inner_match.group(3)[1:]
-
-                if len(argument) == 0:
-                    argument = None
+            try:
+                if path == 'kvi':
+                    cb = TyggBot.instance.get_kvi_value
+                elif path == 'tb':
+                    cb = TyggBot.instance.get_value
+                elif path == 'lasttweet':
+                    cb = TyggBot.instance.get_last_tweet
+                elif path == 'etm':
+                    cb = TyggBot.instance.get_emote_tm
+                elif path == 'ecount':
+                    cb = TyggBot.instance.get_emote_count
+                elif path == 'etmrecord':
+                    cb = TyggBot.instance.get_emote_tm_record
+                elif path == 'source':
+                    cb = TyggBot.instance.get_source_value
+                elif path == 'user':
+                    cb = TyggBot.instance.get_user_value
+                elif path == 'time':
+                    cb = TyggBot.instance.get_time_value
+                elif path == 'curdeck':
+                    cb = TyggBot.instance.decks.action_get_curdeck
                 else:
-                    argument = int(argument)
-
-                if len(key) == 0:
-                    key = None
-
-                try:
-                    if path == 'kvi':
-                        cb = TyggBot.instance.get_kvi_value
-                    elif path == 'tb':
-                        cb = TyggBot.instance.get_value
-                    elif path == 'lasttweet':
-                        cb = TyggBot.instance.get_last_tweet
-                    elif path == 'etm':
-                        cb = TyggBot.instance.get_emote_tm
-                    elif path == 'ecount':
-                        cb = TyggBot.instance.get_emote_count
-                    elif path == 'etmrecord':
-                        cb = TyggBot.instance.get_emote_tm_record
-                    elif path == 'source':
-                        cb = TyggBot.instance.get_source_value
-                    elif path == 'user':
-                        cb = TyggBot.instance.get_user_value
-                    elif path == 'time':
-                        cb = TyggBot.instance.get_time_value
-                    elif path == 'curdeck':
-                        cb = TyggBot.instance.decks.action_get_curdeck
-                    else:
-                        log.error('Unimplemented path: {0}'.format(path))
-                        continue
-                except:
+                    log.error('Unimplemented path: {0}'.format(path))
                     continue
+            except:
+                continue
 
-                sub = Substitution(cb, key=key, argument=argument)
-                self.subs[sub_key] = sub
+            sub = Substitution(cb, key=key, argument=argument, filter=filter)
+            self.subs[sub_string] = sub
 
     def get_argument_value(message, index):
         if not message:
@@ -232,6 +242,11 @@ class MessageAction(BaseAction):
                 log.error('Unknown param for response.')
                 continue
             value = sub.cb(param, extra)
+            try:
+                if sub.filter is not None:
+                    value = bot.apply_filter(value, sub.filter)
+            except:
+                pass
             if value is None:
                 return None
             resp = resp.replace(needle, str(value))
