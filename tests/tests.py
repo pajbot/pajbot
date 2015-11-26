@@ -72,6 +72,8 @@ class ActionsTester(unittest.TestCase):
 
     def test_message_action_parse(self):
         from tyggbot.models.action import SayAction
+        import pytz
+        import datetime
 
         values = [
                 {
@@ -128,6 +130,12 @@ class ActionsTester(unittest.TestCase):
                     'num_subs': 2,
                     'arguments': 'testuser123Kappa',
                     'result': 'pajlada was last seen 18:01:42.',
+                }, {
+                    'message': 'Time in Sweden: $(time:Europe/Stockholm)',
+                    'num_argument_subs': 0,
+                    'num_subs': 1,
+                    'arguments': 'testuser123Kappa',
+                    'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.tyggbot.date_fmt)),
                 },
                 ]
 

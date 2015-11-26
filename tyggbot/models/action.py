@@ -124,7 +124,7 @@ class RawFuncAction(BaseAction):
 
 class MessageAction(BaseAction):
     type = 'message'
-    regex = re.compile(r'\$\(([a-z]+)(;[0-9]+)?(:[\w]+)?(\|[a-zA-Z0-9]+(\([\w%: +-]+\))?)?\)')
+    regex = re.compile(r'\$\(([a-z]+)(;[0-9]+)?(:[\w/ ]+)?(\|[a-zA-Z0-9]+(\([\w%: +-]+\))?)?\)')
     argument_regex = re.compile('(\$\([0-9]+\))')
     argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
