@@ -293,6 +293,7 @@ class CommandManager(UserDict):
                 delay_all=0,
                 delay_user=0,
                 default=None,
+                command='add',
                 commands={
                     'command': Command.dispatch_command('add_command',
                         level=500,
@@ -317,10 +318,10 @@ class CommandManager(UserDict):
                         commands={
                             'blacklist': Command.dispatch_command('add_link_blacklist',
                                 level=500,
-                                description='Unblacklist a link'),
+                                description='Blacklist a link'),
                             'whitelist': Command.dispatch_command('add_link_whitelist',
                                 level=500,
-                                description='Unwhitelist a link'),
+                                description='Whitelist a link'),
                             }
                         ),
                     'highlight': Command.dispatch_command('add_highlight',
@@ -334,6 +335,7 @@ class CommandManager(UserDict):
                 delay_all=0,
                 delay_user=0,
                 default=None,
+                command='remove',
                 commands={
                     'command': Command.dispatch_command('remove_command',
                         level=500,
@@ -355,10 +357,10 @@ class CommandManager(UserDict):
                         commands={
                             'blacklist': Command.dispatch_command('remove_link_blacklist',
                                 level=500,
-                                description='Blacklist a link'),
+                                description='Unblacklist a link'),
                             'whitelist': Command.dispatch_command('remove_link_whitelist',
                                 level=500,
-                                description='Whitelist a link'),
+                                description='Unwhitelist a link'),
                             }
                         )
                     })
