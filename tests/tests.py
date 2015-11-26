@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
 import unittest
+import sys
+import os
+sys.path.append(os.path.abspath('..'))
+os.chdir('..')
 
 
 class TestURLMethods(unittest.TestCase):
     def test_is_subdomain(self):
-        from models.linkchecker import is_subdomain
+        from tyggbot.models.linkchecker import is_subdomain
 
         self.assertTrue(is_subdomain('pajlada.se', 'pajlada.se'))
         self.assertTrue(is_subdomain('test.pajlada.se', 'pajlada.se'))
@@ -15,7 +19,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subdomain('foo.bar.com', 'foobar.com'))
 
     def test_is_subpath(self):
-        from models.linkchecker import is_subpath
+        from tyggbot.models.linkchecker import is_subpath
 
         self.assertTrue(is_subpath('/foo/', '/foo/'))
         self.assertTrue(is_subpath('/foo/bar', '/foo/'))
@@ -24,7 +28,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subpath('/foo/', '/foo/bar'))
 
     def test_is_same_url(self):
-        from models.linkchecker import is_same_url, Url
+        from tyggbot.models.linkchecker import is_same_url, Url
 
         self.assertEqual(is_same_url(Url('pajlada.se'), Url('pajlada.se/')), True)
 
@@ -32,7 +36,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertEqual(is_same_url(Url('pajlada.com'), Url('pajlada.com/abc')), False)
 
     def test_find_unique_urls(self):
-        from models.linkchecker import LinkChecker, find_unique_urls
+        from tyggbot.models.linkchecker import LinkChecker, find_unique_urls
         import re
 
         regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
@@ -53,17 +57,21 @@ class TestURLMethods(unittest.TestCase):
 
 class ActionsTester(unittest.TestCase):
     def setUp(self):
-        from tyggbot import TyggBot
-        from models.user import User, UserManager
-        self.tyggbot = TyggBot()
-        self.tyggbot.users = UserManager.init_for_tests()
-        self.source = User()
-        self.source.id = 123
-        self.source.username = 'pajlada'
+        from tyggbot.tyggbot import TyggBot
+        from tyggbot.models.user import User, UserManager
+        from tyggbot.tbutil import load_config
+        import datetime
+
+        config = load_config('config.ini')
+        args = TyggBot.parse_args()
+        self.tyggbot = TyggBot(config, args)
+        self.source = self.tyggbot.users['testuser123Kappa']
         self.source.username_raw = 'PajladA'
+        self.source.points = 142
+        self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S')
 
     def test_message_action_parse(self):
-        from tbactions import SayAction
+        from tyggbot.models.action import SayAction
 
         values = [
                 {
@@ -71,40 +79,64 @@ class ActionsTester(unittest.TestCase):
                     'num_argument_subs': 0,
                     'num_subs': 0,
                     'arguments': '',
+                    'result': 'hi',
                 }, {
                     'message': 'Hello $(source:username)!',
                     'num_argument_subs': 0,
                     'num_subs': 1,
                     'arguments': '',
+                    'result': 'Hello testuser123Kappa!',
                 }, {
                     'message': 'Testing $(1)',
                     'num_argument_subs': 1,
                     'num_subs': 0,
                     'arguments': 'a b c',
+                    'result': 'Testing a',
                 }, {
                     'message': 'Testing $(1) $(2)',
                     'num_argument_subs': 2,
                     'num_subs': 0,
                     'arguments': '',
+                    'result': 'Testing  ',
                 }, {
                     'message': 'Testing $(1) $(2) $(1)',
                     'num_argument_subs': 2,
                     'num_subs': 0,
                     'arguments': '',
+                    'result': 'Testing   ',
+                }, {
+                    'message': '$(user;1:username_raw|upper) has $(user;1:points) points.',
+                    'num_argument_subs': 0,
+                    'num_subs': 2,
+                    'arguments': 'testuser123Kappa',
+                    'result': 'PAJLADA has 142 points.',
+                }, {
+                    'message': '$(user;1:username_raw|lower) has $(user;1:points) points.',
+                    'num_argument_subs': 0,
+                    'num_subs': 2,
+                    'arguments': 'testuser123Kappa',
+                    'result': 'pajlada has 142 points.',
                 }, {
                     'message': '$(user;1:username_raw) has $(user;1:points) points.',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'pajlada',
+                    'arguments': 'testuser123Kappa',
+                    'result': 'PajladA has 142 points.',
+                }, {
+                    'message': '$(user;1:username_raw|lower) was last seen $(source:last_seen|strftime(%H:%M:%S)).',
+                    'num_argument_subs': 0,
+                    'num_subs': 2,
+                    'arguments': 'testuser123Kappa',
+                    'result': 'pajlada was last seen 18:01:42.',
                 },
                 ]
 
         for data in values:
             action = SayAction(data['message'])
+            response = action.get_response(self.tyggbot, {'source': self.source, 'message': data['arguments']})
             self.assertEqual(len(action.argument_subs), data['num_argument_subs'], 'Wrong amount of argument substitutions for "{0}"'.format(data['message']))
             self.assertEqual(len(action.subs), data['num_subs'], 'Wrong amount of substitutions for "{0}"'.format(data['message']))
-
-            print(action.get_response(self.tyggbot, {'source': self.source, 'message': data['arguments']}))
+            self.assertEqual(response, data['result'], 'Got output "{}", expected "{}"'.format(response, data['result']))
 
 if __name__ == '__main__':
     unittest.main()

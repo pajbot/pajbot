@@ -164,8 +164,7 @@ def load_config(path):
             }
     config = configparser.ConfigParser(defaults=defaults)
 
-    real_path = os.path.realpath(path)
-    res = config.read(real_path)
+    res = config.read(os.path.realpath(path))
 
     if len(res) == 0:
         log.error('{0} missing. Check out install/config.example.ini'.format(path))
