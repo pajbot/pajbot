@@ -3,6 +3,7 @@ from collections import UserDict
 import datetime
 
 from tyggbot.models.db import DBManager, Base
+from tyggbot.models.time import TimeManager
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy import orm
@@ -20,8 +21,8 @@ class User(Base):
     points = Column(Integer, nullable=False, default=0)
     num_lines = Column(Integer, nullable=False, default=0)
     subscriber = Column(Boolean, nullable=False, default=False)
-    last_seen = Column(DateTime)
-    last_active = Column(DateTime)
+    _last_seen = Column('last_seen', DateTime)
+    _last_active = Column('last_active', DateTime)
     minutes_in_chat_online = Column(Integer, nullable=False, default=0)
     minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
     twitch_access_token = Column(String(128), nullable=True)
@@ -40,8 +41,8 @@ class User(Base):
         self.points = 0
         self.num_lines = 0
         self.subscriber = False
-        self.last_seen = datetime.datetime.now()
-        self.last_active = None
+        self._last_seen = datetime.datetime.now()
+        self._last_active = None
         self.minutes_in_chat_online = 0
         self.minutes_in_chat_offline = 0
         self.twitch_access_token = None
@@ -55,6 +56,22 @@ class User(Base):
         self.tags = []
 
         self.timed_out = False
+
+    @property
+    def last_seen(self):
+        return TimeManager.localize(self._last_seen)
+
+    @last_seen.setter
+    def last_seen(self, value):
+        self._last_seen = value
+
+    @property
+    def last_active(self):
+        return TimeManager.localize(self._last_active)
+
+    @last_active.setter
+    def last_active(self, value):
+        self._last_active = value
 
     @orm.reconstructor
     def on_load(self):

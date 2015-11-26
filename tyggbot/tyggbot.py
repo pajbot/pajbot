@@ -24,6 +24,7 @@ from .models.kvi import KVIManager
 from .models.deck import DeckManager
 from .models.stream import StreamManager
 from .models.webcontent import WebContent
+from .models.time import TimeManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -104,6 +105,10 @@ class TyggBot:
         self.nickname = config['main'].get('nickname', 'tyggbot')
         self.password = config['main'].get('password', 'abcdef')
 
+        self.timezone = config['main'].get('timezone', 'UTC')
+
+        TimeManager.init_timezone(self.timezone)
+
         if 'streamer' in config['main']:
             self.streamer = config['main']['streamer']
             self.channel = '#' + self.streamer
@@ -134,8 +139,6 @@ class TyggBot:
 
         self.db_session = DBManager.create_session()
 
-        # force update DB
-        # TODO: Should this really be run inside the bot? Not sure
         try:
             subprocess.check_call(['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))])
         except subprocess.CalledProcessError:
