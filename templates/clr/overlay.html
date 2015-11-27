@@ -2,14 +2,20 @@
     <head>
         <title>test</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.7.0/jquery.lettering.min.js"></script>
+        <script src="http://cdn.pajlada.se/jquery.textillate.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css" />
         <style>
 body {
     font-family: 'Arial', sans-serif;
-        color: #fff;
+    color: #fff;
 }
 div.exploding {
     width: 50px;
     height: 50px;
+    position: absolute;
+}
+img.absemote {
     position: absolute;
 }
 
@@ -20,10 +26,47 @@ div.notifications {
     font-size: 1.25em;
     font-weight: 600;
 }
+
+div.notifications div {
+    /*color: #0FB6FA;*/
+    color: white;
+    font-size: 1.25em;
+    font-weight: bold;
+    font-family: 'Comic Sans MS';
+    -webkit-text-stroke: 1px black;
+    text-shadow:
+        3px  3px 0 #000,
+        2px  2px 0 #000,
+       -2px  2px 0 #000,
+       -1px -1px 0 #000,
+        1px -1px 0 #000,
+       -1px  1px 0 #000,
+        1px  1px 0 #000
+        ;
+}
+
+div.notifications div span.word1 {
+    color: #dfffdf;
+}
+
+div.notifications div span.word4 {
+    color: #ffdfdf;
+}
         </style>
 <script type="text/javascript">
+samples = {
+    'bossofthisgym': { 'url': 'http://soundboard.ass-we-can.com/static/music/MarkW/Boss of this gym.mp3', },
+    'fuckyou': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/FUCKYOU.mp3' },
+    'idontdoanal': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/I don\'t do anal.mp3' },
+    'knock': { 'url': 'http://www.audiocheck.net/Audio/audiocheck.net_binaural_knocking.mp3' },
+    'slap': { 'url': 'https://pajlada.se/files/clr/slap.mp3' },
+};
 $(document).ready(function() {
     connect_to_ws();
+    for (var key in samples) {
+        sample = samples[key];
+        sample['audio'] = new Audio(sample['url']);
+    }
 });
 
 var isopen = false;
@@ -33,29 +76,106 @@ var ws_port = '2320';
 function add_random_box(color)
 {
     var numRand = Math.floor(Math.random() * 501);
-    var divsize = 100;
+    var divsize = 50;
     var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
     var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
-    $newdiv = $("<div class='exploding'></div>").css({
+    var $newdiv = $("<div class='exploding'></div>").css({
         'left': posx + 'px',
         'top': posy + 'px',
-        'background-color': color
+        'background-color': color,
+        'opacity': 0
     });
-    $newdiv.appendTo('body').delay(2000).fadeIn(100, function () {
-        //$(this).remove();
-        //makeDiv();
+    $newdiv.appendTo('body');
+    $newdiv.animate({
+        opacity: 1
+    }, 500);
+    setTimeout(function() {
+        $newdiv.animate({
+            opacity: 0,
+        }, 1000);
+        setTimeout(function() {
+            $newdiv.remove();
+        }, 1000);
+    }, 5000);
+}
+
+function add_emote(emote)
+{
+    var url = '';
+    if ('bttv_hash' in emote) {
+        url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
+    } else {
+        url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
+    }
+    var numRand = Math.floor(Math.random() * 501);
+    var divsize = 50;
+    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+    var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+    var $newdiv = $('<img class="absemote" src="' + url + '">').css({
+        'left': posx + 'px',
+        'top': posy + 'px',
+        'opacity': 0
     });
+    $newdiv.appendTo('body');
+    $newdiv.animate({
+        opacity: 1
+    }, 500);
+    setTimeout(function() {
+        $newdiv.animate({
+            opacity: 0,
+        }, 1000);
+        setTimeout(function() {
+            $newdiv.remove();
+        }, 1000);
+    }, 5000);
 }
 
 var message_id = 0;
 
 function add_notification(message)
 {
-    var new_notification = $('<div>' + message + '</div>').appendTo('div.notifications').hide().fadeIn(2000, function() {
-        new_notification.delay(4500).fadeOut(1000, function() {
-            new_notification.remove();
-        });
+    //var new_notification = $('<div>' + message + '</div>').appendTo('div.notifications');
+    var new_notification = $('<div>' + message + '</div>').prependTo('div.notifications');
+    new_notification.textillate({
+        autostart: false,
+        in: {
+            effect: 'bounceInLeft',
+            delay: 5,
+            delayScale: 1.5,
+            sync: false,
+            shuffle: false,
+            reverse: false,
+        },
+        out: {
+            effect: 'bounceOutLeft',
+            sync: true,
+            shuffle: false,
+            reverse: false,
+        },
+        type: 'word',
     });
+    new_notification.on('inAnimationEnd.tlt', function() {
+        setTimeout(function() {
+            new_notification.textillate('out');
+            new_notification.animate({
+                height: 0,
+                opacity: 0,
+            }, 1000);
+        }, 2000);
+    });
+    new_notification.on('outAnimationEnd.tlt', function() {
+        setTimeout(function() {
+            new_notification.remove();
+        }, 250);
+    });
+}
+
+function play_sound(sample)
+{
+    sample = sample.toLowerCase();
+    if (sample in samples) {
+        samples[sample]['audio'].cloneNode().play();
+    }
 }
 
 function connect_to_ws()
@@ -82,8 +202,17 @@ function connect_to_ws()
                     case 'new_box':
                         add_random_box(json_data['data']['color']);
                         break;
+                    case 'new_emote':
+                        add_emote(json_data['data']['emote']);
+                        break;
                     case 'timeout':
-                        add_notification(json_data['data']['user'] + ' just timed out ' + json_data['data']['victim'] + ' EleGiggle');
+                        add_notification('<span class="user">' + json_data['data']['user'] + '</span> timed out <span class="victim">' + json_data['data']['victim'] + '</span> EleGiggle');
+                        setTimeout(function() {
+                            play_sound('slap');
+                        }, 100);
+                        break;
+                    case 'play_sound':
+                        play_sound(json_data['data']['sample']);
                         break;
                 }
             }

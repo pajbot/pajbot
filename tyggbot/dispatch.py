@@ -683,12 +683,14 @@ class Dispatch:
                 num_seconds = int((victim.timeout_end - now).total_seconds())
                 bot._timeout(username, num_seconds)
             else:
-                bot.whisper(source.username, 'You just used {0} points to time out {1} for an {2} seconds.'.format(args['command'].cost, username, _time))
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
                 bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
                 bot._timeout(username, _time)
                 victim.timed_out = True
                 victim.timeout_start = now
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
+            payload = {'user': source.username, 'victim': victim.username}
+            bot.websocket_manager.emit('timeout', payload)
             return True
 
         return False

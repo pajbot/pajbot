@@ -346,7 +346,7 @@ def discord():
 @app.route('/clr/overlay/<widget_id>')
 def clr_overlay(widget_id):
     print(widget_id)
-    if widget_id == config['clr-overlay']['widget_id']:
+    if widget_id == config['web']['clr_widget_id']:
         return render_template('clr/overlay.html',
                 widget={})
     else:

@@ -615,6 +615,7 @@ class TyggBot:
         if source.timed_out is True:
             source.timed_out = False
 
+        message_emotes = []
         for tag in tags:
             if tag['key'] == 'subscriber':
                 if source.subscriber and tag['value'] == '0':
@@ -631,7 +632,15 @@ class TyggBot:
                         emote = self.emotes[int(emote_id)]
                         emote.add(emote_count, self.reactor)
                         first_index, last_index = emote_indices[0].split('-')
-                        emote_code = msg_raw[int(first_index):int(last_index) + 1]
+                        first_index = int(first_index)
+                        last_index = int(last_index)
+                        emote_code = msg_raw[first_index:last_index + 1]
+                        message_emotes.append({
+                            'code': emote_code,
+                            'twitch_id': emote_id,
+                            'start': first_index,
+                            'end': last_index,
+                            })
 
                         tag_as = None
                         if emote_code.startswith('trump'):
@@ -668,7 +677,15 @@ class TyggBot:
             self.pyramid_parser.parse_line(msg_raw, source)
 
         for emote in self.emotes.custom_data:
-            num = len(emote.regex.findall(msg_raw))
+            num = 0
+            for match in emote.regex.finditer(msg_raw):
+                num += 1
+                message_emotes.append({
+                    'code': emote.code,
+                    'bttv_hash': emote.emote_hash,
+                    'start': match.span()[0],
+                    'end': match.span()[1] - 1,  # don't ask me
+                    })
             if num > 0:
                 emote.add(num, self.reactor)
 
@@ -704,7 +721,11 @@ class TyggBot:
             remaining_message = ' '.join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if trigger in self.commands:
                 command = self.commands[trigger]
-                command.run(self, source, remaining_message, event=event, whisper=whisper)
+                extra_args = {
+                        'emotes': message_emotes,
+                        'trigger': trigger,
+                        }
+                command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
                 # If a command is executed, we do not count the message as a line
                 add_line = False
 
