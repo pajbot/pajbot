@@ -3,9 +3,11 @@
     <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
     <base href="http://{{ site.domain }}/">
     <meta charset="utf-8">
-<link async rel="stylesheet" type="text/css" href="static/semantic/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="static/semantic/semantic.min.css">
 <link rel="stylesheet" type="text/css" href="static/css/base.css">
 <link rel="stylesheet" type="text/css" href="static/css/{{ streamer.full_name }}.css">
+<link rel="stylesheet" type="text/css" href="http://cdn.pajlada.se/css/pickadate/default.css">
+<link rel="stylesheet" type="text/css" href="http://cdn.pajlada.se/css/pickadate/default.date.css">
 </head>
 <body class="main body">
 {% if has_decks %}
@@ -69,6 +71,8 @@
 <script src="static/scripts/base.js"></script>
 <script async src="//cdn.pajlada.se/emote.js"></script>
 <script async src="static/scripts/autolinker.min.js"></script>
+<script src="http://cdn.pajlada.se/js/pickadate/picker.js"></script>
+<script src="http://cdn.pajlada.se/js/pickadate/picker.date.js"></script>
 {% block footer %}{% endblock %}
 </body>
 </html>

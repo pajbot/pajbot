@@ -299,12 +299,19 @@ def highlight_list_date(date):
         # Invalid date
         return redirect('/highlights/', 303)
     session = DBManager.create_session()
+    dates_with_highlights = []
     highlights = session.query(StreamChunkHighlight).filter(cast(StreamChunkHighlight.created_at, Date) == parsed_date).order_by(StreamChunkHighlight.created_at.desc()).all()
+    for highlight in session.query(StreamChunkHighlight):
+        dates_with_highlights.append(datetime.datetime(
+            year=highlight.created_at.year,
+            month=highlight.created_at.month,
+            day=highlight.created_at.day))
 
     try:
         return render_template('highlights_date.html',
                 highlights=highlights,
-                date=parsed_date)
+                date=parsed_date,
+                dates_with_highlights=set(dates_with_highlights))
     finally:
         session.close()
 
@@ -328,14 +335,19 @@ def highlight_id(date, highlight_id, highlight_title=None):
 @app.route('/highlights/')
 def highlights():
     session = DBManager.create_session()
-    streams = session.query(Stream).order_by(Stream.stream_start.desc()).all()
-    for stream in streams:
-        stream.stream_chunks = sorted(stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
-        for stream_chunk in stream.stream_chunks:
-            stream_chunk.highlights = sorted(stream_chunk.highlights, key=lambda x: x.created_at, reverse=True)
-    session.close()
-    return render_template('highlights.html',
-            streams=streams)
+    dates_with_highlights = []
+    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at.desc()).all()
+    for highlight in highlights:
+        dates_with_highlights.append(datetime.datetime(
+            year=highlight.created_at.year,
+            month=highlight.created_at.month,
+            day=highlight.created_at.day))
+    try:
+        return render_template('highlights.html',
+                highlights=highlights[:5],
+                dates_with_highlights=set(dates_with_highlights))
+    finally:
+        session.close()
 
 
 @app.route('/discord')
@@ -362,6 +374,10 @@ def date_format(value, format='full'):
 @app.template_filter('strftime')
 def time_strftime(value, format):
     return value.strftime(format)
+
+@app.template_filter('unix_timestamp')
+def time_unix_timestamp(value):
+    return value.timestamp()
 
 @app.template_filter()
 def number_format(value, tsep=',', dsep='.'):
@@ -405,6 +421,7 @@ default_variables = {
             },
         'has_decks': has_decks,
         'modules': modules,
+        'current_time': datetime.datetime.now()
         }
 
 
