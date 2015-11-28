@@ -354,7 +354,7 @@ class Dispatch:
             if id is not None:
                 filter = bot.filters.get(id=id)
             else:
-                filter = bot.filters.get(phrase=message)
+                filter = bot.filters.get(phrase=message.lower())
 
             if filter is None:
                 bot.whisper(source.username, 'No banphrase with the given parameters found')
