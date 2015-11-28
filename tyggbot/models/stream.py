@@ -383,3 +383,15 @@ class StreamManager:
         session.close()
 
         return (num_rows == 1)
+
+    def remove_highlight(self, id):
+        """
+        Returns True if a highlight was removed, otherwise return False
+        """
+
+        session = DBManager.create_session()
+        num_rows = session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
+        session.commit()
+        session.close()
+
+        return (num_rows == 1)

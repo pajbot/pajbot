@@ -345,7 +345,11 @@ class CommandManager(UserDict):
                                 level=500,
                                 description='Unwhitelist a link'),
                             }
-                        )
+                        ),
+                    'highlight': Command.dispatch_command('remove_highlight',
+                        level=100,
+                        mod_only=True,
+                        description='Removes an highlight with the given ID.'),
                     })
         self.data['rem'] = self.data['remove']
         self.data['del'] = self.data['remove']

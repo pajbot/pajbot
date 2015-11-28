@@ -1096,3 +1096,24 @@ class Dispatch:
                 bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
 
             log.info('Create a highlight at the current timestamp!')
+
+    def remove_highlight(bot, source, message, event, args):
+        """Dispatch method for removing highlights
+        Usage: !remove highlight HIGHLIGHT_ID
+        """
+
+        if message is None:
+            bot.whisper(source.username, 'Usage: !remove highlight ID')
+            return False
+
+        try:
+            id = int(message.split()[0])
+        except ValueError:
+            bot.whisper(source.username, 'Usage: !remove highlight ID')
+            return False
+
+        res = bot.stream_manager.remove_highlight(id)
+        if res is True:
+            bot.whisper(source.username, 'Successfully removed highlight with ID {}.'.format(id))
+        else:
+            bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
