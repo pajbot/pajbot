@@ -212,8 +212,8 @@ def commands():
     """
     try:
         return render_template('commands.html',
-                custom_commands=custom_commands,
-                point_commands=point_commands,
+                custom_commands=sorted(custom_commands, key=lambda f: f.command),
+                point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
                 moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
     except Exception:
         log.exception('Unhandled exception in commands() render_template')
