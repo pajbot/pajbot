@@ -125,7 +125,7 @@ def update_commands():
 
         bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
         """
-    bot_commands = CommandManager().reload()
+    bot_commands = CommandManager(None).reload()
     bot_commands_list = []
 
     for alias, command in bot_commands.items():

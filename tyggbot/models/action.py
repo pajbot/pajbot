@@ -5,37 +5,40 @@ import logging
 log = logging.getLogger('tyggbot')
 
 
-def parse_action(raw_data=None, data=None):
-    try:
-        from tyggbot.userdispatch import UserDispatch
-        Dispatch = UserDispatch
-    except ImportError:
-        from tyggbot.dispatch import Dispatch
-    except:
-        from tyggbot.dispatch import Dispatch
-        log.exception('Something went wrong while attemting to import UserDispatch')
+class ActionParser:
+    bot = None
 
-    if not data:
-        data = json.loads(raw_data)
-
-    if data['type'] == 'say':
-        action = SayAction(data['message'])
-    elif data['type'] == 'me':
-        action = MeAction(data['message'])
-    elif data['type'] == 'whisper':
-        action = WhisperAction(data['message'])
-    elif data['type'] == 'func':
+    def parse(raw_data=None, data=None):
         try:
-            action = FuncAction(getattr(Dispatch, data['cb']))
-        except AttributeError as e:
-            log.error('AttributeError caught when parsing action: {0}'.format(e))
-            return None
-    elif data['type'] == 'multi':
-        action = MultiAction(data['args'], data['default'])
-    else:
-        raise Exception('Unknown action type: {0}'.format(data['type']))
+            from tyggbot.userdispatch import UserDispatch
+            Dispatch = UserDispatch
+        except ImportError:
+            from tyggbot.dispatch import Dispatch
+        except:
+            from tyggbot.dispatch import Dispatch
+            log.exception('Something went wrong while attemting to import UserDispatch')
 
-    return action
+        if not data:
+            data = json.loads(raw_data)
+
+        if data['type'] == 'say':
+            action = SayAction(data['message'], ActionParser.bot)
+        elif data['type'] == 'me':
+            action = MeAction(data['message'], ActionParser.bot)
+        elif data['type'] == 'whisper':
+            action = WhisperAction(data['message'], ActionParser.bot)
+        elif data['type'] == 'func':
+            try:
+                action = FuncAction(getattr(Dispatch, data['cb']))
+            except AttributeError as e:
+                log.error('AttributeError caught when parsing action: {0}'.format(e))
+                return None
+        elif data['type'] == 'multi':
+            action = MultiAction(data['args'], data['default'])
+        else:
+            raise Exception('Unknown action type: {0}'.format(data['type']))
+
+        return action
 
 
 class Substitution:
@@ -128,14 +131,14 @@ class MessageAction(BaseAction):
     argument_regex = re.compile('(\$\([0-9]+\))')
     argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
-    def __init__(self, response):
+    def __init__(self, response, bot):
         self.response = response
         self.argument_subs = []
         self.subs = {}
 
-        self.init_parse()
+        self.init_parse(bot)
 
-    def init_parse(self):
+    def init_parse(self, bot):
         from tyggbot.tyggbot import TyggBot
         for sub_key in self.argument_regex.findall(self.response):
             inner_match = self.argument_inner_regex.search(sub_key)
@@ -183,25 +186,25 @@ class MessageAction(BaseAction):
 
             try:
                 if path == 'kvi':
-                    cb = TyggBot.instance.get_kvi_value
+                    cb = bot.get_kvi_value
                 elif path == 'tb':
-                    cb = TyggBot.instance.get_value
+                    cb = bot.get_value
                 elif path == 'lasttweet':
-                    cb = TyggBot.instance.get_last_tweet
+                    cb = bot.get_last_tweet
                 elif path == 'etm':
-                    cb = TyggBot.instance.get_emote_tm
+                    cb = bot.get_emote_tm
                 elif path == 'ecount':
-                    cb = TyggBot.instance.get_emote_count
+                    cb = bot.get_emote_count
                 elif path == 'etmrecord':
-                    cb = TyggBot.instance.get_emote_tm_record
+                    cb = bot.get_emote_tm_record
                 elif path == 'source':
-                    cb = TyggBot.instance.get_source_value
+                    cb = bot.get_source_value
                 elif path == 'user':
-                    cb = TyggBot.instance.get_user_value
+                    cb = bot.get_user_value
                 elif path == 'time':
-                    cb = TyggBot.instance.get_time_value
+                    cb = bot.get_time_value
                 elif path == 'curdeck':
-                    cb = TyggBot.instance.decks.action_get_curdeck
+                    cb = bot.decks.action_get_curdeck
                 else:
                     log.error('Unimplemented path: {0}'.format(path))
                     continue

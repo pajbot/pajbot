@@ -6,7 +6,7 @@ import argparse
 import datetime
 
 from tyggbot.models.db import DBManager, Base
-from tyggbot.models.action import parse_action, RawFuncAction, FuncAction
+from tyggbot.models.action import ActionParser, RawFuncAction, FuncAction
 
 from sqlalchemy import orm
 from sqlalchemy import Column, Integer, Boolean, DateTime
@@ -72,7 +72,7 @@ class Command(Base):
         self.level = options.get('level', self.level)
         if 'action' in options:
             self.action_json = json.dumps(options['action'])
-            self.action = parse_action(self.action_json)
+            self.action = ActionParser.parse(self.action_json)
         if 'extra_args' in options:
             self.extra_args = {'command': self}
             self.extra_args.update(options['extra_args'])
@@ -92,7 +92,7 @@ class Command(Base):
         self.last_run = 0
         self.last_run_by_user = {}
         self.extra_args = {'command': self}
-        self.action = parse_action(self.action_json)
+        self.action = ActionParser.parse(self.action_json)
         if self.extra_extra_args:
             try:
                 self.extra_args.update(json.loads(self.extra_extra_args))
@@ -104,44 +104,26 @@ class Command(Base):
         cmd = cls()
         if 'level' in json:
             cmd.level = json['level']
-        cmd.action = parse_action(data=json['action'])
+        cmd.action = ActionParser.parse(data=json['action'])
         return cmd
 
     @classmethod
     def dispatch_command(cls, cb, **options):
         cmd = cls(**options)
-        cmd.action = parse_action('{"type": "func", "cb": "' + cb + '"}')
+        cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}')
         return cmd
 
     @classmethod
-    def tyggbot_command(cls, method_name, level=1000, **options):
+    def tyggbot_command(cls, bot, method_name, level=1000, **options):
         from tyggbot.tyggbot import TyggBot
         cmd = cls()
         cmd.level = level
         cmd.description = options.get('description', None)
         cmd.can_execute_with_whisper = True
         try:
-            cmd.action = RawFuncAction(getattr(TyggBot.instance, method_name))
+            cmd.action = RawFuncAction(getattr(bot, method_name))
         except:
             pass
-        return cmd
-
-    @classmethod
-    def admin_command(cls, action, type='raw_func', level=1000):
-        from tyggbot import TyggBot
-        cmd = cls()
-        cmd.level = level
-        cmd.can_execute_with_whisper = True
-        if type == 'raw_func':
-            try:
-                cmd.action = RawFuncAction(getattr(TyggBot.instance, action))
-            except:
-                pass
-        elif type == 'func':
-            cmd.action = FuncAction(action)
-        else:
-            log.error('Unknown admin command type: {0}'.format(type))
-            cmd.action = False
         return cmd
 
     @classmethod
@@ -211,9 +193,10 @@ class Command(Base):
 
 
 class CommandManager(UserDict):
-    def __init__(self):
+    def __init__(self, bot):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
+        self.bot = bot
 
     def __del__(self):
         self.db_session.close()
@@ -267,7 +250,7 @@ class CommandManager(UserDict):
         self.data['commit'] = Command.dispatch_command('commit',
                 level=1000,
                 description='Commit data from the bot to the database')
-        self.data['quit'] = Command.tyggbot_command('quit',
+        self.data['quit'] = Command.tyggbot_command(self.bot, 'quit',
                 level=1000,
                 description='Shut down the bot, this will most definitely restart it if set up properly')
         self.data['ignore'] = Command.dispatch_command('ignore',

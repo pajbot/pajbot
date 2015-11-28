@@ -25,6 +25,7 @@ from .models.deck import DeckManager
 from .models.stream import StreamManager
 from .models.webcontent import WebContent
 from .models.time import TimeManager
+from .models.action import ActionParser
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -49,10 +50,6 @@ class TyggBot:
     """
     Main class for the twitch bot
     """
-
-    """ Singleton instance of TyggBot, one instance of the script
-    should never have two active classes. """
-    instance = None
 
     version = '2.0.4'
     date_fmt = '%H:%M'
@@ -131,8 +128,6 @@ class TyggBot:
         DBManager.init(self.config['main']['db'])
 
     def __init__(self, config, args=None):
-        TyggBot.instance = self
-
         self.load_config(config)
 
         self.load_default_phrases()
@@ -159,10 +154,11 @@ class TyggBot:
 
         self.reactor = irc.client.Reactor()
         self.start_time = datetime.now()
+        ActionParser.bot = self
 
         self.users = UserManager()
         self.decks = DeckManager().reload()
-        self.commands = CommandManager().reload()
+        self.commands = CommandManager(self).reload()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()

@@ -5,7 +5,7 @@ import logging
 from collections import UserList
 
 from tyggbot.models.db import DBManager, Base
-from tyggbot.models.action import parse_action
+from tyggbot.models.action import ActionParser
 
 from sqlalchemy import orm
 from sqlalchemy import Column, Integer, String, Boolean
@@ -46,7 +46,7 @@ class Filter(Base):
             self.name = options['name']
         if 'action' in options:
             self.action_json = json.dumps(options['action'])
-            self.action = parse_action(self.action_json)
+            self.action = ActionParser.parse(self.action_json)
         if 'filter' in options:
             self.filter = options['filter']
         if 'type' in options:
@@ -61,7 +61,7 @@ class Filter(Base):
 
     @orm.reconstructor
     def init_on_load(self):
-        self.action = parse_action(self.action_json)
+        self.action = ActionParser.parse(self.action_json)
         self.extra_args = {'filter': self}
         self.regex = None
         if self.extra_extra_args:
