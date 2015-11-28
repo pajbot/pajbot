@@ -52,7 +52,7 @@ class TyggBot:
 
     """ Singleton instance of TyggBot, one instance of the script
     should never have two active classes. """
-    instance = None
+    __instance = None
 
     version = '2.0.4'
     date_fmt = '%H:%M'
@@ -130,9 +130,15 @@ class TyggBot:
 
         DBManager.init(self.config['main']['db'])
 
-    def __init__(self, config, args=None):
-        TyggBot.instance = self
+    def __new__(cls):
+        """ Phaqui, 2015-11-28: Updated to use __new__ for making sure the class is a singleton class, as per
+            stackoverflow.com/questions/1363839/python-singleton-object-instantiation"""
+        if cls.__instance == None:
+            cls.__instance = object.__new__(cls)
+            cls.__instance.name = "TyggBot Singleton Instance"
+        return cls.__instance
 
+    def __init__(self, config, args=None):
         self.load_config(config)
 
         self.load_default_phrases()
