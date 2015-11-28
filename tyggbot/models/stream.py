@@ -75,6 +75,7 @@ class StreamChunkHighlight(Base):
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
+    override_link = Column(String(256), nullable=True)
     video_url = None
 
     DEFAULT_OFFSET = 0
@@ -84,6 +85,7 @@ class StreamChunkHighlight(Base):
         self.created_at = datetime.datetime.now()
         self.highlight_offset = options.get('offset', self.DEFAULT_OFFSET)
         self.description = options.get('description', None)
+        self.override_link = options.get('override_link', None)
 
         self.stream_chunk = stream_chunk
         self.refresh_video_url()
@@ -95,7 +97,9 @@ class StreamChunkHighlight(Base):
         self.refresh_video_url()
 
     def refresh_video_url(self):
-        if self.stream_chunk.video_url is None:
+        if self.override_link is not None:
+            self.video_url = self.override_link
+        elif self.stream_chunk.video_url is None:
             self.video_url = None
         else:
             date_diff = self.created_at - self.stream_chunk.chunk_start
@@ -354,6 +358,10 @@ class StreamManager:
         parser = argparse.ArgumentParser()
         parser.add_argument('--offset', dest='offset', type=int)
         parser.add_argument('--id', dest='id', type=int)
+        parser.add_argument('--link', dest='override_link')
+        parser.add_argument('--url', dest='override_link')
+        parser.add_argument('--overridelink', dest='override_link')
+        parser.add_argument('--no-link', dest='override_link', action='store_false')
 
         try:
             args, unknown = parser.parse_known_args(message.split())
@@ -366,6 +374,9 @@ class StreamManager:
         # Strip options of any values that are set as None
         options = {k: v for k, v in vars(args).items() if v is not None}
         response = ' '.join(unknown)
+
+        if 'override_link' in options and options['override_link'] is False:
+            options['override_link'] = None
 
         return options, response
 
