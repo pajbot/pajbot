@@ -149,6 +149,60 @@ class StreamtipAPI(APIBase):
                 }
 
 
+class BTTVApi(APIBase):
+    def __init__(self, strict=True):
+        APIBase.__init__(self, strict)
+
+        self.base_url = 'https://api.betterttv.net/2/'
+        self.headers = {}
+
+    def get_global_emotes(self):
+        """Returns a list of global BTTV emotes in the standard Emote format."""
+
+        emotes = []
+        try:
+            data = self.get(['emotes'])
+
+            for emote in data['emotes']:
+                emotes.append({'emote_hash': emote['id'], 'code': emote['code']})
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting global emotes.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting global emotes.')
+            else:
+                log.exception('Unhandled HTTP error code')
+        except KeyError:
+            log.exception('Caught exception while trying to get global BTTV emotes')
+        except:
+            log.exception('Uncaught exception in BTTVApi.get_global_emotes')
+
+        return emotes
+
+    def get_channel_emotes(self, channel):
+        """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
+
+        emotes = []
+        try:
+            data = self.get(['channels', channel])
+
+            for emote in data['emotes']:
+                emotes.append({'emote_hash': emote['id'], 'code': emote['code']})
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting channel emotes.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting channel emotes.')
+            else:
+                log.exception('Unhandled HTTP error code')
+        except KeyError:
+            log.exception('Caught exception while trying to get channel-specific BTTV emotes')
+        except:
+            log.exception('Uncaught exception in BTTVApi.get_channel_emotes')
+
+        return emotes
+
+
 class TwitchAPI(APIBase):
     def __init__(self, client_id=None, oauth=None, strict=True):
         """

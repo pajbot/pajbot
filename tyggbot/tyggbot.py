@@ -152,6 +152,11 @@ class TyggBot:
             log.exception('Unhandled exception when calling db update')
             sys.exit(1)
 
+        # Actions in this queue are run in a separate thread.
+        # This means actions should NOT access any database-related stuff.
+        self.action_queue = ActionQueue()
+        self.action_queue.start()
+
         self.reactor = irc.client.Reactor()
         self.start_time = datetime.now()
 
@@ -162,7 +167,7 @@ class TyggBot:
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()
         self.kvi = KVIManager().reload()
-        self.emotes = EmoteManager().reload()
+        self.emotes = EmoteManager(self).reload()
         self.link_tracker = LinkTracker()
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
@@ -248,11 +253,6 @@ class TyggBot:
             log.info('Silent mode enabled')
 
         self.reconnection_interval = 5
-
-        # Actions in this queue are run in a separate thread.
-        # This means actions should NOT access any database-related stuff.
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
 
         """
         For actions that need to access the main thread,

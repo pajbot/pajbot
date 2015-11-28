@@ -20,16 +20,19 @@ class Emote(Base):
     tm_record = Column(Integer)
     count = Column(Integer)
 
-    def __init__(self, emote_id):
+    def __init__(self, emote_id=None, emote_hash=None, code=None):
         self.id = None
         self.emote_id = emote_id
-        self.emote_hash = None
-        self.code = None  # This value will be inserted when the update_emotes script is called, if necessary.
+        self.emote_hash = emote_hash
+        self.code = code  # This value will be inserted when the update_emotes script is called, if necessary.
         self.tm_record = 0
         self.count = 0
 
         self.tm = 0
-        self.regex = None
+        if self.emote_id is None:
+            self.regex = re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(self.code)))
+        else:
+            self.regex = None
 
     @orm.reconstructor
     def init_on_load(self):
@@ -52,11 +55,40 @@ class Emote(Base):
         self.tm -= count
 
 
+class BTTVEmoteManager:
+    def __init__(self, emote_manager):
+        from tyggbot.apiwrappers import BTTVApi
+        self.emote_manager = emote_manager
+        self.bttv_api = BTTVApi()
+
+    def update_emotes(self):
+        log.debug('Updating BTTV Emotes...')
+        emotes = self.bttv_api.get_global_emotes()
+        emotes += self.bttv_api.get_channel_emotes(self.emote_manager.streamer)
+
+        self.emote_manager.bot.mainthread_queue.add(self._add_bttv_emotes,
+                                                    args=[emotes])
+
+    def _add_bttv_emotes(self, emotes):
+        for emote in emotes:
+            key = 'custom_{}'.format(emote['code'])
+            if key in self.emote_manager.data:
+                self.emote_manager.data[key].emote_hash = emote['emote_hash']
+            else:
+                self.emote_manager.add_emote(**emote)
+        log.debug('Added {} emotes'.format(len(emotes)))
+
+
 class EmoteManager(UserDict):
-    def __init__(self):
+    def __init__(self, bot):
         UserDict.__init__(self)
+        self.bot = bot
+        self.streamer = bot.streamer
         self.db_session = DBManager.create_session()
         self.custom_data = []
+        self.bttv_emote_manager = BTTVEmoteManager(self)
+
+        self.bot.execute_every(60 * 60 * 2, self.bot.action_queue.add, (self.bttv_emote_manager.update_emotes, ))
 
     def commit(self):
         self.db_session.commit()
@@ -72,6 +104,12 @@ class EmoteManager(UserDict):
 
         log.info('Loaded {0} emotes'.format(num_emotes))
         return self
+
+    def add_emote(self, emote_id=None, emote_hash=None, code=None):
+        emote = Emote(emote_id=emote_id, emote_hash=emote_hash, code=code)
+        self.add_to_data(emote)
+        self.db_session.add(emote)
+        return emote
 
     def add_to_data(self, emote):
         if emote.emote_id:
@@ -92,9 +130,7 @@ class EmoteManager(UserDict):
                 return None
 
             log.info('Adding new emote with ID {0}'.format(value))
-            emote = Emote(value)
-            self.add_to_data(emote)
-            self.db_session.add(emote)
+            self.add_emote(emote_id=value)
 
         return self.data[key]
 
