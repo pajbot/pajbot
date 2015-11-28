@@ -240,6 +240,12 @@ class CommandManager(UserDict):
         self.data = {}
         num_commands = 0
         num_aliases = 0
+        try:
+            level_trusted_mods = 100 if self.bot.trusted_mods else 500
+            mod_only_trusted_mods = True if self.bot.trusted_mods else False
+        except AttributeError:
+            level_trusted_mods = 500
+            mod_only_trusted_mods = False
         for command in self.db_session.query(Command).filter_by(enabled=True):
             num_commands += 1
             num_aliases += self.add_command(command)
@@ -347,8 +353,8 @@ class CommandManager(UserDict):
                             }
                         ),
                     'highlight': Command.dispatch_command('remove_highlight',
-                        level=100,
-                        mod_only=True,
+                        level=level_trusted_mods,
+                        mod_only=mod_only_trusted_mods,
                         description='Removes an highlight with the given ID.'),
                     })
         self.data['rem'] = self.data['remove']

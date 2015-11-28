@@ -104,6 +104,8 @@ class TyggBot:
 
         self.timezone = config['main'].get('timezone', 'UTC')
 
+        self.trusted_mods = config.getboolean('main', 'trusted_mods')
+
         TimeManager.init_timezone(self.timezone)
 
         if 'streamer' in config['main']:

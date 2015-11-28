@@ -161,6 +161,7 @@ def load_config(path):
     import os
     defaults = {
             'add_self_as_whisper_account': '1',
+            'trusted_mods': '0',
             }
     config = configparser.ConfigParser(defaults=defaults)
 
