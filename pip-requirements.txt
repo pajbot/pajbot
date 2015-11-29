@@ -16,3 +16,15 @@ pytz
 autobahn[twisted]
 beautifulsoup4
 requests
+
+# MySQL for python3
+pymysql
+
+# needed for the web interface
+flask
+markdown
+apscheduler
+
+# if you want to use the websocket
+#pyOpenSSL
+#service_identity
