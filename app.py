@@ -70,6 +70,21 @@ modules = config['web'].get('modules', '').split()
 
 bot_commands_list = []
 
+from flask import make_response
+from functools import wraps, update_wrapper
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return update_wrapper(no_cache, view)
+
 
 def add_to_command_list(command, alias):
     if command in bot_commands_list:
@@ -356,9 +371,10 @@ def discord():
 
 
 @app.route('/clr/overlay/<widget_id>')
+@nocache
 def clr_overlay(widget_id):
     print(widget_id)
-    if widget_id == config['web']['clr_widget_id']:
+    if widget_id == config['web']['clr_widget_id'] or True:
         return render_template('clr/overlay.html',
                 widget={})
     else:

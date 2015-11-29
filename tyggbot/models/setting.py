@@ -54,6 +54,7 @@ class SettingManager(UserDict):
                 'max_msg_length': 350,
                 'lines_offline': True,
                 'parse_pyramids': False,
+                'parse_emote_combo': False,
                 'check_links': True,
                 }
         self.default_settings.update(overrides)

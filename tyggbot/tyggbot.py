@@ -13,6 +13,7 @@ from .models.whisperconnection import WhisperConnectionManager
 from .models.linkchecker import LinkChecker
 from .models.linktracker import LinkTracker
 from .models.pyramidparser import PyramidParser
+from .models.emotecomboparser import EmoteComboParser
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
 from .models.db import DBManager
@@ -260,6 +261,7 @@ class TyggBot:
         self.execute_every(1, self.mainthread_queue.parse_action)
 
         self.pyramid_parser = PyramidParser(self)
+        self.emote_combo_parser = EmoteComboParser(self)
         self.websocket_manager = WebSocketManager(self)
 
         """
@@ -671,9 +673,6 @@ class TyggBot:
             elif tag['key'] == 'user-type':
                 source.moderator = tag['value'] == 'mod' or source.username == self.streamer
 
-        if self.settings['parse_pyramids'] and whisper is False:
-            self.pyramid_parser.parse_line(msg_raw, source)
-
         for emote in self.emotes.custom_data:
             num = 0
             for match in emote.regex.finditer(msg_raw):
@@ -686,6 +685,15 @@ class TyggBot:
                     })
             if num > 0:
                 emote.add(num, self.reactor)
+
+        if self.settings['parse_pyramids'] and whisper is False:
+            self.pyramid_parser.parse_line(msg_raw, source)
+
+        if self.settings['parse_emote_combo'] and whisper is False:
+            self.emote_combo_parser.parse_line(msg_raw, source, message_emotes)
+
+        if len(message_emotes) > 0:
+            self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
 
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
