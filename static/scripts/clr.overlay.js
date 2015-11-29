@@ -15,10 +15,10 @@ samples = {
     'idontdoanal': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/I don\'t do anal.mp3' },
     'knock': { 'url': 'http://www.audiocheck.net/Audio/audiocheck.net_binaural_knocking.mp3' },
     'slap': { 'url': 'https://pajlada.se/files/clr/slap.mp3' },
-    'cumming': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Fucking%20cumming.mp3' }
-    'collegeboy': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Come%20on%20college%20boy.mp3' }
-    'oooh': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Penetration%204.mp3' }
-    'suction': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Suction.mp3' }
+    'cumming': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Fucking%20cumming.mp3' },
+    'collegeboy': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Come%20on%20college%20boy.mp3' },
+    'oooh': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Penetration%204.mp3' },
+    'suction': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Suction.mp3' },
 };
 $(document).ready(function() {
     connect_to_ws();
