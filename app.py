@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import markdown
 import os
 import configparser
 import json
@@ -19,6 +18,7 @@ from tyggbot.models.user import User
 from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
 
+import markdown
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask import render_template
