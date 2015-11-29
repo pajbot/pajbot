@@ -43,11 +43,13 @@
             </tr>
             <tr>
                 <th>Time spent watching the stream</th>
-                <td>{{ user.minutes_in_chat_online }}</td>
+                <td>{{ user.minutes_in_chat_online }} minutes</td>
+            </tr>
+            <tr>
+                <th>Permabanned on {{ bot.name }}</th>
+                <td>{%if user.banned == 1 %}Yes{% else %}No{% endif %}</td>
             </tr>
         </tbody>
     </table>
-    aaaaa
 </div>
-TODO: put more shit here
 {% endblock %}

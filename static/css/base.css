@@ -34,8 +34,18 @@ div.pui.badge {
     background-size: 100%;
 }
 
+.pui.badge.globalmod {
+    background: #0c6f20 url('/static/images/badge_globalmod.svg');
+    background-size: 100%;
+}
+
 .pui.badge.moderator {
     background: #34ae0a url('/static/images/badge_mod.svg');
+    background-size: 100%;
+}
+
+.pui.badge.helper {
+    background: #595959 url('/static/images/badge_helper.png');
     background-size: 100%;
 }
 
@@ -73,6 +83,11 @@ div.pui.class.undefined { background: url('/static/images/class_undefined_32.png
 
 .user.l1000 {
     color: #922;
+}
+
+.user.l750,
+{
+    color: #11f;
 }
 
 .user.l500
