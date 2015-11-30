@@ -1,29 +1,29 @@
 {% extends "layout.html" %}
 {% set active_page = 'decks' %}
-{% block title %}Decks - Top 25{% endblock %}
+{% block title %}Decks - Shaman{% endblock %}
 {% block body %}
-<h2>Decks - Top 25</h2>
-<div id="decks_top">{% if site.decks == '0' %}
-<div class="ui top attached tabular menu"><a class="item all active" data-tab="all" href="/decks/">All</a>
+<h2>Decks - Shaman</h2>
+<div id="decks_shaman">{% if site.decks == '0' %}
+<div class="ui top attached tabular menu"><a class="item all" data-tab="all" href="/decks/">All</a>
     <a class="item druid"  data-tab="druid" href="/decks/druid/">Druid</a>
     <a class="item hunter" href="/decks/hunter/">Hunter</a>
     <a class="item mage" data-tab="mage" href="decks/mage">Mage</a>
     <a class="item paladin" data-tab="paladin" href="/decks/paladin/">Paladin</a>
     <a class="item priest" data-tab="priest" href="/decks/priest/">Priest</a>
     <a class="item rogue" data-tab="rogue" href="/decks/rogue/">Rogue</a>
-    <a class="item shaman" data-tab="shaman" href="/decks/shaman/">Shaman</a>
+    <a class="item shaman active" data-tab="shaman" href="/decks/shaman/">Shaman</a>
     <a class="item warlock" data-tab="warlock" href="/decks/warlock/">Warlock</a>
     <a class="item warrior" data-tab="warrior" href="/decks/warrior/">Warrior</a>
 </div>{% elif site.decks == '1' %}
 <div class="ui top attached tabular menu">
-    <a class="item all active" data-tab="all" href="/decks/">All</a>
+    <a class="item all" data-tab="all" href="/decks/">All</a>
     <a class="item druid"  data-tab="druid" href="/decks/druid/"><img src="/static/images/class_druid_32.png" alt="Druid"></a>
     <a class="item hunter" href="/decks/hunter/"><img src="/static/images/class_hunter_32.png" alt="Hunter"></a>
     <a class="item mage" data-tab="mage" href="decks/mage"><img src="/static/images/class_mage_32.png" alt="Mage"></a>
     <a class="item paladin" data-tab="paladin" href="/decks/paladin/"><img src="/static/images/class_paladin_32.png" alt="Paladin"></a>
     <a class="item priest" data-tab="priest" href="/decks/priest/"><img src="/static/images/class_priest_32.png" alt="Priest"></a>
     <a class="item rogue" data-tab="rogue" href="/decks/rogue/"><img src="/static/images/class_rogue_32.png" alt="Rogue"></a>
-    <a class="item shaman" data-tab="shaman" href="/decks/shaman/"><img src="/static/images/class_shaman_32.png" alt="Shaman"></a>
+    <a class="item shaman active" data-tab="shaman" href="/decks/shaman/"><img src="/static/images/class_shaman_32.png" alt="Shaman"></a>
     <a class="item warlock" data-tab="warlock" href="/decks/warlock/"><img src="/static/images/class_warlock_32.png" alt="Warlock"></a>
     <a class="item warrior" data-tab="warrior" href="/decks/warrior/"><img src="/static/images/class_warrior_32.png" alt="Warrior"></a>
 </div>{% endif %}
@@ -39,7 +39,7 @@
             </tr>
         </thead>
         <tbody>
-{% for deck in top_decks %}
+{% for deck in decks_shaman %}
 {% include 'list/deck.html' %}
 {% endfor %}
         </tbody>
