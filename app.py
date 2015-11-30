@@ -234,14 +234,87 @@ def commands():
         log.exception('Unhandled exception in commands() render_template')
         return 'abc'
 
-
 @app.route('/decks/')
 def decks():
     session = DBManager.create_session()
-    decks = session.query(Deck).order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    top_decks = []
+    for deck in session.query(Deck).order_by(Deck.last_used.desc(), Deck.first_used.desc())[:25]:
+        top_decks.append(deck)
     session.close()
     return render_template('decks.html',
-            decks=decks)
+            top_decks=top_decks)
+
+@app.route('/decks/druid/')
+def decks_druid():
+    session = DBManager.create_session()
+    decks_druid = session.query(Deck).filter(Deck.deck_class=='druid').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_druid.html',
+            decks_druid=decks_druid)
+
+@app.route('/decks/hunter/')
+def decks_hunter():
+    session = DBManager.create_session()
+    decks_hunter = session.query(Deck).filter(Deck.deck_class=='hunter').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_hunter.html',
+            decks_hunter=decks_hunter)
+
+@app.route('/decks/mage/')
+def decks_mage():
+    session = DBManager.create_session()
+    decks_mage = session.query(Deck).filter(Deck.deck_class=='mage').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_mage.html',
+            decks_mage=decks_mage)
+
+@app.route('/decks/paladin/')
+def decks_paladin():
+    session = DBManager.create_session()
+    decks_paladin = session.query(Deck).filter(Deck.deck_class=='paladin').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_paladin.html',
+            decks_paladin=decks_paladin)
+
+@app.route('/decks/priest/')
+def decks_priest():
+    session = DBManager.create_session()
+    decks_priest = session.query(Deck).filter(Deck.deck_class=='priest').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_priest.html',
+            decks_priest=decks_priest)
+
+@app.route('/decks/rogue/')
+def decks_rogue():
+    session = DBManager.create_session()
+    decks_rogue = session.query(Deck).filter(Deck.deck_class=='rogue').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_rogue.html',
+            decks_rogue=decks_rogue)
+
+@app.route('/decks/shaman/')
+def decks_shaman():
+    session = DBManager.create_session()
+    decks_shaman = session.query(Deck).filter(Deck.deck_class=='shaman').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_shaman.html',
+            decks_shaman=decks_shaman)
+
+@app.route('/decks/warlock/')
+def decks_warlock():
+    session = DBManager.create_session()
+    decks_warlock = session.query(Deck).filter(Deck.deck_class=='warlock').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_warlock.html',
+            decks_warlock=decks_warlock)
+
+@app.route('/decks/warrior/')
+def decks_warrior():
+    session = DBManager.create_session()
+    decks_warrior = session.query(Deck).filter(Deck.deck_class=='warrior').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
+    session.close()
+    return render_template('decks_warrior.html',
+            decks_warrior=decks_warrior)
 
 
 @app.route('/user/<username>')
@@ -430,6 +503,7 @@ default_variables = {
             },
         'site': {
             'domain': config['web']['domain'],
+            'decks': config['web']['decks'],
             },
         'streamer': {
             'name': config['web']['streamer_name'],
