@@ -1,7 +1,11 @@
 <tr>
     <td>{{ deck.id }}</td>
     <td>
+        {% if not deck.deck_class == 'undefined' %}
+        <a href="/decks/{{ deck.deck_class }}/">
         <div class="pui class {{ deck.deck_class }}"></div>
+        </a>
+        {% endif %}
     </td>
     <td class="pemote">
         <a href="{{ deck.link }}">

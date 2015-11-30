@@ -1,0 +1,34 @@
+<div id="decks_top">
+<div class="ui top attached tabular menu">
+{% if site.deck_tab_images %}
+{% set classes = [
+    ('/decks/', None, 'All', None),
+    ('/decks/druid/', 'Druid', None, 'druid'),
+    ('/decks/hunter/', 'Hunter', None, 'hunter'),
+    ('/decks/mage/', 'Mage', None, 'mage'),
+    ('/decks/paladin/', 'Paladin', None, 'paladin'),
+    ('/decks/priest/', 'Priest', None, 'priest'),
+    ('/decks/rogue/', 'Rogue', None, 'rogue'),
+    ('/decks/shaman/', 'Shaman', None, 'shaman'),
+    ('/decks/warlock/', 'Warlock', None, 'warlock'),
+    ('/decks/warrior/', 'Warrior', None, 'warrior'),
+] %}
+{% else %}
+{% set classes = [
+    ('/decks/', None, 'All', None),
+    ('/decks/druid/', 'Druid', 'Druid', None),
+    ('/decks/hunter/', 'Hunter', 'Hunter', None),
+    ('/decks/mage/', 'Mage', 'Mage', None),
+    ('/decks/paladin/', 'Paladin', 'Paladin', None),
+    ('/decks/priest/', 'Priest', 'Priest', None),
+    ('/decks/rogue/', 'Rogue', 'Rogue', None),
+    ('/decks/shaman/', 'Shaman', 'Shaman', None),
+    ('/decks/warlock/', 'Warlock', 'Warlock', None),
+    ('/decks/warrior/', 'Warrior', 'Warrior', None),
+] %}
+{% endif %}
+{% for href, class, name, img in classes %}
+<a class="item{% if class == deck_class %} active{% endif %}" href="{{ href }}">{% if img %}<img src="/static/images/class_{{ img }}_32.png" />{% else %}{{ name }}{% endif %}</a>
+{% endfor %}
+</div>
+</div>
