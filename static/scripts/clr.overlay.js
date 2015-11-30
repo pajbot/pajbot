@@ -235,6 +235,9 @@ function connect_to_ws()
                     case 'new_emote':
                         add_emote(json_data['data']['emote']);
                         break;
+                    case 'notification':
+                        add_notification(json_data['data']['message']);
+                        break;
                     case 'timeout':
                         add_notification('<span class="user">' + json_data['data']['user'] + '</span> timed out <span class="victim">' + json_data['data']['victim'] + '</span> EleGiggle');
                         setTimeout(function() {
