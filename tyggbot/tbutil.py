@@ -118,10 +118,12 @@ class SyncValue:
 def time_since(t1, t2, format='long'):
     time_diff = t1 - t2
     if format == 'long':
-        num_dict = ['day', 'hour', 'minute', 'second']
+        num_dict = ['year', 'month', 'day', 'hour', 'minute', 'second']
     else:
-        num_dict = ['d', 'h', 'm', 's']
-    num = [math.trunc(time_diff / 86400),
+        num_dict = ['y', 'M', 'd', 'h', 'm', 's']
+    num = [math.trunc(time_diff / 31536000),
+           math.trunc(time_diff / 2628000 % 12),
+           math.trunc(time_diff / 86400 % 30.41666666666667),
            math.trunc(time_diff / 3600 % 24),
            math.trunc(time_diff / 60 % 60),
            round(time_diff % 60, 1)]
@@ -129,7 +131,7 @@ def time_since(t1, t2, format='long'):
     i = 0
     j = 0
     time_arr = []
-    while i < 2 and j < 4:
+    while i < 2 and j < 6:
         if num[j] > 0:
             if format == 'long':
                 time_arr.append('{0:g} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
