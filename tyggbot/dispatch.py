@@ -322,6 +322,7 @@ class Dispatch:
         --level LEVEL
         --modonly/--no-modonly
         """
+
         if message:
             # Make sure we got both an alias and a response
             message_parts = message.split(' ')
@@ -335,7 +336,7 @@ class Dispatch:
                 bot.whisper(source.username, 'Invalid command')
                 return False
 
-            alias_str = message_parts[0]
+            alias_str = message_parts[0].replace('!', '').lower()
             action = {
                     'type': 'func',
                     'cb': response.strip(),
@@ -566,15 +567,15 @@ class Dispatch:
             data = collections.OrderedDict()
             data['id'] = command.id
             data['level'] = command.level
-            data['type'] = command.action.type
+            data['type'] = command.action.type if command.action is not None else 'func'
             data['cost'] = command.cost
             data['cd_all'] = command.delay_all
             data['cd_user'] = command.delay_user
             data['mod_only'] = command.mod_only
 
-            if command.action.type == 'message':
+            if data['type'] == 'message':
                 data['response'] = command.action.response
-            elif command.action.type == 'func' or command.action.type == 'rawfunc':
+            elif data['type'] == 'func' or data['type'] == 'rawfunc':
                 data['cb'] = command.action.cb.__name__
 
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
