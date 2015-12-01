@@ -521,15 +521,31 @@ class TyggBot:
             self._timeout(user.username, duration)
             self.execute_delayed(1, self._timeout, (user.username, duration))
 
-    def whisper(self, username, message):
+    def whisper(self, username, *messages, separator='. '):
+        """
+        Takes a sequence of strings and concatenates them with separator.
+        Then sends that string as a whisper to username
+        """
+
+        if len(messages) < 0:
+            return False
+
         if self.whisper_manager:
-            self.whisper_manager.whisper(username, message)
+            self.whisper_manager.whisper(username, separator.join(messages))
         else:
             log.debug('No whisper conn set up.')
 
-    def say(self, message, channel=None):
+    def say(self, *messages, channel=None, separator='. '):
+        """
+        Takes a sequence of strings and concatenates them with separator.
+        Then sends that string to the given channel.
+        """
+
+        if len(messages) < 0:
+            return False
+
         if not self.silent:
-            message = message.strip()
+            message = separator.join(messages).strip()
 
             if len(message) >= 1:
                 if (message[0] == '.' or message[0] == '/') and not message[:3] == '.me':
