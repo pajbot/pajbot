@@ -3,6 +3,7 @@ import urllib.request
 import json
 import logging
 import requests
+import datetime
 
 log = logging.getLogger('tyggbot')
 
@@ -223,6 +224,11 @@ class TwitchAPI(APIBase):
             self.headers['Client-ID'] = client_id
         if oauth:
             self.headers['Authorization'] = 'OAuth ' + oauth
+
+    def parse_datetime(datetime_str):
+        """Parses date strings in the format of 2015-09-11T23:01:11+00:00
+        to a naive datetime object."""
+        return datetime.datetime.strptime(datetime_str[:-6], '%Y-%m-%dT%H:%M:%S')
 
     def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
