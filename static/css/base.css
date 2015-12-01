@@ -176,3 +176,7 @@ div.video_thumbnail img {
         -ms-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
 }
+
+.picker__footer {
+    display: none;
+}
