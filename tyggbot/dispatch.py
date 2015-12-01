@@ -7,7 +7,7 @@ import datetime
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
-from tyggbot.tbutil import time_limit, TimeoutException
+from tyggbot.tbutil import time_limit, TimeoutException, time_since
 
 from sqlalchemy import desc
 from sqlalchemy import func
@@ -1117,3 +1117,10 @@ class Dispatch:
             bot.whisper(source.username, 'Successfully removed highlight with ID {}.'.format(id))
         else:
             bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
+
+    def follow_age(bot, source, message, event, args):
+        age = bot.twitchapi.get_follow_relationship(source.username, bot.streamer)
+        if age is False:
+            bot.say('{}, you are not following {}'.format(source.username_raw, bot.streamer))
+        else:
+            bot.say('{}, you have been following {} for {}'.format(source.username_raw, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
