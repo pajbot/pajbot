@@ -19,6 +19,13 @@ samples = {
     'collegeboy': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Come%20on%20college%20boy.mp3' },
     'oooh': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Penetration%204.mp3' },
     'suction': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Suction.mp3' },
+    'takeit': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/Take%20it%20boy.mp3' },
+    'amazing': { 'url': 'http://soundboard.ass-we-can.com/static/music/VanD/That\'s%20amazing.mp3' },
+    'power': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/That\'s%20power%20son.mp3' },
+    'othernight': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/The%20other%20night.mp3' },
+    'asswecan': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Ass%20we%20can.mp3' },
+    'lashofthespanking': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Lash%20of%20the%20spanking.mp3' },
+    }
 };
 $(document).ready(function() {
     connect_to_ws();
