@@ -67,6 +67,8 @@ class User(Base):
 
     @property
     def last_active(self):
+        if self._last_active is None:
+            return None
         return TimeManager.localize(self._last_active)
 
     @last_active.setter
