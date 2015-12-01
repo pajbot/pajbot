@@ -6,6 +6,7 @@
 {% if highlights|length == 0 %}
 <p>No highlights were found on this date</p>
 {% else %}
+<p><a href="highlights/#calendar">Calendar</a></p>
 <div class="ui divided items">
 {% for highlight in highlights %}
 {% include 'highlight/list.html' %}
