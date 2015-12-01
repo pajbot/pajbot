@@ -353,6 +353,23 @@ class TwitchAPI(APIBase):
         """
         self.put(endpoints=['channels', streamer], data={'channel[status]': title}, base='https://api.twitch.tv/kraken/')
 
+    def get_follow_relationship(self, username, streamer):
+        """Returns the follow relationship between the user and a streamer.
+
+        Returns False if `username` is not following `streamer`.
+        Otherwise, return a datetime object.
+        """
+
+        try:
+            data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base='https://api.twitch.tv/kraken/')
+            return TwitchAPI.parse_datetime(data['created_at'])
+        except urllib.error.HTTPError:
+            return False
+        except:
+            log.exception('Unhandled exception in get_follow_relationship')
+            return False
+        return False
+
 
 class SafeBrowsingAPI:
     def __init__(self, apikey, appname, appvers):
