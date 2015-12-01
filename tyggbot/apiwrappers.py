@@ -215,6 +215,8 @@ class TwitchAPI(APIBase):
         APIBase.__init__(self, strict)
 
         self.base_url = 'https://api.twitch.tv/api/'
+        self.kraken_url = 'https://api.twitch.tv/kraken/'
+        self.tmi_url = 'https://tmi.twitch.tv/'
 
         self.headers = {
                 'Accept': 'application/vnd.twitchtv.v3+json',
@@ -244,7 +246,7 @@ class TwitchAPI(APIBase):
         if attempt > 2:
             return False, False, True
         try:
-            data = self.get(['channels', streamer, 'subscriptions'], {'limit': limit, 'offset': offset}, base='https://api.twitch.tv/kraken/')
+            data = self.get(['channels', streamer, 'subscriptions'], {'limit': limit, 'offset': offset}, base=self.kraken_url)
             if data:
                 return [u['user']['name'] for u in data['subscriptions']], False, False
         except urllib.error.HTTPError as e:
@@ -262,7 +264,7 @@ class TwitchAPI(APIBase):
         chatters = []
 
         try:
-            data = self.get(['group', 'user', streamer, 'chatters'], base='https://tmi.twitch.tv/')
+            data = self.get(['group', 'user', streamer, 'chatters'], base=self.tmi_url)
             ch = data['chatters']
 
             chatters = ch['moderators'] + ch['staff'] + ch['admins'] + ch['global_mods'] + ch['viewers']
@@ -301,7 +303,7 @@ class TwitchAPI(APIBase):
         data = None
 
         try:
-            data = self.get(['streams', streamer], base='https://api.twitch.tv/kraken/')
+            data = self.get(['streams', streamer], base=self.kraken_url)
             stream_status['error'] = False
 
             stream_status['online'] = 'stream' in data and data['stream'] is not None
@@ -342,7 +344,7 @@ class TwitchAPI(APIBase):
         game -- the game we should update to (i.e. 'Counter Strike: Global Offensive')
         """
         new_game = game
-        self.put(endpoints=['channels', streamer], data={'channel[game]': new_game}, base='https://api.twitch.tv/kraken/')
+        self.put(endpoints=['channels', streamer], data={'channel[game]': new_game}, base=self.kraken_url)
 
     def set_title(self, streamer, title):
         """Updates the streamers title on twitch.
@@ -351,7 +353,7 @@ class TwitchAPI(APIBase):
         streamer -- the streamer whose game we should update (i.e. 'tyggbar')
         title -- the title we should update to (i.e. 'Gonna play some games, yolo!')
         """
-        self.put(endpoints=['channels', streamer], data={'channel[status]': title}, base='https://api.twitch.tv/kraken/')
+        self.put(endpoints=['channels', streamer], data={'channel[status]': title}, base=self.kraken_url)
 
     def get_follow_relationship(self, username, streamer):
         """Returns the follow relationship between the user and a streamer.
@@ -361,7 +363,7 @@ class TwitchAPI(APIBase):
         """
 
         try:
-            data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base='https://api.twitch.tv/kraken/')
+            data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base=self.kraken_url)
             return TwitchAPI.parse_datetime(data['created_at'])
         except urllib.error.HTTPError:
             return False
