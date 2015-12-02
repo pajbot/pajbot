@@ -18,7 +18,7 @@ class WebSocketServer:
         class MyServerProtocol(WebSocketServerProtocol):
             def onConnect(self, request):
                 log.info(self.factory)
-                log.info('Client connecting: {0}'.format(request.peer))
+                # log.info('Client connecting: {0}'.format(request.peer))
 
             def onOpen(self):
                 log.info('WebSocket connection open. {0}'.format(self))

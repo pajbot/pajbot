@@ -27,6 +27,7 @@ from .models.stream import StreamManager
 from .models.webcontent import WebContent
 from .models.time import TimeManager
 from .models.action import ActionParser
+from .models.duel import UserDuelStats, DuelManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -171,6 +172,7 @@ class TyggBot:
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
         self.stream_manager = StreamManager(self)
+        self.duel_manager = DuelManager()
 
         # Reloadable managers
         self.reloadable = {
@@ -198,6 +200,7 @@ class TyggBot:
                 'decks': self.decks,
                 'linktracker': self.link_tracker,
                 'users': self.users,
+                'duels': self.duel_manager,
                 }
 
         self.execute_every(10 * 60, self.commit_all)

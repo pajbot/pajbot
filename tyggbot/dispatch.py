@@ -1183,7 +1183,7 @@ class Dispatch:
             return False
 
         if user.last_active is not None and (datetime.datetime.now() - user._last_active).total_seconds() > 5 * 60:
-            bot.whisper(source.username, 'This user has not been active in chat within the last 5 minutes. Get him to type in chat before dueling him')
+            bot.whisper(source.username, 'This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge')
             return False
 
         if user.points < duel_price or source.points < duel_price:
@@ -1199,7 +1199,7 @@ class Dispatch:
             bot.whisper(user.username, 'You have been challenged to a duel by {} for {} points. You can either !accept or !deny this challenge.'.format(source.username_raw, duel_price))
             bot.whisper(source.username, 'You have challenged {} for {} points'.format(user.username_raw, duel_price))
         else:
-            bot.whisper(source.username, 'This person is already being challenged by {}. Ask him to decline the offer by typing !decline'.format(user.duel_request.username_raw))
+            bot.whisper(source.username, 'This person is already being challenged by {}. Ask them to answer the offer by typing !deny or !accept'.format(user.duel_request.username_raw))
 
     def cancel_duel(bot, source, message, event, args):
         """
@@ -1235,13 +1235,17 @@ class Dispatch:
                 return False
             source.points -= source.duel_price
             source.duel_request.points -= source.duel_price
-            winning_pot = int(source.duel_price * 0.5)
+            winning_pot = int(source.duel_price * 0.5)  # 50% tax Kappa
             participants = [source, source.duel_request]
             winner = random.choice(participants)
             participants.remove(winner)
             loser = participants.pop()
             winner.points += source.duel_price
             winner.points += winning_pot
+
+            bot.duel_manager.user_won(winner, winning_pot)
+            bot.duel_manager.user_lost(loser, source.duel_price)
+
             win_message = []
             win_message.append('{} won the duel vs {} PogChamp '.format(winner.username_raw, loser.username_raw))
             if source.duel_price > 0:
