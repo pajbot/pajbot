@@ -270,10 +270,11 @@ class Dispatch:
         """Dispatch method for creating and editing commands.
         Usage: !add command ALIAS [options] RESPONSE
         Multiple options available:
-        --whisper
+        --whisper/--no-whisper
         --cd CD
         --usercd USERCD
         --level LEVEL
+        --cost COST
         --modonly/--no-modonly
         """
 
@@ -316,10 +317,11 @@ class Dispatch:
         """Dispatch method for creating and editing function commands.
         Usage: !add command ALIAS [options] CALLBACK
         Multiple options available:
-        --whisper
+        --whisper/--no-whisper
         --cd CD
         --usercd USERCD
         --level LEVEL
+        --cost COST
         --modonly/--no-modonly
         """
 

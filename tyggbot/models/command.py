@@ -386,9 +386,11 @@ class CommandManager(UserDict):
     def parse_command_arguments(self, message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--whisper', dest='whisper', action='store_true')
+        parser.add_argument('--no-whisper', dest='whisper', action='store_false')
         parser.add_argument('--cd', type=int, dest='delay_all')
         parser.add_argument('--usercd', type=int, dest='delay_user')
         parser.add_argument('--level', type=int, dest='level')
+        parser.add_argument('--cost', type=int, dest='cost')
         parser.add_argument('--modonly', dest='mod_only', action='store_true')
         parser.add_argument('--no-modonly', dest='mod_only', action='store_false')
 
@@ -403,5 +405,8 @@ class CommandManager(UserDict):
         # Strip options of any values that are set as None
         options = {k: v for k, v in vars(args).items() if v is not None}
         response = ' '.join(unknown)
+
+        if 'cost' in options:
+            options['cost'] = abs(options['cost'])
 
         return options, response
