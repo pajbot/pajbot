@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% set active_page = 'stats' %}
+{% block title %}Duel Stats{% endblock %}
+{% block body %}
+<h2>Duel Stats</h2>
+<div id="stats">
+    <h3>Top 5 Winrate (with 5 or more duels won)</h3>
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>% Winrate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in top_5_winrate %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.winrate|round(2) }}% ({{ stat.duels_won }}-{{ stat.duels_lost }})</td>
+                </tr>
+            {% endfor %}
+    </table>
+    <h3>Top 5 Duels Won</h3>
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th># Wins</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in top_5_winners %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.duels_won|number_format }}</td>
+                </tr>
+            {% endfor %}
+    </table>
+    <h3>Top 5 Duels Lost</h3>
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th># Losses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in top_5_losers %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.duels_lost }}</td>
+                </tr>
+            {% endfor %}
+    </table>
+</div>
+{% endblock %}

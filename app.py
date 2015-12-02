@@ -15,8 +15,10 @@ from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
 from tyggbot.models.user import User
+from tyggbot.models.duel import UserDuelStats
 from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
+from tyggbot.tbutil import time_since
 
 import markdown
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -346,7 +348,7 @@ def user_profile(username):
         return render_template('no_user.html'), 404
 
 
-@app.route('/points')
+@app.route('/points/')
 def points():
     session = DBManager.create_session()
     top_30_users = []
@@ -362,7 +364,7 @@ def debug():
     return render_template('debug.html')
 
 
-@app.route('/stats')
+@app.route('/stats/')
 def stats():
     top_5_commands = sorted(bot_commands_list, key=lambda c: c.num_uses, reverse=True)[:5]
 
@@ -377,6 +379,24 @@ def stats():
             top_5_commands=top_5_commands,
             top_5_line_farmers=top_5_line_farmers)
 
+@app.route('/stats/duels/')
+def stats_duels():
+    session = DBManager.create_session()
+
+    data = {
+            'top_5_winners': session.query(UserDuelStats).order_by(UserDuelStats.duels_won.desc())[:5],
+            'top_5_points_won': session.query(UserDuelStats).order_by(UserDuelStats.points_won.desc())[:5],
+            'top_5_points_lost': session.query(UserDuelStats).order_by(UserDuelStats.points_lost.desc())[:5],
+            'top_5_losers': session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc())[:5],
+            'top_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.desc())[:5],
+            }
+
+    print(session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc()))
+
+    try:
+        return render_template('stats_duels.html', **data)
+    finally:
+        session.close()
 
 @app.route('/contact')
 def contact():
@@ -527,36 +547,6 @@ default_variables = {
 @app.context_processor
 def inject_default_variables():
     return default_variables
-
-
-def time_since(t1, t2, format='long'):
-    time_diff = t1 - t2
-    if format == 'long':
-        num_dict = ['day', 'hour', 'minute', 'second']
-    else:
-        num_dict = ['d', 'h', 'm', 's']
-    num = [math.trunc(time_diff / 86400),
-           math.trunc(time_diff / 3600 % 24),
-           math.trunc(time_diff / 60 % 60),
-           round(time_diff % 60, 1)]
-
-    i = 0
-    j = 0
-    time_arr = []
-    while i < 2 and j < 4:
-        if num[j] > 0:
-            if format == 'long':
-                time_arr.append('{0:g} {1}{2}'.format(num[j], num_dict[j], 's' if num[j] > 1 else ''))
-            else:
-                time_arr.append('{0}{1}'.format(num[j], num_dict[j]))
-            i += 1
-        j += 1
-
-    if format == 'long':
-        return ' and '.join(time_arr)
-    else:
-        return ''.join(time_arr)
-
 
 @app.template_filter('time_ago')
 def time_ago(t, format='long'):

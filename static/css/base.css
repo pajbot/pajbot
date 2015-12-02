@@ -180,3 +180,7 @@ div.video_thumbnail img {
 .picker__footer {
     display: none;
 }
+
+div#stats th {
+    width: 50%;
+}
