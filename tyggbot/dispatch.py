@@ -1182,7 +1182,7 @@ class Dispatch:
             # You cannot duel yourself
             return False
 
-        if user.last_active is not None and (datetime.datetime.now() - user._last_active).total_seconds() > 5 * 60:
+        if user.last_active is None or (datetime.datetime.now() - user._last_active).total_seconds() > 5 * 60:
             bot.whisper(source.username, 'This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge')
             return False
 
