@@ -271,11 +271,12 @@ class Dispatch:
         Usage: !add command ALIAS [options] RESPONSE
         Multiple options available:
         --whisper/--no-whisper
+        --reply/--no-reply
+        --modonly/--no-modonly
         --cd CD
         --usercd USERCD
         --level LEVEL
         --cost COST
-        --modonly/--no-modonly
         """
 
         if message:
@@ -295,9 +296,13 @@ class Dispatch:
             type = 'say'
             if options['whisper'] is True:
                 type = 'whisper'
+            elif options['reply'] is True:
+                type = 'reply'
             elif response.startswith('/me') or response.startswith('.me'):
                 type = 'me'
                 response = ' '.join(response.split(' ')[1:])
+            elif options['whisper'] is False or options['reply'] is False:
+                type = 'say'
             action = {
                     'type': type,
                     'message': response,
@@ -310,6 +315,11 @@ class Dispatch:
 
             if len(action['message']) > 0:
                 options['action'] = action
+            elif not type == command.action.subtype:
+                options['action'] = {
+                        'type': type,
+                        'message': command.action.response,
+                        }
             command.set(**options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
@@ -317,7 +327,6 @@ class Dispatch:
         """Dispatch method for creating and editing function commands.
         Usage: !add command ALIAS [options] CALLBACK
         Multiple options available:
-        --whisper/--no-whisper
         --cd CD
         --usercd USERCD
         --level LEVEL

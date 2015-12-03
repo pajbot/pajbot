@@ -2,6 +2,8 @@ import json
 import re
 import logging
 
+import irc
+
 log = logging.getLogger('tyggbot')
 
 
@@ -27,6 +29,8 @@ class ActionParser:
             action = MeAction(data['message'], ActionParser.bot)
         elif data['type'] == 'whisper':
             action = WhisperAction(data['message'], ActionParser.bot)
+        elif data['type'] == 'reply':
+            action = ReplyAction(data['message'], ActionParser.bot)
         elif data['type'] == 'func':
             try:
                 action = FuncAction(getattr(Dispatch, data['cb']))
@@ -56,7 +60,8 @@ class SubstitutionFilter:
 
 
 class BaseAction:
-    type = '??'
+    type = None
+    subtype = None
 
 
 class MultiAction(BaseAction):
@@ -269,6 +274,8 @@ class MessageAction(BaseAction):
 
 
 class SayAction(MessageAction):
+    subtype = 'say'
+
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
@@ -276,6 +283,8 @@ class SayAction(MessageAction):
 
 
 class MeAction(MessageAction):
+    subtype = 'me'
+
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
@@ -283,7 +292,21 @@ class MeAction(MessageAction):
 
 
 class WhisperAction(MessageAction):
+    subtype = 'whisper'
+
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message))
         if resp:
             bot.whisper(source.username, resp)
+
+
+class ReplyAction(MessageAction):
+    subtype = 'reply'
+
+    def run(self, bot, source, message, event={}, args={}):
+        resp = self.get_response(bot, self.get_extra_data(source, message))
+        if resp:
+            if irc.client.is_channel(event.target):
+                bot.say(resp, channel=event.target)
+            else:
+                bot.whisper(source.username, resp)

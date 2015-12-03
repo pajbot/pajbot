@@ -387,6 +387,8 @@ class CommandManager(UserDict):
         parser = argparse.ArgumentParser()
         parser.add_argument('--whisper', dest='whisper', action='store_true')
         parser.add_argument('--no-whisper', dest='whisper', action='store_false')
+        parser.add_argument('--reply', dest='reply', action='store_true')
+        parser.add_argument('--no-reply', dest='reply', action='store_false')
         parser.add_argument('--cd', type=int, dest='delay_all')
         parser.add_argument('--usercd', type=int, dest='delay_user')
         parser.add_argument('--level', type=int, dest='level')
