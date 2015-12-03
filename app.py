@@ -562,7 +562,7 @@ def time_ago(t, format='long'):
 
 @app.template_filter('time_ago_timespan_seconds')
 def time_ago_timespan_seconds(t, format='long'):
-    return time_since(datetime.datetime.now().timestamp() - t, 0, format)
+    return time_since(t, 0, format)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
