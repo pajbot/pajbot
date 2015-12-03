@@ -208,12 +208,14 @@ class LinkChecker:
         if list_type == 'blacklist':
             link = self.db_session.query(BlacklistedLink).filter_by(domain=domain, path=path).one_or_none()
             if link:
+                self.blacklisted_links.remove(link)
                 self.db_session.delete(link)
             else:
                 log.warning('Unable to unlist {0}{1}'.format(domain, path))
         elif list_type == 'whitelist':
             link = self.db_session.query(WhitelistedLink).filter_by(domain=domain, path=path).one_or_none()
             if link:
+                self.whitelisted_links.remove(link)
                 self.db_session.delete(link)
             else:
                 log.warning('Unable to unlist {0}{1}'.format(domain, path))
