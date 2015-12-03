@@ -40,7 +40,7 @@
                 <tr>
                     <td><strong>Last seen</strong></td>
                     {% if user.last_seen %}
-                    <td>{{ user.last_seen|strftime('%Y-%M-%d %H:%I:%S') }}</td>
+                    <td>{{ user.last_seen|strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
@@ -49,7 +49,7 @@
                 <tr>
                     <td><strong>Last active in chat</strong></td>
                     {% if user.last_active %}
-                    <td>{{ user.last_active|strftime('%Y-%M-%d %H:%I:%S') }}</td>
+                    <td>{{ user.last_active|strftime('%Y-%m-%d %H:%M:%S') }}</td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
@@ -91,7 +91,7 @@
                 </tr>
                 <tr>
                     <td><strong>Last duel</strong></td>
-                    <td>{{ user_duel_stats.last_duel|localize|strftime('%Y-%M-%d %H:%I:%S') }}</td>
+                    <td>{{ user_duel_stats.last_duel|localize|strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 </tr>
             </tbody>
         </table>
