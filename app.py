@@ -18,6 +18,7 @@ from tyggbot.models.user import User
 from tyggbot.models.duel import UserDuelStats
 from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
+from tyggbot.models.time import TimeManager
 from tyggbot.tbutil import time_since
 
 import markdown
@@ -56,6 +57,7 @@ args = parser.parse_args()
 config = load_config(args.config)
 
 DBManager.init(config['main']['db'])
+TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
 session = DBManager.create_session()
 num_decks = session.query(func.count(Deck.id)).scalar()
@@ -337,15 +339,16 @@ def user_profile(username):
 
     rank = session.query(func.Count(User.id)).filter(User.points > user.points).one()
     rank = rank[0] + 1
-    session.close()
-
     user.rank = rank
 
-    if user:
+    user_duel_stats = session.query(UserDuelStats).filter_by(user_id=user.id).one_or_none()
+
+    try:
         return render_template('user.html',
-                user=user)
-    else:
-        return render_template('no_user.html'), 404
+                user=user,
+                user_duel_stats=user_duel_stats)
+    finally:
+        session.close()
 
 
 @app.route('/points/')
@@ -385,10 +388,11 @@ def stats_duels():
 
     data = {
             'top_5_winners': session.query(UserDuelStats).order_by(UserDuelStats.duels_won.desc())[:5],
-            'top_5_points_won': session.query(UserDuelStats).order_by(UserDuelStats.points_won.desc())[:5],
-            'top_5_points_lost': session.query(UserDuelStats).order_by(UserDuelStats.points_lost.desc())[:5],
+            'top_5_points_won': session.query(UserDuelStats).order_by(UserDuelStats.profit.desc())[:5],
+            'top_5_points_lost': session.query(UserDuelStats).order_by(UserDuelStats.profit.asc())[:5],
             'top_5_losers': session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc())[:5],
             'top_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.desc())[:5],
+            'bottom_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.asc())[:5],
             }
 
     print(session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc()))
@@ -493,6 +497,10 @@ def date_format(value, format='full'):
 def time_strftime(value, format):
     return value.strftime(format)
 
+@app.template_filter('localize')
+def time_localize(value):
+    return TimeManager.localize(value)
+
 @app.template_filter('unix_timestamp')
 def time_unix_timestamp(value):
     return value.timestamp()
@@ -551,6 +559,10 @@ def inject_default_variables():
 @app.template_filter('time_ago')
 def time_ago(t, format='long'):
     return time_since(datetime.datetime.now().timestamp(), t.timestamp(), format)
+
+@app.template_filter('time_ago_timespan_seconds')
+def time_ago_timespan_seconds(t, format='long'):
+    return time_since(datetime.datetime.now().timestamp() - t, 0, format)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)

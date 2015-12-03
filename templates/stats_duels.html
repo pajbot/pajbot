@@ -4,56 +4,119 @@
 {% block body %}
 <h2>Duel Stats</h2>
 <div id="stats">
-    <h3>Top 5 Winrate (with 5 or more duels won)</h3>
-    <table class="ui very basic table">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>% Winrate</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stat in top_5_winrate %}
+    <div class="minitable stats">
+        <h3>Top 5 Winrate (with 5 or more duels won)</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>% Winrate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in top_5_winrate %}
                 {% set user = stat.user %}
                 <tr>
                     <td>{% include 'user/username_link.html' %}</td>
                     <td>{{ stat.winrate|round(2) }}% ({{ stat.duels_won }}-{{ stat.duels_lost }})</td>
                 </tr>
-            {% endfor %}
-    </table>
-    <h3>Top 5 Duels Won</h3>
-    <table class="ui very basic table">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th># Wins</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stat in top_5_winners %}
+                {% endfor %}
+        </table>
+    </div>
+    <div class="minitable stats">
+        <h3>Top 5 Duels Won</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># Wins</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in top_5_winners %}
                 {% set user = stat.user %}
                 <tr>
                     <td>{% include 'user/username_link.html' %}</td>
                     <td>{{ stat.duels_won|number_format }}</td>
                 </tr>
-            {% endfor %}
-    </table>
-    <h3>Top 5 Duels Lost</h3>
-    <table class="ui very basic table">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th># Losses</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stat in top_5_losers %}
+                {% endfor %}
+        </table>
+    </div>
+    <div class="minitable stats">
+        <h3>Top 5 Duels Lost</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># Losses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in top_5_losers %}
                 {% set user = stat.user %}
                 <tr>
                     <td>{% include 'user/username_link.html' %}</td>
                     <td>{{ stat.duels_lost }}</td>
                 </tr>
-            {% endfor %}
-    </table>
+                {% endfor %}
+        </table>
+    </div>
+    <div class="minitable stats">
+        <h3>Top 5 Points Won</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in top_5_points_won %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.profit }}</td>
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
+    <div class="minitable stats">
+        <h3>Top 5 Points Lost</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in top_5_points_lost %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.profit }}</td>
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
+    <div class="minitable stats">
+        <h3>Bottom 5 Winrate (>= 5 wins)</h3>
+        <table class="ui very basic table celled ">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in bottom_5_winrate %}
+                {% set user = stat.user %}
+                <tr>
+                    <td>{% include 'user/username_link.html' %}</td>
+                    <td>{{ stat.winrate|round(2) }}% ({{ stat.duels_won }}-{{ stat.duels_lost }})</td>
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
 </div>
 {% endblock %}

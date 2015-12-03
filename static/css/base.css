@@ -184,3 +184,17 @@ div.video_thumbnail img {
 div#stats th {
     width: 50%;
 }
+
+div#userprofile td {
+    width: 50%;
+}
+
+div.stats.minitable {
+    width: 400px;
+    margin-bottom: 1em;
+    float: left;
+}
+
+div.mediumtable {
+    width: 600px;
+}

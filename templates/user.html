@@ -3,53 +3,99 @@
 {% block title %}Profile - {{ user.username_raw}}{% endblock %}
 {% block body %}
 <div id="userprofile">
-    {% include 'user/username_link.html' %}
-    <h2>{{ user.username_raw }}</h2>
-    <table class="ui very basic table">
-        <tbody>
-            <tr>
-                <th>Level</th>
-                <td>
-                    {% if user.level < 250 %}
-                    User
-                    {% elif user.level < 500 %}
-                    Dank Helper
-                    {% elif user.level < 1000 %}
-                    Moderator
-                    {% elif user.level < 1500 %}
-                    Super Moderator/Broadcaster
-                    {% elif user.level < 2500 %}
-                    Admin
+    <h2>User Profile - {{ user.username_raw }}</h2>
+    <div class="mediumtable">
+        <table class="ui very basic table celled">
+            <tbody>
+                <tr>
+                    <td><strong>Username</strong></td>
+                    <td>{% include 'user/username_link.html' %}</td>
+                </tr>
+                <tr>
+                    <td><strong>Level</strong></td>
+                    <td>
+                        {% if user.level < 250 %}
+                        User
+                        {% elif user.level < 500 %}
+                        Dank Helper
+                        {% elif user.level < 1000 %}
+                        Moderator
+                        {% elif user.level < 1500 %}
+                        Super Moderator/Broadcaster
+                        {% elif user.level < 2500 %}
+                        Admin
+                        {% else %}
+                        ???
+                        {% endif %} ({{ user.level }})
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Points</strong></td>
+                    <td>{{ user.points }} (Rank {{ user.rank }})</td>
+                </tr>
+                <tr>
+                    <td><strong>Messages sent</strong></td>
+                    <td>{{ user.num_lines }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Last seen</strong></td>
+                    {% if user.last_seen %}
+                    <td>{{ user.last_seen|strftime('%Y-%M-%d %H:%I:%S') }}</td>
                     {% else %}
-                    ???
-                    {% endif %} ({{ user.level }})
-                </td>
-            </tr>
-            <tr>
-                <th>Points</th>
-                <td>{{ user.points }} (Rank {{ user.rank }})</td>
-            </tr>
-            <tr>
-                <th>Messages sent</th>
-                <td>{{ user.num_lines }}</td>
-            </tr>
-            <tr>
-                <th>Last seen</th>
-                <td>{{ user.last_seen }}</td>
-            </tr>
-            <tr>
-                <th>Last active in chat</th>
-                <td>{{ user.last_active }}</td>
-            </tr>
-            <tr>
-                <th>Time spent watching the stream</th>
-                <td>{{ user.minutes_in_chat_online }} minutes</td>
-            </tr>
-            <tr>
-                <th>Permabanned on {{ bot.name }}</th>
-                <td>{%if user.banned == 1 %}Yes{% else %}No{% endif %}</td>
-            </tr>
-        </tbody>
-    </table>
+                    <td>Never</td>
+                    {% endif %}
+                </tr>
+
+                <tr>
+                    <td><strong>Last active in chat</strong></td>
+                    {% if user.last_active %}
+                    <td>{{ user.last_active|strftime('%Y-%M-%d %H:%I:%S') }}</td>
+                    {% else %}
+                    <td>Never</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td><strong>Time spent watching the stream</strong></td>
+                    <td>{{ (user.minutes_in_chat_online * 60)|time_ago_timespan_seconds }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Permabanned on {{ bot.name }}</strong></td>
+                    <td>{%if user.banned == 1 %}Yes{% else %}No{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% if user_duel_stats %}
+        <h3>Duel stats</h3>
+        <table class="ui very basic table celled">
+            <tbody>
+                <tr>
+                    <td><strong>Duels Total</strong></td>
+                    <td>{{ user_duel_stats.duels_total }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Duels Won</strong></td>
+                    <td>{{ user_duel_stats.duels_won }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Duels Lost</strong></td>
+                    <td>{{ user_duel_stats.duels_lost }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Winrate</strong></td>
+                    <td>{{ user_duel_stats.winrate|round(2) }}%</td>
+                </tr>
+                <tr>
+                    <td><strong>Profit from duels</strong></td>
+                    <td>{{ user_duel_stats.profit }} points</td>
+                </tr>
+                <tr>
+                    <td><strong>Last duel</strong></td>
+                    <td>{{ user_duel_stats.last_duel|localize|strftime('%Y-%M-%d %H:%I:%S') }}</td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
