@@ -9,13 +9,12 @@ Examples of twitch channels where the bot is run:
 | Snusbot | [Forsen](http://twitch.tv/forsenlol) | [pajlada](http://twitch.tv/pajlada) |
 | botnextdoor | [NymN_HS](http://twitch.tv/nymn_hs) | [pajlada](http://twitch.tv/pajlada) |
 | Annies_Bot | [AnnieFuchsia](http://twitch.tv/anniefuchsia) | [GiggleArrows](http://twitch.tv/gigglearrows) |
-| cougarbot | [TaruliHS](http://twitch.tv/tarulihs) | [pajlada](http://twitch.tv/pajlada) |
-| potatisbot | [RosenMVP](http://twitch.tv/rosenmvp) | [pajlada](http://twitch.tv/pajlada) |
 | pajbot | [pajlada](http://twitch.tv/pajlada) | [pajlada](http://twitch.tv/pajlada) |
 | lanbot144 | [Landon144](http://twitch.tv/landon144) | [pajlada](http://twitch.tv/pajlada) |
 | Snookibot | [SnookiPoof](http://twitch.tv/snookipoof) | [Dorsens](http://twitch.tv/dorsens) |
 | LinneasBot | [linneafly](http://twitch.tv/linneafly) | [GiggleArrows](http://twitch.tv/gigglearrows) |
 | wowsobot | [imaqtpie](http://twitch.tv/imaqtpie) | [pajlada](http://twitch.tv/pajlada) |
+| niconicobot | [eloise_ailv](http://twitch.tv/eloise_ailv) | [pajlada](http://twitch.tv/pajlada) |
 
 TODO: Continue working on the installation instructions.
 
