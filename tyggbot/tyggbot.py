@@ -240,11 +240,10 @@ class TyggBot:
         self.data = {}
         self.data_cb = {}
 
+        self.data['version'] = self.version
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
-        self.data_cb['time_norway'] = self.c_time_norway
         self.data_cb['bot_uptime'] = self.c_uptime
-        self.data_cb['time_since_latest_deck'] = self.c_time_since_latest_deck
 
         self.tbm = TBMath()
 
@@ -461,10 +460,6 @@ class TyggBot:
         except Exception:
             log.exception('Exception caught while sending privmsg')
 
-    def c_time_norway(self):
-        log.warning('DEPRECATED: use $(time:Europe/Oslo) instead')
-        return datetime.now(timezone('Europe/Oslo')).strftime(TyggBot.date_fmt)
-
     def c_uptime(self):
         return time_since(datetime.now().timestamp(), self.start_time.timestamp())
 
@@ -483,9 +478,6 @@ class TyggBot:
                 return time_since(time.time(), self.stream_manager.last_stream.stream_end.timestamp())
             else:
                 return 'No recorded stream FeelsBadMan '
-
-    def c_time_since_latest_deck(self):
-        return time_since(time.time(), self.kvi['latest_deck_time'].get())
 
     def _ban(self, username):
         self.privmsg('.ban {0}'.format(username))
