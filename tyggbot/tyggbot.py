@@ -657,6 +657,8 @@ class TyggBot:
                         first_index = int(first_index)
                         last_index = int(last_index)
                         emote_code = msg_raw[first_index:last_index + 1]
+                        if emote_code[0] == ':':
+                            emote_code = emote_code.upper()
                         message_emotes.append({
                             'code': emote_code,
                             'twitch_id': emote_id,
@@ -720,7 +722,7 @@ class TyggBot:
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
         if not whisper:
-            if source.level < 500:
+            if source.level < 500 and source.moderator is False:
                 if self.check_msg_content(source, msg_raw, event):
                     # If we've matched a filter, we should not have to run a command.
                     return
