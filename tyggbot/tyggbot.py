@@ -426,6 +426,18 @@ class TyggBot:
 
         return None
 
+    def get_usersource_value(self, key, extra={}):
+        try:
+            user = self.users.find(extra['argument'])
+            if user:
+                return getattr(user, key)
+            else:
+                return getattr(extra['source'], key)
+        except:
+            log.exception('Caught exception in get_source_value')
+
+        return None
+
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)

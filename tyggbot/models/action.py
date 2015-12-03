@@ -206,6 +206,8 @@ class MessageAction(BaseAction):
                     cb = bot.get_source_value
                 elif path == 'user':
                     cb = bot.get_user_value
+                elif path == 'usersource':
+                    cb = bot.get_usersource_value
                 elif path == 'time':
                     cb = bot.get_time_value
                 elif path == 'curdeck':
