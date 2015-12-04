@@ -4,7 +4,7 @@
 {% block body %}
 <h2>{{ stream.title }}</h2>
 <div class="ui image video_thumbnail">
-    <img src="{{ stream_chunk.video_preview_image_url }}"/>
+    <img src="{{ stream_chunk.video_preview_image_url }}" alt="highlight thumbnail {{ highlight.id }}" />
 </div>
 <table class="ui very basic table">
     <tbody>
@@ -12,10 +12,10 @@
             <th>Created at</th>
             <td><span class="date">{{ highlight.created_at|time_ago }} ago | {{ highlight.created_at|date_format }}</span></td>
         </tr>
-        {% if description %}
+        {% if highlight.description %}
         <tr>
             <th>Description</th>
-            <td>{{ highlight.description }}</td>
+            <td class="pemote">{{ highlight.description }}</td>
         </tr>
         {% endif %}
         <tr>
