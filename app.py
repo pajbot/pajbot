@@ -471,6 +471,11 @@ def highlights():
         session.close()
 
 
+@app.route('/pleblist/')
+def pleblist():
+    return render_template('pleblist.html')
+
+
 @app.route('/discord')
 def discord():
     return render_template('discord.html')

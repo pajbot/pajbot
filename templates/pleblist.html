@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% set active_page = 'pleblist' %}
+{% block title %}Pleblist{% endblock %}
+{% block body %}
+<div id="pleblist">
+    <div class="ui sixteen column doubling grid container" style="height: 100%;">
+        <div class="row">
+            <div class="twelve wide column">
+                <div>
+<iframe id="ytplayer" type="text/html" width="720" height="300"
+src="https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1&enablejsapi=1&autohide=0"
+                                                   frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div class="buttons ui equal width center aligned padded grid" style="width: 100%;">
+                    <div class="row">
+                        <div class="column">
+                            <button class="ui button fluid black">Blacklist</button>
+                        </div>
+                        <div class="column">
+                            <button class="ui button fluid">Skip</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="three wide column">
+                <h3>Songlist (<span id="num_songs">3</span> songs)</h3>
+                <div class="ui list">
+                    <div class="item green">
+                        <div class="content">
+                            <a class="header">Song name here #1</a>
+                            <div class="description">4:20</div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="content">
+                            <a class="header">Song name here #2</a>
+                            <div class="description">5:30</div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="content">
+                            <a class="header">Song name here #3</a>
+                            <div class="description">1:23</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
