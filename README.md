@@ -16,8 +16,6 @@ Examples of twitch channels where the bot is run:
 | niconicobot | [eloise_ailv](http://twitch.tv/eloise_ailv) | [pajlada](http://twitch.tv/pajlada) |
 | NeverCoolNameBot | [naniheichou](http://twitch.tv/naniheichou) | [pajlada](http://twitch.tv/pajlada) |
 
-TODO: Continue working on the installation instructions.
-
 ## Quick install
 
 1. Install library requirements by typing `pip install -r pip-requirements.txt` in the root folder
@@ -26,27 +24,6 @@ TODO: Continue working on the installation instructions.
 
 ## Detailed install
 
-The guide below will make sure the bot runs, and optionally how to run it as a [PM2](https://github.com/Unitech/pm2) service. The instructions below are tested on Ubuntu Server 14.0.4
+* You can find a detailed installation Guide for **Tyggbot - Bot** in the [wiki](https://github.com/pajlada/tyggbot/wiki/Installation-Bot)
 
-### Requirements
- * MySQL 5+ (Tested with 5.6)
- * Python 3 (Tested with 3.4)
- * PM2 (optional)
-
-### Install required dependencies
-1. Install MySQL: `sudo apt-get install mysql-server`
-2. In the bot root folder:<br/>`pip3 install -r pip-requirements.txt --user`<br/>If `pip3` is not installed, install it by typing `sudo apt-get install python3-pip`
-
-### Set up a MySQL user
-1. Open up the MySQL Terminal as root by typing<br/>`mysql -u root -p`
-2. In the MySQL terminal, create a database for the bot:<br/>`CREATE DATABASE tyggbot CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
-3. Again in the MySQL terminal, create our user and grant it all privileges on the newly created database:<br/>`GRANT ALL PRIVILEGES ON tyggbot.* TO 'tyggbot'@'localhost' IDENTIFIED BY 'password';`
-
-
-### Set up the bot
-1. Create a config file according to the specifications in [wiki](https://github.com/pajlada/tyggbot/wiki/Config-File) and save it somewhere.
-2. Start the bot by typing `./main.py` in the root folder.
-
-### Run the bot as a PM2 service (optional)
-1. Install PM2 `npm install -g pm2`
-2. Create a PM2 service that runs the bot `pm2 start main.py --name="NAME_OF_BOT" --output="/path/to/output.log" --error="/path/to/error.out" --merge-logs -- --config /path/to/config.ini`
+* You can find a detailed installation Guide for **Tyggbot - Website** in the [wiki](https://github.com/pajlada/tyggbot/wiki/Installation-Website)
