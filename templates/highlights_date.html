@@ -6,7 +6,7 @@
 {% if highlights|length == 0 %}
 <p>No highlights were found on this date</p>
 {% else %}
-<p><a href="highlights/#calendar">Calendar</a></p>
+<p><a href="#calendar">Calendar</a></p>
 <div class="ui divided items">
 {% for highlight in highlights %}
 {% include 'highlight/list.html' %}
@@ -17,7 +17,7 @@
 <div id="calendar"></div>
 {% endblock %}
 {% block footer %}
-<script type="text/javascript" src="static/scripts/highlights.datepicker.js"></script>
+<script type="text/javascript" src="/static/scripts/highlights.datepicker.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     var disabled_dates = [
