@@ -28,6 +28,7 @@ from .models.webcontent import WebContent
 from .models.time import TimeManager
 from .models.action import ActionParser
 from .models.duel import UserDuelStats, DuelManager
+from .models.pleblist import PleblistSong
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
