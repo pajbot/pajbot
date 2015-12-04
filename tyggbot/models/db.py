@@ -1,4 +1,5 @@
 import logging
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -27,6 +28,18 @@ class DBManager:
             log.exception('Unhandled exception while creating a session')
 
         return None
+
+    @contextmanager
+    def create_session_scope(**options):
+        session = DBManager.create_session(**options)
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
     def debug(object):
         try:
