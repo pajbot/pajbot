@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import argparse
 import os
 import configparser
@@ -24,9 +25,11 @@ from tyggbot.tbutil import time_since
 import markdown
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
+from flask import request
 from flask import render_template
 from flask import Markup
 from flask import redirect
+from flask.ext.scrypt import generate_random_salt
 # from flask import make_response
 # from flask import jsonify
 from sqlalchemy import func, cast, Date
@@ -56,6 +59,17 @@ args = parser.parse_args()
 
 config = load_config(args.config)
 
+if 'web' not in config:
+    log.error('Missing [web] section in config.ini')
+    sys.exit(1)
+
+if 'pleblist_password_salt' not in config['web']:
+    salt = generate_random_salt()
+    config.set('web', 'pleblist_password_salt', salt.decode('utf-8'))
+
+with open('config.ini', 'w') as configfile:
+    config.write(configfile)
+
 DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
@@ -69,6 +83,7 @@ session.close()
 has_decks = num_decks > 0
 
 errors.init(app)
+api.config = config
 
 modules = config['web'].get('modules', '').split()
 
@@ -475,6 +490,10 @@ def highlights():
 def pleblist():
     return render_template('pleblist.html')
 
+@app.route('/pleblist/host/')
+def pleblist_host():
+    return render_template('pleblist_host.html')
+
 
 @app.route('/discord')
 def discord():
@@ -553,8 +572,15 @@ default_variables = {
             },
         'has_decks': has_decks,
         'modules': modules,
-        'current_time': datetime.datetime.now()
+        'current_time': datetime.datetime.now(),
+        'request': request,
         }
+
+if 'streamtip' in config:
+    default_variables['streamtip_data'] = {
+            'client_id': config['streamtip']['client_id'],
+            'redirect_uri': config['streamtip']['redirect_uri'],
+            }
 
 
 @app.context_processor

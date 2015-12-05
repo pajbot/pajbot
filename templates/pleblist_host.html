@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% set active_page = 'pleblist' %}
+{% block title %}Pleblist Host{% endblock %}
+{% block body %}
+<div id="pleblist_host">
+    <div id="button_div"></div>
+    <div id="notification"></div>
+    <div class="ui divided items" id="donationlist" style="width: 600px;"></div>
+</div>
+{% endblock %}
+{% block footer %}
+<script src="https://streamtip.com/socket.io/socket.io.js" type="text/javascript"></script>
+<script type="text/javascript">
+secret_password = null;
+streamtip_client_id = '{{ streamtip_data.client_id }}';
+function streamtip_auth()
+{
+    window.location.href = 'https://streamtip.com/api/oauth2/authorize?response_type=code&client_id={{ streamtip_data.client_id }}&redirect_uri={{ streamtip_data.redirect_uri }}';
+}
+</script>
+<script type="text/javascript" src="/static/scripts/pleblist.host.js"></script>
+{% endblock %}
