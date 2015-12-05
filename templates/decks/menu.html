@@ -1,4 +1,3 @@
-<div id="decks_top">
 <div class="ui top attached tabular menu">
 {% if site.deck_tab_images %}
 {% set classes = [
@@ -28,7 +27,6 @@
 ] %}
 {% endif %}
 {% for href, class, name, img in classes %}
-<a class="item{% if class == deck_class %} active{% endif %}" href="{{ href }}">{% if img %}<img src="/static/images/class_{{ img }}_32.png" />{% else %}{{ name }}{% endif %}</a>
+<a class="item{% if class == deck_class %} active{% endif %}" href="{{ href }}">{% if img %}<img src="/static/images/class_{{ img }}_32.png" alt="{{ img }}" />{% else %}{{ name }}{% endif %}</a>
 {% endfor %}
-</div>
 </div>

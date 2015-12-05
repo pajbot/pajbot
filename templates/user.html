@@ -59,6 +59,14 @@
                     <td>{{ (user.minutes_in_chat_online * 60)|time_ago_timespan_seconds }}</td>
                 </tr>
                 <tr>
+                    <td><strong>Time spent in offline chat</strong></td>
+                    {% if user.minutes_in_chat_offline > user.minutes_in_chat_online * 2 %}
+                    <td class="pemote">{{ (user.minutes_in_chat_offline * 60)|time_ago_timespan_seconds }} NotLikeThis</td>
+                    {% else %}
+                    <td>{{ (user.minutes_in_chat_offline * 60)|time_ago_timespan_seconds }}</td>
+                    {% endif %}
+                </tr>
+                <tr>
                     <td><strong>Permabanned on {{ bot.name }}</strong></td>
                     <td>{%if user.banned == 1 %}Yes{% else %}No{% endif %}</td>
                 </tr>

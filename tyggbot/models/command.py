@@ -320,7 +320,7 @@ class CommandManager(UserDict):
                     })
         self.data['edit'] = self.data['add']
         self.data['remove'] = Command.multiaction_command(
-                level=500,
+                level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
