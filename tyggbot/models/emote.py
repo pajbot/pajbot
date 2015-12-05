@@ -55,8 +55,10 @@ class Emote(Base):
 
     def add(self, count, reactor):
         if self.stats is None:
-            self.stats = EmoteStats(self.code)
-            self.manager.db_session.add(self.stats)
+            self.stats = self.manager.db_session.query(EmoteStats).filter_by(emote_code=self.code).one_or_none()
+            if self.stats is None:
+                self.stats = EmoteStats(self.code)
+                self.manager.db_session.add(self.stats)
 
         self.stats.add(count, reactor)
 

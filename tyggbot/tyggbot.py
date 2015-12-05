@@ -653,7 +653,6 @@ class TyggBot:
                         emote_indices = emote_occurrence.split(',')
                         emote_count = len(emote_indices)
                         emote = self.emotes[int(emote_id)]
-                        emote.add(emote_count, self.reactor)
                         first_index, last_index = emote_indices[0].split('-')
                         first_index = int(first_index)
                         last_index = int(last_index)
@@ -688,6 +687,8 @@ class TyggBot:
                             emote.code = emote_code
                             if emote.code not in self.emotes:
                                 self.emotes[emote.code] = emote
+
+                        emote.add(emote_count, self.reactor)
                     except:
                         log.exception('Exception caught while splitting emote data')
             elif tag['key'] == 'display-name' and tag['value']:
