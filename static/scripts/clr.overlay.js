@@ -37,8 +37,6 @@ $(document).ready(function() {
 });
 
 var isopen = false;
-var ws_host = 'wss://pajlada.se';
-var ws_port = '2320';
 
 function add_random_box(color)
 {

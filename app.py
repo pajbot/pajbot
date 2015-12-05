@@ -546,6 +546,10 @@ default_variables = {
         'site': {
             'domain': config['web']['domain'],
             'deck_tab_images': config.getboolean('web', 'deck_tab_images'),
+            'websocket': {
+                'port': config['websocket']['port'],
+                'ssl': config.getboolean('websocket', 'ssl')
+                }
             },
         'streamer': {
             'name': config['web']['streamer_name'],
