@@ -198,3 +198,7 @@ div.stats.minitable {
 div.mediumtable {
     width: 600px;
 }
+
+div#songlist div.item:first-child {
+    background-color: #efe;
+}

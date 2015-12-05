@@ -29,6 +29,8 @@ class Dispatch:
     Methods in this class accessible from commands
     """
 
+    raffle_running = False
+
     def nl(bot, source, message, event, args):
         if message:
             tmp_username = message.split(' ')[0].strip().lower()
@@ -750,7 +752,6 @@ class Dispatch:
         else:
             _time = 600
 
-        log.debug('SINGLE timeouting {0}'.format(source.username))
         bot._timeout(source.username, _time)
 
     def set_deck(bot, source, message, event, args):
@@ -1304,3 +1305,53 @@ class Dispatch:
             bot.whisper(source.username, '. '.join(msg))
         else:
             bot.whisper(source.username, 'You have no duel request or duel target. Type !duel USERNAME POT to duel someone!')
+
+    def raffle(bot, source, message, event, args):
+        Dispatch.raffle_users = []
+        Dispatch.raffle_running = True
+        Dispatch.raffle_points = 100
+
+        try:
+            if message is not None:
+                Dispatch.raffle_points = int(message.split()[0])
+        except ValueError:
+            pass
+
+        bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
+        bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
+
+        bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in 60 seconds'.format(Dispatch.raffle_points))
+        # bot.execute_delayed(1, bot.me, ('A raffle has begun for 100 points. type !join to join the raffle! The raffle will end in 60 seconds', ))
+
+        bot.execute_delayed(30, bot.me, ('The raffle ends in 30 seconds! Type !join to join the raffle!', ))
+        bot.execute_delayed(60, Dispatch.end_raffle, (bot, source, message, event, args))
+
+    def end_raffle(bot, source, message, event, args):
+        if not Dispatch.raffle_running:
+            return False
+
+        if len(Dispatch.raffle_users) == 0:
+            bot.me('Wow, no one joined the raffle DansGame')
+            return False
+
+        winner = random.choice(Dispatch.raffle_users)
+
+        Dispatch.raffle_users = []
+        Dispatch.raffle_running = False
+
+        bot.websocket_manager.emit('notification', {'message': '{} won {} points in the raffle!'.format(winner.username_raw, Dispatch.raffle_points)})
+        bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, Dispatch.raffle_points))
+
+        winner.points += Dispatch.raffle_points
+        winner.needs_sync = True
+
+    def join(bot, source, message, event, args):
+        if not Dispatch.raffle_running:
+            return False
+
+        for user in Dispatch.raffle_users:
+            if user == source:
+                return False
+
+        # Added user to the raffle
+        Dispatch.raffle_users.append(source)
