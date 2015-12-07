@@ -116,6 +116,14 @@ function add_to_pleblist(song)
 function update_song_counter()
 {
     $('#num_songs').text(pleblist_songs.length);
+    var total_duration = 0;
+    for (song_id in pleblist_songs) {
+        var song = pleblist_songs[song_id];
+        if (song.info !== null) {
+            total_duration += song.info.duration;
+        }
+    }
+    $('#total_duration').text(moment.duration(total_duration, 'seconds').format('h:mm:ss'));
 }
 
 function process_songs(song_list)
