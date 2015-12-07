@@ -210,7 +210,7 @@ $(document).ready(function() {
         return false;
     }
 
-    add_tests();
+    //add_tests();
 
     var res = use_access_token_from_hash();
     if (res == true) {

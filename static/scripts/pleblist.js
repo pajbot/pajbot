@@ -131,10 +131,15 @@ function process_songs(song_list)
     }
 }
 
-secret_password = null;
+secret_password = undefined;
 
 $(document).ready(function() {
     secret_password = $.cookie('password');
+    if (secret_password === undefined) {
+        $('#message').html('Currently in Guest mode. Skip will not work.<br />Refresh this page after logging into the Host page.');
+    } else {
+        $('#message').text('Currently in Client mode. Everything should work.');
+    }
     setTimeout(function() {
         $.ajax({
             dataType: 'json',
