@@ -8,7 +8,6 @@ var player_ready = false;
 var current_song = null;
 function onYouTubeIframeAPIReady()
 {
-    console.log('ready sir');
     player = new YT.Player('player', {
         height: '390',
         width: '640',
@@ -21,16 +20,18 @@ function onYouTubeIframeAPIReady()
 
 function next_song()
 {
-    if (pleblist_songs.length == 0) {
-        return false;
-    }
-
     if (current_song !== null) {
         var song_just_played = pleblist_songs.shift();
         $('#song-'+song_just_played.id).remove();
-        $.ajax({
-            dataType: 'json',
-            'url': '/api/v1/pleblist/next',
+        $.api({
+            action: 'pleblist_next_song',
+            method: 'post',
+            on: 'now',
+            beforeSend: function(settings) {
+                settings.data.song_id = current_song.id;
+                settings.data.password = secret_password;
+                return settings;
+            }
         });
         current_song = null;
     }
@@ -40,6 +41,8 @@ function next_song()
         player.loadVideoById({
             'videoId': current_song.youtube_id,
         });
+    } else {
+        player.stopVideo();
     }
 
     update_song_counter();
@@ -59,10 +62,11 @@ function onPlayerStateChange(event)
 
 var pleblist_songs = [];
 var latest_song_id = -1;
+var pleblist_started = false;
 
 function start_pleblist()
 {
-    console.log('asd');
+    pleblist_started = true;
     if (pleblist_songs.length > 0) {
         $('#start_button').hide();
         next_song();
@@ -97,6 +101,10 @@ function add_to_pleblist(song)
     $div_content.append($a_header);
     $div_description = $('<div>', {class: 'description'}).text('Song length here');
     $div_content.append($div_description);
+
+    if (current_song == null && pleblist_started === true) {
+        next_song();
+    }
 }
 
 function update_song_counter()
@@ -113,9 +121,11 @@ function process_songs(song_list)
 
     update_song_counter();
     if (pleblist_songs.length == 0) {
-        $('#start_button').show();
+        //$('#start_button').show();
     }
 }
+
+secret_password = null;
 
 $(document).ready(function() {
     secret_password = $.cookie('password');
@@ -133,14 +143,40 @@ $(document).ready(function() {
         });
     }, 500);
 
-    $('#skip_btn').api({
-        action: 'pleblist_next_song',
+    $('#skip_btn').click(function() {
+        next_song();
+    });
+
+    $('#add_song').api({
+        action: 'pleblist_add_song',
         method: 'post',
+        data: {
+            'password': secret_password
+        },
         beforeSend: function(settings) {
-            settings.data.song_id = current_song.id;
-            settings.data.password = '???'; // XXX how do we get this
+            settings.data.password = secret_password;
+            var youtube_id = parse_youtube_id_from_url($('#song_input').val());
+            if (youtube_id === false) {
+                return false;
+            }
+            settings.data.youtube_id = youtube_id;
+            //$('#song_input').val('');
             return settings;
         }
+    }).state({
+        onActivate: function() {
+            $(this).state('flash text');
+        },
+        text: {
+            flash: 'Song added!',
+        }
     });
+
+    $('#add_song').click(function() {
+        var song_url = $('#song_input').val();
+        if (song_url.length > 0) {
+            $('#song_input').val('');
+        }
+    })
 });
 

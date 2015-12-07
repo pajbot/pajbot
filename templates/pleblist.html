@@ -7,15 +7,16 @@
         <div class="row">
             <div class="twelve wide column">
                 <div id="player"></div>
-                <div class="buttons ui equal width center aligned padded grid" style="width: 100%;">
-                    <div class="row">
-                        <div class="column">
-                            <button class="ui button fluid black">Blacklist</button>
-                        </div>
-                        <div class="column">
-                            <button class="ui button fluid" id="skip_btn">Skip</button>
-                        </div>
+                <br />
+                <div class="buttons">
+                    <button class="ui button fluid" id="skip_btn">Skip</button>
+                </div>
+                <br />
+                <div>
+                    <div class="ui input">
+                        <input type="text" id="song_input" placeholder="Youtube link">
                     </div>
+                    <button class="ui button" id="add_song">Add song</button>
                 </div>
             </div>
             <div class="three wide column">
@@ -29,5 +30,6 @@
 </div>
 {% endblock %}
 {% block footer %}
+<script type="text/javascript" src="/static/scripts/pleblist.shared.js"></script>
 <script type="text/javascript" src="/static/scripts/pleblist.js"></script>
 {% endblock %}

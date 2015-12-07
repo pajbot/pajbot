@@ -1,4 +1,6 @@
 import datetime
+import base64
+import binascii
 
 from tyggbot.models.user import User
 from tyggbot.models.pleblist import PleblistSong
@@ -77,7 +79,7 @@ def pleblist_list_after(song_id):
         if current_stream is None:
             return make_response(jsonify({'error': 'Stream offline'}), 400)
 
-        songs = session.query(PleblistSong).filter(PleblistSong.stream_id == current_stream.id, PleblistSong.id > song_id).all()
+        songs = session.query(PleblistSong).filter(and_(PleblistSong.stream_id == current_stream.id, PleblistSong.date_played.is_(None), PleblistSong.id > song_id)).all()
 
         payload = {
                 '_total': len(songs),
@@ -108,8 +110,12 @@ def pleblist_add():
         return make_response(jsonify({'error': 'Missing data youtube_id'}), 400)
     if 'password' not in request.form:
         return make_response(jsonify({'error': 'Missing data password'}), 400)
-    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt']).decode('utf-8')
-    if not request.form['password'] == salted_password:
+    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+    try:
+        user_password = base64.b64decode(request.form['password'])
+    except binascii.Error:
+        return make_response(jsonify({'error': 'Invalid data password'}), 400)
+    if not user_password == salted_password:
         return make_response(jsonify({'error': 'Invalid password'}), 401)
 
     with DBManager.create_session_scope() as session:
@@ -132,16 +138,19 @@ def pleblist_next():
         return make_response(jsonify({'error': 'Missing data song_id'}), 400)
     if 'password' not in request.form:
         return make_response(jsonify({'error': 'Missing data password'}), 400)
-    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt']).decode('utf-8')
-    if not request.form['password'] == salted_password:
+    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+    try:
+        user_password = base64.b64decode(request.form['password'])
+    except binascii.Error:
+        return make_response(jsonify({'error': 'Invalid data password'}), 400)
+    if not user_password == salted_password:
         return make_response(jsonify({'error': 'Invalid password'}), 401)
 
     with DBManager.create_session_scope() as session:
-        current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start).first()
-        if current_stream is None:
-            return make_response(jsonify({'error': 'Stream offline'}), 400)
-
-        current_song = session.query(PleblistSong).filter(and_(PleblistSong.stream_id == current_stream.id, PleblistSong.date_played.is_(None))).order_by(PleblistSong.date_added.asc()).first()
+        try:
+            current_song = session.query(PleblistSong).filter(PleblistSong.id == int(request.form['song_id'])).order_by(PleblistSong.date_added.asc()).first()
+        except ValueError:
+            return make_response(jsonify({'error': 'Invalid data song_id'}), 400)
 
         if current_song is None:
             return make_response(jsonify({'error': 'No song active in the pleblist'}), 404)
@@ -207,8 +216,9 @@ def streamtip_validate():
     r = requests.get('https://streamtip.com/api/me?access_token={}'.format(request.form['access_token']))
     if r.json()['user']['_id'] == config['web']['pleblist_streamtip_userid']:
         salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
-        resp = make_response(jsonify({'password': salted_password}))
-        resp.set_cookie('password', salted_password)
+        password = base64.b64encode(salted_password)
+        resp = make_response(jsonify({'password': password}))
+        resp.set_cookie('password', password)
         return resp
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)

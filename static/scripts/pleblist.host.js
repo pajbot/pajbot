@@ -76,37 +76,32 @@ function add_tip(username, avatar, cents, note)
     $div.find('.youtube-link-wrapper').each(function(index, el) {
         var link = $(el).find('a')[0];
         if (link.href !== undefined) {
-            console.log(link.href);
             var parsed_uri = parseUri(link.href);
-            console.log(parsed_uri);
-            var youtube_id = ''
-            if (parsed_uri.host.indexOf('youtu.be') !== -1) {
-                youtube_id = parsed_uri.path.substring(1);
-            } else if (parsed_uri.host.indexOf('youtube.com') !== -1) {
-                youtube_id = parsed_uri.queryKey.v;
+            var youtube_id = parse_youtube_id_from_url(link.href);
+            if (youtube_id !== false) {
+                var $button = $('<button>', {'class': 'ui small button', 'style': 'padding: 5px;'}).text('Add to pleblist');
+                $button.api({
+                    action: 'pleblist_add_song',
+                    method: 'post',
+                    data: {
+                        'password': secret_password,
+                        'youtube_id': youtube_id,
+                    },
+                    beforeSend: function(settings) {
+                        settings.data.password = secret_password;
+                        return settings;
+                    }
+                }).state({
+                    onActivate: function() {
+                        $button.addClass('disabled green');
+                    },
+                    text: {
+                        inactive: 'Add to pleblist',
+                        active: 'Added!',
+                    }
+                });
+                $(el).append($button);
             }
-            var $button = $('<button>', {'class': 'ui small button', 'style': 'padding: 5px;'}).text('Add to pleblist');
-            $button.api({
-                action: 'pleblist_add_song',
-                method: 'post',
-                data: {
-                    'password': secret_password,
-                    'youtube_id': youtube_id,
-                },
-                beforeSend: function(settings) {
-                    settings.data.password = secret_password;
-                    return settings;
-                }
-            }).state({
-                onActivate: function() {
-                    $button.addClass('disabled green');
-                },
-                text: {
-                    inactive: 'Add to pleblist',
-                    active: 'Added!',
-                }
-            });
-            $(el).append($button);
         }
     });
 }
