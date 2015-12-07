@@ -846,6 +846,8 @@ class TyggBot:
                 'strftime': lambda var, args: var.strftime(args[0]),
                 'lower': lambda var, args: var.lower(),
                 'upper': lambda var, args: var.upper(),
+                'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
+                'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
