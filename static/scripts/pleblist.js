@@ -97,9 +97,15 @@ function add_to_pleblist(song)
     $('#pleblist div.ui.list').append($div);
     $div_content = $('<div>', {class: 'content'});
     $div.append($div_content);
-    $a_header = $('<a>', {class: 'header', 'href': 'https://youtu.be/' + song.youtube_id, }).text('SONG ' + song.id);
+    var title = '???';
+    var song_length = '???';
+    if (song.info !== null) {
+        title = song.info.title;
+        song_length = moment.duration(song.info.duration, 'seconds').format('h:mm:ss');
+    }
+    $a_header = $('<a>', {class: 'header', 'href': 'https://youtu.be/' + song.youtube_id, }).text(title);
     $div_content.append($a_header);
-    $div_description = $('<div>', {class: 'description'}).text('Song length here');
+    $div_description = $('<div>', {class: 'description'}).text(song_length);
     $div_content.append($div_description);
 
     if (current_song == null && pleblist_started === true) {

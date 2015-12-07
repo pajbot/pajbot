@@ -29,3 +29,7 @@ apscheduler
 # if you want to use the websocket
 #pyOpenSSL
 #service_identity
+
+# Required for the pleblist to work properly
+google-api-python-client
+isodate

@@ -4,6 +4,8 @@ import binascii
 
 from tyggbot.models.user import User
 from tyggbot.models.pleblist import PleblistSong
+from tyggbot.models.pleblist import PleblistSongInfo
+from tyggbot.models.pleblist import PleblistManager
 from tyggbot.models.stream import Stream
 from tyggbot.models.db import DBManager
 
@@ -67,7 +69,7 @@ def pleblist_list():
         songs = session.query(PleblistSong).filter(PleblistSong.stream_id == current_stream.id, PleblistSong.date_played.is_(None)).all()
         payload = {
                 '_total': len(songs),
-                'songs': [{'id': song.id, 'youtube_id': song.youtube_id} for song in songs],
+                'songs': [song.jsonify() for song in songs],
                 }
 
         return jsonify(payload)
@@ -83,7 +85,7 @@ def pleblist_list_after(song_id):
 
         payload = {
                 '_total': len(songs),
-                'songs': [{'id': song.id, 'youtube_id': song.youtube_id} for song in songs],
+                'songs': [song.jsonify() for song in songs],
                 }
 
         return jsonify(payload)
@@ -96,7 +98,7 @@ def pleblist_list_by_stream(stream_id):
 
         payload = {
                 '_total': len(songs),
-                'songs': [{'id': song.id, 'youtube_id': song.youtube_id} for song in songs],
+                'songs': [song.jsonify() for song in songs],
                 }
 
         return jsonify(payload)
@@ -126,6 +128,13 @@ def pleblist_add():
 
         song_requested = PleblistSong(current_stream.id, youtube_id)
         session.add(song_requested)
+        song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
+        if song_info is None and song_requested.song_info is None:
+            PleblistManager.init(config['youtube']['developer_key'])
+            song_info = PleblistManager.create_pleblist_song_info(song_requested.youtube_id)
+            if song_info is not False:
+                session.add(song_info)
+                session.commit()
 
         return jsonify({'success': True})
 
