@@ -1059,12 +1059,18 @@ class Dispatch:
     def twitter_follow(bot, source, message, event, args):
         if message:
             username = message.split(' ')[0].strip().lower()
-            bot.twitter_manager.follow_user(username)
+            if bot.twitter_manager.follow_user(username):
+                bot.whisper(source.username, 'Now following {}'.format(username))
+            else:
+                bot.whisper(source.username, 'An error occured while attempting to follow {}, perhaps we are already following this person?'.format(username))
 
     def twitter_unfollow(bot, source, message, event, args):
         if message:
             username = message.split(' ')[0].strip().lower()
-            bot.twitter_manager.unfollow_user(username)
+            if bot.twitter_manager.unfollow_user(username):
+                bot.whisper('No longer following {}'.format(username))
+            else:
+                bot.whisper(source.username, 'An error occured while attempting to unfollow {}, perhaps we are not following this person?'.format(username))
 
     def reload(bot, source, message, event, args):
         if message and message in bot.reloadable:

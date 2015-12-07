@@ -61,6 +61,8 @@ class TwitterManager:
                 self.db_session.add(TwitterUser(username))
                 self.listener.relevant_users.append(username)
                 log.info('Now following {0}'.format(username))
+                return True
+        return False
 
     def unfollow_user(self, username):
         """Stop following `username`, if we are following him."""
@@ -71,8 +73,11 @@ class TwitterManager:
                     self.db_session.delete(user)
                     self.listener.relevant_users.remove(username)
                     log.info('No longer following {0}'.format(username))
+                    return True
                 else:
                     log.warning('Trying to unfollow someone we are not following')
+                    return False
+            return False
 
     def initialize_listener(self):
         if self.listener is None:
