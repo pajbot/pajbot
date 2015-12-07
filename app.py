@@ -20,6 +20,7 @@ from tyggbot.models.duel import UserDuelStats
 from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
 from tyggbot.models.time import TimeManager
+from tyggbot.models.pleblist import PleblistSong
 from tyggbot.tbutil import time_since
 
 import markdown
@@ -492,6 +493,32 @@ def pleblist():
 def pleblist_host():
     return render_template('pleblist_host.html')
 
+@app.route('/pleblist/history/')
+def pleblist_history_redirect():
+    with DBManager.create_session_scope() as session:
+        current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+        if current_stream is not None:
+            return redirect('/pleblist/history/{}/'.format(current_stream.id), 303)
+
+        last_stream = session.query(Stream).filter_by(ended=True).order_by(Stream.stream_start.desc()).first()
+        if last_stream is not None:
+            return redirect('/pleblist/history/{}/'.format(last_stream.id), 303)
+
+        return render_template('pleblist_history_no_stream.html'), 404
+
+@app.route('/pleblist/history/<stream_id>/')
+def pleblist_history_stream(stream_id):
+    with DBManager.create_session_scope() as session:
+        stream = session.query(Stream).filter_by(id=stream_id).one_or_none()
+        if stream is None:
+            return render_template('pleblist_history_404.html'), 404
+
+        songs = session.query(PleblistSong).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.date_added.asc(), PleblistSong.date_played.asc()).all()
+
+        return render_template('pleblist_history.html',
+                stream=stream,
+                songs=songs)
+
 
 @app.route('/discord')
 def discord():
@@ -501,7 +528,6 @@ def discord():
 @app.route('/clr/overlay/<widget_id>')
 @nocache
 def clr_overlay(widget_id):
-    print(widget_id)
     if widget_id == config['web']['clr_widget_id'] or True:
         return render_template('clr/overlay.html',
                 widget={})

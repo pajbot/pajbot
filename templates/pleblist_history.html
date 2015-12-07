@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% set active_page = 'pleblist' %}
+{% block title %}Pleblist History{% endblock %}
+{% block body %}
+<h2 class="pemote">Pleblist History for stream</h2>
+<div class="ui list celled" style="width: 300px;">
+{% for song in songs %}
+<div class="item">
+    <div class="content">
+        <a class="header" href="https://youtu.be/{{ song.youtube_id }}">{{ song.song_info.title if song.song_info else '???' }}</a>
+        <div class="description">
+            Added: {{ song.date_added }}<br />
+            Played: {{ 'Never' if song_date_played == None else song.date_played }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
