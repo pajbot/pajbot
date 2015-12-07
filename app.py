@@ -67,7 +67,7 @@ if 'pleblist_password_salt' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'pleblist_password_salt', salt.decode('utf-8'))
 
-with open('config.ini', 'w') as configfile:
+with open(args.config, 'w') as configfile:
     config.write(configfile)
 
 DBManager.init(config['main']['db'])
