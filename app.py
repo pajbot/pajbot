@@ -410,8 +410,6 @@ def stats_duels():
             'bottom_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.asc())[:5],
             }
 
-    print(session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc()))
-
     try:
         return render_template('stats_duels.html', **data)
     finally:
