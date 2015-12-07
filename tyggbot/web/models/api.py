@@ -1,6 +1,7 @@
 import datetime
 import base64
 import binascii
+import logging
 
 from tyggbot.models.user import User
 from tyggbot.models.pleblist import PleblistSong
@@ -21,10 +22,28 @@ from sqlalchemy import func
 from sqlalchemy import and_
 
 
+from functools import wraps, update_wrapper
+
+
 page = Blueprint('api', __name__)
 config = None
 
 sqlconn = False
+
+log = logging.getLogger('tyggbot')
+
+
+def nocache(view):
+    @wraps(view)
+    def no_cache(*args, **kwargs):
+        response = make_response(view(*args, **kwargs))
+        response.headers['Last-Modified'] = datetime.datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        return response
+
+    return update_wrapper(no_cache, view)
 
 
 @page.route('/api/v1/user/<username>')
@@ -75,6 +94,7 @@ def pleblist_list():
         return jsonify(payload)
 
 @page.route('/api/v1/pleblist/list/after/<song_id>')
+@nocache
 def pleblist_list_after(song_id):
     with DBManager.create_session_scope() as session:
         current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start).first()

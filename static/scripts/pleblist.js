@@ -136,23 +136,35 @@ secret_password = undefined;
 $(document).ready(function() {
     secret_password = $.cookie('password');
     if (secret_password === undefined) {
-        $('#message').html('Currently in Guest mode. Skip will not work.<br />Refresh this page after logging into the Host page.');
+        $('#message').html('Currently in Guest mode. Skip will not work.<br />Refresh this page after logging into the Host page. OMGScoots');
+        setTimeout(function() {
+            $.ajax({
+                dataType: 'json',
+                'url': '/api/v1/pleblist/list',
+                success: function(response) {
+                    process_songs(response.songs);
+                    start_getting_new_songs();
+                },
+                error: function(response) {
+                }
+            });
+        }, 500);
     } else {
-        $('#message').text('Currently in Client mode. Everything should work.');
+        $('#message').text('Currently in Client mode. Everything should work Kappa');
+        setTimeout(function() {
+            $.ajax({
+                dataType: 'json',
+                'url': '/api/v1/pleblist/list',
+                success: function(response) {
+                    process_songs(response.songs);
+                    start_getting_new_songs();
+                },
+                error: function(response) {
+                    start_getting_new_songs();
+                }
+            });
+        }, 500);
     }
-    setTimeout(function() {
-        $.ajax({
-            dataType: 'json',
-            'url': '/api/v1/pleblist/list',
-            success: function(response) {
-                process_songs(response.songs);
-                start_getting_new_songs();
-            },
-            error: function(response) {
-                start_getting_new_songs();
-            }
-        });
-    }, 500);
 
     $('#skip_btn').click(function() {
         next_song();
