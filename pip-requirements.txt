@@ -16,6 +16,7 @@ pytz
 autobahn[twisted]
 beautifulsoup4
 requests
+regex
 
 # MySQL for python3
 pymysql
