@@ -136,11 +136,23 @@ class ActionsTester(unittest.TestCase):
                     'num_subs': 1,
                     'arguments': 'testuser123Kappa',
                     'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.tyggbot.date_fmt)),
+                }, {
+                    'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
+                    'num_argument_subs': 1,
+                    'num_subs': 1,
+                    'arguments': 'testuser123Kappa',
+                    'result': 'BEFORE YES AFTER',
+                }, {
+                    'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
+                    'num_argument_subs': 1,
+                    'num_subs': 1,
+                    'arguments': '',
+                    'result': 'BEFORE NO AFTER',
                 },
                 ]
 
         for data in values:
-            action = SayAction(data['message'])
+            action = SayAction(data['message'], self.tyggbot)
             response = action.get_response(self.tyggbot, {'source': self.source, 'message': data['arguments']})
             self.assertEqual(len(action.argument_subs), data['num_argument_subs'], 'Wrong amount of argument substitutions for "{0}"'.format(data['message']))
             self.assertEqual(len(action.subs), data['num_subs'], 'Wrong amount of substitutions for "{0}"'.format(data['message']))

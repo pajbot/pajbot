@@ -1,8 +1,8 @@
 import json
-import re
 import logging
 
 import irc
+import regex as re
 
 log = logging.getLogger('tyggbot')
 
@@ -45,7 +45,38 @@ class ActionParser:
         return action
 
 
+class IfSubstitution:
+    def __call__(self, key, extra={}):
+        if self.sub.key is None:
+            msg = MessageAction.get_argument_value(extra.get('message', ''), self.sub.argument - 1)
+            if msg:
+                return self.true_response
+            else:
+                return self.false_response
+        else:
+            if self.sub.cb(key, extra):
+                return self.true_response
+            else:
+                return self.false_response
+
+    def __init__(self, key, arguments, bot):
+        subs = get_substitutions(key, bot)
+        if len(subs) == 1:
+            self.sub = subs.itervalues().next().cb
+        else:
+            subs = get_argument_substitutions(key)
+            if len(subs) == 1:
+                self.sub = subs[0]
+            else:
+                self.sub = None
+        self.true_response = arguments[0][2:-1] if len(arguments) > 0 else 'Yes'
+        self.false_response = arguments[1][2:-1] if len(arguments) > 1 else 'No'
+
+
 class Substitution:
+    argument_substitution_regex = re.compile(r'\$\((\d+)\)')
+    substitution_regex = re.compile(r'\$\(([a-z]+)(\;[0-9]+)?(\:[\w\/ ]+|\:\$\([\w:\/ ]+\))?(\|[\w]+(\([\w%: +-]+\))?)?(\,[\'"]{1}[\w :()]+[\'"]{1}){0,2}\)')
+
     def __init__(self, cb, key=None, argument=None, filter=None):
         self.cb = cb
         self.key = key
@@ -116,7 +147,7 @@ class FuncAction(BaseAction):
     def run(self, bot, source, message, event={}, args={}):
         try:
             return self.cb(bot, source, message, event, args)
-        except Exception:
+        except:
             log.exception('Uncaught exception in FuncAction')
 
 
@@ -129,97 +160,119 @@ class RawFuncAction(BaseAction):
     def run(self, bot, source, message, event={}, args={}):
         return self.cb()
 
+def get_argument_substitutions(string):
+    """
+    Returns a list of `Substitution` objects that are found in the passed `string`.
+    Will not return multiple `Substitution` objects for the same number.
+    This means string "$(1) $(1) $(2)" will only return two Substitutions.
+    """
+
+    argument_substitutions = []
+
+    for sub_key in Substitution.argument_substitution_regex.finditer(string):
+        argument_num = int(sub_key.group(1))
+
+        found = False
+        for sub in argument_substitutions:
+            if sub.argument == argument_num:
+                # We already matched this argument variable
+                found = True
+                break
+        if found:
+            continue
+
+        argument_substitutions.append(Substitution(None, argument=argument_num))
+
+    return argument_substitutions
+
+def get_substitutions(string, bot):
+    """
+    Returns a dictionary of `Substitution` objects thare are found in the passed `string`.
+    Will not return multiple `Substitution` objects for the same string.
+    This means "You have $(source:points) points xD $(source:points)" only returns one Substitution.
+    """
+
+    substitutions = {}
+
+    for sub_key in Substitution.substitution_regex.finditer(string):
+        sub_string = sub_key.group(0)
+        path = sub_key.group(1)
+        argument = sub_key.group(2)
+        if argument is not None:
+            argument = int(argument[1:])
+        key = sub_key.group(3)
+        if key is not None:
+            key = key[1:]
+        filter = sub_key.group(4)
+        if filter is not None:
+            filter = filter[1:]
+            filter_argument = sub_key.group(5)
+            if filter_argument is not None:
+                filter = filter[:-len(filter_argument)]
+                filter_argument = [filter_argument[1:-1]]
+            else:
+                filter_argument = []
+            filter = SubstitutionFilter(filter, filter_argument)
+        if_arguments = sub_key.captures(6)
+
+        if sub_string in substitutions:
+            # We already matched this variable
+            continue
+
+        try:
+            if path == 'kvi':
+                cb = bot.get_kvi_value
+            elif path == 'tb':
+                cb = bot.get_value
+            elif path == 'lasttweet':
+                cb = bot.get_last_tweet
+            elif path == 'etm':
+                cb = bot.get_emote_tm
+            elif path == 'ecount':
+                cb = bot.get_emote_count
+            elif path == 'etmrecord':
+                cb = bot.get_emote_tm_record
+            elif path == 'source':
+                cb = bot.get_source_value
+            elif path == 'user':
+                cb = bot.get_user_value
+            elif path == 'usersource':
+                cb = bot.get_usersource_value
+            elif path == 'time':
+                cb = bot.get_time_value
+            elif path == 'curdeck':
+                cb = bot.decks.action_get_curdeck
+            elif path == 'if':
+                if len(if_arguments) > 0:
+                    if_substitution = IfSubstitution(key, if_arguments, bot)
+                    if if_substitution.sub is None:
+                        continue
+                    cb = if_substitution
+                else:
+                    continue
+            else:
+                log.error('Unimplemented path: {0}'.format(path))
+                continue
+        except:
+            continue
+
+        sub = Substitution(cb, key=key, argument=argument, filter=filter)
+        substitutions[sub_string] = sub
+
+    return substitutions
+
 
 class MessageAction(BaseAction):
     type = 'message'
-    regex = re.compile(r'\$\(([a-z]+)(;[0-9]+)?(:[\w/ ]+)?(\|[a-zA-Z0-9_]+(\([\w%: +-]+\))?)?\)')
-    argument_regex = re.compile('(\$\([0-9]+\))')
-    argument_inner_regex = re.compile('\$\(([0-9]+)\)')
 
     def __init__(self, response, bot):
         self.response = response
-        self.argument_subs = []
-        self.subs = {}
-
-        self.init_parse(bot)
-
-    def init_parse(self, bot):
-        from tyggbot.tyggbot import TyggBot
-        for sub_key in self.argument_regex.findall(self.response):
-            inner_match = self.argument_inner_regex.search(sub_key)
-            if inner_match:
-                argument_num = inner_match.group(1)
-                try:
-                    argument_num = int(argument_num)
-                except:
-                    continue
-
-                found = False
-                for sub in self.argument_subs:
-                    if sub.argument == argument_num:
-                        # We already matched this argument variable
-                        found = True
-                        break
-                if found:
-                    continue
-
-                self.argument_subs.append(Substitution(None, argument=argument_num))
-
-        for sub_key in self.regex.finditer(self.response):
-            sub_string = sub_key.group(0)
-            path = sub_key.group(1)
-            argument = sub_key.group(2)
-            if argument is not None:
-                argument = int(argument[1:])
-            key = sub_key.group(3)
-            if key is not None:
-                key = key[1:]
-            filter = sub_key.group(4)
-            if filter is not None:
-                filter = filter[1:]
-                filter_argument = sub_key.group(5)
-                if filter_argument is not None:
-                    filter = filter[:-len(filter_argument)]
-                    filter_argument = [filter_argument[1:-1]]
-                else:
-                    filter_argument = []
-                filter = SubstitutionFilter(filter, filter_argument)
-
-            if sub_string in self.subs:
-                # We already matched this variable
-                continue
-
-            try:
-                if path == 'kvi':
-                    cb = bot.get_kvi_value
-                elif path == 'tb':
-                    cb = bot.get_value
-                elif path == 'lasttweet':
-                    cb = bot.get_last_tweet
-                elif path == 'etm':
-                    cb = bot.get_emote_tm
-                elif path == 'ecount':
-                    cb = bot.get_emote_count
-                elif path == 'etmrecord':
-                    cb = bot.get_emote_tm_record
-                elif path == 'source':
-                    cb = bot.get_source_value
-                elif path == 'user':
-                    cb = bot.get_user_value
-                elif path == 'usersource':
-                    cb = bot.get_usersource_value
-                elif path == 'time':
-                    cb = bot.get_time_value
-                elif path == 'curdeck':
-                    cb = bot.decks.action_get_curdeck
-                else:
-                    log.error('Unimplemented path: {0}'.format(path))
-                    continue
-            except:
-                continue
-
-            sub = Substitution(cb, key=key, argument=argument, filter=filter)
-            self.subs[sub_string] = sub
+        if bot:
+            self.argument_subs = get_argument_substitutions(self.response)
+            self.subs = get_substitutions(self.response, bot)
+        else:
+            self.argument_subs = []
+            self.subs = {}
 
     def get_argument_value(message, index):
         if not message:
@@ -233,12 +286,6 @@ class MessageAction(BaseAction):
 
     def get_response(self, bot, extra):
         resp = self.response
-
-        for sub in self.argument_subs:
-            needle = '$({0})'.format(sub.argument)
-            value = str(MessageAction.get_argument_value(extra['message'], sub.argument - 1))
-            resp = resp.replace(needle, value)
-            log.debug('Replacing {0} with {1}'.format(needle, value))
 
         for needle, sub in self.subs.items():
             if sub.key and sub.argument:
@@ -261,6 +308,12 @@ class MessageAction(BaseAction):
                 return None
             resp = resp.replace(needle, str(value))
             log.debug('Replacing {0} with {1}'.format(needle, str(value)))
+
+        for sub in self.argument_subs:
+            needle = '$({0})'.format(sub.argument)
+            value = str(MessageAction.get_argument_value(extra['message'], sub.argument - 1))
+            resp = resp.replace(needle, value)
+            log.debug('Replacing {0} with {1}'.format(needle, value))
 
         return resp
 
