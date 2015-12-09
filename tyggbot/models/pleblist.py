@@ -23,7 +23,11 @@ class PleblistSong(Base):
     youtube_id = Column(String(64, collation='utf8mb4_bin'), index=True, nullable=False)
     date_added = Column(DateTime, nullable=False)
     date_played = Column(DateTime, nullable=True)
-    song_info = relationship('PleblistSongInfo', uselist=False)
+    song_info = relationship('PleblistSongInfo',
+            uselist=False,
+            primaryjoin='PleblistSongInfo.pleblist_song_youtube_id==PleblistSong.youtube_id',
+            foreign_keys='PleblistSongInfo.pleblist_song_youtube_id',
+            cascade='save-update,merge,expunge')
 
     def __init__(self, stream_id, youtube_id):
         self.id = None
@@ -42,7 +46,7 @@ class PleblistSong(Base):
 class PleblistSongInfo(Base):
     __tablename__ = 'tb_pleblist_song_info'
 
-    pleblist_song_youtube_id = Column(String(64, collation='utf8mb4_bin'), ForeignKey('tb_pleblist_song.youtube_id'), primary_key=True, autoincrement=False)
+    pleblist_song_youtube_id = Column(String(64, collation='utf8mb4_bin'), primary_key=True, autoincrement=False)
     title = Column(String(128), nullable=False)
     duration = Column(Integer, nullable=False)
     default_thumbnail = Column(String(256), nullable=False)

@@ -72,35 +72,64 @@ function add_tip(username, avatar, cents, note)
     $description = $('<p>').html(linked_note);
     $description_div.append($description);
 
-    $div.find('.youtube-link').wrap('<div class="youtube-link-wrapper"></div>');
+    var youtube_link_el = $div.find('.youtube-link');
+    youtube_link_el.wrap('<div class="youtube-link-wrapper ui segment loading"></div>');
     $div.find('.youtube-link-wrapper').each(function(index, el) {
         var link = $(el).find('a')[0];
         if (link.href !== undefined) {
             var parsed_uri = parseUri(link.href);
             var youtube_id = parse_youtube_id_from_url(link.href);
+            var song_info = null;
             if (youtube_id !== false) {
-                var $button = $('<button>', {'class': 'ui small button', 'style': 'padding: 5px;'}).text('Add to pleblist');
-                $button.api({
-                    action: 'pleblist_add_song',
+                $.api({
+                    action: 'pleblist_validate',
                     method: 'post',
+                    on: 'now',
                     data: {
-                        'password': secret_password,
                         'youtube_id': youtube_id,
                     },
-                    beforeSend: function(settings) {
-                        settings.data.password = secret_password;
-                        return settings;
-                    }
-                }).state({
-                    onActivate: function() {
-                        $button.addClass('disabled green');
+                    onComplete: function(response, element, xhr) {
+                        $(el).removeClass('loading');
                     },
-                    text: {
-                        inactive: 'Add to pleblist',
-                        active: 'Added!',
+                    onSuccess: function(response, element, xhr) {
+                        if (response.new_youtube_id !== undefined) {
+                            youtube_id = response.new_youtube_id;
+                        }
+                        youtube_link_el.html('youtu.be/'+youtube_id+'&emsp;');
+                        song_info = response.song_info;
+                        if (song_info !== null) {
+                            var $button = $('<button>', {'class': 'ui small button', 'style': 'padding: 5px;'}).text('Add to pleblist');
+                            $button.api({
+                                action: 'pleblist_add_song',
+                                method: 'post',
+                                data: {
+                                    'password': secret_password,
+                                    'youtube_id': youtube_id,
+                                },
+                                beforeSend: function(settings) {
+                                    settings.data.password = secret_password;
+                                    return settings;
+                                }
+                            }).state({
+                                onActivate: function() {
+                                    $button.addClass('disabled green');
+                                },
+                                text: {
+                                    inactive: 'Add to pleblist',
+                                    active: 'Added!',
+                                }
+                            });
+                            $(el).append($button);
+                            var $data = $('<div>').text('Song title: ' + song_info.title);
+                            $(el).append($data);
+                            var $data = $('<div>').text('Song length: ' + moment.duration(song_info.duration, 'seconds').format('h:mm:ss'));
+                            $(el).append($data);
+                        } else {
+                            var $button = $('<button>', {'class': 'ui small button red disabled', 'style': 'padding: 5px;'}).text('Invalid youtube link');
+                            $(el).append($button);
+                        }
                     }
                 });
-                $(el).append($button);
             }
         }
     });
@@ -171,7 +200,7 @@ function add_tests()
                     "provider" : "twitch",
                     "providerId" : 10101
                 },
-                "note" : "youtube.com 4Head",
+                "note" : "youtube.com 4Head youtu.be/abcdefghijkKappa",
                 "processor" : "PayPal",
                 "transactionId" : "4K2N0D835234BWKC",
                 "username" : "Zombernatural"
@@ -187,7 +216,7 @@ function add_tests()
                     "provider" : "twitch",
                     "providerId" : 10101
                 },
-                "note" : "youtube.com 4Head",
+                "note" : "youtube.com 4Head for the pleblist xD https://youtu.be/uXFQPfQVT4QKappa",
                 "processor" : "PayPal",
                 "transactionId" : "4K2N0D835234BWKC",
                 "username" : "Zombernatural"

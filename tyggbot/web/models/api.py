@@ -193,6 +193,53 @@ def pleblist_next():
         return jsonify({'message': 'Success!'})
 
 
+@page.route('/api/v1/pleblist/validate', methods=['POST', 'GET'])
+def pleblist_validate():
+    if not request.method == 'POST':
+        return make_response(jsonify({'error': 'Invalid request method'}), 405)
+    if 'youtube_id' not in request.form:
+        return make_response(jsonify({'error': 'Missing data youtube_id'}), 400)
+
+    with DBManager.create_session_scope() as session:
+        youtube_id = request.form['youtube_id']
+        print(youtube_id)
+        song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
+        if song_info is not None:
+            return jsonify({
+                'message': 'success',
+                'song_info': song_info.jsonify()
+                })
+
+        PleblistManager.init(config['youtube']['developer_key'])
+        song_info = PleblistManager.create_pleblist_song_info(youtube_id)
+        if not song_info and len(youtube_id) > 11:
+            youtube_id = youtube_id[:11]
+            song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
+            if song_info is not None:
+                return jsonify({
+                    'message': 'success',
+                    'new_youtube_id': youtube_id,
+                    'song_info': song_info.jsonify()
+                    })
+            else:
+                song_info = PleblistManager.create_pleblist_song_info(youtube_id)
+
+        if song_info:
+            print(song_info)
+            session.add(song_info)
+            session.commit()
+            return jsonify({
+                'message': 'success',
+                'new_youtube_id': youtube_id,
+                'song_info': song_info.jsonify()
+                })
+
+        return jsonify({
+            'message': 'invalid youtube id',
+            'song_info': None
+            })
+
+
 @page.route('/api/v1/pleblist/blacklist')
 def pleblist_blacklist():
     with DBManager.create_session_scope() as session:
