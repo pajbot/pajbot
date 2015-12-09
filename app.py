@@ -619,6 +619,10 @@ def inject_default_variables():
 def time_ago(t, format='long'):
     return time_since(datetime.datetime.now().timestamp(), t.timestamp(), format)
 
+@app.template_filter('time_diff')
+def time_diff(t1, t2, format='long'):
+    return time_since(t1.timestamp(), t2.timestamp(), format)
+
 @app.template_filter('time_ago_timespan_seconds')
 def time_ago_timespan_seconds(t, format='long'):
     return time_since(t, 0, format)
