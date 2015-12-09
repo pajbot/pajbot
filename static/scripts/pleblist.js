@@ -151,7 +151,6 @@ $(document).ready(function() {
                 'url': '/api/v1/pleblist/list',
                 success: function(response) {
                     process_songs(response.songs);
-                    start_getting_new_songs();
                 },
                 error: function(response) {
                 }
