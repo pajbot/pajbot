@@ -187,7 +187,7 @@ class EmoteManager(UserDict):
             return self.data[emote_id]
         else:
             key = str(key)
-            if key[0] == ':':
+            if len(key) > 0 and key[0] == ':':
                 key = key.upper()
             if key in self.data:
                 return self.data[key]
