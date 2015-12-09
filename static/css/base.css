@@ -204,3 +204,7 @@ div#songhistory div.item.not-played.first
 {
     background-color: #efe;
 }
+
+div#songhistory div.item div.description {
+    line-height: 1.5em;
+}

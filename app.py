@@ -514,10 +514,12 @@ def pleblist_history_stream(stream_id):
             return render_template('pleblist_history_404.html'), 404
 
         songs = session.query(PleblistSong).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.date_added.asc(), PleblistSong.date_played.asc()).all()
+        total_length_left = sum([song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
 
         return render_template('pleblist_history.html',
                 stream=stream,
-                songs=songs)
+                songs=songs,
+                total_length_left=total_length_left)
 
 
 @app.route('/discord')
@@ -582,6 +584,18 @@ def number_format(value, tsep=',', dsep='.'):
     return lhs + splt[:-1] + rhs
 
 
+nav_bar_header = []
+nav_bar_header.append(('/', 'home', 'Home'))
+nav_bar_header.append(('/commands/', 'commands', 'Commands'))
+if has_decks:
+    nav_bar_header.append(('/decks/', 'decks', 'Decks'))
+nav_bar_header.append(('/points/', 'points', 'Points'))
+nav_bar_header.append(('/stats/', 'stats', 'Stats'))
+nav_bar_header.append(('/highlights/', 'highlights', 'Highlights'))
+if 'pleblist' in modules:
+    nav_bar_header.append(('/pleblist/history/', 'pleblist', 'Pleblist'))
+
+
 default_variables = {
         'bot': {
             'name': config['main']['nickname'],
@@ -599,6 +613,7 @@ default_variables = {
             'full_name': config['main']['streamer']
             },
         'has_decks': has_decks,
+        'nav_bar_header': nav_bar_header,
         'modules': modules,
         'current_time': datetime.datetime.now(),
         'request': request,

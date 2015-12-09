@@ -2,23 +2,38 @@
 {% set active_page = 'pleblist' %}
 {% block title %}Pleblist History{% endblock %}
 {% block body %}
-<h2 class="pemote">Pleblist History for stream</h2>
+<h2 class="pemote">Pleblist History - {{ stream.title }}</h2>
+<div class="ui vertical">Stream started: {{ stream.stream_start|localize|strftime('%A, %B %d %Y %H:%M:%S %Z') }}</div>
+{% if stream.stream_end is none %}
+<div class="ui vertical">Stream uptime: {{ stream.stream_start|time_ago }}</div>
+<div class="ui vertical">Time left on pleblist: {{ total_length_left|time_ago_timespan_seconds }}</div>
+{% else %}
+<div class="ui vertical">Stream ended: {{ stream.stream_end|localize|strftime('%A, %B %d %Y %H:%M:%S %Z') }}</div>
+<div class="ui vertical">Stream lasted for: {{ stream.stream_end|time_diff(stream.stream_start) }}</div>
+{% endif %}
 <div id="songhistory" class="ui list celled">
     {% set num_not_played = 0 %}
+    {% set time_until_song_played = 0 %}
 {% for song in songs %}
-<div class="item {{ 'not-played' if song.date_played is none else 'played' }}{{ ' first' if num_not_played == 0 else ''}}">
+<div class="item {{ 'not-played' if song.date_played is none else 'played' }}{{ ' first' if num_not_played == 0 and stream.stream_end is none else ''}}">
     <div class="ui small image">
         <img src="{{ song.song_info.default_thumbnail }}" alt="Thumbnail" />
     </div>
     <div class="content">
         <span class="header">{{ song.song_info.title if song.song_info else '???' }}</span>
         <div class="description">
-            Song link: <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br />
+            Song link: <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br/>
             Added: {{ song.date_added|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}<br />
             {% if song.date_played is not none %}
-            Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}
+            Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }} <em>({{ song.date_played|time_ago}} ago)</em>
             {% else %}
+            {% if num_not_played > 0 %}
+            Playing in: ~{{ time_until_song_played|time_ago_timespan_seconds }}
+            {% else %}
+            Playing now!
+            {% endif %}
             {% set num_not_played = num_not_played + 1 %}
+            {% set time_until_song_played = time_until_song_played + song.song_info.duration %}
             {% endif %}
         </div>
     </div>
