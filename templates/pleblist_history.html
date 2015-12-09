@@ -3,14 +3,23 @@
 {% block title %}Pleblist History{% endblock %}
 {% block body %}
 <h2 class="pemote">Pleblist History for stream</h2>
-<div class="ui list celled" style="width: 300px;">
+<div id="songhistory" class="ui list celled">
+    {% set num_not_played = 0 %}
 {% for song in songs %}
-<div class="item">
+<div class="item {{ 'not-played' if song.date_played is none else 'played' }}{{ ' first' if num_not_played == 0 else ''}}">
+    <div class="ui small image">
+        <img src="{{ song.song_info.default_thumbnail }}" alt="Thumbnail" />
+    </div>
     <div class="content">
-        <a class="header" href="https://youtu.be/{{ song.youtube_id }}">{{ song.song_info.title if song.song_info else '???' }}</a>
+        <span class="header">{{ song.song_info.title if song.song_info else '???' }}</span>
         <div class="description">
-            Added: {{ song.date_added }}<br />
-            Played: {{ 'Never' if song_date_played == None else song.date_played }}
+            Song link: <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br />
+            Added: {{ song.date_added|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}<br />
+            {% if song.date_played is not none %}
+            Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}
+            {% else %}
+            {% set num_not_played = num_not_played + 1 %}
+            {% endif %}
         </div>
     </div>
 </div>

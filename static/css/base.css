@@ -199,6 +199,8 @@ div.mediumtable {
     width: 600px;
 }
 
-div#songlist div.item:first-child {
+div#songlist div.item:first-child,
+div#songhistory div.item.not-played.first
+{
     background-color: #efe;
 }
