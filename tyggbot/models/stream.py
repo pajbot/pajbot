@@ -37,8 +37,16 @@ class Stream(Base):
         self.stream_end = None
         self.ended = False
 
-    def refresh(self, status):
-        log.debug('Handle stream chunks here?')
+    @property
+    def uptime(self):
+        """
+        Returns a TimeDelta for how long the stream was online, or is online.
+        """
+
+        if self.ended is False:
+            return datetime.datetime.now() - self.stream_start
+        else:
+            return self.stream_end - self.stream_start
 
 class StreamChunk(Base):
     __tablename__ = 'tb_stream_chunk'
@@ -52,7 +60,6 @@ class StreamChunk(Base):
     chunk_end = Column(DateTime, nullable=True)
 
     highlights = relationship('StreamChunkHighlight', backref='stream_chunk', lazy='joined')
-    # highlights = []
 
     def __init__(self, stream, broadcast_id, created_at, **options):
         self.id = None
@@ -265,7 +272,6 @@ class StreamManager:
                     self.create_stream(status)
                 if self.current_stream_chunk is None:
                     self.create_stream_chunk(status)
-                    self.current_stream.refresh(status)
                 if self.current_stream_chunk.broadcast_id != status['broadcast_id']:
                     log.debug('Detected a new chunk!')
                     self.create_stream_chunk(status)
@@ -337,17 +343,6 @@ class StreamManager:
             session.add(self.current_stream_chunk)
             session.commit()
             session.close()
-
-            x = inspect(self.current_stream_chunk)
-            log.info('{0.transient} - {0.pending} - {0.persistent} - {0.detached}'.format(x))
-            x = inspect(highlight)
-            log.info('{0.transient} - {0.pending} - {0.persistent} - {0.detached}'.format(x))
-            x = inspect(self.current_stream)
-            log.info('{0.transient} - {0.pending} - {0.persistent} - {0.detached}'.format(x))
-
-            log.info(self.current_stream.id)
-            log.info(highlight.id)
-            log.info(self.current_stream_chunk.id)
         except:
             log.exception('uncaught exception in create_highlight')
             return 'Unknown reason, ask pajlada'
@@ -406,3 +401,15 @@ class StreamManager:
         session.close()
 
         return (num_rows == 1)
+
+    def get_current_stream_value(self, key, extra={}):
+        if self.current_stream is not None:
+            return getattr(self.current_stream, key, None)
+        else:
+            return None
+
+    def get_last_stream_value(self, key, extra={}):
+        if self.last_stream is not None:
+            return getattr(self.last_stream, key, None)
+        else:
+            return None

@@ -28,7 +28,7 @@ from .models.webcontent import WebContent
 from .models.time import TimeManager
 from .models.action import ActionParser
 from .models.duel import UserDuelStats, DuelManager
-from .models.pleblist import PleblistSong
+from .models.pleblist import PleblistSong, PleblistManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -163,6 +163,7 @@ class TyggBot:
 
         self.users = UserManager()
         self.decks = DeckManager().reload()
+        self.stream_manager = StreamManager(self)
         self.commands = CommandManager(self).reload()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
@@ -172,7 +173,6 @@ class TyggBot:
         self.link_tracker = LinkTracker()
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
-        self.stream_manager = StreamManager(self)
         self.duel_manager = DuelManager(self)
 
         # Reloadable managers
@@ -446,6 +446,19 @@ class TyggBot:
         except:
             log.exception('Unhandled exception in get_time_value')
 
+        return None
+
+    def get_current_song_value(self, key, extra={}):
+        if self.stream_manager.online:
+            current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)
+            inner_keys = key.split('.')
+            val = current_song
+            for inner_key in inner_keys:
+                val = getattr(val, inner_key, None)
+                if val is None:
+                    return None
+            if val is not None:
+                return val
         return None
 
     def get_value(self, key, extra={}):

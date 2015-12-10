@@ -1,5 +1,6 @@
 import json
 import logging
+import collections
 
 import irc
 import regex as re
@@ -45,24 +46,57 @@ class ActionParser:
         return action
 
 
+def apply_substitutions(text, substitutions, bot, extra):
+    for needle, sub in substitutions.items():
+        if sub.key and sub.argument:
+            param = sub.key
+            extra['argument'] = MessageAction.get_argument_value(extra['message'], sub.argument - 1)
+        elif sub.key:
+            param = sub.key
+        elif sub.argument:
+            param = MessageAction.get_argument_value(extra['message'], sub.argument - 1)
+        else:
+            log.error('Unknown param for response.')
+            continue
+        value = sub.cb(param, extra)
+        try:
+            if sub.filter is not None:
+                value = bot.apply_filter(value, sub.filter)
+        except:
+            pass
+        if value is None:
+            return None
+        text = text.replace(needle, str(value))
+
+    return text
+
+
 class IfSubstitution:
     def __call__(self, key, extra={}):
         if self.sub.key is None:
             msg = MessageAction.get_argument_value(extra.get('message', ''), self.sub.argument - 1)
             if msg:
-                return self.true_response
+                return self.get_true_response(extra)
             else:
-                return self.false_response
+                return self.get_false_response(extra)
         else:
-            if self.sub.cb(key, extra):
-                return self.true_response
+            res = self.sub.cb(self.sub.key, extra)
+            if res:
+                return self.get_true_response(extra)
             else:
-                return self.false_response
+                return self.get_false_response(extra)
+
+    def get_true_response(self, extra):
+        return apply_substitutions(self.true_response, self.true_subs, self.bot, extra)
+
+    def get_false_response(self, extra):
+        return apply_substitutions(self.false_response, self.false_subs, self.bot, extra)
 
     def __init__(self, key, arguments, bot):
+        self.bot = bot
         subs = get_substitutions(key, bot)
         if len(subs) == 1:
-            self.sub = subs.itervalues().next().cb
+            self.sub = list(subs.values())[0]
         else:
             subs = get_argument_substitutions(key)
             if len(subs) == 1:
@@ -72,16 +106,20 @@ class IfSubstitution:
         self.true_response = arguments[0][2:-1] if len(arguments) > 0 else 'Yes'
         self.false_response = arguments[1][2:-1] if len(arguments) > 1 else 'No'
 
+        self.true_subs = get_substitutions(self.true_response, bot)
+        self.false_subs = get_substitutions(self.false_response, bot)
+
 
 class Substitution:
     argument_substitution_regex = re.compile(r'\$\((\d+)\)')
-    substitution_regex = re.compile(r'\$\(([a-z]+)(\;[0-9]+)?(\:[\w\/ ]+|\:\$\([\w:\/ ]+\))?(\|[\w]+(\([\w%: +-]+\))?)?(\,[\'"]{1}[\w :()]+[\'"]{1}){0,2}\)')
+    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ ]+|\:\$\([\w_:\._\/ ]+\))?(\|[\w]+(\([\w%: +-]+\))?)?(\,[\'"]{1}[\w $;_\-:()\.]+[\'"]{1}){0,2}\)')
 
-    def __init__(self, cb, key=None, argument=None, filter=None):
+    def __init__(self, cb, needle, key=None, argument=None, filter=None):
         self.cb = cb
         self.key = key
         self.argument = argument
         self.filter = filter
+        self.needle = needle
 
 
 class SubstitutionFilter:
@@ -170,6 +208,7 @@ def get_argument_substitutions(string):
     argument_substitutions = []
 
     for sub_key in Substitution.argument_substitution_regex.finditer(string):
+        needle = sub_key.group(0)
         argument_num = int(sub_key.group(1))
 
         found = False
@@ -181,9 +220,34 @@ def get_argument_substitutions(string):
         if found:
             continue
 
-        argument_substitutions.append(Substitution(None, argument=argument_num))
+        argument_substitutions.append(Substitution(None, needle=needle, argument=argument_num))
 
     return argument_substitutions
+
+def get_substitution_arguments(sub_key):
+    sub_string = sub_key.group(0)
+    path = sub_key.group(1)
+    argument = sub_key.group(2)
+    if argument is not None:
+        argument = int(argument[1:])
+    key = sub_key.group(3)
+    if key is not None:
+        key = key[1:]
+    filter = sub_key.group(4)
+    filter_arguments = []
+    if filter is not None:
+        filter = filter[1:]
+        filter_arguments = sub_key.group(5)
+        if filter_arguments is not None:
+            filter = filter[:-len(filter_arguments)]
+            filter_arguments = [filter_arguments[1:-1]]
+        else:
+            filter_arguments = []
+        filter = SubstitutionFilter(filter, filter_arguments)
+    if_arguments = sub_key.captures(6)
+
+    return sub_string, path, argument, key, filter, if_arguments
+
 
 def get_substitutions(string, bot):
     """
@@ -192,72 +256,55 @@ def get_substitutions(string, bot):
     This means "You have $(source:points) points xD $(source:points)" only returns one Substitution.
     """
 
-    substitutions = {}
+    substitutions = collections.OrderedDict()
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string = sub_key.group(0)
-        path = sub_key.group(1)
-        argument = sub_key.group(2)
-        if argument is not None:
-            argument = int(argument[1:])
-        key = sub_key.group(3)
-        if key is not None:
-            key = key[1:]
-        filter = sub_key.group(4)
-        if filter is not None:
-            filter = filter[1:]
-            filter_argument = sub_key.group(5)
-            if filter_argument is not None:
-                filter = filter[:-len(filter_argument)]
-                filter_argument = [filter_argument[1:-1]]
-            else:
-                filter_argument = []
-            filter = SubstitutionFilter(filter, filter_argument)
-        if_arguments = sub_key.captures(6)
+        sub_string, path, argument, key, filter, if_arguments = get_substitution_arguments(sub_key)
 
         if sub_string in substitutions:
             # We already matched this variable
             continue
 
         try:
-            if path == 'kvi':
-                cb = bot.get_kvi_value
-            elif path == 'tb':
-                cb = bot.get_value
-            elif path == 'lasttweet':
-                cb = bot.get_last_tweet
-            elif path == 'etm':
-                cb = bot.get_emote_tm
-            elif path == 'ecount':
-                cb = bot.get_emote_count
-            elif path == 'etmrecord':
-                cb = bot.get_emote_tm_record
-            elif path == 'source':
-                cb = bot.get_source_value
-            elif path == 'user':
-                cb = bot.get_user_value
-            elif path == 'usersource':
-                cb = bot.get_usersource_value
-            elif path == 'time':
-                cb = bot.get_time_value
-            elif path == 'curdeck':
-                cb = bot.decks.action_get_curdeck
-            elif path == 'if':
+            if path == 'if':
                 if len(if_arguments) > 0:
                     if_substitution = IfSubstitution(key, if_arguments, bot)
                     if if_substitution.sub is None:
                         continue
-                    cb = if_substitution
-                else:
-                    continue
-            else:
-                log.error('Unimplemented path: {0}'.format(path))
-                continue
+                    sub = Substitution(if_substitution, needle=sub_string, key=key, argument=argument, filter=filter)
+                    substitutions[sub_string] = sub
         except:
+            log.exception('BabyRage')
+
+    method_mapping = {}
+    try:
+        method_mapping['kvi'] = bot.get_kvi_value
+        method_mapping['tb'] = bot.get_value
+        method_mapping['lasttweet'] = bot.get_last_tweet
+        method_mapping['etm'] = bot.get_emote_tm
+        method_mapping['ecount'] = bot.get_emote_count
+        method_mapping['etmrecord'] = bot.get_emote_tm_record
+        method_mapping['source'] = bot.get_source_value
+        method_mapping['user'] = bot.get_user_value
+        method_mapping['usersource'] = bot.get_usersource_value
+        method_mapping['time'] = bot.get_time_value
+        method_mapping['curdeck'] = bot.decks.action_get_curdeck
+        method_mapping['current_stream'] = bot.stream_manager.get_current_stream_value
+        method_mapping['last_stream'] = bot.stream_manager.get_last_stream_value
+        method_mapping['current_song'] = bot.get_current_song_value
+    except AttributeError:
+        pass
+
+    for sub_key in Substitution.substitution_regex.finditer(string):
+        sub_string, path, argument, key, filter, if_arguments = get_substitution_arguments(sub_key)
+
+        if sub_string in substitutions:
+            # We already matched this variable
             continue
 
-        sub = Substitution(cb, key=key, argument=argument, filter=filter)
-        substitutions[sub_string] = sub
+        if path in method_mapping:
+            sub = Substitution(method_mapping[path], needle=sub_string, key=key, argument=argument, filter=filter)
+            substitutions[sub_string] = sub
 
     return substitutions
 
@@ -287,30 +334,10 @@ class MessageAction(BaseAction):
     def get_response(self, bot, extra):
         resp = self.response
 
-        for needle, sub in self.subs.items():
-            if sub.key and sub.argument:
-                param = sub.key
-                extra['argument'] = MessageAction.get_argument_value(extra['message'], sub.argument - 1)
-            elif sub.key:
-                param = sub.key
-            elif sub.argument:
-                param = MessageAction.get_argument_value(extra['message'], sub.argument - 1)
-            else:
-                log.error('Unknown param for response.')
-                continue
-            value = sub.cb(param, extra)
-            try:
-                if sub.filter is not None:
-                    value = bot.apply_filter(value, sub.filter)
-            except:
-                pass
-            if value is None:
-                return None
-            resp = resp.replace(needle, str(value))
-            log.debug('Replacing {0} with {1}'.format(needle, str(value)))
+        resp = apply_substitutions(resp, self.subs, bot, extra)
 
         for sub in self.argument_subs:
-            needle = '$({0})'.format(sub.argument)
+            needle = sub.needle
             value = str(MessageAction.get_argument_value(extra['message'], sub.argument - 1))
             resp = resp.replace(needle, value)
             log.debug('Replacing {0} with {1}'.format(needle, value))
