@@ -27,6 +27,7 @@
             {% if song.date_played is not none %}
             Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }} <em>({{ song.date_played|time_ago}} ago)</em>
             {% else %}
+            {% if stream.stream_end is none %}
             {% if num_not_played > 0 %}
             Playing in: ~{{ time_until_song_played|time_ago_timespan_seconds }}
             {% else %}
@@ -34,6 +35,7 @@
             {% endif %}
             {% set num_not_played = num_not_played + 1 %}
             {% set time_until_song_played = time_until_song_played + song.song_info.duration %}
+            {% endif %}
             {% endif %}
         </div>
     </div>
