@@ -65,13 +65,10 @@ class DeckManager(UserList):
         return None
 
     def action_get_curdeck(self, key, extra={}):
-        try:
-            if self.current_deck is not None:
-                return getattr(self.current_deck, key)
-        except:
-            log.exception('Caught exception in DeckManager::action_get_curdeck')
-
-        return None
+        if self.current_deck is not None:
+            return getattr(self.current_deck, key, None)
+        else:
+            return None
 
     def refresh_current_deck(self):
         self.current_deck = None

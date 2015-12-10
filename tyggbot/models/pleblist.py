@@ -27,7 +27,8 @@ class PleblistSong(Base):
             uselist=False,
             primaryjoin='PleblistSongInfo.pleblist_song_youtube_id==PleblistSong.youtube_id',
             foreign_keys='PleblistSongInfo.pleblist_song_youtube_id',
-            cascade='save-update,merge,expunge')
+            cascade='save-update,merge,expunge',
+            lazy='joined')
 
     def __init__(self, stream_id, youtube_id):
         self.id = None
@@ -42,6 +43,10 @@ class PleblistSong(Base):
                 'youtube_id': self.youtube_id,
                 'info': self.song_info.jsonify() if self.song_info is not None else None
                 }
+
+    @property
+    def link(self):
+        return 'youtu.be/{}'.format(self.youtube_id)
 
 class PleblistSongInfo(Base):
     __tablename__ = 'tb_pleblist_song_info'
@@ -106,3 +111,11 @@ class PleblistManager:
                 duration,
                 default_thumbnail,
                 )
+
+    def get_current_song(stream_id):
+        with DBManager.create_session_scope() as session:
+            cur_song = session.query(PleblistSong).filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None)).order_by(PleblistSong.date_added.asc()).first()
+            if cur_song is None:
+                return None
+            session.expunge(cur_song)
+            return cur_song
