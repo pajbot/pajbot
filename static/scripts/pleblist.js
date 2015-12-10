@@ -18,21 +18,32 @@ function onYouTubeIframeAPIReady()
     });
 }
 
+function api_call_next_song(song_id)
+{
+    $.api({
+        action: 'pleblist_next_song',
+        method: 'post',
+        on: 'now',
+        beforeSend: function(settings) {
+            settings.data.song_id = song_id;
+            settings.data.password = secret_password;
+            return settings;
+        },
+        onFailure: function(response, element) {
+            console.warn('There was an error notifiying the API that the song with id ' + song_id + ' had been skipped. Retrying in 5 seconds.');
+            setTimeout(function() {
+                api_call_next_song(song_id);
+            }, 5 * 1000);
+        }
+    });
+}
+
 function next_song()
 {
     if (current_song !== null) {
         var song_just_played = pleblist_songs.shift();
         $('#song-'+song_just_played.id).remove();
-        $.api({
-            action: 'pleblist_next_song',
-            method: 'post',
-            on: 'now',
-            beforeSend: function(settings) {
-                settings.data.song_id = current_song.id;
-                settings.data.password = secret_password;
-                return settings;
-            }
-        });
+        api_call_next_song(current_song.id);
         current_song = null;
     }
 
@@ -144,7 +155,6 @@ secret_password = undefined;
 $(document).ready(function() {
     secret_password = $.cookie('password');
     if (secret_password === undefined) {
-        $('#message').html('Currently in Guest mode. Skip will not work.<br />Refresh this page after logging into the Host page. OMGScoots');
         setTimeout(function() {
             $.ajax({
                 dataType: 'json',
@@ -156,8 +166,9 @@ $(document).ready(function() {
                 }
             });
         }, 500);
+        $('#pleblist').hide();
     } else {
-        $('#message').text('Currently in Client mode. Everything should work Kappa');
+        $('#guest_only').hide();
         setTimeout(function() {
             $.ajax({
                 dataType: 'json',

@@ -2,8 +2,13 @@
 {% set active_page = 'pleblist' %}
 {% block title %}Pleblist{% endblock %}
 {% block body %}
+<div id="guest_only">
+    <p>Currently in <strong>Guest Mode</strong></p>
+    <p>If you are looking for the pleblist song list, click <a href="/pleblist/history/">here</a>.</p>
+    <p>If you believe you should be in Client Mode, try refreshing the page or making sure you've been logged into the <a href="/pleblist/host/">host page</a> properly at least once.</p>
+</div>
 <div id="pleblist">
-    <div id="message" class="pemote"></div>
+    <p>Currently in <strong>Client Mode</strong>. All controls should work.</p>
     <div class="ui sixteen column doubling grid container" style="height: 100%;">
         <div class="row">
             <div class="twelve wide column">
@@ -13,7 +18,7 @@
                     <button class="ui button fluid" id="skip_btn">Skip</button>
                 </div>
                 <br />
-                <div>
+                <div id="add_song_container">
                     <div class="ui input">
                         <input type="text" id="song_input" placeholder="Youtube link">
                     </div>
