@@ -14,7 +14,7 @@ Examples of twitch channels where the bot is run:
 | LinneasBot | [linneafly](http://twitch.tv/linneafly) | [GiggleArrows](http://twitch.tv/gigglearrows) |
 | wowsobot | [imaqtpie](http://twitch.tv/imaqtpie) | [pajlada](http://twitch.tv/pajlada) |
 | niconicobot | [eloise_ailv](http://twitch.tv/eloise_ailv) | [pajlada](http://twitch.tv/pajlada) |
-| NeverCoolNameBot | [naniheichou](http://twitch.tv/naniheichou) | [pajlada](http://twitch.tv/pajlada) |
+| reipbot | [naniheichou](http://twitch.tv/naniheichou) | [pajlada](http://twitch.tv/pajlada) |
 
 ## Quick install
 
