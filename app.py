@@ -369,13 +369,19 @@ def user_profile(username):
 
 @app.route('/points/')
 def points():
+    custom_content = custom_web_content.get('points', '')
+    try:
+        custom_content = Markup(markdown.markdown(custom_content))
+    except:
+        log.exception('Unhandled exception in def index')
     session = DBManager.create_session()
     top_30_users = []
     for user in session.query(User).order_by(User.points.desc())[:30]:
         top_30_users.append(user)
     session.close()
     return render_template('points.html',
-            top_30_users=top_30_users)
+            top_30_users=top_30_users,
+            custom_content=custom_content)
 
 
 @app.route('/debug')
