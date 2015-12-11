@@ -166,37 +166,20 @@ class Dispatch:
 
     def ab(bot, source, message, event, args):
         if message:
-            message = re.sub(' +', ' ', message)
 
             msg_parts = message.split(' ')
             if len(msg_parts) >= 2:
-                s = ''
-                for c in msg_parts[1]:
-                    s += msg_parts[0] + ' ' + c + ' '
-                s += msg_parts[0]
+                outer_str = msg_parts[0]
+                inner_str = ' {} '.format(outer_str).join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
 
-                bot.say('{0}, {1}'.format(source.username, s))
+                bot.say('{0}, {1} {2} {1}'.format(source.username, outer_str, inner_str))
 
                 return True
 
         return False
 
     def abc(bot, source, message, event, args):
-        if message:
-            message = re.sub(' +', ' ', message)
-
-            msg_parts = message.split(' ')
-            if len(msg_parts) >= 3:
-                s = ''
-                for msg in msg_parts[1:]:
-                    s += msg_parts[0] + ' ' + msg + ' '
-                s += msg_parts[0]
-
-                bot.say('{0}, {1}'.format(source.username, s))
-
-                return True
-
-        return False
+        return Dispatch.ab(bot, source, message, event, args)
 
     def silence(bot, source, message, event, args):
         bot.silent = True
