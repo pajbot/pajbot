@@ -336,6 +336,9 @@ class MessageAction(BaseAction):
 
         resp = apply_substitutions(resp, self.subs, bot, extra)
 
+        if resp is None:
+            return None
+
         for sub in self.argument_subs:
             needle = sub.needle
             value = str(MessageAction.get_argument_value(extra['message'], sub.argument - 1))
