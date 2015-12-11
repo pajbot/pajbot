@@ -67,10 +67,14 @@ function add_random_box(color)
 function add_emote(emote)
 {
     var url = '';
-    if ('bttv_hash' in emote) {
+    if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
         url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
-    } else {
+    } else if ('twitch_id' in emote) {
         url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
+    } else {
+        if (emote['code'] == 'xD') {
+            url = 'http://img.linuxfr.org/img/687474703a2f2f746f746f7a2e65752f6769662f58442e676966/XD.gif';
+        }
     }
     var numRand = Math.floor(Math.random() * 501);
     var divsize = 120;
