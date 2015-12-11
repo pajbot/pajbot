@@ -1313,6 +1313,10 @@ class Dispatch:
             bot.whisper(source.username, 'You have no duel request or duel target. Type !duel USERNAME POT to duel someone!')
 
     def raffle(bot, source, message, event, args):
+        if hasattr(Dispatch, 'raffle_running') and Dispatch.raffle_running is True:
+            bot.say('{0}, a raffle is already running OMGScoots'.format(source.username_raw))
+            return False
+
         Dispatch.raffle_users = []
         Dispatch.raffle_running = True
         Dispatch.raffle_points = 100
