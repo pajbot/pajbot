@@ -146,9 +146,7 @@ def add_to_command_list(command, alias):
 
         bot_commands_list.append(command)
 
-@cron.scheduled_job('interval', minutes=2)
-@time_nonclass_method
-def update_commands():
+def update_commands(signal_id):
     global bot_commands_list
     from tyggbot.models.command import CommandManager
     """
@@ -169,7 +167,14 @@ def update_commands():
     bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
     del bot_commands
 
-update_commands()
+
+update_commands(26)
+try:
+    import uwsgi
+    uwsgi.register_signal(26, "worker", update_commands)
+    uwsgi.add_timer(26, 60 * 10)
+except ImportError:
+    pass
 
 @app.route('/')
 def index():
