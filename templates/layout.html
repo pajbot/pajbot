@@ -9,10 +9,6 @@
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.date.css">
 </head>
 <body class="main body">
-{% set nav_bar_footer = [
-    ('/contact', 'contact', 'Contact'),
-    ('/about', 'about', 'About'),
-] %}
 {% set active_page = active_page|default('home') %}
 <header class="main header">
     <div class="ui top fixed menu">
@@ -39,11 +35,34 @@
     {% block body %}{% endblock %}
 </main>
 <footer class="main footer">
-    <div class="ui inverted vertical footer segment center aligned">
-        <div class="ui list horizontal divided inverted">
-            {% for href, id, caption in nav_bar_footer %}
-            <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">{{ caption }}</a>
-            {% endfor %}
+    <div class="ui black inverted vertical footer segment" style="padding: 1.2em 2em;">
+        <div class="ui two column centered grid centered">
+            <div class="four column centered row">
+                <div class="column">
+                    <h4 class="ui inverted header">Community</h4>
+                    <div class="ui inverted link list">
+                        <a class="item" href="https://github.com/pajlada/tyggbot/issues">Submit an Issue</a>
+                        <a class="item" href="/contact">Contact</a>
+                    </div>
+                </div>
+                <div class="column">
+                    <h4 class="ui inverted header">Network</h4>
+                    <div class="ui inverted link list">
+                        <a class="item" href="https://github.com/pajlada/tyggbot/">GitHub Repo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                {% if session.user %}
+                <p>
+                Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a>
+                </p>
+                {% else %}
+                <p>
+                <a class="ui inverted link" href="/login">Admin login</a>
+                </p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </footer>

@@ -9,8 +9,8 @@ var current_song = null;
 function onYouTubeIframeAPIReady()
 {
     player = new YT.Player('player', {
-        height: '390',
-        width: '640',
+        height: '100%',
+        width: '100%',
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange

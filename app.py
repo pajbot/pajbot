@@ -30,7 +30,11 @@ from flask import request
 from flask import render_template
 from flask import Markup
 from flask import redirect
+from flask import url_for
+from flask import session
+from flask import jsonify
 from flask.ext.scrypt import generate_random_salt
+from flask_oauthlib.client import OAuth
 # from flask import make_response
 # from flask import jsonify
 from sqlalchemy import func, cast, Date
@@ -71,15 +75,29 @@ if 'pleblist_password_salt' not in config['web']:
 with open(args.config, 'w') as configfile:
     config.write(configfile)
 
+app.secret_key = config['web']['secret_key']
+oauth = OAuth(app)
+
+twitch = oauth.remote_app(
+        'twitch',
+        consumer_key=config['webtwitchapi']['client_id'],
+        consumer_secret=config['webtwitchapi']['client_secret'],
+        request_token_params={'scope': 'user_read'},
+        base_url='https://api.twitch.tv/kraken/',
+        request_token_url=None,
+        access_token_method='POST',
+        access_token_url='https://api.twitch.tv/kraken/oauth2/token',
+        authorize_url='https://api.twitch.tv/kraken/oauth2/authorize',
+        )
+
 DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
-session = DBManager.create_session()
-num_decks = session.query(func.count(Deck.id)).scalar()
-custom_web_content = {}
-for web_content in session.query(WebContent).filter(WebContent.content is not None):
-    custom_web_content[web_content.page] = web_content.content
-session.close()
+with DBManager.create_session_scope() as db_session:
+    num_decks = db_session.query(func.count(Deck.id)).scalar()
+    custom_web_content = {}
+    for web_content in db_session.query(WebContent).filter(WebContent.content is not None):
+        custom_web_content[web_content.page] = web_content.content
 
 has_decks = num_decks > 0
 
@@ -431,11 +449,6 @@ def stats_duels():
 def contact():
     return render_template('contact.html')
 
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 @app.route('/highlights/<date>/')
 def highlight_list_date(date):
     # Make sure we were passed a valid date
@@ -547,6 +560,43 @@ def clr_overlay(widget_id):
     else:
         return render_template('errors/404.html'), 404
 
+@app.route('/login')
+def login():
+    return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'])
+
+@app.route('/login/authorized')
+def authorized():
+    resp = twitch.authorized_response()
+    print(resp)
+    if resp is None:
+        return 'Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description'])
+    session['twitch_token'] = (resp['access_token'], )
+    me = twitch.get('user')
+    session['user'] = {
+            'username': me.data['name'],
+            'username_raw': me.data['display_name'],
+            }
+    return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.pop('twitch_token', None)
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+@twitch.tokengetter
+def get_twitch_oauth_token():
+    return session.get('twitch_token')
+
+def change_twitch_header(uri, headers, body):
+    auth = headers.get('Authorization')
+    if auth:
+        auth = auth.replace('Bearer', 'OAuth')
+        headers['Authorization'] = auth
+    return uri, headers, body
+
+twitch.pre_request = change_twitch_header
+
 @app.template_filter()
 def date_format(value, format='full'):
     if format == 'full':
@@ -628,6 +678,7 @@ default_variables = {
         'modules': modules,
         'current_time': datetime.datetime.now(),
         'request': request,
+        'session': session,
         }
 
 if 'streamtip' in config:
