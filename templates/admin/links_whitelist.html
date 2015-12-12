@@ -1,0 +1,22 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_links_whitelist' %}
+{% block title %}Admin - Whitelisted Links{% endblock %}
+{% block body %}
+<h2>Whitelisted Links</h2>
+<table class="ui table basic">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for link in links %}
+        <tr>
+            <td>{{ link.id }}</td>
+            <td>{{ link.domain }}{{ link.path }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

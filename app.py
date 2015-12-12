@@ -11,6 +11,7 @@ import logging
 import datetime
 
 from tyggbot.web.models import api
+from tyggbot.web.routes import admin
 from tyggbot.web.models import errors
 from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
@@ -49,6 +50,7 @@ cron.start()
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app.register_blueprint(api.page)
+app.register_blueprint(admin.page)
 
 config = configparser.ConfigParser()
 
@@ -656,6 +658,13 @@ nav_bar_header.append(('/highlights/', 'highlights', 'Highlights'))
 if 'pleblist' in modules:
     nav_bar_header.append(('/pleblist/history/', 'pleblist', 'Pleblist'))
 
+nav_bar_admin_header = []
+nav_bar_admin_header.append(('/', 'home', 'Home'))
+nav_bar_admin_header.append(('/admin/', 'admin_home', 'Admin Home'))
+nav_bar_admin_header.append(('/admin/banphrases/', 'admin_banphrases', 'Banphrases'))
+nav_bar_admin_header.append(('/admin/links/blacklist/', 'admin_links_blacklist', 'Blacklisted links'))
+nav_bar_admin_header.append(('/admin/links/whitelist/', 'admin_links_whitelist', 'Whitelisted links'))
+
 
 default_variables = {
         'bot': {
@@ -675,6 +684,7 @@ default_variables = {
             },
         'has_decks': has_decks,
         'nav_bar_header': nav_bar_header,
+        'nav_bar_admin_header': nav_bar_admin_header,
         'modules': modules,
         'current_time': datetime.datetime.now(),
         'request': request,

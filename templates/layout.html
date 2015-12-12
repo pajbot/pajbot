@@ -11,6 +11,7 @@
 <body class="main body">
 {% set active_page = active_page|default('home') %}
 <header class="main header">
+{% block menu %}
     <div class="ui top fixed menu">
         {% for href, id, caption in nav_bar_header %}
         <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">{{ caption }}</a>
@@ -30,6 +31,7 @@
             </div>
         </div>
     </div>
+{% endblock %}
 </header>
 <main class="main container">
     {% block body %}{% endblock %}
@@ -55,7 +57,7 @@
             <div class="column">
                 {% if session.user %}
                 <p>
-                Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a>
+                Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a> &mdash; <a href="/admin/">Admin Zone</a>
                 </p>
                 {% else %}
                 <p>
