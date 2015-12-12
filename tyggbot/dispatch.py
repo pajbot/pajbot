@@ -933,10 +933,10 @@ class Dispatch:
             bot.whisper(source.username, '{0} is no longer permabanned'.format(user.username))
 
     def tweet(bot, source, message, event, args):
-        if message and len(message) > 1 and len(message) < 140 and bot.twitter:
+        if message and len(message) > 1:
             try:
-                log.info('sending tweet: {0}'.format(message))
-                bot.twitter.update_status(status=message)
+                log.info('sending tweet: {0}'.format(message[:140]))
+                bot.twitter_manager.twitter_client.update_status(status=message)
             except Exception as e:
                 log.error('Caught an exception: {0}'.format(e))
 
