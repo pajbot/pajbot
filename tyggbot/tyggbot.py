@@ -653,7 +653,7 @@ class TyggBot:
 
         message_emotes = []
         for tag in tags:
-            if tag['key'] == 'subscriber':
+            if tag['key'] == 'subscriber' and event.target == self.channel:
                 if source.subscriber and tag['value'] == '0':
                     source.subscriber = False
                 elif not source.subscriber and tag['value'] == '1':
