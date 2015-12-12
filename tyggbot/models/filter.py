@@ -46,6 +46,7 @@ class Filter(Base):
             self.name = options['name']
         if 'action' in options:
             self.action_json = json.dumps(options['action'])
+            self.action_parsed_json = options['action']
             self.action = ActionParser.parse(self.action_json)
         if 'filter' in options:
             self.filter = options['filter']
@@ -61,6 +62,7 @@ class Filter(Base):
 
     @orm.reconstructor
     def init_on_load(self):
+        self.action_parsed_json = json.loads(self.action_json)
         self.action = ActionParser.parse(self.action_json)
         self.extra_args = {'filter': self}
         self.regex = None
