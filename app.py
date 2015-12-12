@@ -74,6 +74,10 @@ if 'pleblist_password_salt' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'pleblist_password_salt', salt.decode('utf-8'))
 
+if 'secret_key' not in config['web']:
+    salt = generate_random_salt()
+    config.set('web', 'secret_key', salt.decode('utf-8'))
+
 with open(args.config, 'w') as configfile:
     config.write(configfile)
 
@@ -564,7 +568,7 @@ def clr_overlay(widget_id):
 
 @app.route('/login')
 def login():
-    return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'])
+    return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True))
 
 @app.route('/login/authorized')
 def authorized():
