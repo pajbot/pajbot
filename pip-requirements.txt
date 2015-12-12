@@ -24,6 +24,7 @@ pymysql
 # needed for the web interface
 flask
 flask-scrypt
+flask-oauthlib
 markdown
 apscheduler
 
