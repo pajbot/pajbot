@@ -3,6 +3,7 @@ import base64
 import binascii
 import logging
 
+from tyggbot.web.utils import requires_level
 from tyggbot.models.filter import Filter
 from tyggbot.models.linkchecker import BlacklistedLink
 from tyggbot.models.linkchecker import WhitelistedLink
@@ -15,37 +16,16 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 from flask import redirect
-from flask import session
 from flask import render_template
+from flask import session
 from flask import abort
 from flask.ext.scrypt import generate_password_hash
 from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
 from sqlalchemy import and_
 
-
-from functools import wraps, update_wrapper
-
-
 page = Blueprint('admin', __name__, url_prefix='/admin')
 
-def requires_level(level):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            if 'user' not in session:
-                abort(403)
-            with DBManager.create_session_scope() as db_session:
-                user = db_session.query(User).filter_by(username=session['user']['username']).one_or_none()
-                if user is None:
-                    abort(403)
-
-                if user.level < level:
-                    abort(403)
-
-            return f(*args, **kwargs)
-        return update_wrapper(decorated_function, f)
-    return decorator
 
 @page.route('/')
 @requires_level(500)
