@@ -305,7 +305,7 @@ class Dispatch:
                         'type': type,
                         'message': command.action.response,
                         }
-            command.set(**options)
+            bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
     def add_funccommand(bot, source, message, event, args):
