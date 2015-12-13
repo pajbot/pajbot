@@ -6,6 +6,7 @@ import subprocess
 
 from datetime import datetime
 
+from .models.sock import SocketManager
 from .models.user import UserManager
 from .models.emote import EmoteManager
 from .models.connection import ConnectionManager
@@ -161,6 +162,7 @@ class TyggBot:
         self.start_time = datetime.now()
         ActionParser.bot = self
 
+        self.socket_manager = SocketManager(self)
         self.users = UserManager()
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
@@ -848,6 +850,7 @@ class TyggBot:
                 log.exception('Exception caught while trying to say quit phrase')
 
         self.twitter_manager.quit()
+        self.socket_manager.quit()
 
         if self.whisper_manager:
             self.whisper_manager.quit()
