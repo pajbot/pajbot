@@ -29,6 +29,30 @@ class DBManager:
 
         return None
 
+    def session_add_expunge(object, **options):
+        """
+        Useful shorthand method of creating a session,
+        adding an object to the session,
+        committing,
+        expunging the object,
+        closing the session,
+        all while having expire_on_commit set to False
+        """
+
+        if 'expire_on_commit' not in options:
+            options['expire_on_commit'] = False
+
+        session = DBManager.create_session(**options)
+        try:
+            session.add(object)
+            session.commit()
+            session.expunge(object)
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
     @contextmanager
     def create_session_scope(**options):
         session = DBManager.create_session(**options)
