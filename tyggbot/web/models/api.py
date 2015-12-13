@@ -3,6 +3,7 @@ import base64
 import binascii
 import logging
 
+from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
@@ -298,3 +299,25 @@ def streamtip_validate():
         return resp
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)
+
+@page.route('/api/v1/push/command/update/<command_id>')
+def push_command_update(command_id):
+    import socket
+    import json
+
+    payload = {
+            'event': 'command.update',
+            'data': {
+                'command_id': command_id
+                }
+            }
+    payload_bytes = json.dumps(payload).encode('utf-8')
+
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect(config['sock']['sock_file'])
+            client.sendall(payload_bytes)
+            return make_response(jsonify({'success': 'good job'}))
+    except:
+        log.exception('???')
+        return make_response(jsonify({'error': 'Could not push update'}))
