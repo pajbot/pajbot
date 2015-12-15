@@ -5,14 +5,76 @@ from collections import UserDict
 import argparse
 import datetime
 
+from tyggbot.tbutil import find
 from tyggbot.models.db import DBManager, Base
 from tyggbot.models.action import ActionParser, RawFuncAction, FuncAction
 
 from sqlalchemy import orm
-from sqlalchemy import Column, Integer, Boolean, DateTime
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
 from sqlalchemy.dialects.mysql import TEXT
 
 log = logging.getLogger('tyggbot')
+
+
+def parse_command_for_web(alias, command, list):
+    import markdown
+    from flask import Markup
+    if command in list:
+        return
+
+    command.json_description = None
+    command.parsed_description = ''
+
+    try:
+        if command.description is not None:
+            command.json_description = json.loads(command.description)
+            if 'description' in command.json_description:
+                command.parsed_description = Markup(markdown.markdown(command.json_description['description']))
+            if command.json_description.get('hidden', False) is True:
+                return
+    except ValueError:
+        # Invalid JSON
+        pass
+    except:
+        log.warn(command.json_description)
+        log.exception('Unhandled exception BabyRage')
+        return
+
+    if command.command is None:
+        command.command = alias
+
+    if command.action is not None and command.action.type == 'multi':
+        if command.command is not None:
+            command.main_alias = command.command.split('|')[0]
+        for inner_alias, inner_command in command.action.commands.items():
+            parse_command_for_web(alias if command.command is None else command.main_alias + ' ' + inner_alias, inner_command, list)
+    else:
+        command.main_alias = '!' + command.command.split('|')[0]
+        if len(command.parsed_description) == 0:
+            if command.action is not None:
+                if command.action.type == 'message':
+                    command.parsed_description = command.action.response
+                    if len(command.action.response) == 0:
+                        return
+            if command.description is not None:
+                command.parsed_description = command.description
+        list.append(command)
+
+
+class CommandData(Base):
+    __tablename__ = 'tb_command_data'
+
+    command_id = Column(Integer, ForeignKey('tb_command.id'), primary_key=True, autoincrement=False)
+    num_uses = Column(Integer, nullable=False, default=0)
+
+    def __init__(self, command_id, **options):
+        self.command_id = command_id
+
+        self.set(**options)
+
+    def set(self, **options):
+        self.num_uses = options.get('num_uses', 0)
 
 
 class Command(Base):
@@ -27,11 +89,14 @@ class Command(Base):
     delay_all = Column(Integer, nullable=False, default=5)
     delay_user = Column(Integer, nullable=False, default=15)
     enabled = Column(Boolean, nullable=False, default=True)
-    num_uses = Column(Integer, nullable=False, default=0)
     cost = Column(Integer, nullable=False, default=0)
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
+
+    data = relationship('CommandData',
+            uselist=False,
+            lazy='joined')
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
@@ -59,10 +124,10 @@ class Command(Base):
         self.mod_only = False
         self.command = None
 
-        self.num_uses = 0  # XXX: to be removed
-
         self.last_run = 0
         self.last_run_by_user = {}
+
+        self.data = None
 
         self.set(**options)
 
@@ -179,7 +244,8 @@ class Command(Base):
         args.update(self.extra_args)
         ret = self.action.run(bot, source, message, event, args)
         if ret is not False:
-            self.num_uses += 1
+            if self.data is not None:
+                self.data.num_uses += 1
             if self.cost > 0:
                 # Only spend points if the action did not fail
                 if not source.spend(self.cost):
@@ -198,15 +264,41 @@ class CommandManager(UserDict):
         self.bot = bot
         if bot:
             self.bot.socket_manager.add_handler('command.update', self.on_command_update)
+            self.bot.socket_manager.add_handler('command.remove', self.on_command_remove)
 
     def on_command_update(self, data, conn):
         try:
-            command_id = data['command_id']
-        except KeyError:
+            command_id = int(data['command_id'])
+        except (KeyError, ValueError):
             log.warn('No command ID found in on_command_update')
             return False
 
+        command = find(lambda command: command.id == command_id, self.data.values())
+        if command is None:
+            log.warn('Invalid ID sent to on_command_update')
+            return False
+
+        self.remove_command_aliases(command)
+        self.load_by_id(command_id)
+
         log.debug('Update command with id {}'.format(command_id))
+
+    def on_command_remove(self, data, conn):
+        try:
+            command_id = int(data['command_id'])
+        except (KeyError, ValueError):
+            log.warn('No command ID found in on_command_update')
+            return False
+
+        command = find(lambda command: command.id == command_id, self.data.values())
+        if command is None:
+            log.warn('Invalid ID sent to on_command_update')
+            return False
+
+        self.db_session.expunge(command.data)
+        self.remove_command_aliases(command)
+
+        log.debug('Remove command with id {}'.format(command_id))
 
     def __del__(self):
         self.db_session.close()
@@ -372,15 +464,18 @@ class CommandManager(UserDict):
             return self.data[main_alias], False
 
         command = Command(command=alias_str, **options)
+        command.data = CommandData(command.id)
         self.add_command_aliases(command)
         DBManager.session_add_expunge(command)
+        self.db_session.add(command.data)
+        self.commit()
         return command, True
 
     def edit_command(self, command, **options):
         command.set(**options)
         DBManager.session_add_expunge(command)
 
-    def remove_command(self, command):
+    def remove_command_aliases(self, command):
         aliases = command.command.split('|')
         for alias in aliases:
             if alias in self.data:
@@ -388,7 +483,12 @@ class CommandManager(UserDict):
             else:
                 log.warning('For some reason, {0} was not in the list of commands when we removed it.'.format(alias))
 
+    def remove_command(self, command):
+        self.remove_command_aliases(command)
+
         with DBManager.create_session_scope() as db_session:
+            self.db_session.expunge(command.data)
+            db_session.delete(command.data)
             db_session.delete(command)
 
     def add_command_aliases(self, command):
@@ -398,16 +498,38 @@ class CommandManager(UserDict):
 
         return len(aliases)
 
-    def reload(self):
+    def load(self):
         self.get_internal_commands()
         self.data = self.internal_commands
 
-        with DBManager.create_session_scope() as db_session:
-            for command in db_session.query(Command).filter_by(enabled=True):
-                self.add_command_aliases(command)
-            db_session.expunge_all()
+        for command in self.db_session.query(Command).filter_by(enabled=True):
+            self.add_command_aliases(command)
+            self.db_session.expunge(command)
+            if command.data is None:
+                log.info('Creating command data for {}'.format(command.command))
+                command.data = CommandData(command.id)
+            self.db_session.add(command.data)
 
         return self
+
+    def load_by_id(self, command_id):
+        self.db_session.commit()
+        command = self.db_session.query(Command).filter_by(id=command_id, enabled=True).one_or_none()
+        if command:
+            self.add_command_aliases(command)
+            self.db_session.expunge(command)
+            if command.data is None:
+                log.info('Creating command data for {}'.format(command.command))
+                command.data = CommandData(command.id)
+            self.db_session.add(command.data)
+
+    def parse_for_web(self):
+        list = []
+
+        for alias, command in self.data.items():
+            parse_command_for_web(alias, command, list)
+
+        return list
 
     def parse_command_arguments(self, message):
         parser = argparse.ArgumentParser()

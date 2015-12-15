@@ -244,3 +244,13 @@ div.pleblist-wrapper div.songlist-wrapper {
     float: right;
     width: 240px;
 }
+
+table.editcommand div.edit {
+    display: none;
+}
+
+.ui.input.compact input,
+.ui.input.compact .ui.label
+{
+    padding: 0.375em;
+}

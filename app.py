@@ -130,54 +130,11 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def add_to_command_list(command, alias):
-    if command in bot_commands_list:
-        return
-
-    command.json_description = None
-
-    try:
-        if command.description is not None:
-            command.json_description = json.loads(command.description)
-            if 'description' in command.json_description:
-                command.description = Markup(markdown.markdown(command.json_description['description']))
-            if command.json_description.get('hidden', False) is True:
-                return
-    except ValueError:
-        # Command description was not valid json
-        pass
-    except:
-        log.info(command.json_description)
-        log.exception('Unhandled exception BabyRage')
-        return
-
-    if command.command is None:
-        command.command = alias
-    if command.action is not None and command.action.type == 'multi':
-        if command.command is not None:
-            command.main_alias = command.command.split('|')[0]
-        for inner_alias, inner_command in command.action.commands.items():
-            add_to_command_list(inner_command, alias if command.command is None else command.main_alias + ' ' + inner_alias)
-    else:
-        command.main_alias = '!' + command.command.split('|')[0]
-        if command.description is None:
-            # Try to automatically figure out a description for the command
-            if command.action is not None:
-                if command.action.type == 'message':
-                    command.description = command.action.response
-                    if len(command.action.response) == 0:
-                        return
-
-        bot_commands_list.append(command)
-
 def update_commands(signal_id):
     global bot_commands_list
     from tyggbot.models.command import CommandManager
-    bot_commands = CommandManager(None).reload()
-    bot_commands_list = []
-
-    for alias, command in bot_commands.items():
-        add_to_command_list(command, alias)
+    bot_commands = CommandManager(None).load()
+    bot_commands_list = bot_commands.parse_for_web()
 
     bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
     del bot_commands
@@ -357,7 +314,7 @@ def debug():
 
 @app.route('/stats/')
 def stats():
-    top_5_commands = sorted(bot_commands_list, key=lambda c: c.num_uses, reverse=True)[:5]
+    top_5_commands = sorted(bot_commands_list, key=lambda c: c.data.num_uses if c.data is not None else -1, reverse=True)[:5]
 
     if 'linefarming' in modules:
         session = DBManager.create_session()
@@ -603,6 +560,7 @@ nav_bar_admin_header = []
 nav_bar_admin_header.append(('/', 'home', 'Home'))
 nav_bar_admin_header.append(('/admin/', 'admin_home', 'Admin Home'))
 nav_bar_admin_header.append(('/admin/banphrases/', 'admin_banphrases', 'Banphrases'))
+nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/links/blacklist/', 'admin_links_blacklist', 'Blacklisted links'))
 nav_bar_admin_header.append(('/admin/links/whitelist/', 'admin_links_whitelist', 'Whitelisted links'))
 

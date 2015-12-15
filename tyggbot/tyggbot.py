@@ -166,7 +166,7 @@ class TyggBot:
         self.users = UserManager()
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
-        self.commands = CommandManager(self).reload()
+        self.commands = CommandManager(self).load()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()
@@ -179,7 +179,6 @@ class TyggBot:
 
         # Reloadable managers
         self.reloadable = {
-                'commands': self.commands,
                 'filters': self.filters,
                 'settings': self.settings,
                 'motd': self.motd_manager,
