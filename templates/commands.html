@@ -27,7 +27,7 @@
         <td>
             {% include 'command/usage.html' %}
         </td>
-        <td class="pemote">{{ command.description }}</td>
+        <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
     {% endfor %}
         </tbody>
@@ -47,7 +47,7 @@
     <tr>
         <td>{% include 'command/usage.html' %}</td>
         <td>{{ command.cost }}</td>
-        <td class="pemote">{{ command.description }}</td>
+        <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
     {% endfor %}
         </tbody>
@@ -65,7 +65,7 @@
     {% for command in moderator_commands %}
     <tr>
         <td>{% include 'command/usage.html' %}</td>
-        <td class="pemote">{{ command.description }}</td>
+        <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
     {% endfor %}
         </tbody>

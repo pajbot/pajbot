@@ -2,8 +2,12 @@ import datetime
 import base64
 import binascii
 import logging
+import socket
+import json
 
+from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
+from tyggbot.models.command import Command
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
@@ -298,3 +302,110 @@ def streamtip_validate():
         return resp
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)
+
+@page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
+@requires_level(500)
+def command_remove(command_id):
+    with DBManager.create_session_scope() as db_session:
+        command = db_session.query(Command).filter_by(id=command_id).one_or_none()
+        if command is None:
+            return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        db_session.delete(command.data)
+        db_session.delete(command)
+
+    payload = {
+            'event': 'command.remove',
+            'data': {
+                'command_id': command_id
+                }
+            }
+    payload_bytes = json.dumps(payload).encode('utf-8')
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect(config['sock']['sock_file'])
+            client.sendall(payload_bytes)
+            return make_response(jsonify({'success': 'good job'}))
+    except:
+        log.exception('???')
+        return make_response(jsonify({'error': 'Could not push update'}))
+
+@page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
+@requires_level(500)
+def command_update(command_id):
+    if not request.method == 'POST':
+        return make_response(jsonify({'error': 'Invalid request method. (Expected POST)'}), 400)
+    if len(request.form) == 0:
+        return make_response(jsonify({'error': 'Missing parameter to edit.'}), 400)
+
+    valid_names = [
+            'enabled',
+            'level',
+            'delay_all',
+            'delay_user',
+            'cost',
+            'can_execute_with_whisper',
+            'sub_only'
+            ]
+
+    valid_action_names = [
+            'type',
+            'message'
+            ]
+
+    with DBManager.create_session_scope() as db_session:
+        command = db_session.query(Command).filter_by(id=command_id).one_or_none()
+        if command is None:
+            return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        parsed_action = json.loads(command.action_json)
+
+        for key in request.form:
+            if key.startswith('data_'):
+                name = key[5:]
+                value = request.form[key]
+
+                if name.startswith('action_'):
+                    name = name[7:]
+                    if name in valid_action_names and name in parsed_action and command.action.type == 'message':
+                        value_type = type(parsed_action[name])
+                        if value_type is bool:
+                            parsed_value = True if value == '1' else False
+                        elif value_type is int:
+                            try:
+                                parsed_value = int(value)
+                            except ValueError:
+                                continue
+                        else:
+                            parsed_value = value
+                        parsed_action[name] = parsed_value
+                else:
+                    if name in valid_names:
+                        value_type = type(getattr(command, name))
+                        if value_type is bool:
+                            parsed_value = True if value == '1' else False
+                        elif value_type is int:
+                            try:
+                                parsed_value = int(value)
+                            except ValueError:
+                                continue
+                        else:
+                            parsed_value = value
+                        setattr(command, name, parsed_value)
+
+                command.action_json = json.dumps(parsed_action)
+
+    payload = {
+            'event': 'command.update',
+            'data': {
+                'command_id': command_id
+                }
+            }
+    payload_bytes = json.dumps(payload).encode('utf-8')
+
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect(config['sock']['sock_file'])
+            client.sendall(payload_bytes)
+            return make_response(jsonify({'success': 'good job'}))
+    except:
+        log.exception('???')
+        return make_response(jsonify({'error': 'Could not push update'}))

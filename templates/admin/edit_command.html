@@ -1,0 +1,151 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_commands' %}
+{% block title %}Profile{% endblock %}
+{% block body %}
+{% set data_available = [
+    ('ID', False, command.id, 'id', 'int', ''),
+    ('Aliases', False, command.command, 'command', 'string', ''),
+    ('Enabled', True, command.enabled, 'enabled', 'boolean', ''),
+    ('Level', True, command.level, 'level', 'int', ''),
+    ('Global CD', True, command.delay_all, 'delay_all', 'int', ' seconds'),
+    ('User CD', True, command.delay_user, 'delay_user', 'int', ' seconds'),
+    ('Cost', True, command.cost, 'cost', 'int', ''),
+    ('Whisperable', True, command.can_execute_with_whisper, 'can_execute_with_whisper', 'boolean', ''),
+    ('Sub only', True, command.sub_only, 'sub_only', 'boolean', ''),
+] %}
+<p>Columns in yellow mark an unsaved change.</p>
+<p>Click the "Save Changes" button below to confirm your changes.</p>
+<h2>Command</h2>
+<table class="ui definition table editcommand celled command">
+    <tbody>
+        {% for label, editable, value, name, type, suffix in data_available %}
+        {% if type == 'boolean' %}
+        {% set value = 1 if value == True else 0 %}
+        {% endif %}
+        <tr data-originalvalue="{{ value }}" data-value="{{ value }}" data-name="{{ name }}" data-type="{{ type }}">
+            <td class="label two wide">{{ label }}</td>
+            <td class="buttons two wide right aligned">
+                {% if editable %}
+                <div class="ui small compact basic icon buttons display">
+                    <button title="Edit value" class="ui button icon edit"><i class="icon edit"></i></button>
+                </div>
+                <div class="ui small compact basic icon buttons edit">
+                    <button title="Cancel changes" class="ui button icon cancel"><i class="icon red cancel"></i></button>
+                    <button title="Confirm changes" class="ui button icon save"><i class="icon green save"></i></button>
+                </div>
+                {% endif %}
+            </td>
+            <td class="value left aligned twelve wide">
+                <div class="display" data-value="{{ value }}"><span class="value">
+                    {% if type == 'boolean' %}
+                        {{ 'Yes' if value == 1 else 'No' }}
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                    </span>{{ suffix }}</div>
+                <div class="edit">
+                    {% if type == 'boolean' %}
+                    <div class="ui checkbox">
+                        <input id="cb-{{ name }}" type="checkbox" />
+                        <label for="cb-{{ name }}">{{ 'Yes' if value == 1 else 'No' }}</label>
+                    </div>
+                    {% else %}
+                    <div class="ui compact input{{ ' right labeled' if suffix|length > 0 else '' }}">
+                        <input type="text" />
+                        {% if suffix|length > 0 %}
+                        <div class="ui basic label">{{ suffix }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% set data_available = [] %}
+
+{% if command.action.type == 'message' %}
+{% set data_available = [
+    ('Reply Type', True, command.action.subtype, 'action_type', 'list(say:Say,whisper:Whisper,me:Me,reply:Reply)', ''),
+    ('Response', True, command.action.response, 'action_message', 'string', ''),
+] %}
+{% elif command.action.type == 'func' %}
+{% set data_available = [
+    ('Type', False, command.action.type, 'action_type', 'string', ''),
+    ('Callback', False, command.action.cb.__name__, 'action_cb', 'string', ''),
+] %}
+{% endif %}
+<h2>Action</h2>
+<table class="ui definition table editcommand celled action">
+    <tbody>
+        {% for label, editable, value, name, type, suffix in data_available %}
+        {% if type == 'boolean' %}
+        {% set value = 1 if value == True else 0 %}
+        {% elif type.startswith('list') %}
+        {% set list_values = type[5:-1].split(',') %}
+        {% set type = 'list' %}
+        {% endif %}
+        <tr data-originalvalue="{{ value }}" data-value="{{ value }}" data-name="{{ name }}" data-type="{{ type }}">
+            <td class="label two wide">{{ label }}</td>
+            <td class="buttons two wide right aligned">
+                {% if editable %}
+                <div class="ui small compact basic icon buttons display">
+                    <button title="Edit value" class="ui button icon edit"><i class="icon edit"></i></button>
+                </div>
+                <div class="ui small compact basic icon buttons edit">
+                    <button title="Cancel changes" class="ui button icon cancel"><i class="icon red cancel"></i></button>
+                    <button title="Confirm changes" class="ui button icon save"><i class="icon green save"></i></button>
+                </div>
+                {% endif %}
+            </td>
+            <td class="value left aligned twelve wide">
+                <div class="display" data-value="{{ value }}"><span class="value">
+                    {% if type == 'boolean' %}
+                        {{ 'Yes' if value == 1 else 'No' }}
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                    </span>{{ suffix }}</div>
+                <div class="edit">
+                    {% if type == 'boolean' %}
+                    <div class="ui checkbox">
+                        <input id="cb-{{ name }}" type="checkbox" />
+                        <label for="cb-{{ name }}">{{ 'Yes' if value == 1 else 'No' }}</label>
+                    </div>
+                    {% elif type == 'list' %}
+                    <div class="ui dropdown">
+                        <input type="hidden" name="{{ name }}" value="{{ value }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">{{ value }}</div>
+                        <div class="menu">
+                            {% for value in list_values %}
+                            {% set key, label = value.split(':') %}
+                            <div class="item{{ ' active selected' if key == value else '' }}" data-value="{{ key }}">{{ label }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="ui compact input{{ ' right labeled' if suffix|length > 0 else '' }}{{ ' fluid' if type == 'string' else '' }}">
+                        <input type="text" />
+                        {% if suffix|length > 0 %}
+                        <div class="ui basic label">{{ suffix }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<button class="ui disabled button large green icon save-changes"><i class="icon save"></i> <strong>Save Changes</strong></button>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+command_id = {{ command.id }};
+</script>
+<script type="text/javascript" src="/static/scripts/admin/edit_command.js"></script>
+{% endblock %}

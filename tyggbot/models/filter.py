@@ -140,7 +140,7 @@ class FilterManager(UserList):
             name=options.get('name', 'Banphrase'),
             type='banphrase',
             extra_args={
-                'time': options.get('length', Filter.DEFAULT_TIMEOUT_LENGTH),
+                'time': options.get('time', Filter.DEFAULT_TIMEOUT_LENGTH),
                 'notify': options.get('notify', True),
                 }
             )

@@ -6,6 +6,7 @@ import subprocess
 
 from datetime import datetime
 
+from .models.sock import SocketManager
 from .models.user import UserManager
 from .models.emote import EmoteManager
 from .models.connection import ConnectionManager
@@ -54,7 +55,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '2.0.8'
+    version = '2.1.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
@@ -161,10 +162,11 @@ class TyggBot:
         self.start_time = datetime.now()
         ActionParser.bot = self
 
+        self.socket_manager = SocketManager(self)
         self.users = UserManager()
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
-        self.commands = CommandManager(self).reload()
+        self.commands = CommandManager(self).load()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()
@@ -177,7 +179,6 @@ class TyggBot:
 
         # Reloadable managers
         self.reloadable = {
-                'commands': self.commands,
                 'filters': self.filters,
                 'settings': self.settings,
                 'motd': self.motd_manager,
@@ -848,6 +849,7 @@ class TyggBot:
                 log.exception('Exception caught while trying to say quit phrase')
 
         self.twitter_manager.quit()
+        self.socket_manager.quit()
 
         if self.whisper_manager:
             self.whisper_manager.quit()

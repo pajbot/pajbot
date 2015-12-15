@@ -305,7 +305,7 @@ class Dispatch:
                         'type': type,
                         'message': command.action.response,
                         }
-            command.set(**options)
+            bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
     def add_funccommand(bot, source, message, event, args):
@@ -1314,14 +1314,17 @@ class Dispatch:
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
         bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in 60 seconds'.format(Dispatch.raffle_points))
-        # bot.execute_delayed(1, bot.me, ('A raffle has begun for 100 points. type !join to join the raffle! The raffle will end in 60 seconds', ))
+        bot.execute_delayed(15, bot.me, ('The raffle for {} points ends in 45 seconds! Type !join to join the raffle!'.format(Dispatch.raffle_points), ))
+        bot.execute_delayed(30, bot.me, ('The raffle for {} points ends in 30 seconds! Type !join to join the raffle!'.format(Dispatch.raffle_points), ))
+        bot.execute_delayed(45, bot.me, ('The raffle for {} points ends in 15 seconds! Type !join to join the raffle!'.format(Dispatch.raffle_points), ))
 
-        bot.execute_delayed(30, bot.me, ('The raffle ends in 30 seconds! Type !join to join the raffle!', ))
         bot.execute_delayed(60, Dispatch.end_raffle, (bot, source, message, event, args))
 
     def end_raffle(bot, source, message, event, args):
         if not Dispatch.raffle_running:
             return False
+
+        Dispatch.raffle_running = False
 
         if len(Dispatch.raffle_users) == 0:
             bot.me('Wow, no one joined the raffle DansGame')
@@ -1330,7 +1333,6 @@ class Dispatch:
         winner = random.choice(Dispatch.raffle_users)
 
         Dispatch.raffle_users = []
-        Dispatch.raffle_running = False
 
         bot.websocket_manager.emit('notification', {'message': '{} won {} points in the raffle!'.format(winner.username_raw, Dispatch.raffle_points)})
         bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, Dispatch.raffle_points))

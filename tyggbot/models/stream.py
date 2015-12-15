@@ -28,7 +28,10 @@ class Stream(Base):
     stream_end = Column(DateTime, nullable=True)
     ended = Column(Boolean, nullable=False, default=False)
 
-    stream_chunks = relationship('StreamChunk', backref='stream', lazy='joined')
+    stream_chunks = relationship('StreamChunk',
+            backref='stream',
+            cascade='save-update, merge, expunge',
+            lazy='joined')
 
     def __init__(self, created_at, **options):
         self.id = None
@@ -59,7 +62,10 @@ class StreamChunk(Base):
     chunk_start = Column(DateTime, nullable=False)
     chunk_end = Column(DateTime, nullable=True)
 
-    highlights = relationship('StreamChunkHighlight', backref='stream_chunk', lazy='joined')
+    highlights = relationship('StreamChunkHighlight',
+            backref='stream_chunk',
+            cascade='save-update, merge, expunge',
+            lazy='joined')
 
     def __init__(self, stream, broadcast_id, created_at, **options):
         self.id = None
@@ -166,17 +172,13 @@ class StreamManager:
         This will load the latest stream so we can post an accurate
         "time since last online" figure.
         """
-        session = DBManager.create_session(expire_on_commit=False)
-        self.current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
-        self.last_stream = session.query(Stream).filter_by(ended=True).order_by(Stream.stream_end.desc()).first()
-        # if self.current_stream and len(self.current_stream.stream_chunks) > 0:
-        if self.current_stream:
-            # sorted_chunks = sorted(self.current_stream.stream_chunks, key=lambda x: x.chunk_start, reverse=True)
-            # self.current_stream_chunk = sorted_chunks[0]
-            self.current_stream_chunk = session.query(StreamChunk).filter_by(stream_id=self.current_stream.id).order_by(StreamChunk.chunk_start.desc()).first()
-            log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
-        session.expunge_all()
-        session.close()
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            self.current_stream = db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+            self.last_stream = db_session.query(Stream).filter_by(ended=True).order_by(Stream.stream_end.desc()).first()
+            if self.current_stream:
+                self.current_stream_chunk = db_session.query(StreamChunk).filter_by(stream_id=self.current_stream.id).order_by(StreamChunk.chunk_start.desc()).first()
+                log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
+            db_session.expunge_all()
 
     @property
     def online(self):
@@ -190,75 +192,74 @@ class StreamManager:
         log.info('commiting something?')
 
     def create_stream_chunk(self, status):
-
         if self.current_stream_chunk is not None:
             # There's already a stream chunk started!
-            session = DBManager.create_session(expire_on_commit=False)
             self.current_stream_chunk.chunk_end = datetime.datetime.now()
-            session.add(self.current_stream_chunk)
-            session.commit()
-            session.close()
-            self.current_stream_chunk = None
+            DBManager.session_add_expunge(self.current_stream_chunk)
 
-        session = DBManager.create_session(expire_on_commit=False)
-        stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
-        if stream_chunk is None:
-            log.info('Creating stream chunk, from create_stream_chunk')
-            stream_chunk = StreamChunk(self.current_stream, status['broadcast_id'], status['created_at'])
-            self.current_stream_chunk = stream_chunk
-            session.add(stream_chunk)
-            session.commit()
-        else:
-            log.info('We already have a stream chunk!')
-            self.current_stream_chunk = stream_chunk
-        session.expunge_all()
-        session.close()
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
+            if stream_chunk is None:
+                log.info('Creating stream chunk, from create_stream_chunk')
+                stream_chunk = StreamChunk(self.current_stream, status['broadcast_id'], status['created_at'])
+                self.current_stream_chunk = stream_chunk
+                db_session.add(stream_chunk)
+                db_session.commit()
+            else:
+                log.info('We already have a stream chunk!')
+                self.current_stream_chunk = stream_chunk
+            db_session.expunge_all()
+            db_session.close()
 
         self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
         session = DBManager.create_session(expire_on_commit=False)
 
-        stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
-
         log.info('Attempting to create a stream!')
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
+            if stream_chunk is not None:
+                stream = stream_chunk.stream
+            else:
+                log.info('checking if there is an active stream already')
+                stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
 
-        if stream_chunk is not None:
-            log.info('we already have a stream chunk OMGScoots')
-            log.info(stream_chunk)
-            log.info(stream_chunk.stream_id)
-            log.info(stream_chunk.stream)
-            stream = stream_chunk.stream
-        else:
-            log.info('checking if there is an active stream already')
-            stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
-
-            if stream is None:
-                log.info('No active stream, create new!')
-                stream = Stream(status['created_at'],
-                        title=status['title'])
-                session.add(stream)
+                if stream is None:
+                    log.info('No active stream, create new!')
+                    stream = Stream(status['created_at'],
+                            title=status['title'])
+                    session.add(stream)
+                    session.commit()
+                    log.info('added stream!')
+                stream_chunk = StreamChunk(stream, status['broadcast_id'], status['created_at'])
+                session.add(stream_chunk)
                 session.commit()
-                log.info('added stream!')
-            stream_chunk = StreamChunk(stream, status['broadcast_id'], status['created_at'])
-            session.add(stream_chunk)
-            session.commit()
-            stream.stream_chunks.append(stream_chunk)
-            log.info('Created stream chunk')
+                stream.stream_chunks.append(stream_chunk)
+                log.info('Created stream chunk')
 
-        self.current_stream = stream
-        self.current_stream_chunk = stream_chunk
+            self.current_stream = stream
+            self.current_stream_chunk = stream_chunk
+            db_session.expunge_all()
 
-        log.info('added shit to current_stream etc')
-
-        session.close()
+            log.info('added shit to current_stream etc')
 
     def go_offline(self):
-        session = DBManager.create_session(expire_on_commit=False)
-        session.add(self.current_stream)
-        session.add(self.current_stream_chunk)
-        session.commit()
-        session.close()
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            self.current_stream.ended = True
+            self.current_stream.stream_end = self.first_offline
+            self.current_stream_chunk.chunk_end = self.first_offline
+
+            db_session.add(self.current_stream)
+            db_session.add(self.current_stream_chunk)
+
+            db_session.commit()
+
+            db_session.expunge_all()
+
+        self.last_stream = self.current_stream
+        self.current_stream = None
+        self.current_stream_chunk = None
 
     def refresh_stream_status(self):
         try:
@@ -290,13 +291,7 @@ class StreamManager:
 
                     if self.num_offlines >= 10:
                         log.info('Switching to offline state!')
-                        self.current_stream.ended = True
-                        self.current_stream.stream_end = self.first_offline
-                        self.last_stream = self.current_stream
-                        self.current_stream_chunk.chunk_end = self.first_offline
                         self.go_offline()
-                        self.current_stream = None
-                        self.current_stream_chunk = None
                     self.num_offlines += 1
         except:
             log.exception('Uncaught exception while refreshing stream status')
@@ -315,12 +310,15 @@ class StreamManager:
         video_url, video_preview_image_url = self.fetch_video_url(self.current_stream_chunk)
         if video_url is not None:
             log.info('Successfully fetched a video url: {0}'.format(video_url))
-            session = DBManager.create_session(expire_on_commit=False)
-            session.add(self.current_stream_chunk)
-            self.current_stream_chunk.video_url = video_url
-            self.current_stream_chunk.video_preview_image_url = video_preview_image_url
-            session.commit()
-            session.close()
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                self.current_stream_chunk.video_url = video_url
+                self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+
+                db_session.add(self.current_stream_chunk)
+
+                db_session.commit()
+
+                db_session.expunge_all()
             log.info('successfully commited it and shit')
         else:
             log.info('Not video for broadcast found')
@@ -338,11 +336,9 @@ class StreamManager:
         try:
             highlight = StreamChunkHighlight(self.current_stream_chunk, **options)
 
-            session = DBManager.create_session(expire_on_commit=False)
-            session.add(highlight)
-            session.add(self.current_stream_chunk)
-            session.commit()
-            session.close()
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                db_session.add(highlight)
+                db_session.add(self.current_stream_chunk)
         except:
             log.exception('uncaught exception in create_highlight')
             return 'Unknown reason, ask pajlada'
@@ -383,10 +379,8 @@ class StreamManager:
         if 'offset' in options:
             options['highlight_offset'] = options.pop('offset')
 
-        session = DBManager.create_session()
-        num_rows = session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).update(options)
-        session.commit()
-        session.close()
+        with DBManager.create_session_scope() as db_session:
+            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).update(options)
 
         return (num_rows == 1)
 
@@ -395,10 +389,8 @@ class StreamManager:
         Returns True if a highlight was removed, otherwise return False
         """
 
-        session = DBManager.create_session()
-        num_rows = session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
-        session.commit()
-        session.close()
+        with DBManager.create_session_scope() as db_session:
+            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
 
         return (num_rows == 1)
 
