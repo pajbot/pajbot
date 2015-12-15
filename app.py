@@ -37,6 +37,7 @@ from flask import session
 from flask import jsonify
 from flask.ext.scrypt import generate_random_salt
 from flask_oauthlib.client import OAuth
+from flask_oauthlib.client import OAuthException
 # from flask import make_response
 # from flask import jsonify
 from sqlalchemy import func, cast, Date
@@ -467,10 +468,17 @@ def login():
 
 @app.route('/login/authorized')
 def authorized():
-    resp = twitch.authorized_response()
+    try:
+        resp = twitch.authorized_response()
+    except OAuthException:
+        log.exception('An exception was caught while authorizing')
+        return redirect(url_for('index'))
+
     print(resp)
     if resp is None:
-        return 'Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description'])
+        log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
+        # return 'Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description'])
+        return redirect(url_for('index'))
     session['twitch_token'] = (resp['access_token'], )
     me = twitch.get('user')
     session['user'] = {
