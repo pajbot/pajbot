@@ -1324,6 +1324,8 @@ class Dispatch:
         if not Dispatch.raffle_running:
             return False
 
+        Dispatch.raffle_running = False
+
         if len(Dispatch.raffle_users) == 0:
             bot.me('Wow, no one joined the raffle DansGame')
             return False
@@ -1331,7 +1333,6 @@ class Dispatch:
         winner = random.choice(Dispatch.raffle_users)
 
         Dispatch.raffle_users = []
-        Dispatch.raffle_running = False
 
         bot.websocket_manager.emit('notification', {'message': '{} won {} points in the raffle!'.format(winner.username_raw, Dispatch.raffle_points)})
         bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, Dispatch.raffle_points))
