@@ -173,15 +173,6 @@ def add_to_command_list(command, alias):
 def update_commands(signal_id):
     global bot_commands_list
     from tyggbot.models.command import CommandManager
-    """
-    with CommandManager().reload() as bot_commands:
-        bot_commands_list = []
-
-        for alias, command in bot_commands.items():
-            add_to_command_list(command, alias)
-
-        bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
-        """
     bot_commands = CommandManager(None).reload()
     bot_commands_list = []
 
@@ -224,64 +215,10 @@ def commands():
         else:
             custom_commands.append(command)
 
-    """
-    for command in cursor:
-        action = json.loads(command['action'])
-        command['aliases'] = ['!' + s for s in command['command'].split('|')]
-        for alias in command['aliases']:
-            alias = '!' + alias
-        if action['type'] in ['say', 'me', 'whisper']:
-            if command['description'] is None or 'Added by' in command['description']:
-                command['description'] = action['message']
-
-        command['arguments'] = []
-
-        try:
-            if command['description'] is not None:
-                description = json.loads(command['description'])
-                if 'description' in description:
-                    command['description'] = description['description']
-                if 'usage' in description:
-                    if description['usage'] == 'whisper':
-                        for x in range(0, len(command['aliases'])):
-                            alias = command['aliases'][x]
-                            command['aliases'][x] = '/w {0} {1}'.format(config['bot']['full_name'], alias)
-                        for alias in command['aliases']:
-                            command['aliases']
-                    command['description'] = description['description']
-                if 'arguments' in description:
-                    command['arguments'] = description['arguments']
-                if 'hidden' in description:
-                    if description['hidden'] is True:
-                        continue
-        except ValueError:
-            # Command description was not valid json
-            pass
-        except:
-            pass
-
-        if command['description']:
-            try:
-                command['description'] = Markup(markdown.markdown(command['description']))
-            except:
-                log.exception('Unhandled exception in markdown shit')
-            if command['level'] > 100:
-                moderator_commands.append(command)
-            elif command['cost'] > 0:
-                point_commands.append(command)
-            elif not command['description'].startswith('Added by'):
-                custom_commands.append(command)
-    cursor.close()
-    sqlconn.commit()
-    """
-    try:
-        return render_template('commands.html',
-                custom_commands=sorted(custom_commands, key=lambda f: f.command),
-                point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
-                moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
-    except Exception:
-        log.exception('Unhandled exception in commands() render_template')
-        return 'abc'
+    return render_template('commands.html',
+            custom_commands=sorted(custom_commands, key=lambda f: f.command),
+            point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
+            moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
 
 @app.route('/decks/')
 def decks():
