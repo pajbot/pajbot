@@ -20,6 +20,9 @@ def requires_level(level):
                 if user.level < level:
                     abort(403)
 
+                db_session.expunge(user)
+                kwargs['user'] = user
+
             return f(*args, **kwargs)
         return update_wrapper(decorated_function, f)
     return decorator

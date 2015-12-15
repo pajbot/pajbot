@@ -141,11 +141,16 @@
     </tbody>
 </table>
 
+{% if user.level >= command.level %}
 <button class="ui disabled button large green icon save-changes"><i class="icon save"></i> <strong>Save Changes</strong></button>
+{% else %}
+<p>You cannot modify this command, because your level is too low.</p>
+{% endif %}
 {% endblock %}
 {% block footer %}
 <script type="text/javascript">
 command_id = {{ command.id }};
+max_level = {{ user.level }};
 </script>
 <script type="text/javascript" src="/static/scripts/admin/edit_command.js"></script>
 {% endblock %}

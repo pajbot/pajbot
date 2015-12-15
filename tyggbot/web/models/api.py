@@ -20,6 +20,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 from flask import redirect
+from flask import abort
 from flask.ext.scrypt import generate_password_hash
 from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
@@ -305,11 +306,13 @@ def streamtip_validate():
 
 @page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
 @requires_level(500)
-def command_remove(command_id):
+def command_remove(command_id, **options):
     with DBManager.create_session_scope() as db_session:
         command = db_session.query(Command).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        if command.level > options['user'].level:
+            abort(403)
         db_session.delete(command.data)
         db_session.delete(command)
 
@@ -331,7 +334,7 @@ def command_remove(command_id):
 
 @page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
 @requires_level(500)
-def command_update(command_id):
+def command_update(command_id, **options):
     if not request.method == 'POST':
         return make_response(jsonify({'error': 'Invalid request method. (Expected POST)'}), 400)
     if len(request.form) == 0:
@@ -356,6 +359,8 @@ def command_update(command_id):
         command = db_session.query(Command).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        if command.level > options['user'].level:
+            abort(403)
         parsed_action = json.loads(command.action_json)
 
         for key in request.form:

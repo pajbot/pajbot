@@ -32,12 +32,12 @@ log = logging.getLogger(__name__)
 
 @page.route('/')
 @requires_level(500)
-def home():
+def home(**options):
     return render_template('admin/home.html')
 
 @page.route('/banphrases/')
 @requires_level(500)
-def banphrases():
+def banphrases(**options):
     with DBManager.create_session_scope() as db_session:
         banphrases = db_session.query(Filter).filter_by(enabled=True, type='banphrase').all()
         return render_template('admin/banphrases.html',
@@ -45,7 +45,7 @@ def banphrases():
 
 @page.route('/links/blacklist/')
 @requires_level(500)
-def links_blacklist():
+def links_blacklist(**options):
     with DBManager.create_session_scope() as db_session:
         links = db_session.query(BlacklistedLink).filter_by().all()
         return render_template('admin/links_blacklist.html',
@@ -53,7 +53,7 @@ def links_blacklist():
 
 @page.route('/links/whitelist/')
 @requires_level(500)
-def links_whitelist():
+def links_whitelist(**options):
     with DBManager.create_session_scope() as db_session:
         links = db_session.query(WhitelistedLink).filter_by().all()
         return render_template('admin/links_whitelist.html',
@@ -61,7 +61,7 @@ def links_whitelist():
 
 @page.route('/commands/')
 @requires_level(500)
-def commands():
+def commands(**options):
     from tyggbot.models.command import CommandManager
     bot_commands = CommandManager(None).load()
 
@@ -87,11 +87,13 @@ def commands():
 
 @page.route('/commands/edit/<command_id>')
 @requires_level(500)
-def commands_edit(command_id):
+def commands_edit(command_id, **options):
     with DBManager.create_session_scope() as db_session:
         command = db_session.query(Command).filter_by(id=command_id).one_or_none()
 
         if command is None:
             return render_template('admin/command_404.html'), 404
 
-        return render_template('admin/edit_command.html', command=command)
+        return render_template('admin/edit_command.html',
+                command=command,
+                user=options.get('user', None))
