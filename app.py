@@ -380,7 +380,7 @@ def stats_duels():
             'top_5_points_lost': session.query(UserDuelStats).order_by(UserDuelStats.profit.asc())[:5],
             'top_5_losers': session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc())[:5],
             'top_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.desc())[:5],
-            'bottom_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.asc())[:5],
+            'bottom_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_lost >= 5).order_by(UserDuelStats.winrate.asc())[:5],
             }
 
     try:
