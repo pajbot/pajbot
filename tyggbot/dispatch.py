@@ -25,10 +25,16 @@ def init_dueling_variables(user):
 
 def check_follow_age(bot, source, username):
     age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
-    if age is False:
-        bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
+    if source.username == username:
+        if age is False:
+            bot.say('{}, you are not following {}'.format(source.username_raw, bot.streamer))
+        else:
+            bot.say('{}, you have been following {} for {}'.format(source.username_raw, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
     else:
-        bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+        if age is False:
+            bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
+        else:
+            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
 
 
 class Dispatch:
