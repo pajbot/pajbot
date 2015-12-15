@@ -1130,11 +1130,16 @@ class Dispatch:
             bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
     def follow_age(bot, source, message, event, args):
-        age = bot.twitchapi.get_follow_relationship(source.username, bot.streamer)
+        username = source.username
+        if message is not None and len(message) > 0:
+            potential_user = bot.users.find(message.split(' ')[0])
+            if potential_user is not None:
+                username = potential_user.username
+        age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
         if age is False:
-            bot.say('{}, you are not following {}'.format(source.username_raw, bot.streamer))
+            bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
         else:
-            bot.say('{}, you have been following {} for {}'.format(source.username_raw, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
 
     def initiate_duel(bot, source, message, event, args):
         """
