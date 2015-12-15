@@ -55,7 +55,7 @@ class TyggBot:
     Main class for the twitch bot
     """
 
-    version = '2.0.8'
+    version = '2.1.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
