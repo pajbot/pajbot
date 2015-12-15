@@ -223,3 +223,11 @@ def time_nonclass_method(f):
 def print_traceback():
     import traceback
     traceback.print_stack()
+
+def find(predicate, seq):
+    """Method shamelessly taken from https://github.com/Rapptz/discord.py """
+
+    for element in seq:
+        if predicate(element):
+            return element
+    return None
