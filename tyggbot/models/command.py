@@ -96,6 +96,7 @@ class Command(Base):
 
     data = relationship('CommandData',
             uselist=False,
+            cascade='',
             lazy='joined')
 
     MIN_WHISPER_LEVEL = 420
