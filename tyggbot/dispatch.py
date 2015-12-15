@@ -23,6 +23,13 @@ def init_dueling_variables(user):
     user.duel_target = False
     user.duel_price = 0
 
+def check_follow_age(bot, source, username):
+    age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
+    if age is False:
+        bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
+    else:
+        bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+
 
 class Dispatch:
     """
@@ -1135,11 +1142,8 @@ class Dispatch:
             potential_user = bot.users.find(message.split(' ')[0])
             if potential_user is not None:
                 username = potential_user.username
-        age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
-        if age is False:
-            bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
-        else:
-            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+
+        bot.action_queue.add(check_follow_age, args=[bot, source, username])
 
     def initiate_duel(bot, source, message, event, args):
         """
