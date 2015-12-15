@@ -54,16 +54,23 @@
                     </div>
                 </div>
             </div>
-            <div class="column">
-                {% if session.user %}
-                <p>
-                Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a> &mdash; <a href="/admin/">Admin Zone</a>
-                </p>
-                {% else %}
-                <p>
-                <a class="ui inverted link" href="/login">Admin login</a>
-                </p>
-                {% endif %}
+            <div class="row">
+                <div class="column">
+                    {% if session.user %}
+                    <span>
+                    Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a> &mdash; <a href="/admin/">Admin Zone</a>
+                    </span>
+                    {% else %}
+                    <span>
+                    <a class="ui inverted link" href="/login">Admin login</a>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <em style="color: #ccc;">Version: {{ version }}</em> &mdash; <em style="color: #ccc;">Last commit: {{ last_commit }}</em>
+                </div>
             </div>
         </div>
     </div>

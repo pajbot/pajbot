@@ -7,9 +7,10 @@ import configparser
 import json
 import math
 import logging
-# import random
+import subprocess
 import datetime
 
+from tyggbot.tyggbot import TyggBot
 from tyggbot.web.models import api
 from tyggbot.web.routes import admin
 from tyggbot.web.models import errors
@@ -564,8 +565,21 @@ nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/links/blacklist/', 'admin_links_blacklist', 'Blacklisted links'))
 nav_bar_admin_header.append(('/admin/links/whitelist/', 'admin_links_whitelist', 'Whitelisted links'))
 
+version = TyggBot.version
+last_commit = ''
+try:
+    current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
+    latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
+    commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
+    last_commit = subprocess.check_output(['git', 'log', '-1', '--format=%cd']).decode('utf8').strip()
+    version = '{0} DEV ({1}, {2}, commit {3})'.format(version, current_branch, latest_commit, commit_number)
+except:
+    pass
+
 
 default_variables = {
+        'version': version,
+        'last_commit': last_commit,
         'bot': {
             'name': config['main']['nickname'],
             },
