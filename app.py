@@ -24,6 +24,7 @@ from tyggbot.models.webcontent import WebContent
 from tyggbot.models.time import TimeManager
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.sock import SocketClientManager
+from tyggbot.apiwrappers import TwitchAPI
 from tyggbot.tbutil import time_since
 
 import markdown
@@ -80,6 +81,21 @@ if 'pleblist_password_salt' not in config['web']:
 if 'secret_key' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'secret_key', salt.decode('utf-8'))
+
+logo = ''
+if 'logo' not in config['web']:
+    twitchapi = TwitchAPI()
+    try:
+        data = twitchapi.get(['users', config['main']['streamer']], base='https://api.twitch.tv/kraken/')
+        log.info(data)
+        if data:
+            logo = data['logo'].replace('http:', '')
+            config.set('web', 'logo', logo)
+            log.info('setting logo')
+    except:
+        pass
+else:
+    logo = config['web']['logo']
 
 with open(args.config, 'w') as configfile:
     config.write(configfile)
@@ -615,6 +631,7 @@ default_variables = {
         'current_time': datetime.datetime.now(),
         'request': request,
         'session': session,
+        'logo': logo,
         }
 
 if 'streamtip' in config:
