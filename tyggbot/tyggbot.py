@@ -5,6 +5,7 @@ import logging
 import subprocess
 
 from datetime import datetime
+import urllib
 
 from .models.sock import SocketManager
 from .models.user import UserManager
@@ -863,6 +864,7 @@ class TyggBot:
                 'upper': lambda var, args: var.upper(),
                 'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
                 'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
+                'urlencode': lambda var, args: urllib.parse.urlencode(var),
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
