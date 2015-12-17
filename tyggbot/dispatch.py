@@ -396,6 +396,7 @@ class Dispatch:
         """
 
         if message:
+            message = message.replace('!', '')
             # Make sure we got both an existing alias and at least one new alias
             message_parts = message.split()
             if len(message_parts) < 2:
