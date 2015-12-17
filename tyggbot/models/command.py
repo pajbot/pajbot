@@ -275,14 +275,12 @@ class CommandManager(UserDict):
             return False
 
         command = find(lambda command: command.id == command_id, self.data.values())
-        if command is None:
-            log.warn('Invalid ID sent to on_command_update')
-            return False
+        if command is not None:
+            self.remove_command_aliases(command)
 
-        self.remove_command_aliases(command)
         self.load_by_id(command_id)
 
-        log.debug('Update command with id {}'.format(command_id))
+        log.debug('Reloaded command with id {}'.format(command_id))
 
     def on_command_remove(self, data, conn):
         try:
