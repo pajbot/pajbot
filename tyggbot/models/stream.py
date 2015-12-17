@@ -214,27 +214,25 @@ class StreamManager:
         self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
-        session = DBManager.create_session(expire_on_commit=False)
-
         log.info('Attempting to create a stream!')
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            stream_chunk = session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
+            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
             if stream_chunk is not None:
                 stream = stream_chunk.stream
             else:
                 log.info('checking if there is an active stream already')
-                stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+                stream = db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
 
                 if stream is None:
                     log.info('No active stream, create new!')
                     stream = Stream(status['created_at'],
                             title=status['title'])
-                    session.add(stream)
-                    session.commit()
+                    db_session.add(stream)
+                    db_session.commit()
                     log.info('added stream!')
                 stream_chunk = StreamChunk(stream, status['broadcast_id'], status['created_at'])
-                session.add(stream_chunk)
-                session.commit()
+                db_session.add(stream_chunk)
+                db_session.commit()
                 stream.stream_chunks.append(stream_chunk)
                 log.info('Created stream chunk')
 
