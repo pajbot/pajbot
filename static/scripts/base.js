@@ -7,6 +7,7 @@ $.fn.api.settings.api = {
     'get_pleblist_songs_after': '/api/v1/pleblist/list/after/{id}',
     'edit_command': '/api/v1/command/update/{id}',
     'remove_command': '/api/v1/command/remove/{id}',
+    'check_alias': '/api/v1/command/checkalias',
 };
 
 $(document).ready(function() {

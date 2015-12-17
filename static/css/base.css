@@ -148,7 +148,7 @@ div.pui.class.undefined { background: url('/static/images/class_undefined_32.png
 
 .main.container {
     flex: 1 0 auto;
-    padding: 65px 2em 0 2em;
+    padding: 65px 2em 1em 2em;
     width: 100%;
 }
 
@@ -253,4 +253,12 @@ table.editcommand div.edit {
 .ui.input.compact .ui.label
 {
     padding: 0.375em;
+}
+
+td.description,
+td.description a
+{
+    word-break: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
 }

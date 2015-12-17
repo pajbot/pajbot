@@ -570,7 +570,7 @@ class TyggBot:
             message = separator.join(messages).strip()
 
             if len(message) >= 1:
-                if (message[0] == '.' or message[0] == '/') and not message[:3] == '.me':
+                if (message[0] == '.' or message[0] == '/') and not message[1:3] == 'me':
                     log.warning('Message we attempted to send started with . or /, skipping.')
                     return
 

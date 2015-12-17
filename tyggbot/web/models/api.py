@@ -4,15 +4,17 @@ import binascii
 import logging
 import socket
 import json
+import time
 
 from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
-from tyggbot.models.command import Command
+from tyggbot.models.command import Command, CommandManager
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
 from tyggbot.models.stream import Stream
 from tyggbot.models.db import DBManager
+from tyggbot.models.sock import SocketClientManager
 
 import requests
 from flask import Blueprint
@@ -20,6 +22,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request
 from flask import redirect
+from flask import abort
 from flask.ext.scrypt import generate_password_hash
 from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
@@ -305,11 +308,13 @@ def streamtip_validate():
 
 @page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
 @requires_level(500)
-def command_remove(command_id):
+def command_remove(command_id, **options):
     with DBManager.create_session_scope() as db_session:
         command = db_session.query(Command).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        if command.level > options['user'].level:
+            abort(403)
         db_session.delete(command.data)
         db_session.delete(command)
 
@@ -331,7 +336,7 @@ def command_remove(command_id):
 
 @page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
 @requires_level(500)
-def command_update(command_id):
+def command_update(command_id, **options):
     if not request.method == 'POST':
         return make_response(jsonify({'error': 'Invalid request method. (Expected POST)'}), 400)
     if len(request.form) == 0:
@@ -356,6 +361,8 @@ def command_update(command_id):
         command = db_session.query(Command).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
+        if command.level > options['user'].level:
+            abort(403)
         parsed_action = json.loads(command.action_json)
 
         for key in request.form:
@@ -393,19 +400,34 @@ def command_update(command_id):
 
                 command.action_json = json.dumps(parsed_action)
 
-    payload = {
-            'event': 'command.update',
-            'data': {
-                'command_id': command_id
-                }
-            }
-    payload_bytes = json.dumps(payload).encode('utf-8')
-
-    try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-            client.connect(config['sock']['sock_file'])
-            client.sendall(payload_bytes)
-            return make_response(jsonify({'success': 'good job'}))
-    except:
-        log.exception('???')
+    if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
+        return make_response(jsonify({'success': 'good job'}))
+    else:
         return make_response(jsonify({'error': 'Could not push update'}))
+
+@page.route('/api/v1/command/checkalias', methods=['POST'])
+@requires_level(500)
+def command_checkalias(**options):
+    if 'alias' not in request.form:
+        return make_response(jsonify({'error': 'Missing `alias` parameter.'}), 400)
+
+    request_alias = request.form['alias'].lower()
+
+    command_manager = CommandManager(None)
+
+    internal_commands = command_manager.get_internal_commands()
+    db_command_aliases = []
+
+    with DBManager.create_session_scope() as db_session:
+        for command in db_session.query(Command):
+            db_command_aliases.extend(command.command.split('|'))
+
+    for alias in internal_commands:
+        db_command_aliases.append(alias)
+
+    db_command_aliases = set(db_command_aliases)
+
+    if request_alias in db_command_aliases:
+        return make_response(jsonify({'error': 'Alias already in use'}))
+    else:
+        return make_response(jsonify({'success': 'good job'}))

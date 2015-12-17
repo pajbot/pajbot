@@ -275,14 +275,12 @@ class CommandManager(UserDict):
             return False
 
         command = find(lambda command: command.id == command_id, self.data.values())
-        if command is None:
-            log.warn('Invalid ID sent to on_command_update')
-            return False
+        if command is not None:
+            self.remove_command_aliases(command)
 
-        self.remove_command_aliases(command)
         self.load_by_id(command_id)
 
-        log.debug('Update command with id {}'.format(command_id))
+        log.debug('Reloaded command with id {}'.format(command_id))
 
     def on_command_remove(self, data, conn):
         try:
@@ -467,7 +465,12 @@ class CommandManager(UserDict):
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id)
         self.add_command_aliases(command)
-        DBManager.session_add_expunge(command)
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            db_session.add(command)
+            db_session.add(command.data)
+            db_session.commit()
+            db_session.expunge(command)
+            db_session.expunge(command.data)
         self.db_session.add(command.data)
         self.commit()
         return command, True
