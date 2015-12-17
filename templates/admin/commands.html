@@ -19,9 +19,9 @@
     <table class="ui very basic table">
         <thead>
             <tr>
-                <th class="one wide">Command</th>
-                <th class="six wide">Output/Description</th>
-                <th class="one wide">Actions</th>
+                <th>Command</th>
+                <th>Output/Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -30,11 +30,8 @@
         <td>
             {% include 'command/usage.html' %}
         </td>
-        <td class="pemote">{{ command.parsed_description }}</td>
-        <td class="right aligned">
-            <button class="ui compact button remove-command" data-id="{{ command.id }}"><i class="icon red remove"></i>Remove</button>
-            <button class="ui compact button edit-command" data-id="{{ command.id }}"><i class="icon edit"></i>Edit</button>
-        </td>
+        <td class="description pemote">{{ command.parsed_description }}</td>
+        {% include 'admin/helper/command_action.html' %}
     </tr>
     {% endfor %}
         </tbody>
@@ -44,22 +41,19 @@
     <table class="ui very basic table">
         <thead>
             <tr>
-                <th class="two wide">Command</th>
-                <th class="one wide">Cost</th>
-                <th class="six wide">Description</th>
-                <th class="one wide">Actions</th>
+                <th>Command</th>
+                <th>Cost</th>
+                <th>Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
     {% for command in point_commands %}
     <tr data-id="{{command.id}}">
         <td>{% include 'command/usage.html' %}</td>
-        <td>{{ command.cost }}</td>
-        <td class="pemote">{{ command.parsed_description }}</td>
-        <td class="right aligned">
-            <button class="ui compact button remove-command" data-id="{{ command.id }}"><i class="icon red remove"></i>Remove</button>
-            <button class="ui compact button edit-command" data-id="{{ command.id }}"><i class="icon edit"></i>Edit</button>
-        </td>
+        <td class="collapsing">{{ command.cost }}</td>
+        <td class="description pemote">{{ command.parsed_description }}</td>
+        {% include 'admin/helper/command_action.html' %}
     </tr>
     {% endfor %}
         </tbody>
@@ -69,20 +63,17 @@
     <table class="ui very basic table">
         <thead>
             <tr>
-                <th class="one wide">Command</th>
-                <th class="three wide">Description</th>
-                <th class="one wide">Actions</th>
+                <th>Command</th>
+                <th>Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
     {% for command in moderator_commands %}
     <tr data-id="{{command.id}}">
         <td>{% include 'command/usage.html' %}</td>
-        <td class="pemote">{{ command.parsed_description }}</td>
-        <td class="right aligned">
-            <button class="ui compact button remove-command" data-id="{{ command.id }}"><i class="icon red remove"></i>Remove</button>
-            <button class="ui compact button edit-command" data-id="{{ command.id }}"><i class="icon edit"></i>Edit</button>
-        </td>
+        <td class="description pemote">{{ command.parsed_description }}</td>
+        {% include 'admin/helper/command_action.html' %}
     </tr>
     {% endfor %}
         </tbody>
