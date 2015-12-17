@@ -465,10 +465,14 @@ class CommandManager(UserDict):
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id)
         self.add_command_aliases(command)
-        self.db_session.add(command)
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            db_session.add(command)
+            db_session.add(command.data)
+            db_session.commit()
+            db_session.expunge(command)
+            db_session.expunge(command.data)
         self.db_session.add(command.data)
         self.commit()
-        self.db_session.expunge(command)
         return command, True
 
     def edit_command(self, command, **options):
