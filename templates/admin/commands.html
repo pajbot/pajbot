@@ -2,7 +2,9 @@
 {% set active_page = 'admin_commands' %}
 {% block title %}Admin - Commands{% endblock %}
 {% block body %}
+<button class="ui button create-command green"><i class="icon add"></i> <strong>Create Command</strong></button>
 <h2>Commands</h2>
+<p>This is a list of all commands that you can edit.</p>
 <div id="commands">
 <div class="ui top attached tabular menu">
     <a class="item custom active" data-tab="custom">Regular Commands</a>
@@ -125,6 +127,10 @@ $(document).ready(function() {
 
     $(window).bind('hashchange', function(e) {
         update_tab();
+    });
+
+    $('button.create-command').click(function() {
+        document.location.href = '/admin/commands/create';
     });
 
     $('button.edit-command').click(function() {
