@@ -24,9 +24,7 @@
         <tbody>
     {% for command in custom_commands %}
     <tr>
-        <td>
-            {% include 'command/usage.html' %}
-        </td>
+        <td>{% include 'helper/command_usage.html' %}</td>
         <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
     {% endfor %}
@@ -45,7 +43,7 @@
         <tbody>
     {% for command in point_commands %}
     <tr>
-        <td>{% include 'command/usage.html' %}</td>
+        <td>{% include 'helper/command_usage.html' %}</td>
         <td>{{ command.cost }}</td>
         <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
@@ -64,7 +62,7 @@
         <tbody>
     {% for command in moderator_commands %}
     <tr>
-        <td>{% include 'command/usage.html' %}</td>
+        <td>{% include 'helper/command_usage.html' %}</td>
         <td class="pemote">{{ command.parsed_description }}</td>
     </tr>
     {% endfor %}

@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% set active_page = 'commands' %}
+{% block title %}Command{% endblock %}
+{% block body %}
+<p>Detailed view of command</p>
+<p class="pemote">TODO: expand this Kappa</p>
+<p>{{ command.id }}</p>
+<p>{{ command.main_alias }}</p>
+<p>{{ command.parsed_description }}</p>
+{% endblock %}

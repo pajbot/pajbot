@@ -262,3 +262,7 @@ td.description a
     word-wrap: break-word;
     hyphens: auto;
 }
+
+.ui.menu .item img.logo {
+    margin-right: 1em;
+}

@@ -14,7 +14,11 @@
 {% block menu %}
     <div class="ui top fixed menu">
         {% for href, id, caption in nav_bar_header %}
-        <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">{{ caption }}</a>
+        <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">
+            {% if id == 'home' %}
+            <img class="logo" src="{{ logo }}" alt="Streamer Logo"/>
+            {% endif %}
+            {{ caption }}</a>
         {% endfor %}
         <div class="right menu">
             <div class="item">

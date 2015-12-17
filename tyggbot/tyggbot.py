@@ -136,6 +136,8 @@ class TyggBot:
 
     def __init__(self, config, args=None):
         self.load_config(config)
+        self.last_ping = datetime.now()
+        self.last_pong = datetime.now()
 
         self.load_default_phrases()
 
@@ -206,6 +208,7 @@ class TyggBot:
                 }
 
         self.execute_every(10 * 60, self.commit_all)
+        self.execute_every(30, lambda: self.connection_manager.get_main_conn().ping('tmi.twitch.tv'))
 
         try:
             self.admin = self.config['main']['admin']
@@ -782,6 +785,16 @@ class TyggBot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
         self.parse_message(event.arguments[0], source, event, whisper=True)
+
+    def on_ping(self, chatconn, event):
+        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
+        log.info('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
+        self.last_ping = datetime.now()
+
+    def on_pong(self, chatconn, event):
+        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
+        log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
+        self.last_pong = datetime.now()
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
