@@ -107,7 +107,7 @@ def commands_create(**options):
             abort(403)
         alias_str = request.form.get('aliases', '').replace('!', '').lower()
         delay_all = request.form.get('cd', Command.DEFAULT_CD_ALL)
-        delay_user = request.form.get('cduser', Command.DEFAULT_CD_USER)
+        delay_user = request.form.get('usercd', Command.DEFAULT_CD_USER)
         level = request.form.get('level', Command.DEFAULT_LEVEL)
         cost = request.form.get('cost', 0)
 
