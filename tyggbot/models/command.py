@@ -148,9 +148,15 @@ class Command(Base):
         self.command = options.get('command', self.command)
         self.description = options.get('description', self.description)
         self.delay_all = options.get('delay_all', self.delay_all)
+        if self.delay_all < 0:
+            self.delay_all = 0
         self.delay_user = options.get('delay_user', self.delay_user)
+        if self.delay_user < 0:
+            self.delay_user = 0
         self.enabled = options.get('enabled', self.enabled)
         self.cost = options.get('cost', self.cost)
+        if self.cost < 0:
+            self.cost = 0
         self.can_execute_with_whisper = options.get('can_execute_with_whisper', self.can_execute_with_whisper)
         self.sub_only = options.get('sub_only', self.sub_only)
         self.mod_only = options.get('mod_only', self.mod_only)
