@@ -4,6 +4,7 @@ import logging
 from collections import UserDict
 import argparse
 import datetime
+import re
 
 from tyggbot.tbutil import find
 from tyggbot.models.db import DBManager, Base
@@ -50,7 +51,10 @@ def parse_command_for_web(alias, command, list):
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(alias if command.command is None else command.main_alias + ' ' + inner_alias, inner_command, list)
     else:
-        command.main_alias = '!' + command.command.split('|')[0]
+        test = re.compile('[^\w]')
+        first_alias = command.command.split('|')[0]
+        command.resolve_string = test.sub('', first_alias.replace(' ', '_'))
+        command.main_alias = '!' + first_alias
         if len(command.parsed_description) == 0:
             if command.action is not None:
                 if command.action.type == 'message':

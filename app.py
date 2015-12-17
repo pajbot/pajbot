@@ -26,6 +26,7 @@ from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.sock import SocketClientManager
 from tyggbot.apiwrappers import TwitchAPI
 from tyggbot.tbutil import time_since
+from tyggbot.tbutil import find
 
 import markdown
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -199,6 +200,27 @@ def commands():
             custom_commands=sorted(custom_commands, key=lambda f: f.command),
             point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
             moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
+
+@app.route('/commands/<raw_command_string>')
+def command_detailed(raw_command_string):
+    command_string_parts = raw_command_string.split('-')
+    command_string = command_string_parts[0]
+    command_id = None
+    try:
+        command_id = int(command_string)
+    except ValueError:
+        pass
+
+    if command_id is not None:
+        command = find(lambda c: c.id == command_id, bot_commands_list)
+    else:
+        command = find(lambda c: c.resolve_string == command_string, bot_commands_list)
+
+    if command is None:
+        # XXX: Is it proper to have it return a 404 code as well?
+        return render_template('command_404.html')
+
+    return render_template('command_detailed.html', command=command)
 
 @app.route('/decks/')
 def decks():
