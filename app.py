@@ -23,6 +23,7 @@ from tyggbot.models.stream import Stream, StreamChunkHighlight
 from tyggbot.models.webcontent import WebContent
 from tyggbot.models.time import TimeManager
 from tyggbot.models.pleblist import PleblistSong
+from tyggbot.models.sock import SocketClientManager
 from tyggbot.tbutil import time_since
 
 import markdown
@@ -85,6 +86,10 @@ with open(args.config, 'w') as configfile:
 
 app.secret_key = config['web']['secret_key']
 oauth = OAuth(app)
+
+
+if 'sock' in config and 'sock_file' in config['sock']:
+    SocketClientManager.init(config['sock']['sock_file'])
 
 twitch = oauth.remote_app(
         'twitch',

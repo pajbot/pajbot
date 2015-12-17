@@ -13,6 +13,7 @@ from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
 from tyggbot.models.stream import Stream
 from tyggbot.models.db import DBManager
+from tyggbot.models.sock import SocketClientManager
 
 import requests
 from flask import Blueprint
@@ -398,19 +399,7 @@ def command_update(command_id, **options):
 
                 command.action_json = json.dumps(parsed_action)
 
-    payload = {
-            'event': 'command.update',
-            'data': {
-                'command_id': command_id
-                }
-            }
-    payload_bytes = json.dumps(payload).encode('utf-8')
-
-    try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-            client.connect(config['sock']['sock_file'])
-            client.sendall(payload_bytes)
-            return make_response(jsonify({'success': 'good job'}))
-    except:
-        log.exception('???')
+    if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
+        return make_response(jsonify({'success': 'good job'}))
+    else:
         return make_response(jsonify({'error': 'Could not push update'}))

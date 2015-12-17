@@ -98,3 +98,32 @@ class SocketManager:
                         self.handlers[event](json_data['data'], conn)
                     else:
                         log.debug('Unhandled handler: {}'.format(event))
+
+class SocketClientManager:
+    sock_file = None
+
+    def init(sock_file):
+        SocketClientManager.sock_file = sock_file
+
+    def send(event, data):
+        if SocketClientManager.sock_file is None:
+            return False
+
+        payload = {
+                'event': event,
+                'data': data
+                }
+
+        payload_bytes = json.dumps(payload).encode('utf-8')
+
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                client.connect(SocketClientManager.sock_file)
+                client.sendall(payload_bytes)
+                return True
+        except (socket.error, socket.herror, socket.gaierror):
+            log.exception('A socket error occured')
+            return False
+        except socket.timeout:
+            log.exception('The server took to long to respond.')
+            return False
