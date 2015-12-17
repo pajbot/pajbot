@@ -467,9 +467,10 @@ class CommandManager(UserDict):
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id)
         self.add_command_aliases(command)
-        DBManager.session_add_expunge(command)
+        self.db_session.add(command)
         self.db_session.add(command.data)
         self.commit()
+        self.db_session.expunge(command)
         return command, True
 
     def edit_command(self, command, **options):
