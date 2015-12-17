@@ -4,10 +4,11 @@ import binascii
 import logging
 import socket
 import json
+import time
 
 from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
-from tyggbot.models.command import Command
+from tyggbot.models.command import Command, CommandManager
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
@@ -403,3 +404,30 @@ def command_update(command_id, **options):
         return make_response(jsonify({'success': 'good job'}))
     else:
         return make_response(jsonify({'error': 'Could not push update'}))
+
+@page.route('/api/v1/command/checkalias', methods=['POST'])
+@requires_level(500)
+def command_checkalias(**options):
+    if 'alias' not in request.form:
+        return make_response(jsonify({'error': 'Missing `alias` parameter.'}), 400)
+
+    request_alias = request.form['alias'].lower()
+
+    command_manager = CommandManager(None)
+
+    internal_commands = command_manager.get_internal_commands()
+    db_command_aliases = []
+
+    with DBManager.create_session_scope() as db_session:
+        for command in db_session.query(Command):
+            db_command_aliases.extend(command.command.split('|'))
+
+    for alias in internal_commands:
+        db_command_aliases.append(alias)
+
+    db_command_aliases = set(db_command_aliases)
+
+    if request_alias in db_command_aliases:
+        return make_response(jsonify({'error': 'Alias already in use'}))
+    else:
+        return make_response(jsonify({'success': 'good job'}))
