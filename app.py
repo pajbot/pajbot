@@ -509,6 +509,10 @@ def clr_overlay(widget_id):
 def login():
     return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True))
 
+@app.route('/login/error')
+def login_error():
+    return render_template('login_error.html')
+
 @app.route('/login/authorized')
 def authorized():
     try:
@@ -520,8 +524,12 @@ def authorized():
     print(resp)
     if resp is None:
         log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
-        # return 'Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description'])
         return redirect(url_for('index'))
+    elif type(resp) is OAuthException:
+        log.warn(resp.message)
+        log.warn(resp.data)
+        log.warn(resp.type)
+        return redirect(url_for('login_error'))
     session['twitch_token'] = (resp['access_token'], )
     me = twitch.get('user')
     session['user'] = {
