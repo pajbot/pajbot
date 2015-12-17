@@ -1,0 +1,12 @@
+<div class="pui command">
+    {% if command.level > 100 and command.level < 420 %}<div class="pui badge turbo"></div>{% elif command.level >= 420 and command.level < 500 %}<div class="pui badge helper"></div>{% elif command.mod_only or (command.level >= 500 and command.level < 750) %}<div class="pui badge moderator"></div>{% elif command.level >= 750 and command.level < 1000 %}<div class="pui badge globalmod"></div>{% elif command.level == 1000 %}<div class="pui badge broadcaster"></div>{% elif command.level > 1000 %}<div class="pui badge staff"></div>{% endif %}
+    {% if command.json_description and command.json_description.get('usage', 'normal') == 'whisper' %}
+    /w {{ bot.name }}
+    {% endif %}
+    {{ command.main_alias }}
+</div>
+{% if command.json_description %}
+    {% for argument in command.json_description.get('arguments', []) %}
+    <span class="pui argument">{{ argument }}</span>
+    {% endfor %}
+{% endif %}

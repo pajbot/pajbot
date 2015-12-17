@@ -27,9 +27,7 @@
         <tbody>
     {% for command in custom_commands %}
     <tr data-id="{{command.id}}">
-        <td>
-            {% include 'command/usage.html' %}
-        </td>
+        <td>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
     </tr>
@@ -50,7 +48,7 @@
         <tbody>
     {% for command in point_commands %}
     <tr data-id="{{command.id}}">
-        <td>{% include 'command/usage.html' %}</td>
+        <td>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="collapsing">{{ command.cost }}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
@@ -71,7 +69,7 @@
         <tbody>
     {% for command in moderator_commands %}
     <tr data-id="{{command.id}}">
-        <td>{% include 'command/usage.html' %}</td>
+        <td>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
     </tr>
