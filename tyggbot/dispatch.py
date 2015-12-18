@@ -1045,12 +1045,14 @@ class Dispatch:
     def unban_source(bot, source, message, event, args):
         """Unban the user who ran the command."""
         bot.privmsg('.unban {0}'.format(source.username))
+        bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def untimeout_source(bot, source, message, event, args):
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         bot.privmsg('.timeout {0} 1'.format(source.username))
+        bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def twitter_follow(bot, source, message, event, args):
