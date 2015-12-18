@@ -1245,6 +1245,7 @@ class Dispatch:
         """
 
         init_dueling_variables(source)
+        duel_tax = 0.3  # 30% tax
 
         if source.duel_request is not False:
             if source.points < source.duel_price or source.duel_request.points < source.duel_price:
@@ -1254,7 +1255,7 @@ class Dispatch:
                 return False
             source.points -= source.duel_price
             source.duel_request.points -= source.duel_price
-            winning_pot = int(source.duel_price * 0.5)  # 50% tax Kappa
+            winning_pot = int(source.duel_price * (1.0 - duel_tax))
             participants = [source, source.duel_request]
             winner = random.choice(participants)
             participants.remove(winner)
