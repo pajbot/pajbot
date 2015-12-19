@@ -43,6 +43,7 @@ class Dispatch:
     """
 
     raffle_running = False
+    emote_bingo_running = False
 
     def nl(bot, source, message, event, args):
         if message:
@@ -1365,3 +1366,25 @@ class Dispatch:
 
         # Added user to the raffle
         Dispatch.raffle_users.append(source)
+
+    def emote_bingo(bot, source, message, event, args):
+        if hasattr(Dispatch, 'emote_bingo_running') and Dispatch.emote_bingo_running is True:
+            bot.say('{0}, an emote bingo is already running FailFish'.format(source.username_raw))
+            return False
+
+        bot.set_emote_bingo_target(random.choice(bot.emotes.keys))
+        Dispatch.emote_bingo_running = True
+        Dispatch.bingo_points = 100
+
+        try:
+            if message is not None:
+                Dispatch.bingo_points = int(message.split()[0])
+        except ValueError:
+            pass
+
+        bot.websocket_manager.emit('notification', {'message': 'An emote bingo has started!'})
+        bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Guess the emote, win the prize!'}))
+
+
+
+

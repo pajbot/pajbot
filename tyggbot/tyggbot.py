@@ -779,6 +779,9 @@ class TyggBot:
                 # If a command is executed, we do not count the message as a line
                 add_line = False
 
+        if hasattr(TyggBot, 'emote_bingo_running') and self.emote_bingo_running is True:
+            #help here to match the incoming message with the self.emote_bingo_target
+
         source.wrote_message(add_line)
 
     def on_whisper(self, chatconn, event):
@@ -852,7 +855,7 @@ class TyggBot:
     def quit(self):
         self.commit_all()
         if self.phrases['quit']:
-            phrase_data = {
+            phraese_data = {
                     'nickname': self.nickname,
                     'version': self.version,
                     }
@@ -882,3 +885,8 @@ class TyggBot:
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
         return resp
+
+    def set_emote_bingo_target(self, emote):
+        self.emote_bingo_target = emote
+        self.emote_bingo_running = True
+
