@@ -54,6 +54,11 @@ div.pui.badge {
     background-size: 100%;
 }
 
+.pui.badge.bot {
+    background: url('/static/images/badge_bot.png');
+    background-size: 100%;
+}
+
 
 div.pui.class {
     display: inline-block;
@@ -265,4 +270,114 @@ td.description a
 
 .ui.menu .item img.logo {
     margin-right: 1em;
+}
+
+/* Twitch */
+.ui.twitch.button {
+    background-color: #6441a5;
+    color: #FFFFFF;
+    text-shadow: none;
+    background-image: none;
+    box-shadow: 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
+}
+.ui.twitch.button:hover {
+    background-color: #7550BA;
+    color: #FFFFFF;
+    text-shadow: none;
+}
+.ui.twitch.button:active {
+    background-color: #7550BA;
+    color: #FFFFFF;
+    text-shadow: none;
+}
+
+.pui.badge.moderator.sword {
+    background: url('/static/images/badge_mod.svg');
+    background-size: 100%;
+}
+
+div.chat div.chat-message {
+    display: block;
+    line-height: 16px;
+    word-break: break-word;
+    word-wrap: break-word;
+    color: rgb(61, 61, 66);
+    border-bottom-color: rgb(180, 180, 180);
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    display: block;
+    font-size: 12px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    width: 340px;
+    list-style-position: unset;
+    list-style-type: none;
+    font-family: Helvetica Neue,Helvetica,sans-serif;
+}
+
+div.chat div.chat-message .pemote img {
+    margin: -5px 0;
+}
+
+.chat:nth-child(even) .chat-message.say,
+.chat:nth-child(even) .chat-message.me
+{
+    background-color: rgb(200, 200, 200);
+}
+
+.chat:nth-child(odd) .chat-message.say,
+.chat:nth-child(odd) .chat-message.me
+{
+    background-color: rgb(217, 217, 217);
+}
+
+.chat .chat-message.me.from-bot .message {
+    color: #7878ff;
+}
+
+.chat .chat-message.me.from-user .message {
+    color: #8b0000;
+}
+
+.chat .chat-message.me .separator {
+    display: none;
+}
+
+.chat .chat-message.whisper {
+    background-color: #E8D6FF;
+}
+
+.chat.border {
+    border-color: rgb(180, 180, 180);
+    border-width: 0.666667px;
+    border-style: solid;
+    width: 341px;
+}
+
+.timestamp {
+    color: rgb(140, 140, 140);
+    margin-right: 5px;
+}
+
+.chat .user {
+    color: #8b0000;
+    font-weight: 700;
+}
+
+.chat .bot {
+    color: #7878ff;
+    font-weight: 700;
+}
+
+.chat .svg {
+    height: 10px;
+    width: 16px;
+}
+
+.examples .description {
+    font-style: italic;
+    margin-bottom: 0.75em;
+    margin-top: -0.75em;
 }

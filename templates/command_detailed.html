@@ -1,10 +1,36 @@
 {% extends "layout.html" %}
 {% set active_page = 'commands' %}
-{% block title %}Command{% endblock %}
+{% block title %}Command details{% endblock %}
 {% block body %}
-<p>Detailed view of command</p>
-<p class="pemote">TODO: expand this Kappa</p>
-<p>{{ command.id }}</p>
-<p>{{ command.main_alias }}</p>
-<p>{{ command.parsed_description }}</p>
+<h3>Command details</h3>
+{% include 'helper/command_table.html' %}
+{% if examples|length > 0 %}
+<div class="ui styled accordion examples">
+    {% set index = 1 %}
+    {% for example in examples -%}
+    <div class="title{{ ' active' if index == 1 else '' }}">
+        <i class="dropdown icon"></i>{{ example.title }}
+    </div>
+    <div class="content{{ ' active' if index == 1 else '' }}">
+        {% if example.description|length > 0 %}
+        <div class="description pemote">{{ example.description }}</div>
+        {% endif %}
+        {% for chat_message in example.chat_messages -%}
+        {% include 'helper/command_chat_message.html' %}
+        {%- endfor %}
+    </div>
+    {% set index = index + 1 %}
+    {%- endfor %}
+</div>
+{% endif %}
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.ui.accordion').accordion({
+        duration: 200,
+        collapsible: false
+    });
+});
+</script>
 {% endblock %}

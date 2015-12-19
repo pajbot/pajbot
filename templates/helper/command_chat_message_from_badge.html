@@ -1,0 +1,3 @@
+{% if chat_message.source.from == 'bot' %}<div class="pui badge bot"></div>
+{% elif command.level > 100 and command.level < 420 %}<div class="pui badge turbo"></div>&nbsp;{% elif command.level >= 420 and command.level < 500 %}<div class="pui badge helper"></div>&nbsp;{% elif command.mod_only or (command.level >= 500 and command.level < 750) %}<div class="pui badge moderator"></div>&nbsp;{% elif command.level >= 750 and command.level < 1000 %}<div class="pui badge globalmod"></div>&nbsp;{% elif command.level == 1000 %}<div class="pui badge broadcaster"></div>&nbsp;{% elif command.level > 1000 %}<div class="pui badge staff"></div>&nbsp;
+{% endif %}

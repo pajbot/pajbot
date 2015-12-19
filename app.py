@@ -17,6 +17,7 @@ from tyggbot.web.models import errors
 from tyggbot.models.db import DBManager
 from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
 from tyggbot.models.deck import Deck
+from tyggbot.models.command import CommandExample
 from tyggbot.models.user import User
 from tyggbot.models.duel import UserDuelStats
 from tyggbot.models.stream import Stream, StreamChunkHighlight
@@ -157,7 +158,7 @@ def nocache(view):
 def update_commands(signal_id):
     global bot_commands_list
     from tyggbot.models.command import CommandManager
-    bot_commands = CommandManager(None).load()
+    bot_commands = CommandManager(None).load(load_examples=True)
     bot_commands_list = bot_commands.parse_for_web()
 
     bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
@@ -220,7 +221,9 @@ def command_detailed(raw_command_string):
         # XXX: Is it proper to have it return a 404 code as well?
         return render_template('command_404.html')
 
-    return render_template('command_detailed.html', command=command)
+    examples = command.autogenerate_examples()
+
+    return render_template('command_detailed.html', command=command, examples=examples)
 
 @app.route('/decks/')
 def decks():
