@@ -405,30 +405,75 @@ class CommandManager(UserDict):
         self.internal_commands['reload'] = Command.dispatch_command('reload',
                 level=1000,
                 description='Reload a bunch of data from the database')
+
         self.internal_commands['commit'] = Command.dispatch_command('commit',
                 level=1000,
                 description='Commit data from the bot to the database')
+
         self.internal_commands['quit'] = Command.tyggbot_command(self.bot, 'quit',
                 level=1000,
                 description='Shut down the bot, this will most definitely restart it if set up properly')
+
         self.internal_commands['ignore'] = Command.dispatch_command('ignore',
                 level=1000,
-                description='Ignore a user, which means he can\'t run any commands')
+                description='Ignore a user, which means he can\'t run any commands',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!ignore Karl_Kons\n'
+                        'bot>user:Now ignoring Karl_Kons',
+                        description='Ignore user Karl_Kons').parse(),
+                    ])
+
         self.internal_commands['unignore'] = Command.dispatch_command('unignore',
                 level=1000,
-                description='Unignore a user')
+                description='Unignore a user',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!unignore Karl_Kons\n'
+                        'bot>user:No longer ignoring Karl_Kons',
+                        description='Unignore user Karl_Kons').parse(),
+                    ])
+
         self.internal_commands['permaban'] = Command.dispatch_command('permaban',
                 level=1000,
-                description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again')
+                description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!permaban Karl_Kons\n'
+                        'bot>user:Karl_Kons has now been permabanned',
+                        description='Permanently ban Karl_Kons from the chat').parse(),
+                    ])
+
         self.internal_commands['unpermaban'] = Command.dispatch_command('unpermaban',
                 level=1000,
-                description='Remove a permanent ban from a user')
+                description='Remove a permanent ban from a user',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!unpermaban Karl_Kons\n'
+                        'bot>user:Karl_Kons is no longer permabanned',
+                        description='Remove permanent ban from Karl_Kons').parse(),
+                    ])
+
         self.internal_commands['twitterfollow'] = Command.dispatch_command('twitter_follow',
                 level=1000,
-                description='Start listening for tweets for the given user')
+                description='Start listening for tweets for the given user',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!twitterfollow forsensc2\n'
+                        'bot>user:Now following ForsenSC2',
+                        description='Follow ForsenSC2 on twitter so new tweets are output in chat.').parse(),
+                    ])
+
         self.internal_commands['twitterunfollow'] = Command.dispatch_command('twitter_unfollow',
                 level=1000,
-                description='Stop listening for tweets for the given user')
+                description='Stop listening for tweets for the given user',
+                examples=[
+                    CommandExample(None, 'Default usage',
+                        chat='user:!twitterunfollow forsensc2\n'
+                        'bot>user:No longer following ForsenSC2',
+                        description='Stop automatically printing tweets from ForsenSC2').parse(),
+                    ])
+
         self.internal_commands['add'] = Command.multiaction_command(
                 level=100,
                 delay_all=0,
@@ -438,10 +483,34 @@ class CommandManager(UserDict):
                 commands={
                     'command': Command.dispatch_command('add_command',
                         level=500,
-                        description='Add a command!'),
+                        description='Add a command!',
+                        examples=[
+                            CommandExample(None, 'Create a normal command',
+                                chat='user:!add command test Kappa 123\n'
+                                'bot>user:Added your command (ID: 7)',
+                                description='This creates a normal command with the trigger !test which outputs Kappa 123 to chat').parse(),
+                            CommandExample(None, 'Create a command that responds with a whisper',
+                                chat='user:!add command test Kappa 123 --whisper\n'
+                                'bot>user:Added your command (ID: 7)',
+                                description='This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command').parse(),
+                            ]),
                     'banphrase': Command.dispatch_command('add_banphrase',
                         level=500,
-                        description='Add a banphrase!'),
+                        description='Add a banphrase!',
+                        examples=[
+                            CommandExample(None, 'Create a banphrase',
+                                chat='user:!add banphrase testman123\n'
+                                'bot>user:Inserted your banphrase (ID: 83)',
+                                description='This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn\'t have said').parse(),
+                            CommandExample(None, 'Create a banphrase that permabans people',
+                                chat='user:!add banphrase testman123 --perma\n'
+                                'bot>user:Inserted your banphrase (ID: 83)',
+                                description='This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn\'t have said').parse(),
+                            CommandExample(None, 'Create a banphrase that permabans people without a notification',
+                                chat='user:!add banphrase testman123 --perma --no-notify\n'
+                                'bot>user:Inserted your banphrase (ID: 83)',
+                                description='This creates a banphrase that permabans the user who types testman123 in chat').parse(),
+                            ]),
                     'win': Command.dispatch_command('add_win',
                         level=500,
                         description='Add a win to something!'),
@@ -450,7 +519,17 @@ class CommandManager(UserDict):
                         description='Add a command that uses a command'),
                     'alias': Command.dispatch_command('add_alias',
                         level=500,
-                        description='Adds an alias to an already existing command'),
+                        description='Adds an alias to an already existing command',
+                        examples=[
+                            CommandExample(None, 'Add an alias to a command',
+                                chat='user:!add alias test alsotest\n'
+                                'bot>user:Successfully added the aliases alsotest to test',
+                                description='Adds the alias !alsotest to the existing command !test').parse(),
+                            CommandExample(None, 'Add multiple aliases to a command',
+                                chat='user:!add alias test alsotest newtest test123\n'
+                                'bot>user:Successfully added the aliases alsotest, newtest, test123 to test',
+                                description='Adds the aliases !alsotest, !newtest, and !test123 to the existing command !test').parse(),
+                            ]),
                     'link': Command.multiaction_command(
                         level=500,
                         delay_all=0,
@@ -508,6 +587,19 @@ class CommandManager(UserDict):
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
                         description='Removes an highlight with the given ID.'),
+                    'deck': Command.dispatch_command('remove_deck',
+                        level=420,
+                        description='Removes an highlight with the given ID.',
+                        examples=[
+                            CommandExample(None, 'Remove a deck by ID',
+                                chat='user:!remove deck 123\n'
+                                'bot>user:Successfully removed the deck.',
+                                description='The ID in this case is 123').parse(),
+                            CommandExample(None, 'Remove a deck by URL',
+                                chat='user:!remove deck http://i.imgur.com/rInqJv0.png\n'
+                                'bot>user:Successfully removed the deck.',
+                                description='The URL in this case is http://i.imgur.com/rInqJv0.png').parse(),
+                            ]),
                     })
         self.internal_commands['rem'] = self.internal_commands['remove']
         self.internal_commands['del'] = self.internal_commands['remove']
@@ -531,6 +623,53 @@ class CommandManager(UserDict):
         self.internal_commands['eval'] = Command.dispatch_command('eval',
                 level=2000,
                 description='Run a raw python command. Debug mode only')
+
+        self.internal_commands['set'] = Command.multiaction_command(
+                level=100,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                command='set',
+                commands={
+                    'deck': Command.dispatch_command('set_deck',
+                        level=420,
+                        description='Sets the deck that is currently playing.',
+                        examples=[
+                            CommandExample(None, 'Add a new deck',
+                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
+                                'bot>user:This deck is a new deck. Its ID is 32',
+                                description='This is the output if you set a deck which hasn\'t been set before.').parse(),
+                            CommandExample(None, 'Set a pre-existing deck',
+                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
+                                'bot>user:Updated an already-existing deck. Its ID is 32',
+                                description='This is the output if you set a deck which was added previously.').parse(),
+                            ]),
+                    })
+
+        self.internal_commands['update'] = Command.multiaction_command(
+                level=100,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                command='update',
+                commands={
+                    'deck': Command.dispatch_command('update_deck',
+                        level=420,
+                        description='Updates an already-existing deck.',
+                        examples=[
+                            CommandExample(None, 'Set the name and class of the current deck',
+                                chat='user:!update deck --name Midrange Secret --class paladin\n'
+                                'bot>user:Updated deck with ID 32. Updated name, class').parse(),
+                            CommandExample(None, 'Updates the link of the current deck',
+                                chat='user:!update deck --link http://i.imgur.com/QEVwrVV.png\n'
+                                'bot>user:Updated deck with ID 32. Updated link',
+                                description='Changes the link of the current deck. This could be used if you want to reupload the screenshot to imgur or something.').parse(),
+                            CommandExample(None, 'Set the name and class of an old deck',
+                                chat='user:!update deck --id 12 --name Aggro --class hunter\n'
+                                'bot>user:Updated deck with ID 12. Updated name, class',
+                                description='Updates the name and class of an old deck. Useful for whenever you need to clean up old decks.').parse(),
+                            ]),
+                    })
 
         return self.internal_commands
 
