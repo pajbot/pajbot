@@ -725,11 +725,19 @@ class CommandManager(UserDict):
 
         return len(aliases)
 
-    def load(self):
+    def _load_enabled_commands(self, load_examples=False):
+        if load_examples is False:
+            for command in self.db_session.query(Command).filter_by(enabled=True):
+                yield command
+        else:
+            for command in self.db_session.query(Command).options(joinedload(Command.examples)).filter_by(enabled=True):
+                yield command
+
+    def load(self, **options):
         self.get_internal_commands()
         self.data = self.internal_commands
 
-        for command in self.db_session.query(Command).filter_by(enabled=True):
+        for command in self._load_enabled_commands(**options):
             self.add_command_aliases(command)
             self.db_session.expunge(command)
             if command.data is None:
