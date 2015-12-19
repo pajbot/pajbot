@@ -11,8 +11,8 @@ from tyggbot.models.db import DBManager, Base
 from tyggbot.models.action import ActionParser, RawFuncAction, FuncAction
 
 from sqlalchemy import orm
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
 from sqlalchemy.dialects.mysql import TEXT
 
 log = logging.getLogger('tyggbot')
@@ -81,6 +81,50 @@ class CommandData(Base):
         self.num_uses = options.get('num_uses', 0)
 
 
+class CommandExample(Base):
+    __tablename__ = 'tb_command_example'
+
+    id = Column(Integer, primary_key=True)
+    command_id = Column(Integer, ForeignKey('tb_command.id'), nullable=False)
+    title = Column(String(256), nullable=False)
+    chat = Column(TEXT, nullable=False)
+    description = Column(String(512), nullable=False)
+
+    def __init__(self, command_id, title, chat='', description=''):
+        self.id = None
+        self.command_id = command_id
+        self.title = title
+        self.chat = chat
+        self.description = description
+        self.chat_messages = []
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self.parse()
+
+    def add_chat_message(self, type, message, user_from, user_to=None):
+        chat_message = {
+                'source': {
+                    'type': type,
+                    'from': user_from,
+                    'to': user_to
+                    },
+                'message': message
+                }
+        self.chat_messages.append(chat_message)
+
+    def parse(self):
+        self.chat_messages = []
+        for line in self.chat.split('\n'):
+            users, message = line.split(':', 1)
+            if '>' in users:
+                user_from, user_to = users.split('>', 1)
+                self.add_chat_message('whisper', message, user_from, user_to=user_to)
+            else:
+                self.add_chat_message('say', message, users)
+        return self
+
+
 class Command(Base):
     __tablename__ = 'tb_command'
 
@@ -102,6 +146,10 @@ class Command(Base):
             uselist=False,
             cascade='',
             lazy='joined')
+    examples = relationship('CommandExample',
+            uselist=True,
+            cascade='',
+            lazy='noload')
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
@@ -160,6 +208,7 @@ class Command(Base):
         self.can_execute_with_whisper = options.get('can_execute_with_whisper', self.can_execute_with_whisper)
         self.sub_only = options.get('sub_only', self.sub_only)
         self.mod_only = options.get('mod_only', self.mod_only)
+        self.examples = options.get('examples', self.examples)
 
     @orm.reconstructor
     def init_on_load(self):
@@ -265,6 +314,31 @@ class Command(Base):
                     return False
             self.last_run = cur_time
             self.last_run_by_user[source.username] = cur_time
+
+    def autogenerate_examples(self):
+        if len(self.examples) == 0 and self.id is not None and self.action.type == 'message':
+            examples = []
+            if self.can_execute_with_whisper is True:
+                example = CommandExample(self.id, 'Default usage through whisper')
+                subtype = self.action.subtype if self.action.subtype is not 'reply' else 'say'
+                example.add_chat_message('whisper', self.main_alias, 'user', 'bot')
+                if subtype == 'say' or subtype == 'me':
+                    example.add_chat_message(subtype, self.action.response, 'bot')
+                    examples.append(example)
+                elif subtype == 'whisper':
+                    example.add_chat_message(subtype, self.action.response, 'bot', 'user')
+                examples.append(example)
+
+            example = CommandExample(self.id, 'Default usage')
+            subtype = self.action.subtype if self.action.subtype is not 'reply' else 'say'
+            example.add_chat_message('say', self.main_alias, 'user')
+            if subtype == 'say' or subtype == 'me':
+                example.add_chat_message(subtype, self.action.response, 'bot')
+            elif subtype == 'whisper':
+                example.add_chat_message(subtype, self.action.response, 'bot', 'user')
+            examples.append(example)
+            return examples
+        return self.examples
 
 
 class CommandManager(UserDict):
