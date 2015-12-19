@@ -855,7 +855,7 @@ class TyggBot:
     def quit(self):
         self.commit_all()
         if self.phrases['quit']:
-            phraese_data = {
+            phrase_data = {
                     'nickname': self.nickname,
                     'version': self.version,
                     }
