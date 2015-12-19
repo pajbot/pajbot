@@ -9,6 +9,8 @@ import math
 import logging
 import subprocess
 import datetime
+import urllib
+from PIL import Image
 
 from tyggbot.tyggbot import TyggBot
 from tyggbot.web.models import api
@@ -84,20 +86,27 @@ if 'secret_key' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'secret_key', salt.decode('utf-8'))
 
-logo = ''
 if 'logo' not in config['web']:
     twitchapi = TwitchAPI()
     try:
         data = twitchapi.get(['users', config['main']['streamer']], base='https://api.twitch.tv/kraken/')
         log.info(data)
         if data:
-            logo = data['logo'].replace('http:', '')
-            config.set('web', 'logo', logo)
-            log.info('setting logo')
+            logo_raw = 'static/images/logo_{}.png'.format(config['main']['streamer'])
+            logo_tn = 'static/images/logo_{}_tn.png'.format(config['main']['streamer'])
+            with urllib.request.urlopen(data['logo']) as response, open(logo_raw, 'wb') as out_file:
+                data = response.read()
+                out_file.write(data)
+                try:
+                    im = Image.open(logo_raw)
+                    im.thumbnail((64, 64), Image.ANTIALIAS)
+                    im.save(logo_tn, 'png')
+                except:
+                    log.exception('asd')
+            config.set('web', 'logo', 'set')
+            log.info('set logo')
     except:
         pass
-else:
-    logo = config['web']['logo']
 
 with open(args.config, 'w') as configfile:
     config.write(configfile)
@@ -666,7 +675,6 @@ default_variables = {
         'current_time': datetime.datetime.now(),
         'request': request,
         'session': session,
-        'logo': logo,
         }
 
 if 'streamtip' in config:

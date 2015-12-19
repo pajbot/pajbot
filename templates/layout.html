@@ -21,7 +21,7 @@
         {% for href, id, caption in nav_bar_header %}
         <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">
             {% if id == 'home' %}
-            <img class="logo" src="{{ logo }}" alt="Streamer Logo"/>
+            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
             {{ caption }}</a>
         {% endfor %}

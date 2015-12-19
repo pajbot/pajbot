@@ -35,3 +35,6 @@ apscheduler
 # Required for the pleblist to work properly
 google-api-python-client
 isodate
+
+# Required for generating thumbnails for the logo
+Pillow
