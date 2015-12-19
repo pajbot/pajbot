@@ -685,7 +685,8 @@ def time_diff(t1, t2, format='long'):
 
 @app.template_filter('time_ago_timespan_seconds')
 def time_ago_timespan_seconds(t, format='long'):
-    return time_since(t, 0, format)
+    v = time_since(t, 0, format)
+    return 'None' if len(v) == 0 else v
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
