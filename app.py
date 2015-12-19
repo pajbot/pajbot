@@ -629,6 +629,7 @@ nav_bar_admin_header.append(('/admin/links/whitelist/', 'admin_links_whitelist',
 
 version = TyggBot.version
 last_commit = ''
+commit_number = 0
 try:
     current_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf8').strip()
     latest_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf8').strip()[:8]
@@ -642,6 +643,7 @@ except:
 default_variables = {
         'version': version,
         'last_commit': last_commit,
+        'commit_number': commit_number,
         'bot': {
             'name': config['main']['nickname'],
             },

@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
-    <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
-    <meta charset="utf-8">
+<title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
+<meta charset="utf-8">
+<style>
+.pui.badge.subscriber {
+    background-image: url('/static/images/badge_sub_{{ streamer.full_name }}.png');
+    background-size: 100%;
+}
+</style>
 <link rel="stylesheet" type="text/css" href="/static/semantic/semantic.min.css">
-<link rel="stylesheet" type="text/css" href="/static/css/base.css">
-<link rel="stylesheet" type="text/css" href="/static/css/{{ streamer.full_name }}.css">
+<link rel="stylesheet" type="text/css" href="/static/css/base.css?{{ commit_number }}">
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.css">
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.date.css">
 </head>
