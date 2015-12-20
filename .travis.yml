@@ -9,4 +9,4 @@ install:
   - pip install -r pip-requirements.txt --use-mirrors
 
 script:
-  - ./tests/tests.py
+  - cd tests && ./tests.py
