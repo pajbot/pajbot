@@ -324,7 +324,6 @@ class Command(Base):
                 example.add_chat_message('whisper', self.main_alias, 'user', 'bot')
                 if subtype == 'say' or subtype == 'me':
                     example.add_chat_message(subtype, self.action.response, 'bot')
-                    examples.append(example)
                 elif subtype == 'whisper':
                     example.add_chat_message(subtype, self.action.response, 'bot', 'user')
                 examples.append(example)
