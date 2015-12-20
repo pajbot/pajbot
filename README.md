@@ -1,4 +1,5 @@
-# tyggbot
+# tyggbot 
+[![Build Status](https://travis-ci.org/pajlada/tyggbot.svg?branch=master)](https://travis-ci.org/pajlada/tyggbot)
 
 tyggbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).  
 Examples of twitch channels where the bot is run:
@@ -15,6 +16,7 @@ Examples of twitch channels where the bot is run:
 | wowsobot | [imaqtpie](http://twitch.tv/imaqtpie) | [pajlada](http://twitch.tv/pajlada) |
 | niconicobot | [eloise_ailv](http://twitch.tv/eloise_ailv) | [pajlada](http://twitch.tv/pajlada) |
 | reipbot | [naniheichou](http://twitch.tv/naniheichou) | [pajlada](http://twitch.tv/pajlada) |
+
 
 ## Quick install
 
