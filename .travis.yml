@@ -1,0 +1,12 @@
+# Travis CI checks for tyggbot
+
+language: python
+
+python:
+  - 3.4
+
+install:
+  - pip install -r pip-requirements.txt --use-mirrors
+
+script:
+  - ./tests/tests.py
