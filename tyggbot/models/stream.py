@@ -89,7 +89,7 @@ class StreamChunkHighlight(Base):
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
     override_link = Column(String(256), nullable=True)
-    thumbnail = Column(Boolean, nullable=False, default=False)
+    thumbnail = Column(Boolean, nullable=True, default=None)
     video_url = None
 
     DEFAULT_OFFSET = 0
@@ -100,6 +100,7 @@ class StreamChunkHighlight(Base):
         self.highlight_offset = options.get('offset', self.DEFAULT_OFFSET)
         self.description = options.get('description', None)
         self.override_link = options.get('override_link', None)
+        self.thumbnail = None
 
         self.stream_chunk = stream_chunk
         self.refresh_video_url()
