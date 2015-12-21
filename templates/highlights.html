@@ -19,9 +19,7 @@
 $(document).ready(function() {
     var disabled_dates = [
         true,
-{% for enabled_date in dates_with_highlights %}
-[{{ enabled_date.year }},{{ enabled_date.month - 1 }},{{ enabled_date.day}}],
-{% endfor %}
+{%- for enabled_date in dates_with_highlights %}[{{ enabled_date.year }},{{ enabled_date.month - 1 }},{{ enabled_date.day}}],{% endfor -%}
     ];
     create_picker('#calendar', disabled_dates);
 });
