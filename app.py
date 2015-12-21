@@ -10,7 +10,6 @@ import logging
 import subprocess
 import datetime
 import urllib
-from PIL import Image
 
 from tyggbot.tyggbot import TyggBot
 from tyggbot.web.models import api
@@ -93,11 +92,12 @@ if 'logo' not in config['web']:
                 data = response.read()
                 out_file.write(data)
                 try:
+                    from PIL import Image
                     im = Image.open(logo_raw)
                     im.thumbnail((64, 64), Image.ANTIALIAS)
                     im.save(logo_tn, 'png')
                 except:
-                    log.exception('asd')
+                    pass
             config.set('web', 'logo', 'set')
             log.info('set logo')
     except:
