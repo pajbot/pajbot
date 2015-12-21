@@ -6,7 +6,6 @@ import urllib
 import logging
 
 import requests
-import m3u8
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +36,7 @@ class StreamThumbnailWriter:
         return token, sig
 
     def get_live_stream(self):
+        import m3u8
         token, sig = self.get_token_and_signature()
         r = random.randint(0, 1E7)
         url = USHER_API.format(channel=self.streamer, sig=sig, token=token, random=r)

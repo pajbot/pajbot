@@ -5,12 +5,9 @@ import datetime
 from tyggbot.models.db import DBManager, Base
 from tyggbot.models.time import TimeManager
 
-import isodate
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
-from apiclient.discovery import build
-from apiclient.errors import HttpError
 
 log = logging.getLogger('tyggbot')
 
@@ -75,9 +72,13 @@ class PleblistManager:
 
     def init(developer_key):
         if PleblistManager.youtube is None:
+            from apiclient.discovery import build
             PleblistManager.youtube = build('youtube', 'v3', developerKey=developer_key)
 
     def create_pleblist_song_info(youtube_id):
+        import isodate
+        from apiclient.errors import HttpError
+
         if PleblistManager.youtube is None:
             log.warning('youtube was not initialized')
             return False

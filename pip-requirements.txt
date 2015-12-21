@@ -10,34 +10,32 @@ git+git://github.com/pajlada/tweepy.git
 # The IRC Library we use to connect to the chat servers
 irc
 
-wolframalpha
 colorama
 pytz
-autobahn[twisted]
 beautifulsoup4
 requests
+
+# New regex library with support for some fancy features we require
 regex
+
+# Required for websockets
+# autobahn[twisted]
+
+# Required if we want to use the wolfram api
+# wolframalpha
 
 # MySQL for python3
 pymysql
 
-# needed for the web interface
-flask
-flask-scrypt
-flask-oauthlib
-markdown
-apscheduler
+# Required for the basic features of the web interface
+# -r requirements/web.txt
 
-# if you want to use the websocket
+# Required for Websocket
 #pyOpenSSL
 #service_identity
 
 # Required for the pleblist to work properly
-google-api-python-client
-isodate
+# -r requirements/pleblist.txt
 
 # Required for generating thumbnails for the logo
-Pillow
-
-# Required for generating highlight thumbnails
-m3u8
+# -r requirements/thumbnail.txt
