@@ -119,11 +119,13 @@ class TyggBot:
             self.channel = config['main']['target']
             self.streamer = self.channel[1:]
 
-        if 'wolfram' in config['main']:
-            import wolframalpha
-            self.wolfram = wolframalpha.Client(config['main']['wolfram'])
-        else:
-            self.wolfram = None
+        self.wolfram = None
+        try:
+            if 'wolfram' in config['main']:
+                import wolframalpha
+                self.wolfram = wolframalpha.Client(config['main']['wolfram'])
+        except:
+            pass
 
         self.silent = False
         self.dev = False
