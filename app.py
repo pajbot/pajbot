@@ -32,7 +32,6 @@ from tyggbot.tbutil import time_since
 from tyggbot.tbutil import find
 
 import markdown
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from flask import request
 from flask import render_template
@@ -50,10 +49,6 @@ from sqlalchemy import func, cast, Date
 
 init_logging('tyggbot')
 log = logging.getLogger('tyggbot')
-
-cron = BackgroundScheduler(daemon=True)
-
-cron.start()
 
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
@@ -189,7 +184,7 @@ try:
             highlights = db_session.query(StreamChunkHighlight).filter_by(thumbnail=None).all()
             if len(highlights) > 0:
                 log.info('Writing {} thumbnails...'.format(len(highlights)))
-                writer = StreamThumbnailWriter(config['main']['streamer'], [h.id for h in highlights])
+                StreamThumbnailWriter(config['main']['streamer'], [h.id for h in highlights])
                 log.info('Done!')
                 for highlight in highlights:
                     highlight.thumbnail = True

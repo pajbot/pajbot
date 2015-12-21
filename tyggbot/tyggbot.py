@@ -37,7 +37,6 @@ from .tbutil import time_since
 from .tbutil import time_method
 from .actions import Action, ActionQueue
 
-import wolframalpha
 from pytz import timezone
 import irc.client
 
@@ -121,6 +120,7 @@ class TyggBot:
             self.streamer = self.channel[1:]
 
         if 'wolfram' in config['main']:
+            import wolframalpha
             self.wolfram = wolframalpha.Client(config['main']['wolfram'])
         else:
             self.wolfram = None
