@@ -101,14 +101,17 @@ class BTTVEmoteManager:
         from tyggbot.apiwrappers import BTTVApi
         self.emote_manager = emote_manager
         self.bttv_api = BTTVApi()
+        self.channel_emotes = []
 
     def update_emotes(self):
         log.debug('Updating BTTV Emotes...')
-        emotes = self.bttv_api.get_global_emotes()
-        emotes += self.bttv_api.get_channel_emotes(self.emote_manager.streamer)
+        global_emotes = self.bttv_api.get_global_emotes()
+        channel_emotes = self.bttv_api.get_channel_emotes(self.emote_manager.streamer)
+
+        self.channel_emotes = [emote['code'] for emote in channel_emotes]
 
         self.emote_manager.bot.mainthread_queue.add(self._add_bttv_emotes,
-                                                    args=[emotes])
+                                                    args=[global_emotes + channel_emotes])
 
     def _add_bttv_emotes(self, emotes):
         for emote in emotes:
@@ -129,6 +132,7 @@ class EmoteManager(UserDict):
         self.custom_data = []
         self.bttv_emote_manager = BTTVEmoteManager(self)
 
+        self.bot.execute_delayed(5, self.bot.action_queue.add, (self.bttv_emote_manager.update_emotes, ))
         self.bot.execute_every(60 * 60 * 2, self.bot.action_queue.add, (self.bttv_emote_manager.update_emotes, ))
 
     def commit(self):

@@ -1369,3 +1369,9 @@ class Dispatch:
 
         # Added user to the raffle
         Dispatch.raffle_users.append(source)
+
+    def get_bttv_emotes(bot, source, message, event, args):
+        if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:
+            bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
+        else:
+            bot.say('No BTTV Emotes active in this chat')
