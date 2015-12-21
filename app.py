@@ -173,31 +173,26 @@ def update_commands(signal_id):
     bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
     del bot_commands
 
-def get_highlight_thumbnails(signal_id):
-    with DBManager.create_session_scope() as db_session:
-        for highlight in db_session.query(StreamChunkHighlight).filter_by(thumbnail=None):
-            if highlight.stream_chunk.video_preview_image_url is not None:
-                log.info('Getting thumbnail for highlight {}'.format(highlight.id))
-                image_url = highlight.stream_chunk.video_preview_image_url
-                out_path = 'static/images/highlights/{}.jpg'.format(highlight.id)
-                try:
-                    with urllib.request.urlopen(image_url) as response, open(out_path, 'wb') as out_file:
-                        data = response.read()
-                        out_file.write(data)
-                    highlight.thumbnail = True
-                    log.info('Finished getting thumbnail for highlight {}'.format(highlight.id))
-                except urllib.error.HTTPError:
-                    log.info('404d getting thumbnail for highlight {}'.format(highlight.id))
-                    highlight.thumbnail = False
 
 update_commands(26)
 try:
     import uwsgi
+    from uwsgidecorators import thread, timer
     uwsgi.register_signal(26, "worker", update_commands)
     uwsgi.add_timer(26, 60 * 10)
 
-    uwsgi.register_signal(26, "worker", get_highlight_thumbnails)
-    uwsgi.add_timer(27, 10)
+    @thread
+    @timer(5)
+    def get_highlight_thumbnails(no_clue_what_this_does):
+        from tyggbot.web.models.thumbnail import StreamThumbnailWriter
+        with DBManager.create_session_scope() as db_session:
+            highlights = db_session.query(StreamChunkHighlight).filter_by(thumbnail=None).all()
+            if len(highlights) > 0:
+                log.info('Writing {} thumbnails...'.format(len(highlights)))
+                writer = StreamThumbnailWriter(config['main']['streamer'], [h.id for h in highlights])
+                log.info('Done!')
+                for highlight in highlights:
+                    highlight.thumbnail = True
 except ImportError:
     pass
 

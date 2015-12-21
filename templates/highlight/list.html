@@ -1,6 +1,6 @@
 <div class="item">
     <div class="ui image video_thumbnail">
-        <img src="{{ '/static/images/highlights/{}.jpg'.format(highlight.id) if highlight.thumbnail else highlight.stream_chunk.video_preview_image_url }}" alt="highlight thumbnail {{ highlight.id }}" />
+        {%- include 'helper/highlight_thumbnail_img.html' -%}
     </div>
     <div class="content">
 <div class="header">

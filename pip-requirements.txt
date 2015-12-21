@@ -38,3 +38,6 @@ isodate
 
 # Required for generating thumbnails for the logo
 Pillow
+
+# Required for generating highlight thumbnails
+m3u8
