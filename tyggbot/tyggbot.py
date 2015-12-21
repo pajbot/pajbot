@@ -877,8 +877,19 @@ class TyggBot:
                 'upper': lambda var, args: var.upper(),
                 'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
                 'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
+                'time_since_dt': _filter_time_since_dt,
                 'urlencode': lambda var, args: urllib.parse.urlencode(var),
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
         return resp
+
+def _filter_time_since_dt(var, args):
+    try:
+        ts = time_since(datetime.now().timestamp(), var.timestamp())
+        if len(ts) > 0:
+            return ts
+        else:
+            return 'never FeelsBadMan'
+    except:
+        return 'never FeelsBadMan ?'
