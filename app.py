@@ -469,7 +469,7 @@ def highlights():
             day=highlight.created_at.day))
     try:
         return render_template('highlights.html',
-                highlights=highlights[:5],
+                highlights=highlights[:10],
                 dates_with_highlights=set(dates_with_highlights))
     finally:
         session.close()
