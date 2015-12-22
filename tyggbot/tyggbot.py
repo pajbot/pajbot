@@ -798,6 +798,10 @@ class TyggBot:
         log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
         self.last_pong = datetime.now()
 
+    def on_pubnotice(self, chatconn, event):
+        type = 'whisper' if chatconn in self.whisper_manager else 'normal'
+        log.debug('NOTICE {}@{}: {}'.format(type, event.target, event.arguments))
+
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
