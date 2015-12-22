@@ -217,6 +217,10 @@ div#songhistory div.item div.description {
     line-height: 1.5em;
 }
 
+#songhistory .played {
+    background-color: #ece0e0;
+}
+
 #pleblist {
     height: 100%;
 }
