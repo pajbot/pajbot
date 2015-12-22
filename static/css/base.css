@@ -208,6 +208,11 @@ div#songhistory div.item.not-played.first
     background-color: #efe;
 }
 
+#songlist .song-index {
+    float: left;
+    padding-right: 5px;
+}
+
 div#songhistory div.item div.description {
     line-height: 1.5em;
 }
