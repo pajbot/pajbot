@@ -4,12 +4,16 @@
     </div>
     <div class="content">
 <div class="header">
-    <a href="/highlights/{{ highlight.created_at|strftime('%Y-%m-%d') }}/{{ highlight.id }}" style="color: #0e407f;">
-        {% if highlight.stream_chunk.stream.title|length > 80 %}
-            {{ highlight.stream_chunk.stream.title[:80] }}...
+    <a href="/highlights/{{ highlight.created_at|strftime('%Y-%m-%d') }}/{{ highlight.id }}" style="color: #0e407f;" class="pemote">
+        {%- if highlight.description %}
+        {{ highlight.description }} 
         {% else %}
-            {{ highlight.stream_chunk.stream.title }}
-        {% endif %}
+            {% if highlight.stream_chunk.stream.title|length > 80 %}
+                {{ highlight.stream_chunk.stream.title[:80] }}...
+            {% else %}
+                {{ highlight.stream_chunk.stream.title }}
+            {% endif %}
+        {% endif -%}
         </a>
     </div>
         <div class="meta">
@@ -18,7 +22,7 @@
         <div class="description">
             <div>Link: <a href="{{ highlight.video_url }}">{{ highlight.video_url }}</a></div>
             {% if highlight.description %}
-                <p class="pemote">{{ highlight.description }}</p>
+            <p class="pemote">{{ highlight.stream_chunk.stream.title }}</p>
             {% endif %}
         </div>
     </div>
