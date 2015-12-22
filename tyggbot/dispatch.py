@@ -27,18 +27,19 @@ def init_dueling_variables(user):
     user.duel_target = False
     user.duel_price = 0
 
-def check_follow_age(bot, source, username):
-    age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
+def check_follow_age(bot, source, username, streamer):
+    streamer = bot.streamer if streamer is None else streamer.lower()
+    age = bot.twitchapi.get_follow_relationship(username, streamer)
     if source.username == username:
         if age is False:
-            bot.say('{}, you are not following {}'.format(source.username_raw, bot.streamer))
+            bot.say('{}, you are not following {}'.format(source.username_raw, streamer))
         else:
-            bot.say('{}, you have been following {} for {}'.format(source.username_raw, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+            bot.say('{}, you have been following {} for {}'.format(source.username_raw, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
     else:
         if age is False:
-            bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
+            bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
         else:
-            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
 
 
 class Dispatch:
@@ -1151,12 +1152,17 @@ class Dispatch:
 
     def follow_age(bot, source, message, event, args):
         username = source.username
+        streamer = None
         if message is not None and len(message) > 0:
-            potential_user = bot.users.find(message.split(' ')[0])
+            message_split = message.split(' ')
+            potential_user = bot.users.find(message_split[0])
             if potential_user is not None:
                 username = potential_user.username
 
-        bot.action_queue.add(check_follow_age, args=[bot, source, username])
+            if len(message_split) > 1 and message_split[1].isalnum():
+                streamer = message_split[1]
+
+        bot.action_queue.add(check_follow_age, args=[bot, source, username, streamer])
 
     def initiate_duel(bot, source, message, event, args):
         """
