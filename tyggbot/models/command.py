@@ -492,6 +492,30 @@ class CommandManager(UserDict):
                                 chat='user:!add command test Kappa 123 --whisper\n'
                                 'bot>user:Added your command (ID: 7)',
                                 description='This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command').parse(),
+                            CommandExample(None, 'Change the Global Cooldown',
+                                chat='user:!add command test --cd 10\n'
+                                'bot>user:Updated the command (ID: 29)',
+                                description='Changes the global cooldown for the command !test to 10 seconds').parse(),
+                            CommandExample(None, 'Change the User-specific Cooldown',
+                                chat='user:!add command test --usercd 30\n'
+                                'bot>user:Updated the command (ID: 29)',
+                                description='Changes the user-specific cooldown for the command !test to 30 seconds').parse(),
+                            CommandExample(None, 'Change the Level for a command',
+                                chat='user:!add command test --level 500\n'
+                                'bot>user:Updated the command (ID: 29)',
+                                description='Changes the command level for !test to level 500').parse(),
+                            CommandExample(None, 'Change the Cost for a command',
+                                chat='user:!add command $test1 --cost 50\n'
+                                'bot>user:Updated the command (ID: 27)',
+                                description='Changes the command cost for !$test1 to 50 points, you should always use a $ for a command that cost points.').parse(),
+                            CommandExample(None, 'Change a command to Moderator only',
+                                chat='user:!add command test --modonly\n'
+                                'bot>user:Updated the command (ID: 29)',
+                                description='This command can only be used for user with level 100 and Moderator status or user over level 500').parse(),
+                            CommandExample(None, 'Remove Moderator only from a command',
+                                chat='user:!add command test --no-modonly\n'
+                                'bot>user:Updated the command (ID: 29)',
+                                description='This command can be used for normal users again.').parse(),
                             ]),
                     'banphrase': Command.dispatch_command('add_banphrase',
                         level=500,
@@ -509,6 +533,10 @@ class CommandManager(UserDict):
                                 chat='user:!add banphrase testman123 --perma --no-notify\n'
                                 'bot>user:Inserted your banphrase (ID: 83)',
                                 description='This creates a banphrase that permabans the user who types testman123 in chat').parse(),
+                            CommandExample(None, 'Change the default timeout length for a banphrase',
+                                chat='user:!add banphrase testman123 --time 123\n'
+                                'bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)',
+                                description='Changes the default timeout length to a custom time of 123 seconds').parse(),
                             ]),
                     'win': Command.dispatch_command('add_win',
                         level=500,
@@ -537,16 +565,59 @@ class CommandManager(UserDict):
                         commands={
                             'blacklist': Command.dispatch_command('add_link_blacklist',
                                 level=500,
-                                description='Blacklist a link'),
+                                description='Blacklist a link',
+                                examples=[
+                                    CommandExample(None, 'Add a link to the blacklist for shallow search',
+                                        chat='user:!add link blacklist 0 scamlink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link scamlink.lonk/ to the blacklist for a shallow search').parse(),
+                                    CommandExample(None, 'Add a link to the blacklist for deep search',
+                                        chat='user:!add link blacklist 1 scamlink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link scamlink.lonk/ to the blacklist for a deep search').parse(),
+                                    ]),
                             'whitelist': Command.dispatch_command('add_link_whitelist',
                                 level=500,
-                                description='Whitelist a link'),
+                                description='Whitelist a link',
+                                examples=[
+                                    CommandExample(None, 'Add a link to the whitelist',
+                                        chat='user:!add link whitelink safelink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link safelink.lonk/ to the whitelist').parse(),
+                                    ]),
                             }
                         ),
                     'highlight': Command.dispatch_command('add_highlight',
                         level=100,
                         mod_only=True,
-                        description='Creates an highlight at the current timestamp'),
+                        description='Creates a highlight at the current timestamp',
+                        examples=[
+                            CommandExample(None, 'Create a highlight',
+                                chat='user:!add highlight 1v5 Pentakill\n'
+                                'bot>user:Successfully created your highlight',
+                                description='Creates a highlight with the description 1v5 Pentakill').parse(),
+                            CommandExample(None, 'Create a highlight with a different offset',
+                                chat='user:!add highlight 1v5 Pentakill --offset 60\n'
+                                'bot>user:Successfully created your highlight',
+                                description='Creates a highlight with the description 1v5 Pentakill and an offset of 60 seconds.').parse(),
+                            CommandExample(None, 'Change the offset with the given ID.',
+                                chat='user:!add highlight --offset 180 --id 12\n'
+                                'bot>user:Successfully updated your highlight (offset)',
+                                description='Changes the offset to 180 seconds for the highlight ID 12').parse(),
+                            CommandExample(None, 'Change the description with the given ID.',
+                                chat='user:!add highlight 1v5 Pentakill PogChamp VAC --id 12\n'
+                                'bot>user:Successfully updated your highlight (description)',
+                                description='Changes the description to \'1v5 Pentakill PogChamp VAC\' for highlight ID 12.').parse(),
+                            CommandExample(None, 'Change the VOD link to a mirror link.',
+                                chat='user:!add highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n' # TODO turn off autolink
+                                'bot>user:Successfully updated your highlight (override_link)',
+                                description='Changes the link for highlight ID 12 to http://www.twitch.tv/imaqtpie/v/27878606').parse(),
+                            CommandExample(None, 'Change the mirror link back to the VOD link.',
+                                chat='user:!add highlight --id 12 --no-link\n'
+                                'bot>user:Successfully updated your highlight (override_link)',
+                                description='Changes the link for highlight ID 12 back to the twitch VOD link.').parse(),
+                            ]),
+
                     })
         self.internal_commands['edit'] = self.internal_commands['add']
         self.internal_commands['remove'] = Command.multiaction_command(
@@ -558,16 +629,42 @@ class CommandManager(UserDict):
                 commands={
                     'command': Command.dispatch_command('remove_command',
                         level=500,
-                        description='Remove a command!'),
+                        description='Remove a command!',
+                        examples=[
+                            CommandExample(None, 'Remove a command',
+                                chat='user:!remove command Keepo123\n'
+                                'bot>user:Successfully removed command with id 27',
+                                description='Removes a command with the trigger !Keepo123').parse(),
+                            CommandExample(None, 'Remove a command with the given ID.',
+                                chat='user:!remove command 28\n'
+                                'bot>user:Successfully removed command with id 28',
+                                description='Removes a command with id 28').parse(),
+                            ]),
                     'banphrase': Command.dispatch_command('remove_banphrase',
                         level=500,
-                        description='Remove a banphrase!'),
+                        description='Remove a banphrase!',
+                        examples=[
+                            CommandExample(None, 'Remove a banphrase',
+                                chat='user:!remove banphrase KeepoKeepo\n'
+                                'bot>user:Successfully removed banphrase with id 33',
+                                description='Removes a banphrase with the trigger KeepoKeepo.').parse(),
+                            CommandExample(None, 'Remove a banphrase with the given ID.',
+                                chat='user:!remove banphrase 25\n'
+                                'bot>user:Successfully removed banphrase with id 25',
+                                description='Removes a banphrase with id 25').parse(),
+                            ]),
                     'win': Command.dispatch_command('remove_win',
                         level=500,
                         description='Remove a win to something!'),
                     'alias': Command.dispatch_command('remove_alias',
                         level=500,
-                        description='Removes an alias to an already existing command'),
+                        description='Removes an alias to an already existing command',
+                        examples=[
+                            CommandExample(None, 'Remove two aliases',
+                                chat='user:!remove alias KeepoKeepo Keepo2Keepo\n'
+                                'bot>user:Successfully removed 2 aliases.',
+                                description='Removes KeepoKeepo and Keepo2Keepo as aliases').parse(),
+                            ]),
                     'link': Command.multiaction_command(
                         level=500,
                         delay_all=0,
@@ -576,19 +673,37 @@ class CommandManager(UserDict):
                         commands={
                             'blacklist': Command.dispatch_command('remove_link_blacklist',
                                 level=500,
-                                description='Unblacklist a link'),
+                                description='Unblacklist a link',
+                                examples=[
+                                    CommandExample(None, 'Remove a blacklist link',
+                                        chat='user:!remove link blacklist scamtwitch.scam\n'
+                                        'bot>user:Successfully removed your links',
+                                        description='Removes scamtwitch.scam as a blacklisted link').parse(),
+                                    ]),
                             'whitelist': Command.dispatch_command('remove_link_whitelist',
                                 level=500,
-                                description='Unwhitelist a link'),
+                                description='Unwhitelist a link',
+                                examples=[
+                                    CommandExample(None, 'Remove a whitelist link',
+                                        chat='user:!remove link whitelist twitch.safe\n'
+                                        'bot>user:Successfully removed your links',
+                                        description='Removes twitch.safe as a whitelisted link').parse(),
+                                    ]),
                             }
                         ),
                     'highlight': Command.dispatch_command('remove_highlight',
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
-                        description='Removes an highlight with the given ID.'),
+                        description='Removes a highlight with the given ID.',
+                        examples=[
+                            CommandExample(None, 'Remove a highlight',
+                                chat='user:!remove highlight 2\n'
+                                'bot>user:Successfully removed highlight with ID 2.',
+                                description='Removes the highlight ID 2').parse(),
+                            ]),
                     'deck': Command.dispatch_command('remove_deck',
                         level=420,
-                        description='Removes an highlight with the given ID.',
+                        description='Removes a deck with the given ID.',
                         examples=[
                             CommandExample(None, 'Remove a deck by ID',
                                 chat='user:!remove deck 123\n'
