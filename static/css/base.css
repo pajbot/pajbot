@@ -205,7 +205,7 @@ div.mediumtable {
 div#songlist div.item:first-child,
 div#songhistory div.item.not-played.first
 {
-    background-color: #efe;
+    background-color: #deffde;
 }
 
 #songlist .song-index {
