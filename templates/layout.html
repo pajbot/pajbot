@@ -45,44 +45,42 @@
 <main class="main container">
     {% block body %}{% endblock %}
 </main>
+<br />
 <footer class="main footer">
-    <div class="ui black inverted vertical footer segment" style="padding: 1.2em 2em;">
-        <div class="ui two column centered grid centered">
-            <div class="four column centered row">
-                <div class="column">
-                    <h4 class="ui inverted header">Community</h4>
-                    <div class="ui inverted link list">
-                        <a class="item" href="https://github.com/pajlada/tyggbot/issues">Submit an Issue</a>
-                        <a class="item" href="/contact">Contact</a>
-                    </div>
-                </div>
-                <div class="column">
-                    <h4 class="ui inverted header">Network</h4>
-                    <div class="ui inverted link list">
-                        <a class="item" href="https://github.com/pajlada/tyggbot/">GitHub Repo</a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="column">
-                    {% if session.user %}
-                    <span>
-                    Logged in as <a href="/user/{{ session.user.username }}">{{ session.user.username_raw }}</a> &mdash; <a href="/logout">Log out</a> &mdash; <a href="/admin/">Admin Zone</a>
-                    </span>
-                    {% else %}
-                    <span>
-                    <a class="ui inverted link" href="/login">Admin login</a>
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="column">
-                    <em style="color: #ccc;">Version: {{ version }}</em> &mdash; <em style="color: #ccc;">Last commit: {{ last_commit }}</em>
-                </div>
-            </div>
+<div class="ui inverted vertical footer segment">
+    <div class="ui container">
+      <div class="ui stackable inverted divided equal height stackable grid">
+        <div class="three wide column">
+          <h4 class="ui inverted header">Community</h4>
+          <div class="ui inverted link list">
+           <a class="item" href="https://github.com/pajlada/tyggbot/issues"><i class="warning circle icon"></i> Submit an Issue</a>
+           <a class="item" href="/contact"><i class="mail icon"></i> Contact</a>
+          </div>
         </div>
+        <div class="three wide column">
+          <h4 class="ui inverted header">Network</h4>
+          <div class="ui inverted link list">
+           <a class="item" href="https://github.com/pajlada/tyggbot/"><i class="github icon"></i> GitHub Repo</a>
+          </div>
+        </div>
+        <div class="four wide column">{% if session.user %}
+          <h4 class="ui inverted header">Hello {{ session.user.username_raw }}</h4>
+          <div class="ui inverted link list">
+           <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
+           <a class="item" href="/logout"><i class="sign out icon"></i> Log out</a>{% else %}
+          <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
+          <div class="ui inverted link list">
+           <a href="/login"><button class="ui twitch button"><i class="twitch icon"></i>connect with Twitch</button></a>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="row">
+       <div class="column"><br />
+        <em style="color: #ccc;">Version: {{ version }}</em> &mdash; <em style="color: #ccc;">Last commit: {{ last_commit }}</em>
+       </div>
     </div>
+  </div>
+</div>
 </footer>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
