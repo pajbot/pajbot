@@ -3,7 +3,9 @@
 {% block title %}Stats{% endblock %}
 {% block body %}
 <h2>Stats</h2>
-<p><a href="/stats/duels/">Duel stats</a></p>
+{% if 'duels' in modules %}
+<p><a href="/stats/duels/"><i class="icon linkify"></i>  Duel stats</a></p>
+{% endif %}
 <div id="stats">
     <h3>Top 5 Commands</h3>
     <table class="ui very basic table">
