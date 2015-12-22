@@ -390,3 +390,10 @@ div.chat div.chat-message .pemote img {
     margin-bottom: 0.75em;
     margin-top: -0.75em;
 }
+
+div.anchor {
+    display: block;
+    position: relative;
+    top: -65px;
+    visibility:hidden;
+}
