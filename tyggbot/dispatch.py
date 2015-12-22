@@ -1159,7 +1159,7 @@ class Dispatch:
             if potential_user is not None:
                 username = potential_user.username
 
-            if len(message_split) > 1 and message_split[1].isalnum():
+            if len(message_split) > 1 and message_split[1].replace('_', '').isalnum():
                 streamer = message_split[1]
 
         bot.action_queue.add(check_follow_age, args=[bot, source, username, streamer])
