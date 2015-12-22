@@ -4,7 +4,11 @@ import logging
 import collections
 import json
 import datetime
-import random
+try:
+    # Import numpy if possible for its random library
+    from numpy import random
+except:
+    import random
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
