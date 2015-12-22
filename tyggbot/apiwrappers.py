@@ -194,6 +194,8 @@ class BTTVApi(APIBase):
                 log.warning('Bad Gateway when getting channel emotes.')
             elif e.code == 503:
                 log.warning('Service Unavailable when getting channel emotes.')
+            elif e.code == 404:
+                log.info('There are no BTTV Emotes for this channel.')
             else:
                 log.exception('Unhandled HTTP error code')
         except KeyError:

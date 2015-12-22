@@ -231,7 +231,7 @@ class StreamManager:
                             title=status['title'])
                     db_session.add(stream)
                     db_session.commit()
-                    log.info('added stream!')
+                    log.info('Successfully added stream!')
                 stream_chunk = StreamChunk(stream, status['broadcast_id'], status['created_at'])
                 db_session.add(stream_chunk)
                 db_session.commit()
@@ -242,7 +242,7 @@ class StreamManager:
             self.current_stream_chunk = stream_chunk
             db_session.expunge_all()
 
-            log.info('added shit to current_stream etc')
+            log.info('Successfully created a stream')
 
     def go_offline(self):
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
@@ -319,7 +319,7 @@ class StreamManager:
                 db_session.commit()
 
                 db_session.expunge_all()
-            log.info('successfully commited it and shit')
+            log.info('Successfully commited video url data.')
         else:
             log.info('Not video for broadcast found')
 

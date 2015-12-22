@@ -1314,7 +1314,7 @@ class Dispatch:
 
         msg = []
         if source.duel_request is not False:
-            msg.append('You have a duel request by for {} points by {}'.format(source.duel_price, source.duel_request.username_raw))
+            msg.append('You have a duel request for {} points by {}'.format(source.duel_price, source.duel_request.username_raw))
 
         if source.duel_target is not False:
             msg.append('You have a duel request against for {} points by {}'.format(source.duel_target.duel_price, source.duel_target.username_raw))
