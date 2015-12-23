@@ -609,7 +609,7 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully updated your highlight (description)',
                                 description='Changes the description to \'1v5 Pentakill PogChamp VAC\' for highlight ID 12.').parse(),
                             CommandExample(None, 'Change the VOD link to a mirror link.',
-                                chat='user:!add highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n' # TODO turn off autolink
+                                chat='user:!add highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n'  # TODO turn off autolink
                                 'bot>user:Successfully updated your highlight (override_link)',
                                 description='Changes the link for highlight ID 12 to http://www.twitch.tv/imaqtpie/v/27878606').parse(),
                             CommandExample(None, 'Change the mirror link back to the VOD link.',
