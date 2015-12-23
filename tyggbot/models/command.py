@@ -284,14 +284,16 @@ class Command(Base):
             # User is not a twitch moderator, or a bot moderator
             return False
 
+        cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
+
         cur_time = time.time()
-        time_since_last_run = cur_time - self.last_run
+        time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
         if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
             log.debug('Command was run {0:.2f} seconds ago, waiting...'.format(time_since_last_run))
             return False
 
-        time_since_last_run_user = cur_time - self.last_run_by_user.get(source.username, 0)
+        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.username, 0)) / cd_modifier
 
         if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
             log.debug('{0} ran command {1:.2f} seconds ago, waiting...'.format(source.username, time_since_last_run_user))
