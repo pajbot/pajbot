@@ -1,0 +1,29 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_users' %}
+{% block title %}Points{% endblock %}
+{% block body %}
+<h2>Bot Moderators</h2>
+<div id="bot_moderators">
+    <table class="ui very basic table collapsing">
+{% for title, users in userlists.items() %}
+{% if users|length > 0 %}
+        <thead>
+            <tr><th colspan="2"><h4>{{title}}</h4></th></tr>
+            <tr>
+                <th>Username</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+            <td>{% include 'user/username_link.html' %}</td>
+            <td>{{ user.level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+{% endif %}
+{% endfor %}
+    </table>
+</div>
+{% endblock %}

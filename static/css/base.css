@@ -397,3 +397,7 @@ div.anchor {
     top: -65px;
     visibility:hidden;
 }
+
+#bot_moderators h4 {
+    padding-top: 35px;
+}

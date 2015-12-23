@@ -2,11 +2,31 @@
 {% block menu %}
     <div class="ui top fixed menu inverted blue">
         {% for href, id, caption in nav_bar_admin_header %}
+        {% if id %}
         <a class="inverted blue item{% if id == active_page %} active{% endif %}" href="{{ href }}">
             {% if id == 'home' %}
             <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
             {{ caption }}</a>
+        {% else %}
+        <div class="ui compact menu inverted blue">
+            <div class="ui simple dropdown item
+                {%- for a, b, c in href %}
+                    {% if active_page == b %} active{% endif %}
+                {% endfor -%}">
+                {{ caption }}
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {% for href, id, caption in href %}
+        <a class="inverted blue item{% if id == active_page %} active{% endif %}" href="{{ href }}">
+            {% if id == 'home' %}
+            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
+            {% endif %}
+            {{ caption }}</a>
+                    {% endfor %}
+                </div>
+        </div>
+        {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
