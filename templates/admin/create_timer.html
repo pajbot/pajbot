@@ -1,0 +1,53 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_timers' %}
+{% block title %}Create Timer{% endblock %}
+{% block body %}
+{% if timer %}
+<h2>Edit Timer &quot;{{ timer.name }}&quot;</h2>
+{% else %}
+<h2>Create Timer</h2>
+{% endif %}
+<form class="ui form" method="POST" action="/admin/timers/create">
+    {% if timer %}
+    <input type="hidden" name="id" value="{{ timer.id }}" />
+    {% endif %}
+    <div class="fields">
+        <div class="required field eight wide">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Name to describe Timer" value="{{ timer.name if timer else ''}}" />
+        </div>
+        <div class="required field four wide">
+            <label>Interval online</label>
+            <input type="number" name="interval_online" placeholder="Interval in minutes" min="1" value="{{ timer.interval_online if timer else 10 }}" />
+        </div>
+        <div class="required field four wide">
+            <label>Interval offline</label>
+            <input type="number" name="interval_offline" placeholder="Interval in minutes" min="1" value="{{ timer.interval_offline if timer else 30 }}" />
+        </div>
+    </div>
+    <div class="fields">
+        <div class="required field four wide">
+            <label>Message type</label>
+            <select class="ui dropdown" name="message_type">
+                <option value="say" {{ 'selected' if timer and timer.action.subtype == 'say' else '' }}>Say</option>
+                <option value="me" {{ 'selected' if timer and timer.action.subtype == 'me' else '' }}>Me</option>
+            </select>
+        </div>
+        <div class="required field twelve wide">
+            <label>Message</label>
+            <input type="text" name="message" placeholder="Message" value="{{ timer.action.response if timer else ''}}"/>
+        </div>
+    </div>
+    <div class="ui message warning" style="padding: 0.4em;"></div>
+    <div class="ui message error" style="padding: 0.4em;"></div>
+    {% if timer %}
+    <div class="ui submit button green">Edit</div>
+    {% else %}
+    <div class="ui submit button green">Create</div>
+    {% endif %}
+</div>
+</form>
+{% endblock %}
+{% block footer %}
+<script src="/static/scripts/admin/create_timer.js"></script>
+{% endblock %}

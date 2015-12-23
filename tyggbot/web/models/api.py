@@ -9,6 +9,7 @@ import time
 from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
 from tyggbot.models.command import Command, CommandManager
+from tyggbot.models.timer import Timer
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
@@ -432,4 +433,37 @@ def command_checkalias(**options):
     if request_alias in db_command_aliases:
         return make_response(jsonify({'error': 'Alias already in use'}))
     else:
+        return make_response(jsonify({'success': 'good job'}))
+
+
+@page.route('/api/v1/timer/toggle/<timer_id>', methods=['POST'])
+@requires_level(500)
+def timer_toggle(timer_id, **options):
+    if 'new_state' not in request.form:
+        return make_response(jsonify({'error': 'Missing `new_state` parameter.'}), 400)
+
+    try:
+        new_state = int(request.form['new_state'])
+    except (ValueError, KeyError):
+        return make_response(jsonify({'error': 'Invalid `new_state` parameter.'}), 400)
+
+    with DBManager.create_session_scope() as db_session:
+        timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
+        if timer:
+            timer.enabled = True if new_state == 1 else False
+            db_session.commit()
+            SocketClientManager.send('timer.update', {'timer_id': timer.id})
+            return make_response(jsonify({'success': 'good job', 'new_state': new_state}))
+        else:
+            return make_response(jsonify({'error': 'invalid timer id'}))
+
+@page.route('/api/v1/timer/remove/<timer_id>', methods=['GET'])
+@requires_level(500)
+def timer_remove(timer_id, **options):
+    with DBManager.create_session_scope() as db_session:
+        timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
+        if timer is None:
+            return make_response(jsonify({'error': 'Invalid timer ID'}))
+        db_session.delete(timer)
+        SocketClientManager.send('timer.remove', {'timer_id': timer.id})
         return make_response(jsonify({'success': 'good job'}))

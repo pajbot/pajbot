@@ -647,6 +647,7 @@ nav_bar_admin_header.append(('/admin/banphrases/', 'admin_banphrases', 'Banphras
 nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/links/blacklist/', 'admin_links_blacklist', 'Blacklisted links'))
 nav_bar_admin_header.append(('/admin/links/whitelist/', 'admin_links_whitelist', 'Whitelisted links'))
+nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 
 version = TyggBot.version
 last_commit = ''

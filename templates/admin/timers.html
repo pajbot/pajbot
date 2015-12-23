@@ -1,0 +1,123 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_timers' %}
+{% block title %}Admin - Timers{% endblock %}
+{% block body %}
+{% if created %}
+<div class="ui success message">
+    <i class="close icon"></i>
+    <div class="header">Your Timer was created successfully.</div>
+</div>
+{% elif edited %}
+<div class="ui success message">
+    <i class="close icon"></i>
+    <div class="header">Your Timer was edited successfully.</div>
+</div>
+{% endif %}
+<button class="ui button create-timer green"><i class="icon add"></i> <strong>Create Timer</strong></button>
+<h2>Timers</h2>
+<table class="ui table basic">
+    <thead>
+        <tr>
+            <th class="collapsing">Name</th>
+            <th class="collapsing">Interval online</th>
+            <th class="collapsing">Interval offline</th>
+            <th>Message</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in timers %}
+        <tr data-id="{{row.id}}" data-enabled="{{1 if row.enabled else 0}}">
+            <td class="collapsing">{{row.name}}</td>
+            <td class="collapsing">{{row.interval_online}}</td>
+            <td class="collapsing">{{row.interval_offline}}</td>
+            <td>{{row.action.response}}</td>
+            {% include 'admin/helper/row_action.html' %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="ui modal remove-timer">
+    <i class="close icon"></i>
+    <div class="header">Confirm Action</div>
+    <div class="content">
+        <div class="description">
+            Are you sure you want to remove this timer? This action is irreversible.
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui approve button">Remove</div>
+        <div class="ui cancel button">Cancel</div>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('button.create-timer').click(function() {
+        document.location.href = '/admin/timers/create';
+    });
+
+    $('button.edit-row').click(function() {
+        var timer_id = $(this).parent().parent().data('id');
+        document.location.href = '/admin/timers/edit/' + timer_id;
+    });
+
+    $('.message .close').on('click', function() {
+        $(this).closest('.message').transition('fade');
+    });
+
+    $('button.toggle-row').api({
+        action: 'toggle_timer',
+        method: 'post',
+        successTest: function(response) {
+            return response.success || false;
+        },
+        beforeSend: function(settings) {
+            var state = $(this).parent().parent().data('enabled');
+            console.log(state);
+            settings.urlData.id = $(this).parent().parent().data('id');
+            if (state == '1') {
+                settings.data.new_state = 0;
+            } else {
+                settings.data.new_state = 1;
+            }
+            return settings;
+        },
+        onSuccess: function(response, element) {
+            $(this).parent().parent().data('enabled', response.new_state);
+            if (response.new_state == 1) {
+                $(element).find('.text').text('Disable');
+                $(element).find('.icon').removeClass('green').addClass('red');
+            } else {
+                $(element).find('.text').text('Enable');
+                $(element).find('.icon').removeClass('red').addClass('green');
+            }
+        },
+    });
+
+    var timer_id_remove = 0;
+    $('button.remove-row').click(function() {
+        timer_id_remove = $(this).parent().parent().data('id');
+        $('.ui.modal.remove-timer').modal('show');
+    });
+    $('.ui.modal.remove-timer').modal({
+        onApprove: function(el) {
+            $.api({
+                on: 'now',
+                action: 'remove_timer',
+                urlData: {
+                    'id': timer_id_remove,
+                },
+                onSuccess: function(response, element) {
+                    $('tr[data-id="'+timer_id_remove+'"]').remove();
+                },
+                onFailure: function(response, element) {
+                    console.error('something went wrong');
+                },
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

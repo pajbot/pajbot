@@ -31,6 +31,7 @@ from .models.time import TimeManager
 from .models.action import ActionParser
 from .models.duel import UserDuelStats, DuelManager
 from .models.pleblist import PleblistSong, PleblistManager
+from .models.timer import TimerManager, Timer
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -175,6 +176,7 @@ class TyggBot:
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.motd_manager = MOTDManager(self).reload()
+        self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
         self.link_tracker = LinkTracker()

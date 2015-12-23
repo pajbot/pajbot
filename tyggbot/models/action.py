@@ -349,7 +349,7 @@ class MessageAction(BaseAction):
 
     def get_extra_data(self, source, message):
         return {
-                'user': source.username,
+                'user': source.username if source else None,
                 'source': source,
                 'message': message,
                 }

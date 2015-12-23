@@ -8,6 +8,8 @@ $.fn.api.settings.api = {
     'edit_command': '/api/v1/command/update/{id}',
     'remove_command': '/api/v1/command/remove/{id}',
     'check_alias': '/api/v1/command/checkalias',
+    'toggle_timer': '/api/v1/timer/toggle/{id}',
+    'remove_timer': '/api/v1/timer/remove/{id}',
 };
 
 $(document).ready(function() {
