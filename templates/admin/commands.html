@@ -38,7 +38,7 @@
         <tbody>
     {% for command in custom_commands %}
     <tr data-id="{{command.id}}">
-        <td>{% include 'helper/command_usage_nolink.html' %}</td>
+        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
     </tr>
@@ -59,7 +59,7 @@
         <tbody>
     {% for command in point_commands %}
     <tr data-id="{{command.id}}">
-        <td>{% include 'helper/command_usage_nolink.html' %}</td>
+        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="collapsing">{{ command.cost }}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
@@ -80,7 +80,7 @@
         <tbody>
     {% for command in moderator_commands %}
     <tr data-id="{{command.id}}">
-        <td>{% include 'helper/command_usage_nolink.html' %}</td>
+        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
         {% include 'admin/helper/command_action.html' %}
     </tr>
@@ -117,8 +117,16 @@ $(document).ready(function() {
 
         if (hash.length > 1) {
             var el = $('#commands .menu .item.'+hash);
-            if (el !== undefined) {
+            if (el !== undefined && el.length > 0) {
                 el.click();
+            } else {
+                el = $('#'+hash);
+                if (el !== undefined && el.length > 0) {
+                    var tab = el.parent().parent().parent().parent().parent().data('tab');
+                    var tab_btn = $('.tabular.menu .item[data-tab="'+tab+'"]');
+                    tab_btn.click();
+                    $(document).scrollTop(el.offset().top);
+                }
             }
         }
     }
