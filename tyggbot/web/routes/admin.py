@@ -10,7 +10,6 @@ from tyggbot.models.timer import Timer
 from tyggbot.models.linkchecker import BlacklistedLink
 from tyggbot.models.linkchecker import WhitelistedLink
 from tyggbot.models.user import User
-from tyggbot.models.motd import MOTD
 from tyggbot.models.sock import SocketClientManager
 from tyggbot.models.db import DBManager
 

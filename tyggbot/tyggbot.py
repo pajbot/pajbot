@@ -22,7 +22,6 @@ from .models.db import DBManager
 from .models.filter import FilterManager
 from .models.command import CommandManager
 from .models.setting import SettingManager
-from .models.motd import MOTDManager
 from .models.kvi import KVIManager
 from .models.deck import DeckManager
 from .models.stream import StreamManager
@@ -175,7 +174,6 @@ class TyggBot:
         self.commands = CommandManager(self).load()
         self.filters = FilterManager().reload()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
-        self.motd_manager = MOTDManager(self).reload()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
@@ -188,7 +186,6 @@ class TyggBot:
         self.reloadable = {
                 'filters': self.filters,
                 'settings': self.settings,
-                'motd': self.motd_manager,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
@@ -201,7 +198,6 @@ class TyggBot:
                 'commands': self.commands,
                 'filters': self.filters,
                 'settings': self.settings,
-                'motd': self.motd_manager,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,

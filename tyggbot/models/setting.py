@@ -49,8 +49,6 @@ class SettingManager(UserDict):
                 'broadcaster': 'test_broadcaster',
                 'ban_ascii': True,
                 'ban_msg_length': True,
-                'motd_interval_offline': 60,
-                'motd_interval_online': 5,
                 'max_msg_length': 350,
                 'lines_offline': True,
                 'parse_pyramids': False,
