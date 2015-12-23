@@ -1,0 +1,20 @@
+# Travis CI checks for tyggbot
+
+language: python
+
+python:
+  - 3.4
+
+services:
+  - mysql
+
+before_install:
+  - mysql -e "create database IF NOT EXISTS test;" -uroot
+
+install:
+  - pip install -r pip-requirements.txt --use-mirrors
+  - pip install pymysql
+  - cp ./install/config.example.ini ./config.ini
+
+script:
+  - cd tests && ./tests.py

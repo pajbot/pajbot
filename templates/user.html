@@ -101,6 +101,29 @@
                     <td><strong>Last duel</strong></td>
                     <td>{{ user_duel_stats.last_duel|localize|strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 </tr>
+                {% if user_duel_stats.longest_winstreak > 1 %}
+                <tr>
+                    <td><strong>Longest Win Streak</strong></td>
+                    <td>{{ user_duel_stats.longest_winstreak }}</td>
+                </tr>
+                {% endif %}
+                {% if user_duel_stats.longest_losestreak > 1 %}
+                <tr>
+                    <td><strong>Longest Lose Streak</strong></td>
+                    <td>{{ user_duel_stats.longest_losestreak }}</td>
+                </tr>
+                {% endif %}
+                {% if user_duel_stats.current_streak > 1 %}
+                <tr>
+                    <td><strong>Current Win Streak</strong></td>
+                    <td>{{ user_duel_stats.current_streak }}</td>
+                </tr>
+                {% elif user_duel_stats.current_streak < -1 %}
+                <tr>
+                    <td><strong>Current Lose Streak</strong></td>
+                    <td>{{ user_duel_stats.current_streak|abs }}</td>
+                </tr>
+                {% endif %}
             </tbody>
         </table>
         {% endif %}

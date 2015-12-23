@@ -37,7 +37,6 @@ from .tbutil import time_since
 from .tbutil import time_method
 from .actions import Action, ActionQueue
 
-import wolframalpha
 from pytz import timezone
 import irc.client
 
@@ -120,10 +119,13 @@ class TyggBot:
             self.channel = config['main']['target']
             self.streamer = self.channel[1:]
 
-        if 'wolfram' in config['main']:
-            self.wolfram = wolframalpha.Client(config['main']['wolfram'])
-        else:
-            self.wolfram = None
+        self.wolfram = None
+        try:
+            if 'wolfram' in config['main']:
+                import wolframalpha
+                self.wolfram = wolframalpha.Client(config['main']['wolfram'])
+        except:
+            pass
 
         self.silent = False
         self.dev = False
@@ -799,6 +801,10 @@ class TyggBot:
         log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
         self.last_pong = datetime.now()
 
+    def on_pubnotice(self, chatconn, event):
+        type = 'whisper' if chatconn in self.whisper_manager else 'normal'
+        log.debug('NOTICE {}@{}: {}'.format(type, event.target, event.arguments))
+
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
@@ -880,6 +886,7 @@ class TyggBot:
                 'upper': lambda var, args: var.upper(),
                 'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
                 'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
+                'time_since_dt': _filter_time_since_dt,
                 'urlencode': lambda var, args: urllib.parse.urlencode(var),
                 }
         if filter.name in available_filters:
@@ -890,3 +897,12 @@ class TyggBot:
         self.emote_bingo_target = emote
         self.emote_bingo_running = True
 
+def _filter_time_since_dt(var, args):
+    try:
+        ts = time_since(datetime.now().timestamp(), var.timestamp())
+        if len(ts) > 0:
+            return ts
+        else:
+            return 'never FeelsBadMan'
+    except:
+        return 'never FeelsBadMan ?'

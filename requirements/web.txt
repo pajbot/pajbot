@@ -1,0 +1,4 @@
+flask
+flask-scrypt
+flask-oauthlib
+markdown

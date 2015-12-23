@@ -57,6 +57,7 @@ function next_song()
     }
 
     update_song_counter();
+    update_indices();
 }
 
 function onPlayerReady(event)
@@ -106,6 +107,8 @@ function add_to_pleblist(song)
     latest_song_id = song.id;
     $div = $('<div>', {class: 'item', id: 'song-' + song.id});
     $('#pleblist div.ui.list').append($div);
+    var $index = $('<div>', {class: 'song-index'});
+    $div.append($index);
     $div_content = $('<div>', {class: 'content'});
     $div.append($div_content);
     var title = '???';
@@ -122,6 +125,16 @@ function add_to_pleblist(song)
     if (current_song == null && pleblist_started === true) {
         next_song();
     }
+
+    update_indices();
+}
+
+function update_indices()
+{
+    $.each($('#songlist div.item'), function(index, el) {
+        console.log(index);
+        $(el).find('div.song-index').text((index + 1) + '.');
+    });
 }
 
 function update_song_counter()

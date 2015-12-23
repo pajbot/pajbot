@@ -4,7 +4,11 @@ import logging
 import collections
 import json
 import datetime
-import random
+try:
+    # Import numpy if possible for its random library
+    from numpy import random
+except:
+    import random
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
@@ -23,18 +27,19 @@ def init_dueling_variables(user):
     user.duel_target = False
     user.duel_price = 0
 
-def check_follow_age(bot, source, username):
-    age = bot.twitchapi.get_follow_relationship(username, bot.streamer)
+def check_follow_age(bot, source, username, streamer):
+    streamer = bot.streamer if streamer is None else streamer.lower()
+    age = bot.twitchapi.get_follow_relationship(username, streamer)
     if source.username == username:
         if age is False:
-            bot.say('{}, you are not following {}'.format(source.username_raw, bot.streamer))
+            bot.say('{}, you are not following {}'.format(source.username_raw, streamer))
         else:
-            bot.say('{}, you have been following {} for {}'.format(source.username_raw, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+            bot.say('{}, you have been following {} for {}'.format(source.username_raw, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
     else:
         if age is False:
-            bot.say('{}, {} is not following {}'.format(source.username_raw, username, bot.streamer))
+            bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
         else:
-            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, bot.streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
 
 
 class Dispatch:
@@ -397,6 +402,7 @@ class Dispatch:
         """
 
         if message:
+            message = message.replace('!', '')
             # Make sure we got both an existing alias and at least one new alias
             message_parts = message.split()
             if len(message_parts) < 2:
@@ -1045,12 +1051,14 @@ class Dispatch:
     def unban_source(bot, source, message, event, args):
         """Unban the user who ran the command."""
         bot.privmsg('.unban {0}'.format(source.username))
+        bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def untimeout_source(bot, source, message, event, args):
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         bot.privmsg('.timeout {0} 1'.format(source.username))
+        bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def twitter_follow(bot, source, message, event, args):
@@ -1145,12 +1153,17 @@ class Dispatch:
 
     def follow_age(bot, source, message, event, args):
         username = source.username
+        streamer = None
         if message is not None and len(message) > 0:
-            potential_user = bot.users.find(message.split(' ')[0])
+            message_split = message.split(' ')
+            potential_user = bot.users.find(message_split[0])
             if potential_user is not None:
                 username = potential_user.username
 
-        bot.action_queue.add(check_follow_age, args=[bot, source, username])
+            if len(message_split) > 1 and message_split[1].replace('_', '').isalnum():
+                streamer = message_split[1]
+
+        bot.action_queue.add(check_follow_age, args=[bot, source, username, streamer])
 
     def initiate_duel(bot, source, message, event, args):
         """
@@ -1243,6 +1256,7 @@ class Dispatch:
         """
 
         init_dueling_variables(source)
+        duel_tax = 0.3  # 30% tax
 
         if source.duel_request is not False:
             if source.points < source.duel_price or source.duel_request.points < source.duel_price:
@@ -1252,7 +1266,7 @@ class Dispatch:
                 return False
             source.points -= source.duel_price
             source.duel_request.points -= source.duel_price
-            winning_pot = int(source.duel_price * 0.5)  # 50% tax Kappa
+            winning_pot = int(source.duel_price * (1.0 - duel_tax))
             participants = [source, source.duel_request]
             winner = random.choice(participants)
             participants.remove(winner)
@@ -1301,7 +1315,7 @@ class Dispatch:
 
         msg = []
         if source.duel_request is not False:
-            msg.append('You have a duel request by for {} points by {}'.format(source.duel_price, source.duel_request.username_raw))
+            msg.append('You have a duel request for {} points by {}'.format(source.duel_price, source.duel_request.username_raw))
 
         if source.duel_target is not False:
             msg.append('You have a duel request against for {} points by {}'.format(source.duel_target.duel_price, source.duel_target.username_raw))
@@ -1385,6 +1399,8 @@ class Dispatch:
         bot.websocket_manager.emit('notification', {'message': 'An emote bingo has started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Guess the emote, win the prize!'}))
 
-
-
-
+    def get_bttv_emotes(bot, source, message, event, args):
+        if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:
+            bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
+        else:
+            bot.say('No BTTV Emotes active in this chat')

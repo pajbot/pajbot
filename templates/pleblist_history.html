@@ -7,6 +7,9 @@
 {% if stream.stream_end is none %}
 <div class="ui vertical">Stream uptime: {{ stream.stream_start|time_ago }}</div>
 <div class="ui vertical">Time left on pleblist: {{ total_length_left|time_ago_timespan_seconds }}</div>
+{% if first_unplayed_song %}
+<div class="ui vertical"><h5><a href="#current"><i class="icon linkify black"></i></a>Current song: <strong>{{ first_unplayed_song.song_info.title }}</strong> (<a href="https://youtu.be/{{ first_unplayed_song.youtube_id}}">LINK</a>)</h4></div>
+{% endif %}
 {% else %}
 <div class="ui vertical">Stream ended: {{ stream.stream_end|localize|strftime('%A, %B %d %Y %H:%M:%S %Z') }}</div>
 <div class="ui vertical">Stream lasted for: {{ stream.stream_end|time_diff(stream.stream_start) }}</div>
@@ -16,6 +19,9 @@
     {% set time_until_song_played = 0 %}
 {% for song in songs %}
 <div class="item {{ 'not-played' if song.date_played is none else 'played' }}{{ ' first' if num_not_played == 0 and stream.stream_end is none else ''}}">
+{% if num_not_played == 0 and stream.stream_end is none and song.date_played is none %}
+<div class="anchor" id="current"></div>
+{% endif %}
     <div class="ui small image">
         <img src="{{ song.song_info.default_thumbnail }}" alt="Thumbnail" />
     </div>

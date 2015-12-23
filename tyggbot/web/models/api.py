@@ -364,6 +364,7 @@ def command_update(command_id, **options):
         if command.level > options['user'].level:
             abort(403)
         parsed_action = json.loads(command.action_json)
+        options = {}
 
         for key in request.form:
             if key.startswith('data_'):
@@ -384,6 +385,7 @@ def command_update(command_id, **options):
                         else:
                             parsed_value = value
                         parsed_action[name] = parsed_value
+                    command.action_json = json.dumps(parsed_action)
                 else:
                     if name in valid_names:
                         value_type = type(getattr(command, name))
@@ -396,9 +398,9 @@ def command_update(command_id, **options):
                                 continue
                         else:
                             parsed_value = value
-                        setattr(command, name, parsed_value)
+                        options[name] = parsed_value
 
-                command.action_json = json.dumps(parsed_action)
+        command.set(**options)
 
     if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
         return make_response(jsonify({'success': 'good job'}))
