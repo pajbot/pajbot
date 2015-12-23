@@ -2,6 +2,17 @@
 {% set active_page = 'admin_commands' %}
 {% block title %}Admin - Commands{% endblock %}
 {% block body %}
+{% if created %}
+<div class="ui success message">
+    <i class="close icon"></i>
+    <div class="header">Your Command was created successfully.</div>
+</div>
+{% elif edited %}
+<div class="ui success message">
+    <i class="close icon"></i>
+    <div class="header">Your Command was edited successfully.</div>
+</div>
+{% endif %}
 <button class="ui button create-command green"><i class="icon add"></i> <strong>Create Command</strong></button>
 <h2>Commands</h2>
 <p>This is a list of all commands that you can edit.</p>

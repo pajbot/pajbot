@@ -86,7 +86,9 @@ def commands(**options):
     return render_template('admin/commands.html',
             custom_commands=sorted(custom_commands, key=lambda f: f.command),
             point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
-            moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
+            moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)),
+            created=session.pop('command_created_id', None),
+            edited=session.pop('command_edited_id', None))
 
 @page.route('/commands/edit/<command_id>')
 @requires_level(500)
@@ -104,6 +106,8 @@ def commands_edit(command_id, **options):
 @page.route('/commands/create', methods=['GET', 'POST'])
 @requires_level(500)
 def commands_create(**options):
+    session.pop('command_created_id', None)
+    session.pop('command_edited_id', None)
     if request.method == 'POST':
         if 'aliases' not in request.form:
             abort(403)
@@ -184,8 +188,8 @@ def commands_create(**options):
             db_session.expunge(command.data)
 
         SocketClientManager.send('command.update', {'command_id': command.id})
-
-        return render_template('admin/create_command_success.html', command=command)
+        session['command_created_id'] = command.id
+        return redirect('/admin/commands/', 303)
     else:
         return render_template('admin/create_command.html')
 
