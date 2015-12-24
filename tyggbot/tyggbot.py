@@ -821,7 +821,7 @@ class TyggBot:
         msg = event.arguments[0]
         msg_len = len(msg)
 
-        if msg_len > 70 and source.level < 500:
+        if msg_len > 70 and source.level < 500 and source.moderator is False:
             non_alnum = sum(not c.isalnum() for c in msg)
             ratio = non_alnum / msg_len
 

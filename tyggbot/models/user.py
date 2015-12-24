@@ -79,6 +79,7 @@ class User(Base):
     def on_load(self):
         self.tags = []
         self.timed_out = False
+        self.moderator = False
 
     def tag_as(self, tag):
         if tag not in self.tags:
