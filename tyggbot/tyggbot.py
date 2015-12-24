@@ -31,6 +31,7 @@ from .models.action import ActionParser
 from .models.duel import UserDuelStats, DuelManager
 from .models.pleblist import PleblistSong, PleblistManager
 from .models.timer import TimerManager, Timer
+from tyggbot.managers.redis import RedisManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
@@ -135,6 +136,13 @@ class TyggBot:
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
 
         DBManager.init(self.config['main']['db'])
+
+        redis_options = {}
+        if 'redis' in config:
+            log.info(config._sections['redis'])
+            redis_options = config._sections['redis']
+
+        RedisManager.init(**redis_options)
 
     def __init__(self, config, args=None):
         self.load_config(config)

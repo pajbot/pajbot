@@ -18,6 +18,11 @@ requests
 # New regex library with support for some fancy features we require
 regex
 
+# Used to communicating with the redis server
+# The redis service is required for storing data such as
+# user warnings
+redis
+
 # Required for websockets
 # autobahn[twisted]
 
