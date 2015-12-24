@@ -12,6 +12,7 @@ except:
 
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
+from tyggbot.models.db import DBManager
 from tyggbot.tbutil import time_limit, TimeoutException, time_since
 
 from sqlalchemy import desc
@@ -215,54 +216,21 @@ class Dispatch:
         """
 
         if message:
-            options, response = bot.filters.parse_banphrase_arguments(message)
+            options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
 
             if options is False:
                 bot.whisper(source.username, 'Invalid banphrase')
                 return False
 
-            options['extra_args'] = {
-                    'notify': options.get('notify', Filter.DEFAULT_NOTIFY),
-                    'time': options.get('time', Filter.DEFAULT_TIMEOUT_LENGTH),
-                    }
+            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
 
-            is_perma = options.get('perma', None)
-            if is_perma is True:
-                options['action'] = {
-                        'type': 'func',
-                        'cb': 'ban_source'
-                        }
-            elif is_perma is False:
-                options['action'] = {
-                        'type': 'func',
-                        'cb': 'timeout_source'
-                        }
-
-            # XXX: For now, we do .lower() on the banphrase.
-            banphrase = response.lower()
-            if len(banphrase) == 0:
-                bot.whisper(source.username, 'No banphrase given')
-                return False
-
-            filter, new_filter = bot.filters.add_banphrase(banphrase, **options)
-
-            if new_filter is True:
-                bot.whisper(source.username, 'Inserted your banphrase (ID: {filter.id})'.format(filter=filter))
+            if new_banphrase is True:
+                bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
                 return True
 
-            options['extra_args'] = {}
-            try:
-                options['extra_args'] = json.loads(filter.extra_extra_args)
-            except:
-                pass
-
-            if 'notify' in options:
-                options['extra_args']['notify'] = options['notify']
-            if 'time' in options:
-                options['extra_args']['time'] = options['time']
-
-            filter.set(**options)
-            bot.whisper(source.username, 'Updated the given banphrase (ID: {filter.id}) with ({what})'.format(filter=filter, what=', '.join([key for key in options])))
+            banphrase.set(**options)
+            DBManager.session_add_expunge(banphrase)
+            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options])))
 
     def add_win(bot, source, message, event, args):
         bot.kvi['br_wins'].inc()
@@ -369,23 +337,19 @@ class Dispatch:
     def remove_banphrase(bot, source, message, event, args):
         if message:
             id = None
-            filter = None
             try:
                 id = int(message)
-            except Exception:
+            except ValueError:
                 pass
 
-            if id is not None:
-                filter = bot.filters.get(id=id)
-            else:
-                filter = bot.filters.get(phrase=message.lower())
+            banphrase = bot.banphrase_manager.find_match(message=message, id=id)
 
-            if filter is None:
+            if banphrase is None:
                 bot.whisper(source.username, 'No banphrase with the given parameters found')
                 return False
 
-            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(filter.id))
-            bot.filters.remove_filter(filter)
+            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
+            bot.banphrase_manager.remove_banphrase(banphrase)
         else:
             bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
             return False

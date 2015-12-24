@@ -74,11 +74,12 @@ class CommandData(Base):
 
     def __init__(self, command_id, **options):
         self.command_id = command_id
+        self.num_uses = 0
 
         self.set(**options)
 
     def set(self, **options):
-        self.num_uses = options.get('num_uses', 0)
+        self.num_uses = options.get('num_uses', self.num_uses)
 
 
 class CommandExample(Base):

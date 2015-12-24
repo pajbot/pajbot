@@ -31,6 +31,7 @@ from .models.action import ActionParser
 from .models.duel import UserDuelStats, DuelManager
 from .models.pleblist import PleblistSong, PleblistManager
 from .models.timer import TimerManager, Timer
+from tyggbot.models.banphrase import BanphraseManager
 from tyggbot.managers.redis import RedisManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
@@ -181,6 +182,7 @@ class TyggBot:
         self.stream_manager = StreamManager(self)
         self.commands = CommandManager(self).load()
         self.filters = FilterManager().reload()
+        self.banphrase_manager = BanphraseManager(self).load()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
@@ -213,6 +215,7 @@ class TyggBot:
                 'decks': self.decks,
                 'linktracker': self.link_tracker,
                 'users': self.users,
+                'banphrases': self.banphrase_manager,
                 }
 
         self.execute_every(10 * 60, self.commit_all)
@@ -549,6 +552,13 @@ class TyggBot:
         self._timeout(username, duration)
         self.execute_delayed(1, self._timeout, (username, duration))
 
+    def timeout_warn(self, user, duration):
+        duration, punishment = user.timeout(duration, self)
+        if not user.ban_immune:
+            self.timeout(user.username, duration)
+            return (duration, punishment)
+        return (0, punishment)
+
     def timeout_user(self, user, duration):
         if not user.ban_immune:
             self._timeout(user.username, duration)
@@ -635,6 +645,11 @@ class TyggBot:
     def check_msg_content(self, source, msg_raw, event):
         msg_lower = msg_raw.lower()
 
+        res = self.banphrase_manager.check_message(msg_raw)
+        if res is not False:
+            self.banphrase_manager.punish(source, res)
+            return True
+
         for f in self.filters:
             if f.type == 'regex':
                 m = f.search(source, msg_lower)
@@ -647,6 +662,7 @@ class TyggBot:
                     log.debug('Matched banphrase filter \'{0}\''.format(f.name))
                     f.run(self, source, msg_raw, event)
                     return True
+
         return False  # message was ok
 
     def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
@@ -829,16 +845,18 @@ class TyggBot:
             if self.settings['ban_ascii']:
                 if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
                     log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
-                    self.timeout_user(source, self.ascii_timeout_duration)
-                    self.whisper(source.username, 'You have been timed out for {0} seconds because your message contained too many ascii characters.'.format(self.ascii_timeout_duration))
+                    duration, punishment = self.timeout_warn(source, self.ascii_timeout_duration)
+                    if duration > 0:
+                        self.whisper(source.username, 'You have been {punishment} because your message contained too many ascii characters.'.format(punishment=punishment))
                     return
 
             if self.settings['ban_msg_length']:
                 max_msg_length = self.settings['max_msg_length']
                 if msg_len > max_msg_length:
                     log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                    self.timeout_user(source, self.msg_length_timeout_duration)
-                    self.whisper(source.username, 'You have been timed out for {0} seconds because your message was too long.'.format(self.msg_length_timeout_duration))
+                    duration, punishment = self.timeout_warn(source, self.msg_length_timeout_duration)
+                    if duration > 0:
+                        self.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
                     return
 
         self.parse_message(event.arguments[0], source, event, tags=event.tags)

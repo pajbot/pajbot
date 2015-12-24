@@ -54,6 +54,11 @@ class SettingManager(UserDict):
                 'parse_pyramids': False,
                 'parse_emote_combo': False,
                 'check_links': True,
+                'warnings_enabled': True,
+                'warnings_total_chances': 2,
+                'warnings_redis_prefix': '',
+                'warnings_length': 600,
+                'warnings_base_timeout': 10,
                 }
         self.default_settings.update(overrides)
 
