@@ -6,29 +6,24 @@
 <table class="ui table basic">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Action</th>
+            <th class="collapsing">ID</th>
+            <th class="collapsing">Action</th>
             <th>Phrase</th>
-            <th>Times used</th>
-            <th>Notify</th>
+            <th class="collapsing">Times used</th>
+            <th class="collapsing">Notify</th>
+            <th class="collapsing">Added by</th>
         </tr>
     </thead>
     <tbody>
         {% for banphrase in banphrases %}
+        {% set user = banphrase.data.user %}
         <tr>
-            <td>{{ banphrase.id }}</td>
-            <td>
-                {% if banphrase.action_parsed_json.cb == 'timeout_source' %}
-                Timeout ({{ banphrase.extra_args.time|time_ago_timespan_seconds }})
-                {% elif banphrase.action_parsed_json.cb == 'ban_source' %}
-                Permaban
-                {% else %}
-                <strong>Unhandled action: {{banphrase.action_parsed_json.cb }}</strong>
-                {% endif %}
-            </td>
-            <td>{{ banphrase.filter }}</td>
-            <td>{{ banphrase.num_uses }}</td>
-            <td>{{ 'Yes' if banphrase.extra_args.notify == True or banphrase.extra_args.notify == 1 else 'No' }}</td>
+            <td class="collapsing">{{ banphrase.id }}</td>
+            <td class="collapsing">{{ 'Permaban' if banphrase.permanent else 'Timeout ({})'.format(banphrase.length|time_ago_timespan_seconds) }}</td>
+            <td>{{ banphrase.phrase }}</td>
+            <td class="collapsing">{{ banphrase.data.num_uses }}</td>
+            <td class="collapsing">{{ 'Yes' if banphrase.notify else 'No' }}</td>
+            <td class="collapsing">{% include 'user/username_link.html' %}
         </tr>
         {% endfor %}
     </tbody>

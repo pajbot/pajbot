@@ -222,6 +222,8 @@ class Dispatch:
                 bot.whisper(source.username, 'Invalid banphrase')
                 return False
 
+            options['added_by'] = source.id
+
             banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
 
             if new_banphrase is True:

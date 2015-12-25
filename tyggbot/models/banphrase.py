@@ -92,6 +92,11 @@ class BanphraseData(Base):
             ForeignKey('tb_user.id'),
             nullable=True)
 
+    user = relationship('User',
+            uselist=False,
+            cascade='',
+            lazy='noload')
+
     def __init__(self, banphrase_id, **options):
         self.banphrase_id = banphrase_id
         self.num_uses = 0
@@ -127,7 +132,7 @@ class BanphraseManager:
                 return banphrase, False
 
         banphrase = Banphrase(phrase=phrase, **options)
-        banphrase.data = BanphraseData(banphrase.id)
+        banphrase.data = BanphraseData(banphrase.id, added_by=options.get('added_by', None))
 
         self.db_session.add(banphrase)
         self.db_session.add(banphrase.data)

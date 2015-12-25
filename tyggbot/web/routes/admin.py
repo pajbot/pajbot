@@ -5,7 +5,7 @@ import logging
 import collections
 
 from tyggbot.web.utils import requires_level
-from tyggbot.models.filter import Filter
+from tyggbot.models.banphrase import Banphrase, BanphraseData
 from tyggbot.models.command import Command, CommandData, CommandManager
 from tyggbot.models.timer import Timer
 from tyggbot.models.linkchecker import BlacklistedLink
@@ -27,6 +27,7 @@ from flask.ext.scrypt import generate_password_hash
 from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 
 page = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -42,7 +43,7 @@ def home(**options):
 @requires_level(500)
 def banphrases(**options):
     with DBManager.create_session_scope() as db_session:
-        banphrases = db_session.query(Filter).filter_by(enabled=True, type='banphrase').all()
+        banphrases = db_session.query(Banphrase).options(joinedload(Banphrase.data).joinedload(BanphraseData.user)).all()
         return render_template('admin/banphrases.html',
                 banphrases=banphrases)
 
