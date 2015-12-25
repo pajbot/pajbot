@@ -740,6 +740,15 @@ class TyggBot:
 
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
+            #Emote bingo
+            if hasattr(TyggBot, 'emote_bingo_running') and self.emote_bingo_running is True:
+                if len(message_emotes) == 1: # and with a check that message contatins only an emote, nothing else.. len(msg_raw.split(' ')) == 0?
+                    if message_emotes[0]['code'] == self.emote_bingo_target:
+                        self.emote_bingo_running = False
+                        #source bingo wins ++
+                        #announce winner
+                        #source points ++
+                        #are these above three best done in dispatcher?
 
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
@@ -780,9 +789,6 @@ class TyggBot:
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
                 # If a command is executed, we do not count the message as a line
                 add_line = False
-
-        if hasattr(TyggBot, 'emote_bingo_running') and self.emote_bingo_running is True:
-            #help here to match the incoming message with the self.emote_bingo_target
 
         source.wrote_message(add_line)
 
