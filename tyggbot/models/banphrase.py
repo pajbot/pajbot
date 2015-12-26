@@ -29,6 +29,7 @@ class Banphrase(Base):
     warning = Column(Boolean, nullable=False, default=True)
     notify = Column(Boolean, nullable=False, default=True)
     case_sensitive = Column(Boolean, nullable=False, default=False)
+    enabled = Column(Boolean, nullable=False, default=True)
 
     data = relationship('BanphraseData',
             uselist=False,
@@ -46,6 +47,7 @@ class Banphrase(Base):
         self.warning = True
         self.notify = self.DEFAULT_NOTIFY
         self.case_sensitive = False
+        self.enabled = True
 
         self.set(**options)
 
@@ -57,6 +59,7 @@ class Banphrase(Base):
         self.warning = options.get('warning', self.warning)
         self.notify = options.get('notify', self.notify)
         self.case_sensitive = options.get('case_sensitive', self.case_sensitive)
+        self.enabled = options.get('enabled', self.enabled)
 
     def match(self, message):
         """
@@ -88,9 +91,14 @@ class BanphraseData(Base):
             primary_key=True,
             autoincrement=False)
     num_uses = Column(Integer, nullable=False, default=0)
-    added_by = Column(Integer,
-            ForeignKey('tb_user.id'),
-            nullable=True)
+    added_by = Column(Integer, nullable=True)
+
+    user = relationship('User',
+            primaryjoin='User.id==BanphraseData.added_by',
+            foreign_keys='User.id',
+            uselist=False,
+            cascade='',
+            lazy='noload')
 
     def __init__(self, banphrase_id, **options):
         self.banphrase_id = banphrase_id
@@ -107,16 +115,63 @@ class BanphraseManager:
     def __init__(self, bot):
         self.bot = bot
         self.banphrases = []
+        self.enabled_banphrases = []
         self.db_session = DBManager.create_session(expire_on_commit=False)
+
+        if self.bot:
+            self.bot.socket_manager.add_handler('banphrase.update', self.on_banphrase_update)
+            self.bot.socket_manager.add_handler('banphrase.remove', self.on_banphrase_remove)
+
+    def on_banphrase_update(self, data, conn):
+        try:
+            banphrase_id = int(data['banphrase_id'])
+        except (KeyError, ValueError):
+            log.warn('No banphrase ID found in on_banphrase_update')
+            return False
+
+        updated_banphrase = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)
+        if updated_banphrase:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                db_session.add(updated_banphrase)
+                db_session.refresh(updated_banphrase)
+                db_session.expunge(updated_banphrase)
+        else:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                updated_banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+                db_session.expunge_all()
+                if updated_banphrase is not None:
+                    self.db_session.add(updated_banphrase.data)
+
+        if updated_banphrase:
+            if updated_banphrase not in self.banphrases:
+                self.banphrases.append(updated_banphrase)
+            if updated_banphrase.enabled is True and updated_banphrase not in self.enabled_banphrases:
+                self.enabled_banphrases.append(updated_banphrase)
+
+        for banphrase in self.enabled_banphrases:
+            if banphrase.enabled is False:
+                self.enabled_banphrases.remove(banphrase)
+
+    def on_banphrase_remove(self, data, conn):
+        try:
+            banphrase_id = int(data['banphrase_id'])
+        except (KeyError, ValueError):
+            log.warn('No banphrase ID found in on_banphrase_remove')
+            return False
+
+        removed_banphrase = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)
+        if removed_banphrase:
+            if removed_banphrase in self.enabled_banphrases:
+                self.enabled_banphrases.remove(removed_banphrase)
+            if removed_banphrase in self.banphrases:
+                self.banphrases.remove(removed_banphrase)
 
     def load(self):
         self.banphrases = self.db_session.query(Banphrase).all()
         for banphrase in self.banphrases:
             self.db_session.expunge(banphrase)
+        self.enabled_banphrases = [banphrase for banphrase in self.banphrases if banphrase.enabled is True]
         return self
-
-    def __del__(self):
-        self.db_session.close()
 
     def commit(self):
         self.db_session.commit()
@@ -127,7 +182,7 @@ class BanphraseManager:
                 return banphrase, False
 
         banphrase = Banphrase(phrase=phrase, **options)
-        banphrase.data = BanphraseData(banphrase.id)
+        banphrase.data = BanphraseData(banphrase.id, added_by=options.get('added_by', None))
 
         self.db_session.add(banphrase)
         self.db_session.add(banphrase.data)
@@ -140,6 +195,8 @@ class BanphraseManager:
 
     def remove_banphrase(self, banphrase):
         self.banphrases.remove(banphrase)
+        if banphrase in self.enabled_banphrases:
+            self.enabled_banphrases.remove(banphrase)
 
         self.db_session.expunge(banphrase.data)
         self.db_session.delete(banphrase)
@@ -174,7 +231,7 @@ class BanphraseManager:
             self.bot.whisper(user.username, notification_msg)
 
     def check_message(self, message):
-        match = find(lambda banphrase: banphrase.match(message), self.banphrases)
+        match = find(lambda banphrase: banphrase.match(message), self.enabled_banphrases)
         return match or False
 
     def find_match(self, message, id=None):

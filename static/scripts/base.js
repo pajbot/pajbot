@@ -10,6 +10,8 @@ $.fn.api.settings.api = {
     'check_alias': '/api/v1/command/checkalias',
     'toggle_timer': '/api/v1/timer/toggle/{id}',
     'remove_timer': '/api/v1/timer/remove/{id}',
+    'toggle_banphrase': '/api/v1/banphrase/toggle/{id}',
+    'remove_banphrase': '/api/v1/banphrase/remove/{id}',
 };
 
 $(document).ready(function() {

@@ -2,35 +2,64 @@
 {% set active_page = 'admin_banphrases' %}
 {% block title %}Admin - Banphrases{% endblock %}
 {% block body %}
+<button class="ui button create-banphrase green"><i class="icon add"></i> <strong>Create Banphrase</strong></button>
 <h2>Banphrases</h2>
 <table class="ui table basic">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Action</th>
+            <th class="collapsing">ID</th>
+            <th class="collapsing">Name</th>
+            <th class="collapsing">Action</th>
             <th>Phrase</th>
-            <th>Times used</th>
-            <th>Notify</th>
+            <th class="collapsing">Times used</th>
+            <th class="collapsing">Notify</th>
+            <th class="collapsing">Added by</th>
+            <th class="collapsing">Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for banphrase in banphrases %}
-        <tr>
-            <td>{{ banphrase.id }}</td>
-            <td>
-                {% if banphrase.action_parsed_json.cb == 'timeout_source' %}
-                Timeout ({{ banphrase.extra_args.time|time_ago_timespan_seconds }})
-                {% elif banphrase.action_parsed_json.cb == 'ban_source' %}
-                Permaban
-                {% else %}
-                <strong>Unhandled action: {{banphrase.action_parsed_json.cb }}</strong>
-                {% endif %}
-            </td>
-            <td>{{ banphrase.filter }}</td>
-            <td>{{ banphrase.num_uses }}</td>
-            <td>{{ 'Yes' if banphrase.extra_args.notify == True or banphrase.extra_args.notify == 1 else 'No' }}</td>
+        {% for row in banphrases %}
+        {% set user = row.data.user %}
+        <tr data-id="{{row.id}}" data-enabled="{{1 if row.enabled else 0}}">
+            <td class="collapsing">{{ row.id }}</td>
+            <td class="collapsing">{{ row.name }}</td>
+            <td class="collapsing">{{ 'Permaban' if row.permanent else 'Timeout ({})'.format(row.length|time_ago_timespan_seconds) }}</td>
+            <td>{{ row.phrase }}</td>
+            <td class="collapsing">{{ row.data.num_uses }}</td>
+            <td class="collapsing">{{ 'Yes' if row.notify else 'No' }}</td>
+            <td class="collapsing">{% include 'user/username_link.html' %}
+            {% include 'admin/helper/row_action.html' %}
         </tr>
         {% endfor %}
     </tbody>
 </table>
+<div class="ui modal remove-banphrase">
+    <i class="close icon"></i>
+    <div class="header">Confirm Action</div>
+    <div class="content">
+        <div class="description">
+            Are you sure you want to remove this banphrase? This action is irreversible.
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui approve button">Remove</div>
+        <div class="ui cancel button">Cancel</div>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+<script src="/static/scripts/admin/create_row.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('button.create-banphrase').click(function() {
+        document.location.href = '/admin/banphrases/create';
+    });
+
+    enable_edit_row('banphrases');
+    enable_remove_row('remove-banphrase', 'remove_banphrase');
+    enable_toggle_row('toggle_banphrase');
+});
+</script>
+});
+</script>
 {% endblock %}

@@ -10,6 +10,7 @@ from tyggbot.web.utils import requires_level
 from tyggbot.models.user import User
 from tyggbot.models.command import Command, CommandManager
 from tyggbot.models.timer import Timer
+from tyggbot.models.banphrase import Banphrase
 from tyggbot.models.pleblist import PleblistSong
 from tyggbot.models.pleblist import PleblistSongInfo
 from tyggbot.models.pleblist import PleblistManager
@@ -467,4 +468,37 @@ def timer_remove(timer_id, **options):
             return make_response(jsonify({'error': 'Invalid timer ID'}))
         db_session.delete(timer)
         SocketClientManager.send('timer.remove', {'timer_id': timer.id})
+        return make_response(jsonify({'success': 'good job'}))
+
+@page.route('/api/v1/banphrase/toggle/<banphrase_id>', methods=['POST'])
+@requires_level(500)
+def banphrase_toggle(banphrase_id, **options):
+    if 'new_state' not in request.form:
+        return make_response(jsonify({'error': 'Missing `new_state` parameter.'}), 400)
+
+    try:
+        new_state = int(request.form['new_state'])
+    except (ValueError, KeyError):
+        return make_response(jsonify({'error': 'Invalid `new_state` parameter.'}), 400)
+
+    with DBManager.create_session_scope() as db_session:
+        banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+        if banphrase:
+            banphrase.enabled = True if new_state == 1 else False
+            db_session.commit()
+            SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
+            return make_response(jsonify({'success': 'good job', 'new_state': new_state}))
+        else:
+            return make_response(jsonify({'error': 'invalid banphrase id'}))
+
+@page.route('/api/v1/banphrase/remove/<banphrase_id>', methods=['GET'])
+@requires_level(500)
+def banphrase_remove(banphrase_id, **options):
+    with DBManager.create_session_scope() as db_session:
+        banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+        if banphrase is None:
+            return make_response(jsonify({'error': 'Invalid banphrase ID'}))
+        db_session.delete(banphrase)
+        db_session.delete(banphrase.data)
+        SocketClientManager.send('banphrase.remove', {'banphrase_id': banphrase.id})
         return make_response(jsonify({'success': 'good job'}))

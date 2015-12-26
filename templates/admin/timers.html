@@ -52,71 +52,19 @@
 </div>
 {% endblock %}
 {% block footer %}
+<script src="/static/scripts/admin/create_row.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $('button.create-timer').click(function() {
         document.location.href = '/admin/timers/create';
     });
 
-    $('button.edit-row').click(function() {
-        var timer_id = $(this).parent().parent().data('id');
-        document.location.href = '/admin/timers/edit/' + timer_id;
-    });
+    enable_edit_row('timers');
+    enable_remove_row('remove-timer', 'remove_timer');
+    enable_toggle_row('toggle_timer');
 
     $('.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');
-    });
-
-    $('button.toggle-row').api({
-        action: 'toggle_timer',
-        method: 'post',
-        successTest: function(response) {
-            return response.success || false;
-        },
-        beforeSend: function(settings) {
-            var state = $(this).parent().parent().data('enabled');
-            console.log(state);
-            settings.urlData.id = $(this).parent().parent().data('id');
-            if (state == '1') {
-                settings.data.new_state = 0;
-            } else {
-                settings.data.new_state = 1;
-            }
-            return settings;
-        },
-        onSuccess: function(response, element) {
-            $(this).parent().parent().data('enabled', response.new_state);
-            if (response.new_state == 1) {
-                $(element).find('.text').text('Disable');
-                $(element).find('.icon').removeClass('green').addClass('red');
-            } else {
-                $(element).find('.text').text('Enable');
-                $(element).find('.icon').removeClass('red').addClass('green');
-            }
-        },
-    });
-
-    var timer_id_remove = 0;
-    $('button.remove-row').click(function() {
-        timer_id_remove = $(this).parent().parent().data('id');
-        $('.ui.modal.remove-timer').modal('show');
-    });
-    $('.ui.modal.remove-timer').modal({
-        onApprove: function(el) {
-            $.api({
-                on: 'now',
-                action: 'remove_timer',
-                urlData: {
-                    'id': timer_id_remove,
-                },
-                onSuccess: function(response, element) {
-                    $('tr[data-id="'+timer_id_remove+'"]').remove();
-                },
-                onFailure: function(response, element) {
-                    console.error('something went wrong');
-                },
-            });
-        }
     });
 });
 </script>
