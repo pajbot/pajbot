@@ -1,0 +1,72 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_banphrase' %}
+{% block title %}Create Banphrase{% endblock %}
+{% block body %}
+{% if banphrase %}
+<h2>Edit Banphrase &quot;{{ banphrase.name }}&quot;</h2>
+{% else %}
+<h2>Create Banphrase</h2>
+{% endif %}
+<form class="ui form" method="POST" action="/admin/banphrases/create">
+    {% if banphrase %}
+    <input type="hidden" name="id" value="{{ banphrase.id }}" />
+    {% endif %}
+    <div class="fields">
+        <div class="required field four wide">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Name to describe Banphrase" value="{{ banphrase.name if banphrase else ''}}" />
+        </div>
+        <div class="required field twelve wide">
+            <label>Banned phrase</label>
+            <input type="text" name="phrase" placeholder="Banned phrase" value="{{ banphrase.phrase if banphrase else ''}}"/>
+        </div>
+    </div>
+    <div class="fields">
+        <div class="field ui four wide required">
+            <label>Timeout duration</label>
+            <input type="number" name="length" placeholder="Timeout duration" value="{{ banphrase.length if banphrase else '300'}}"/>
+        </div>
+    </div>
+    <div class="fields">
+        <div class="field inline ui checkbox four wide">
+            <input type="checkbox" id="cb_permanent" name="permanent"
+                                                  {%- if banphrase %}
+                                                     {{ 'checked' if banphrase.permanent else '' }}
+                                                  {% endif -%} />
+            <label for="cb_permanent">Permanent</label>
+        </div>
+        <div class="field inline ui checkbox four wide">
+            <input type="checkbox" id="cb_warning" name="warning"
+                                                  {%- if not banphrase or banphrase.warning %}
+                                                  checked
+                                                  {% endif -%} />
+            <label for="cb_warning">Use warnings</label>
+        </div>
+        <div class="field inline ui checkbox four wide">
+            <input type="checkbox" id="cb_notify" name="notify"
+                                                  {%- if not banphrase or banphrase.notify %}
+                                                  checked
+                                                  {% endif -%} />
+            <label for="cb_notify">Notify</label>
+        </div>
+        <div class="field inline ui checkbox four wide">
+            <input type="checkbox" id="cb_case_sensitive" name="case_sensitive"
+                                                  {%- if banphrase %}
+                                                     {{ 'checked' if banphrase.case_sensitive else '' }}
+                                                  {% endif -%} />
+            <label for="cb_case_sensitive">Case sensitive</label>
+        </div>
+    </div>
+    <div class="ui message warning" style="padding: 0.4em;"></div>
+    <div class="ui message error" style="padding: 0.4em;"></div>
+    {% if banphrase %}
+    <div class="ui submit button green">Edit</div>
+    {% else %}
+    <div class="ui submit button green">Create</div>
+    {% endif %}
+</div>
+</form>
+{% endblock %}
+{% block footer %}
+<script src="/static/scripts/admin/create_banphrase.js"></script>
+{% endblock %}

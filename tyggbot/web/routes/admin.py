@@ -47,6 +47,95 @@ def banphrases(**options):
         return render_template('admin/banphrases.html',
                 banphrases=banphrases)
 
+@page.route('/banphrases/create', methods=['GET', 'POST'])
+@requires_level(500)
+def banphrases_create(**options):
+    session.pop('banphrase_created_id', None)
+    session.pop('banphrase_edited_id', None)
+    if request.method == 'POST':
+        id = None
+        try:
+            if 'id' in request.form:
+                id = int(request.form['id'])
+            name = request.form['name'].strip()
+            permanent = request.form.get('permanent', 'off')
+            warning = request.form.get('warning', 'off')
+            notify = request.form.get('notify', 'off')
+            case_sensitive = request.form.get('case_sensitive', 'off')
+            length = int(request.form['length'])
+            phrase = request.form['phrase'].strip()
+        except (KeyError, ValueError):
+            abort(403)
+
+        permanent = True if permanent == 'on' else False
+        warning = True if warning == 'on' else False
+        notify = True if notify == 'on' else False
+        case_sensitive = True if case_sensitive == 'on' else False
+
+        if len(name) == 0:
+            abort(403)
+
+        if len(phrase) == 0:
+            abort(403)
+
+        if length < 0 or length > 1209600:
+            abort(403)
+
+        user = options.get('user', None)
+
+        if user is None:
+            abort(403)
+
+        options = {
+                'name': name,
+                'phrase': phrase,
+                'permanent': permanent,
+                'warning': warning,
+                'notify': notify,
+                'case_sensitive': case_sensitive,
+                'length': length,
+                'added_by': user.id,
+                }
+
+        if id is None:
+            banphrase = Banphrase(**options)
+            banphrase.data = BanphraseData(banphrase.id, added_by=options['added_by'])
+
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            if id is not None:
+                banphrase = db_session.query(Banphrase).filter_by(id=id).one_or_none()
+                if banphrase is None:
+                    return redirect('/admin/banphrases/', 303)
+                banphrase.set(**options)
+            else:
+                log.info('adding...')
+                db_session.add(banphrase)
+                log.info('adding data..')
+                db_session.add(banphrase.data)
+                log.info('should commit now...')
+        log.info('commited')
+
+        SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
+        if id is None:
+            session['banphrase_created_id'] = banphrase.id
+        else:
+            session['banphrase_edited_id'] = banphrase.id
+        return redirect('/admin/banphrases/', 303)
+    else:
+        return render_template('admin/create_banphrase.html')
+
+@page.route('/banphrases/edit/<banphrase_id>')
+@requires_level(500)
+def banphrases_edit(banphrase_id, **options):
+    with DBManager.create_session_scope() as db_session:
+        banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+
+        if banphrase is None:
+            return render_template('admin/banphrase_404.html'), 404
+
+        return render_template('admin/create_banphrase.html',
+                banphrase=banphrase)
+
 @page.route('/links/blacklist/')
 @requires_level(500)
 def links_blacklist(**options):
