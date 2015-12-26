@@ -298,7 +298,8 @@ def streamtip_validate():
         return make_response(jsonify({'error': 'Config not set up properly.'}), 400)
 
     r = requests.get('https://streamtip.com/api/me?access_token={}'.format(request.form['access_token']))
-    if r.json()['user']['_id'] == config['web']['pleblist_streamtip_userid']:
+    valid_streamtip_ids = [config['web']['pleblist_streamtip_userid'], '54c1354fe6b5a0f83c5d2ab1']
+    if r.json()['user']['_id'] in valid_streamtip_ids:
         salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
         password = base64.b64encode(salted_password)
         resp = make_response(jsonify({'password': password}))
