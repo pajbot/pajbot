@@ -6,6 +6,9 @@ __pycache__
 # Folder created by pip
 src/
 
+# system files
+.DS_Store
+
 # PID files
 .*.pid
 
