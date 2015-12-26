@@ -1419,6 +1419,7 @@ class Dispatch:
         emote = random.choice(Dispatch.emotes)
 
         bot.set_emote_bingo_target(emote, bingo_points)
+        bot.say('An emote bingo has started!! Guess the right emote to win the prize! Only one emote per message!')
         bot.websocket_manager.emit('notification', {'message': 'An emote bingo has started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Guess the emote, win the prize!'}))
 
