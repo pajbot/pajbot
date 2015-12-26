@@ -1,11 +1,3 @@
-function submit_form()
-{
-    $('form').form('validate form');
-    if ($('form').form('is valid')) {
-        $('form').form('submit');
-    }
-}
-
 $(document).ready(function() {
     $('form').form({
         fields: {
