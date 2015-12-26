@@ -52,8 +52,8 @@ class Timer(Base):
         self.refresh_tts()
 
     def refresh_tts(self):
-        self.tts_online = self.interval_online
-        self.tts_offline = self.interval_offline
+        self.time_to_send_online = self.interval_online
+        self.time_to_send_offline = self.interval_offline
 
     def refresh_action(self):
         self.action = ActionParser.parse(self.action_json)
@@ -128,22 +128,31 @@ class TimerManager:
     def tick(self):
         if self.bot.is_online:
             for timer in self.online_timers:
-                timer.tts_online -= 1
-            timer = find(lambda timer: timer.tts_online <= 0, self.online_timers)
+                timer.time_to_send_online -= 1
+            timer = find(lambda timer: timer.time_to_send_online <= 0, self.online_timers)
             if timer:
                 timer.run(self.bot)
-                timer.tts_online = timer.interval_online
+                timer.time_to_send_online = timer.interval_online
                 self.online_timers.remove(timer)
                 self.online_timers.append(timer)
         else:
             for timer in self.offline_timers:
-                timer.tts_offline -= 1
-            timer = find(lambda timer: timer.tts_offline <= 0, self.offline_timers)
+                timer.time_to_send_offline -= 1
+            timer = find(lambda timer: timer.time_to_send_offline <= 0, self.offline_timers)
             if timer:
                 timer.run(self.bot)
-                timer.tts_offline = timer.interval_offline
+                timer.time_to_send_offline = timer.interval_offline
                 self.offline_timers.remove(timer)
                 self.offline_timers.append(timer)
+
+    def redistribute_timers(self):
+        for x in range(0, len(self.offline_timers)):
+            timer = self.offline_timers[x]
+            timer.time_to_send_offline = timer.interval_offline * ((x + 1) / len(self.offline_timers))
+
+        for x in range(0, len(self.online_timers)):
+            timer = self.online_timers[x]
+            timer.time_to_send_online = timer.interval_online * ((x + 1) / len(self.online_timers))
 
     def load(self):
         self.timers = []
@@ -153,6 +162,8 @@ class TimerManager:
 
         self.online_timers = [timer for timer in self.timers if timer.interval_online > 0 and timer.enabled]
         self.offline_timers = [timer for timer in self.timers if timer.interval_offline > 0 and timer.enabled]
+
+        self.redistribute_timers()
 
         log.info('Loaded {} timers ({} online/{} offline)'.format(len(self.timers), len(self.online_timers), len(self.offline_timers)))
         return self
