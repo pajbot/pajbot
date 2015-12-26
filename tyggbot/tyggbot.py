@@ -741,14 +741,14 @@ class TyggBot:
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
             #Emote bingo
-            if hasattr(TyggBot, 'emote_bingo_running') and self.emote_bingo_running is True:
-                if len(message_emotes) == 1: # and with a check that message contatins only an emote, nothing else.. len(msg_raw.split(' ')) == 0?
+            if hasattr(self, 'emote_bingo_running') and self.emote_bingo_running is True:
+                if len(message_emotes) == 1 and len(msg_raw.split(' ')) == 1:
                     if message_emotes[0]['code'] == self.emote_bingo_target:
                         self.emote_bingo_running = False
-                        #source bingo wins ++
-                        #announce winner
-                        #source points ++
-                        #are these above three best done in dispatcher?
+                        self.say('{0} won the raffle! {1} was the target emote. Congrats, {2} points to you PogChamp'.format(source.username, self.emote_bingo_target, self.emote_bingo_points))
+                        source.points += self.emote_bingo_points
+                        #TODO: log bingo win count
+                        log.info('{0} won raffle!'.format(source.username))
 
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
@@ -899,9 +899,11 @@ class TyggBot:
             return available_filters[filter.name](resp, filter.arguments)
         return resp
 
-    def set_emote_bingo_target(self, emote):
+    def set_emote_bingo_target(self, emote, points):
         self.emote_bingo_target = emote
         self.emote_bingo_running = True
+        self.emote_bingo_points = points
+        log.debug('Emote bingo target set: {0} for {1} points'.format(emote, points))
 
 def _filter_time_since_dt(var, args):
     try:
