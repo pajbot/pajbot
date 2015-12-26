@@ -13,6 +13,7 @@ except:
 from tyggbot.models.user import User
 from tyggbot.models.filter import Filter
 from tyggbot.tbutil import time_limit, TimeoutException, time_since
+from tyggbot.apiwrappers import APIBase
 
 from sqlalchemy import desc
 from sqlalchemy import func
@@ -48,7 +49,8 @@ class Dispatch:
     """
 
     raffle_running = False
-    emote_bingo_running = False
+    global_emotes_read = False
+    global_emotes = []
 
     def nl(bot, source, message, event, args):
         if message:
@@ -1386,6 +1388,23 @@ class Dispatch:
             bot.say('{0}, an emote bingo is already running FailFish'.format(source.username_raw))
             return False
 
+        def get_global_emotes():
+            """Retruns a list of global twitch emotes"""
+            base_url = 'http://twitchemotes.com/api_cache/v2/global.json'
+            log.info('Getting global emotes!')
+            try:
+                api = APIBase()
+                data = json.loads(api._get(base_url))
+            except ValueError:
+                log.error('Invalid data fetched while getting global emotes!')
+                return False
+
+            emotes = []
+            for code in data['emotes']:
+                emotes.append(code)
+
+            return emotes
+
         bingo_points = 100
         try:
             if message is not None:
@@ -1393,10 +1412,23 @@ class Dispatch:
         except ValueError:
             pass
 
-        emote = random.choice(bot.emotes.custom_data).code
+        if not Dispatch.global_emotes_read:
+            Dispatch.emotes = get_global_emotes()
+            Dispatch.global_emotes_read = True
+
+        emote = random.choice(Dispatch.emotes)
+
         bot.set_emote_bingo_target(emote, bingo_points)
         bot.websocket_manager.emit('notification', {'message': 'An emote bingo has started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Guess the emote, win the prize!'}))
+
+    def cancel_emote_bingo(bot, source, message, event, args):
+        if hasattr(bot, 'emote_bingo_running') and bot.emote_bingo_running is True:
+            bot.cancel_emote_bingo()
+            return True
+        else:
+            bot.say('{0}, no emote bingo is currently running FailFish'.format(source.username_raw))
+            return False
 
     def get_bttv_emotes(bot, source, message, event, args):
         if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:

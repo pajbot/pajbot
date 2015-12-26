@@ -905,6 +905,11 @@ class TyggBot:
         self.emote_bingo_points = points
         log.debug('Emote bingo target set: {0} for {1} points'.format(emote, points))
 
+    def cancel_emote_bingo(self):
+        log.debug('Emote bingo cancelled')
+        self.say('Emote bingo cancelled :(')
+        self.emote_bingo_running = False
+
 def _filter_time_since_dt(var, args):
     try:
         ts = time_since(datetime.now().timestamp(), var.timestamp())
