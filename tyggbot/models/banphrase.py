@@ -190,6 +190,7 @@ class BanphraseManager:
         self.db_session.expunge(banphrase)
 
         self.banphrases.append(banphrase)
+        self.enabled_banphrases.append(banphrase)
 
         return banphrase, True
 
