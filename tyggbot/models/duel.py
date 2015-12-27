@@ -6,6 +6,7 @@ from tyggbot.models.db import DBManager, Base
 
 from sqlalchemy import Column, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
 from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger('tyggbot')
@@ -24,7 +25,13 @@ class UserDuelStats(Base):
     longest_winstreak = Column(Integer, nullable=False, default=0)
     longest_losestreak = Column(Integer, nullable=False, default=0)
 
-    user = relationship('User')
+    user = relationship('User',
+            cascade='',
+            uselist=False,
+            backref=backref('duel_stats',
+                uselist=False,
+                cascade='',
+                lazy='select'))
 
     def __init__(self, user_id):
         self.user_id = user_id
@@ -52,12 +59,11 @@ class DuelManager:
     def __init__(self, bot):
         self.db_session = bot.users.db_session
 
-    def get_user_duel_stats(self, user_id):
-        user_duel_stats = self.db_session.query(UserDuelStats).filter_by(user_id=user_id).first()
-        if user_duel_stats is None:
-            user_duel_stats = UserDuelStats(user_id)
-            self.db_session.add(user_duel_stats)
-        return user_duel_stats
+    def get_user_duel_stats(self, user):
+        if user.duel_stats is None:
+            user.duel_stats = UserDuelStats(user.id)
+            self.db_session.add(user.duel_stats)
+        return user.duel_stats
 
     def user_won(self, user, points_won):
         """
@@ -66,7 +72,7 @@ class DuelManager:
         points_won = an Integer for how many points the user just won
         """
 
-        user_duel_stats = self.get_user_duel_stats(user.id)
+        user_duel_stats = self.get_user_duel_stats(user)
         user_duel_stats.duels_won += 1
         user_duel_stats.duels_total += 1
         user_duel_stats.points_won += points_won
@@ -88,7 +94,7 @@ class DuelManager:
         points_lost = an Integer for how many points the user just lost
         """
 
-        user_duel_stats = self.get_user_duel_stats(user.id)
+        user_duel_stats = self.get_user_duel_stats(user)
         user_duel_stats.duels_total += 1
         user_duel_stats.points_lost += points_lost
         user_duel_stats.last_duel = datetime.datetime.now()
