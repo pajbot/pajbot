@@ -336,7 +336,7 @@ class Dispatch:
 
             if len(action['cb']) > 0:
                 options['action'] = action
-            command.set(**options)
+            bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
     def remove_banphrase(bot, source, message, event, args):
