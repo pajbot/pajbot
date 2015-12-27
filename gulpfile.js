@@ -1,7 +1,7 @@
-var gulp = require('gulp');
-var watch = require('gulp-watch');
-var sass = require('gulp-sass');
-var minifyCss = require('gulp-minify-css');
+var gulp   = require('gulp');
+var watch  = require('gulp-watch');
+var sass   = require('gulp-sass');
+var nano   = require('gulp-cssnano');
 var rename = require("gulp-rename");
 
 gulp.task('sass', function() {
@@ -12,7 +12,7 @@ gulp.task('sass', function() {
 
 gulp.task('minify', function () {
     gulp.src('./static/css/base.css')
-        .pipe(minifyCss({compatibility: 'ie8'}))
+        .pipe(nano())
         .pipe(rename('base.min.css'))
         .pipe(gulp.dest('./static/css/'))
 });
