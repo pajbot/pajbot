@@ -17,6 +17,11 @@ gulp.task('minify', function () {
         .pipe(gulp.dest('./static/css/'))
 });
 
+gulp.task('build',function() {
+    gulp.run('sass');
+    gulp.run('minify');
+});
+
 gulp.task('watch',function() {
     gulp.watch('./static/css/*.sass', ['sass']);
     gulp.watch('./static/css/*.css', ['minify']);
