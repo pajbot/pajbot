@@ -1,0 +1,232 @@
+.pui
+  &.command, &.argument
+    font-family: monospace
+    border-radius: .285rem
+    background: #f8f8f9
+    padding: .4em
+    line-height: 18px
+    box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.22) inset, 0 0 0 0 transparent
+    display: inline-block
+
+@import "components/badges";
+@import "components/hearthstone_classes";
+
+.pui.user
+  font-weight: bold
+
+.user
+  &.l2000
+    color: #f0f
+  &.l1000
+    color: #922
+  &.l750
+    color: #11f
+  &.l500
+    color: #44f
+  &.l420, &.l421
+    color: #292
+  &.l501
+    -webkit-background-clip: text
+    -webkit-text-fill-color: transparent
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2)
+    background-image: -webkit-gradient(linear, left top, right top, color-stop(0, red), color-stop(50%, yellow), color-stop(1, green))
+  &.l123
+    -webkit-background-clip: text
+    -webkit-text-fill-color: transparent
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2)
+    background-image: -webkit-gradient(linear, left top, right top, color-stop(0, red), color-stop(16%, orange), color-stop(32%, yellow), color-stop(48%, green), color-stop(60%, blue), color-stop(76%, indigo), color-stop(1, violet))
+
+@media (min-height: 320px)
+  .footer.form-page
+    position: absolute !important
+    bottom: 0
+    width: 100%
+
+.main
+  &.body
+    display: flex
+    min-height: 100vh
+    flex-direction: column
+  &.header, &.footer
+    flex: none
+  &.container
+    flex: 1 0 auto
+    padding: 65px 2em 1em 2em
+    width: 100%
+
+#check_points
+  width: 30%
+  min-width: 300px
+
+div.video_thumbnail
+  position: relative
+  width: 240px
+  height: 135px
+  overflow: hidden
+  img
+    position: absolute
+    left: 50%
+    top: 50%
+    height: 100%
+    width: auto
+    -webkit-transform: translate(-50%, -50%)
+    -ms-transform: translate(-50%, -50%)
+    transform: translate(-50%, -50%)
+
+.picker__footer
+  display: none
+
+div
+  &#stats th, &#userprofile td
+    width: 50%
+  &.stats.minitable
+    width: 400px
+    margin-bottom: 1em
+    float: left
+  &.mediumtable
+    width: 600px
+  &#songlist div.item:first-child, &#songhistory div.item.not-played.first
+    background-color: rgba(0, 255, 0, 0.175)
+
+#songlist .song-index
+  float: left
+  padding-right: 5px
+
+div#songhistory div.item div.description
+  line-height: 1.5em
+
+#songhistory .played
+  background-color: rgba(255, 0, 0, 0.1)
+
+#pleblist
+  height: 100%
+
+div.pleblist-wrapper
+  overflow: hidden
+  div
+    margin-bottom: 0.5em
+    &.inner-player-wrapper
+      position: relative
+      width: 100%
+      height: 0px
+      padding-bottom: 60%
+
+#player
+  position: absolute
+  left: 0px
+  top: 0px
+  width: 100%
+  height: 100%
+
+div.pleblist-wrapper div
+  &.player-wrapper
+    width: auto
+    overflow: hidden
+    padding-right: 1em
+  &.songlist-wrapper
+    float: right
+    width: 240px
+
+table.editcommand div.edit
+  display: none
+
+.ui.input.compact
+  input, .ui.label
+    padding: 0.375em
+
+td.description
+  word-break: break-word
+  word-wrap: break-word
+  hyphens: auto
+  a
+    word-break: break-word
+    word-wrap: break-word
+    hyphens: auto
+
+.ui
+  &.menu .item img.logo
+    margin-right: 1em
+  &.twitch.button
+    background-color: #6441a5
+    color: #FFFFFF
+    text-shadow: none
+    background-image: none
+    box-shadow: 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset
+    &:hover, &:active
+      background-color: #7550BA
+      color: #FFFFFF
+      text-shadow: none
+
+div.chat div.chat-message
+  display: block
+  line-height: 16px
+  word-break: break-word
+  word-wrap: break-word
+  color: rgb(61, 61, 66)
+  border-bottom-color: rgb(180, 180, 180)
+  border-bottom-width: 1px
+  border-bottom-style: solid
+  display: block
+  font-size: 12px
+  padding-bottom: 3px
+  padding-left: 10px
+  padding-right: 10px
+  padding-top: 2px
+  width: 340px
+  list-style-position: unset
+  list-style-type: none
+  font-family: Helvetica Neue,Helvetica,sans-serif
+  .pemote img
+    margin: -5px 0
+
+.chat
+  &:nth-child(even) .chat-message
+    &.say, &.me
+      background-color: rgb(200, 200, 200)
+  &:nth-child(odd) .chat-message
+    &.say, &.me
+      background-color: rgb(217, 217, 217)
+  .chat-message
+    &.me
+      &.from-bot .message
+        color: #7878ff
+      &.from-user .message
+        color: #8b0000
+      .separator
+        display: none
+    &.whisper
+      background-color: #E8D6FF
+  &.border
+    border-color: rgb(180, 180, 180)
+    border-width: 0.666667px
+    border-style: solid
+    width: 341px
+
+.timestamp
+  color: rgb(140, 140, 140)
+  margin-right: 5px
+
+.chat
+  .user
+    color: #8b0000
+    font-weight: 700
+  .bot
+    color: #7878ff
+    font-weight: 700
+  .svg
+    height: 10px
+    width: 16px
+
+.examples .description
+  font-style: italic
+  margin-bottom: 0.75em
+  margin-top: -0.75em
+
+div.anchor
+  display: block
+  position: relative
+  top: -65px
+  visibility: hidden
+
+#bot_moderators h4
+  padding-top: 35px
