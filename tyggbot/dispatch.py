@@ -691,8 +691,13 @@ class Dispatch:
 
     def set_game(bot, source, message, event, args):
         if message:
-            bot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
             bot.twitchapi.set_game(bot.streamer, message)
+            bot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
+
+    def set_title(bot, source, message, event, args):
+        if message:
+            bot.twitchapi.set_title(bot.streamer, message)
+            bot.say('{0} updated the title to "{1}"'.format(source.username_raw, message))
 
     def ban_source(bot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
