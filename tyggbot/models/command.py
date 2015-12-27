@@ -344,10 +344,23 @@ class Command(Base):
 
 
 class CommandManager(UserDict):
+    """ This class is responsible for compiling commands from multiple sources
+    into one easily accessible source.
+    The following sources are used:
+     - internal_commands = Commands that are added in source
+     - db_commands = Commands that are loaded from the database
+     - module_commands = Commands that are loaded from enabled modules
+
+    """
+
     def __init__(self, bot):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
-        self.internal_commands = None
+
+        self.internal_commands = {}
+        self.db_commands = {}
+        self.module_commands = {}
+
         self.bot = bot
         if bot:
             self.bot.socket_manager.add_handler('command.update', self.on_command_update)
@@ -360,13 +373,15 @@ class CommandManager(UserDict):
             log.warn('No command ID found in on_command_update')
             return False
 
-        command = find(lambda command: command.id == command_id, self.data.values())
+        command = find(lambda command: command.id == command_id, self.db_commands.values())
         if command is not None:
             self.remove_command_aliases(command)
 
         self.load_by_id(command_id)
 
         log.debug('Reloaded command with id {}'.format(command_id))
+
+        self.rebuild()
 
     def on_command_remove(self, data, conn):
         try:
@@ -375,7 +390,7 @@ class CommandManager(UserDict):
             log.warn('No command ID found in on_command_update')
             return False
 
-        command = find(lambda command: command.id == command_id, self.data.values())
+        command = find(lambda command: command.id == command_id, self.db_commands.values())
         if command is None:
             log.warn('Invalid ID sent to on_command_update')
             return False
@@ -385,14 +400,16 @@ class CommandManager(UserDict):
 
         log.debug('Remove command with id {}'.format(command_id))
 
+        self.rebuild()
+
     def __del__(self):
         self.db_session.close()
 
     def commit(self):
         self.db_session.commit()
 
-    def get_internal_commands(self):
-        if self.internal_commands is not None:
+    def load_internal_commands(self):
+        if len(self.internal_commands) > 0:
             return self.internal_commands
 
         try:
@@ -804,7 +821,7 @@ class CommandManager(UserDict):
 
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id)
-        self.add_command_aliases(command)
+        self.add_db_command_aliases(command)
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             db_session.add(command)
             db_session.add(command.data)
@@ -813,6 +830,8 @@ class CommandManager(UserDict):
             db_session.expunge(command.data)
         self.db_session.add(command.data)
         self.commit()
+
+        self.rebuild()
         return command, True
 
     def edit_command(self, command, **options):
@@ -822,8 +841,8 @@ class CommandManager(UserDict):
     def remove_command_aliases(self, command):
         aliases = command.command.split('|')
         for alias in aliases:
-            if alias in self.data:
-                del self.data[alias]
+            if alias in self.db_commands:
+                del self.db_commands[alias]
             else:
                 log.warning('For some reason, {0} was not in the list of commands when we removed it.'.format(alias))
 
@@ -835,32 +854,67 @@ class CommandManager(UserDict):
             db_session.delete(command.data)
             db_session.delete(command)
 
-    def add_command_aliases(self, command):
+    def add_db_command_aliases(self, command):
         aliases = command.command.split('|')
         for alias in aliases:
-            self.data[alias] = command
+            self.db_commands[alias] = command
 
         return len(aliases)
 
-    def _load_enabled_commands(self, load_examples=False):
+    def load_db_commands(self, load_examples=False):
+        """ This method is only meant to be run once.
+        Any further updates to the db_commands dictionary will be done
+        in other methods.
+
+        """
+
+        if len(self.db_commands) > 0:
+            return self.db_commands
+
         if load_examples is False:
-            for command in self.db_session.query(Command).filter_by(enabled=True):
-                yield command
+            query = self.db_session.query(Command).filter_by(enabled=True)
         else:
-            for command in self.db_session.query(Command).options(joinedload(Command.examples)).filter_by(enabled=True):
-                yield command
+            query = self.db_session.query(Command).options(joinedload(Command.examples)).filter_by(enabled=True)
 
-    def load(self, **options):
-        self.get_internal_commands()
-        self.data = self.internal_commands
-
-        for command in self._load_enabled_commands(**options):
-            self.add_command_aliases(command)
+        for command in query:
+            self.add_db_command_aliases(command)
             self.db_session.expunge(command)
             if command.data is None:
                 log.info('Creating command data for {}'.format(command.command))
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
+
+        return self.db_commands
+
+    def load_module_commands(self):
+        """ This method is only meant to be run once.
+        Any further updates to the db_commands dictionary will be done
+        in other methods.
+
+        """
+
+        if len(self.module_commands) > 0:
+            return self.module_commands
+
+        # TODO: load module commands!
+
+        return self.module_commands
+
+    def rebuild(self):
+        """ Rebuild the internal commands list from all sources.
+
+        """
+
+        self.data = {}
+        self.data.update(self.internal_commands)
+        self.data.update({alias: command for alias, command in self.db_commands.items() if command.enabled is True})
+
+    def load(self, **options):
+        self.load_internal_commands(**options)
+        self.load_db_commands(**options)
+        self.load_module_commands(**options)
+
+        self.rebuild()
 
         return self
 
@@ -868,7 +922,7 @@ class CommandManager(UserDict):
         self.db_session.commit()
         command = self.db_session.query(Command).filter_by(id=command_id, enabled=True).one_or_none()
         if command:
-            self.add_command_aliases(command)
+            self.add_db_command_aliases(command)
             self.db_session.expunge(command)
             if command.data is None:
                 log.info('Creating command data for {}'.format(command.command))

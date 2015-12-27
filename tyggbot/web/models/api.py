@@ -420,7 +420,7 @@ def command_checkalias(**options):
 
     command_manager = CommandManager(None)
 
-    internal_commands = command_manager.get_internal_commands()
+    internal_commands = command_manager.load_internal_commands()
     db_command_aliases = []
 
     with DBManager.create_session_scope() as db_session:
