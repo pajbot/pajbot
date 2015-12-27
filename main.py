@@ -12,13 +12,13 @@ except NameError:
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-log = logging.getLogger('tyggbot')
+log = logging.getLogger('pajbot')
 
-from tyggbot.tyggbot import TyggBot
+from pajbot.bot import Bot
 
 
 def run(args):
-    from tyggbot.tbutil import load_config
+    from pajbot.tbutil import load_config
     config = load_config(args.config)
 
     if 'main' not in config:
@@ -33,20 +33,20 @@ def run(args):
         log.error('Missing required db config in the [main] section.')
         sys.exit(1)
 
-    tyggbot = TyggBot(config, args)
+    pajbot = Bot(config, args)
 
-    tyggbot.connect()
+    pajbot.connect()
 
     def on_sigterm(signal, frame):
-        tyggbot.quit()
+        pajbot.quit()
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, on_sigterm)
 
     try:
-        tyggbot.start()
+        pajbot.start()
     except KeyboardInterrupt:
-        tyggbot.quit()
+        pajbot.quit()
         pass
 
 
@@ -54,11 +54,11 @@ def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
 if __name__ == "__main__":
-    from tyggbot.tbutil import init_logging
+    from pajbot.tbutil import init_logging
 
     sys.excepthook = handle_exceptions
 
-    args = TyggBot.parse_args()
+    args = Bot.parse_args()
 
-    init_logging('tyggbot')
+    init_logging('pajbot')
     run(args)

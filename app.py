@@ -11,24 +11,24 @@ import subprocess
 import datetime
 import urllib
 
-from tyggbot.tyggbot import TyggBot
-from tyggbot.web.models import api
-from tyggbot.web.routes import admin
-from tyggbot.web.models import errors
-from tyggbot.models.db import DBManager
-from tyggbot.tbutil import load_config, init_logging, time_nonclass_method
-from tyggbot.models.deck import Deck
-from tyggbot.models.command import CommandExample
-from tyggbot.models.user import User
-from tyggbot.models.duel import UserDuelStats
-from tyggbot.models.stream import Stream, StreamChunkHighlight
-from tyggbot.models.webcontent import WebContent
-from tyggbot.models.time import TimeManager
-from tyggbot.models.pleblist import PleblistSong
-from tyggbot.models.sock import SocketClientManager
-from tyggbot.apiwrappers import TwitchAPI
-from tyggbot.tbutil import time_since
-from tyggbot.tbutil import find
+from pajbot.bot import Bot
+from pajbot.web.models import api
+from pajbot.web.routes import admin
+from pajbot.web.models import errors
+from pajbot.models.db import DBManager
+from pajbot.tbutil import load_config, init_logging, time_nonclass_method
+from pajbot.models.deck import Deck
+from pajbot.models.command import CommandExample
+from pajbot.models.user import User
+from pajbot.models.duel import UserDuelStats
+from pajbot.models.stream import Stream, StreamChunkHighlight
+from pajbot.models.webcontent import WebContent
+from pajbot.models.time import TimeManager
+from pajbot.models.pleblist import PleblistSong
+from pajbot.models.sock import SocketClientManager
+from pajbot.apiwrappers import TwitchAPI
+from pajbot.tbutil import time_since
+from pajbot.tbutil import find
 
 import markdown
 from flask import Flask
@@ -46,8 +46,8 @@ from flask_oauthlib.client import OAuthException
 # from flask import jsonify
 from sqlalchemy import func, cast, Date
 
-init_logging('tyggbot')
-log = logging.getLogger('tyggbot')
+init_logging('pajbot')
+log = logging.getLogger('pajbot')
 
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
@@ -161,7 +161,7 @@ def nocache(view):
 
 def update_commands(signal_id):
     global bot_commands_list
-    from tyggbot.models.command import CommandManager
+    from pajbot.models.command import CommandManager
     bot_commands = CommandManager(None).load(load_examples=True)
     bot_commands_list = bot_commands.parse_for_web()
 
@@ -179,7 +179,7 @@ try:
     @thread
     @timer(5)
     def get_highlight_thumbnails(no_clue_what_this_does):
-        from tyggbot.web.models.thumbnail import StreamThumbnailWriter
+        from pajbot.web.models.thumbnail import StreamThumbnailWriter
         with DBManager.create_session_scope() as db_session:
             highlights = db_session.query(StreamChunkHighlight).filter_by(thumbnail=None).all()
             if len(highlights) > 0:
@@ -652,7 +652,7 @@ nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
 
-version = TyggBot.version
+version = Bot.version
 last_commit = ''
 commit_number = 0
 try:

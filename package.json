@@ -1,7 +1,7 @@
 {
-  "name": "tyggbot",
+  "name": "pajbot",
   "version": "1.0.0",
-  "description": "Tyggbot",
+  "description": "pajbot, twitch moderation bot",
   "main": "index.js",
   "dependencies": {
     "gulp": "^3.9.0",
@@ -17,12 +17,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pajlada/tyggbot.git"
+    "url": "https://github.com/pajlada/pajbot.git"
   },
   "author": "pajlada",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pajlada/tyggbot/issues"
+    "url": "https://github.com/pajlada/pajbot/issues"
   },
-  "homepage": "https://github.com/pajlada/tyggbot#readme"
+  "homepage": "https://github.com/pajlada/pajbot#readme"
 }
