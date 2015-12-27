@@ -1293,6 +1293,16 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'You have no duel request or duel target. Type !duel USERNAME POT to duel someone!')
 
+    def get_duel_stats(bot, source, message, event, args):
+        """
+        Whispers the users duel winratio to the user
+        """
+        if source.duel_stats is None:
+            bot.whisper(source.username, 'You have no recorded duels.')
+            return True
+
+        bot.whisper(source.username, 'duels: {ds.duels_total} winrate: {ds.winrate:.2f}% streak: {ds.current_streak} profit: {ds.profit}'.format(ds=source.duel_stats))
+
     def raffle(bot, source, message, event, args):
         if hasattr(Dispatch, 'raffle_running') and Dispatch.raffle_running is True:
             bot.say('{0}, a raffle is already running OMGScoots'.format(source.username_raw))
