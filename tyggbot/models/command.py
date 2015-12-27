@@ -408,7 +408,7 @@ class CommandManager(UserDict):
     def commit(self):
         self.db_session.commit()
 
-    def load_internal_commands(self):
+    def load_internal_commands(self, **options):
         if len(self.internal_commands) > 0:
             return self.internal_commands
 
@@ -861,7 +861,7 @@ class CommandManager(UserDict):
 
         return len(aliases)
 
-    def load_db_commands(self, load_examples=False):
+    def load_db_commands(self, **options):
         """ This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
@@ -871,7 +871,7 @@ class CommandManager(UserDict):
         if len(self.db_commands) > 0:
             return self.db_commands
 
-        if load_examples is False:
+        if options.get('load_examples', False) is False:
             query = self.db_session.query(Command).filter_by(enabled=True)
         else:
             query = self.db_session.query(Command).options(joinedload(Command.examples)).filter_by(enabled=True)
@@ -886,7 +886,7 @@ class CommandManager(UserDict):
 
         return self.db_commands
 
-    def load_module_commands(self):
+    def load_module_commands(self, **options):
         """ This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
