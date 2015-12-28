@@ -1,7 +1,7 @@
-# tyggbot 
-[![Build Status](https://travis-ci.org/pajlada/tyggbot.svg?branch=master)](https://travis-ci.org/pajlada/tyggbot)
+# pajbot
+[![Build Status](https://travis-ci.org/pajlada/pajbot.svg?branch=master)](https://travis-ci.org/pajlada/pajbot)
 
-tyggbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).  
+pajbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).  
 Examples of twitch channels where the bot is run:
 
 | Bot name  | Twitch channel | Maintainer |
@@ -26,6 +26,6 @@ Examples of twitch channels where the bot is run:
 
 ## Detailed install
 
-* You can find a detailed installation Guide for **Tyggbot - Bot** in the [wiki](https://github.com/pajlada/tyggbot/wiki/Installation-Bot)
+* You can find a detailed installation Guide for **Pajbot - Bot** in the [wiki](https://github.com/pajlada/pajbot/wiki/Installation-Bot)
 
-* You can find a detailed installation Guide for **Tyggbot - Website** in the [wiki](https://github.com/pajlada/tyggbot/wiki/Installation-Website)
+* You can find a detailed installation Guide for **Pajbot - Website** in the [wiki](https://github.com/pajlada/pajbot/wiki/Installation-Website)

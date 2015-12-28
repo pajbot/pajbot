@@ -9,8 +9,8 @@ from logging.config import fileConfig
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
-from tyggbot.tyggbot import TyggBot
-from tyggbot.tbutil import load_config
+from pajbot.bot import Bot
+from pajbot.tbutil import load_config
 
 tag = context.get_tag_argument()
 
@@ -27,12 +27,12 @@ args, unknown = parser.parse_known_args(args=custom_args)
 print('Loading config from {0}'.format(args.config))
 tb_config = load_config(args.config)
 
-from tyggbot.models.db import Base
-# from tyggbot.models.user import User
-# from tyggbot.models.command import Command
-# from tyggbot.models import *
+from pajbot.models.db import Base
+# from pajbot.models.user import User
+# from pajbot.models.command import Command
+# from pajbot.models import *
 
-# from tyggbot.tbutil import load_config
+# from pajbot.tbutil import load_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -9,7 +9,7 @@ os.chdir('..')
 
 class TestURLMethods(unittest.TestCase):
     def test_is_subdomain(self):
-        from tyggbot.models.linkchecker import is_subdomain
+        from pajbot.models.linkchecker import is_subdomain
 
         self.assertTrue(is_subdomain('pajlada.se', 'pajlada.se'))
         self.assertTrue(is_subdomain('test.pajlada.se', 'pajlada.se'))
@@ -19,7 +19,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subdomain('foo.bar.com', 'foobar.com'))
 
     def test_is_subpath(self):
-        from tyggbot.models.linkchecker import is_subpath
+        from pajbot.models.linkchecker import is_subpath
 
         self.assertTrue(is_subpath('/foo/', '/foo/'))
         self.assertTrue(is_subpath('/foo/bar', '/foo/'))
@@ -28,7 +28,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subpath('/foo/', '/foo/bar'))
 
     def test_is_same_url(self):
-        from tyggbot.models.linkchecker import is_same_url, Url
+        from pajbot.models.linkchecker import is_same_url, Url
 
         self.assertEqual(is_same_url(Url('pajlada.se'), Url('pajlada.se/')), True)
 
@@ -36,7 +36,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertEqual(is_same_url(Url('pajlada.com'), Url('pajlada.com/abc')), False)
 
     def test_find_unique_urls(self):
-        from tyggbot.models.linkchecker import LinkChecker, find_unique_urls
+        from pajbot.models.linkchecker import LinkChecker, find_unique_urls
         import re
 
         regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
@@ -57,21 +57,21 @@ class TestURLMethods(unittest.TestCase):
 
 class ActionsTester(unittest.TestCase):
     def setUp(self):
-        from tyggbot.tyggbot import TyggBot
-        from tyggbot.models.user import User, UserManager
-        from tyggbot.tbutil import load_config
+        from pajbot.bot import Bot
+        from pajbot.models.user import User, UserManager
+        from pajbot.tbutil import load_config
         import datetime
 
         config = load_config('config.ini')
-        args = TyggBot.parse_args()
-        self.tyggbot = TyggBot(config, args)
-        self.source = self.tyggbot.users['testuser123Kappa']
+        args = Bot.parse_args()
+        self.pajbot = Bot(config, args)
+        self.source = self.pajbot.users['testuser123Kappa']
         self.source.username_raw = 'PajladA'
         self.source.points = 142
         self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S')
 
     def test_message_action_parse(self):
-        from tyggbot.models.action import SayAction
+        from pajbot.models.action import SayAction
         import pytz
         import datetime
 
@@ -135,7 +135,7 @@ class ActionsTester(unittest.TestCase):
                     'num_argument_subs': 0,
                     'num_subs': 1,
                     'arguments': 'testuser123Kappa',
-                    'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.tyggbot.date_fmt)),
+                    'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.pajbot.date_fmt)),
                 }, {
                     'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
                     'num_argument_subs': 1,
@@ -152,8 +152,8 @@ class ActionsTester(unittest.TestCase):
                 ]
 
         for data in values:
-            action = SayAction(data['message'], self.tyggbot)
-            response = action.get_response(self.tyggbot, {'source': self.source, 'message': data['arguments']})
+            action = SayAction(data['message'], self.pajbot)
+            response = action.get_response(self.pajbot, {'source': self.source, 'message': data['arguments']})
             self.assertEqual(len(action.argument_subs), data['num_argument_subs'], 'Wrong amount of argument substitutions for "{0}"'.format(data['message']))
             self.assertEqual(len(action.subs), data['num_subs'], 'Wrong amount of substitutions for "{0}"'.format(data['message']))
             self.assertEqual(response, data['result'], 'Got output "{}", expected "{}"'.format(response, data['result']))
