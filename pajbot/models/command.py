@@ -238,6 +238,16 @@ class Command(Base):
         return cmd
 
     @classmethod
+    def raw_command(cls, cb, **options):
+        cmd = cls(**options)
+        try:
+            cmd.action = RawFuncAction(cb)
+        except:
+            log.exception('Uncaught exception in Command.raw_command. catch the following exception manually!')
+            cmd.enabled = False
+        return cmd
+
+    @classmethod
     def pajbot_command(cls, bot, method_name, level=1000, **options):
         from pajbot.bot import Bot
         cmd = cls()
@@ -362,9 +372,15 @@ class CommandManager(UserDict):
         self.module_commands = {}
 
         self.bot = bot
+        self.module_manager = bot.module_manager
+
         if bot:
+            self.bot.socket_manager.add_handler('module.reload', self.on_module_reload)
             self.bot.socket_manager.add_handler('command.update', self.on_command_update)
             self.bot.socket_manager.add_handler('command.remove', self.on_command_remove)
+
+    def on_module_reload(self, data, conn):
+        self.rebuild()
 
     def on_command_update(self, data, conn):
         try:
@@ -886,20 +902,6 @@ class CommandManager(UserDict):
 
         return self.db_commands
 
-    def load_module_commands(self, **options):
-        """ This method is only meant to be run once.
-        Any further updates to the db_commands dictionary will be done
-        in other methods.
-
-        """
-
-        if len(self.module_commands) > 0:
-            return self.module_commands
-
-        # TODO: load module commands!
-
-        return self.module_commands
-
     def rebuild(self):
         """ Rebuild the internal commands list from all sources.
 
@@ -909,10 +911,13 @@ class CommandManager(UserDict):
         self.data.update(self.internal_commands)
         self.data.update({alias: command for alias, command in self.db_commands.items() if command.enabled is True})
 
+        for enabled_module in self.module_manager.modules:
+            log.info('Checking module: {}'.format(enabled_module.commands))
+            self.data.update(enabled_module.commands)
+
     def load(self, **options):
         self.load_internal_commands(**options)
         self.load_db_commands(**options)
-        self.load_module_commands(**options)
 
         self.rebuild()
 

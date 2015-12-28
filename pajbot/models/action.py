@@ -196,7 +196,7 @@ class RawFuncAction(BaseAction):
         self.cb = cb
 
     def run(self, bot, source, message, event={}, args={}):
-        return self.cb()
+        return self.cb(bot=bot, source=source, message=message, event=event, args=args)
 
 def get_argument_substitutions(string):
     """

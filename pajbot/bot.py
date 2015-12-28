@@ -32,6 +32,7 @@ from .models.duel import UserDuelStats, DuelManager
 from .models.pleblist import PleblistSong, PleblistManager
 from .models.timer import TimerManager, Timer
 from pajbot.models.banphrase import BanphraseManager
+from pajbot.models.module import ModuleManager
 from pajbot.managers.redis import RedisManager
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
@@ -184,6 +185,7 @@ class Bot:
         self.users = UserManager()
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
+        self.module_manager = ModuleManager(self.socket_manager).load()
         self.commands = CommandManager(self).load()
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
@@ -892,7 +894,7 @@ class Bot:
             log.info('Done with {0}'.format(key))
         log.info('ok!')
 
-    def quit(self):
+    def quit(self, **options):
         self.commit_all()
         if self.phrases['quit']:
             phrase_data = {
