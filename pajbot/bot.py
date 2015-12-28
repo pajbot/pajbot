@@ -58,7 +58,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.1.1'
+    version = '2.2.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
