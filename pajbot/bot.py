@@ -186,7 +186,10 @@ class Bot:
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
         self.module_manager = ModuleManager(self.socket_manager).load()
-        self.commands = CommandManager(self).load()
+        self.commands = CommandManager(
+                socket_manager=self.socket_manager,
+                module_manager=self.module_manager,
+                bot=self).load()
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
         self.settings = SettingManager({'broadcaster': self.streamer}).reload()

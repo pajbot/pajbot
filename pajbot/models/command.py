@@ -363,7 +363,7 @@ class CommandManager(UserDict):
 
     """
 
-    def __init__(self, bot):
+    def __init__(self, socket_manager=None, module_manager=None, bot=None):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
 
@@ -372,14 +372,12 @@ class CommandManager(UserDict):
         self.module_commands = {}
 
         self.bot = bot
+        self.module_manager = module_manager
 
-        if bot:
-            self.module_manager = bot.module_manager
-            self.bot.socket_manager.add_handler('module.reload', self.on_module_reload)
-            self.bot.socket_manager.add_handler('command.update', self.on_command_update)
-            self.bot.socket_manager.add_handler('command.remove', self.on_command_remove)
-        else:
-            self.module_manager = None
+        if socket_manager:
+            socket_manager.add_handler('module.reload', self.on_module_reload)
+            socket_manager.add_handler('command.update', self.on_command_update)
+            socket_manager.add_handler('command.remove', self.on_command_remove)
 
     def on_module_reload(self, data, conn):
         self.rebuild()
@@ -889,10 +887,12 @@ class CommandManager(UserDict):
         if len(self.db_commands) > 0:
             return self.db_commands
 
-        if options.get('load_examples', False) is False:
-            query = self.db_session.query(Command).filter_by(enabled=True)
-        else:
-            query = self.db_session.query(Command).options(joinedload(Command.examples)).filter_by(enabled=True)
+        query = self.db_session.query(Command)
+
+        if options.get('load_examples', False) is True:
+            query = query.options(joinedload(Command.examples))
+        if options.get('enabled', True) is True:
+            query = query.filter_by(enabled=True)
 
         for command in query:
             self.add_db_command_aliases(command)

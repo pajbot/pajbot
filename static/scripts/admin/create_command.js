@@ -81,19 +81,22 @@ $(document).ready(function() {
             },
         },
         keyboardShortcuts: false,
-        onSuccess: function(event, fields) {
-            console.log(fields);
-        }
     });
     $('.ui.submit').click(function() {
-        $('div.add-alias').api('query get request');
-        var promise = $('div.add-alias').api('get request');
-        if (promise !== false) {
-            console.log(promise);
-            promise.always(function() {
-                console.log('always');
+        var input_el_length = $('input.alias').val().length;
+        console.log(input_el_length);
+        if (input_el_length > 0) {
+            $('div.add-alias').api('query get request');
+            var promise = $('div.add-alias').api('get request');
+            if (promise !== false) {
+                console.log(promise);
+                promise.always(function() {
+                    console.log('always');
+                    submit_form();
+                });
+            } else {
                 submit_form();
-            });
+            }
         } else {
             submit_form();
         }

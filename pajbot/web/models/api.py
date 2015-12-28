@@ -9,6 +9,7 @@ import time
 from pajbot.web.utils import requires_level
 from pajbot.models.user import User
 from pajbot.models.command import Command, CommandManager
+from pajbot.models.module import ModuleManager
 from pajbot.models.timer import Timer
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.pleblist import PleblistSong
@@ -418,21 +419,21 @@ def command_checkalias(**options):
 
     request_alias = request.form['alias'].lower()
 
-    command_manager = CommandManager(None)
+    command_manager = CommandManager(
+            socket_manager=None,
+            module_manager=ModuleManager(None).load(),
+            bot=None).load(enabled=None)
 
-    internal_commands = command_manager.load_internal_commands()
-    db_command_aliases = []
+    command_aliases = []
 
-    with DBManager.create_session_scope() as db_session:
-        for command in db_session.query(Command):
-            db_command_aliases.extend(command.command.split('|'))
+    for alias, command in command_manager.items():
+        command_aliases.append(alias)
+        if command.command and len(command.command) > 0:
+            command_aliases.extend(command.command.split('|'))
 
-    for alias in internal_commands:
-        db_command_aliases.append(alias)
+    command_aliases = set(command_aliases)
 
-    db_command_aliases = set(db_command_aliases)
-
-    if request_alias in db_command_aliases:
+    if request_alias in command_aliases:
         return make_response(jsonify({'error': 'Alias already in use'}))
     else:
         return make_response(jsonify({'success': 'good job'}))
