@@ -372,12 +372,14 @@ class CommandManager(UserDict):
         self.module_commands = {}
 
         self.bot = bot
-        self.module_manager = bot.module_manager
 
         if bot:
+            self.module_manager = bot.module_manager
             self.bot.socket_manager.add_handler('module.reload', self.on_module_reload)
             self.bot.socket_manager.add_handler('command.update', self.on_command_update)
             self.bot.socket_manager.add_handler('command.remove', self.on_command_remove)
+        else:
+            self.module_manager = None
 
     def on_module_reload(self, data, conn):
         self.rebuild()
@@ -911,9 +913,10 @@ class CommandManager(UserDict):
         self.data.update(self.internal_commands)
         self.data.update({alias: command for alias, command in self.db_commands.items() if command.enabled is True})
 
-        for enabled_module in self.module_manager.modules:
-            log.info('Checking module: {}'.format(enabled_module.commands))
-            self.data.update(enabled_module.commands)
+        if self.module_manager is not None:
+            for enabled_module in self.module_manager.modules:
+                log.info('Checking module: {}'.format(enabled_module.commands))
+                self.data.update(enabled_module.commands)
 
     def load(self, **options):
         self.load_internal_commands(**options)
