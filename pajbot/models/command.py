@@ -375,7 +375,7 @@ class CommandManager(UserDict):
         self.module_manager = module_manager
 
         if socket_manager:
-            socket_manager.add_handler('module.reload', self.on_module_reload)
+            socket_manager.add_handler('module.update', self.on_module_reload)
             socket_manager.add_handler('command.update', self.on_command_update)
             socket_manager.add_handler('command.remove', self.on_command_remove)
 

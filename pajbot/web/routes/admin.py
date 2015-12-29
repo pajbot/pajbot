@@ -4,10 +4,11 @@ import binascii
 import logging
 import collections
 
+from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
 from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.command import Command, CommandData, CommandManager
-from pajbot.models.module import ModuleManager
+from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
 from pajbot.models.linkchecker import BlacklistedLink
 from pajbot.models.linkchecker import WhitelistedLink
@@ -389,3 +390,36 @@ def moderators(**options):
         userlists['Notables/Helpers'] = list(filter(lambda user: user.level >= 101 and user.level < 500, moderator_users))
         return render_template('admin/moderators.html',
                 userlists=userlists)
+
+@page.route('/modules/')
+@requires_level(500)
+def modules(**options):
+    module_manager = ModuleManager(None).load(do_reload=False)
+    for module in module_manager.all_modules:
+        module.db_module = None
+    with DBManager.create_session_scope() as db_session:
+        for db_module in db_session.query(Module):
+            module = find(lambda m: m.ID == db_module.id, module_manager.all_modules)
+            if module:
+                module.db_module = db_module
+
+        return render_template('admin/modules.html',
+                modules=module_manager.all_modules)
+
+@page.route('/modules/edit/<module_id>')
+@requires_level(500)
+def modules_edit(module_id, **options):
+    module_manager = ModuleManager(None).load(do_reload=False)
+    current_module = find(lambda m: m.ID == module_id, module_manager.all_modules)
+    if current_module is None:
+        return render_template('admin/module_404.html'), 404
+
+    with DBManager.create_session_scope() as db_session:
+        db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
+        if db_module is None:
+            db_module = Module(id=current_module.ID, enabled=False, settings=None)
+            db_session.add(db_module)
+            db_session.commit()
+
+        return render_template('admin/modules.html',
+                modules=module_manager.all_modules)

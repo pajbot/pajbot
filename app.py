@@ -655,6 +655,7 @@ nav_bar_admin_header.append(([
 nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
+nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
 
 version = Bot.version
 last_commit = ''

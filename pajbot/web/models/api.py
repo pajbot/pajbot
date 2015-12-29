@@ -9,7 +9,7 @@ import time
 from pajbot.web.utils import requires_level
 from pajbot.models.user import User
 from pajbot.models.command import Command, CommandManager
-from pajbot.models.module import ModuleManager
+from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.pleblist import PleblistSong
@@ -438,28 +438,6 @@ def command_checkalias(**options):
     else:
         return make_response(jsonify({'success': 'good job'}))
 
-
-@page.route('/api/v1/timer/toggle/<timer_id>', methods=['POST'])
-@requires_level(500)
-def timer_toggle(timer_id, **options):
-    if 'new_state' not in request.form:
-        return make_response(jsonify({'error': 'Missing `new_state` parameter.'}), 400)
-
-    try:
-        new_state = int(request.form['new_state'])
-    except (ValueError, KeyError):
-        return make_response(jsonify({'error': 'Invalid `new_state` parameter.'}), 400)
-
-    with DBManager.create_session_scope() as db_session:
-        timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
-        if timer:
-            timer.enabled = True if new_state == 1 else False
-            db_session.commit()
-            SocketClientManager.send('timer.update', {'timer_id': timer.id})
-            return make_response(jsonify({'success': 'good job', 'new_state': new_state}))
-        else:
-            return make_response(jsonify({'error': 'invalid timer id'}))
-
 @page.route('/api/v1/timer/remove/<timer_id>', methods=['GET'])
 @requires_level(500)
 def timer_remove(timer_id, **options):
@@ -470,27 +448,6 @@ def timer_remove(timer_id, **options):
         db_session.delete(timer)
         SocketClientManager.send('timer.remove', {'timer_id': timer.id})
         return make_response(jsonify({'success': 'good job'}))
-
-@page.route('/api/v1/banphrase/toggle/<banphrase_id>', methods=['POST'])
-@requires_level(500)
-def banphrase_toggle(banphrase_id, **options):
-    if 'new_state' not in request.form:
-        return make_response(jsonify({'error': 'Missing `new_state` parameter.'}), 400)
-
-    try:
-        new_state = int(request.form['new_state'])
-    except (ValueError, KeyError):
-        return make_response(jsonify({'error': 'Invalid `new_state` parameter.'}), 400)
-
-    with DBManager.create_session_scope() as db_session:
-        banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
-        if banphrase:
-            banphrase.enabled = True if new_state == 1 else False
-            db_session.commit()
-            SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
-            return make_response(jsonify({'success': 'good job', 'new_state': new_state}))
-        else:
-            return make_response(jsonify({'error': 'invalid banphrase id'}))
 
 @page.route('/api/v1/banphrase/remove/<banphrase_id>', methods=['GET'])
 @requires_level(500)
@@ -503,3 +460,33 @@ def banphrase_remove(banphrase_id, **options):
         db_session.delete(banphrase.data)
         SocketClientManager.send('banphrase.remove', {'banphrase_id': banphrase.id})
         return make_response(jsonify({'success': 'good job'}))
+
+@page.route('/api/v1/<route_key>/toggle/<row_id>', methods=['POST'])
+@requires_level(500)
+def generic_toggle(route_key, row_id, **options):
+    valid_routes = {
+            'timer': Timer,
+            'banphrase': Banphrase,
+            'module': Module,
+            }
+
+    if route_key not in valid_routes:
+        return make_response(jsonify({'error': 'Invalid route.'}), 400)
+    if 'new_state' not in request.form:
+        return make_response(jsonify({'error': 'Missing `new_state` parameter.'}), 400)
+    try:
+        new_state = int(request.form['new_state'])
+    except (ValueError, KeyError):
+        return make_response(jsonify({'error': 'Invalid `new_state` parameter.'}), 400)
+
+    route_value = valid_routes[route_key]
+
+    with DBManager.create_session_scope() as db_session:
+        row = db_session.query(route_value).filter_by(id=row_id).one_or_none()
+        if row:
+            row.enabled = True if new_state == 1 else False
+            db_session.commit()
+            SocketClientManager.send('{}.update'.format(route_key), {'{}_id'.format(route_key): row.id})
+            return make_response(jsonify({'success': 'successful toggle', 'new_state': new_state}))
+        else:
+            return make_response(jsonify({'error': 'invalid {} id'.format(route_key)}))

@@ -22,25 +22,41 @@ class Module(Base):
     __tablename__ = 'tb_module'
 
     id = Column(String(64), primary_key=True)
+    enabled = Column(Boolean,
+            nullable=False,
+            default=False,
+            server_default=sqlalchemy.sql.expression.false())
+    settings = Column(TEXT,
+            nullable=True,
+            default=None,
+            server_default=sqlalchemy.sql.expression.null())
+
+    def __init__(self, id, **options):
+        self.id = id
+        self.enabled = options.get('enabled', False)
+        self.settings = None
 
 class ModuleManager:
     def __init__(self, socket_manager):
         self.modules = []
 
         if socket_manager:
-            socket_manager.add_handler('module.reload', self.on_module_reload)
+            socket_manager.add_handler('module.update', self.on_module_reload)
 
     def on_module_reload(self, data, conn):
+        log.info('ModuleManager: module.update begin')
         self.reload()
+        log.info('ModuleManager: module.update done')
 
-    def load(self):
+    def load(self, do_reload=True):
         """ Load module classes """
 
         from pajbot.modules import available_modules
 
         self.all_modules = [module() for module in available_modules]
 
-        self.reload()
+        if do_reload is True:
+            self.reload()
 
         return self
 
@@ -48,7 +64,7 @@ class ModuleManager:
         self.modules = []
 
         with DBManager.create_session_scope() as db_session:
-            for enabled_module in db_session.query(Module):
+            for enabled_module in db_session.query(Module).filter_by(enabled=True):
                 module = find(lambda m: m.ID == enabled_module.id, self.all_modules)
                 if module is not None:
                     self.modules.append(module.load())
