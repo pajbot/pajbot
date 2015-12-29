@@ -58,7 +58,10 @@ class SocketManager:
 
     def add_handler(self, handler, method):
         log.debug('Added a handler to the SocketManager')
-        self.handlers[handler] = method
+        if handler not in self.handlers:
+            self.handlers[handler] = [method]
+        else:
+            self.handlers[handler].append(method)
 
     def start(self):
         with SocketResource(self.socket_file) as sr:
@@ -95,7 +98,8 @@ class SocketManager:
                         continue
 
                     if event in self.handlers:
-                        self.handlers[event](json_data['data'], conn)
+                        for handler in self.handlers[event]:
+                            handler(json_data['data'], conn)
                     else:
                         log.debug('Unhandled handler: {}'.format(event))
 
