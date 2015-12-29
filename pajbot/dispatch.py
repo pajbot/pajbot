@@ -544,7 +544,7 @@ class Dispatch:
             data = collections.OrderedDict()
             data['id'] = command.id
             data['level'] = command.level
-            data['type'] = command.action.type if command.action is not None else 'func'
+            data['type'] = command.action.type if command.action is not None else '???'
             data['cost'] = command.cost
             data['cd_all'] = command.delay_all
             data['cd_user'] = command.delay_user
