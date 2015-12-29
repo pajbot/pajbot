@@ -5,6 +5,8 @@ import logging
 import requests
 import datetime
 
+from pajbot.managers import RedisManager
+
 log = logging.getLogger('pajbot')
 
 
@@ -362,17 +364,32 @@ class TwitchAPI(APIBase):
 
         Returns False if `username` is not following `streamer`.
         Otherwise, return a datetime object.
+
+        This value is cached in Redis for 2 minutes.
         """
 
-        try:
-            data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base=self.kraken_url)
-            return TwitchAPI.parse_datetime(data['created_at'])
-        except urllib.error.HTTPError:
-            return False
-        except:
-            log.exception('Unhandled exception in get_follow_relationship')
-            return False
-        return False
+        redis = RedisManager.get()
+
+        fr_key = 'fr_{username}_{streamer}'.format(username=username, streamer=streamer)
+        follow_relationship = redis.get(fr_key)
+
+        if follow_relationship is None:
+            try:
+                data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base=self.kraken_url)
+                created_at = data['created_at']
+                redis.setex(fr_key, time=120, value=created_at)
+                return TwitchAPI.parse_datetime(created_at)
+            except urllib.error.HTTPError:
+                redis.setex(fr_key, time=120, value='-1')
+                return False
+            except:
+                log.exception('Unhandled exception in get_follow_relationship')
+                return False
+        else:
+            if follow_relationship == b'-1':
+                return False
+            else:
+                return TwitchAPI.parse_datetime(follow_relationship.decode('utf-8'))
 
 
 class SafeBrowsingAPI:
