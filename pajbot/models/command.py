@@ -261,10 +261,12 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def multiaction_command(cls, **options):
+    def multiaction_command(cls, default=None, fallback=None, **options):
         from pajbot.models.action import MultiAction
         cmd = cls(**options)
-        cmd.action = MultiAction.ready_built(options.get('commands'))
+        cmd.action = MultiAction.ready_built(options.get('commands'),
+                default=default,
+                fallback=fallback)
         return cmd
 
     def load_args(self, level, action):
