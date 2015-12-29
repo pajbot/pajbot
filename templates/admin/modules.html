@@ -1,0 +1,42 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_modules' %}
+{% block title %}Modules{% endblock %}
+{% block body %}
+<h2>Modules</h2>
+<div id="bot_moderators">
+    <table class="ui very basic table">
+        <thead>
+            <tr><th colspan="2"><h4>{{title}}</h4></th></tr>
+            <tr>
+                <th class="collapsing">Module</th>
+                <th>Description</th>
+                <th class="collapsing">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for row in modules %}
+            <tr data-id="{{row.ID}}" data-enabled="{{1 if row.db_module.enabled else 0}}">
+                <td class="collapsing">{{ row.NAME }}</td>
+                <td>{{ row.DESCRIPTION }}</td>
+                <td class="right aligned collapsing">
+                    {%- if row.db_module.enabled %}
+                    <button class="ui compact button toggle-row"><i class="icon power red"></i><span class="text">Disable</span></button>
+                    {% else %}
+                    <button class="ui compact button toggle-row"><i class="icon power green"></i><span class="text">Enable</span></button>
+                    {% endif -%}
+                <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>
+            </tr>
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block footer %}
+<script src="/static/scripts/admin/create_row.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    enable_edit_row('modules');
+    enable_toggle_row('toggle_module');
+});
+</script>
+{% endblock %}

@@ -162,7 +162,11 @@ def nocache(view):
 def update_commands(signal_id):
     global bot_commands_list
     from pajbot.models.command import CommandManager
-    bot_commands = CommandManager(None).load(load_examples=True)
+    from pajbot.models.module import ModuleManager
+    bot_commands = CommandManager(
+            socket_manager=None,
+            module_manager=ModuleManager(None).load(),
+            bot=None).load(load_examples=True)
     bot_commands_list = bot_commands.parse_for_web()
 
     bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
@@ -651,6 +655,7 @@ nav_bar_admin_header.append(([
 nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
+nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
 
 version = Bot.version
 last_commit = ''

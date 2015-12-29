@@ -136,10 +136,11 @@ class BaseAction:
 class MultiAction(BaseAction):
     type = 'multi'
 
-    def __init__(self, args, default):
+    def __init__(self, args, default=None, fallback=None):
         from pajbot.models.command import Command
         self.commands = {}
         self.default = default
+        self.fallback = fallback
 
         for command in args:
             cmd = Command.from_json(command)
@@ -150,26 +151,37 @@ class MultiAction(BaseAction):
                     log.error('Alias {0} for this multiaction is already in use.'.format(alias))
 
     @classmethod
-    def ready_built(cls, commands):
-        """Useful if you already have a dictionary
+    def ready_built(cls, commands, default=None, fallback=None):
+        """ Useful if you already have a dictionary
         with commands pre-built.
         """
 
-        multiaction = cls(args=[], default=None)
+        multiaction = cls(args=[], default=default, fallback=fallback)
         multiaction.commands = commands
         return multiaction
 
     def run(self, bot, source, message, event={}, args={}):
-        if message:
+        """ If there is more text sent to the multicommand after the
+        initial alias, we _ALWAYS_ assume it's trying the subaction command.
+        If the extra text was not a valid command, we try to run the fallback command.
+        In case there's no extra text sent, we will try to run the default command.
+        """
+
+        cmd = None
+        if message and len(message) > 0:
             msg_lower_parts = message.lower().split(' ')
             command = msg_lower_parts[0]
+            cmd = self.commands.get(command, None)
             extra_msg = ' '.join(message.split(' ')[1:])
-        else:
+            if cmd is None and self.fallback:
+                cmd = self.commands.get(self.fallback, None)
+                extra_msg = message
+        elif self.default:
             command = self.default
+            cmd = self.commands.get(command, None)
             extra_msg = None
 
-        if command in self.commands:
-            cmd = self.commands[command]
+        if cmd:
             if source.level >= cmd.level:
                 return cmd.run(bot, source, extra_msg, event, args)
             else:

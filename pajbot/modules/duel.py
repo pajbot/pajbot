@@ -8,7 +8,7 @@ except:
     import random
 
 from pajbot.modules import BaseModule
-from pajbot.models.command import Command
+from pajbot.models.command import Command, CommandExample
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,19 @@ class DuelModule(BaseModule):
     def load_commands(self, **options):
         self.commands['duel'] = Command.raw_command(self.initiate_duel,
                 delay_all=0,
-                delay_user=5)
+                delay_user=5,
+                description='Initiate a duel with a user',
+                examples=[
+                    CommandExample(None, '0-point duel',
+                        chat='user:!duel Karl_Kons\n'
+                        'bot>user:You have challenged Karl_Kons for 0 points',
+                        description='Duel Karl_Kons for 0 points').parse(),
+                    CommandExample(None, '69-point duel',
+                        chat='user:!duel Karl_Kons 69\n'
+                        'bot>user:You have challenged Karl_Kons for 69 points',
+                        description='Duel Karl_Kons for 69 points').parse(),
+                    ],
+                )
         self.commands['cancelduel'] = Command.raw_command(self.cancel_duel,
                 delay_all=0,
                 delay_user=10)

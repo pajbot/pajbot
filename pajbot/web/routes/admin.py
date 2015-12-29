@@ -4,9 +4,11 @@ import binascii
 import logging
 import collections
 
+from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
 from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.command import Command, CommandData, CommandManager
+from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
 from pajbot.models.linkchecker import BlacklistedLink
 from pajbot.models.linkchecker import WhitelistedLink
@@ -156,7 +158,11 @@ def links_whitelist(**options):
 @requires_level(500)
 def commands(**options):
     from pajbot.models.command import CommandManager
-    bot_commands = CommandManager(None).load()
+    from pajbot.models.module import ModuleManager
+    bot_commands = CommandManager(
+            socket_manager=None,
+            module_manager=ModuleManager(None).load(),
+            bot=None).load(enabled=None)
 
     bot_commands_list = bot_commands.parse_for_web()
     custom_commands = []
@@ -248,25 +254,33 @@ def commands_create(**options):
                 }
         options['action'] = action
 
-        command_manager = CommandManager(None)
+        command_manager = CommandManager(
+                socket_manager=None,
+                module_manager=ModuleManager(None).load(),
+                bot=None).load(enabled=None)
 
-        internal_commands = command_manager.load_internal_commands()
-        db_command_aliases = []
+        command_aliases = []
 
-        with DBManager.create_session_scope() as db_session:
-            for command in db_session.query(Command):
-                db_command_aliases.extend(command.command.split('|'))
+        for alias, command in command_manager.items():
+            command_aliases.append(alias)
+            if command.command and len(command.command) > 0:
+                command_aliases.extend(command.command.split('|'))
 
-        for alias in internal_commands:
-            db_command_aliases.append(alias)
+        command_aliases = set(command_aliases)
 
-        db_command_aliases = set(db_command_aliases)
-
+        alias_str = alias_str.replace(' ', '').replace('!', '').lower()
         alias_list = alias_str.split('|')
 
+        alias_list = [alias for alias in alias_list if len(alias) > 0]
+
+        if len(alias_list) == 0:
+            return render_template('admin/create_command_fail.html')
+
         for alias in alias_list:
-            if alias in db_command_aliases:
+            if alias in command_aliases:
                 return render_template('admin/create_command_fail.html')
+
+        alias_str = '|'.join(alias_list)
 
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id)
@@ -376,3 +390,36 @@ def moderators(**options):
         userlists['Notables/Helpers'] = list(filter(lambda user: user.level >= 101 and user.level < 500, moderator_users))
         return render_template('admin/moderators.html',
                 userlists=userlists)
+
+@page.route('/modules/')
+@requires_level(500)
+def modules(**options):
+    module_manager = ModuleManager(None).load(do_reload=False)
+    for module in module_manager.all_modules:
+        module.db_module = None
+    with DBManager.create_session_scope() as db_session:
+        for db_module in db_session.query(Module):
+            module = find(lambda m: m.ID == db_module.id, module_manager.all_modules)
+            if module:
+                module.db_module = db_module
+
+        return render_template('admin/modules.html',
+                modules=module_manager.all_modules)
+
+@page.route('/modules/edit/<module_id>')
+@requires_level(500)
+def modules_edit(module_id, **options):
+    module_manager = ModuleManager(None).load(do_reload=False)
+    current_module = find(lambda m: m.ID == module_id, module_manager.all_modules)
+    if current_module is None:
+        return render_template('admin/module_404.html'), 404
+
+    with DBManager.create_session_scope() as db_session:
+        db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
+        if db_module is None:
+            db_module = Module(id=current_module.ID, enabled=False, settings=None)
+            db_session.add(db_module)
+            db_session.commit()
+
+        return render_template('admin/modules.html',
+                modules=module_manager.all_modules)

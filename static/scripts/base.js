@@ -12,6 +12,7 @@ $.fn.api.settings.api = {
     'remove_timer': '/api/v1/timer/remove/{id}',
     'toggle_banphrase': '/api/v1/banphrase/toggle/{id}',
     'remove_banphrase': '/api/v1/banphrase/remove/{id}',
+    'toggle_module': '/api/v1/module/toggle/{id}',
 };
 
 $(document).ready(function() {
