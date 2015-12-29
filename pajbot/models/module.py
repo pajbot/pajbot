@@ -55,6 +55,16 @@ class ModuleManager:
 
         self.all_modules = [module() for module in available_modules]
 
+        with DBManager.create_session_scope() as db_session:
+            # Make sure there's a row in the DB for each module that's available
+            db_modules = db_session.query(Module).all()
+            for module in self.all_modules:
+                mod = find(lambda m: m.id == module.ID, db_modules)
+                if mod is None:
+                    log.info('Creating row in DB for module {}'.format(module.ID))
+                    mod = Module(module.ID)
+                    db_session.add(mod)
+
         if do_reload is True:
             self.reload()
 
