@@ -4,7 +4,7 @@ import datetime
 
 from pajbot.models.db import DBManager, Base
 from pajbot.models.time import TimeManager
-from pajbot.managers.redis import RedisManager
+from pajbot.managers import RedisManager
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy import orm
