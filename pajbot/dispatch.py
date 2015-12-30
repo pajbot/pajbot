@@ -591,11 +591,8 @@ class Dispatch:
                     bot.whisper(source.username, 'You cannot promote someone to the same or higher level as you ({0}).'.format(source.level))
                     return False
 
-                user = bot.users.find(username)
-
-                if not user:
-                    bot.whisper(source.username, 'No user with that name found.')
-                    return False
+                # We create the user if the user didn't already exist in the database.
+                user = bot.users[username]
 
                 user.level = new_level
 
