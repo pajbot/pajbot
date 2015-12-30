@@ -34,6 +34,7 @@ from .models.timer import TimerManager, Timer
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
 from pajbot.managers.redis import RedisManager
+from pajbot.modules import PredictModule
 from .apiwrappers import TwitchAPI
 from .tbmath import TBMath
 from .tbutil import time_since
