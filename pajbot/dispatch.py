@@ -591,14 +591,10 @@ class Dispatch:
                     bot.whisper(source.username, 'You cannot promote someone to the same or higher level as you ({0}).'.format(source.level))
                     return False
 
-                user = bot.users.find(username)
-
-                if not user:
-                    bot.whisper(source.username, 'No user with that name found.')
-                    return False
+                # We create the user if the user didn't already exist in the database.
+                user = bot.users[username]
 
                 user.level = new_level
-                user.needs_sync = True
 
                 bot.whisper(source.username, '{0}\'s user level set to {1}'.format(username, new_level))
 
@@ -860,7 +856,6 @@ class Dispatch:
                 return False
 
             user.ignored = True
-            user.needs_sync = True
             message = message.lower()
             bot.whisper(source.username, 'Now ignoring {0}'.format(user.username))
 
@@ -878,7 +873,6 @@ class Dispatch:
                 return False
 
             user.ignored = False
-            user.needs_sync = True
             message = message.lower()
             bot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
 
@@ -896,7 +890,6 @@ class Dispatch:
                 return False
 
             user.banned = True
-            user.needs_sync = True
             message = message.lower()
             bot.whisper(source.username, '{0} has now been permabanned.'.format(user.username))
 
@@ -914,7 +907,6 @@ class Dispatch:
                 return False
 
             user.banned = False
-            user.needs_sync = True
             message = message.lower()
             bot.whisper(source.username, '{0} is no longer permabanned'.format(user.username))
 
@@ -1174,7 +1166,6 @@ class Dispatch:
         bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, Dispatch.raffle_points))
 
         winner.points += Dispatch.raffle_points
-        winner.needs_sync = True
 
     def join(bot, source, message, event, args):
         if not Dispatch.raffle_running:
