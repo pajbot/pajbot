@@ -29,8 +29,8 @@
         {% for row in timers %}
         <tr data-id="{{row.id}}" data-enabled="{{1 if row.enabled else 0}}">
             <td class="collapsing">{{row.name}}</td>
-            <td class="collapsing">{{row.interval_online}}</td>
-            <td class="collapsing">{{row.interval_offline}}</td>
+            <td class="collapsing">{{ 'Disabled' if row.interval_online == 0 else row.interval_online }}</td>
+            <td class="collapsing">{{ 'Disabled' if row.interval_offline == 0 else row.interval_offline }}</td>
             <td>{{row.action.response}}</td>
             {% include 'admin/helper/row_action.html' %}
         </tr>

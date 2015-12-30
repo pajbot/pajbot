@@ -7,6 +7,7 @@
 {% else %}
 <h2>Create Timer</h2>
 {% endif %}
+<p>An interval set to 0 means it will not be run.</p>
 <form class="ui form" method="POST" action="/admin/timers/create">
     {% if timer %}
     <input type="hidden" name="id" value="{{ timer.id }}" />
@@ -18,11 +19,11 @@
         </div>
         <div class="required field four wide">
             <label>Interval online</label>
-            <input type="number" name="interval_online" placeholder="Interval in minutes" min="1" value="{{ timer.interval_online if timer else 10 }}" />
+            <input type="number" name="interval_online" placeholder="Interval in minutes" min="0" value="{{ timer.interval_online if timer else 10 }}" />
         </div>
         <div class="required field four wide">
             <label>Interval offline</label>
-            <input type="number" name="interval_offline" placeholder="Interval in minutes" min="1" value="{{ timer.interval_offline if timer else 30 }}" />
+            <input type="number" name="interval_offline" placeholder="Interval in minutes" min="0" value="{{ timer.interval_offline if timer else 30 }}" />
         </div>
     </div>
     <div class="fields">
@@ -49,5 +50,50 @@
 </form>
 {% endblock %}
 {% block footer %}
-<script src="/static/scripts/admin/create_timer.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('form').form({
+        fields: {
+            name: {
+                identifier: 'name',
+                rules: [
+                {
+                    type: 'empty',
+                    prompt: 'You must enter a name for your Timer'
+                }
+                ]
+            },
+            interval_online: {
+                identifier: 'interval_online',
+                rules: [
+                {
+                    type: 'integer[0..3600]',
+                    prompt: 'Please enter a valid interval (0-3600)'
+                }]
+            },
+            interval_offline: {
+                identifier: 'interval_offline',
+                rules: [
+                {
+                    type: 'integer[0..3600]',
+                    prompt: 'Please enter a valid interval (0-3600)'
+                }]
+            },
+            message: {
+                identifier: 'message',
+                rules: [
+                {
+                    type: 'empty',
+                    prompt: 'The message cannot be empty'
+                }
+                ]
+            },
+        },
+        keyboardShortcuts: false,
+        onSuccess: function(event, fields) {
+            console.log(fields);
+        }
+    });
+});
+</script>
 {% endblock %}
