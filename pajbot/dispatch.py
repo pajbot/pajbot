@@ -1123,6 +1123,30 @@ class Dispatch:
 
         bot.action_queue.add(check_follow_age, args=[bot, source, username, streamer])
 
+    def turbo_raffle(bot, source, message, event, args):
+        if hasattr(Dispatch, 'raffle_running') and Dispatch.raffle_running is True:
+            bot.say('{0}, a raffle is already running OMGScoots'.format(source.username_raw))
+            return False
+
+        Dispatch.raffle_users = []
+        Dispatch.raffle_running = True
+        Dispatch.raffle_points = 100
+
+        try:
+            if message is not None:
+                Dispatch.raffle_points = int(message.split()[0])
+        except ValueError:
+            pass
+
+        bot.websocket_manager.emit('notification', {'message': 'A turbo raffle has been started!'})
+        bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
+
+        bot.me('A turbo raffle has begun for {} points. type !join to join the raffle! The raffle will end in 30 seconds'.format(Dispatch.raffle_points))
+        bot.execute_delayed(10, bot.me, ('The raffle for {} points ends in 20 seconds! Type !join to join the raffle!'.format(Dispatch.raffle_points), ))
+        bot.execute_delayed(20, bot.me, ('The raffle for {} points ends in 10 seconds! Type !join to join the raffle!'.format(Dispatch.raffle_points), ))
+
+        bot.execute_delayed(30, Dispatch.end_raffle, (bot, source, message, event, args))
+
     def raffle(bot, source, message, event, args):
         if hasattr(Dispatch, 'raffle_running') and Dispatch.raffle_running is True:
             bot.say('{0}, a raffle is already running OMGScoots'.format(source.username_raw))
