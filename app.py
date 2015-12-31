@@ -26,6 +26,7 @@ from pajbot.models.webcontent import WebContent
 from pajbot.models.time import TimeManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.sock import SocketClientManager
+from pajbot.models.module import ModuleManager
 from pajbot.apiwrappers import TwitchAPI
 from pajbot.tbutil import time_since
 from pajbot.tbutil import find
@@ -162,7 +163,6 @@ def nocache(view):
 def update_commands(signal_id):
     global bot_commands_list
     from pajbot.models.command import CommandManager
-    from pajbot.models.module import ModuleManager
     bot_commands = CommandManager(
             socket_manager=None,
             module_manager=ModuleManager(None).load(),
@@ -632,13 +632,15 @@ def number_format(value, tsep=',', dsep='.'):
 
     return lhs + splt[:-1] + rhs
 
+module_manager = ModuleManager(None).load()
 
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
 nav_bar_header.append(('/commands/', 'commands', 'Commands'))
 if has_decks:
     nav_bar_header.append(('/decks/', 'decks', 'Decks'))
-nav_bar_header.append(('/points/', 'points', 'Points'))
+if config['main']['nickname'] not in ['scamazbot']:
+    nav_bar_header.append(('/points/', 'points', 'Points'))
 nav_bar_header.append(('/stats/', 'stats', 'Stats'))
 nav_bar_header.append(('/highlights/', 'highlights', 'Highlights'))
 if 'pleblist' in modules:
@@ -656,6 +658,8 @@ nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
 nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
+if 'predict' in module_manager:
+    nav_bar_admin_header.append(('/admin/predictions/', 'admin_predictions', 'Predictions'))
 
 version = Bot.version
 last_commit = ''
