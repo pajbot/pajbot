@@ -63,6 +63,8 @@ class PredictModule(BaseModule):
         self.commands['predict'] = Command.raw_command(self.predict,
                 delay_all=0,
                 delay_user=10,
+                sub_only=True,
+                can_execute_with_whisper=True,
                 description='Predict how many wins will occur in the Arena challenge')
         self.commands['newpredict'] = Command.raw_command(self.new_predict,
                 delay_all=10,
