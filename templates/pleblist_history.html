@@ -31,7 +31,18 @@
             Song link: <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br/>
             Added: {{ song.date_added|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}<br />
             {% if song.date_played is not none %}
-            Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }} <em>({{ song.date_played|time_ago}} ago)</em>
+            Played: {{ song.date_played|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }} <em>({{ song.date_played|time_ago}} ago)</em><br />
+            {% for stream_chunk in stream_chunk %}
+            {% if stream_chunk.chunk_end is none %}
+            {% set chunk_end_check = current_time %}
+            {% else %}
+            {% set chunk_end_check = stream_chunk.chunk_end %}
+            {% endif %}
+            {% if stream_chunk.chunk_start <= song.date_played <= chunk_end_check %}
+            {% set vod_time_in_seconds = (song.date_played - stream_chunk.chunk_start).total_seconds() - song.song_info.duration %}
+            VOD link: <a href="{{stream_chunk.video_url}}?t={{ vod_time_in_seconds|seconds_to_vodtime }}">{{stream_chunk.video_url}}?t={{ vod_time_in_seconds|seconds_to_vodtime }}</a>
+            {% else %}{% endif %}
+            {% endfor %}
             {% else %}
             {% if stream.stream_end is none %}
             {% if num_not_played > 0 %}
