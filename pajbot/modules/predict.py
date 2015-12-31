@@ -115,8 +115,8 @@ class PredictModule(BaseModule):
             # Get the current open prediction
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
-                # bot.whisper(source.username, 'There is no arena run active to predict for right now.')
-                bot.say('{}, There is no arena run active to predict for right now.'.format(source.username_raw))
+                # bot.whisper(source.username, 'There is no arena run active that accepts predictions right now.')
+                bot.say('{}, There is no arena run active that accepts predictions right now.'.format(source.username_raw))
                 return True
 
             user_entry = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id).one_or_none()
