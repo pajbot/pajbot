@@ -1,0 +1,57 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_modules' %}
+{% block title %}Configure Module{% endblock %}
+{% block body %}
+<h2>Configure &quot;{{ module.NAME }}&quot;</h2>
+<p>{{ module.DESCRIPTION }}</p>
+<div class="ui divider"></div>
+<form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
+    {%- for setting in module.SETTINGS %}
+    <div class="{{ 'required' if setting.required else ''}} field eight wide">
+        <label>{{ setting.label }}</label>
+        {% if setting.type == 'text' %}
+        <input type="text" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ setting.default if setting.default else '' }}" />
+        {% else %}
+        Unknown type: {{ setting.type }}
+        {% endif %}
+    </div>
+    {% endfor -%}
+    <div class="ui message warning" style="padding: 0.4em;"></div>
+    <div class="ui message error" style="padding: 0.4em;"></div>
+    <div class="ui submit button green"><i class="icon setting"></i>Configure</div>
+</div>
+</form>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('form').form({
+        fields: {
+            {%- for setting in module.SETTINGS %}
+            {% if setting.constraints|length > 0 %}
+            {{ setting.key }}: {
+                                   identifier: '{{ setting.key }}',
+                                   rules: [
+                                   {% for con_key, con_value in setting.constraints.items() %}
+                                   {% if con_key == 'min_str_len' %}
+                                   {
+                                       type: 'minLength[{{ con_value }}]',
+                                       prompt: '"{{ setting.label }}" must be at least {{ con_value }} characters'
+                                   }
+                                   {% elif con_key == 'max_str_len' %}
+                                   {
+                                       type: 'maxLength[{{ con_value }}]',
+                                       prompt: '"{{ setting.label }}" must be at most {{ con_value }} characters'
+                                   }
+                                   {% endif %}
+                                   {% endfor %}
+                                   ]
+                               }
+            {% endif %}
+            {% endfor -%}
+        },
+        keyboardShortcuts: false,
+    });
+});
+</script>
+{% endblock %}
