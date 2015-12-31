@@ -87,6 +87,11 @@ class PredictModule(BaseModule):
         message = options['message']
         source = options['source']
 
+        if source.id is None:
+            log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
+            bot.users.commit()
+            log.info('New ID is: {}'.format(source.id))
+
         prediction_number = None
 
         if message is None or len(message) < 0:
