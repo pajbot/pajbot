@@ -90,37 +90,45 @@ class PredictModule(BaseModule):
         prediction_number = None
 
         if message is None or len(message) < 0:
-            bot.whisper(source.username, 'Missing argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 100 (inclusive).')
+            # bot.whisper(source.username, 'Missing argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).')
+            bot.say('{}, Missing argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
             return True
 
         try:
             prediction_number = int(message.split(' ')[0])
         except (KeyError, ValueError):
-            bot.whisper(source.username, 'Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 100 (inclusive).')
+            # bot.whisper(source.username, 'Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).')
+            bot.say('{}, Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
             return True
 
-        if prediction_number < 0 or prediction_number > 100:
-            bot.whisper(source.username, 'Invalid argument to !predict command. The prediction must be a value between 0 and 100 (inclusive).')
+        if prediction_number < 0 or prediction_number > 120:
+            # bot.whisper(source.username, 'Invalid argument to !predict command. The prediction must be a value between 0 and 120 (inclusive).')
+            bot.say('{}, Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
             return True
 
         with DBManager.create_session_scope() as db_session:
             # Get the current open prediction
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
-                bot.whisper(source.username, 'There is no arena run active to predict for right now.')
+                # bot.whisper(source.username, 'There is no arena run active to predict for right now.')
+                bot.say('{}, There is no arena run active to predict for right now.'.format(source.username_raw))
                 return True
 
             user_entry = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id).one_or_none()
             if user_entry is not None:
                 old_prediction_num = user_entry.prediction
                 user_entry.prediction = prediction_number
-                bot.whisper(source.username, 'Updated your prediction for run {} from {} to {}'.format(
-                    current_prediction_run.id, old_prediction_num, prediction_number))
+                # bot.whisper(source.username, 'Updated your prediction for run {} from {} to {}'.format(
+                #     current_prediction_run.id, old_prediction_num, prediction_number))
+                bot.say('{}, Updated your prediction for run {} from {} to {}'.format(
+                    source.username_raw, current_prediction_run.id, old_prediction_num, prediction_number))
             else:
                 user_entry = PredictionRunEntry(current_prediction_run.id, source.id, prediction_number)
                 db_session.add(user_entry)
-                bot.whisper(source.username, 'Your prediction for {} wins in run {} has been submitted.'.format(
-                    prediction_number, current_prediction_run.id))
+                # bot.whisper(source.username, 'Your prediction for {} wins in run {} has been submitted.'.format(
+                #     prediction_number, current_prediction_run.id))
+                bot.say('{}, Your prediction for {} wins in run {} has been submitted.'.format(
+                    source.username_raw, prediction_number, current_prediction_run.id))
 
     def new_predict(self, **options):
         bot = options['bot']
@@ -130,13 +138,15 @@ class PredictModule(BaseModule):
             # Check if there is already an open prediction
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is not None:
-                bot.whisper(source.username, 'There is already a prediction run accepting submissions, use !closepredict to close submissions for that prediction.')
+                # bot.whisper(source.username, 'There is already a prediction run accepting submissions, use !closepredict to close submissions for that prediction.')
+                bot.say('{}, There is already a prediction run accepting submissions, use !closepredict to close submissions for that prediction.'.format(source.username_raw))
                 return True
 
             new_prediction_run = PredictionRun()
             db_session.add(new_prediction_run)
             db_session.commit()
-            bot.whisper(source.username, 'A new prediction run has been started, and is now accepting submissions. Prediction run ID: {}'.format(new_prediction_run.id))
+            # bot.whisper(source.username, 'A new prediction run has been started, and is now accepting submissions. Prediction run ID: {}'.format(new_prediction_run.id))
+            bot.say('A new prediction run has been started, and is now accepting submissions. Prediction run ID: {}'.format(new_prediction_run.id))
 
     def end_predict(self, **options):
         bot = options['bot']
@@ -146,11 +156,13 @@ class PredictModule(BaseModule):
             # Check if there is a non-ended, but closed prediction run we can end
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=False).one_or_none()
             if current_prediction_run is None:
-                bot.whisper(source.username, 'There is no closed prediction runs we can end right now.')
+                # bot.whisper(source.username, 'There is no closed prediction runs we can end right now.')
+                bot.say('{}, There is no closed prediction runs we can end right now.'.format(source.username_raw))
                 return True
 
             current_prediction_run.ended = datetime.datetime.now()
-            bot.whisper(source.username, 'Prediction run with ID {} has been closed.'.format(current_prediction_run.id))
+            # bot.whisper(source.username, 'Prediction run with ID {} has been closed.'.format(current_prediction_run.id))
+            bot.say('Prediction run with ID {} has been closed.'.format(current_prediction_run.id))
 
     def close_predict(self, **options):
         bot = options['bot']
@@ -160,8 +172,10 @@ class PredictModule(BaseModule):
             # Check if there is a non-ended, but closed prediction run we can end
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
-                bot.whisper(source.username, 'There is no open prediction runs we can close right now.')
+                # bot.whisper(source.username, 'There is no open prediction runs we can close right now.')
+                bot.say('{}, There is no open prediction runs we can close right now.'.format(source.username_raw))
                 return True
 
             current_prediction_run.open = False
-            bot.whisper(source.username, 'Predictions are no longer accepted for prediction run {}'.format(current_prediction_run.id))
+            # bot.whisper(source.username, 'Predictions are no longer accepted for prediction run {}'.format(current_prediction_run.id))
+            bot.say('{}, Predictions are no longer accepted for prediction run {}'.format(source.username_raw, current_prediction_run.id))
