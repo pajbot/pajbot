@@ -552,9 +552,14 @@ class Dispatch:
                 bot.whisper(source.username, 'No command with the given parameters found')
                 return False
 
-            if (not command.action.type == 'message' and source.level < 2000) or command.id == -1:
-                bot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
+            if command.id == -1:
+                bot.whisper(source.username, 'That command is an internal command, it cannot be removed.')
                 return False
+
+            if source.level < 2000:
+                if command.action is not None and not command.action.type == 'message':
+                    bot.whisper(source.username, 'That command is not a normal command, it cannot be removed by you.')
+                    return False
 
             bot.whisper(source.username, 'Successfully removed command with id {0}'.format(command.id))
             bot.commands.remove_command(command)
