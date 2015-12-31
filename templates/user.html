@@ -12,6 +12,10 @@
                     <td>{% include 'user/username_link.html' %}</td>
                 </tr>
                 <tr>
+                    <td><strong>ID</strong></td>
+                    <td>{{ user.id }}</td>
+                </tr>
+                <tr>
                     <td><strong>Level</strong></td>
                     <td>
                         {% if user.level < 250 %}
