@@ -21,7 +21,7 @@ from pajbot.models.deck import Deck
 from pajbot.models.command import CommandExample
 from pajbot.models.user import User
 from pajbot.models.duel import UserDuelStats
-from pajbot.models.stream import Stream, StreamChunkHighlight
+from pajbot.models.stream import Stream, StreamChunk, StreamChunkHighlight
 from pajbot.models.webcontent import WebContent
 from pajbot.models.time import TimeManager
 from pajbot.models.pleblist import PleblistSong
@@ -511,12 +511,14 @@ def pleblist_history_stream(stream_id):
         total_length_left = sum([song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
 
         first_unplayed_song = find(lambda song: song.date_played is None, songs)
+        stream_chunk = session.query(StreamChunk).filter(StreamChunk.stream_id == stream.id).all()
 
         return render_template('pleblist_history.html',
                 stream=stream,
                 songs=songs,
                 total_length_left=total_length_left,
-                first_unplayed_song=first_unplayed_song)
+                first_unplayed_song=first_unplayed_song,
+                stream_chunk=stream_chunk)
 
 
 @app.route('/discord')
@@ -725,6 +727,14 @@ def time_diff(t1, t2, format='long'):
 def time_ago_timespan_seconds(t, format='long'):
     v = time_since(t, 0, format)
     return 'None' if len(v) == 0 else v
+
+@app.template_filter('seconds_to_vodtime')
+def seconds_to_vodtime(t):
+    s = int(t)
+    h = s / 3600
+    m = s % 3600 / 60
+    s = s % 60
+    return '%dh%02dm%02ds' % (h,m,s)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
