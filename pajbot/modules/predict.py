@@ -7,7 +7,7 @@ from pajbot.models.command import Command, CommandExample
 
 import sqlalchemy
 from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload
+from sqlalchemy.orm import relationship, joinedload, backref
 from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
 from sqlalchemy.dialects.mysql import TEXT
 
@@ -38,6 +38,13 @@ class PredictionRunEntry(Base):
     prediction_run_id = Column(Integer, ForeignKey('tb_prediction_run.id'), nullable=False)
     user_id = Column(Integer, nullable=False)
     prediction = Column(Integer, nullable=False)
+
+    user = relationship('User',
+            cascade='',
+            uselist=False,
+            lazy='noload',
+            foreign_keys='User.id',
+            primaryjoin='User.id==PredictionRunEntry.user_id')
 
     def __init__(self, prediction_run_id, user_id, prediction):
         self.id = None
