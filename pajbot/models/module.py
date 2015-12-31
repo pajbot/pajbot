@@ -39,6 +39,7 @@ class Module(Base):
 class ModuleManager:
     def __init__(self, socket_manager):
         self.modules = []
+        self.all_modules = []
 
         if socket_manager:
             socket_manager.add_handler('module.update', self.on_module_reload)
@@ -78,3 +79,14 @@ class ModuleManager:
                 module = find(lambda m: m.ID == enabled_module.id, self.all_modules)
                 if module is not None:
                     self.modules.append(module.load())
+
+    def __contains__(self, module):
+        """ We override the contains operator for the ModuleManager.
+        This allows us to use the following syntax to check if a module is enabled:
+        if 'duel' in module_manager:
+        """
+
+        for enabled_module in self.modules:
+            if enabled_module.ID == module:
+                return True
+        return False
