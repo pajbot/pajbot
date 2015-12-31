@@ -236,7 +236,7 @@ class Dispatch:
         log.debug('{0} added a BR win!'.format(source.username))
 
     def add_command(bot, source, message, event, args):
-        """Dispatch method for creating and editing commands.
+        """Dispatch method for creating commands.
         Usage: !add command ALIAS [options] RESPONSE
         Multiple options available:
         --whisper/--no-whisper
@@ -277,10 +277,62 @@ class Dispatch:
                     'message': response,
                     }
 
-            command, new_command = bot.commands.create_command(alias_str, action=action, **options)
+            command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
+
+            # At least one alias is already in use, notify the user to use !edit command instead
+            bot.whisper(source.username, 'The alias {} is already in use. To edit that command, use !edit command instead of !add command.'.format(alias_matched))
+            return False
+
+    def edit_command(bot, source, message, event, args):
+        """Dispatch method for editing commands.
+        Usage: !edit command ALIAS [options] RESPONSE
+        Multiple options available:
+        --whisper/--no-whisper
+        --reply/--no-reply
+        --modonly/--no-modonly
+        --cd CD
+        --usercd USERCD
+        --level LEVEL
+        --cost COST
+        """
+
+        if message:
+            # Make sure we got both an alias and a response
+            message_parts = message.split()
+            if len(message_parts) < 2:
+                bot.whisper(source.username, 'Usage: !add command ALIAS [options] RESPONSE')
+                return False
+
+            options, response = bot.commands.parse_command_arguments(message_parts[1:])
+
+            if options is False:
+                bot.whisper(source.username, 'Invalid command')
+                return False
+
+            alias = message_parts[0].replace('!', '').lower()
+            type = 'say'
+            if options['whisper'] is True:
+                type = 'whisper'
+            elif options['reply'] is True:
+                type = 'reply'
+            elif response.startswith('/me') or response.startswith('.me'):
+                type = 'me'
+                response = ' '.join(response.split(' ')[1:])
+            elif options['whisper'] is False or options['reply'] is False:
+                type = 'say'
+            action = {
+                    'type': type,
+                    'message': response,
+                    }
+
+            command = bot.commands.get(alias, None)
+
+            if command is None:
+                bot.whisper(source.username, 'No command found with the alias {}. Did you mean to create the command? If so, use !add command instead.'.format(alias))
+                return False
 
             if len(action['message']) > 0:
                 options['action'] = action
@@ -293,8 +345,8 @@ class Dispatch:
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
     def add_funccommand(bot, source, message, event, args):
-        """Dispatch method for creating and editing function commands.
-        Usage: !add command ALIAS [options] CALLBACK
+        """Dispatch method for creating function commands.
+        Usage: !add funccommand ALIAS [options] CALLBACK
         Multiple options available:
         --cd CD
         --usercd USERCD
@@ -322,10 +374,50 @@ class Dispatch:
                     'cb': response.strip(),
                     }
 
-            command, new_command = bot.commands.create_command(alias_str, action=action, **options)
+            command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
                 return True
+
+            # At least one alias is already in use, notify the user to use !edit command instead
+            bot.whisper(source.username, 'The alias {} is already in use. To edit that command, use !edit command instead of !add funccommand.'.format(alias_matched))
+            return False
+
+    def edit_funccommand(bot, source, message, event, args):
+        """Dispatch method for editing function commands.
+        Usage: !edit funccommand ALIAS [options] CALLBACK
+        Multiple options available:
+        --cd CD
+        --usercd USERCD
+        --level LEVEL
+        --cost COST
+        --modonly/--no-modonly
+        """
+
+        if message:
+            # Make sure we got both an alias and a response
+            message_parts = message.split(' ')
+            if len(message_parts) < 2:
+                bot.whisper(source.username, 'Usage: !add funccommand ALIAS [options] CALLBACK')
+                return False
+
+            options, response = bot.commands.parse_command_arguments(message_parts[1:])
+
+            if options is False:
+                bot.whisper(source.username, 'Invalid command')
+                return False
+
+            alias = message_parts[0].replace('!', '').lower()
+            action = {
+                    'type': 'func',
+                    'cb': response.strip(),
+                    }
+
+            command = bot.commands.get(alias, None)
+
+            if command is None:
+                bot.whisper(source.username, 'No command found with the alias {}. Did you mean to create the command? If so, use !add funccommand instead.'.format(alias))
+                return False
 
             if len(action['cb']) > 0:
                 options['action'] = action
