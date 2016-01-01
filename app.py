@@ -130,12 +130,9 @@ DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
 with DBManager.create_session_scope() as db_session:
-    num_decks = db_session.query(func.count(Deck.id)).scalar()
     custom_web_content = {}
     for web_content in db_session.query(WebContent).filter(WebContent.content is not None):
         custom_web_content[web_content.page] = web_content.content
-
-has_decks = num_decks > 0
 
 errors.init(app)
 api.config = config
@@ -639,7 +636,7 @@ module_manager = ModuleManager(None).load()
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
 nav_bar_header.append(('/commands/', 'commands', 'Commands'))
-if has_decks:
+if 'deck' in module_manager:
     nav_bar_header.append(('/decks/', 'decks', 'Decks'))
 if config['main']['nickname'] not in ['scamazbot']:
     nav_bar_header.append(('/points/', 'points', 'Points'))
@@ -695,7 +692,6 @@ default_variables = {
             'name': config['web']['streamer_name'],
             'full_name': config['main']['streamer']
             },
-        'has_decks': has_decks,
         'nav_bar_header': nav_bar_header,
         'nav_bar_admin_header': nav_bar_admin_header,
         'modules': modules,
@@ -734,7 +730,7 @@ def seconds_to_vodtime(t):
     h = s / 3600
     m = s % 3600 / 60
     s = s % 60
-    return '%dh%02dm%02ds' % (h,m,s)
+    return '%dh%02dm%02ds' % (h, m, s)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
