@@ -758,19 +758,6 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully removed highlight with ID 2.',
                                 description='Removes the highlight ID 2').parse(),
                             ]),
-                    'deck': Command.dispatch_command('remove_deck',
-                        level=420,
-                        description='Removes a deck with the given ID.',
-                        examples=[
-                            CommandExample(None, 'Remove a deck by ID',
-                                chat='user:!remove deck 123\n'
-                                'bot>user:Successfully removed the deck.',
-                                description='The ID in this case is 123').parse(),
-                            CommandExample(None, 'Remove a deck by URL',
-                                chat='user:!remove deck http://i.imgur.com/rInqJv0.png\n'
-                                'bot>user:Successfully removed the deck.',
-                                description='The URL in this case is http://i.imgur.com/rInqJv0.png').parse(),
-                            ]),
                     })
         self.internal_commands['rem'] = self.internal_commands['remove']
         self.internal_commands['del'] = self.internal_commands['remove']
@@ -794,53 +781,6 @@ class CommandManager(UserDict):
         self.internal_commands['eval'] = Command.dispatch_command('eval',
                 level=2000,
                 description='Run a raw python command. Debug mode only')
-
-        self.internal_commands['set'] = Command.multiaction_command(
-                level=100,
-                delay_all=0,
-                delay_user=0,
-                default=None,
-                command='set',
-                commands={
-                    'deck': Command.dispatch_command('set_deck',
-                        level=420,
-                        description='Sets the deck that is currently playing.',
-                        examples=[
-                            CommandExample(None, 'Add a new deck',
-                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
-                                'bot>user:This deck is a new deck. Its ID is 32',
-                                description='This is the output if you set a deck which hasn\'t been set before.').parse(),
-                            CommandExample(None, 'Set a pre-existing deck',
-                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
-                                'bot>user:Updated an already-existing deck. Its ID is 32',
-                                description='This is the output if you set a deck which was added previously.').parse(),
-                            ]),
-                    })
-
-        self.internal_commands['update'] = Command.multiaction_command(
-                level=100,
-                delay_all=0,
-                delay_user=0,
-                default=None,
-                command='update',
-                commands={
-                    'deck': Command.dispatch_command('update_deck',
-                        level=420,
-                        description='Updates an already-existing deck.',
-                        examples=[
-                            CommandExample(None, 'Set the name and class of the current deck',
-                                chat='user:!update deck --name Midrange Secret --class paladin\n'
-                                'bot>user:Updated deck with ID 32. Updated name, class').parse(),
-                            CommandExample(None, 'Updates the link of the current deck',
-                                chat='user:!update deck --link http://i.imgur.com/QEVwrVV.png\n'
-                                'bot>user:Updated deck with ID 32. Updated link',
-                                description='Changes the link of the current deck. This could be used if you want to reupload the screenshot to imgur or something.').parse(),
-                            CommandExample(None, 'Set the name and class of an old deck',
-                                chat='user:!update deck --id 12 --name Aggro --class hunter\n'
-                                'bot>user:Updated deck with ID 12. Updated name, class',
-                                description='Updates the name and class of an old deck. Useful for whenever you need to clean up old decks.').parse(),
-                            ]),
-                    })
 
         return self.internal_commands
 

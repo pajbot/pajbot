@@ -823,6 +823,9 @@ class Dispatch:
         and its last use date should be set to now.
         Usage: !setdeck imgur.com/abcdefgh"""
 
+        log.warn('Dispatch set_deck is deprecated. Use the deck module.')
+        bot.whisper(source.username, 'This command has been deprecated. use !set deck instead (with a space)')
+
         if message:
             deck, new_deck = bot.decks.set_current_deck(message)
             if new_deck is True:
@@ -842,6 +845,8 @@ class Dispatch:
         any deck assuming you know its ID.
         Usage: !updatedeck --name Midrange Secret --class paladin
         """
+
+        log.warn('Dispatch update_deck is deprecated. Use the deck module.')
 
         if message:
             options, response = bot.decks.parse_update_arguments(message)
@@ -880,6 +885,8 @@ class Dispatch:
         OR
         !removedeck 123
         """
+
+        log.warn('Dispatch remove_deck is deprecated. Use the deck module.')
 
         if message:
             id = None
