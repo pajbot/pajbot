@@ -56,7 +56,7 @@ class StreamChunk(Base):
 
     id = Column(Integer, primary_key=True)
     stream_id = Column(Integer, ForeignKey('tb_stream.id'), nullable=False)
-    broadcast_id = Column(BIGINT(unsigned=True), nullable=False, unique=True)
+    broadcast_id = Column(BIGINT(unsigned=True), nullable=False)
     video_url = Column(String(128), nullable=True)
     video_preview_image_url = Column(String(256), nullable=True)
     chunk_start = Column(DateTime, nullable=False)
