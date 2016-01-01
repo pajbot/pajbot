@@ -38,7 +38,7 @@
             {% else %}
             {% set chunk_end_check = stream_chunk.chunk_end %}
             {% endif %}
-            {% if stream_chunk.chunk_start <= song.date_played <= chunk_end_check and song.song_info %}
+            {% if stream_chunk.chunk_start <= song.date_played <= chunk_end_check and song.song_info and song.song_info.duration <= 600 %}
             {% set vod_time_in_seconds = (song.date_played - stream_chunk.chunk_start).total_seconds() - song.song_info.duration %}
             VOD link: <a href="{{stream_chunk.video_url}}?t={{ vod_time_in_seconds|seconds_to_vodtime }}">{{stream_chunk.video_url}}?t={{ vod_time_in_seconds|seconds_to_vodtime }}</a>
             {% else %}{% endif %}
