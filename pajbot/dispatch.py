@@ -1214,6 +1214,8 @@ class Dispatch:
             bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
     def follow_age(bot, source, message, event, args):
+        log.warn('Dispatch follow_age is deprecated. Use the followage module.')
+
         username = source.username
         streamer = None
         if message is not None and len(message) > 0:
