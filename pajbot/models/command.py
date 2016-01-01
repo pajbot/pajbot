@@ -825,6 +825,8 @@ class CommandManager(UserDict):
             db_session.delete(command.data)
             db_session.delete(command)
 
+        self.rebuild()
+
     def add_db_command_aliases(self, command):
         aliases = command.command.split('|')
         for alias in aliases:
