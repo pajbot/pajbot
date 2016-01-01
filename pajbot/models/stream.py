@@ -146,10 +146,14 @@ class StreamManager:
             for video in data['videos']:
                 if video['broadcast_type'] == 'archive':
                     recorded_at = parse_twitch_datetime(video['recorded_at'])
-                    time_diff = stream_chunk.chunk_start - recorded_at
-                    if abs(time_diff.total_seconds()) < 5:
-                        # we found the relevant video!
-                        return video['url'], video['preview']
+                    if stream_chunk is not None:
+                        time_diff = stream_chunk.chunk_start - recorded_at
+                        if abs(time_diff.total_seconds()) < 5:
+                            # we found the relevant video!
+                            return video['url'], video['preview'], video['recorded_at']
+                    else:
+                        if video['status'] == 'recording':
+                            return video['url'], video['preview'], video['recorded_at']
         except urllib.error.HTTPError as e:
             raw_data = e.read().decode('utf-8')
             log.exception('OMGScoots')
@@ -157,7 +161,7 @@ class StreamManager:
         except:
             log.exception('Uncaught exception in fetch_video_url')
 
-        return None, None
+        return None, None, None
 
     def __init__(self, bot):
         self.bot = bot
@@ -303,23 +307,39 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        if self.current_stream_chunk.video_url is not None:
-            return
-
         log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
-        video_url, video_preview_image_url = self.fetch_video_url(self.current_stream_chunk)
+        stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
+        video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url(stream_chunk)
         if video_url is not None:
             log.info('Successfully fetched a video url: {0}'.format(video_url))
-            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                self.current_stream_chunk.video_url = video_url
-                self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+            if self.current_stream_chunk is None:
+                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                    self.current_stream_chunk.video_url = video_url
+                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
 
-                db_session.add(self.current_stream_chunk)
+                    db_session.add(self.current_stream_chunk)
 
-                db_session.commit()
+                    db_session.commit()
 
-                db_session.expunge_all()
-            log.info('Successfully commited video url data.')
+                    db_session.expunge_all()
+                log.info('Successfully commited video url data.')
+            elif self.current_stream_chunk.video_url != video_url:
+                # End current stream chunk
+                self.current_stream_chunk.chunk_end = datetime.datetime.now()
+                DBManager.session_add_expunge(self.current_stream_chunk)
+
+                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                    stream_chunk = StreamChunk(self.current_stream, self.current_stream_chunk.broadcast_id, video_recorded_at)
+                    self.current_stream_chunk = stream_chunk
+                    self.current_stream_chunk.video_url = video_url
+                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+
+                    db_session.add(self.current_stream_chunk)
+
+                    db_session.commit()
+
+                    db_session.expunge_all()
+                log.info('Successfully commited video url data in a new chunk.')
         else:
             log.info('Not video for broadcast found')
 
