@@ -924,14 +924,32 @@ class CommandManager(UserDict):
 
         """
 
+        def merge_commands(in_dict, out):
+            for alias, command in in_dict.items():
+                if command.action:
+                    # Resets any previous modifications to the action.
+                    # Right now, the only thing this resets is the MultiAction
+                    # command list.
+                    command.action.reset()
+
+                if alias in out:
+                    if (command.action and command.action.type == 'multi' and
+                            out[alias].action and out[alias].action.type == 'multi'):
+                        out[alias].action += command.action
+                    else:
+                        out[alias] = command
+                else:
+                    out[alias] = command
+
         self.data = {}
-        self.data.update(self.internal_commands)
-        self.data.update({alias: command for alias, command in self.db_commands.items() if command.enabled is True})
+        db_commands = {alias: command for alias, command in self.db_commands.items() if command.enabled is True}
+
+        merge_commands(self.internal_commands, self.data)
+        merge_commands(db_commands, self.data)
 
         if self.module_manager is not None:
             for enabled_module in self.module_manager.modules:
-                log.info('Checking module: {}'.format(enabled_module.commands))
-                self.data.update(enabled_module.commands)
+                merge_commands(enabled_module.commands, self.data)
 
     def load(self, **options):
         self.load_internal_commands(**options)

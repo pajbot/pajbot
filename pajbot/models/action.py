@@ -132,6 +132,9 @@ class BaseAction:
     type = None
     subtype = None
 
+    def reset(self):
+        pass
+
 
 class MultiAction(BaseAction):
     type = 'multi'
@@ -150,6 +153,18 @@ class MultiAction(BaseAction):
                 else:
                     log.error('Alias {0} for this multiaction is already in use.'.format(alias))
 
+        import copy
+        self.original_commands = copy.copy(self.commands)
+
+    def reset(self):
+        import copy
+        self.commands = copy.copy(self.original_commands)
+
+    def __iadd__(self, other):
+        if other is not None and other.type == 'multi':
+            self.commands.update(other.commands)
+        return self
+
     @classmethod
     def ready_built(cls, commands, default=None, fallback=None):
         """ Useful if you already have a dictionary
@@ -158,6 +173,8 @@ class MultiAction(BaseAction):
 
         multiaction = cls(args=[], default=default, fallback=fallback)
         multiaction.commands = commands
+        import copy
+        multiaction.original_commands = copy.copy(commands)
         return multiaction
 
     def run(self, bot, source, message, event={}, args={}):
