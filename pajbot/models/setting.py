@@ -48,8 +48,6 @@ class SettingManager(UserDict):
         self.default_settings = {
                 'broadcaster': 'test_broadcaster',
                 'ban_ascii': True,
-                'ban_msg_length': True,
-                'max_msg_length': 350,
                 'lines_offline': True,
                 'parse_pyramids': False,
                 'parse_emote_combo': False,

@@ -61,15 +61,19 @@ class BaseModule:
         """ This method will load everything from the module into
         their proper dictionaries, which we can then use later. """
 
+        self.load_settings(options.get('settings', {}))
+
         self.load_commands(**options)
 
-        if 'settings' in options:
-            try:
-                self.settings = json.loads(options['settings'])
-            except:
-                pass
-
         return self
+
+    def load_settings(self, settings):
+        self.settings = settings
+
+        # Load any unset settings
+        for setting in self.SETTINGS:
+            if setting.key not in self.settings:
+                self.settings[setting.key] = setting.default
 
     def load_commands(self, **options):
         pass
@@ -84,3 +88,9 @@ class BaseModule:
             print(res)
             print(new_value)
             print(type(new_value))
+
+    def enable(self, bot):
+        pass
+
+    def disable(self, bot):
+        pass

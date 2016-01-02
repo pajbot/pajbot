@@ -182,11 +182,16 @@ class Bot:
         self.start_time = datetime.now()
         ActionParser.bot = self
 
+        self.handlers = {
+                # on_pubmsg(source, message)
+                'on_pubmsg': [],
+                }
+
         self.socket_manager = SocketManager(self)
         self.users = UserManager()
         self.decks = DeckManager().reload()
         self.stream_manager = StreamManager(self)
-        self.module_manager = ModuleManager(self.socket_manager).load()
+        self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
                 socket_manager=self.socket_manager,
                 module_manager=self.module_manager,
@@ -858,6 +863,16 @@ class Bot:
         msg = event.arguments[0]
         msg_len = len(msg)
 
+        for handler in self.handlers['on_pubmsg']:
+            try:
+                res = handler(source, msg)
+            except:
+                log.exception('Unhandled exception from {} in on_pubmsg'.format(handler))
+
+            if res is False:
+                # Abort if handler returns false
+                return False
+
         if msg_len > 70 and source.level < 500 and source.moderator is False:
             non_alnum = sum(not c.isalnum() for c in msg)
             ratio = non_alnum / msg_len
@@ -869,15 +884,6 @@ class Bot:
                     duration, punishment = self.timeout_warn(source, self.ascii_timeout_duration)
                     if duration > 0:
                         self.whisper(source.username, 'You have been {punishment} because your message contained too many ascii characters.'.format(punishment=punishment))
-                    return
-
-            if self.settings['ban_msg_length']:
-                max_msg_length = self.settings['max_msg_length']
-                if msg_len > max_msg_length:
-                    log.debug('Timeouting {0} because of a message length: {1}'.format(source.username, msg_len))
-                    duration, punishment = self.timeout_warn(source, self.msg_length_timeout_duration)
-                    if duration > 0:
-                        self.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
                     return
 
         self.parse_message(event.arguments[0], source, event, tags=event.tags)
@@ -945,6 +951,24 @@ class Bot:
         log.debug('Emote bingo cancelled')
         self.say('Emote bingo cancelled :(')
         self.emote_bingo_running = False
+
+    def add_handler(self, event, handler):
+        log.info('Adding handler {} to {}'.format(handler, event))
+        try:
+            self.handlers[event].append(handler)
+        except KeyError:
+            # No handlers for this event found
+            pass
+
+    def remove_handler(self, event, handler):
+        log.info('Removing handler {} from {}'.format(handler, event))
+        try:
+            self.handlers[event].remove(handler)
+        except KeyError:
+            # No Handlers for this event found
+            pass
+        except ValueError:
+            log.exception('why was this handler not here?')
 
 def _filter_time_since_dt(var, args):
     try:

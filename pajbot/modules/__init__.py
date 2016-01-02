@@ -5,6 +5,7 @@ from pajbot.modules.predict import PredictModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.math import MathModule
+from pajbot.modules.maxmsglength import MaxMsgLengthModule
 
 available_modules = [
         DummyModule,
@@ -13,4 +14,5 @@ available_modules = [
         DeckModule,
         FollowAgeModule,
         MathModule,
+        MaxMsgLengthModule
         ]

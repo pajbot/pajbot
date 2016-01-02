@@ -37,9 +37,10 @@ class Module(Base):
         self.settings = None
 
 class ModuleManager:
-    def __init__(self, socket_manager):
+    def __init__(self, socket_manager, bot=None):
         self.modules = []
         self.all_modules = []
+        self.bot = bot
 
         if socket_manager:
             socket_manager.add_handler('module.update', self.on_module_reload)
@@ -72,13 +73,26 @@ class ModuleManager:
         return self
 
     def reload(self):
+        # TODO: Make disable/enable better, so we don't need to disable modules
+        # that we're just going to enable again further down below.
+        for module in self.modules:
+            module.disable(self.bot)
+
         self.modules = []
 
         with DBManager.create_session_scope() as db_session:
             for enabled_module in db_session.query(Module).filter_by(enabled=True):
                 module = find(lambda m: m.ID == enabled_module.id, self.all_modules)
                 if module is not None:
-                    self.modules.append(module.load())
+                    options = {}
+                    if enabled_module.settings is not None:
+                        try:
+                            options['settings'] = json.loads(enabled_module.settings)
+                        except ValueError:
+                            log.warn('Invalid JSON')
+
+                    self.modules.append(module.load(**options))
+                    module.enable(self.bot)
 
     def __contains__(self, module):
         """ We override the contains operator for the ModuleManager.
