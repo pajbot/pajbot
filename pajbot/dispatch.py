@@ -141,6 +141,7 @@ class Dispatch:
             log.error('caught exception: {0}'.format(e))
 
     def math(bot, source, message, event, args):
+        log.warn('Dispatch math is deprecated. Use the math module.')
         if message:
             message = message.replace('pi', str(math.pi))
             message = message.replace('e', str(math.e))

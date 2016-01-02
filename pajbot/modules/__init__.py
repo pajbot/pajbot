@@ -4,6 +4,7 @@ from pajbot.modules.duel import DuelModule
 from pajbot.modules.predict import PredictModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.followage import FollowAgeModule
+from pajbot.modules.math import MathModule
 
 available_modules = [
         DummyModule,
@@ -11,4 +12,5 @@ available_modules = [
         PredictModule,
         DeckModule,
         FollowAgeModule,
+        MathModule,
         ]

@@ -1,6 +1,10 @@
 import ast
 import operator as op
+import logging
 
+# DEPRECATED. This will be inlined in the math module instead
+
+log = logging.getLogger('pajbot')
 
 class TBMath:
     """
@@ -20,6 +24,7 @@ class TBMath:
         >>> eval_expr('1 + 2*3**(4^5) / (6 + -7)')
         -5.0
         """
+        log.warn('TBMath is deprecated and will be removed.')
         return self.eval_(ast.parse(expr, mode='eval').body)
 
     def eval_(self, node):
