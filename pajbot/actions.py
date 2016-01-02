@@ -17,12 +17,16 @@ class Action:
 
 
 class ActionQueue:
+    ID = 0
+
     def __init__(self):
         self.queue = queue.Queue()
+        self.id = ActionQueue.ID
+        ActionQueue.ID += 1
 
     """ Starts a thread which will continuously check the queue for actions. """
     def start(self):
-        t = threading.Thread(target=self._action_parser, name='ActionQueueThread')
+        t = threading.Thread(target=self._action_parser, name='ActionQueueThread_{}'.format(self.id))
         t.daemon = True
         t.start()
 
