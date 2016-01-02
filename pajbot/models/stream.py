@@ -312,7 +312,7 @@ class StreamManager:
         video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url(stream_chunk)
         if video_url is not None:
             log.info('Successfully fetched a video url: {0}'.format(video_url))
-            if self.current_stream_chunk is None or self.current_stream.chunk.video_url is None:
+            if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
                 with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                     self.current_stream_chunk.video_url = video_url
                     self.current_stream_chunk.video_preview_image_url = video_preview_image_url
