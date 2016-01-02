@@ -163,7 +163,8 @@ class DuelModule(BaseModule):
             if source.points < source.duel_price or source.duel_request.points < source.duel_price:
                 bot.whisper(source.username, 'Your duel request with {} was cancelled due to one of you not having enough points.'.format(source.duel_request.username_raw))
                 bot.whisper(source.duel_request.username, 'Your duel request with {} was cancelled due to one of you not having enough points.'.format(source.username_raw))
-                source.duel_request = None
+                source.duel_request.duel_target = False
+                source.duel_request = False
                 return False
             source.points -= source.duel_price
             source.duel_request.points -= source.duel_price
