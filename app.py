@@ -508,14 +508,14 @@ def pleblist_history_stream(stream_id):
         total_length_left = sum([song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
 
         first_unplayed_song = find(lambda song: song.date_played is None, songs)
-        stream_chunk = session.query(StreamChunk).filter(StreamChunk.stream_id == stream.id).all()
+        stream_chunks = session.query(StreamChunk).filter(StreamChunk.stream_id == stream.id).all()
 
         return render_template('pleblist_history.html',
                 stream=stream,
                 songs=songs,
                 total_length_left=total_length_left,
                 first_unplayed_song=first_unplayed_song,
-                stream_chunk=stream_chunk)
+                stream_chunks=stream_chunks)
 
 
 @app.route('/discord')
