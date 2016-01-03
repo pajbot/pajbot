@@ -82,7 +82,11 @@ class FollowAgeModule(BaseModule):
             if age is False:
                 bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
             else:
-                bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+                bot.say('{}, {} has been following {} for {}'.format(
+                    source.username_raw,
+                    username,
+                    streamer,
+                    time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
 
     def check_follow_since(self, bot, source, username, streamer):
         streamer = bot.streamer if streamer is None else streamer.lower()
@@ -101,6 +105,7 @@ class FollowAgeModule(BaseModule):
             else:
                 bot.say('{}, {} has been following {} since {} UTC'.format(
                     source.username_raw,
+                    username,
                     streamer,
                     follow_since.strftime('%d %B %Y, %X')))
 
