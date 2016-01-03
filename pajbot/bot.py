@@ -873,19 +873,6 @@ class Bot:
                 # Abort if handler returns false
                 return False
 
-        if msg_len > 70 and source.level < 500 and source.moderator is False:
-            non_alnum = sum(not c.isalnum() for c in msg)
-            ratio = non_alnum / msg_len
-
-            # TODO: Implement a better anti-ascii feature.
-            if self.settings['ban_ascii']:
-                if (msg_len > 240 and ratio > 0.8) or ratio > 0.93:
-                    log.debug('Timeouting {0} because of a high ascii ratio ({1}). Message length: {2}'.format(source.username, ratio, msg_len))
-                    duration, punishment = self.timeout_warn(source, self.ascii_timeout_duration)
-                    if duration > 0:
-                        self.whisper(source.username, 'You have been {punishment} because your message contained too many ascii characters.'.format(punishment=punishment))
-                    return
-
         self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     @time_method
