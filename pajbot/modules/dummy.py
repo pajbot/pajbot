@@ -29,7 +29,7 @@ class DummyModule(BaseModule):
         log.info(options)
         bot = options.get('bot', None)
         if bot:
-            bot.say('we did it reddit!')
+            bot.say('we did it {}!'.format(self.settings['who']))
 
     def load_commands(self, **options):
         self.commands['dummy'] = Command.raw_command(self.dummy_command)

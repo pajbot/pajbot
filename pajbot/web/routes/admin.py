@@ -3,6 +3,7 @@ import base64
 import binascii
 import logging
 import collections
+import json
 
 from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
@@ -427,7 +428,19 @@ def modules_edit(module_id, **options):
             if db_module is None:
                 return render_template('admin/module_404.html'), 404
 
+            db_module.settings = json.dumps(res)
+            db_session.commit()
+
             current_module.db_module = db_module
+
+            settings = None
+            try:
+                settings = json.loads(db_module.settings)
+            except (TypeError, ValueError):
+                pass
+            current_module.load(settings=settings)
+
+            SocketClientManager.send('module.update', {'module_id': db_module.id})
 
             return render_template('admin/configure_module.html',
                     module=current_module)
@@ -439,6 +452,13 @@ def modules_edit(module_id, **options):
                 return render_template('admin/module_404.html'), 404
 
             current_module.db_module = db_module
+
+            settings = None
+            try:
+                settings = json.loads(db_module.settings)
+            except (TypeError, ValueError):
+                pass
+            current_module.load(settings=settings)
 
             return render_template('admin/configure_module.html',
                     module=current_module)

@@ -2,6 +2,12 @@
 {% set active_page = 'admin_modules' %}
 {% block title %}Configure Module{% endblock %}
 {% block body %}
+{% if request.method == 'POST' %}
+<div class="ui success message">
+    <i class="close icon"></i>
+    <div class="header">Successfully edited the module</div>
+</div>
+{% endif %}
 <h2>Configure &quot;{{ module.NAME }}&quot;</h2>
 <p>{{ module.DESCRIPTION }}</p>
 <div class="ui divider"></div>
@@ -10,7 +16,12 @@
     <div class="{{ 'required' if setting.required else ''}} field eight wide">
         <label>{{ setting.label }}</label>
         {% if setting.type == 'text' %}
-        <input type="text" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ setting.default if setting.default else '' }}" />
+        <input type="text" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+        {% elif setting.type == 'number' %}
+        <input type="number" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
+          {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
+          {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
+        />
         {% else %}
         Unknown type: {{ setting.type }}
         {% endif %}
@@ -37,20 +48,29 @@ $(document).ready(function() {
                                    {
                                        type: 'minLength[{{ con_value }}]',
                                        prompt: '"{{ setting.label }}" must be at least {{ con_value }} characters'
-                                   }
+                                   },
                                    {% elif con_key == 'max_str_len' %}
                                    {
                                        type: 'maxLength[{{ con_value }}]',
                                        prompt: '"{{ setting.label }}" must be at most {{ con_value }} characters'
-                                   }
+                                   },
+                                   {% elif con_key == 'min_value' and 'max_value' in setting.constraints %}
+                                   {
+                                       type: 'integer[{{ con_value }}..{{ setting.constraints['max_value'] }}]',
+                                       prompt: '"{{ setting.label }}" must be at least {{ con_value }} and at most {{ setting.constraints['max_value'] }}'
+                                   },
                                    {% endif %}
                                    {% endfor %}
                                    ]
-                               }
+                               },
             {% endif %}
             {% endfor -%}
         },
         keyboardShortcuts: false,
+    });
+
+    $('.message .close').on('click', function() {
+        $(this).closest('.message').transition('fade');
     });
 });
 </script>

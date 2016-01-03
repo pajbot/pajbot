@@ -21,13 +21,11 @@ class ModuleSetting:
         self.placeholder = placeholder
         self.default = default
         self.constraints = constraints
-        self.validators = {
-                'text': self.validate_text
-                }
 
     def validate(self, value):
-        if self.type in self.validators:
-            return self.validators[self.type](value)
+        validator = getattr(self, 'validate_{}'.format(self.type), None)
+        if validator:
+            return validator(value)
         else:
             log.info('No validator available for type {}'.format(type))
             return True, value
@@ -38,6 +36,18 @@ class ModuleSetting:
             return False, 'needs to be at least {} characters long'.format(self.constraints['min_str_len'])
         if 'max_str_len' in self.constraints and len(value) > self.constraints['max_str_len']:
             return False, 'needs to be at most {} characters long'.format(self.constraints['max_str_len'])
+        return True, value
+
+    def validate_number(self, value):
+        try:
+            value = int(value)
+        except ValueError:
+            return False, 'Not a valid integer'
+
+        if 'min_value' in self.constraints and value < self.constraints['min_value']:
+            return False, 'needs to have a value that is at least {}'.format(self.constraints['min_value'])
+        if 'max_value' in self.constraints and value > self.constraints['max_value']:
+            return False, 'needs to have a value that is at most {}'.format(self.constraints['max_value'])
         return True, value
 
 class BaseModule:
@@ -68,7 +78,7 @@ class BaseModule:
         return self
 
     def load_settings(self, settings):
-        self.settings = settings
+        self.settings = settings if settings else {}
 
         # Load any unset settings
         for setting in self.SETTINGS:
@@ -79,15 +89,22 @@ class BaseModule:
         pass
 
     def parse_settings(self, **in_settings):
+        ret = {}
         for key, value in in_settings.items():
             setting = find(lambda setting: setting.key == key, self.SETTINGS)
             if setting is None:
+                # We were passed a setting that's not available for this module
                 return False
             print('{}: {}'.format(key, value))
             res, new_value = setting.validate(value)
-            print(res)
-            print(new_value)
-            print(type(new_value))
+            if res is False:
+                # Something went wrong when validating one of the settings
+                log.warn(new_value)
+                return False
+
+            ret[key] = new_value
+
+        return ret
 
     def enable(self, bot):
         pass
