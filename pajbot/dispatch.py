@@ -660,10 +660,9 @@ class Dispatch:
     def debug_user(bot, source, message, event, args):
         if message and len(message) > 0:
             username = message.split(' ')[0].strip().lower()
-            user = bot.users[username]
+            user = bot.users.find(username)
 
-            if user.id == -1:
-                del bot.users[username]
+            if user is None:
                 bot.whisper(source.username, 'No user with this username found.')
                 return False
 
