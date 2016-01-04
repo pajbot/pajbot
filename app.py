@@ -522,6 +522,10 @@ def pleblist_history_stream(stream_id):
 def discord():
     return render_template('discord.html')
 
+@app.route('/test/')
+def test():
+    return render_template('test.html')
+
 
 @app.route('/clr/overlay/<widget_id>')
 @nocache
