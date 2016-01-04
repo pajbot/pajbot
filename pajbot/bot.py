@@ -860,12 +860,9 @@ class Bot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        msg = event.arguments[0]
-        msg_len = len(msg)
-
         for handler in self.handlers['on_pubmsg']:
             try:
-                res = handler(source, msg)
+                res = handler(source, event.arguments[0])
             except:
                 log.exception('Unhandled exception from {} in on_pubmsg'.format(handler))
 
