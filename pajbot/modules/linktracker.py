@@ -86,7 +86,7 @@ class LinkTrackerModule(BaseModule):
 
     def enable(self, bot):
         if bot:
-            bot.add_handler('on_message', self.on_message)
+            bot.add_handler('on_message', self.on_message, priority=100)
             bot.add_handler('on_commit', self.on_commit)
 
         if self.db_session is not None:

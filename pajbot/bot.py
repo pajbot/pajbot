@@ -773,7 +773,7 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
-        for handler in self.handlers['on_message']:
+        for handler, priority in self.handlers['on_message']:
             try:
                 res = handler(source, msg_raw, message_emotes, whisper, urls)
             except:
@@ -863,7 +863,7 @@ class Bot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        for handler in self.handlers['on_pubmsg']:
+        for handler, priority in self.handlers['on_pubmsg']:
             try:
                 res = handler(source, event.arguments[0])
             except:
@@ -893,7 +893,7 @@ class Bot:
             log.info('Done with {0}'.format(key))
         log.info('ok!')
 
-        for handler in self.handlers['on_commit']:
+        for handler, priority in self.handlers['on_commit']:
             try:
                 handler()
             except:
@@ -945,10 +945,12 @@ class Bot:
         self.say('Emote bingo cancelled :(')
         self.emote_bingo_running = False
 
-    def add_handler(self, event, handler):
+    def add_handler(self, event, handler, priority=0):
         log.info('Adding handler {} to {}'.format(handler, event))
+        import operator
         try:
-            self.handlers[event].append(handler)
+            self.handlers[event].append((handler, priority))
+            self.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
             pass
@@ -956,12 +958,10 @@ class Bot:
     def remove_handler(self, event, handler):
         log.info('Removing handler {} from {}'.format(handler, event))
         try:
-            self.handlers[event].remove(handler)
+            self.handlers[event][:] = [h for h in self.handlers[event] if h[0] is handler]
         except KeyError:
             # No Handlers for this event found
             pass
-        except ValueError:
-            log.exception('why was this handler not here?')
 
     def find_unique_urls(self, message):
         from pajbot.models.linkchecker import find_unique_urls
