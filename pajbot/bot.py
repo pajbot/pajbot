@@ -14,7 +14,6 @@ from .models.connection import ConnectionManager
 from .models.whisperconnection import WhisperConnectionManager
 from .models.linkchecker import LinkChecker
 from .models.linktracker import LinkTracker
-from .models.emotecomboparser import EmoteComboParser
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
 from .models.db import DBManager
@@ -183,6 +182,9 @@ class Bot:
         self.handlers = {
                 # on_pubmsg(source, message)
                 'on_pubmsg': [],
+
+                # on_message(source, message, emotes, whisper)
+                'on_message': [],
                 }
 
         self.socket_manager = SocketManager(self)
@@ -290,7 +292,6 @@ class Bot:
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
-        self.emote_combo_parser = EmoteComboParser(self)
         self.websocket_manager = WebSocketManager(self)
 
         """
@@ -767,8 +768,15 @@ class Bot:
             if num > 0:
                 emote.add(num, self.reactor)
 
-        if self.settings['parse_emote_combo'] and whisper is False:
-            self.emote_combo_parser.parse_line(msg_raw, source, message_emotes)
+        for handler in self.handlers['on_message']:
+            try:
+                res = handler(source, msg_raw, message_emotes, whisper)
+            except:
+                log.exception('Unhandled exception from {} in on_message'.format(handler))
+
+            if res is False:
+                # Abort if handler returns false
+                return False
 
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})

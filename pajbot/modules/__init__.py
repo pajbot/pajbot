@@ -8,6 +8,7 @@ from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.pyramid import PyramidModule
+from pajbot.modules.emotecombo import EmoteComboModule
 
 available_modules = [
         DummyModule,
@@ -19,4 +20,5 @@ available_modules = [
         MaxMsgLengthModule,
         AsciiProtectionModule,
         PyramidModule,
+        EmoteComboModule,
         ]

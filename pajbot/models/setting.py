@@ -49,9 +49,6 @@ class SettingManager(UserDict):
                 # Line counting module
                 'lines_offline': True,
 
-                # Emote combo module
-                'parse_emote_combo': False,
-
                 # Link checker module
                 'check_links': True,
 
