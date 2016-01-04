@@ -49,9 +49,6 @@ class SettingManager(UserDict):
                 # Line counting module
                 'lines_offline': True,
 
-                # Pyramid parser module
-                'parse_pyramids': False,
-
                 # Emote combo module
                 'parse_emote_combo': False,
 

@@ -14,7 +14,6 @@ from .models.connection import ConnectionManager
 from .models.whisperconnection import WhisperConnectionManager
 from .models.linkchecker import LinkChecker
 from .models.linktracker import LinkTracker
-from .models.pyramidparser import PyramidParser
 from .models.emotecomboparser import EmoteComboParser
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
@@ -291,7 +290,6 @@ class Bot:
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
-        self.pyramid_parser = PyramidParser(self)
         self.emote_combo_parser = EmoteComboParser(self)
         self.websocket_manager = WebSocketManager(self)
 
@@ -768,9 +766,6 @@ class Bot:
                     })
             if num > 0:
                 emote.add(num, self.reactor)
-
-        if self.settings['parse_pyramids'] and whisper is False:
-            self.pyramid_parser.parse_line(msg_raw, source)
 
         if self.settings['parse_emote_combo'] and whisper is False:
             self.emote_combo_parser.parse_line(msg_raw, source, message_emotes)
