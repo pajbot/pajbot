@@ -17,6 +17,9 @@ $.fn.api.settings.api = {
 
 $(document).ready(function() {
     $('#usersearch').form({
+        fields: {
+            username: 'empty',
+        },
         onSuccess: function(settings) {
             document.location.href = '/user/'+$('#usersearch input.username').val();
             return false;
