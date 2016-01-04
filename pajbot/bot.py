@@ -36,7 +36,6 @@ from pajbot.models.module import ModuleManager
 from pajbot.managers.redis import RedisManager
 from pajbot.modules import PredictModule
 from .apiwrappers import TwitchAPI
-from .tbmath import TBMath
 from .tbutil import time_since
 from .tbutil import time_method
 from .actions import Action, ActionQueue
@@ -276,8 +275,6 @@ class Bot:
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
-
-        self.tbm = TBMath()
 
         self.silent = True if args.silent else self.silent
 
