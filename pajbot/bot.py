@@ -197,7 +197,7 @@ class Bot:
                 bot=self).load()
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
-        self.settings = SettingManager({'broadcaster': self.streamer}).reload()
+        self.settings = SettingManager().reload()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
@@ -271,6 +271,7 @@ class Bot:
         self.data = {}
         self.data_cb = {}
 
+        self.data['broadcaster'] = self.streamer
         self.data['version'] = self.version
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status

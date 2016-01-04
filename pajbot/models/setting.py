@@ -46,12 +46,19 @@ class SettingManager(UserDict):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
         self.default_settings = {
-                'broadcaster': 'test_broadcaster',
-                'ban_ascii': True,
+                # Line counting module
                 'lines_offline': True,
+
+                # Pyramid parser module
                 'parse_pyramids': False,
+
+                # Emote combo module
                 'parse_emote_combo': False,
+
+                # Link checker module
                 'check_links': True,
+
+                # Warning module?
                 'warnings_enabled': True,
                 'warnings_total_chances': 2,
                 'warnings_redis_prefix': '',
