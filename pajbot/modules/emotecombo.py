@@ -30,7 +30,7 @@ class EmoteComboModule(BaseModule):
         self.emote_count = 0
         self.current_emote = None
 
-    def on_message(self, source, message, emotes, whisper):
+    def on_message(self, source, message, emotes, whisper, urls):
         if whisper is False:
             if len(emotes) == 0:
                 # Ignore messages without any emotes

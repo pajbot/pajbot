@@ -3,6 +3,7 @@ import argparse
 import sys
 import logging
 import subprocess
+import re
 
 from datetime import datetime
 import urllib
@@ -13,7 +14,6 @@ from .models.emote import EmoteManager
 from .models.connection import ConnectionManager
 from .models.whisperconnection import WhisperConnectionManager
 from .models.linkchecker import LinkChecker
-from .models.linktracker import LinkTracker
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
 from .models.db import DBManager
@@ -60,6 +60,7 @@ class Bot:
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
+    url_regex_str = r'((http:\/\/)|\b)([\w-]|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)'
 
     def parse_args():
         parser = argparse.ArgumentParser()
@@ -183,8 +184,11 @@ class Bot:
                 # on_pubmsg(source, message)
                 'on_pubmsg': [],
 
-                # on_message(source, message, emotes, whisper)
+                # on_message(source, message, emotes, whisper, urls)
                 'on_message': [],
+
+                # on_commit()
+                'on_commit': [],
                 }
 
         self.socket_manager = SocketManager(self)
@@ -202,7 +206,6 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
-        self.link_tracker = LinkTracker()
         self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
         self.duel_manager = DuelManager(self)
@@ -228,7 +231,6 @@ class Bot:
                 'twitter': self.twitter_manager,
                 'linkchecker': self.link_checker,
                 'decks': self.decks,
-                'linktracker': self.link_tracker,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
@@ -271,6 +273,7 @@ class Bot:
 
         self.data = {}
         self.data_cb = {}
+        self.url_regex = re.compile(self.url_regex_str, re.IGNORECASE)
 
         self.data['broadcaster'] = self.streamer
         self.data['version'] = self.version
@@ -768,9 +771,11 @@ class Bot:
             if num > 0:
                 emote.add(num, self.reactor)
 
+        urls = self.find_unique_urls(msg_raw)
+
         for handler in self.handlers['on_message']:
             try:
-                res = handler(source, msg_raw, message_emotes, whisper)
+                res = handler(source, msg_raw, message_emotes, whisper, urls)
             except:
                 log.exception('Unhandled exception from {} in on_message'.format(handler))
 
@@ -798,10 +803,7 @@ class Bot:
                     # If we've matched a filter, we should not have to run a command.
                     return
 
-            urls = self.link_checker.find_urls_in_message(msg_raw)
             for url in urls:
-                self.link_tracker.add(url)
-
                 if self.settings['check_links'] and source.level < 500:
                     # Action which will be taken when a bad link is found
                     action = Action(self.timeout, args=[source.username, 20])
@@ -891,6 +893,12 @@ class Bot:
             log.info('Done with {0}'.format(key))
         log.info('ok!')
 
+        for handler in self.handlers['on_commit']:
+            try:
+                handler()
+            except:
+                log.exception('Unhandled exception from {} in on_commit'.format(handler))
+
     def quit(self, **options):
         self.commit_all()
         if self.phrases['quit']:
@@ -954,6 +962,10 @@ class Bot:
             pass
         except ValueError:
             log.exception('why was this handler not here?')
+
+    def find_unique_urls(self, message):
+        from pajbot.models.linkchecker import find_unique_urls
+        return find_unique_urls(self.url_regex, message)
 
 def _filter_time_since_dt(var, args):
     try:

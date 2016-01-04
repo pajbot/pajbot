@@ -61,6 +61,7 @@ class BaseModule:
             'It\'s what will be shown on the website where you can enable ' + \
             'and disable modules.'
     SETTINGS = []
+    ENABLED_DEFAULT = False
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """

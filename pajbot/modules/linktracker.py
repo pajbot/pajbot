@@ -1,14 +1,15 @@
-import datetime
 import logging
+import datetime
+from urllib.parse import urlsplit
 
+from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.command import Command
 from pajbot.models.db import DBManager, Base
 
-from urllib.parse import urlsplit
 from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.dialects.mysql import TEXT
 
-log = logging.getLogger('pajbot')
-
+log = logging.getLogger(__name__)
 
 class LinkTrackerLink(Base):
     __tablename__ = 'tb_link_data'
@@ -30,13 +31,27 @@ class LinkTrackerLink(Base):
         self.times_linked += 1
         self.last_linked = datetime.datetime.now()
 
+class LinkTrackerModule(BaseModule):
 
-class LinkTracker:
+    ID = __name__.split('.')[-1]
+    NAME = 'Link Tracker'
+    DESCRIPTION = 'Tracks links to see which links are most frequently posted in your chat'
+    ENABLED_DEFAULT = True
+    SETTINGS = []
+
     def __init__(self):
-        self.db_session = DBManager.create_session()
+        super().__init__()
+        self.db_session = None
         self.links = {}
 
-    def add(self, url):
+    def on_message(self, source, message, emotes, whisper, urls):
+        if whisper is False:
+            for url in urls:
+                self.add_url(url)
+
+    def add_url(self, url):
+        if self.db_session is None:
+            return
         url_data = urlsplit(url)
         if url_data.netloc[:4] == 'www.':
             netloc = url_data.netloc[4:]
@@ -65,5 +80,29 @@ class LinkTracker:
 
         self.links[url].increment()
 
-    def commit(self):
-        self.db_session.commit()
+    def on_commit(self):
+        if self.db_session is not None:
+            self.db_session.commit()
+
+    def enable(self, bot):
+        if bot:
+            bot.add_handler('on_message', self.on_message)
+            bot.add_handler('on_commit', self.on_commit)
+
+        if self.db_session is not None:
+            self.db_session.commit()
+            self.db_session.close()
+            self.db_session = None
+            self.links = {}
+        self.db_session = DBManager.create_session()
+
+    def disable(self, bot):
+        if bot:
+            bot.remove_handler('on_message', self.on_message)
+            bot.remove_handler('on_commit', self.on_commit)
+
+        if self.db_session is not None:
+            self.db_session.commit()
+            self.db_session.close()
+            self.db_session = None
+            self.links = {}

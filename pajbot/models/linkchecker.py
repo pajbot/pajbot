@@ -133,8 +133,6 @@ class WhitelistedLink(LinkCheckerLink, Base):
 
 
 class LinkChecker:
-    regex_str = r'((http:\/\/)|\b)([\w-]|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)'
-
     def reload(self):
         self.blacklisted_links = []
         for link in self.db_session.query(BlacklistedLink):
@@ -161,7 +159,6 @@ class LinkChecker:
         else:
             self.safeBrowsingAPI = None
 
-        self.regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
         self.run_later = run_later
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
 
@@ -501,6 +498,3 @@ class LinkChecker:
         self.cache_url(original_url.url, True)
         self.cache_url(original_redirected_url.url, True)
         return
-
-    def find_urls_in_message(self, msg_raw):
-        return find_unique_urls(self.regex, msg_raw)

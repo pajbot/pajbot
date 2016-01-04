@@ -64,7 +64,7 @@ class ModuleManager:
                 mod = find(lambda m: m.id == module.ID, db_modules)
                 if mod is None:
                     log.info('Creating row in DB for module {}'.format(module.ID))
-                    mod = Module(module.ID)
+                    mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
                     db_session.add(mod)
 
         if do_reload is True:
