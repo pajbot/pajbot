@@ -132,10 +132,8 @@ class FollowAgeModule(BaseModule):
         streamer = None
         if message is not None and len(message) > 0:
             message_split = message.split(' ')
-            potential_user = bot.users.find(message_split[0])
-            if potential_user is not None:
-                username = potential_user.username
-
+            if len(message_split[0]) and message_split[0].replace('_', '').isalnum():
+                username = message_split[0].lower()
             if len(message_split) > 1 and message_split[1].replace('_', '').isalnum():
                 streamer = message_split[1]
 
