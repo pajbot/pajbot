@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import inspect
 
@@ -15,6 +16,7 @@ class DBManager:
     def init(url):
         DBManager.engine = create_engine(url)
         DBManager.Session = sessionmaker(bind=DBManager.engine)
+        DBManager.ScopedSession = scoped_session(sessionmaker(bind=DBManager.engine))
 
     def create_session(**options):
         """
@@ -26,6 +28,19 @@ class DBManager:
             return DBManager.Session(**options)
         except:
             log.exception('Unhandled exception while creating a session')
+
+        return None
+
+    def create_scoped_session(**options):
+        """
+        Useful options:
+        expire_on_commit=False
+        """
+
+        try:
+            return DBManager.ScopedSession(**options)
+        except:
+            log.exception('Unhandled exception while creating a scoped session')
 
         return None
 
@@ -56,6 +71,18 @@ class DBManager:
     @contextmanager
     def create_session_scope(**options):
         session = DBManager.create_session(**options)
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    @contextmanager
+    def create_scoped_session_scope(**options):
+        session = DBManager.create_scoped_session(**options)
         try:
             yield session
             session.commit()
