@@ -41,7 +41,7 @@ class LastfmModule(BaseModule):
                 currentTrack = user.get_now_playing()
 
                 if currentTrack == None:
-                    bot.me('{} isn\'t playing music right now!'.format(bot.streamer))
+                    bot.me('{} isn\'t playing music right now.. FeelsBadMan'.format(bot.streamer))
                 else:
                     bot.me('Current Song is \u2669\u266a\u266b {0} \u266c\u266b\u2669'.format(currentTrack))
 
