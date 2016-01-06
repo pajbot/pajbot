@@ -7,6 +7,7 @@ from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.ascii import AsciiProtectionModule
+from pajbot.modules.lastfm import LastfmModule
 
 available_modules = [
         DummyModule,
@@ -17,4 +18,5 @@ available_modules = [
         MathModule,
         MaxMsgLengthModule,
         AsciiProtectionModule,
+        LastfmModule,
         ]
