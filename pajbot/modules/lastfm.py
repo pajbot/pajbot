@@ -10,8 +10,26 @@ class LastfmModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'LastFM module'
     DESCRIPTION = 'This uses the LastFM api to fetch the current artist and songname that the streamer is listening to on spotify or youtube.'
+    SETTINGS = [
+            ModuleSetting(
+                key='api_key',
+                label='LastFM Api Key',
+                type='text',
+                required=True,
+                placeholder='i.e. f6a3b7b12549aa211a6deec453c79417',
+                default=''),
+            ModuleSetting(
+                key='username',
+                label='LastFM Username',
+                type='text',
+                required=True,
+                placeholder='i.e. anniefuchsia',
+                default=''),
+            ]
 
     def load_commands(self, **options):
+        # TODO: Aliases should be set in settings?
+        #       This way, it can be run alongside other modules
         self.commands['song'] = Command.raw_command(self.song,
                 delay_all=12,
                 delay_user=25,
@@ -28,28 +46,26 @@ class LastfmModule(BaseModule):
         self.commands['playing'] = self.commands['song']
 
     def song(self, **options):
-        source = options['source']
         bot = options['bot']
 
-        if 'lastfm' in bot.config:
-            try:
-                API_KEY = bot.config['lastfm']['api_key'] #"f6a3b7b12549aa211a6deec453c79417"
-                lastfmname = bot.config['lastfm']['user'] #"anniefuchsia"
+        API_KEY = self.settings['api_key']
+        lastfmname = self.settings['username']
 
-                network = pylast.LastFMNetwork(api_key = API_KEY, api_secret ="", username = lastfmname, password_hash ="")
-                user = network.get_user(lastfmname)
-                currentTrack = user.get_now_playing()
+        if len(API_KEY) < 10 or len(lastfmname) < 2:
+            log.warn('You need to set up the Last FM API stuff in the Module settings.')
+            return False
 
-                if currentTrack == None:
-                    bot.me('{} isn\'t playing music right now.. FeelsBadMan'.format(bot.streamer))
-                else:
-                    bot.me('Current Song is \u2669\u266a\u266b {0} \u266c\u266b\u2669'.format(currentTrack))
+        try:
 
-            except KeyError:
-                log.error('api_key or user not specified under [lastfm] in config file. see the example config')
-            except pylast.WSError:
-                log.error('LastFm username not found')
-            except IndexError:
-                bot.me('I have trouble fetching the song name.. Please try again FeelsBadMan')
-        else:
-                log.error('lastfm not found in config.ini')
+            network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
+            user = network.get_user(lastfmname)
+            currentTrack = user.get_now_playing()
+
+            if currentTrack is None:
+                bot.me('{} isn\'t playing music right now.. FeelsBadMan'.format(bot.streamer))
+            else:
+                bot.me('Current Song is \u2669\u266a\u266b {0} \u266c\u266b\u2669'.format(currentTrack))
+        except pylast.WSError:
+            log.error('LastFm username not found')
+        except IndexError:
+            bot.me('I have trouble fetching the song name.. Please try again FeelsBadMan')
