@@ -49,9 +49,6 @@ class SettingManager(UserDict):
                 # Line counting module
                 'lines_offline': True,
 
-                # Link checker module
-                'check_links': True,
-
                 # Warning module?
                 'warnings_enabled': True,
                 'warnings_total_chances': 2,
