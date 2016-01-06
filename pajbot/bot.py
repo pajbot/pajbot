@@ -5,7 +5,7 @@ import logging
 import subprocess
 import re
 
-from datetime import datetime
+import datetime
 import urllib
 
 from .models.sock import SocketManager
@@ -146,8 +146,8 @@ class Bot:
 
     def __init__(self, config, args=None):
         self.load_config(config)
-        self.last_ping = datetime.now()
-        self.last_pong = datetime.now()
+        self.last_ping = datetime.datetime.now()
+        self.last_pong = datetime.datetime.now()
 
         self.load_default_phrases()
 
@@ -176,7 +176,7 @@ class Bot:
         self.action_queue.start()
 
         self.reactor = irc.client.Reactor()
-        self.start_time = datetime.now()
+        self.start_time = datetime.datetime.now()
         ActionParser.bot = self
 
         self.handlers = {
@@ -471,7 +471,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.now(tz).strftime(self.date_fmt)
+            return datetime.datetime.now(tz).strftime(self.date_fmt)
         except:
             log.exception('Unhandled exception in get_time_value')
 
@@ -516,7 +516,7 @@ class Bot:
             log.exception('Exception caught while sending privmsg')
 
     def c_uptime(self):
-        return time_since(datetime.now().timestamp(), self.start_time.timestamp())
+        return time_since(datetime.datetime.now().timestamp(), self.start_time.timestamp())
 
     @property
     def is_online(self):
@@ -827,14 +827,14 @@ class Bot:
         self.parse_message(event.arguments[0], source, event, whisper=True)
 
     def on_ping(self, chatconn, event):
-        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
-        log.info('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
-        self.last_ping = datetime.now()
+        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
+        log.info('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
+        self.last_ping = datetime.datetime.now()
 
     def on_pong(self, chatconn, event):
-        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
-        log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
-        self.last_pong = datetime.now()
+        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp())))
+        log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp())))
+        self.last_pong = datetime.datetime.now()
 
     def on_pubnotice(self, chatconn, event):
         type = 'whisper' if chatconn in self.whisper_manager else 'normal'
@@ -956,7 +956,7 @@ class Bot:
 
 def _filter_time_since_dt(var, args):
     try:
-        ts = time_since(datetime.now().timestamp(), var.timestamp())
+        ts = time_since(datetime.datetime.now().timestamp(), var.timestamp())
         if len(ts) > 0:
             return ts
         else:
