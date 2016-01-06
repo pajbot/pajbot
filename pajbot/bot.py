@@ -566,7 +566,7 @@ class Bot:
         self.execute_delayed(1, self._timeout, (username, duration))
 
     def timeout_warn(self, user, duration):
-        duration, punishment = user.timeout(duration, self)
+        duration, punishment = user.timeout(duration, warning_module=self.module_manager['warning'])
         if not user.ban_immune:
             self.timeout(user.username, duration)
             return (duration, punishment)

@@ -12,6 +12,7 @@ from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.linktracker import LinkTrackerModule, LinkTrackerLink
 from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, BlacklistedLink
 from pajbot.modules.lastfm import LastfmModule
+from pajbot.modules.warning import WarningModule
 
 available_modules = [
         DummyModule,
@@ -27,4 +28,5 @@ available_modules = [
         LinkTrackerModule,
         LinkCheckerModule,
         LastfmModule,
+        WarningModule,
         ]

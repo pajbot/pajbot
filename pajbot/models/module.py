@@ -94,6 +94,12 @@ class ModuleManager:
                     self.modules.append(module.load(**options))
                     module.enable(self.bot)
 
+    def __getitem__(self, module):
+        for enabled_module in self.modules:
+            if enabled_module.ID == module:
+                return enabled_module
+        return None
+
     def __contains__(self, module):
         """ We override the contains operator for the ModuleManager.
         This allows us to use the following syntax to check if a module is enabled:

@@ -180,7 +180,7 @@ class User(Base):
 
         return False
 
-    def timeout(self, timeout_length, bot, use_warnings=True):
+    def timeout(self, timeout_length, warning_module=None, use_warnings=True):
         """ Returns a tuple with the follow data:
         How long to timeout the user for, and what the punishment string is
         set to.
@@ -191,13 +191,13 @@ class User(Base):
 
         punishment = 'timed out for {} seconds'.format(timeout_length)
 
-        if use_warnings and bot.settings['warnings_enabled'] is True:
+        if use_warnings and warning_module is not None:
             redis = RedisManager.get()
 
             """ How many chances the user has before receiving a full timeout. """
-            total_chances = bot.settings['warnings_total_chances']
+            total_chances = warning_module.settings['total_chances']
 
-            warning_keys = self.get_warning_keys(total_chances, bot.settings['warnings_redis_prefix'])
+            warning_keys = self.get_warning_keys(total_chances, warning_module.settings['redis_prefix'])
             warnings = self.get_warnings(redis, warning_keys)
 
             chances_used = self.get_chances_used(warnings)
@@ -205,10 +205,10 @@ class User(Base):
             if chances_used < total_chances:
                 """ The user used up one of his warnings.
                 Calculate for how long we should time him out. """
-                timeout_length = bot.settings['warnings_base_timeout'] * (chances_used + 1)
+                timeout_length = warning_module.settings['base_timeout'] * (chances_used + 1)
                 punishment = 'timed out for {} seconds (warning)'.format(timeout_length)
 
-                self.add_warning(redis, bot.settings['warnings_length'], warning_keys, warnings)
+                self.add_warning(redis, warning_module.settings['length'], warning_keys, warnings)
 
         return (timeout_length, punishment)
 

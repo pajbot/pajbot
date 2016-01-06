@@ -220,7 +220,9 @@ class BanphraseManager:
             self.bot.ban(user.username)
         else:
             # Timeout user
-            timeout_length, punishment = user.timeout(banphrase.length, self.bot, use_warnings=banphrase.warning)
+            timeout_length, punishment = user.timeout(banphrase.length,
+                    warning_module=self.bot.module_manager['warning'],
+                    use_warnings=banphrase.warning)
 
             """ Finally, time out the user for whatever timeout length was required. """
             self.bot.timeout(user.username, timeout_length)
