@@ -10,6 +10,7 @@ from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.pyramid import PyramidModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.linktracker import LinkTrackerModule, LinkTrackerLink
+from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, BlacklistedLink
 
 available_modules = [
         DummyModule,
@@ -23,4 +24,5 @@ available_modules = [
         PyramidModule,
         EmoteComboModule,
         LinkTrackerModule,
+        LinkCheckerModule,
         ]

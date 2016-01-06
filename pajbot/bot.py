@@ -13,7 +13,6 @@ from .models.user import UserManager
 from .models.emote import EmoteManager
 from .models.connection import ConnectionManager
 from .models.whisperconnection import WhisperConnectionManager
-from .models.linkchecker import LinkChecker
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
 from .models.db import DBManager
@@ -206,7 +205,6 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
-        self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
         self.duel_manager = DuelManager(self)
 
@@ -217,7 +215,6 @@ class Bot:
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
-                'linkchecker': self.link_checker,
                 'decks': self.decks,
                 }
 
@@ -229,7 +226,6 @@ class Bot:
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
-                'linkchecker': self.link_checker,
                 'decks': self.decks,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
@@ -803,15 +799,6 @@ class Bot:
                     # If we've matched a filter, we should not have to run a command.
                     return
 
-            for url in urls:
-                if self.settings['check_links'] and source.level < 500:
-                    # Action which will be taken when a bad link is found
-                    action = Action(self.timeout, args=[source.username, 20])
-                    # First we perform a basic check
-                    if self.link_checker.simple_check(url, action) == LinkChecker.RET_FURTHER_ANALYSIS:
-                        # If the basic check returns no relevant data, we queue up a proper check on the URL
-                        self.action_queue.add(self.link_checker.check_url, args=[url, action])
-
         if source.ignored:
             return False
 
@@ -964,7 +951,7 @@ class Bot:
             pass
 
     def find_unique_urls(self, message):
-        from pajbot.models.linkchecker import find_unique_urls
+        from pajbot.modules.linkchecker import find_unique_urls
         return find_unique_urls(self.url_regex, message)
 
 def _filter_time_since_dt(var, args):

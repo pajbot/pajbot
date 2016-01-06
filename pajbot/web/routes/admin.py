@@ -11,11 +11,11 @@ from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.command import Command, CommandData, CommandManager
 from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
-from pajbot.models.linkchecker import BlacklistedLink
-from pajbot.models.linkchecker import WhitelistedLink
 from pajbot.models.user import User
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.db import DBManager
+from pajbot.modules.linkchecker import BlacklistedLink
+from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.predict import PredictionRun, PredictionRunEntry
 
 import requests
