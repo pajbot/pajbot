@@ -793,7 +793,7 @@ class Bot:
                     # If we've matched a filter, we should not have to run a command.
                     return
 
-        source.last_active = datetime.datetime.now()
+        source.last_seen = datetime.datetime.now()
         source.last_active = datetime.datetime.now()
 
         if source.ignored:
