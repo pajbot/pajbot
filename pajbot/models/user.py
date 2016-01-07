@@ -179,8 +179,6 @@ class User(Base):
         How long to timeout the user for, and what the punishment string is
         set to.
         The punishment string is used to clarify whether this was a warning or the real deal.
-
-        TODO: Remove the need for bot here, make settings globally available
         """
 
         punishment = 'timed out for {} seconds'.format(timeout_length)

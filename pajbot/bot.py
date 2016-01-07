@@ -18,7 +18,6 @@ from .models.twitter import TwitterManager
 from .models.db import DBManager
 from .models.filter import FilterManager
 from .models.command import CommandManager
-from .models.setting import SettingManager
 from .models.kvi import KVIManager
 from .models.deck import DeckManager
 from .models.stream import StreamManager
@@ -55,7 +54,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.2.2'
+    version = '2.3.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
@@ -201,7 +200,6 @@ class Bot:
                 bot=self).load()
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
-        self.settings = SettingManager().reload()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
@@ -211,7 +209,6 @@ class Bot:
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
-                'settings': self.settings,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
@@ -222,7 +219,6 @@ class Bot:
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'settings': self.settings,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
@@ -497,8 +493,6 @@ class Bot:
             return self.data[key]
         elif key in self.data_cb:
             return self.data_cb[key]()
-        elif key in self.settings:
-            return self.settings[key]
 
         log.warning('Unknown key passed to get_value: {0}'.format(key))
         return None
