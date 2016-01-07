@@ -142,12 +142,6 @@ class User(Base):
         self.last_seen = datetime.datetime.now()
         self.points += add_points
 
-    def wrote_message(self, add_line=True):
-        self.last_active = datetime.datetime.now()
-        self.last_seen = datetime.datetime.now()
-        if add_line:
-            self.num_lines += 1
-
     def get_warning_keys(self, total_chances, prefix):
         """ Returns a list of keys that are used to store the users warning status in redis.
         Example: ['pajlada_warning1', 'pajlada_warning2'] """

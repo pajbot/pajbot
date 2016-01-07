@@ -13,6 +13,7 @@ from pajbot.modules.linktracker import LinkTrackerModule, LinkTrackerLink
 from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, BlacklistedLink
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.warning import WarningModule
+from pajbot.modules.linefarming import LineFarmingModule
 
 available_modules = [
         DummyModule,
@@ -29,4 +30,5 @@ available_modules = [
         LinkCheckerModule,
         LastfmModule,
         WarningModule,
+        LineFarmingModule,
         ]

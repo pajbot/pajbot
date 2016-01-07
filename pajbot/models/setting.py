@@ -46,8 +46,6 @@ class SettingManager(UserDict):
         UserDict.__init__(self)
         self.db_session = DBManager.create_session()
         self.default_settings = {
-                # Line counting module
-                'lines_offline': True,
                 }
         self.default_settings.update(overrides)
 

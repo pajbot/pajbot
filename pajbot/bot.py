@@ -799,10 +799,11 @@ class Bot:
                     # If we've matched a filter, we should not have to run a command.
                     return
 
+        source.last_active = datetime.datetime.now()
+        source.last_active = datetime.datetime.now()
+
         if source.ignored:
             return False
-
-        add_line = not whisper and (self.is_online or self.settings['lines_offline'])
 
         if msg_lower[:1] == '!':
             msg_lower_parts = msg_lower.split(' ')
@@ -816,10 +817,6 @@ class Bot:
                         'trigger': trigger,
                         }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
-                # If a command is executed, we do not count the message as a line
-                add_line = False
-
-        source.wrote_message(add_line)
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
