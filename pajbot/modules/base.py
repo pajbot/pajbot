@@ -50,6 +50,9 @@ class ModuleSetting:
             return False, 'needs to have a value that is at most {}'.format(self.constraints['max_value'])
         return True, value
 
+    def validate_boolean(self, value):
+        return True, value == 'on'
+
 class BaseModule:
     """ This class will include all the basics that a module needs
     to be operable.

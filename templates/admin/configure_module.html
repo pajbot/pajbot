@@ -13,15 +13,17 @@
 <div class="ui divider"></div>
 <form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
     {%- for setting in module.SETTINGS %}
-    <div class="{{ 'required' if setting.required else ''}} field eight wide">
-        <label>{{ setting.label }}</label>
+    <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
+        <label for="key_{{ setting.key }}">{{ setting.label }}</label>
         {% if setting.type == 'text' %}
-        <input type="text" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
         {% elif setting.type == 'number' %}
-        <input type="number" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
+        <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
           {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
           {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
         />
+        {% elif setting.type == 'boolean' %}
+        <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} />
         {% else %}
         Unknown type: {{ setting.type }}
         {% endif %}
