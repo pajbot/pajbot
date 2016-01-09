@@ -101,10 +101,8 @@ class PleblistManager:
             log.info(e.resp)
             log.info(e.uri)
 
-        log.debug(video_response)
-
         if len(video_response.get('items', [])) == 0:
-            log.warning('FeelsBadMan')
+            log.warning('Got no valid responses for {}'.format(youtube_id))
             return False
 
         video = video_response['items'][0]
