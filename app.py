@@ -688,6 +688,7 @@ default_variables = {
             'domain': config['web']['domain'],
             'deck_tab_images': config.getboolean('web', 'deck_tab_images'),
             'websocket': {
+                'host': config['websocket'].get('host', config['web']['domain']),
                 'port': config['websocket']['port'],
                 'ssl': config.getboolean('websocket', 'ssl')
                 }
