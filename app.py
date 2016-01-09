@@ -12,7 +12,7 @@ import datetime
 import urllib
 
 from pajbot.bot import Bot
-from pajbot.web.models import api
+from pajbot.web.routes import api
 from pajbot.web.routes import admin
 from pajbot.web.models import errors
 from pajbot.models.db import DBManager
