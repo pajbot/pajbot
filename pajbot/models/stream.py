@@ -148,7 +148,7 @@ class StreamManager:
                     recorded_at = parse_twitch_datetime(video['recorded_at'])
                     if stream_chunk is not None:
                         time_diff = stream_chunk.chunk_start - recorded_at
-                        if abs(time_diff.total_seconds()) < 5:
+                        if abs(time_diff.total_seconds()) < 60 * 5:
                             # we found the relevant video!
                             return video['url'], video['preview'], video['recorded_at']
                     else:
