@@ -214,6 +214,9 @@ class BanphraseManager:
         the user will be permanently banned even if this is his first strike.
         """
 
+        if banphrase.data is not None:
+            banphrase.data.num_uses += 1
+
         if banphrase.permanent is True:
             # Permanently ban user
             punishment = 'permanently banned'
