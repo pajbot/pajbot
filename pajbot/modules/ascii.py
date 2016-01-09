@@ -45,7 +45,9 @@ class AsciiProtectionModule(BaseModule):
             ratio = non_alnum / len(message)
             if (len(message) > 240 and ratio > 0.8) or ratio > 0.93:
                 duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'])
-                if duration > 0:
+                """ We only send a notification to the user if he has spent more than
+                one hour watching the stream. """
+                if duration > 0 and source.minutes_in_chat_online > 60:
                     self.bot.whisper(source.username, 'You have been {punishment} because your message contained too many ascii characters.'.format(punishment=punishment))
                 return False
 

@@ -42,7 +42,9 @@ class MaxMsgLengthModule(BaseModule):
     def on_pubmsg(self, source, message):
         if len(message) > self.settings['max_msg_length'] and source.level < 500 and source.moderator is False:
             duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'])
-            if duration > 0:
+            """ We only send a notification to the user if he has spent more than
+            one hour watching the stream. """
+            if duration > 0 and source.minutes_in_chat_online > 60:
                 self.bot.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
             return False
 
