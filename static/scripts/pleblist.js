@@ -163,9 +163,26 @@ function process_songs(song_list)
     }
 }
 
+function check_timer()
+{
+    /***
+     * Check how far we've come in the current song.
+     * We should also check if the current song should be skipped or not.
+     ***/
+
+    if (current_song !== null && current_song.skip_after !== null) {
+        var elapsed_time = player.getCurrentTime();
+        if (elapsed_time > current_song.skip_after) {
+            // The song has been playing for enough time already, time to skip
+            next_song();
+        }
+    }
+}
+
 secret_password = undefined;
 
 $(document).ready(function() {
+    setInterval(check_timer, 5 * 1000);
     secret_password = $.cookie('password');
     if (secret_password === undefined) {
         setTimeout(function() {

@@ -95,10 +95,11 @@ function add_tip(username, avatar, cents, note)
                         if (response.new_youtube_id !== undefined) {
                             youtube_id = response.new_youtube_id;
                         }
-                        youtube_link_el.html('youtu.be/'+youtube_id+'&emsp;');
+                        var youtube_url = 'youtu.be/'+youtube_id;
+                        $(el).find('.youtube-link').html(youtube_url+'&emsp;').attr('href', 'https://'+youtube_url);
                         song_info = response.song_info;
                         if (song_info !== null) {
-                            var $button = $('<button>', {'class': 'ui small button', 'style': 'padding: 5px;'}).text('Add to pleblist');
+                            var $button = $('<button>', {'class': 'ui small button playfull', 'style': 'padding: 5px;'}).text('Add to pleblist');
                             $button.api({
                                 action: 'pleblist_add_song',
                                 method: 'post',
@@ -109,10 +110,15 @@ function add_tip(username, avatar, cents, note)
                                 beforeSend: function(settings) {
                                     settings.data.password = secret_password;
                                     return settings;
+                                },
+                                onSuccess: function(response, element, xhr) {
+                                    $(element).parent().find('button.skipafter6').hide();
+                                    $(element).parent().find('button.skipafter10').hide();
                                 }
                             }).state({
                                 onActivate: function() {
                                     $button.addClass('disabled green');
+                                    $button.removeClass('black');
                                 },
                                 text: {
                                     inactive: 'Add to pleblist',
@@ -120,6 +126,67 @@ function add_tip(username, avatar, cents, note)
                                 }
                             });
                             $(el).append($button);
+                            if (song_info.duration > 6 * 60) {
+                                var $skip_after_6 = $('<button>', {'class': 'black ui small button skipafter6', 'style': 'padding: 5px;'}).html('Play 6 minutes');
+                                $skip_after_6.api({
+                                    action: 'pleblist_add_song',
+                                    method: 'post',
+                                    data: {
+                                        'password': secret_password,
+                                        'youtube_id': youtube_id,
+                                        'skip_after': 6 * 60,
+                                    },
+                                    beforeSend: function(settings) {
+                                        settings.data.password = secret_password;
+                                        return settings;
+                                    },
+                                    onSuccess: function(response, element, xhr) {
+                                        $(element).parent().find('button.playfull').hide();
+                                        $(element).parent().find('button.skipafter10').hide();
+                                    }
+                                }).state({
+                                    onActivate: function() {
+                                        $skip_after_6.addClass('disabled green');
+                                        $skip_after_6.removeClass('black');
+                                    },
+                                    text: {
+                                        inactive: 'Play 6 minutes',
+                                        active: 'Added!',
+                                    }
+                                });
+                                $(el).append($skip_after_6);
+                            }
+                            if (song_info.duration > 10 * 60) {
+                                var $skip_after_10 = $('<button>', {'class': 'black ui small button skipafter10', 'style': 'padding: 5px;'}).html('Play 10 minutes');
+                                $skip_after_10.api({
+                                    action: 'pleblist_add_song',
+                                    method: 'post',
+                                    data: {
+                                        'password': secret_password,
+                                        'youtube_id': youtube_id,
+                                        'skip_after': 10 * 60,
+                                    },
+                                    beforeSend: function(settings) {
+                                        settings.data.password = secret_password;
+                                        return settings;
+                                    },
+                                    onSuccess: function(response, element, xhr) {
+                                        $(element).parent().find('button.playfull').hide();
+                                        $(element).parent().find('button.skipafter6').hide();
+                                    }
+                                }).state({
+                                    onActivate: function() {
+                                        $skip_after_10.addClass('disabled green');
+                                        $skip_after_10.removeClass('black');
+                                    },
+                                    text: {
+                                        inactive: 'Play 10 minutes',
+                                        active: 'Added!',
+                                    }
+                                });
+                                $(el).append($skip_after_10);
+                            }
+                            console.log('asd');
                             var $data = $('<div>').text('Song title: ' + song_info.title);
                             $(el).append($data);
                             var $data = $('<div>').text('Song length: ' + moment.duration(song_info.duration, 'seconds').format('h:mm:ss'));
@@ -184,7 +251,7 @@ function add_tests()
                     "provider" : "twitch",
                     "providerId" : 10101
                 },
-                "note" : "For the pleblist google.com ab c d e youtu.be/LcySqK5FP6U?omg g f d e www.youtube.com/watch?v=KBVY-uB-wTA",
+                "note" : "For the pleblist google.com ab c also https://www.youtube.com/watch?v=g4mHPeMGTJM d e youtu.be/LcySqK5FP6U?omg g f d e www.youtube.com/watch?v=KBVY-uB-wTA",
                 "processor" : "PayPal",
                 "transactionId" : "4K2N0D835234BWKC",
                 "username" : "2o3a"
@@ -224,7 +291,10 @@ function add_tests()
     add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
 }
 
+secret_password = undefined;
+
 $(document).ready(function() {
+    secret_password = $.cookie('password');
     function use_access_token_from_hash()
     {
         var hash = window.location.hash.substring(1);
