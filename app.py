@@ -462,7 +462,7 @@ def highlight_id(date, highlight_id, highlight_title=None):
 def highlights():
     session = DBManager.create_session()
     dates_with_highlights = []
-    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at.desc()).all()
+    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
     for highlight in highlights:
         dates_with_highlights.append(datetime.datetime(
             year=highlight.created_at.year,
