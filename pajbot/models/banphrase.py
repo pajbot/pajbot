@@ -68,6 +68,8 @@ class Banphrase(Base):
         self.enabled = options.get('enabled', self.enabled)
         self.operator = options.get('operator', self.operator)
 
+        self.refresh_operator()
+
     def refresh_operator(self):
         self.predicate = getattr(self, 'predicate_{}'.format(self.operator), None)
 
