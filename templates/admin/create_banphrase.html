@@ -26,6 +26,14 @@
             <label>Timeout duration</label>
             <input type="number" name="length" placeholder="Timeout duration" value="{{ banphrase.length if banphrase else '300'}}"/>
         </div>
+        <div class="field ui four wide required">
+            <label>Operator</label>
+            <select class="ui dropdown" name="operator">
+                <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'contains' else '' }}value="contains">Contains</option>
+                <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'startswith' else '' }}value="startswith">Starts with</option>
+                <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'endswith' else '' }}value="endswith">Ends with</option>
+            </select>
+        </div>
     </div>
     <div class="fields">
         <div class="field inline ui checkbox four wide">
