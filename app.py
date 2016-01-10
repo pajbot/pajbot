@@ -462,7 +462,7 @@ def highlight_id(date, highlight_id, highlight_title=None):
 def highlights():
     session = DBManager.create_session()
     dates_with_highlights = []
-    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at.desc()).all()
+    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
     for highlight in highlights:
         dates_with_highlights.append(datetime.datetime(
             year=highlight.created_at.year,
@@ -688,6 +688,7 @@ default_variables = {
             'domain': config['web']['domain'],
             'deck_tab_images': config.getboolean('web', 'deck_tab_images'),
             'websocket': {
+                'host': config['websocket'].get('host', config['web']['domain']),
                 'port': config['websocket']['port'],
                 'ssl': config.getboolean('websocket', 'ssl')
                 }

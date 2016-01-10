@@ -11,9 +11,10 @@ from pajbot.models.db import DBManager, Base
 from pajbot.models.action import ActionParser, RawFuncAction, FuncAction
 from pajbot.managers.redis import RedisManager
 
+import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String, Enum
 from sqlalchemy.dialects.mysql import TEXT
 
 log = logging.getLogger('pajbot')
@@ -30,6 +31,10 @@ class Banphrase(Base):
     notify = Column(Boolean, nullable=False, default=True)
     case_sensitive = Column(Boolean, nullable=False, default=False)
     enabled = Column(Boolean, nullable=False, default=True)
+    operator = Column(Enum('contains', 'startswith', 'endswith'),
+            nullable=False,
+            default='contains',
+            server_default='contains')
 
     data = relationship('BanphraseData',
             uselist=False,
@@ -48,6 +53,7 @@ class Banphrase(Base):
         self.notify = self.DEFAULT_NOTIFY
         self.case_sensitive = False
         self.enabled = True
+        self.operator = 'contains'
 
         self.set(**options)
 
@@ -60,6 +66,28 @@ class Banphrase(Base):
         self.notify = options.get('notify', self.notify)
         self.case_sensitive = options.get('case_sensitive', self.case_sensitive)
         self.enabled = options.get('enabled', self.enabled)
+        self.operator = options.get('operator', self.operator)
+
+    def refresh_operator(self):
+        self.predicate = getattr(self, 'predicate_{}'.format(self.operator), None)
+
+    def predicate_contains(self, message):
+        if self.case_sensitive:
+            return self.phrase in message
+        else:
+            return self.phrase.lower() in message.lower()
+
+    def predicate_startswith(self, message):
+        if self.case_sensitive:
+            return message.startswith(self.phrase)
+        else:
+            return message.lower().startswith(self.phrase.lower())
+
+    def predicate_endswith(self, message):
+        if self.case_sensitive:
+            return message.endswith(self.phrase)
+        else:
+            return message.lower().endswith(self.phrase.lower())
 
     def match(self, message):
         """
@@ -67,10 +95,7 @@ class Banphrase(Base):
         Otherwise it returns False
         Respects case-sensitiveness option
         """
-        if self.case_sensitive:
-            return self.phrase in message
-        else:
-            return self.phrase.lower() in message.lower()
+        return self.predicate(message)
 
     def exact_match(self, message):
         """
@@ -82,6 +107,14 @@ class Banphrase(Base):
             return self.phrase == message
         else:
             return self.phrase.lower() == message.lower()
+
+@sqlalchemy.event.listens_for(Banphrase, 'load')
+def on_banphrase_load(target, context):
+    target.refresh_operator()
+
+@sqlalchemy.event.listens_for(Banphrase, 'refresh')
+def on_banphrase_refresh(target, context, attrs):
+    target.refresh_operator()
 
 class BanphraseData(Base):
     __tablename__ = 'tb_banphrase_data'

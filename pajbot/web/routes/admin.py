@@ -68,6 +68,7 @@ def banphrases_create(**options):
             case_sensitive = request.form.get('case_sensitive', 'off')
             length = int(request.form['length'])
             phrase = request.form['phrase'].strip()
+            operator = request.form['operator'].strip().lower()
         except (KeyError, ValueError):
             abort(403)
 
@@ -85,6 +86,10 @@ def banphrases_create(**options):
         if length < 0 or length > 1209600:
             abort(403)
 
+        valid_operators = ['contains', 'startswith', 'endswith']
+        if operator not in valid_operators:
+            abort(403)
+
         user = options.get('user', None)
 
         if user is None:
@@ -99,6 +104,7 @@ def banphrases_create(**options):
                 'case_sensitive': case_sensitive,
                 'length': length,
                 'added_by': user.id,
+                'operator': operator,
                 }
 
         if id is None:

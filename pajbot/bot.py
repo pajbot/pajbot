@@ -764,6 +764,7 @@ class Bot:
         urls = self.find_unique_urls(msg_raw)
 
         for handler, priority in self.handlers['on_message']:
+            res = None
             try:
                 res = handler(source, msg_raw, message_emotes, whisper, urls)
             except:

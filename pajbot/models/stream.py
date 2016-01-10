@@ -11,6 +11,7 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 from sqlalchemy import inspect
+from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger('pajbot')
 
@@ -110,6 +111,10 @@ class StreamChunkHighlight(Base):
     @orm.reconstructor
     def on_load(self):
         self.refresh_video_url()
+
+    @hybrid_property
+    def created_at_with_offset(self):
+        return self.created_at - self.highlight_offset
 
     def refresh_video_url(self):
         if self.override_link is not None:
