@@ -120,7 +120,7 @@ class PleblistManager:
 
     def get_current_song(stream_id):
         with DBManager.create_session_scope() as session:
-            cur_song = session.query(PleblistSong).filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None)).order_by(PleblistSong.date_added.asc()).first()
+            cur_song = session.query(PleblistSong).filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None)).order_by(PleblistSong.date_added.asc(), PleblistSong.id.asc()).first()
             if cur_song is None:
                 return None
             session.expunge(cur_song)
