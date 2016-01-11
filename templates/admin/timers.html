@@ -52,7 +52,9 @@
 </div>
 {% endblock %}
 {% block footer %}
-<script src="/static/scripts/admin/create_row.js"></script>
+{% assets 'admin_create_row' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script type="text/javascript">
 $(document).ready(function() {
     $('button.create-timer').click(function() {

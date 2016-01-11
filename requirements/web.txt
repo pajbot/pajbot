@@ -1,4 +1,5 @@
 flask
 flask-scrypt
 flask-oauthlib
+Flask-Assets
 markdown

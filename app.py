@@ -41,6 +41,7 @@ from flask import url_for
 from flask import session
 from flask import jsonify
 from flask.ext.scrypt import generate_random_salt
+from flask.ext.assets import Environment, Bundle
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 # from flask import make_response
@@ -54,6 +55,57 @@ app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app.register_blueprint(api.page)
 app.register_blueprint(admin.page)
+
+assets = Environment(app)
+
+# Basic CSS and Javascript:
+# Available under: base_css, semantic_css, base_js
+base_css = Bundle('css/base.min.css',
+        output='css/base.gen.%(version)s.css')
+semantic_css = Bundle('semantic/semantic.min.css',
+        output='semantic/semantic.gen.%(version)s.css')
+base_js = Bundle('scripts/base.js', filters='jsmin',
+        output='scripts/base.gen.%(version)s.js')
+semantic_js = Bundle('semantic/semantic.min.js',
+        output='semantic/semantic.gen.%(version)s.js')
+assets.register('base_css', base_css)
+assets.register('base_js', base_js)
+assets.register('semantic_css', semantic_css)
+assets.register('semantic_js', semantic_js)
+
+# Pleblist-related javascript
+# Available undeer the following assets: pleblist_shared, pleblist_host, pleblist_client
+pleblist_client = Bundle('scripts/pleblist.js', filters='jsmin',
+        output='scripts/pleblist.gen.%(version)s.js')
+pleblist_shared = Bundle('scripts/pleblist.shared.js', filters='jsmin',
+        output='scripts/pleblist.gen.shared.%(version)s.js')
+pleblist_host = Bundle('scripts/pleblist.host.js', filters='jsmin',
+        output='scripts/pleblist.gen.host.%(version)s.js')
+assets.register('pleblist_shared', pleblist_shared)
+assets.register('pleblist_client', pleblist_client)
+assets.register('pleblist_host', pleblist_host)
+
+# CLR Overlay
+# Availabe under: clr_overlay
+clr_overlay = Bundle('scripts/clr.overlay.js', filters='jsmin',
+        output='scripts/clr.gen.overlay.%(version)s.js')
+assets.register('clr_overlay', clr_overlay)
+
+# Admin site
+# Availabe under: admin_create_banphrase, admin_create_command,
+#                 admin_create_row, admin_edit_command
+admin_create_banphrase = Bundle('scripts/admin/create_banphrase.js', filters='jsmin',
+        output='scripts/admin/create_banphrase.gen.%(version)s.js')
+admin_create_command = Bundle('scripts/admin/create_command.js', filters='jsmin',
+        output='scripts/admin/create_command.gen.%(version)s.js')
+admin_create_row = Bundle('scripts/admin/create_row.js', filters='jsmin',
+        output='scripts/admin/create_row.gen.%(version)s.js')
+admin_edit_command = Bundle('scripts/admin/edit_command.js', filters='jsmin',
+        output='scripts/admin/edit_command.gen.%(version)s.js')
+assets.register('admin_create_banphrase', admin_create_banphrase)
+assets.register('admin_create_command', admin_create_command)
+assets.register('admin_create_row', admin_create_row)
+assets.register('admin_edit_command', admin_edit_command)
 
 config = configparser.ConfigParser()
 

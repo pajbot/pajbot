@@ -61,7 +61,9 @@ div.notifications div span.word4 {
 var ws_host = '{{ 'wss' if site.websocket.ssl else 'ws' }}://{{ site.websocket.host }}';
 var ws_port = {{ site.websocket.port }};
 </script>
-<script type="text/javascript" src="/static/scripts/clr.overlay.js"></script>
+{% assets 'clr_overlay' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
     </head>
     <body>
         <div class="notifications"></div>
