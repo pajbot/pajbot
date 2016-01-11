@@ -59,9 +59,28 @@ class PredictModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Prediction module'
     DESCRIPTION = 'Handles predictions of arena wins'
-	
-	challengeDescription = '100in10 arena'
-	maxWins = 120
+    SETTINGS = [
+            ModuleSetting(
+                key='challenge_name',
+                label='The name of the challenge',
+                type='text',
+                required=True,
+                placeholder='The name of the challenge',
+                default='100in10 arena'),
+            ModuleSetting(
+                key='max_wins',
+                label='The maximum amount of wins the user can predict',
+                type='number',
+                required=True,
+                placeholder='The maximum amount of wins the user can bet',
+                default=120,
+                constraints={
+                    'min_value': 0})
+            ]
+                
+    
+    challengeName = self.settings['challenge_name']
+    maxWins = self.settings['max_wins']
 
     def load_commands(self, **options):
         self.commands['predict'] = Command.raw_command(self.predict,
@@ -69,21 +88,21 @@ class PredictModule(BaseModule):
                 delay_user=10,
                 sub_only=True,
                 can_execute_with_whisper=True,
-                description='Predict how many wins will occur in the ' + challengeDescription + ' challenge')
+                description='Predict how many wins will occur in the ' + challengeName + ' challenge')
         self.commands['newpredict'] = Command.raw_command(self.new_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Starts a new ' + challengeDescription + ' run',
+                description='Starts a new ' + challengeName + ' run',
                 level=750)
         self.commands['endpredict'] = Command.raw_command(self.end_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Ends a ' + challengeDescription + ' run',
+                description='Ends a ' + challengeName + ' run',
                 level=750)
         self.commands['closepredict'] = Command.raw_command(self.close_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Close submissions to the latest ' + challengeDescription + ' run',
+                description='Close submissions to the latest ' + challengeName + ' run',
                 level=750)
 
     def predict(self, **options):
@@ -91,8 +110,8 @@ class PredictModule(BaseModule):
         message = options['message']
         source = options['source']
 
-		badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(maxWins / 2), math.trunc(maxWins / 2), maxWins)
-		
+        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(maxWins / 2), math.trunc(maxWins / 2), maxWins)
+        
         if source.id is None:
             log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
             bot.users.commit()
@@ -122,7 +141,7 @@ class PredictModule(BaseModule):
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
                 # bot.whisper(source.username, 'There is no arena run active that accepts predictions right now.')
-                bot.say('{}, There is no {} run active that accepts predictions right now.'.format(source.username_raw, challengeDescription))
+                bot.say('{}, There is no {} run active that accepts predictions right now.'.format(source.username_raw, challengeName))
                 return True
 
             user_entry = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id).one_or_none()
