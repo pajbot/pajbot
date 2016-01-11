@@ -77,10 +77,6 @@ class PredictModule(BaseModule):
                 constraints={
                     'min_value': 0})
             ]
-                
-    
-    challengeName = self.settings['challenge_name']
-    maxWins = self.settings['max_wins']
 
     def load_commands(self, **options):
         self.commands['predict'] = Command.raw_command(self.predict,
@@ -88,21 +84,21 @@ class PredictModule(BaseModule):
                 delay_user=10,
                 sub_only=True,
                 can_execute_with_whisper=True,
-                description='Predict how many wins will occur in the ' + challengeName + ' challenge')
+                description='Predict how many wins will occur in the ' + self.settings['challenge_name'] + ' challenge')
         self.commands['newpredict'] = Command.raw_command(self.new_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Starts a new ' + challengeName + ' run',
+                description='Starts a new ' + self.settings['challenge_name'] + ' run',
                 level=750)
         self.commands['endpredict'] = Command.raw_command(self.end_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Ends a ' + challengeName + ' run',
+                description='Ends a ' + self.settings['challenge_name'] + ' run',
                 level=750)
         self.commands['closepredict'] = Command.raw_command(self.close_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Close submissions to the latest ' + challengeName + ' run',
+                description='Close submissions to the latest ' + self.settings['challenge_name'] + ' run',
                 level=750)
 
     def predict(self, **options):
@@ -110,7 +106,7 @@ class PredictModule(BaseModule):
         message = options['message']
         source = options['source']
 
-        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(maxWins / 2), math.trunc(maxWins / 2), maxWins)
+        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(self.settings['max_wins'] / 2), math.trunc(self.settings['max_wins'] / 2), self.settings['max_wins'])
         
         if source.id is None:
             log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
@@ -131,7 +127,7 @@ class PredictModule(BaseModule):
             bot.say(badCommandMessage)
             return True
 
-        if prediction_number < 0 or prediction_number > maxWins:
+        if prediction_number < 0 or prediction_number > self.settings['max_wins']:
             # bot.whisper(source.username, 'Invalid argument to !predict command. The prediction must be a value between 0 and 120 (inclusive).')
             bot.say(badCommandMessage)
             return True
@@ -141,7 +137,7 @@ class PredictModule(BaseModule):
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
                 # bot.whisper(source.username, 'There is no arena run active that accepts predictions right now.')
-                bot.say('{}, There is no {} run active that accepts predictions right now.'.format(source.username_raw, challengeName))
+                bot.say('{}, There is no {} run active that accepts predictions right now.'.format(source.username_raw, self.settings['challenge_name']))
                 return True
 
             user_entry = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id).one_or_none()
