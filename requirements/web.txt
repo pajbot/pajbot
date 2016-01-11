@@ -2,4 +2,5 @@ flask
 flask-scrypt
 flask-oauthlib
 Flask-Assets
+jsmin
 markdown
