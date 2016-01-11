@@ -2,7 +2,7 @@ import logging
 import datetime
 import math
 
-from pajbot.modules import BaseModule
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
 from pajbot.models.command import Command, CommandExample
 
