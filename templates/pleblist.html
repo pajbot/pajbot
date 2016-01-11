@@ -32,6 +32,10 @@
 </div>
 {% endblock %}
 {% block footer %}
-<script type="text/javascript" src="/static/scripts/pleblist.shared.js"></script>
-<script type="text/javascript" src="/static/scripts/pleblist.js"></script>
+{% assets 'pleblist_shared' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets 'pleblist_client' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
