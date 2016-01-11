@@ -1,7 +1,8 @@
 import logging
 import datetime
+import math
 
-from pajbot.modules import BaseModule
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
 from pajbot.models.command import Command, CommandExample
 
@@ -58,6 +59,24 @@ class PredictModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Prediction module'
     DESCRIPTION = 'Handles predictions of arena wins'
+    SETTINGS = [
+            ModuleSetting(
+                key='challenge_name',
+                label='The name of the challenge',
+                type='text',
+                required=True,
+                placeholder='The name of the challenge',
+                default='100in10 arena'),
+            ModuleSetting(
+                key='max_wins',
+                label='The maximum amount of wins the user can predict',
+                type='number',
+                required=True,
+                placeholder='The maximum amount of wins the user can bet',
+                default=120,
+                constraints={
+                    'min_value': 0})
+            ]
 
     def load_commands(self, **options):
         self.commands['predict'] = Command.raw_command(self.predict,
@@ -65,27 +84,29 @@ class PredictModule(BaseModule):
                 delay_user=10,
                 sub_only=True,
                 can_execute_with_whisper=True,
-                description='Predict how many wins will occur in the Arena challenge')
+                description='Predict how many wins will occur in the ' + self.settings['challenge_name'] + ' challenge')
         self.commands['newpredict'] = Command.raw_command(self.new_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Starts a new 100in10 arena run',
+                description='Starts a new ' + self.settings['challenge_name'] + ' run',
                 level=750)
         self.commands['endpredict'] = Command.raw_command(self.end_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Ends a 100in10 arena run',
+                description='Ends a ' + self.settings['challenge_name'] + ' run',
                 level=750)
         self.commands['closepredict'] = Command.raw_command(self.close_predict,
                 delay_all=10,
                 delay_user=10,
-                description='Close submissions to the latest 100in10 arena run',
+                description='Close submissions to the latest ' + self.settings['challenge_name'] + ' run',
                 level=750)
 
     def predict(self, **options):
         bot = options['bot']
         message = options['message']
         source = options['source']
+
+        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(self.settings['max_wins'] / 2), math.trunc(self.settings['max_wins'] / 2), self.settings['max_wins'])
 
         if source.id is None:
             log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
@@ -96,19 +117,19 @@ class PredictModule(BaseModule):
 
         if message is None or len(message) < 0:
             # bot.whisper(source.username, 'Missing argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).')
-            bot.say('{}, Missing argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
+            bot.say(badCommandMessage)
             return True
 
         try:
             prediction_number = int(message.split(' ')[0])
         except (KeyError, ValueError):
             # bot.whisper(source.username, 'Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).')
-            bot.say('{}, Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
+            bot.say(badCommandMessage)
             return True
 
-        if prediction_number < 0 or prediction_number > 120:
+        if prediction_number < 0 or prediction_number > self.settings['max_wins']:
             # bot.whisper(source.username, 'Invalid argument to !predict command. The prediction must be a value between 0 and 120 (inclusive).')
-            bot.say('{}, Invalid argument to !predict command. Usage: !predict 69 where 69 is a number between 0 and 120 (inclusive).'.format(source.username_raw))
+            bot.say(badCommandMessage)
             return True
 
         with DBManager.create_session_scope() as db_session:
@@ -116,7 +137,7 @@ class PredictModule(BaseModule):
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True).one_or_none()
             if current_prediction_run is None:
                 # bot.whisper(source.username, 'There is no arena run active that accepts predictions right now.')
-                bot.say('{}, There is no arena run active that accepts predictions right now.'.format(source.username_raw))
+                bot.say('{}, There is no {} run active that accepts predictions right now.'.format(source.username_raw, self.settings['challenge_name']))
                 return True
 
             user_entry = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id).one_or_none()
