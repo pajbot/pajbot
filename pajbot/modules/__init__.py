@@ -16,6 +16,7 @@ from pajbot.modules.warning import WarningModule
 from pajbot.modules.linefarming import LineFarmingModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.leaguerank import LeagueRankModule
+from pajbot.modules.quest import QuestModule
 
 available_modules = [
         DummyModule,
@@ -35,4 +36,5 @@ available_modules = [
         LineFarmingModule,
         BingoModule,
         LeagueRankModule,
+        QuestModule,
         ]
