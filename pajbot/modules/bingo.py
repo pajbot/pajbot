@@ -27,8 +27,6 @@ class BingoModule(BaseModule):
         
         self.global_emotes_read = False
         self.global_emotes_read_bttv = False
-        ## self.global_emotes = []
-        ## self.global_emotes_bttv = []
         self.bingo_running = False
         self.bingo_bttv_twitch_running = False
 
