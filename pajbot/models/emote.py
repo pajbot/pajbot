@@ -101,6 +101,7 @@ class BTTVEmoteManager:
         from pajbot.apiwrappers import BTTVApi
         self.emote_manager = emote_manager
         self.bttv_api = BTTVApi()
+        self.global_emotes = []
         self.channel_emotes = []
 
     def update_emotes(self):
@@ -108,6 +109,7 @@ class BTTVEmoteManager:
         global_emotes = self.bttv_api.get_global_emotes()
         channel_emotes = self.bttv_api.get_channel_emotes(self.emote_manager.streamer)
 
+        self.global_emotes = [emote['code'] for emote in global_emotes]
         self.channel_emotes = [emote['code'] for emote in channel_emotes]
 
         self.emote_manager.bot.mainthread_queue.add(self._add_bttv_emotes,
