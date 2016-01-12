@@ -17,6 +17,7 @@ from pajbot.modules.linefarming import LineFarmingModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.quest import QuestModule
+from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 
 available_modules = [
         DummyModule,
@@ -37,4 +38,5 @@ available_modules = [
         BingoModule,
         LeagueRankModule,
         QuestModule,
+        GetTimedOutQuestModule,
         ]

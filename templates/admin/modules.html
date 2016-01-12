@@ -13,7 +13,7 @@
             </tr>
         </thead>
         <tbody>
-{% for row in modules %}
+{% for row in modules if row.PARENT_MODULE is none %}
             <tr data-id="{{row.ID}}" data-enabled="{{1 if row.db_module.enabled else 0}}">
                 <td class="collapsing">{{ row.NAME }}</td>
                 <td>{{ row.DESCRIPTION }}</td>
