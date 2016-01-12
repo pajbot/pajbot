@@ -41,6 +41,8 @@
         </tbody>
     </table>
     {% endif %}
+    <h3>Settings</h3>
+{% if module.SETTINGS|length > 0 %}
 <form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
     {%- for setting in module.SETTINGS %}
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
@@ -64,6 +66,9 @@
     <div class="ui submit button green"><i class="icon setting"></i>Configure</div>
 </div>
 </form>
+{% else %}
+<p>No settings to configure for this module.</p>
+{% endif %}
 {% endblock %}
 {% block footer %}
 {% assets 'admin_create_row' %}

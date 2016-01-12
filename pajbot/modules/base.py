@@ -71,6 +71,7 @@ class BaseModule:
         """ Initialize any dictionaries the module might or might not use. """
         self.commands = {}
         self.settings = {}
+        self.submodules = []
 
     def load(self, **options):
         """ This method will load everything from the module into
