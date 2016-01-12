@@ -1,6 +1,5 @@
 import logging
 import datetime
-import math
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
@@ -106,7 +105,7 @@ class PredictModule(BaseModule):
         message = options['message']
         source = options['source']
 
-        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, math.trunc(self.settings['max_wins'] / 2), math.trunc(self.settings['max_wins'] / 2), self.settings['max_wins'])
+        badCommandMessage = '{}, Missing argument to !predict command. Usage: !predict {} where {} is a number between 0 and {} (inclusive).'.format(source.username_raw, round(self.settings['max_wins'] / 2), round(self.settings['max_wins'] / 2), self.settings['max_wins'])
 
         if source.id is None:
             log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
