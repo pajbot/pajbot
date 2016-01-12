@@ -908,7 +908,6 @@ class Bot:
         return resp
 
     def add_handler(self, event, handler, priority=0):
-        log.info('Adding handler {} to {}'.format(handler, event))
         import operator
         try:
             self.handlers[event].append((handler, priority))
@@ -918,7 +917,6 @@ class Bot:
             pass
 
     def remove_handler(self, event, handler):
-        log.info('Removing handler {} from {}'.format(handler, event))
         try:
             self.handlers[event][:] = [h for h in self.handlers[event] if h[0] is handler]
         except KeyError:
