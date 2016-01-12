@@ -776,15 +776,6 @@ class Bot:
 
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
-            # Emote bingo
-            if hasattr(self, 'emote_bingo_running') and self.emote_bingo_running is True:
-                if len(message_emotes) == 1 and len(msg_raw.split(' ')) == 1:
-                    if message_emotes[0]['code'] == self.emote_bingo_target:
-                        self.emote_bingo_running = False
-                        self.say('{0} won the raffle! {1} was the target emote. Congrats, {2} points to you PogChamp'.format(source.username, self.emote_bingo_target, self.emote_bingo_points))
-                        source.points += self.emote_bingo_points
-                        # TODO: log bingo win count
-                        log.info('{0} won raffle!'.format(source.username))
 
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
@@ -912,17 +903,6 @@ class Bot:
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
         return resp
-
-    def set_emote_bingo_target(self, emote, points):
-        self.emote_bingo_target = emote
-        self.emote_bingo_running = True
-        self.emote_bingo_points = points
-        log.debug('Emote bingo target set: {0} for {1} points'.format(emote, points))
-
-    def cancel_emote_bingo(self):
-        log.debug('Emote bingo cancelled')
-        self.say('Emote bingo cancelled :(')
-        self.emote_bingo_running = False
 
     def add_handler(self, event, handler, priority=0):
         log.info('Adding handler {} to {}'.format(handler, event))
