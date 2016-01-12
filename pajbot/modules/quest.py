@@ -18,3 +18,17 @@ class QuestModule(BaseModule):
         pass
 
     # TODO: Add handlers for on_stream_start and on_stream_stop
+
+    def on_stream_start(self):
+        pass
+
+    def enable(self, bot):
+        if bot:
+            bot.add_handler('on_stream_start', self.on_stream_start)
+
+            # Do we need self.bot?
+            self.bot = bot
+
+    def disable(self, bot):
+        if bot:
+            bot.remove_handler('on_stream_start', self.on_stream_start)

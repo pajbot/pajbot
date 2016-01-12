@@ -187,6 +187,9 @@ class Bot:
 
                 # on_commit()
                 'on_commit': [],
+
+                # on_stream_start()
+                'on_stream_start': [],
                 }
 
         self.socket_manager = SocketManager(self)

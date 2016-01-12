@@ -423,51 +423,54 @@ def modules_edit(module_id, **options):
     if current_module is None:
         return render_template('admin/module_404.html'), 404
 
-    if request.method == 'POST':
-        form_values = {key: value for key, value in request.form.items()}
-        res = current_module.parse_settings(**form_values)
-        if res is False:
+    sub_modules = []
+    for module in module_manager.all_modules:
+        module.db_module = None
+
+    with DBManager.create_session_scope() as db_session:
+        for db_module in db_session.query(Module):
+            module = find(lambda m: m.ID == db_module.id, module_manager.all_modules)
+            if module:
+                module.db_module = db_module
+
+            if module.PARENT_MODULE == current_module.__class__:
+                sub_modules.append(module)
+
+        if current_module.db_module is None:
             return render_template('admin/module_404.html'), 404
 
-        with DBManager.create_session_scope() as db_session:
-            db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
-            if db_module is None:
+        if request.method == 'POST':
+            form_values = {key: value for key, value in request.form.items()}
+            res = current_module.parse_settings(**form_values)
+            if res is False:
                 return render_template('admin/module_404.html'), 404
 
-            db_module.settings = json.dumps(res)
+            current_module.db_module.settings = json.dumps(res)
             db_session.commit()
 
-            current_module.db_module = db_module
-
             settings = None
             try:
-                settings = json.loads(db_module.settings)
+                settings = json.loads(current_module.db_module.settings)
             except (TypeError, ValueError):
                 pass
             current_module.load(settings=settings)
 
-            SocketClientManager.send('module.update', {'module_id': db_module.id})
+            SocketClientManager.send('module.update', {'module_id': current_module.db_module.id})
 
             return render_template('admin/configure_module.html',
-                    module=current_module)
-        pass
-    else:
-        with DBManager.create_session_scope() as db_session:
-            db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
-            if db_module is None:
-                return render_template('admin/module_404.html'), 404
-
-            current_module.db_module = db_module
-
+                    module=current_module,
+                    sub_modules=sub_modules)
+        else:
             settings = None
             try:
-                settings = json.loads(db_module.settings)
+                settings = json.loads(current_module.db_module.settings)
             except (TypeError, ValueError):
                 pass
             current_module.load(settings=settings)
 
             return render_template('admin/configure_module.html',
-                    module=current_module)
+                    module=current_module,
+                    sub_modules=sub_modules)
 
 @page.route('/predictions/')
 @requires_level(500)

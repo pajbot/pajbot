@@ -65,6 +65,7 @@ class BaseModule:
             'and disable modules.'
     SETTINGS = []
     ENABLED_DEFAULT = False
+    PARENT_MODULE = None
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """
