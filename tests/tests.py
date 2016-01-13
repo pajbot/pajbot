@@ -30,10 +30,10 @@ class TestURLMethods(unittest.TestCase):
     def test_is_same_url(self):
         from pajbot.modules.linkchecker import is_same_url, Url
 
-        self.assertEqual(is_same_url(Url('pajlada.se'), Url('pajlada.se/')), True)
+        self.assertTrue(is_same_url(Url('pajlada.se'), Url('pajlada.se/')))
 
-        self.assertEqual(is_same_url(Url('pajlada.com'), Url('pajlada.se')), False)
-        self.assertEqual(is_same_url(Url('pajlada.com'), Url('pajlada.com/abc')), False)
+        self.assertFalse(is_same_url(Url('pajlada.com'), Url('pajlada.se')))
+        self.assertFalse(is_same_url(Url('pajlada.com'), Url('pajlada.com/abc')))
 
     def test_find_unique_urls(self):
         from pajbot.modules.linkchecker import find_unique_urls
