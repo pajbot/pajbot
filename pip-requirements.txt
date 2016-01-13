@@ -19,10 +19,10 @@ requests
 regex
 
 # Pylast for Last FM
-pylast
+# pylast
 
-# Riotwatcher for league of legends api
-riotwatcher
+# Riotwatcher for League of Legends api
+# riotwatcher
 
 # Used to communicating with the redis server
 # The redis service is required for storing data such as
