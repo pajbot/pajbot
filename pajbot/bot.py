@@ -29,6 +29,7 @@ from .models.pleblist import PleblistSong, PleblistManager
 from .models.timer import TimerManager, Timer
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
+from pajbot.models.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.modules import PredictModule
 from .apiwrappers import TwitchAPI
@@ -178,19 +179,7 @@ class Bot:
         self.start_time = datetime.datetime.now()
         ActionParser.bot = self
 
-        self.handlers = {
-                # on_pubmsg(source, message)
-                'on_pubmsg': [],
-
-                # on_message(source, message, emotes, whisper, urls)
-                'on_message': [],
-
-                # on_commit()
-                'on_commit': [],
-
-                # on_stream_start()
-                'on_stream_start': [],
-                }
+        HandlerManager.init_handlers()
 
         self.socket_manager = SocketManager(self)
         self.users = UserManager()
@@ -766,16 +755,11 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
-        for handler, priority in self.handlers['on_message']:
-            res = None
-            try:
-                res = handler(source, msg_raw, message_emotes, whisper, urls)
-            except:
-                log.exception('Unhandled exception from {} in on_message'.format(handler))
-
-            if res is False:
-                # Abort if handler returns false
-                return False
+        res = HandlerManager.trigger('on_message',
+                source, msg_raw, message_emotes, whisper, urls,
+                stop_on_false=True)
+        if res is False:
+            return False
 
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
@@ -836,15 +820,11 @@ class Bot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        for handler, priority in self.handlers['on_pubmsg']:
-            try:
-                res = handler(source, event.arguments[0])
-            except:
-                log.exception('Unhandled exception from {} in on_pubmsg'.format(handler))
-
-            if res is False:
-                # Abort if handler returns false
-                return False
+        res = HandlerManager.trigger('on_pubmsg',
+                source, event.arguments[0],
+                stop_on_false=True)
+        if res is False:
+            return False
 
         self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
@@ -866,11 +846,7 @@ class Bot:
             log.info('Done with {0}'.format(key))
         log.info('ok!')
 
-        for handler, priority in self.handlers['on_commit']:
-            try:
-                handler()
-            except:
-                log.exception('Unhandled exception from {} in on_commit'.format(handler))
+        HandlerManager.trigger('on_commit', stop_on_false=False)
 
     def quit(self, **options):
         self.commit_all()
@@ -908,20 +884,14 @@ class Bot:
         return resp
 
     def add_handler(self, event, handler, priority=0):
-        import operator
-        try:
-            self.handlers[event].append((handler, priority))
-            self.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
-        except KeyError:
-            # No handlers for this event found
-            pass
+        # Leave this until we've cleaned up everywhere they're used
+        HandlerManager.add_handler(event, handler, priority)
+        log.warn('Use HandlerManager.add_handler instead ({})'.format(event))
 
     def remove_handler(self, event, handler):
-        try:
-            self.handlers[event][:] = [h for h in self.handlers[event] if h[0] is handler]
-        except KeyError:
-            # No Handlers for this event found
-            pass
+        # Leave this until we've cleaned up everywhere they're used
+        HandlerManager.remove_handler(event, handler)
+        log.warn('Use HandlerManager.remove_handler instead ({})'.format(event))
 
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
