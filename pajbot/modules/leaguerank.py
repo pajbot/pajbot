@@ -110,7 +110,7 @@ class LeagueRankModule(BaseModule):
             division = summoner_league[summoner_id][0]['entries'][0]['division']
             league_points = summoner_league[summoner_id][0]['entries'][0]['leaguePoints']
 
-            bot.say('The Summoner {} on region {} is currently in {} {} with {} LP 4Head'.format(summoner_name, region.upper(), tier, division, league_
+            bot.say('The Summoner {} on region {} is currently in {} {} with {} LP 4Head'.format(summoner_name, region.upper(), tier, division, league_points))
         except LoLException as e:
             if e == error_429:
                 bot.say('Too many requests. Try again in {} seconds'.format(e.headers['Retry-After']))
