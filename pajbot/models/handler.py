@@ -21,7 +21,7 @@ class HandlerManager:
         # on_stream_start()
         HandlerManager.create_handler('on_stream_start')
 
-        # on_paid_timeout(source, victim)
+        # on_paid_timeout(source, victim, cost)
         HandlerManager.create_handler('on_paid_timeout')
 
     def create_handler(event):

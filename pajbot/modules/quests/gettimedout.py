@@ -12,26 +12,17 @@ class GetTimedOutQuestModule(BaseModule):
     NAME = 'Quest'
     DESCRIPTION = 'Get timed out by someone'
     PARENT_MODULE = QuestModule
-    SETTINGS = [
-            ModuleSetting(
-                key='who',
-                label='Who did it?',
-                type='text',
-                required=True,
-                placeholder='asdasd',
-                default='reddit',
-                constraints={
-                    'min_str_len': 2,
-                    'max_str_len': 15,
-                    })
-            ]
 
-    def dummy_command(self, **options):
-        log.info('asd')
-        log.info(options)
-        bot = options.get('bot', None)
+    def on_paid_timeout(self, source, victim, cost):
+        log.warn('{} just timed out {} for {} points'.format(source, victim, cost))
+
+    def enable(self, bot):
         if bot:
-            bot.say('we did it {}!'.format(self.settings['who']))
+            bot.add_handler('on_paid_timeout', self.on_paid_timeout)
 
-    def load_commands(self, **options):
-        self.commands['dummy'] = Command.raw_command(self.dummy_command)
+            # Do we need self.bot?
+            self.bot = bot
+
+    def disable(self, bot):
+        if bot:
+            bot.remove_handler('on_paid_timeout', self.on_paid_timeout)

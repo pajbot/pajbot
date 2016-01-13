@@ -14,6 +14,7 @@ from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, Black
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.linefarming import LineFarmingModule
+from pajbot.modules.paidtimeout import PaidTimeoutModule, PaidTimeoutDiscountModule
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 
@@ -35,4 +36,6 @@ available_modules = [
         LineFarmingModule,
         QuestModule,
         GetTimedOutQuestModule,
+        PaidTimeoutModule,
+        PaidTimeoutDiscountModule,
         ]
