@@ -1,5 +1,4 @@
 import logging
-from riotwatcher import RiotWatcher, LoLException
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
@@ -61,6 +60,12 @@ class LeagueRankModule(BaseModule):
         self.commands['leaguerank'] = self.commands['rank']
 
     def league_rank(self, **options):
+        try:
+            from riotwatcher import RiotWatcher, LoLException
+        except ImportError:
+            log.error('Missing required module for League Rank module: riotwatcher')
+            return False
+
         source = options['source']
         message = options['message']
         bot = options['bot']
@@ -77,7 +82,7 @@ class LeagueRankModule(BaseModule):
             except IndexError:
                 region = def_region.lower()
 
-            if not region in region_list:
+            if region not in region_list:
                 bot.whisper(source.username, 'Region is not valid. Please enter a valid region, region is optional and the default region is {}'.format(def_region.upper()))
                 return False
             else:
