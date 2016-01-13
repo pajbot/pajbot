@@ -1,5 +1,4 @@
 import logging
-import pylast
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
@@ -16,7 +15,7 @@ class LastfmModule(BaseModule):
                 label='LastFM Api Key',
                 type='text',
                 required=True,
-                placeholder='i.e. f6a3b7b12549aa211a6deec453c79417',
+                placeholder='i.e. abcedfg1235hfhafafajhf',
                 default=''),
             ModuleSetting(
                 key='username',
@@ -46,6 +45,12 @@ class LastfmModule(BaseModule):
         self.commands['playing'] = self.commands['song']
 
     def song(self, **options):
+        try:
+            import pylast
+        except ImportError:
+            log.error('Missing required library for the LastFM Module: pylast')
+            return False
+
         bot = options['bot']
 
         API_KEY = self.settings['api_key']
