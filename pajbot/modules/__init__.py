@@ -15,6 +15,7 @@ from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.linefarming import LineFarmingModule
 from pajbot.modules.bingo import BingoModule
+from pajbot.modules.leaguerank import LeagueRankModule
 
 available_modules = [
         DummyModule,
@@ -33,4 +34,5 @@ available_modules = [
         WarningModule,
         LineFarmingModule,
         BingoModule,
+        LeagueRankModule,
         ]
