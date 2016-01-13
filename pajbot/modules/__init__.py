@@ -14,6 +14,7 @@ from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, Black
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.linefarming import LineFarmingModule
+from pajbot.modules.bingo import BingoModule
 
 available_modules = [
         DummyModule,
@@ -31,4 +32,5 @@ available_modules = [
         LastfmModule,
         WarningModule,
         LineFarmingModule,
+        BingoModule,
         ]
