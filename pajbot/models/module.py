@@ -64,7 +64,7 @@ class ModuleManager:
                 mod = find(lambda m: m.id == module.ID, db_modules)
                 if mod is None:
                     log.info('Creating row in DB for module {}'.format(module.ID))
-                    mod = Module(module.ID)
+                    mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
                     db_session.add(mod)
 
         if do_reload is True:
@@ -93,6 +93,12 @@ class ModuleManager:
 
                     self.modules.append(module.load(**options))
                     module.enable(self.bot)
+
+    def __getitem__(self, module):
+        for enabled_module in self.modules:
+            if enabled_module.ID == module:
+                return enabled_module
+        return None
 
     def __contains__(self, module):
         """ We override the contains operator for the ModuleManager.

@@ -153,5 +153,7 @@
 command_id = {{ command.id }};
 max_level = {{ user.level }};
 </script>
-<script type="text/javascript" src="/static/scripts/admin/edit_command.js"></script>
+{% assets 'admin_edit_command' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}

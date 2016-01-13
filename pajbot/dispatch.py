@@ -140,36 +140,6 @@ class Dispatch:
         except Exception as e:
             log.error('caught exception: {0}'.format(e))
 
-    def math(bot, source, message, event, args):
-        log.warn('Dispatch math is deprecated. Use the math module.')
-        if message:
-            message = message.replace('pi', str(math.pi))
-            message = message.replace('e', str(math.e))
-            message = message.replace('π', str(math.pi))
-            message = message.replace('^', '**')
-            message = message.replace(',', '.')
-            res = '??'
-            expr_res = None
-
-            emote = 'Kappa'
-
-            try:
-                with time_limit(1):
-                    expr_res = bot.tbm.eval_expr(''.join(message))
-                    if expr_res == 69 or expr_res == 69.69:
-                        emote = 'Kreygasm'
-                    elif expr_res == 420 or expr_res == 420.0:
-                        emote = 'CiGrip'
-                    res = '{2}, {0} {1}'.format(expr_res, emote, source.username)
-            except TimeoutException as e:
-                res = 'timed out DansGame'
-                log.error('Timeout exception: {0}'.format(e))
-            except Exception as e:
-                log.error('Uncaught exception: {0}'.format(e))
-                return
-
-            bot.say(res)
-
     def multi(bot, source, message, event, args):
         if message:
             streams = message.strip().split(' ')

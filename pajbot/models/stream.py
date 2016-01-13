@@ -11,6 +11,7 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 from sqlalchemy import inspect
+from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger('pajbot')
 
@@ -111,6 +112,10 @@ class StreamChunkHighlight(Base):
     def on_load(self):
         self.refresh_video_url()
 
+    @hybrid_property
+    def created_at_with_offset(self):
+        return self.created_at - self.highlight_offset
+
     def refresh_video_url(self):
         if self.override_link is not None:
             self.video_url = self.override_link
@@ -148,7 +153,7 @@ class StreamManager:
                     recorded_at = parse_twitch_datetime(video['recorded_at'])
                     if stream_chunk is not None:
                         time_diff = stream_chunk.chunk_start - recorded_at
-                        if abs(time_diff.total_seconds()) < 5:
+                        if abs(time_diff.total_seconds()) < 60 * 5:
                             # we found the relevant video!
                             return video['url'], video['preview'], video['recorded_at']
                     else:

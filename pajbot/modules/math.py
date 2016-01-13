@@ -90,10 +90,13 @@ class MathModule(BaseModule):
             return False
 
         emote = 'Kappa'
-        if int(expr_res) == 69 or expr_res == 69.69:
-            emote = 'Kreygasm'
-        elif int(expr_res) == 420:
-            emote = 'CiGrip'
+        try:
+            if int(expr_res) == 69 or expr_res == 69.69:
+                emote = 'Kreygasm'
+            elif int(expr_res) == 420:
+                emote = 'CiGrip'
+        except:
+            pass
 
         bot.say('{}, {} {}'.format(source.username_raw, expr_res, emote))
 

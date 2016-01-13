@@ -7,7 +7,7 @@ try:
 except:
     import random
 
-from pajbot.modules import BaseModule
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
 
 log = logging.getLogger(__name__)
@@ -25,6 +25,19 @@ class DuelModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Duel module'
     DESCRIPTION = 'this module handles everything related to duels!'
+    SETTINGS = [
+            ModuleSetting(
+                key='max_pot',
+                label='How many points you can duel for at most',
+                type='number',
+                required=True,
+                placeholder='',
+                default=420,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 69000,
+                    })
+                ]
 
     def load_commands(self, **options):
         self.commands['duel'] = Command.raw_command(self.initiate_duel,
@@ -76,7 +89,7 @@ class DuelModule(BaseModule):
         if message is None:
             return False
 
-        max_pot = self.settings.get('max_pot', 420)
+        max_pot = self.settings['max_pot']
 
         init_dueling_variables(source)
 

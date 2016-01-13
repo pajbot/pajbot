@@ -11,11 +11,11 @@ from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.command import Command, CommandData, CommandManager
 from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
-from pajbot.models.linkchecker import BlacklistedLink
-from pajbot.models.linkchecker import WhitelistedLink
 from pajbot.models.user import User
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.db import DBManager
+from pajbot.modules.linkchecker import BlacklistedLink
+from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.predict import PredictionRun, PredictionRunEntry
 
 import requests
@@ -68,6 +68,7 @@ def banphrases_create(**options):
             case_sensitive = request.form.get('case_sensitive', 'off')
             length = int(request.form['length'])
             phrase = request.form['phrase'].strip()
+            operator = request.form['operator'].strip().lower()
         except (KeyError, ValueError):
             abort(403)
 
@@ -85,6 +86,10 @@ def banphrases_create(**options):
         if length < 0 or length > 1209600:
             abort(403)
 
+        valid_operators = ['contains', 'startswith', 'endswith']
+        if operator not in valid_operators:
+            abort(403)
+
         user = options.get('user', None)
 
         if user is None:
@@ -99,6 +104,7 @@ def banphrases_create(**options):
                 'case_sensitive': case_sensitive,
                 'length': length,
                 'added_by': user.id,
+                'operator': operator,
                 }
 
         if id is None:

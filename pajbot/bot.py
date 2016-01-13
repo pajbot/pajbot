@@ -3,8 +3,9 @@ import argparse
 import sys
 import logging
 import subprocess
+import re
 
-from datetime import datetime
+import datetime
 import urllib
 
 from .models.sock import SocketManager
@@ -12,16 +13,11 @@ from .models.user import UserManager
 from .models.emote import EmoteManager
 from .models.connection import ConnectionManager
 from .models.whisperconnection import WhisperConnectionManager
-from .models.linkchecker import LinkChecker
-from .models.linktracker import LinkTracker
-from .models.pyramidparser import PyramidParser
-from .models.emotecomboparser import EmoteComboParser
 from .models.websocket import WebSocketManager
 from .models.twitter import TwitterManager
 from .models.db import DBManager
 from .models.filter import FilterManager
 from .models.command import CommandManager
-from .models.setting import SettingManager
 from .models.kvi import KVIManager
 from .models.deck import DeckManager
 from .models.stream import StreamManager
@@ -36,7 +32,6 @@ from pajbot.models.module import ModuleManager
 from pajbot.managers.redis import RedisManager
 from pajbot.modules import PredictModule
 from .apiwrappers import TwitchAPI
-from .tbmath import TBMath
 from .tbutil import time_since
 from .tbutil import time_method
 from .actions import Action, ActionQueue
@@ -59,10 +54,11 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.2.1'
+    version = '2.3.0'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
+    url_regex_str = r'((http:\/\/)|\b)([\w-]|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)'
 
     def parse_args():
         parser = argparse.ArgumentParser()
@@ -149,8 +145,8 @@ class Bot:
 
     def __init__(self, config, args=None):
         self.load_config(config)
-        self.last_ping = datetime.now()
-        self.last_pong = datetime.now()
+        self.last_ping = datetime.datetime.now()
+        self.last_pong = datetime.datetime.now()
 
         self.load_default_phrases()
 
@@ -179,12 +175,18 @@ class Bot:
         self.action_queue.start()
 
         self.reactor = irc.client.Reactor()
-        self.start_time = datetime.now()
+        self.start_time = datetime.datetime.now()
         ActionParser.bot = self
 
         self.handlers = {
                 # on_pubmsg(source, message)
                 'on_pubmsg': [],
+
+                # on_message(source, message, emotes, whisper, urls)
+                'on_message': [],
+
+                # on_commit()
+                'on_commit': [],
                 }
 
         self.socket_manager = SocketManager(self)
@@ -198,23 +200,18 @@ class Bot:
                 bot=self).load()
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
-        self.settings = SettingManager({'broadcaster': self.streamer}).reload()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
-        self.link_tracker = LinkTracker()
-        self.link_checker = LinkChecker(self, self.execute_delayed).reload()
         self.twitter_manager = TwitterManager(self).reload()
         self.duel_manager = DuelManager(self)
 
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
-                'settings': self.settings,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
-                'linkchecker': self.link_checker,
                 'decks': self.decks,
                 }
 
@@ -222,13 +219,10 @@ class Bot:
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'settings': self.settings,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
                 'twitter': self.twitter_manager,
-                'linkchecker': self.link_checker,
                 'decks': self.decks,
-                'linktracker': self.link_tracker,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
@@ -271,13 +265,13 @@ class Bot:
 
         self.data = {}
         self.data_cb = {}
+        self.url_regex = re.compile(self.url_regex_str, re.IGNORECASE)
 
+        self.data['broadcaster'] = self.streamer
         self.data['version'] = self.version
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
-
-        self.tbm = TBMath()
 
         self.silent = True if args.silent else self.silent
 
@@ -293,8 +287,6 @@ class Bot:
         self.mainthread_queue = ActionQueue()
         self.execute_every(1, self.mainthread_queue.parse_action)
 
-        self.pyramid_parser = PyramidParser(self)
-        self.emote_combo_parser = EmoteComboParser(self)
         self.websocket_manager = WebSocketManager(self)
 
         """
@@ -475,7 +467,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.now(tz).strftime(self.date_fmt)
+            return datetime.datetime.now(tz).strftime(self.date_fmt)
         except:
             log.exception('Unhandled exception in get_time_value')
 
@@ -501,8 +493,6 @@ class Bot:
             return self.data[key]
         elif key in self.data_cb:
             return self.data_cb[key]()
-        elif key in self.settings:
-            return self.settings[key]
 
         log.warning('Unknown key passed to get_value: {0}'.format(key))
         return None
@@ -520,7 +510,7 @@ class Bot:
             log.exception('Exception caught while sending privmsg')
 
     def c_uptime(self):
-        return time_since(datetime.now().timestamp(), self.start_time.timestamp())
+        return time_since(datetime.datetime.now().timestamp(), self.start_time.timestamp())
 
     @property
     def is_online(self):
@@ -570,7 +560,7 @@ class Bot:
         self.execute_delayed(1, self._timeout, (username, duration))
 
     def timeout_warn(self, user, duration):
-        duration, punishment = user.timeout(duration, self)
+        duration, punishment = user.timeout(duration, warning_module=self.module_manager['warning'])
         if not user.ban_immune:
             self.timeout(user.username, duration)
             return (duration, punishment)
@@ -771,11 +761,18 @@ class Bot:
             if num > 0:
                 emote.add(num, self.reactor)
 
-        if self.settings['parse_pyramids'] and whisper is False:
-            self.pyramid_parser.parse_line(msg_raw, source)
+        urls = self.find_unique_urls(msg_raw)
 
-        if self.settings['parse_emote_combo'] and whisper is False:
-            self.emote_combo_parser.parse_line(msg_raw, source, message_emotes)
+        for handler, priority in self.handlers['on_message']:
+            res = None
+            try:
+                res = handler(source, msg_raw, message_emotes, whisper, urls)
+            except:
+                log.exception('Unhandled exception from {} in on_message'.format(handler))
+
+            if res is False:
+                # Abort if handler returns false
+                return False
 
         if len(message_emotes) > 0:
             self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
@@ -797,22 +794,11 @@ class Bot:
                     # If we've matched a filter, we should not have to run a command.
                     return
 
-            urls = self.link_checker.find_urls_in_message(msg_raw)
-            for url in urls:
-                self.link_tracker.add(url)
-
-                if self.settings['check_links'] and source.level < 500:
-                    # Action which will be taken when a bad link is found
-                    action = Action(self.timeout, args=[source.username, 20])
-                    # First we perform a basic check
-                    if self.link_checker.simple_check(url, action) == LinkChecker.RET_FURTHER_ANALYSIS:
-                        # If the basic check returns no relevant data, we queue up a proper check on the URL
-                        self.action_queue.add(self.link_checker.check_url, args=[url, action])
+        source.last_seen = datetime.datetime.now()
+        source.last_active = datetime.datetime.now()
 
         if source.ignored:
             return False
-
-        add_line = not whisper and (self.is_online or self.settings['lines_offline'])
 
         if msg_lower[:1] == '!':
             msg_lower_parts = msg_lower.split(' ')
@@ -826,10 +812,6 @@ class Bot:
                         'trigger': trigger,
                         }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
-                # If a command is executed, we do not count the message as a line
-                add_line = False
-
-        source.wrote_message(add_line)
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
@@ -837,14 +819,14 @@ class Bot:
         self.parse_message(event.arguments[0], source, event, whisper=True)
 
     def on_ping(self, chatconn, event):
-        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
-        log.info('Received a ping. Last ping received {} ago'.format(time_since(datetime.now().timestamp(), self.last_ping.timestamp())))
-        self.last_ping = datetime.now()
+        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
+        log.info('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
+        self.last_ping = datetime.datetime.now()
 
     def on_pong(self, chatconn, event):
-        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
-        log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.now().timestamp(), self.last_pong.timestamp())))
-        self.last_pong = datetime.now()
+        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp())))
+        log.info('Received a pong. Last pong received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp())))
+        self.last_pong = datetime.datetime.now()
 
     def on_pubnotice(self, chatconn, event):
         type = 'whisper' if chatconn in self.whisper_manager else 'normal'
@@ -860,12 +842,9 @@ class Bot:
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
 
-        msg = event.arguments[0]
-        msg_len = len(msg)
-
-        for handler in self.handlers['on_pubmsg']:
+        for handler, priority in self.handlers['on_pubmsg']:
             try:
-                res = handler(source, msg)
+                res = handler(source, event.arguments[0])
             except:
                 log.exception('Unhandled exception from {} in on_pubmsg'.format(handler))
 
@@ -892,6 +871,12 @@ class Bot:
             manager.commit()
             log.info('Done with {0}'.format(key))
         log.info('ok!')
+
+        for handler, priority in self.handlers['on_commit']:
+            try:
+                handler()
+            except:
+                log.exception('Unhandled exception from {} in on_commit'.format(handler))
 
     def quit(self, **options):
         self.commit_all()
@@ -939,10 +924,12 @@ class Bot:
         self.say('Emote bingo cancelled :(')
         self.emote_bingo_running = False
 
-    def add_handler(self, event, handler):
+    def add_handler(self, event, handler, priority=0):
         log.info('Adding handler {} to {}'.format(handler, event))
+        import operator
         try:
-            self.handlers[event].append(handler)
+            self.handlers[event].append((handler, priority))
+            self.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
             pass
@@ -950,16 +937,18 @@ class Bot:
     def remove_handler(self, event, handler):
         log.info('Removing handler {} from {}'.format(handler, event))
         try:
-            self.handlers[event].remove(handler)
+            self.handlers[event][:] = [h for h in self.handlers[event] if h[0] is handler]
         except KeyError:
             # No Handlers for this event found
             pass
-        except ValueError:
-            log.exception('why was this handler not here?')
+
+    def find_unique_urls(self, message):
+        from pajbot.modules.linkchecker import find_unique_urls
+        return find_unique_urls(self.url_regex, message)
 
 def _filter_time_since_dt(var, args):
     try:
-        ts = time_since(datetime.now().timestamp(), var.timestamp())
+        ts = time_since(datetime.datetime.now().timestamp(), var.timestamp())
         if len(ts) > 0:
             return ts
         else:

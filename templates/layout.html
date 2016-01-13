@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<head>
 <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
 <meta charset="utf-8">
 <style>
@@ -8,8 +9,12 @@
     background-size: 100%;
 }
 </style>
-<link rel="stylesheet" type="text/css" href="/static/semantic/semantic.min.css">
-<link rel="stylesheet" type="text/css" href="/static/css/base.min.css?{{ commit_number }}">
+{% assets 'semantic_css' %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+{% endassets %}
+{% assets 'base_css' %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+{% endassets %}
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.css">
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.date.css">
 </head>
@@ -71,7 +76,7 @@
            <a class="item" href="/logout"><i class="sign out icon"></i> Log out</a>{% else %}
           <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
           <div class="ui inverted link list">
-           <a href="/login"><button class="ui twitch button"><i class="twitch icon"></i>connect with Twitch</button></a>{% endif %}
+          <a href="/login" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
           </div>
         </div>
       </div>
@@ -85,8 +90,12 @@
 </footer>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script src="/static/semantic/semantic.min.js"></script>
-<script src="/static/scripts/base.js?{{ commit_number }}"></script>
+{% assets 'semantic_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets 'base_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script async src="//cdn.pajlada.se/emote.js"></script>
 <script src="/static/scripts/autolinker.min.js"></script>
 <script src="//cdn.pajlada.se/js/pickadate/picker.js"></script>

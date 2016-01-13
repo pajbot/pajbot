@@ -9,7 +9,7 @@ os.chdir('..')
 
 class TestURLMethods(unittest.TestCase):
     def test_is_subdomain(self):
-        from pajbot.models.linkchecker import is_subdomain
+        from pajbot.modules.linkchecker import is_subdomain
 
         self.assertTrue(is_subdomain('pajlada.se', 'pajlada.se'))
         self.assertTrue(is_subdomain('test.pajlada.se', 'pajlada.se'))
@@ -19,7 +19,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subdomain('foo.bar.com', 'foobar.com'))
 
     def test_is_subpath(self):
-        from pajbot.models.linkchecker import is_subpath
+        from pajbot.modules.linkchecker import is_subpath
 
         self.assertTrue(is_subpath('/foo/', '/foo/'))
         self.assertTrue(is_subpath('/foo/bar', '/foo/'))
@@ -28,7 +28,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertFalse(is_subpath('/foo/', '/foo/bar'))
 
     def test_is_same_url(self):
-        from pajbot.models.linkchecker import is_same_url, Url
+        from pajbot.modules.linkchecker import is_same_url, Url
 
         self.assertEqual(is_same_url(Url('pajlada.se'), Url('pajlada.se/')), True)
 
@@ -36,10 +36,11 @@ class TestURLMethods(unittest.TestCase):
         self.assertEqual(is_same_url(Url('pajlada.com'), Url('pajlada.com/abc')), False)
 
     def test_find_unique_urls(self):
-        from pajbot.models.linkchecker import LinkChecker, find_unique_urls
+        from pajbot.modules.linkchecker import find_unique_urls
+        from pajbot.bot import Bot
         import re
 
-        regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
+        regex = re.compile(Bot.url_regex_str, re.IGNORECASE)
 
         self.assertEqual(find_unique_urls(regex, 'pajlada.se test http://pajlada.se'), {'http://pajlada.se'})
         self.assertEqual(find_unique_urls(regex, 'pajlada.se pajlada.com foobar.se'), {'http://pajlada.se', 'http://pajlada.com', 'http://foobar.se'})

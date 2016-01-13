@@ -7,6 +7,13 @@ from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.ascii import AsciiProtectionModule
+from pajbot.modules.pyramid import PyramidModule
+from pajbot.modules.emotecombo import EmoteComboModule
+from pajbot.modules.linktracker import LinkTrackerModule, LinkTrackerLink
+from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, BlacklistedLink
+from pajbot.modules.lastfm import LastfmModule
+from pajbot.modules.warning import WarningModule
+from pajbot.modules.linefarming import LineFarmingModule
 
 available_modules = [
         DummyModule,
@@ -17,4 +24,11 @@ available_modules = [
         MathModule,
         MaxMsgLengthModule,
         AsciiProtectionModule,
+        PyramidModule,
+        EmoteComboModule,
+        LinkTrackerModule,
+        LinkCheckerModule,
+        LastfmModule,
+        WarningModule,
+        LineFarmingModule,
         ]

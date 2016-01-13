@@ -1,20 +1,31 @@
-import re
 import logging
+import re
 
-log = logging.getLogger('pajbot')
+from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.command import Command
 
+log = logging.getLogger(__name__)
 
-class PyramidParser:
-    data = []
-    going_down = False
-    regex = re.compile(' +')
+class PyramidModule(BaseModule):
 
-    def __init__(self, bot):
-        self.bot = bot
+    ID = __name__.split('.')[-1]
+    NAME = 'Pyramid'
+    DESCRIPTION = 'Congratulates people who build successfully pyramids in twitch chat'
+    SETTINGS = [
+            # TODO: have settings for the phrases?
+                ]
 
-    def parse_line(self, msg, source):
+    def __init__(self):
+        super().__init__()
+        self.bot = None
+
+        self.data = []
+        self.going_down = False
+        self.regex = re.compile(' +')
+
+    def on_pubmsg(self, source, message):
         try:
-            msg_parts = msg.split(' ')
+            msg_parts = message.split(' ')
             if len(self.data) > 0:
                 cur_len = len(msg_parts)
                 last_len = len(self.data[-1])
@@ -71,3 +82,12 @@ class PyramidParser:
         except:
             # Let's just catch all exceptions, in case I fucked up in the above spaghetti code
             log.exception('Unhandled exception in pyramid parser')
+
+    def enable(self, bot):
+        if bot:
+            bot.add_handler('on_pubmsg', self.on_pubmsg)
+            self.bot = bot
+
+    def disable(self, bot):
+        if bot:
+            bot.remove_handler('on_pubmsg', self.on_pubmsg)

@@ -20,6 +20,7 @@ class PleblistSong(Base):
     youtube_id = Column(String(64, collation='utf8mb4_bin'), index=True, nullable=False)
     date_added = Column(DateTime, nullable=False)
     date_played = Column(DateTime, nullable=True)
+    skip_after = Column(Integer, nullable=True)
     song_info = relationship('PleblistSongInfo',
             uselist=False,
             primaryjoin='PleblistSongInfo.pleblist_song_youtube_id==PleblistSong.youtube_id',
@@ -27,17 +28,23 @@ class PleblistSong(Base):
             cascade='save-update,merge,expunge',
             lazy='joined')
 
-    def __init__(self, stream_id, youtube_id):
+    def __init__(self, stream_id, youtube_id, **options):
         self.id = None
         self.stream_id = stream_id
         self.youtube_id = youtube_id
         self.date_added = datetime.datetime.now()
         self.date_played = None
+        self.skip_after = options.get('skip_after', None)
+
+        if self.skip_after is not None and self.skip_after < 0:
+            # Make sure skip_after cannot be a negative number
+            self.skip_after = None
 
     def jsonify(self):
         return {
                 'id': self.id,
                 'youtube_id': self.youtube_id,
+                'skip_after': self.skip_after,
                 'info': self.song_info.jsonify() if self.song_info is not None else None
                 }
 
@@ -94,10 +101,8 @@ class PleblistManager:
             log.info(e.resp)
             log.info(e.uri)
 
-        log.debug(video_response)
-
         if len(video_response.get('items', [])) == 0:
-            log.warning('FeelsBadMan')
+            log.warning('Got no valid responses for {}'.format(youtube_id))
             return False
 
         video = video_response['items'][0]
@@ -115,7 +120,7 @@ class PleblistManager:
 
     def get_current_song(stream_id):
         with DBManager.create_session_scope() as session:
-            cur_song = session.query(PleblistSong).filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None)).order_by(PleblistSong.date_added.asc()).first()
+            cur_song = session.query(PleblistSong).filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None)).order_by(PleblistSong.date_added.asc(), PleblistSong.id.asc()).first()
             if cur_song is None:
                 return None
             session.expunge(cur_song)

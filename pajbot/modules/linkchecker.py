@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
 from pajbot.apiwrappers import SafeBrowsingAPI
 
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
+from pajbot.actions import ActionQueue, Action
 
 import re
 import requests
@@ -11,7 +13,7 @@ import urllib.parse
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.mysql import TEXT
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 def is_subdomain(x, y):
@@ -132,10 +134,47 @@ class WhitelistedLink(LinkCheckerLink, Base):
         self.path = path
 
 
-class LinkChecker:
-    regex_str = r'((http:\/\/)|\b)([\w-]|\.)*\.(((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2})\/\S*)|((aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-zA-Z]{2}))\b)'
+class LinkCheckerModule(BaseModule):
 
-    def reload(self):
+    ID = __name__.split('.')[-1]
+    NAME = 'Link Checker'
+    DESCRIPTION = 'Checks links if they\'re bad'
+    ENABLED_DEFAULT = True
+    SETTINGS = []
+
+    def __init__(self):
+        super().__init__()
+        self.db_session = None
+        self.links = {}
+
+        self.blacklisted_links = []
+        self.whitelisted_links = []
+
+        self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
+
+        self.action_queue = ActionQueue()
+        self.action_queue.start()
+
+    def enable(self, bot):
+        self.bot = bot
+        if bot:
+            bot.add_handler('on_message', self.on_message, priority=100)
+            bot.add_handler('on_commit', self.on_commit)
+            self.run_later = bot.execute_delayed
+
+            if 'safebrowsingapi' in bot.config['main']:
+                # XXX: This should be loaded as a setting instead.
+                # There needs to be a setting for settings to have them as "passwords"
+                # so they're not displayed openly
+                self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
+            else:
+                self.safeBrowsingAPI = None
+
+        if self.db_session is not None:
+            self.db_session.commit()
+            self.db_session.close()
+            self.db_session = None
+        self.db_session = DBManager.create_session()
         self.blacklisted_links = []
         for link in self.db_session.query(BlacklistedLink):
             self.blacklisted_links.append(link)
@@ -144,26 +183,36 @@ class LinkChecker:
         for link in self.db_session.query(WhitelistedLink):
             self.whitelisted_links.append(link)
 
+    def disable(self, bot):
+        if bot:
+            bot.remove_handler('on_message', self.on_message)
+            bot.remove_handler('on_commit', self.on_commit)
+
+        if self.db_session is not None:
+            self.db_session.commit()
+            self.db_session.close()
+            self.db_session = None
+            self.blacklisted_links = []
+            self.whitelisted_links = []
+
+    def reload(self):
+
         log.info('Loaded {0} bad links and {1} good links'.format(len(self.blacklisted_links), len(self.whitelisted_links)))
         return self
 
-    def commit(self):
-        self.db_session.commit()
+    def on_message(self, source, message, emotes, whisper, urls):
+        if not whisper and source.level < 500 and source.moderator is False:
+            for url in urls:
+                # Action which will be taken when a bad link is found
+                action = Action(self.bot.timeout, args=[source.username, 20])
+                # First we perform a basic check
+                if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
+                    # If the basic check returns no relevant data, we queue up a proper check on the URL
+                    self.action_queue.add(self.check_url, args=[url, action])
 
-    def __init__(self, bot, run_later):
-        self.db_session = DBManager.create_session()
-
-        self.blacklisted_links = []
-        self.whitelisted_links = []
-
-        if 'safebrowsingapi' in bot.config['main']:
-            self.safeBrowsingAPI = SafeBrowsingAPI(bot.config['main']['safebrowsingapi'], bot.nickname, bot.version)
-        else:
-            self.safeBrowsingAPI = None
-
-        self.regex = re.compile(LinkChecker.regex_str, re.IGNORECASE)
-        self.run_later = run_later
-        self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
+    def on_commit(self):
+        if self.db_session is not None:
+            self.db_session.commit()
 
     def delete_from_cache(self, url):
         if url in self.cache:
@@ -327,15 +376,17 @@ class LinkChecker:
                 return self.RET_BAD_LINK
             return self.RET_GOOD_LINK
 
-        if self.is_whitelisted(url.url, url.parsed):
-            log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url.url))
-            self.cache_url(url.url, True)
-            return self.RET_GOOD_LINK
-
+        log.info('Checking if link is blacklisted...')
         if self.is_blacklisted(url.url, url.parsed, sublink):
             log.debug("LinkChecker: Url {0} is blacklisted".format(url.url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             return self.RET_BAD_LINK
+
+        log.info('Checking if link is whitelisted...')
+        if self.is_whitelisted(url.url, url.parsed):
+            log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url.url))
+            self.cache_url(url.url, True)
+            return self.RET_GOOD_LINK
 
         return self.RET_FURTHER_ANALYSIS
 
@@ -363,9 +414,9 @@ class LinkChecker:
 
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
-        if res == LinkChecker.RET_GOOD_LINK:
+        if res == self.RET_GOOD_LINK:
             return
-        elif res == LinkChecker.RET_BAD_LINK:
+        elif res == self.RET_BAD_LINK:
             return
 
         connection_timeout = 2
@@ -386,9 +437,9 @@ class LinkChecker:
         redirected_url = Url(r.url)
         if is_same_url(url, redirected_url) is False:
             res = self.basic_check(redirected_url, action)
-            if res == LinkChecker.RET_GOOD_LINK:
+            if res == self.RET_GOOD_LINK:
                 return
-            elif res == LinkChecker.RET_BAD_LINK:
+            elif res == self.RET_BAD_LINK:
                 return
 
         if self.safeBrowsingAPI:
@@ -464,12 +515,12 @@ class LinkChecker:
 
             log.debug("Checking sublink {0}".format(url.url))
             res = self.basic_check(url, action, sublink=True)
-            if res == LinkChecker.RET_BAD_LINK:
+            if res == self.RET_BAD_LINK:
                 self.counteract_bad_url(url)
                 self.counteract_bad_url(original_url, want_to_blacklist=False)
                 self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
                 return
-            elif res == LinkChecker.RET_GOOD_LINK:
+            elif res == self.RET_GOOD_LINK:
                 continue
 
             try:
@@ -480,12 +531,12 @@ class LinkChecker:
             redirected_url = Url(r.url)
             if not is_same_url(url, redirected_url):
                 res = self.basic_check(redirected_url, action, sublink=True)
-                if res == LinkChecker.RET_BAD_LINK:
+                if res == self.RET_BAD_LINK:
                     self.counteract_bad_url(url)
                     self.counteract_bad_url(original_url, want_to_blacklist=False)
                     self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
                     return
-                elif res == LinkChecker.RET_GOOD_LINK:
+                elif res == self.RET_GOOD_LINK:
                     continue
 
             if self.safeBrowsingAPI:
@@ -501,6 +552,3 @@ class LinkChecker:
         self.cache_url(original_url.url, True)
         self.cache_url(original_redirected_url.url, True)
         return
-
-    def find_urls_in_message(self, msg_raw):
-        return find_unique_urls(self.regex, msg_raw)

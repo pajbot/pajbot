@@ -638,7 +638,7 @@ class CommandManager(UserDict):
                 delay_all=0,
                 delay_user=0,
                 default=None,
-                command='add',
+                command='edit',
                 commands={
                     'command': Command.dispatch_command('edit_command',
                         level=500,

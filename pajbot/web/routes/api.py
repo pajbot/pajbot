@@ -156,7 +156,15 @@ def pleblist_add():
         if current_stream is None:
             return make_response(jsonify({'error': 'Stream offline'}), 400)
 
-        song_requested = PleblistSong(current_stream.id, youtube_id)
+        skip_after = request.form.get('skip_after', None)
+
+        if skip_after is not None:
+            try:
+                skip_after = int(skip_after)
+            except ValueError:
+                skip_after = None
+
+        song_requested = PleblistSong(current_stream.id, youtube_id, skip_after=skip_after)
         session.add(song_requested)
         song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
         if song_info is None and song_requested.song_info is None:

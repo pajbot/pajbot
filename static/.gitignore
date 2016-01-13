@@ -1,3 +1,6 @@
 dist/
 package.json
 semantic
+.webassets-cache/
+*.gen.*.css
+*.gen.*.js
