@@ -19,6 +19,7 @@ from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule, PaidTimeoutDiscountModule
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
+from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 
 available_modules = [
         DummyModule,
@@ -42,4 +43,5 @@ available_modules = [
         GetTimedOutQuestModule,
         PaidTimeoutModule,
         PaidTimeoutDiscountModule,
+        WinRaffleQuestModule,
         ]

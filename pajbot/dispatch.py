@@ -13,6 +13,7 @@ except:
 from pajbot.models.user import User
 from pajbot.models.filter import Filter
 from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
 from pajbot.tbutil import time_limit, TimeoutException, time_since
 from pajbot.apiwrappers import APIBase
 
@@ -1266,6 +1267,8 @@ class Dispatch:
         bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, Dispatch.raffle_points))
 
         winner.points += Dispatch.raffle_points
+
+        HandlerManager.trigger('on_raffle_win', winner, Dispatch.raffle_points)
 
     def join(bot, source, message, event, args):
         if not Dispatch.raffle_running:

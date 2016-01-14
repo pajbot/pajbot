@@ -21,8 +21,17 @@ class HandlerManager:
         # on_stream_start()
         HandlerManager.create_handler('on_stream_start')
 
+        # on_stream_stop()
+        HandlerManager.create_handler('on_stream_stop')
+
         # on_paid_timeout(source, victim, cost)
         HandlerManager.create_handler('on_paid_timeout')
+
+        # on_raffle_win(winner, points)
+        HandlerManager.create_handler('on_raffle_win')
+
+        # on_bingo_win(winner, points, target_emote)
+        HandlerManager.create_handler('on_bingo_win')
 
     def create_handler(event):
         """ Create an empty list for the given event """
