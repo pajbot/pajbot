@@ -432,9 +432,8 @@ def modules_edit(module_id, **options):
             module = find(lambda m: m.ID == db_module.id, module_manager.all_modules)
             if module:
                 module.db_module = db_module
-
-            if module.PARENT_MODULE == current_module.__class__:
-                sub_modules.append(module)
+                if module.PARENT_MODULE == current_module.__class__:
+                    sub_modules.append(module)
 
         if current_module.db_module is None:
             return render_template('admin/module_404.html'), 404
