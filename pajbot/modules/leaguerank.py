@@ -73,6 +73,11 @@ class LeagueRankModule(BaseModule):
         riot_api_key = self.settings['riot_api_key']
         summoner_name = self.settings['default_summoner']
         def_region = self.settings['default_region']
+
+        if len(riot_api_key) == 0:
+            log.error('Missing riot API key in settings.')
+            return False
+
         region_list = ['br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr']
 
         if message:
@@ -90,6 +95,9 @@ class LeagueRankModule(BaseModule):
         else:
             region = def_region.lower()
 
+        if len(summoner_name) == 0 or len(region) == 0:
+            return False
+
         error_404 = "Game data not found"
         error_429 = "Too many requests"
 
@@ -106,6 +114,9 @@ class LeagueRankModule(BaseModule):
                 return False
             elif e == error_404:
                 bot.say('The summoner not found. Use a valid summoner name (remove spaces) and region FailFish')
+                return False
+            else:
+                log.info('Something unknown went wrong: {}'.format(e))
                 return False
 
         try:
