@@ -113,41 +113,9 @@ class PaidTimeoutDiscountModule(BaseModule):
     NAME = 'Paid Timeout Discount'
     DESCRIPTION = 'Allows user to time out other users with points'
     PARENT_MODULE = PaidTimeoutModule
-    SETTINGS = [
-            ModuleSetting(
-                key='command_name',
-                label='Who did it?',
-                type='text',
-                required=True,
-                placeholder='Command name (no !)',
-                default='timeout',
-                constraints={
-                    'min_str_len': 2,
-                    'max_str_len': 15,
-                    }),
-            ModuleSetting(
-                key='timeout_length',
-                label='Timeout length',
-                type='number',
-                required=True,
-                placeholder='Timeout length in seconds',
-                default=60,
-                constraints={
-                    'min_value': 1,
-                    'max_value': 3600,
-                    }),
-            ModuleSetting(
-                key='cost',
-                label='Point cost',
-                type='number',
-                required=True,
-                placeholder='Point cost',
-                default=400,
-                constraints={
-                    'min_value': 1,
-                    'max_value': 10000,
-                    }),
-            ]
+    # No settings to add yet. would like to have the message customizeable
+    # would also like to have the discounts customizeable
+    SETTINGS = []
 
     def on_paid_timeout(self, source, victim, cost):
         log.info('PAID TIMEOUT OCCURED')
