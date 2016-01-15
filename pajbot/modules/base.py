@@ -117,3 +117,6 @@ class BaseModule:
 
     def disable(self, bot):
         pass
+
+    def on_loaded(self):
+        pass

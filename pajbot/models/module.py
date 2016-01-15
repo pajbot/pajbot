@@ -111,6 +111,12 @@ class ModuleManager:
             module.disable(self.bot)
             self.modules.remove(module)
 
+        # Perform a last on_loaded call on each module.
+        # This is used for things that require submodules to be loaded properly
+        # i.e. the quest system
+        for module in self.modules:
+            module.on_loaded()
+
     def __getitem__(self, module):
         for enabled_module in self.modules:
             if enabled_module.ID == module:

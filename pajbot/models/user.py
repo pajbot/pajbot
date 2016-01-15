@@ -57,6 +57,7 @@ class User(Base):
 
         self.ban_immune = False
         self.tags = []
+        self.quest_progress = {}
 
         self.timed_out = False
 
@@ -83,6 +84,50 @@ class User(Base):
         self.tags = []
         self.timed_out = False
         self.moderator = False
+        self.quest_progress = {}
+
+    def get_quest_progress(self, bot):
+        if bot.is_online is False:
+            return False
+
+        if bot.stream_manager.current_stream.id not in self.quest_progress:
+            self.init_quest_progress(bot.streamer, bot.stream_manager.current_stream.id)
+
+        return self.quest_progress[bot.stream_manager.current_stream.id]
+
+    def init_quest_progress(self, streamer, stream_id, redis=None):
+        if redis is None:
+            redis = RedisManager.get()
+
+        quest_progress_key = '{streamer}:{stream_id}:{username}:quest_progress'.format(
+                streamer=streamer,
+                stream_id=stream_id,
+                username=self.username)
+
+        old_progress = 0
+        try:
+            old_progress = int(redis.get(quest_progress_key))
+        except (TypeError, ValueError):
+            pass
+        self.quest_progress[stream_id] = old_progress
+
+    def progress_quest(self, streamer, stream_id, amount):
+        """ Progress the quest for `stream_id` by `amount`.
+        We load data from redis in case no progress has been made yet.
+        """
+
+        redis = RedisManager.get()
+        quest_progress_key = '{streamer}:{stream_id}:{username}:quest_progress'.format(
+                streamer=streamer,
+                stream_id=stream_id,
+                username=self.username)
+
+        if stream_id not in self.quest_progress:
+            # Load the old progress, or set it to 0 if no progress was found
+            self.init_quest_progress(streamer, stream_id)
+
+        self.quest_progress[stream_id] += amount
+        redis.set(quest_progress_key, self.quest_progress[stream_id])
 
     def tag_as(self, tag):
         if tag not in self.tags:
