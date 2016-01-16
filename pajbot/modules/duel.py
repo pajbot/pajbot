@@ -195,7 +195,7 @@ class DuelModule(BaseModule):
             win_message = []
             win_message.append('{} won the duel vs {} PogChamp '.format(winner.username_raw, loser.username_raw))
             if source.duel_price > 0:
-                win_message.append('The pot was {}, the winner gets his bet back + {} points'.format(source.duel_price, winning_pot))
+                win_message.append('The pot was {}, the winner gets their bet back + {} points'.format(source.duel_price, winning_pot))
             bot.say(*win_message)
             bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
             source.duel_request.duel_target = False
