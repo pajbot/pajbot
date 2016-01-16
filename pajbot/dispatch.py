@@ -537,55 +537,6 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
-    def add_link_blacklist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            if not parts[0].isnumeric():
-                for link in parts:
-                    bot.link_checker.blacklist_url(link)
-            else:
-                for link in parts[1:]:
-                    bot.link_checker.blacklist_url(link, level=int(parts[0]))
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully added your links')
-
-    def add_link_whitelist(bot, source, message, event, args):
-        parts = message.split(' ')
-
-        try:
-            for link in parts:
-                bot.link_checker.whitelist_url(link)
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully added your links')
-
-    def remove_link_blacklist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                bot.link_checker.unlist_url(link, 'blacklist')
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully removed your links')
-
-    def remove_link_whitelist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                bot.link_checker.unlist_url(link, 'whitelist')
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully removed your links')
-
     def debug_command(bot, source, message, event, args):
         if message and len(message) > 0:
             try:

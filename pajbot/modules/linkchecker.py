@@ -4,6 +4,7 @@ from pajbot.apiwrappers import SafeBrowsingAPI
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
 from pajbot.actions import ActionQueue, Action
+from pajbot.models.command import Command, CommandExample
 
 import re
 import requests
@@ -552,3 +553,148 @@ class LinkCheckerModule(BaseModule):
         self.cache_url(original_url.url, True)
         self.cache_url(original_redirected_url.url, True)
         return
+
+    def load_commands(self, **options):
+        self.commands['add'] = Command.multiaction_command(
+                level=100,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                command='add',
+                commands={
+                    'link': Command.multiaction_command(
+                        level=500,
+                        delay_all=0,
+                        delay_user=0,
+                        default=None,
+                        commands={
+                            'blacklist': Command.raw_command(self.add_link_blacklist,
+                                level=500,
+                                description='Blacklist a link',
+                                examples=[
+                                    CommandExample(None, 'Add a link to the blacklist for shallow search',
+                                        chat='user:!add link blacklist 0 scamlink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link scamlink.lonk/ to the blacklist for a shallow search').parse(),
+                                    CommandExample(None, 'Add a link to the blacklist for deep search',
+                                        chat='user:!add link blacklist 1 scamlink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link scamlink.lonk/ to the blacklist for a deep search').parse(),
+                                    ]),
+                            'whitelist': Command.raw_command(self.add_link_whitelist,
+                                level=500,
+                                description='Whitelist a link',
+                                examples=[
+                                    CommandExample(None, 'Add a link to the whitelist',
+                                        chat='user:!add link whitelink safelink.lonk/\n'
+                                        'bot>user:Successfully added your links',
+                                        description='Added the link safelink.lonk/ to the whitelist').parse(),
+                                    ]),
+                            }
+                        )
+                    }
+                )
+
+        self.commands['remove'] = Command.multiaction_command(
+                level=100,
+                delay_all=0,
+                delay_user=0,
+                default=None,
+                command='remove',
+                commands={
+                    'link': Command.multiaction_command(
+                        level=500,
+                        delay_all=0,
+                        delay_user=0,
+                        default=None,
+                        commands={
+                            'blacklist': Command.raw_command(self.remove_link_blacklist,
+                                level=500,
+                                description='Unblacklist a link',
+                                examples=[
+                                    CommandExample(None, 'Remove a blacklist link',
+                                        chat='user:!remove link blacklist scamtwitch.scam\n'
+                                        'bot>user:Successfully removed your links',
+                                        description='Removes scamtwitch.scam as a blacklisted link').parse(),
+                                    ]),
+                            'whitelist': Command.raw_command(self.remove_link_whitelist,
+                                level=500,
+                                description='Unwhitelist a link',
+                                examples=[
+                                    CommandExample(None, 'Remove a whitelist link',
+                                        chat='user:!remove link whitelist twitch.safe\n'
+                                        'bot>user:Successfully removed your links',
+                                        description='Removes twitch.safe as a whitelisted link').parse(),
+                                    ]),
+                            }
+                        ),
+                    }
+                )
+
+    def add_link_blacklist(self, **options):
+        bot = options['bot']
+        message = options['message']
+        source = options['source']
+
+        parts = message.split(' ')
+        try:
+            if not parts[0].isnumeric():
+                for link in parts:
+                    self.blacklist_url(link)
+            else:
+                for link in parts[1:]:
+                    self.blacklist_url(link, level=int(parts[0]))
+        except:
+            log.exception('Unhandled exception in add_link')
+            bot.whisper(source.username, 'Some error occurred white adding your links')
+            return False
+
+        bot.whisper(source.username, 'Successfully added your links')
+
+    def add_link_whitelist(self, **options):
+        bot = options['bot']
+        message = options['message']
+        source = options['source']
+
+        parts = message.split(' ')
+        try:
+            for link in parts:
+                self.whitelist_url(link)
+        except:
+            log.exception('Unhandled exception in add_link')
+            bot.whisper(source.username, 'Some error occurred white adding your links')
+            return False
+
+        bot.whisper(source.username, 'Successfully added your links')
+
+    def remove_link_blacklist(self, **options):
+        bot = options['bot']
+        message = options['message']
+        source = options['source']
+
+        parts = message.split(' ')
+        try:
+            for link in parts:
+                self.unlist_url(link, 'blacklist')
+        except:
+            log.exception('Unhandled exception in add_link')
+            bot.whisper(source.username, 'Some error occurred white adding your links')
+            return False
+
+        bot.whisper(source.username, 'Successfully removed your links')
+
+    def remove_link_whitelist(self, **options):
+        bot = options['bot']
+        message = options['message']
+        source = options['source']
+
+        parts = message.split(' ')
+        try:
+            for link in parts:
+                self.unlist_url(link, 'whitelist')
+        except:
+            log.exception('Unhandled exception in add_link')
+            bot.whisper(source.username, 'Some error occurred white adding your links')
+            return False
+
+        bot.whisper(source.username, 'Successfully removed your links')
