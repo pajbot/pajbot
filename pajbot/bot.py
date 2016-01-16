@@ -382,8 +382,6 @@ class Bot:
             else:
                 user.minutes_in_chat_offline += self.update_chatters_interval
             num_points = points
-            if user.subscriber or self.streamer == 'pajlada':
-                num_points *= 5
             if self.streamer == 'forsenlol' and 'trump_sub' in user.tags:
                 num_points *= 0.5
             user.touch(num_points)
