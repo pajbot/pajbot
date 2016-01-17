@@ -16,6 +16,10 @@ class WinRaffleQuestModule(BaseQuest):
     PARENT_MODULE = QuestModule
     OBJECTIVE = 'win a raffle or an emote bingo'
 
+    PROGRESS = 1
+    LIMIT = 1
+    REWARD = 5
+
     def on_paid_timeout(self, source, victim, cost):
         log.warn('{} just timed out {} for {} points'.format(source, victim, cost))
 
@@ -23,13 +27,13 @@ class WinRaffleQuestModule(BaseQuest):
         self.bot.say('{} just won a raffle, he won {} points'.format(
             winner.username_raw, points))
 
-        winner.progress_quest(1)
+        winner.progress_quest(self.PROGRESS, self.LIMIT, self.REWARD)
 
     def on_bingo_win(self, winner, points, target_emote):
         self.bot.say('{} just won a bingo, he won {} points with the emote {}'.format(
             winner.username_raw, points, target_emote))
 
-        winner.progress_quest(1)
+        winner.progress_quest(self.PROGRESS, self.LIMIT, self.REWARD)
 
     def start_quest(self):
         HandlerManager.add_handler('on_raffle_win', self.on_raffle_win)

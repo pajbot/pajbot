@@ -158,7 +158,7 @@ class User(Base):
             pass
         self.quest_progress[stream_id] = old_progress
 
-    def progress_quest(self, amount):
+    def progress_quest(self, amount, limit, completion_reward):
         """ Progress the quest for `stream_id` by `amount`.
         We load data from redis in case no progress has been made yet.
         """
@@ -178,7 +178,17 @@ class User(Base):
             # Load the old progress, or set it to 0 if no progress was found
             self.init_quest_progress()
 
+        if self.quest_progress[stream_id] >= limit:
+            # The user has already completed this quest.
+            return False
+
         self.quest_progress[stream_id] += amount
+
+        if self.quest_progress[stream_id] >= limit:
+            # The user just completed the quest for the first time
+            self.award_tokens(completion_reward, redis=redis)
+            return False
+
         redis.set(quest_progress_key, self.quest_progress[stream_id])
 
     def tag_as(self, tag):
