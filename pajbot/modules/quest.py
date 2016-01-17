@@ -24,7 +24,7 @@ class QuestModule(BaseModule):
         bot = options['bot']
         source = options['source']
         if self.current_quest is not None:
-            quest_progress = source.get_quest_progress(bot)
+            quest_progress = source.get_quest_progress()
             if quest_progress is not False:
                 bot.say('Your current quest progress is {}'.format(quest_progress))
             else:
@@ -39,9 +39,16 @@ class QuestModule(BaseModule):
         else:
             bot.say('There is no quest active right now.')
 
+    def get_user_tokens(self, **options):
+        bot = options['bot']
+        source = options['source']
+
+        bot.say('{} has {} tokens'.format(source.username_raw, source.get_tokens()))
+
     def load_commands(self, **options):
         self.commands['myprogress'] = Command.raw_command(self.my_progress)
         self.commands['currentquest'] = Command.raw_command(self.get_current_quest)
+        self.commands['tokens'] = Command.raw_command(self.get_user_tokens)
 
     def on_stream_start(self):
         if len(self.submodules) == 0:

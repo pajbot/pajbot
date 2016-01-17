@@ -5,6 +5,7 @@ import datetime
 from pajbot.models.db import DBManager, Base
 from pajbot.models.time import TimeManager
 from pajbot.managers import RedisManager
+from pajbot.streamhelper import StreamHelper
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy import orm
@@ -86,16 +87,62 @@ class User(Base):
         self.moderator = False
         self.quest_progress = {}
 
-    def get_quest_progress(self, bot):
-        if bot.is_online is False:
+    def can_afford_with_tokens(self, cost):
+        num_tokens = self.get_tokens()
+        return (num_tokens >= cost)
+
+    def award_tokens(self, tokens, redis=None):
+        """ Returns True if tokens were awarded properly.
+        Returns False if not.
+        Tokens can only be rewarded once per stream ID.
+        """
+
+        streamer = StreamHelper.get_streamer()
+        stream_id = StreamHelper.get_current_stream_id()
+
+        if stream_id is False:
             return False
 
-        if bot.stream_manager.current_stream.id not in self.quest_progress:
-            self.init_quest_progress(bot.streamer, bot.stream_manager.current_stream.id)
+        if redis is None:
+            redis = RedisManager.get()
 
-        return self.quest_progress[bot.stream_manager.current_stream.id]
+        key = '{streamer}:{username}:tokens'.format(
+                streamer=streamer, username=self.username)
 
-    def init_quest_progress(self, streamer, stream_id, redis=None):
+        return True if redis.hsetnx(key, stream_id, tokens) == 1 else False
+
+    def get_tokens(self, redis=None):
+        streamer = StreamHelper.get_streamer()
+        if redis is None:
+            redis = RedisManager.get()
+
+        tokens = redis.hgetall('{streamer}:{username}:tokens'.format(
+            streamer=streamer, username=self.username))
+
+        num_tokens = 0
+        for token_value in tokens.values():
+            try:
+                num_tokens += int(token_value)
+            except (TypeError, ValueError):
+                log.warn('Invalid value for tokens, user {}'.format(self.username))
+
+        return num_tokens
+
+    def get_quest_progress(self):
+        stream_id = StreamHelper.get_current_stream_id()
+
+        if stream_id is False:
+            return False
+
+        if stream_id not in self.quest_progress:
+            self.init_quest_progress()
+
+        return self.quest_progress[stream_id]
+
+    def init_quest_progress(self, redis=None):
+        """ Initialize quest progress for the current stream. """
+        streamer = StreamHelper.get_streamer()
+        stream_id = StreamHelper.get_current_stream_id()
         if redis is None:
             redis = RedisManager.get()
 
@@ -111,10 +158,15 @@ class User(Base):
             pass
         self.quest_progress[stream_id] = old_progress
 
-    def progress_quest(self, streamer, stream_id, amount):
+    def progress_quest(self, amount):
         """ Progress the quest for `stream_id` by `amount`.
         We load data from redis in case no progress has been made yet.
         """
+        streamer = StreamHelper.get_streamer()
+        stream_id = StreamHelper.get_current_stream_id()
+
+        if stream_id is False:
+            return False
 
         redis = RedisManager.get()
         quest_progress_key = '{streamer}:{stream_id}:{username}:quest_progress'.format(
@@ -124,7 +176,7 @@ class User(Base):
 
         if stream_id not in self.quest_progress:
             # Load the old progress, or set it to 0 if no progress was found
-            self.init_quest_progress(streamer, stream_id)
+            self.init_quest_progress()
 
         self.quest_progress[stream_id] += amount
         redis.set(quest_progress_key, self.quest_progress[stream_id])

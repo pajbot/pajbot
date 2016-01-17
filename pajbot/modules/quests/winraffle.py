@@ -23,13 +23,13 @@ class WinRaffleQuestModule(BaseQuest):
         self.bot.say('{} just won a raffle, he won {} points'.format(
             winner.username_raw, points))
 
-        winner.progress_quest(self.bot.streamer, self.bot.stream_manager.current_stream.id, 1)
+        winner.progress_quest(1)
 
     def on_bingo_win(self, winner, points, target_emote):
         self.bot.say('{} just won a bingo, he won {} points with the emote {}'.format(
             winner.username_raw, points, target_emote))
 
-        winner.progress_quest(self.bot.streamer, self.bot.stream_manager.current_stream.id, 1)
+        winner.progress_quest(1)
 
     def start_quest(self):
         HandlerManager.add_handler('on_raffle_win', self.on_raffle_win)
