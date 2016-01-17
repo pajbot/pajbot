@@ -749,9 +749,9 @@ class CommandManager(UserDict):
         self.rebuild()
         return command, True, ''
 
-    def edit_command(self, command, **options):
-        command.set(**options)
-        DBManager.session_add_expunge(command)
+    def edit_command(self, command_to_edit, **options):
+        command_to_edit.set(**options)
+        DBManager.session_add_expunge(command_to_edit)
 
     def remove_command_aliases(self, command):
         aliases = command.command.split('|')
