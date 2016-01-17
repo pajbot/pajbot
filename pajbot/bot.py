@@ -32,6 +32,7 @@ from pajbot.models.module import ModuleManager
 from pajbot.models.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.modules import PredictModule
+from pajbot.streamhelper import StreamHelper
 from .apiwrappers import TwitchAPI
 from .tbutil import time_since
 from .tbutil import time_method
@@ -182,9 +183,12 @@ class Bot:
         HandlerManager.init_handlers()
 
         self.socket_manager = SocketManager(self)
+        self.stream_manager = StreamManager(self)
+
+        StreamHelper.init_bot(self, self.stream_manager)
+
         self.users = UserManager()
         self.decks = DeckManager().reload()
-        self.stream_manager = StreamManager(self)
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
                 socket_manager=self.socket_manager,
