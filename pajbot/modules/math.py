@@ -88,6 +88,9 @@ class MathModule(BaseModule):
 
         if expr_res is None:
             return False
+        else if expr_res == 0:
+            bot.say('{}, the result is a 0 like pajlada FeelsBadMan'.format(source.username_raw))
+            return
 
         emote = 'Kappa'
         try:
