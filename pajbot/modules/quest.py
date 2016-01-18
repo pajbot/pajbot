@@ -6,6 +6,7 @@ from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
 from pajbot.managers import RedisManager
 from pajbot.tbutil import find
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +74,32 @@ class QuestModule(BaseModule):
         self.current_quest.stop_quest()
         self.current_quest = None
         self.bot.say('Stream ended, quest has been reset.')
+
+        redis = RedisManager.get()
+
+        # Remove any mentions of the current quest
+        redis.delete(self.current_quest_key)
+
+        last_stream_id = StreamHelper.get_last_stream_id()
+        if last_stream_id is False:
+            log.error('No last stream ID found.')
+            # No last stream ID found. why?
+            return False
+
+        # XXX: Should we use a pipeline for any of this?
+        # Go through user tokens and remove any from more than 2 streams ago
+        for key in redis.keys('{streamer}:*:tokens'.format(streamer=StreamHelper.get_streamer())):
+            all_tokens = redis.hgetall(key)
+            for stream_id_str in all_tokens:
+                try:
+                    stream_id = int(stream_id_str)
+                except (TypeError, ValueError):
+                    log.error('Invalid stream id in tokens by {}'.format(key))
+                    continue
+
+                if last_stream_id - stream_id > 1:
+                    log.info('Removing tokens for stream {}'.format(stream_id))
+                    redis.hdel(key, stream_id)
 
     def enable(self, bot):
         HandlerManager.add_handler('on_stream_start', self.on_stream_start)
