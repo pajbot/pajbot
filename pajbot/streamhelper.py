@@ -30,3 +30,20 @@ class StreamHelper:
             return False
 
         return StreamHelper.stream_manager.current_stream.id
+
+    def get_last_stream_id():
+        """ Gets the stream ID of the last stream.
+        Returns False if the stream manager has not been initialized.
+        Returns False if there is no stream online.
+        Returns the current streams ID (integer) otherwise.
+        """
+
+        if StreamHelper.stream_manager is None:
+            # Stream manager not initialized, web interface?
+            return None
+
+        if StreamHelper.stream_manager.last_stream is None:
+            # Stream is offline
+            return False
+
+        return StreamHelper.stream_manager.last_stream.id
