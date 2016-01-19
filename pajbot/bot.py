@@ -767,9 +767,6 @@ class Bot:
         if res is False:
             return False
 
-        if len(message_emotes) > 0:
-            self.websocket_manager.emit('new_emote', {'emote': message_emotes[0]})
-
         log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
         if not whisper:
