@@ -8,6 +8,7 @@ except:
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.handler import HandlerManager
 from pajbot.apiwrappers import APIBase
 
 log = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class BingoModule(BaseModule):
     def __init__(self):
         super().__init__()
         self.bot = None
-        
+
         self.global_emotes_read = False
         self.global_emotes_read_bttv = False
         self.bingo_running = False
@@ -137,10 +138,9 @@ class BingoModule(BaseModule):
         self.bingo_bttv_twitch_running = True
         start_random_emote_bingo = random.choice(['1', '2'])
         if start_random_emote_bingo == '1':
-            bingo_emotes_class = BingoModule.bingo_twitch(self, bot, source, message, event, args)
-
+            return self.bingo_twitch(bot, source, message, event, args)
         elif start_random_emote_bingo == '2':
-            bingo_emotes_class = BingoModule.bingo_bttv(self, bot, source, message, event, args)
+            return self.bingo_bttv(bot, source, message, event, args)
 
     def bingo_bttv(self, bot, source, message, event, args):
         """ BTTV emotes """
@@ -269,6 +269,7 @@ class BingoModule(BaseModule):
             if hasattr(self, 'bingo_running') and self.bingo_running is True:
                 if len(message_emotes) == 1 and len(msg_raw.split(' ')) == 1:
                     if message_emotes[0]['code'] == self.bingo_target:
+                        HandlerManager.trigger('on_bingo_win', source, self.bingo_points, self.bingo_target)
                         self.bingo_running = False
                         self.bingo_bttv_twitch_running = False
                         self.bot.me('{0} won the bingo! {1} was the target. Congrats, {2} points to you PogChamp'.format(source.username_raw, self.bingo_target, self.bingo_points))
@@ -276,10 +277,9 @@ class BingoModule(BaseModule):
                         log.info('{0} won the bingo for {1} points!'.format(source.username_raw, self.bingo_points))
 
     def enable(self, bot):
-        if bot:
-            bot.add_handler('on_message', self.on_message)
-            self.bot = bot
+        HandlerManager.add_handler('on_message', self.on_message)
+
+        self.bot = bot
 
     def disable(self, bot):
-        if bot:
-            bot.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler('on_message', self.on_message)

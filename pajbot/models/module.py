@@ -94,6 +94,29 @@ class ModuleManager:
                     self.modules.append(module.load(**options))
                     module.enable(self.bot)
 
+        to_be_removed = []
+        self.modules.sort(key=lambda m: 1 if m.PARENT_MODULE is not None else 0)
+        for module in self.modules:
+            if module.PARENT_MODULE is None:
+                module.submodules = []
+            else:
+                parent = find(lambda m: m.__class__ == module.PARENT_MODULE, self.modules)
+                if parent is not None:
+                    parent.submodules.append(module)
+                else:
+                    log.warn('Missing parent for module {}, disabling it.'.format(module.NAME))
+                    to_be_removed.append(module)
+
+        for module in to_be_removed:
+            module.disable(self.bot)
+            self.modules.remove(module)
+
+        # Perform a last on_loaded call on each module.
+        # This is used for things that require submodules to be loaded properly
+        # i.e. the quest system
+        for module in self.modules:
+            module.on_loaded()
+
     def __getitem__(self, module):
         for enabled_module in self.modules:
             if enabled_module.ID == module:

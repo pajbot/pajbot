@@ -16,6 +16,12 @@ from pajbot.modules.warning import WarningModule
 from pajbot.modules.linefarming import LineFarmingModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.leaguerank import LeagueRankModule
+from pajbot.modules.paidtimeout import PaidTimeoutModule, PaidTimeoutDiscountModule
+from pajbot.modules.quest import QuestModule
+from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
+from pajbot.modules.quests.winraffle import WinRaffleQuestModule
+from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
+from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
 
 available_modules = [
         DummyModule,
@@ -35,4 +41,11 @@ available_modules = [
         LineFarmingModule,
         BingoModule,
         LeagueRankModule,
+        QuestModule,
+        GetTimedOutQuestModule,
+        PaidTimeoutModule,
+        PaidTimeoutDiscountModule,
+        WinRaffleQuestModule,
+        PlaySoundTokenCommandModule,
+        ShowEmoteTokenCommandModule,
         ]

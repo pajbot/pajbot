@@ -9,8 +9,40 @@
 </div>
 {% endif %}
 <h2>Configure &quot;{{ module.NAME }}&quot;</h2>
+{% if module.PARENT_MODULE is not none %}
+<h3>Parent module: <a href="/admin/modules/edit/{{ module.PARENT_MODULE.ID }}">{{ module.PARENT_MODULE.NAME }}</a></h3>
+{% endif %}
 <p>{{ module.DESCRIPTION }}</p>
 <div class="ui divider"></div>
+{% if sub_modules|length > 0 %}
+<h3>Sub-modules</h3>
+    <table class="ui very basic table collapsing">
+        <thead>
+            <tr>
+                <th class="collapsing">Module</th>
+                <th>Description</th>
+                <th class="collapsing">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for row in sub_modules %}
+            <tr data-id="{{row.ID}}" data-enabled="{{1 if row.db_module.enabled else 0}}">
+                <td class="collapsing">{{ row.NAME }}</td>
+                <td>{{ row.DESCRIPTION }}</td>
+                <td class="right aligned collapsing">
+                    {%- if row.db_module.enabled %}
+                    <button class="ui compact button toggle-row"><i class="icon power red"></i><span class="text">Disable</span></button>
+                    {% else %}
+                    <button class="ui compact button toggle-row"><i class="icon power green"></i><span class="text">Enable</span></button>
+                    {% endif -%}
+                <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>
+            </tr>
+{% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <h3>Settings</h3>
+{% if module.SETTINGS|length > 0 %}
 <form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
     {%- for setting in module.SETTINGS %}
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
@@ -34,8 +66,14 @@
     <div class="ui submit button green"><i class="icon setting"></i>Configure</div>
 </div>
 </form>
+{% else %}
+<p>No settings to configure for this module.</p>
+{% endif %}
 {% endblock %}
 {% block footer %}
+{% assets 'admin_create_row' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script type="text/javascript">
 $(document).ready(function() {
     $('form').form({
@@ -74,6 +112,8 @@ $(document).ready(function() {
     $('.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');
     });
+    enable_edit_row('modules');
+    enable_toggle_row('toggle_module');
 });
 </script>
 {% endblock %}

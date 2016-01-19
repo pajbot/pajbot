@@ -65,11 +65,13 @@ class BaseModule:
             'and disable modules.'
     SETTINGS = []
     ENABLED_DEFAULT = False
+    PARENT_MODULE = None
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """
         self.commands = {}
         self.settings = {}
+        self.submodules = []
 
     def load(self, **options):
         """ This method will load everything from the module into
@@ -114,4 +116,7 @@ class BaseModule:
         pass
 
     def disable(self, bot):
+        pass
+
+    def on_loaded(self):
         pass

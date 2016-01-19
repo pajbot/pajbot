@@ -6,6 +6,7 @@ import collections
 import urllib
 
 from pajbot.models.db import DBManager, Base
+from pajbot.models.handler import HandlerManager
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy import orm
@@ -233,8 +234,9 @@ class StreamManager:
             else:
                 log.info('checking if there is an active stream already')
                 stream = db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+                new_stream = stream is None
 
-                if stream is None:
+                if new_stream:
                     log.info('No active stream, create new!')
                     stream = Stream(status['created_at'],
                             title=status['title'])
@@ -250,6 +252,9 @@ class StreamManager:
             self.current_stream = stream
             self.current_stream_chunk = stream_chunk
             db_session.expunge_all()
+
+            if new_stream:
+                HandlerManager.trigger('on_stream_start', stop_on_false=False)
 
             log.info('Successfully created a stream')
 
@@ -269,6 +274,8 @@ class StreamManager:
         self.last_stream = self.current_stream
         self.current_stream = None
         self.current_stream_chunk = None
+
+        HandlerManager.trigger('on_stream_stop', stop_on_false=False)
 
     def refresh_stream_status(self):
         try:
