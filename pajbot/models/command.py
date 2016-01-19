@@ -139,6 +139,10 @@ class Command(Base):
     delay_user = Column(Integer, nullable=False, default=15)
     enabled = Column(Boolean, nullable=False, default=True)
     cost = Column(Integer, nullable=False, default=0)
+    tokens_cost = Column(Integer,
+            nullable=False,
+            default=0,
+            server_default='0')
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
@@ -173,6 +177,7 @@ class Command(Base):
         self.enabled = True
         self.type = '?'  # XXX: What is this?
         self.cost = 0
+        self.tokens_cost = 0
         self.can_execute_with_whisper = False
         self.sub_only = False
         self.mod_only = False
@@ -206,6 +211,9 @@ class Command(Base):
         self.cost = options.get('cost', self.cost)
         if self.cost < 0:
             self.cost = 0
+        self.tokens_cost = options.get('tokens_cost', self.tokens_cost)
+        if self.tokens_cost < 0:
+            self.tokens_cost = 0
         self.can_execute_with_whisper = options.get('can_execute_with_whisper', self.can_execute_with_whisper)
         self.sub_only = options.get('sub_only', self.sub_only)
         self.mod_only = options.get('mod_only', self.mod_only)
@@ -316,16 +324,25 @@ class Command(Base):
             # User does not have enough points to use the command
             return False
 
+        if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
+            # User does not have enough tokens to use the command
+            return False
+
         args.update(self.extra_args)
         ret = self.action.run(bot, source, message, event, args)
         if ret is not False:
+            # Only spend points/tokens, and increment num_uses if the action succeded
             if self.data is not None:
                 self.data.num_uses += 1
             if self.cost > 0:
-                # Only spend points if the action did not fail
                 if not source.spend(self.cost):
                     # The user does not have enough points to spend!
                     log.warning('{0} used points he does not have.'.format(source.username))
+                    return False
+            if self.tokens_cost > 0:
+                if not source.spend_tokens(self.tokens_cost):
+                    # The user does not have enough tokens to spend!
+                    log.warning('{0} used tokens he does not have.'.format(source.username))
                     return False
             self.last_run = cur_time
             self.last_run_by_user[source.username] = cur_time
