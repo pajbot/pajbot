@@ -20,6 +20,21 @@ class DeckModule(BaseModule):
     DESCRIPTION = 'Handles displaying/updating decks through commands and the website.'
 
     def load_commands(self, **options):
+        self.commands['setdeck'] = Command.raw_command(self.set_deck,
+                level=420,
+                delay_all=0,
+                delay_user=0,
+                description='Sets the deck that is currently playing.',
+                examples=[
+                    CommandExample(None, 'Add a new deck',
+                        chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
+                        'bot>user:This deck is a new deck. Its ID is 32',
+                        description='This is the output if you set a deck which hasn\'t been set before.').parse(),
+                    CommandExample(None, 'Set a pre-existing deck',
+                        chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
+                        'bot>user:Updated an already-existing deck. Its ID is 32',
+                        description='This is the output if you set a deck which was added previously.').parse(),
+                    ])
         self.commands['set'] = Command.multiaction_command(
                 level=100,
                 delay_all=0,
@@ -27,19 +42,7 @@ class DeckModule(BaseModule):
                 default=None,
                 command='set',
                 commands={
-                    'deck': Command.raw_command(self.set_deck,
-                        level=420,
-                        description='Sets the deck that is currently playing.',
-                        examples=[
-                            CommandExample(None, 'Add a new deck',
-                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
-                                'bot>user:This deck is a new deck. Its ID is 32',
-                                description='This is the output if you set a deck which hasn\'t been set before.').parse(),
-                            CommandExample(None, 'Set a pre-existing deck',
-                                chat='user:!set deck http://i.imgur.com/rInqJv0.png\n'
-                                'bot>user:Updated an already-existing deck. Its ID is 32',
-                                description='This is the output if you set a deck which was added previously.').parse(),
-                            ]),
+                    'deck': self.commands['setdeck']
                         })
 
         self.commands['update'] = Command.multiaction_command(
