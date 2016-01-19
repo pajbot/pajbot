@@ -66,6 +66,7 @@ def banphrases_create(**options):
             warning = request.form.get('warning', 'off')
             notify = request.form.get('notify', 'off')
             case_sensitive = request.form.get('case_sensitive', 'off')
+            sub_immunity = request.form.get('sub_immunity', 'off')
             length = int(request.form['length'])
             phrase = request.form['phrase'].strip()
             operator = request.form['operator'].strip().lower()
@@ -76,6 +77,7 @@ def banphrases_create(**options):
         warning = True if warning == 'on' else False
         notify = True if notify == 'on' else False
         case_sensitive = True if case_sensitive == 'on' else False
+        sub_immunity = True if sub_immunity == 'on' else False
 
         if len(name) == 0:
             abort(403)
@@ -102,6 +104,7 @@ def banphrases_create(**options):
                 'warning': warning,
                 'notify': notify,
                 'case_sensitive': case_sensitive,
+                'sub_immunity': sub_immunity,
                 'length': length,
                 'added_by': user.id,
                 'operator': operator,

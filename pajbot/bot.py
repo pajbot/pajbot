@@ -648,7 +648,7 @@ class Bot:
     def check_msg_content(self, source, msg_raw, event):
         msg_lower = msg_raw.lower()
 
-        res = self.banphrase_manager.check_message(msg_raw)
+        res = self.banphrase_manager.check_message(msg_raw, source)
         if res is not False:
             self.banphrase_manager.punish(source, res)
             return True

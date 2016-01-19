@@ -31,6 +31,10 @@ class Banphrase(Base):
     notify = Column(Boolean, nullable=False, default=True)
     case_sensitive = Column(Boolean, nullable=False, default=False)
     enabled = Column(Boolean, nullable=False, default=True)
+    sub_immunity = Column(Boolean,
+            nullable=False,
+            default=False,
+            server_default=sqlalchemy.sql.expression.false())
     operator = Column(Enum('contains', 'startswith', 'endswith'),
             nullable=False,
             default='contains',
@@ -65,6 +69,7 @@ class Banphrase(Base):
         self.warning = options.get('warning', self.warning)
         self.notify = options.get('notify', self.notify)
         self.case_sensitive = options.get('case_sensitive', self.case_sensitive)
+        self.sub_immunity = options.get('sub_immunity', self.sub_immunity)
         self.enabled = options.get('enabled', self.enabled)
         self.operator = options.get('operator', self.operator)
 
@@ -91,12 +96,14 @@ class Banphrase(Base):
         else:
             return message.lower().endswith(self.phrase.lower())
 
-    def match(self, message):
+    def match(self, message, user):
         """
         Returns True if message matches our banphrase.
         Otherwise it returns False
         Respects case-sensitiveness option
         """
+        if self.sub_immunity is True and user.subscriber is True:
+            return False
         return self.predicate(message)
 
     def exact_match(self, message):
@@ -271,8 +278,8 @@ class BanphraseManager:
             notification_msg = 'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'.format(punishment=punishment, banphrase=banphrase)
             self.bot.whisper(user.username, notification_msg)
 
-    def check_message(self, message):
-        match = find(lambda banphrase: banphrase.match(message), self.enabled_banphrases)
+    def check_message(self, message, user):
+        match = find(lambda banphrase: banphrase.match(message, user), self.enabled_banphrases)
         return match or False
 
     def find_match(self, message, id=None):
@@ -298,6 +305,8 @@ class BanphraseManager:
         parser.add_argument('--no-casesensitive', dest='case_sensitive', action='store_false')
         parser.add_argument('--warning', dest='warning', action='store_true')
         parser.add_argument('--no-warning', dest='warning', action='store_false')
+        parser.add_argument('--subimmunity', dest='sub_immunity', action='store_true')
+        parser.add_argument('--no-subimmunity', dest='sub_immunity', action='store_false')
         parser.add_argument('--name', nargs='+', dest='name')
         parser.set_defaults(length=None,
                 notify=None,

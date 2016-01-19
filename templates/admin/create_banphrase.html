@@ -65,6 +65,15 @@
             <label for="cb_case_sensitive">Case sensitive</label>
         </div>
     </div>
+    <div class="fields">
+        <div class="field inline ui checkbox four wide">
+            <input type="checkbox" id="cb_sub_immunity" name="sub_immunity"
+                                                  {%- if banphrase %}
+                                                     {{ 'checked' if banphrase.sub_immunity else '' }}
+                                                  {% endif -%} />
+            <label for="cb_sub_immunity">Subscriber immunity</label>
+        </div>
+    </div>
     <div class="ui message warning" style="padding: 0.4em;"></div>
     <div class="ui message error" style="padding: 0.4em;"></div>
     {% if banphrase %}

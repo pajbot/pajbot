@@ -568,6 +568,10 @@ class CommandManager(UserDict):
                                 chat='user:!add banphrase testman123 --time 123\n'
                                 'bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)',
                                 description='Changes the default timeout length to a custom time of 123 seconds').parse(),
+                            CommandExample(None, 'Make it so a banphrase cannot be triggered by subs',
+                                chat='user:!add banphrase testman123 --subimmunity\n'
+                                'bot>user:Updated the given banphrase (ID: 83) with (sub_immunity)',
+                                description='Changes a command so that the banphrase can only be triggered by people who are not subscribed to the channel.').parse(),
                             ]),
                     'win': Command.dispatch_command('add_win',
                         level=500,
