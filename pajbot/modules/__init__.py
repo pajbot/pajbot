@@ -21,6 +21,7 @@ from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
+from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
 
 available_modules = [
         DummyModule,
@@ -46,4 +47,5 @@ available_modules = [
         PaidTimeoutDiscountModule,
         WinRaffleQuestModule,
         PlaySoundTokenCommandModule,
+        ShowEmoteTokenCommandModule,
         ]
