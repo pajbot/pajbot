@@ -105,6 +105,10 @@ class MathModule(BaseModule):
         source = options['source']
         message = options['message']
 
+        if source.username == 'karl_kons':
+            bot.say('{}, 8 Kappa'.format(source.username_raw))
+            return True
+
         if message:
             message = message.replace('pi', str(math.pi))
             message = message.replace('e', str(math.e))
