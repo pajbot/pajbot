@@ -588,36 +588,6 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully added the aliases alsotest, newtest, test123 to test',
                                 description='Adds the aliases !alsotest, !newtest, and !test123 to the existing command !test').parse(),
                             ]),
-                    'link': Command.multiaction_command(
-                        level=500,
-                        delay_all=0,
-                        delay_user=0,
-                        default=None,
-                        commands={
-                            'blacklist': Command.dispatch_command('add_link_blacklist',
-                                level=500,
-                                description='Blacklist a link',
-                                examples=[
-                                    CommandExample(None, 'Add a link to the blacklist for shallow search',
-                                        chat='user:!add link blacklist 0 scamlink.lonk/\n'
-                                        'bot>user:Successfully added your links',
-                                        description='Added the link scamlink.lonk/ to the blacklist for a shallow search').parse(),
-                                    CommandExample(None, 'Add a link to the blacklist for deep search',
-                                        chat='user:!add link blacklist 1 scamlink.lonk/\n'
-                                        'bot>user:Successfully added your links',
-                                        description='Added the link scamlink.lonk/ to the blacklist for a deep search').parse(),
-                                    ]),
-                            'whitelist': Command.dispatch_command('add_link_whitelist',
-                                level=500,
-                                description='Whitelist a link',
-                                examples=[
-                                    CommandExample(None, 'Add a link to the whitelist',
-                                        chat='user:!add link whitelink safelink.lonk/\n'
-                                        'bot>user:Successfully added your links',
-                                        description='Added the link safelink.lonk/ to the whitelist').parse(),
-                                    ]),
-                            }
-                        ),
                     'highlight': Command.dispatch_command('add_highlight',
                         level=100,
                         mod_only=True,
@@ -739,32 +709,6 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully removed 2 aliases.',
                                 description='Removes KeepoKeepo and Keepo2Keepo as aliases').parse(),
                             ]),
-                    'link': Command.multiaction_command(
-                        level=500,
-                        delay_all=0,
-                        delay_user=0,
-                        default=None,
-                        commands={
-                            'blacklist': Command.dispatch_command('remove_link_blacklist',
-                                level=500,
-                                description='Unblacklist a link',
-                                examples=[
-                                    CommandExample(None, 'Remove a blacklist link',
-                                        chat='user:!remove link blacklist scamtwitch.scam\n'
-                                        'bot>user:Successfully removed your links',
-                                        description='Removes scamtwitch.scam as a blacklisted link').parse(),
-                                    ]),
-                            'whitelist': Command.dispatch_command('remove_link_whitelist',
-                                level=500,
-                                description='Unwhitelist a link',
-                                examples=[
-                                    CommandExample(None, 'Remove a whitelist link',
-                                        chat='user:!remove link whitelist twitch.safe\n'
-                                        'bot>user:Successfully removed your links',
-                                        description='Removes twitch.safe as a whitelisted link').parse(),
-                                    ]),
-                            }
-                        ),
                     'highlight': Command.dispatch_command('remove_highlight',
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
@@ -822,9 +766,9 @@ class CommandManager(UserDict):
         self.rebuild()
         return command, True, ''
 
-    def edit_command(self, command, **options):
-        command.set(**options)
-        DBManager.session_add_expunge(command)
+    def edit_command(self, command_to_edit, **options):
+        command_to_edit.set(**options)
+        DBManager.session_add_expunge(command_to_edit)
 
     def remove_command_aliases(self, command):
         aliases = command.command.split('|')

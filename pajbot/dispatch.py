@@ -453,7 +453,9 @@ class Dispatch:
                     bot.commands[alias] = command
 
             if len(added_aliases) > 0:
-                command.command += '|' + '|'.join(added_aliases)
+                new_aliases = '{}|{}'.format(command.command, '|'.join(added_aliases))
+                bot.commands.edit_command(command, command=new_aliases)
+
                 bot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(added_aliases), existing_alias))
             if len(already_used_aliases) > 0:
                 bot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
@@ -486,7 +488,9 @@ class Dispatch:
                     bot.whisper(source.username, "{0} is the only remaining alias for this command and can't be removed.".format(alias))
                     continue
 
-                command.command = '|'.join(current_aliases)
+                new_aliases = '|'.join(current_aliases)
+                bot.commands.edit_command(command, command=new_aliases)
+
                 num_removed += 1
                 del bot.commands[alias]
 
@@ -537,55 +541,6 @@ class Dispatch:
             bot.commands.remove_command(command)
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
-
-    def add_link_blacklist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            if not parts[0].isnumeric():
-                for link in parts:
-                    bot.link_checker.blacklist_url(link)
-            else:
-                for link in parts[1:]:
-                    bot.link_checker.blacklist_url(link, level=int(parts[0]))
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully added your links')
-
-    def add_link_whitelist(bot, source, message, event, args):
-        parts = message.split(' ')
-
-        try:
-            for link in parts:
-                bot.link_checker.whitelist_url(link)
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully added your links')
-
-    def remove_link_blacklist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                bot.link_checker.unlist_url(link, 'blacklist')
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully removed your links')
-
-    def remove_link_whitelist(bot, source, message, event, args):
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                bot.link_checker.unlist_url(link, 'whitelist')
-        except:
-            log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
-
-        bot.whisper(source.username, 'Successfully removed your links')
 
     def debug_command(bot, source, message, event, args):
         if message and len(message) > 0:
