@@ -47,6 +47,9 @@ class Dispatch:
     global_emotes_read = False
     global_emotes = []
 
+    # Roulette properties
+    rigged_percent = 50
+
     def nl(bot, source, message, event, args):
         if message:
             tmp_username = message.split(' ')[0].strip().lower()
@@ -1144,3 +1147,51 @@ class Dispatch:
             bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
         else:
             bot.say('No BTTV Emotes active in this chat')
+
+    def rig(bot, source, message, event, args):
+        try:
+            percent = int(message)
+        except (ValueError, TypeError):
+            bot.whisper(source.username, 'Usage: !rig PERCENT')
+
+        bot.whisper(source.username, 'Rig percent set to {0}'.format(percent))
+        Dispatch.rigged_percent = percent
+
+    @staticmethod
+    def rigged_random_result(percent):
+        return random.randint(0, 100) > percent
+
+    def roulette(bot, source, message, event, args):
+        user = source
+
+        try:
+            bet = int(message)
+        except (ValueError, TypeError):
+            bot.me('Sorry, {0}, I didn\'t recognize your bet! FeelsBadMan'.format(user.username_raw))
+            return False
+
+        if bet > user.points:
+            bot.me('Sorry, {0}, you don\'t have enough points! FeelsBadMan'.format(user.username_raw))
+            return False
+
+        if bet <= 0:
+            bot.me('Sorry, {0}, you have to bet at least 1 point! FeelsBadMan'.format(user.username_raw))
+            return False
+
+        bot.me('The roulette for {0} has began! PogChamp'.format(user.username_raw))
+
+        # Calculating the result
+        result = Dispatch.rigged_random_result(Dispatch.rigged_percent)
+        points = bet if result else -bet
+        user.points += points
+
+        if points > 0:
+            bot.execute_delayed(
+                    1, bot.me, ('{0} won {1} points in roulette! FeelsGoodMan'.format(user.username_raw, bet), )
+            )
+        else:
+            bot.execute_delayed(
+                    1, bot.me, ('{0} lost {1} points in roulette! FeelsBadMan'.format(user.username_raw, bet), )
+            )
+
+        HandlerManager.trigger('on_roulette_finish', user, points)
