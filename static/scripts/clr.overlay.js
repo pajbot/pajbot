@@ -213,7 +213,9 @@ function play_sound(sample)
 {
     sample = sample.toLowerCase();
     if (sample in samples) {
-        samples[sample]['audio'].cloneNode().play();
+        var cloned_sample = samples[sample]['audio'].cloneNode();
+        cloned_sample.volume = 0.4;
+        cloned_sample.play();
     }
 }
 
