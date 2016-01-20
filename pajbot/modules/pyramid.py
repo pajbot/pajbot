@@ -62,7 +62,7 @@ class PyramidModule(BaseModule):
                                     elif peak_length < 7:
                                         response = 'Good job!!! PogChamp //'
                                     elif peak_length < 15:
-                                        response = 'Now that\'s what I call pyramid-farming Kappa // PogChamp // OSbury //'
+                                        response = 'Now that\'s what I call pyramid-farming Kappa // PogChamp //'
                                     elif peak_length < 25:
                                         response = 'Wow, I can\'t even fit this pyramid in my memory bank MrDestructoid //'
                                     else:
