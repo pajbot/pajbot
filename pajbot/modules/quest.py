@@ -52,15 +52,15 @@ class QuestModule(BaseModule):
         self.commands['tokens'] = Command.raw_command(self.get_user_tokens)
 
     def on_stream_start(self):
-        available_quests = filter(lambda m: m.ID.startswith('quest-'), self.submodules)
+        available_quests = list(filter(lambda m: m.ID.startswith('quest-'), self.submodules))
         if len(available_quests) == 0:
             log.error('No quests enabled.')
             return False
 
-        redis = RedisManager.get()
-
         self.current_quest = random.choice(available_quests)
         self.current_quest.start_quest()
+
+        redis = RedisManager.get()
 
         redis.set(self.current_quest_key, self.current_quest.ID)
 
