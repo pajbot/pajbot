@@ -24,6 +24,7 @@ from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
 from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.roulette import RouletteModule
+from pajbot.modules.raffle import RaffleModule
 
 available_modules = [
         DummyModule,
@@ -52,4 +53,5 @@ available_modules = [
         ShowEmoteTokenCommandModule,
         EmotesOnScreenModule,
         RouletteModule,
+        RaffleModule,
         ]
