@@ -4,11 +4,6 @@ import logging
 import collections
 import json
 import datetime
-try:
-    # Import numpy if possible for its random library
-    from numpy import random
-except:
-    import random
 
 from pajbot.models.user import User
 from pajbot.models.filter import Filter
@@ -17,6 +12,7 @@ from pajbot.models.handler import HandlerManager
 from pajbot.tbutil import time_limit, TimeoutException, time_since
 from pajbot.apiwrappers import APIBase
 
+from numpy import random
 from sqlalchemy import desc
 from sqlalchemy import func
 
