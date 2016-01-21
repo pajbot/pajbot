@@ -3,9 +3,11 @@ import logging
 
 log = logging.getLogger('pajbot')
 
+
 class HandlerManager:
     handlers = {}
 
+    @staticmethod
     def init_handlers():
         HandlerManager.handlers = {}
 
@@ -29,6 +31,9 @@ class HandlerManager:
 
         # on_raffle_win(winner, points)
         HandlerManager.create_handler('on_raffle_win')
+
+        # on_roulette_finish(user, points)
+        HandlerManager.create_handler('on_roulette_finish')
 
         # on_bingo_win(winner, points, target_emote)
         HandlerManager.create_handler('on_bingo_win')
