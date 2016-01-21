@@ -7,9 +7,17 @@ log = logging.getLogger(__name__)
 
 class ModuleSetting:
     """
-    Available constraints:
-    min_str_len
-    max_str_len
+    A single setting for a Module.
+
+    Available types:
+      * text - A text input
+        Available constraints:
+          * min_str_len
+          * max_str_len
+      * number - A number input (Integer)
+          * min_value
+          * max_value
+      * boolean - A checkbox input
     """
 
     def __init__(self, key, label, type, required=False,
@@ -23,6 +31,14 @@ class ModuleSetting:
         self.constraints = constraints
 
     def validate(self, value):
+        """ Validate the input for this module.
+        This will call the relevant submethod, located as validate_{type}.
+        You always get a tuple back, with the first value being True or False depending
+        on if the input value was validated properly.
+        The second value is the properly parsed value.
+        So for example, calling validate('50') on a number setting would return (True, 50)
+        """
+
         validator = getattr(self, 'validate_{}'.format(self.type), None)
         if validator:
             return validator(value)
@@ -31,6 +47,7 @@ class ModuleSetting:
             return True, value
 
     def validate_text(self, value):
+        """ Validate a text value """
         value = value.strip()
         if 'min_str_len' in self.constraints and len(value) < self.constraints['min_str_len']:
             return False, 'needs to be at least {} characters long'.format(self.constraints['min_str_len'])
@@ -39,6 +56,7 @@ class ModuleSetting:
         return True, value
 
     def validate_number(self, value):
+        """ Validate a number value """
         try:
             value = int(value)
         except ValueError:
@@ -51,10 +69,12 @@ class ModuleSetting:
         return True, value
 
     def validate_boolean(self, value):
+        """ Validate a boolean value """
         return True, value == 'on'
 
 class BaseModule:
-    """ This class will include all the basics that a module needs
+    """
+    This class will include all the basics that a module needs
     to be operable.
     """
 
