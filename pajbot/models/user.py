@@ -361,6 +361,7 @@ class UserManager(UserDict):
         self.db_session.commit()
 
     def find(self, username):
+        username = username.replace('@', '')
         if username in self.data:
             return self.data[username]
 
