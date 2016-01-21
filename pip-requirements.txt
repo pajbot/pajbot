@@ -38,6 +38,9 @@ redis
 # MySQL for python3
 pymysql
 
+# Alternative random module
+numpy
+
 # Required for the basic features of the web interface
 # -r requirements/web.txt
 

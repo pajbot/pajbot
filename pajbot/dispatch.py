@@ -4,11 +4,6 @@ import logging
 import collections
 import json
 import datetime
-try:
-    # Import numpy if possible for its random library
-    from numpy import random
-except:
-    import random
 
 from pajbot.models.user import User
 from pajbot.models.filter import Filter
@@ -17,6 +12,7 @@ from pajbot.models.handler import HandlerManager
 from pajbot.tbutil import time_limit, TimeoutException, time_since
 from pajbot.apiwrappers import APIBase
 
+from numpy import random
 from sqlalchemy import desc
 from sqlalchemy import func
 
@@ -46,6 +42,9 @@ class Dispatch:
     raffle_running = False
     global_emotes_read = False
     global_emotes = []
+
+    # Roulette properties
+    rigged_percent = 50
 
     def nl(bot, source, message, event, args):
         if message:
@@ -1144,3 +1143,12 @@ class Dispatch:
             bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
         else:
             bot.say('No BTTV Emotes active in this chat')
+
+    def rig(bot, source, message, event, args):
+        try:
+            percent = int(message)
+        except (ValueError, TypeError):
+            bot.whisper(source.username, 'Usage: !rig PERCENT')
+
+        bot.whisper(source.username, 'Rig percent set to {0}'.format(percent))
+        Dispatch.rigged_percent = percent
