@@ -50,8 +50,8 @@ class RouletteModule(BaseModule):
         bot = options['bot']
 
         try:
-            bet = int(message)
-        except (ValueError, TypeError):
+            bet = int(message.split(' ')[0])
+        except (ValueError, TypeError, AttributeError):
             bot.me('Sorry, {0}, I didn\'t recognize your bet! FeelsBadMan'.format(user.username_raw))
             return False
 
