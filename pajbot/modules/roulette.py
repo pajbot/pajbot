@@ -63,20 +63,14 @@ class RouletteModule(BaseModule):
             bot.me('Sorry, {0}, you have to bet at least 1 point! FeelsBadMan'.format(user.username_raw))
             return False
 
-        bot.me('{0}, your roulette for {1} points has begun! PogChamp'.format(user.username_raw, bet))
-
         # Calculating the result
         result = self.rigged_random_result()
         points = bet if result else -bet
         user.points += points
 
         if points > 0:
-            bot.execute_delayed(
-                    2, bot.me, ('{0} won {1} points in roulette! FeelsGoodMan'.format(user.username_raw, bet), )
-            )
+            bot.me('{0} won {1} points in roulette! FeelsGoodMan'.format(user.username_raw, bet))
         else:
-            bot.execute_delayed(
-                    2, bot.me, ('{0} lost {1} points in roulette! FeelsBadMan'.format(user.username_raw, bet), )
-            )
+            bot.me('{0} lost {1} points in roulette! FeelsBadMan'.format(user.username_raw, bet))
 
         HandlerManager.trigger('on_roulette_finish', user, points)
