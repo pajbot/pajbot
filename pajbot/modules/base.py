@@ -92,6 +92,7 @@ class BaseModule:
         self.commands = {}
         self.settings = {}
         self.submodules = []
+        self.parent_module = None
 
     def load(self, **options):
         """ This method will load everything from the module into
