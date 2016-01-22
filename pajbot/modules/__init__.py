@@ -25,6 +25,7 @@ from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.raffle import RaffleModule
+from pajbot.modules.multiraffle import MultiRaffleModule
 
 available_modules = [
         DummyModule,
@@ -54,4 +55,5 @@ available_modules = [
         EmotesOnScreenModule,
         RouletteModule,
         RaffleModule,
+        MultiRaffleModule,
         ]

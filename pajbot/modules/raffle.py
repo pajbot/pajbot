@@ -64,6 +64,10 @@ class RaffleModule(BaseModule):
                 )
 
     def raffle(self, **options):
+        """ Starts a raffle.
+        TODO: Read the second argument and try to use that as the amount of time the raffle is running for.
+        """
+
         bot = options['bot']
         source = options['source']
         message = options['message']
