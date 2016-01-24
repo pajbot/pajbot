@@ -561,7 +561,7 @@ class Dispatch:
                         break
 
             if not command:
-                bot.whisper(source.username, 'No command with found with the given parameters.')
+                bot.whisper(source.username, 'No command found with the given parameters.')
                 return False
 
             data = collections.OrderedDict()
