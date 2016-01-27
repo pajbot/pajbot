@@ -26,6 +26,17 @@ class RaffleModule(BaseModule):
                     'min_value': 0,
                     'max_value': 35000,
                     }),
+            ModuleSetting(
+                key='max_length',
+                label='Max length for a single raffle in seconds',
+                type='number',
+                required=True,
+                placeholder='',
+                default=120,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 1200,
+                    }),
                 ]
 
     def __init__(self):
@@ -34,6 +45,7 @@ class RaffleModule(BaseModule):
         self.raffle_running = False
         self.raffle_users = []
         self.raffle_points = 0
+        self.raffle_length = 0
 
     def load_commands(self, **options):
         self.commands['raffle'] = Command.raw_command(self.raffle,
@@ -64,10 +76,6 @@ class RaffleModule(BaseModule):
                 )
 
     def raffle(self, **options):
-        """ Starts a raffle.
-        TODO: Read the second argument and try to use that as the amount of time the raffle is running for.
-        """
-
         bot = options['bot']
         source = options['source']
         message = options['message']
@@ -79,24 +87,33 @@ class RaffleModule(BaseModule):
         self.raffle_users = []
         self.raffle_running = True
         self.raffle_points = 100
+        self.raffle_length = 60
 
         try:
             if message is not None:
                 self.raffle_points = int(message.split()[0])
-        except ValueError:
+        except (IndexError, ValueError, TypeError):
+            pass
+
+        try:
+            if message is not None:
+               if int(message.split()[1]) >= 5:
+                 self.raffle_length = int(message.split()[1])
+        except (IndexError, ValueError, TypeError):
             pass
 
         self.raffle_points = min(self.raffle_points, self.settings['max_points'])
+        self.raffle_length = min(self.raffle_length, self.settings['max_length'])
 
         bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
-        bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in 60 seconds'.format(self.raffle_points))
-        bot.execute_delayed(15, bot.me, ('The raffle for {} points ends in 45 seconds! Type !join to join the raffle!'.format(self.raffle_points), ))
-        bot.execute_delayed(30, bot.me, ('The raffle for {} points ends in 30 seconds! Type !join to join the raffle!'.format(self.raffle_points), ))
-        bot.execute_delayed(45, bot.me, ('The raffle for {} points ends in 15 seconds! Type !join to join the raffle!'.format(self.raffle_points), ))
+        bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in {} seconds'.format(self.raffle_points, self.raffle_length))
+        bot.execute_delayed(self.raffle_length*0.25, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.75)), ))
+        bot.execute_delayed(self.raffle_length*0.5, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.50)), ))
+        bot.execute_delayed(self.raffle_length*0.75, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.25)), ))
 
-        bot.execute_delayed(60, self.end_raffle)
+        bot.execute_delayed(self.raffle_length, self.end_raffle)
 
     def join(self, **options):
         source = options['source']

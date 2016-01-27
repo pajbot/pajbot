@@ -49,22 +49,32 @@ class MultiRaffleModule(BaseModule):
         self.parent_module.raffle_users = []
         self.parent_module.raffle_running = True
         self.parent_module.raffle_points = 100
+        self.parent_module.raffle_length = 60
 
         try:
             if message is not None:
                 self.parent_module.raffle_points = int(message.split()[0])
-        except ValueError:
+        except (IndexError, ValueError, TypeError):
             pass
+
+        try:
+            if message is not None:
+               if int(message.split()[1]) >= 5:
+                 self.parent_module.raffle_length = int(message.split()[1])
+        except (IndexError, ValueError, TypeError):
+            pass
+
+        self.parent_module.raffle_length = min(self.parent_module.raffle_length, self.parent_module.settings['max_length'])
 
         bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
-        bot.me('A multi-raffle has begun, {} points will be split among the winners. type !join to join the raffle! The raffle will end in 60 seconds'.format(self.parent_module.raffle_points))
-        bot.execute_delayed(15, bot.me, ('The multi-raffle for {} points ends in 45 seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points), ))
-        bot.execute_delayed(30, bot.me, ('The multi-raffle for {} points ends in 30 seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points), ))
-        bot.execute_delayed(45, bot.me, ('The multi-raffle for {} points ends in 15 seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points), ))
+        bot.me('A multi-raffle has begun, {} points will be split among the winners. type !join to join the raffle! The raffle will end in {} seconds'.format(self.parent_module.raffle_points, self.parent_module.raffle_length))
+        bot.execute_delayed(self.parent_module.raffle_length*0.25, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.75)), ))
+        bot.execute_delayed(self.parent_module.raffle_length*0.5, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.5)), ))
+        bot.execute_delayed(self.parent_module.raffle_length*0.75, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.25)), ))
 
-        bot.execute_delayed(60, self.end_raffle)
+        bot.execute_delayed(self.parent_module.raffle_length, self.end_raffle)
 
     def generate_winner_list(self, winners):
         """ Takes a list of winners, and combines them into a string. """
