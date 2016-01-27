@@ -8,9 +8,9 @@ from pajbot.modules.base import BaseModule
 log = logging.getLogger(__name__)
 
 
-class LotteryModule(BaseModule):
+class PointLotteryModule(BaseModule):
     ID = __name__.split('.')[-1]
-    NAME = 'Lottery'
+    NAME = 'Point Lottery'
     DESCRIPTION = 'Lets players participate in lottery for points'
     SETTINGS = []
 
@@ -22,10 +22,10 @@ class LotteryModule(BaseModule):
         self.lottery_points = 0
 
     def load_commands(self, **options):
-        self.commands['lottery'] = Command.raw_command(
+        self.commands['pointlottery'] = Command.raw_command(
                 self.lottery,
                 delay_all=0,
-                delay_user=60,
+                delay_user=5,
                 description='Lottery for points',
                 examples=[
                     CommandExample(None,
@@ -40,8 +40,8 @@ class LotteryModule(BaseModule):
                                    description='You don\'t get confirmation whether you joined the lottery or not.',
                                    ).parse(),
                     CommandExample(None,
-                                   'Lottery end',
-                                   chat='user:!lottery end\n'
+                                   'Lottery stop',
+                                   chat='user:!lottery stop\n'
                                         'bot:The lottery has finished! {} won {} points',
                                    description='Finish lottery',
                                    ).parse(),
@@ -56,24 +56,26 @@ class LotteryModule(BaseModule):
     def lottery(self, **options):
         message = options['message']
         source = options['source']
-        bot = options['bot']
 
-        if source.level < 500:
-            return False
-        
-        commands = {'start': self.process_start,
-                    'join': self.process_join,
-                    '': self.process_join,
-                    'end': self.process_end,
+        commands = {'start': (self.process_start, 500),
+                    'begin': (self.process_start, 500),
+                    'join': (self.process_join, 100),
+                    '': (self.process_join, 100),
+                    'end': (self.process_end, 500),
+                    'stop': (self.process_end, 500),
+                    'status': (self.process_status, 100),
                     }
         try:
             if message.split(' ')[0].isdigit():
                 command = ''
             else:
                 command = str(message.split(' ')[0])
-            commands[command](**options)
-        except (ValueError, TypeError, AttributeError):
-            bot.me('Sorry, {0}, I didn\'t recognize your command! FeelsBadMan'.format(source.username_raw))
+            cb, level = commands[command]
+            if source.level < level:
+                # User does not have access to run this command
+                return False
+            cb(**options)
+        except (KeyError, ValueError, TypeError, AttributeError):
             return False
 
     def process_start(self, **options):
@@ -102,9 +104,10 @@ class LotteryModule(BaseModule):
         bot = options['bot']
 
         if not self.lottery_running:
+            log.debug('No lottery running')
             return False
 
-        if source in [user for user in self.lottery_users if user == source]:
+        if source in [user for user, points in self.lottery_users if user == source]:
             return False
 
         try:
@@ -123,6 +126,7 @@ class LotteryModule(BaseModule):
 
             source.points -= tickets
             self.lottery_points += tickets
+            log.info('Lottery points is now at {}'.format(self.lottery_points))
         except (ValueError, TypeError, AttributeError):
             bot.me('Sorry, {0}, I didn\'t recognize your command! FeelsBadMan'.format(source.username_raw))
             return False
@@ -144,6 +148,8 @@ class LotteryModule(BaseModule):
 
         winner = self.weighted_choice(self.lottery_users)
 
+        log.info('at end, lottery points is now at {}'.format(self.lottery_points))
+
         bot.websocket_manager.emit('notification', {'message': '{} won {} points in the lottery!'.format(
                 winner.username_raw, self.lottery_points)})
         bot.me('The lottery has finished! {0} won {1} points! PogChamp'.format(winner.username_raw,
@@ -152,6 +158,15 @@ class LotteryModule(BaseModule):
         winner.points += self.lottery_points
 
         self.lottery_users = []
+
+    def process_status(self, **options):
+        bot = options['bot']
+
+        if not self.lottery_running:
+            return False
+
+        bot.me('{} people have joined the lottery so far, for a total of {} points'.format(len(self.lottery_users),
+                                                                                               self.lottery_points))
 
     @staticmethod
     def weighted_choice(choices):
