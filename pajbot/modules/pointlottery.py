@@ -30,24 +30,24 @@ class PointLotteryModule(BaseModule):
                 examples=[
                     CommandExample(None,
                                    'Lottery start',
-                                   chat='user:!lottery start\n'
-                                        'bot:A Lottery has begun. Type !lottery join {points} to join the lottery!',
+                                   chat='user:!pointlottery start\n'
+                                        'bot:A Lottery has begun. Type !pointlottery join {points} to join the lottery!',
                                    description='Start lottery',
                                    ).parse(),
                     CommandExample(None,
                                    'Lottery join',
-                                   chat='user:!lottery join {}',
+                                   chat='user:!pointlottery join {}',
                                    description='You don\'t get confirmation whether you joined the lottery or not.',
                                    ).parse(),
                     CommandExample(None,
                                    'Lottery stop',
-                                   chat='user:!lottery stop\n'
+                                   chat='user:!pointlottery stop\n'
                                         'bot:The lottery has finished! {} won {} points',
                                    description='Finish lottery',
                                    ).parse(),
                     CommandExample(None,
                                    'Lottery join',
-                                   chat='user:!lottery {}',
+                                   chat='user:!pointlottery {}',
                                    description='You don\'t get confirmation whether you joined the lottery or not.',
                                    ).parse(),
                 ],
@@ -92,9 +92,9 @@ class PointLotteryModule(BaseModule):
 
         bot.websocket_manager.emit('notification', {'message': 'A lottery has been started!'})
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification',
-                                                               {'message': 'Type !lottery join to enter!'}))
+                                                               {'message': 'Type !pointlottery join to enter!'}))
 
-        bot.me('A lottery has begun. Type !lottery join {tickets} or !lottery {tickets} to join the lottery! '
+        bot.me('A lottery has begun. Type !pointlottery join {tickets} or !pointlottery {tickets} to join the lottery! '
                'The more tickets you buy, the more chances to win you have! '
                '1 ticket costs 1 point')
 
