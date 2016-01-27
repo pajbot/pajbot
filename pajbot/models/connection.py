@@ -1,9 +1,10 @@
+import urllib
+import random
+import logging
+
 import irc
 from irc.client import InvalidCharacters, MessageTooLong, ServerNotConnectedError
 import socket
-import random
-
-import logging
 
 log = logging.getLogger('pajbot')
 
@@ -138,7 +139,12 @@ class ConnectionManager:
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
         log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
-        data = self.bot.twitchapi.get(['channels', self.streamer, 'chat_properties'])
+        try:
+            data = self.bot.twitchapi.get(['channels', self.streamer, 'chat_properties'])
+        except urllib.error.HTTPError:
+            log.error('An unhandled HTTP Error occured when trying to create a new connection.')
+            return None
+
         if data and len(data['chat_servers']) > 0:
             server = random.choice(data['chat_servers'])
             ip, port = server.split(':')
