@@ -59,8 +59,8 @@ class MultiRaffleModule(BaseModule):
 
         try:
             if message is not None:
-               if int(message.split()[1]) >= 5:
-                 self.parent_module.raffle_length = int(message.split()[1])
+                if int(message.split()[1]) >= 5:
+                    self.parent_module.raffle_length = int(message.split()[1])
         except (IndexError, ValueError, TypeError):
             pass
 
@@ -70,9 +70,9 @@ class MultiRaffleModule(BaseModule):
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
         bot.me('A multi-raffle has begun, {} points will be split among the winners. type !join to join the raffle! The raffle will end in {} seconds'.format(self.parent_module.raffle_points, self.parent_module.raffle_length))
-        bot.execute_delayed(self.parent_module.raffle_length*0.25, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.75)), ))
-        bot.execute_delayed(self.parent_module.raffle_length*0.5, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.5)), ))
-        bot.execute_delayed(self.parent_module.raffle_length*0.75, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length*0.25)), ))
+        bot.execute_delayed(self.parent_module.raffle_length * 0.25, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length * 0.75)), ))
+        bot.execute_delayed(self.parent_module.raffle_length * 0.50, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length * 0.50)), ))
+        bot.execute_delayed(self.parent_module.raffle_length * 0.75, bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.parent_module.raffle_points, round(self.parent_module.raffle_length * 0.25)), ))
 
         bot.execute_delayed(self.parent_module.raffle_length, self.end_raffle)
 
