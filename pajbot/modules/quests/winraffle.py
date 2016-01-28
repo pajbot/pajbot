@@ -24,24 +24,24 @@ class WinRaffleQuestModule(BaseQuest):
         log.warn('{} just timed out {} for {} points'.format(source, victim, cost))
 
     def on_raffle_win(self, winner, points):
-        self.bot.say('{} just won a raffle, he won {} points'.format(
-            winner.username_raw, points))
-
         winner.progress_quest(self.PROGRESS, self.LIMIT, self.REWARD)
 
     def on_bingo_win(self, winner, points, target_emote):
-        self.bot.say('{} just won a bingo, he won {} points with the emote {}'.format(
-            winner.username_raw, points, target_emote))
-
         winner.progress_quest(self.PROGRESS, self.LIMIT, self.REWARD)
+
+    def on_multiraffle_win(self, winners, points_per_user):
+        for winner in winners:
+            self.on_raffle_win(winner, points_per_user)
 
     def start_quest(self):
         HandlerManager.add_handler('on_raffle_win', self.on_raffle_win)
         HandlerManager.add_handler('on_bingo_win', self.on_bingo_win)
+        HandlerManager.add_handler('on_multiraffle_win', self.on_multiraffle_win)
 
     def stop_quest(self):
         HandlerManager.remove_handler('on_raffle_win', self.on_raffle_win)
         HandlerManager.remove_handler('on_bingo_win', self.on_bingo_win)
+        HandlerManager.remove_handler('on_multiraffle_win', self.on_multiraffle_win)
 
     def enable(self, bot):
         self.bot = bot

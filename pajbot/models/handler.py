@@ -32,6 +32,9 @@ class HandlerManager:
         # on_raffle_win(winner, points)
         HandlerManager.create_handler('on_raffle_win')
 
+        # on_multiraffle_win(winners, points_per_user)
+        HandlerManager.create_handler('on_multiraffle_win')
+
         # on_roulette_finish(user, points)
         HandlerManager.create_handler('on_roulette_finish')
 
