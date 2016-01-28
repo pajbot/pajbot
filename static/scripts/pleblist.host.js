@@ -212,6 +212,10 @@ function streamtip_connect(access_token)
             donations.reverse();
             for (tip_id in donations) {
                 var tip = donations[tip_id];
+                if (tip.user === undefined) {
+                    // for manually added tips
+                    continue;
+                }
                 add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
             }
         }, 10, 0);
