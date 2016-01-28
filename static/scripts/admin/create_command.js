@@ -1,5 +1,5 @@
 function alias_changed(e) {
-    var new_val = $(this).val().replace('!', '').replace(' ', '');
+    var new_val = $(this).val().replace(/!/g, '').replace(/ /g, '');
     $(this).val(new_val.toLowerCase());
     if (new_val.length == 0) {
         $('div.add-alias').addClass('disabled');
@@ -111,7 +111,8 @@ $(document).ready(function() {
         beforeSend: function(settings) {
             var input_el = $(this).parent().parent().find('input.alias');
             $(this).parent().addClass('disabled');
-            var alias = input_el.val();
+            var alias = input_el.val().replace(/!/g, '').replace(/ /g, '');
+            input_el.val(alias);
             if (alias.length == 0) {
                 return false;
             }
@@ -140,6 +141,7 @@ $(document).ready(function() {
             input_el.removeClass('disabled');
         },
         onSuccess: function(response, element, xhr) {
+            $('div.add-alias').addClass('disabled');
             var input_el = $(this).parent().parent().find('input.alias');
 
             var $div = $('<div>', {'class': 'ui label'}).text(input_el.val());
