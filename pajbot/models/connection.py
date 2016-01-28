@@ -136,36 +136,45 @@ class ConnectionManager:
         self.run_maintenance()
         return self.get_main_conn()
 
+    def get_chat_server(self, streamer):
+        data = None
+        try:
+            data = self.bot.twitchapi.get(['channels', streamer, 'chat_properties'])
+        except urllib.error.HTTPError:
+            log.error('An unhandled HTTP Error occured when trying to create a new connection.')
+
+        if data is None:
+            # return this default shit in case the data is bad
+            # TODO: We should be able to specify in the config if the fallback IP should be
+            #       an IP on the event server or not.
+            return 'irc.twitch.tv', 6667
+
+        server = random.choice(data['chat_servers'])
+        ip, port = server.split(':')
+        return ip, int(port)
+
     def make_new_connection(self):
         log.debug("Creating a new IRC connection...")
         log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
+
+        ip, port = self.get_chat_server(self.streamer)
+
+        log.debug('Fetched {0}:{1}'.format(ip, port))
+
         try:
-            data = self.bot.twitchapi.get(['channels', self.streamer, 'chat_properties'])
-        except urllib.error.HTTPError:
-            log.error('An unhandled HTTP Error occured when trying to create a new connection.')
-            return None
+            newconn = CustomServerConnection(self.reactor)
+            with self.reactor.mutex:
+                self.reactor.connections.append(newconn)
+            newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname)
+            log.debug('Connecting to IRC server...')
+            newconn.cap('REQ', 'twitch.tv/membership')
+            newconn.cap('REQ', 'twitch.tv/commands')
+            newconn.cap('REQ', 'twitch.tv/tags')
 
-        if data and len(data['chat_servers']) > 0:
-            server = random.choice(data['chat_servers'])
-            ip, port = server.split(':')
-            port = int(port)
-
-            log.debug('Fetched {0}:{1}'.format(ip, port))
-
-            try:
-                newconn = CustomServerConnection(self.reactor)
-                with self.reactor.mutex:
-                    self.reactor.connections.append(newconn)
-                newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname)
-                log.debug('Connecting to IRC server...')
-                newconn.cap('REQ', 'twitch.tv/membership')
-                newconn.cap('REQ', 'twitch.tv/commands')
-                newconn.cap('REQ', 'twitch.tv/tags')
-
-                connection = Connection(newconn)
-                return connection
-            except irc.client.ServerConnectionError:
-                return
+            connection = Connection(newconn)
+            return connection
+        except irc.client.ServerConnectionError:
+            return
 
         else:
             log.error("No proper data returned when fetching IRC servers")
