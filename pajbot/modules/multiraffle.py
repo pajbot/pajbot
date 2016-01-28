@@ -114,7 +114,7 @@ class MultiRaffleModule(BaseModule):
                 points_per_user = math.ceil(abs_points / num_winners)
                 break
             elif points_per_user < min_point_award:
-                num_winners = min(math.floor(abs_points / min_point_award), num_participants)
+                num_winners = max(1, min(math.floor(abs_points / min_point_award), num_participants))
                 points_per_user = math.ceil(abs_points / num_winners)
                 break
 
