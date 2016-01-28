@@ -45,9 +45,16 @@ function add_tip(username, avatar, cents, note)
         replaceFn: function(autolinker, match) {
             switch (match.getType()) {
                 case 'url':
+                    var parsed_uri = parseUri(match.getUrl());
                     if (match.getUrl().indexOf('youtu.be/') !== -1 || match.getUrl().indexOf('youtube.com/watch?') !== -1) {
                         var tag = autolinker.getTagBuilder().build(match);
                         tag.addClass('youtube-link');
+                        console.log('got youtube link');
+                        return tag;
+                    } else if (parsed_uri.host.endsWith('imgur.com') === true) {
+                        var tag = autolinker.getTagBuilder().build(match);
+                        tag.addClass('imgur-link');
+                        console.log('got imgur link');
                         return tag;
                     }
                     return true;
@@ -65,8 +72,10 @@ function add_tip(username, avatar, cents, note)
     $div.append($content_div);
     $header_div = $('<div>', {'class': 'header'}).text(username + ' (' + amount + ')');
     $content_div.append($header_div);
-    $meta_div = $('<div>', {'class': 'meta'}).text('2 minutes ago'); // XXX: Fix this
+    /*
+    $meta_div = $('<div>', {'class': 'meta'}).text(';)'); // XXX: Fix this
     $content_div.append($meta_div);
+    */
     $description_div = $('<div>', {'class': 'description'});
     $content_div.append($description_div);
     $description = $('<p>').html(linked_note);
@@ -80,6 +89,7 @@ function add_tip(username, avatar, cents, note)
             var parsed_uri = parseUri(link.href);
             var youtube_id = parse_youtube_id_from_url(link.href);
             var song_info = null;
+            console.log('Checking ' + link.href);
             if (youtube_id !== false) {
                 $.api({
                     action: 'pleblist_validate',
@@ -200,6 +210,26 @@ function add_tip(username, avatar, cents, note)
             }
         }
     });
+
+    var imgur_link_el = $div.find('.imgur-link');
+    imgur_link_el.wrap('<div class="imgur-link-wrapper ui segment"></div>');
+    $div.find('.imgur-link-wrapper').each(function(index, el) {
+        var link = $(el).find('a')[0];
+        if (link.href !== undefined) {
+            var parsed_uri = parseUri(link.href);
+            var imgur_data = parse_imgur_data_from_url(parsed_uri);
+            if (imgur_data.id !== false) {
+                if (imgur_data.album === true) {
+                    var $data = $('<span>', {'style': 'padding-left: 15px;'}).html('<strong>ALBUM</strong>, can contain gifs.');
+                    $(el).append($data);
+                }
+                if (imgur_data.new_url !== false) {
+                    // Replace the link
+                    link.href = imgur_data.new_url;
+                }
+            }
+        }
+    });
 }
 
 function streamtip_connect(access_token)
@@ -241,6 +271,11 @@ function streamtip_connect(access_token)
     socket.on('newTip', function(data) {
         add_tip(data.username, data.user.avatar, data.cents, data.note);
     });
+}
+
+function add_tip2(message)
+{
+    add_tip('Karl_Kons', null, 200, message);
 }
 
 function add_tests()

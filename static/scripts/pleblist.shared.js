@@ -12,3 +12,26 @@ function parse_youtube_id_from_url(url)
 
     return youtube_id;
 }
+
+function parse_imgur_data_from_url(parsed_uri)
+{
+    var imgur_data = {'album': false, 'id': false, 'new_url': false};
+
+    parsed_uri = parseUri(parsed_uri.source.replace(/\/gallery/g, '').replace(/\/r\/([a-zA-Z0-9_]+)/g, ''));
+
+    if (parsed_uri.host.endsWith('imgur.com') === true) {
+        // Successfully found an imgur URL
+        // Decide whether it's an album or not
+        if (parsed_uri.path.startsWith('/a/')) {
+            // This is an album!
+            imgur_data.album = true;
+            imgur_data.id = parsed_uri.path.substr(3);
+        } else {
+            // a normal image
+            imgur_data.id = parsed_uri.path.substr(1);
+            imgur_data.new_url = 'http://i.imgur.com/' + imgur_data.id + 'h.jpg';
+        }
+    }
+
+    return imgur_data;
+}
