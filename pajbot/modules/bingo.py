@@ -1,15 +1,12 @@
 import logging
 import json
-try:
-    # Import numpy if possible for its random library
-    from numpy import random
-except:
-    import random
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.handler import HandlerManager
 from pajbot.apiwrappers import APIBase
+
+from numpy import random
 
 log = logging.getLogger(__name__)
 
