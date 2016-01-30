@@ -23,8 +23,6 @@ class BingoModule(BaseModule):
         super().__init__()
         self.bot = None
 
-        self.global_emotes_read = False
-        self.global_emotes_read_bttv = False
         self.bingo_running = False
         self.bingo_bttv_twitch_running = False
 
@@ -145,13 +143,6 @@ class BingoModule(BaseModule):
             bot.me('{0}, a bingo is already running OMGScoots'.format(source.username_raw))
             return False
 
-        def get_global_emotes_bttv(bot):
-            emotes_full_list = bot.emotes.bttv_emote_manager.global_emotes
-            emotes_remove_list = ['aplis!', 'Blackappa', 'DogeWitIt', 'BadAss', 'Kaged', '(chompy)', 'SoSerious', 'BatKappa', 'motnahP']
-
-            emotes_bttv = list(set(emotes_full_list) - set(emotes_remove_list))
-            return emotes_bttv
-
         try:
             if message is not None:
                 bingo_points_win = int(message.split()[0])
@@ -161,9 +152,7 @@ class BingoModule(BaseModule):
         except TypeError:
             pass
 
-        if not self.global_emotes_read_bttv:
-            self.emotes_bttv = get_global_emotes_bttv(bot)
-            self.global_emotes_read_bttv = True
+        self.emotes_bttv = bot.emotes.get_global_bttv_emotes()
 
         target_bttv = random.choice(self.emotes_bttv)
         self.set_bingo_target_bttv(target_bttv, bingo_points_win)
@@ -184,23 +173,6 @@ class BingoModule(BaseModule):
             bot.me('{0}, a bingo is already running OMGScoots'.format(source.username_raw))
             return False
 
-        def get_global_emotes():
-            """Retruns a list of global twitch emotes"""
-            base_url = 'http://twitchemotes.com/api_cache/v2/global.json'
-            log.info('Getting global twitch emotes!')
-            try:
-                api = APIBase()
-                message = json.loads(api._get(base_url))
-            except ValueError:
-                log.error('Invalid data fetched while getting global emotes!')
-                return False
-
-            emotes = []
-            for code in message['emotes']:
-                emotes.append(code)
-
-            return emotes
-
         try:
             if message is not None:
                 bingo_points_win = int(message.split()[0])
@@ -210,9 +182,7 @@ class BingoModule(BaseModule):
         except TypeError:
             pass
 
-        if not self.global_emotes_read:
-            self.emotes = get_global_emotes()
-            self.global_emotes_read = True
+        self.emotes = bot.emotes.get_global_emotes()
 
         target = random.choice(self.emotes)
         self.set_bingo_target(target, bingo_points_win)

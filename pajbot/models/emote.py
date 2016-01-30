@@ -2,8 +2,10 @@ import logging
 import datetime
 from collections import UserDict
 import re
+import json
 
 from pajbot.models.db import DBManager, Base
+from pajbot.apiwrappers import APIBase
 
 from sqlalchemy import orm
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
@@ -137,6 +139,9 @@ class EmoteManager(UserDict):
         self.bot.execute_delayed(5, self.bot.action_queue.add, (self.bttv_emote_manager.update_emotes, ))
         self.bot.execute_every(60 * 60 * 2, self.bot.action_queue.add, (self.bttv_emote_manager.update_emotes, ))
 
+        # Used as caching to store emotes
+        self.global_emotes = []
+
     def commit(self):
         self.db_session.commit()
 
@@ -203,3 +208,28 @@ class EmoteManager(UserDict):
                         return emote
 
         return None
+
+    def get_global_emotes(self, force=False):
+        if len(self.global_emotes) > 0 or force is True:
+            return self.global_emotes
+
+        """Returns a list of global twitch emotes"""
+        base_url = 'http://twitchemotes.com/api_cache/v2/global.json'
+        log.info('Getting global twitch emotes!')
+        try:
+            api = APIBase()
+            message = json.loads(api._get(base_url))
+        except ValueError:
+            log.error('Invalid data fetched while getting global emotes!')
+            return False
+
+        for code in message['emotes']:
+            self.global_emotes.append(code)
+
+        return self.global_emotes
+
+    def get_global_bttv_emotes(self):
+        emotes_full_list = self.bttv_emote_manager.global_emotes
+        emotes_remove_list = ['aplis!', 'Blackappa', 'DogeWitIt', 'BadAss', 'Kaged', '(chompy)', 'SoSerious', 'BatKappa', 'motnahP']
+
+        return list(set(emotes_full_list) - set(emotes_remove_list))
