@@ -36,7 +36,7 @@ class QuestModule(BaseModule):
     def get_current_quest(self, **options):
         bot = options['bot']
         if self.current_quest is not None:
-            bot.say('Current quest active: {0.NAME} - {0.OBJECTIVE}'.format(self.current_quest))
+            bot.say('Current quest active: {0.NAME} - {1}'.format(self.current_quest, self.current_quest.get_objective()))
         else:
             bot.say('There is no quest active right now.')
 
@@ -65,7 +65,7 @@ class QuestModule(BaseModule):
         redis.set(self.current_quest_key, self.current_quest.ID)
 
         self.bot.say('Stream started, new quest has been chosen!')
-        self.bot.say('Current quest objective: {}'.format(self.current_quest.OBJECTIVE))
+        self.bot.say('Current quest objective: {}'.format(self.current_quest.get_objective()))
 
     def on_stream_stop(self):
         if self.current_quest is None:
@@ -124,7 +124,7 @@ class QuestModule(BaseModule):
                     quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
                     if quest is not None:
-                        log.info('Resumed quest {}'.format(quest.OBJECTIVE))
+                        log.info('Resumed quest {}'.format(quest.get_objective()))
                         self.current_quest = quest
                         self.current_quest.start_quest()
                     else:

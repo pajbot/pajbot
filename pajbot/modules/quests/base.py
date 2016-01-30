@@ -12,3 +12,6 @@ class BaseQuest(BaseModule):
 
     def stop_quest(self):
         log.error('No stop quest implemented for this quest.')
+
+    def get_objective(self):
+        return self.OBJECTIVE
