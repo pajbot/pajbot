@@ -25,10 +25,10 @@ function parse_imgur_data_from_url(parsed_uri)
         if (parsed_uri.path.startsWith('/a/')) {
             // This is an album!
             imgur_data.album = true;
-            imgur_data.id = parsed_uri.path.substr(3);
+            imgur_data.id = parsed_uri.path.substr(3).split('.')[0];
         } else {
             // a normal image
-            imgur_data.id = parsed_uri.path.substr(1);
+            imgur_data.id = parsed_uri.path.substr(1).split('.')[0];
             imgur_data.new_url = 'http://i.imgur.com/' + imgur_data.id + 'h.jpg';
         }
     }
