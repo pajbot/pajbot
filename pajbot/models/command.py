@@ -466,7 +466,10 @@ class CommandManager(UserDict):
 
         self.internal_commands['quit'] = Command.pajbot_command(self.bot, 'quit',
                 level=1000,
+                command='quit',
                 description='Shut down the bot, this will most definitely restart it if set up properly')
+
+        self.internal_commands['ceaseallactionscurrentlybeingacteduponwiththecodeandiapologizeforbeingawhitecisgenderedmaleinthepatriarchy'] = self.internal_commands['quit']
 
         self.internal_commands['ignore'] = Command.dispatch_command('ignore',
                 level=1000,
