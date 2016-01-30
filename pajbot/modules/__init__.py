@@ -27,6 +27,7 @@ from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.multiraffle import MultiRaffleModule
+from pajbot.modules.subalert import SubAlertModule
 
 available_modules = [
         DummyModule,
@@ -58,4 +59,5 @@ available_modules = [
         RaffleModule,
         MultiRaffleModule,
         PointLotteryModule,
+        SubAlertModule,
         ]

@@ -742,6 +742,7 @@ class Dispatch:
         bot._timeout(source.username, _time)
 
     def welcome_sub(bot, source, message, event, args):
+        log.error('DEPRECATED: Use the Sub Alert Module.')
         match = args['match']
 
         bot.kvi['active_subs'].inc()
@@ -757,6 +758,7 @@ class Dispatch:
         bot.websocket_manager.emit('new_sub', payload)
 
     def resub(bot, source, message, event, args):
+        log.error('DEPRECATED: Use the Sub Alert Module.')
         match = args['match']
 
         phrase_data = {
