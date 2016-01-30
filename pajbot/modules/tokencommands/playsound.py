@@ -29,7 +29,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 bot.whisper(source.username, 'Successfully played your sample {}'.format(sample))
                 return True
 
-        bot.whisper(source.username, 'Your sample is not valid.  Use one of the following as argument: {}'.format(','.join(valid_samples)))
+        bot.whisper(source.username, 'Your sample is not valid.  Use one of the following as argument: {}'.format(', '.join(valid_samples)))
         return False
 
     def load_commands(self):
