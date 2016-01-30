@@ -23,8 +23,8 @@ def init_dueling_variables(user):
 class DuelModule(BaseModule):
 
     ID = __name__.split('.')[-1]
-    NAME = 'Duel module'
-    DESCRIPTION = 'this module handles everything related to duels!'
+    NAME = 'Duel (mini game)'
+    DESCRIPTION = 'Let players duel to win or lose points.'
     SETTINGS = [
             ModuleSetting(
                 key='max_pot',
@@ -36,7 +36,29 @@ class DuelModule(BaseModule):
                 constraints={
                     'min_value': 0,
                     'max_value': 69000,
-                    })
+                    }),
+            ModuleSetting(
+                key='message_won',
+                label='Winner message | Available arguments: {winner}, {loser}',
+                type='text',
+                required=True,
+                placeholder='{winner} won the duel vs {loser} PogChamp',
+                default='{winner} won the duel vs {loser} PogChamp',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
+                key='message_won_points',
+                label='Points message | Available arguments: {winner}, {loser}, {total_pot}, {extra_points}',
+                type='text',
+                required=True,
+                placeholder='{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points',
+                default='{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
                 ]
 
     def load_commands(self, **options):
@@ -192,11 +214,18 @@ class DuelModule(BaseModule):
             bot.duel_manager.user_won(winner, winning_pot)
             bot.duel_manager.user_lost(loser, source.duel_price)
 
-            win_message = []
-            win_message.append('{} won the duel vs {} PogChamp '.format(winner.username_raw, loser.username_raw))
+            arguments = {
+                    'winner': winner.username,
+                    'loser': loser.username,
+                    'total_pot': source.duel_price,
+                    'extra_points': winning_pot,
+                    }
+
             if source.duel_price > 0:
-                win_message.append('The pot was {}, the winner gets their bet back + {} points'.format(source.duel_price, winning_pot))
-            bot.say(*win_message)
+                message = self.get_phrase('message_won_points', **arguments)
+            else:
+                message = self.get_phrase('message_won', **arguments)
+            bot.say(message)
             bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
             source.duel_request.duel_target = False
             source.duel_request = False

@@ -90,9 +90,14 @@ class BaseModule:
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """
         self.commands = {}
+        self.default_settings = {}
         self.settings = {}
         self.submodules = []
         self.parent_module = None
+
+        # We store a dictionary with the default settings for convenience
+        for setting in self.SETTINGS:
+            self.default_settings[setting.key] = setting.default
 
     def load(self, **options):
         """ This method will load everything from the module into
@@ -141,3 +146,20 @@ class BaseModule:
 
     def on_loaded(self):
         pass
+
+    def get_phrase(self, key, **arguments):
+        if key not in self.settings:
+            log.error('{} is not in this modules settings.')
+            return 'KeyError in get_phrase'
+
+        try:
+            return self.settings[key].format(**arguments)
+        except (IndexError, ValueError, KeyError):
+            log.warning('An error occured when formatting phrase "{}". Arguments: ({})'.format(self.settings[key], arguments))
+
+        try:
+            return self.default_settings[key].format(**arguments)
+        except:
+            log.exception('ABORT - The default phrase {} is BAD. Arguments: ({})'.format(self.default_settings[key], arguments))
+
+        return 'FatalError in get_phrase'
