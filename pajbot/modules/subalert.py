@@ -77,7 +77,7 @@ class SubAlertModule(BaseModule):
             m = self.new_sub_regex.search(message)
             if m:
                 username = m.group(1)
-                self.on_new_sub(self.bot.users['username'])
+                self.on_new_sub(self.bot.users[username])
             else:
                 # Did twitchnotify tell us about a resub?
                 m = self.resub_regex.search(message)
