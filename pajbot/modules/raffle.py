@@ -9,6 +9,7 @@ from numpy import random
 
 log = logging.getLogger(__name__)
 
+
 class RaffleModule(BaseModule):
 
     ID = __name__.split('.')[-1]
@@ -97,8 +98,8 @@ class RaffleModule(BaseModule):
 
         try:
             if message is not None:
-               if int(message.split()[1]) >= 5:
-                 self.raffle_length = int(message.split()[1])
+                if int(message.split()[1]) >= 5:
+                    self.raffle_length = int(message.split()[1])
         except (IndexError, ValueError, TypeError):
             pass
 
@@ -109,9 +110,9 @@ class RaffleModule(BaseModule):
         bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
         bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in {} seconds'.format(self.raffle_points, self.raffle_length))
-        bot.execute_delayed(self.raffle_length*0.25, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.75)), ))
-        bot.execute_delayed(self.raffle_length*0.5, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.50)), ))
-        bot.execute_delayed(self.raffle_length*0.75, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length*0.25)), ))
+        bot.execute_delayed(self.raffle_length * 0.25, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.75)), ))
+        bot.execute_delayed(self.raffle_length * 0.50, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.50)), ))
+        bot.execute_delayed(self.raffle_length * 0.75, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.25)), ))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
