@@ -41,6 +41,9 @@ class HandlerManager:
         # on_bingo_win(winner, points, target_emote)
         HandlerManager.create_handler('on_bingo_win')
 
+        # on_managers_loaded()
+        HandlerManager.create_handler('on_managers_loaded')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []

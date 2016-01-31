@@ -102,37 +102,40 @@ class QuestModule(BaseModule):
                     log.info('Removing tokens for stream {}'.format(stream_id))
                     redis.hdel(key, stream_id)
 
-    def enable(self, bot):
-        HandlerManager.add_handler('on_stream_start', self.on_stream_start)
-        HandlerManager.add_handler('on_stream_stop', self.on_stream_stop)
-
-        self.bot = bot
-
     def on_loaded(self):
         if self.bot:
             self.current_quest_key = '{streamer}:current_quest'.format(streamer=self.bot.streamer)
 
-            if self.current_quest is None:
-                redis = RedisManager.get()
+    def on_managers_loaded(self):
+        if self.current_quest is None:
+            redis = RedisManager.get()
 
-                current_quest_id = redis.get(self.current_quest_key)
+            current_quest_id = redis.get(self.current_quest_key)
 
-                log.info('Try to load submodule with ID {}'.format(current_quest_id))
+            log.info('Try to load submodule with ID {}'.format(current_quest_id))
 
-                if current_quest_id is not None:
-                    current_quest_id = current_quest_id.decode('utf8')
-                    quest = find(lambda m: m.ID == current_quest_id, self.submodules)
+            if current_quest_id is not None:
+                current_quest_id = current_quest_id.decode('utf8')
+                quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
-                    if quest is not None:
-                        log.info('Resumed quest {}'.format(quest.get_objective()))
-                        self.current_quest = quest
-                        self.current_quest.start_quest()
-                    else:
-                        log.info('No quest with id {} found in submodules ({})'.format(current_quest_id, self.submodules))
+                if quest is not None:
+                    log.info('Resumed quest {}'.format(quest.get_objective()))
+                    self.current_quest = quest
+                    self.current_quest.start_quest()
                 else:
-                    # Fake a stream start to try to randomize a quest
-                    self.on_stream_start()
+                    log.info('No quest with id {} found in submodules ({})'.format(current_quest_id, self.submodules))
+            else:
+                # Fake a stream start to try to randomize a quest
+                self.on_stream_start()
+
+    def enable(self, bot):
+        HandlerManager.add_handler('on_stream_start', self.on_stream_start)
+        HandlerManager.add_handler('on_stream_stop', self.on_stream_stop)
+        HandlerManager.add_handler('on_managers_loaded', self.on_managers_loaded)
+
+        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_stream_start', self.on_stream_start)
         HandlerManager.remove_handler('on_stream_stop', self.on_stream_stop)
+        HandlerManager.remove_handler('on_managers_loaded', self.on_managers_loaded)

@@ -202,6 +202,8 @@ class Bot:
         self.twitter_manager = TwitterManager(self).reload()
         self.duel_manager = DuelManager(self)
 
+        HandlerManager.trigger('on_managers_loaded')
+
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
