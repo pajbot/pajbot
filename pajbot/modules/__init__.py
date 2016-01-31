@@ -21,6 +21,7 @@ from pajbot.modules.paidtimeout import PaidTimeoutModule, PaidTimeoutDiscountMod
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
+from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
 from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
@@ -60,4 +61,5 @@ available_modules = [
         MultiRaffleModule,
         PointLotteryModule,
         SubAlertModule,
+        TypeEmoteQuestModule,
         ]
