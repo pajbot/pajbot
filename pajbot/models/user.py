@@ -396,15 +396,15 @@ class UserManager(UserDict):
         return users
 
     def __getitem__(self, key):
-        if key not in self.data:
+        if key.lower() not in self.data:
             user = self.db_session.query(User).filter_by(username=key.lower()).one_or_none()
             if user is None:
                 user = User(username=key)
                 self.db_session.add(user)
 
-            self.data[key] = user
+            self.data[key.lower()] = user
 
-        return self.data[key]
+        return self.data[key.lower()]
 
     def reset_subs(self):
         for user in self.db_session.query(User).filter_by(subscriber=True):
