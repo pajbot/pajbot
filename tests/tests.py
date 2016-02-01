@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-import unittest
+import unittest2
 import sys
 import os
 sys.path.append(os.path.abspath('..'))
 os.chdir('..')
 
 
-class TestURLMethods(unittest.TestCase):
+class TestURLMethods(unittest2.TestCase):
     def test_is_subdomain(self):
         from pajbot.modules.linkchecker import is_subdomain
 
@@ -56,7 +56,7 @@ class TestURLMethods(unittest.TestCase):
         self.assertEqual(find_unique_urls(regex, 'https://pajlada.se/ https://pajlada.se'), {'http://pajlada.se/', 'http://pajlada.se'})
 
 
-class ActionsTester(unittest.TestCase):
+class ActionsTester(unittest2.TestCase):
     def setUp(self):
         from pajbot.bot import Bot
         from pajbot.tbutil import load_config
@@ -159,4 +159,4 @@ class ActionsTester(unittest.TestCase):
             self.assertEqual(response, data['result'], 'Got output "{}", expected "{}"'.format(response, data['result']))
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

@@ -18,6 +18,8 @@ requests
 # New regex library with support for some fancy features we require
 regex
 
+unittest2
+
 # Pylast for Last FM
 # pylast
 
