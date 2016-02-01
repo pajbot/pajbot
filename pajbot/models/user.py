@@ -366,7 +366,7 @@ class UserManager(UserDict):
         user = self[username]
         if user.id is None:
             self.db_session.expunge(user)
-            del self.data[username]
+            del self.data[username.lower()]
             return None
         return user
 
