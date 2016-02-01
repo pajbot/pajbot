@@ -362,8 +362,6 @@ class UserManager(UserDict):
 
     def find(self, username):
         username = username.replace('@', '')
-        if username in self.data:
-            return self.data[username]
 
         user = self[username]
         if user.id is None:

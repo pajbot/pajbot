@@ -66,7 +66,7 @@ class ActionsTester(unittest.TestCase):
         config = load_config('config.ini')
         args = Bot.parse_args()
         self.pajbot = Bot(config, args)
-        self.source = self.pajbot.users['testuser123Kappa']
+        self.source = self.pajbot.users['pajlada']
         self.source.username_raw = 'PajladA'
         self.source.points = 142
         self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S')
@@ -88,7 +88,7 @@ class ActionsTester(unittest.TestCase):
                     'num_argument_subs': 0,
                     'num_subs': 1,
                     'arguments': '',
-                    'result': 'Hello testuser123Kappa!',
+                    'result': 'Hello pajlada!',
                 }, {
                     'message': 'Testing $(1)',
                     'num_argument_subs': 1,
@@ -111,37 +111,37 @@ class ActionsTester(unittest.TestCase):
                     'message': '$(user;1:username_raw|upper) has $(user;1:points) points.',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'paJLAda',
                     'result': 'PAJLADA has 142 points.',
                 }, {
                     'message': '$(user;1:username_raw|lower) has $(user;1:points) points.',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'pajlada',
                     'result': 'pajlada has 142 points.',
                 }, {
                     'message': '$(user;1:username_raw) has $(user;1:points) points.',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'pajlaDa',
                     'result': 'PajladA has 142 points.',
                 }, {
                     'message': '$(user;1:username_raw|lower) was last seen $(source:last_seen|strftime(%H:%M:%S)).',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'pajlada',
                     'result': 'pajlada was last seen 18:01:42.',
                 }, {
                     'message': 'Time in Sweden: $(time:Europe/Stockholm)',
                     'num_argument_subs': 0,
                     'num_subs': 1,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'pajlada',
                     'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.pajbot.date_fmt)),
                 }, {
                     'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
                     'num_argument_subs': 1,
                     'num_subs': 1,
-                    'arguments': 'testuser123Kappa',
+                    'arguments': 'pajlada',
                     'result': 'BEFORE YES AFTER',
                 }, {
                     'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
