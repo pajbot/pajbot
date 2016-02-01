@@ -363,6 +363,9 @@ class UserManager(UserDict):
     def find(self, username):
         username = username.replace('@', '')
 
+        if username.lower() in self.data:
+            return self.data[username.lower()]
+
         user = self[username]
         if user.id is None:
             self.db_session.expunge(user)
