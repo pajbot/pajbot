@@ -59,15 +59,14 @@ class TestURLMethods(unittest.TestCase):
 class ActionsTester(unittest.TestCase):
     def setUp(self):
         from pajbot.bot import Bot
-        from pajbot.models.user import User, UserManager
         from pajbot.tbutil import load_config
         import datetime
 
         config = load_config('config.ini')
         args = Bot.parse_args()
         self.pajbot = Bot(config, args)
-        self.source = self.pajbot.users['pajlada']
-        self.source.username_raw = 'PajladA'
+        self.source = self.pajbot.users['omgthisuserdoesnotexist123']
+        self.source.username_raw = 'OmgthisuserdoesnotexiSt123'
         self.source.points = 142
         self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S')
 
@@ -88,7 +87,7 @@ class ActionsTester(unittest.TestCase):
                     'num_argument_subs': 0,
                     'num_subs': 1,
                     'arguments': '',
-                    'result': 'Hello pajlada!',
+                    'result': 'Hello omgthisuserdoesnotexist123!',
                 }, {
                     'message': 'Testing $(1)',
                     'num_argument_subs': 1,
@@ -108,40 +107,40 @@ class ActionsTester(unittest.TestCase):
                     'arguments': '',
                     'result': 'Testing   ',
                 }, {
-                    'message': '$(user;1:username_raw|upper) has $(user;1:points) points.',
+                    'message': '$(user;1:username_raw) has $(user;1:points) points. 1',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'paJLAda',
-                    'result': 'PAJLADA has 142 points.',
+                    'arguments': 'omgthisuserdoesnotexist123',
+                    'result': 'OmgthisuserdoesnotexiSt123 has 142 points. 1',
                 }, {
-                    'message': '$(user;1:username_raw|lower) has $(user;1:points) points.',
+                    'message': '$(user;1:username_raw|lower) has $(user;1:points) points. 2',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'pajlada',
-                    'result': 'pajlada has 142 points.',
+                    'arguments': 'omgthisuserdoesnotexist123',
+                    'result': 'omgthisuserdoesnotexist123 has 142 points. 2',
                 }, {
-                    'message': '$(user;1:username_raw) has $(user;1:points) points.',
+                    'message': '$(user;1:username_raw) has $(user;1:points) points. 3',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'pajlaDa',
-                    'result': 'PajladA has 142 points.',
+                    'arguments': 'OmgthisuserdoesnotExiSt123',
+                    'result': 'OmgthisuserdoesnotexiSt123 has 142 points. 3',
                 }, {
                     'message': '$(user;1:username_raw|lower) was last seen $(source:last_seen|strftime(%H:%M:%S)).',
                     'num_argument_subs': 0,
                     'num_subs': 2,
-                    'arguments': 'pajlada',
-                    'result': 'pajlada was last seen 18:01:42.',
+                    'arguments': 'omgthisuserdoesnotexist123',
+                    'result': 'omgthisuserdoesnotexist123 was last seen 18:01:42.',
                 }, {
                     'message': 'Time in Sweden: $(time:Europe/Stockholm)',
                     'num_argument_subs': 0,
                     'num_subs': 1,
-                    'arguments': 'pajlada',
+                    'arguments': 'omgthisuserdoesnotexist123',
                     'result': 'Time in Sweden: {}'.format(datetime.datetime.now(pytz.timezone('Europe/Stockholm')).strftime(self.pajbot.date_fmt)),
                 }, {
                     'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
                     'num_argument_subs': 1,
                     'num_subs': 1,
-                    'arguments': 'pajlada',
+                    'arguments': 'omgthisuserdoesnotexist123',
                     'result': 'BEFORE YES AFTER',
                 }, {
                     'message': 'BEFORE $(if:$(1),"YES","NO") AFTER',
