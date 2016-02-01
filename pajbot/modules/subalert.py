@@ -71,8 +71,6 @@ class SubAlertModule(BaseModule):
 
     def on_message(self, source, message, emotes, whisper, urls):
         if whisper is False and source.username == 'twitchnotify':
-            message = message.lower()
-
             # Did twitchnotify tell us about a new sub?
             m = self.new_sub_regex.search(message)
             if m:
