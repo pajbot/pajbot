@@ -55,6 +55,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
+        self.progress = {}
         old_progress = redis.hgetall(self.progress_key)
         for user, progress in old_progress.items():
             try:
