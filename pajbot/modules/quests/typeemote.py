@@ -6,6 +6,7 @@ from pajbot.modules.quests import BaseQuest
 from pajbot.managers import RedisManager
 from pajbot.models.handler import HandlerManager
 from pajbot.models.command import Command
+from pajbot.streamhelper import StreamHelper
 
 from numpy import random
 
@@ -24,7 +25,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
     def __init__(self):
         super().__init__()
-        self.current_emote_key = '{streamer}:current_quest_emote'
+        self.current_emote_key = '{streamer}:current_quest_emote'.format(streamer=StreamHelper.get_streamer())
         self.current_emote = '???'
         self.progress = {}
 
