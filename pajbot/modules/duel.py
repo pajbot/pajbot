@@ -3,6 +3,7 @@ import datetime
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.handler import HandlerManager
 
 from numpy import random
 
@@ -226,6 +227,9 @@ class DuelModule(BaseModule):
             source.duel_request.duel_target = False
             source.duel_request = False
             source.duel_price = 0
+            HandlerManager.trigger('on_duel_complete',
+                    winner, loser,
+                    winning_pot, source.duel_price)
 
     def decline_duel(self, **options):
         """
