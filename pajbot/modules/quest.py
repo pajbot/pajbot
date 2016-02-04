@@ -124,9 +124,6 @@ class QuestModule(BaseModule):
                     self.current_quest.start_quest()
                 else:
                     log.info('No quest with id {} found in submodules ({})'.format(current_quest_id, self.submodules))
-            else:
-                # Fake a stream start to try to randomize a quest
-                self.on_stream_start()
 
     def enable(self, bot):
         HandlerManager.add_handler('on_stream_start', self.on_stream_start)
