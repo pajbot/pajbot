@@ -25,6 +25,6 @@ class ShowEmoteTokenCommandModule(BaseModule):
         payload = {'emote': first_emote}
         bot.websocket_manager.emit('new_emote', payload)
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['#showemote'] = Command.raw_command(self.show_emote,
                 tokens_cost=1)

@@ -32,6 +32,6 @@ class PlaySoundTokenCommandModule(BaseModule):
         bot.whisper(source.username, 'Your sample is not valid.  Use one of the following as argument: {}'.format(', '.join(valid_samples)))
         return False
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['#playsound'] = Command.raw_command(self.play_sound,
                 tokens_cost=3)
