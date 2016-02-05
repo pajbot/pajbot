@@ -4,6 +4,7 @@ import datetime
 
 from pajbot.models.db import DBManager, Base
 from pajbot.models.time import TimeManager
+from pajbot.models.handler import HandlerManager
 from pajbot.managers import RedisManager
 from pajbot.streamhelper import StreamHelper
 
@@ -141,7 +142,10 @@ class User(Base):
         key = '{streamer}:{username}:tokens'.format(
                 streamer=streamer, username=self.username)
 
-        return True if redis.hsetnx(key, stream_id, tokens) == 1 else False
+        res = True if redis.hsetnx(key, stream_id, tokens) == 1 else False
+        if res is True:
+            HandlerManager.trigger('on_user_gain_tokens', self, tokens)
+        return res
 
     def get_tokens(self, redis=None):
         streamer = StreamHelper.get_streamer()

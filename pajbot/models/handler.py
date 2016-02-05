@@ -47,6 +47,9 @@ class HandlerManager:
         # on_duel_complete(winner, loser, points_won, points_bet)
         HandlerManager.create_handler('on_duel_complete')
 
+        # on_user_gain_tokens(user, tokens_gained)
+        HandlerManager.create_handler('on_user_gain_tokens')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []
