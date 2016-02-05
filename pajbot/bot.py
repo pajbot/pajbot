@@ -307,7 +307,7 @@ class Bot:
         HandlerManager.add_handler('on_user_gain_tokens', self.on_user_gain_tokens)
 
     def on_user_gain_tokens(self, user, tokens_gained):
-        self.whisper(user.username, 'You finished todays quest! You have been awarded with {} Atokens.'.format(tokens_gained))
+        self.whisper(user.username, 'You finished todays quest! You have been awarded with {} tokens.'.format(tokens_gained))
 
     def update_subscribers_stage1(self):
         limit = 100
