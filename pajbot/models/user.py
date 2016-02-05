@@ -39,7 +39,7 @@ class User(Base):
 
     def __init__(self, username):
         self.id = None
-        self.username = username
+        self.username = username.lower()
         self.username_raw = username
         self.level = 100
         self.points = 0
