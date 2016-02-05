@@ -329,6 +329,9 @@ class TwitchAPI(APIBase):
                 log.warning('Service Unavailable when getting stream status.')
             else:
                 log.exception('Unhandled HTTP error code')
+        except TypeError:
+            log.warning('Somehow, the get request returned None')
+            log.exception('Something went seriously wrong during the get-request')
         except KeyError:
             log.exception('Some key in get_status does not exist. FIX!')
         except:
