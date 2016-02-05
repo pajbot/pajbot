@@ -49,6 +49,7 @@ class QuestModule(BaseModule):
     def load_commands(self, **options):
         self.commands['myprogress'] = Command.raw_command(self.my_progress)
         self.commands['currentquest'] = Command.raw_command(self.get_current_quest)
+        self.commands['quest'] = self.commands['currentquest']
         self.commands['tokens'] = Command.raw_command(self.get_user_tokens)
 
     def on_stream_start(self):
