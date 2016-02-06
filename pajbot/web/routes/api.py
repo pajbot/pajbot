@@ -8,7 +8,7 @@ import time
 
 from pajbot.web.utils import requires_level
 from pajbot.models.user import User
-from pajbot.models.command import Command, CommandManager
+from pajbot.models.command import Command, CommandData, CommandManager
 from pajbot.models.module import ModuleManager, Module
 from pajbot.models.timer import Timer
 from pajbot.models.banphrase import Banphrase
@@ -30,7 +30,7 @@ from flask.ext.scrypt import generate_password_hash
 from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
 from sqlalchemy import and_
-
+from sqlalchemy.orm import joinedload
 
 from functools import wraps, update_wrapper
 
@@ -370,13 +370,15 @@ def command_update(command_id, **options):
             ]
 
     with DBManager.create_session_scope() as db_session:
-        command = db_session.query(Command).filter_by(id=command_id).one_or_none()
+        command = db_session.query(Command).options(joinedload(Command.data).joinedload(CommandData.user)).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
         if command.level > options['user'].level:
             abort(403)
         parsed_action = json.loads(command.action_json)
-        options = {}
+        options = {
+            'edited_by': options['user'].id,
+        }
 
         for key in request.form:
             if key.startswith('data_'):
@@ -413,6 +415,7 @@ def command_update(command_id, **options):
                         options[name] = parsed_value
 
         command.set(**options)
+        command.data.set(**options)
 
     if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
         return make_response(jsonify({'success': 'good job'}))

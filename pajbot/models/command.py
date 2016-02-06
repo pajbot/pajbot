@@ -72,14 +72,32 @@ class CommandData(Base):
     command_id = Column(Integer, ForeignKey('tb_command.id'), primary_key=True, autoincrement=False)
     num_uses = Column(Integer, nullable=False, default=0)
 
+    added_by = Column(Integer, nullable=True)
+    edited_by = Column(Integer, nullable=True)
+    last_date_used = Column(DateTime, nullable=True)
+
+    user = relationship(
+        'User',
+        primaryjoin='User.id==CommandData.edited_by',
+        foreign_keys='User.id',
+        uselist=False,
+        cascade='',
+        lazy='noload')
+
     def __init__(self, command_id, **options):
         self.command_id = command_id
         self.num_uses = 0
+        self.added_by = None
+        self.edited_by = None
+        self.last_date_used = 0
 
         self.set(**options)
 
     def set(self, **options):
         self.num_uses = options.get('num_uses', self.num_uses)
+        self.added_by = options.get('added_by', self.added_by)
+        self.edited_by = options.get('edited_by', self.edited_by)
+        self.last_date_used = options.get('last_date_used', self.last_date_used)
 
 
 class CommandExample(Base):
@@ -139,22 +157,25 @@ class Command(Base):
     delay_user = Column(Integer, nullable=False, default=15)
     enabled = Column(Boolean, nullable=False, default=True)
     cost = Column(Integer, nullable=False, default=0)
-    tokens_cost = Column(Integer,
-            nullable=False,
-            default=0,
-            server_default='0')
+    tokens_cost = Column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default='0')
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
 
-    data = relationship('CommandData',
-            uselist=False,
-            cascade='',
-            lazy='joined')
-    examples = relationship('CommandExample',
-            uselist=True,
-            cascade='',
-            lazy='noload')
+    data = relationship(
+        'CommandData',
+        uselist=False,
+        cascade='',
+        lazy='joined')
+    examples = relationship(
+        'CommandExample',
+        uselist=True,
+        cascade='',
+        lazy='noload')
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
@@ -334,6 +355,7 @@ class Command(Base):
             # Only spend points/tokens, and increment num_uses if the action succeded
             if self.data is not None:
                 self.data.num_uses += 1
+                self.data.last_date_used = datetime.datetime.now()
             if self.cost > 0:
                 if not source.spend(self.cost):
                     # The user does not have enough points to spend!
@@ -759,7 +781,7 @@ class CommandManager(UserDict):
                 return self.data[alias], False, alias
 
         command = Command(command=alias_str, **options)
-        command.data = CommandData(command.id)
+        command.data = CommandData(command.id, **options)
         self.add_db_command_aliases(command)
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             db_session.add(command)
@@ -775,7 +797,9 @@ class CommandManager(UserDict):
 
     def edit_command(self, command_to_edit, **options):
         command_to_edit.set(**options)
+        command_to_edit.data.set(**options)
         DBManager.session_add_expunge(command_to_edit)
+        self.commit()
 
     def remove_command_aliases(self, command):
         aliases = command.command.split('|')
