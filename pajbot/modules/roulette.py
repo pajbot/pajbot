@@ -52,7 +52,7 @@ class RouletteModule(BaseModule):
         try:
             bet = int(message.split(' ')[0])
         except (ValueError, TypeError, AttributeError):
-            bot.me('Sorry, {0}, I didn\'t recognize your bet! FeelsBadMan'.format(user.username_raw))
+            bot.me('Sorry, {0}, I didn\'t recognize your bet! FeelsBadMan Usage: !roulette 150 to bet 150 points'.format(user.username_raw))
             return False
 
         if bet > user.points:
