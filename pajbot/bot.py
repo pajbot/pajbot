@@ -490,6 +490,20 @@ class Bot:
                 return val
         return None
 
+    def get_args_value(self, key, extra={}):
+        try:
+            offset = int(key)
+        except (TypeError, ValueError):
+            offset = 0
+
+        try:
+            return ' '.join(extra['message'].split(' ')[offset:])
+        except AttributeError:
+            return ''
+        except:
+            log.exception('UNHANDLED ERROR IN get_args_value')
+            return ''
+
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]
@@ -889,6 +903,7 @@ class Bot:
                 'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
                 'time_since_dt': _filter_time_since_dt,
                 'urlencode': lambda var, args: urllib.parse.urlencode(var),
+                'join': _filter_join,
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
@@ -917,3 +932,11 @@ def _filter_time_since_dt(var, args):
             return 'never FeelsBadMan'
     except:
         return 'never FeelsBadMan ?'
+
+def _filter_join(var, args):
+    try:
+        separator = args[0]
+    except IndexError:
+        separator = ', '
+
+    return separator.join(var.split(' '))

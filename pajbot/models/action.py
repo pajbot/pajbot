@@ -63,7 +63,7 @@ def apply_substitutions(text, substitutions, bot, extra):
             if sub.filter is not None:
                 value = bot.apply_filter(value, sub.filter)
         except:
-            pass
+            log.exception('Exception caught in filter application')
         if value is None:
             return None
         text = text.replace(needle, str(value))
@@ -112,7 +112,7 @@ class IfSubstitution:
 
 class Substitution:
     argument_substitution_regex = re.compile(r'\$\((\d+)\)')
-    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ ]+|\:\$\([\w_:\._\/ ]+\))?(\|[\w]+(\([\w%: +-]+\))?)?(\,[\'"]{1}[\w $;_\-:()\.]+[\'"]{1}){0,2}\)')
+    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ ]+|\:\$\([\w_:\._\/ ]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)?(\,[\'"]{1}[\w $;_\-:()\.]+[\'"]{1}){0,2}\)')
 
     def __init__(self, cb, needle, key=None, argument=None, filter=None):
         self.cb = cb
@@ -321,6 +321,7 @@ def get_substitutions(string, bot):
         method_mapping['current_stream'] = bot.stream_manager.get_current_stream_value
         method_mapping['last_stream'] = bot.stream_manager.get_last_stream_value
         method_mapping['current_song'] = bot.get_current_song_value
+        method_mapping['args'] = bot.get_args_value
     except AttributeError:
         pass
 
