@@ -27,64 +27,86 @@
     {% endif %}
 </div>
 <div class="ui bottom attached tab segment active" data-tab="custom">
-    <table class="ui very basic table">
+    <table class="ui selectable table">
         <thead>
             <tr>
                 <th>Command</th>
                 <th>Output/Description</th>
-                <th>Actions</th>
+                <th>- times used<br/>- added by</th>
+                <th>- Actions<br/>- last edited by</th>
             </tr>
         </thead>
         <tbody>
-    {% for command in custom_commands %}
-    <tr data-id="{{command.id}}">
-        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
-        <td class="description pemote">{{ command.parsed_description }}</td>
-        {% include 'admin/helper/command_action.html' %}
-    </tr>
-    {% endfor %}
+        {% for command in custom_commands %}
+        <tr data-id="{{command.id}}">
+            <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
+            <td class="description pemote">{{ command.parsed_description }}</td>
+            <td>{{ command.data.num_uses }}</td>
+            {% include 'admin/helper/command_action.html' %}
+        </tr>
+        <tr data-id="{{command.id}}">
+            <td class="collapsing"></td>
+            <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
+            {% include 'admin/helper/command_user.html' %}
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
 <div class="ui bottom attached tab segment" data-tab="point">
-    <table class="ui very basic table">
+    <table class="ui selectable table">
         <thead>
             <tr>
                 <th>Command</th>
                 <th>Cost</th>
                 <th>Description</th>
-                <th>Actions</th>
+                <th>- times used<br/>- added by</th>
+                <th>- Actions<br/>- last edited by</th>
             </tr>
         </thead>
         <tbody>
-    {% for command in point_commands %}
-    <tr data-id="{{command.id}}">
-        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
+        {% for command in point_commands %}
+        <tr data-id="{{command.id}}">
+        <td class="collapsing"><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="collapsing">{{ command.cost }}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
+        <td>{{ command.data.num_uses }}</td>
         {% include 'admin/helper/command_action.html' %}
-    </tr>
-    {% endfor %}
+        </tr>
+        <tr data-id="{{command.id}}">
+            <td class="collapsing"></td>
+            <td class="collapsing"></td>
+            <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
+            {% include 'admin/helper/command_user.html' %}
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
 <div class="ui bottom attached tab segment" data-tab="moderator">
-    <table class="ui very basic table">
+    <table class="ui selectable table">
         <thead>
             <tr>
                 <th>Command</th>
                 <th>Description</th>
-                <th>Actions</th>
+                <th>- times used<br/>- added by</th>
+                <th>- Actions<br/>- last edited by</th>
             </tr>
         </thead>
         <tbody>
-    {% for command in moderator_commands %}
-    <tr data-id="{{command.id}}">
-        <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
+        {% for command in moderator_commands %}
+        <tr data-id="{{command.id}}">
+        <td class="collapsing"><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="description pemote">{{ command.parsed_description }}</td>
+        <td>{{ command.data.num_uses }}</td>
         {% include 'admin/helper/command_action.html' %}
-    </tr>
-    {% endfor %}
+        </tr>
+        <tr data-id="{{command.id}}">
+        <td class="collapsing"></td>
+        <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
+        {% include 'admin/helper/command_user.html' %}
+        </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>

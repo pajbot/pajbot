@@ -228,6 +228,9 @@ class Dispatch:
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
+            options['added_by'] = source.id
+            options['edited_by'] = source.id
+
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
                 return False
@@ -244,9 +247,9 @@ class Dispatch:
             elif options['whisper'] is False or options['reply'] is False:
                 type = 'say'
             action = {
-                    'type': type,
-                    'message': response,
-                    }
+                'type': type,
+                'message': response,
+            }
 
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
@@ -279,6 +282,8 @@ class Dispatch:
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
+            options['edited_by'] = source.id
+
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
                 return False
@@ -295,9 +300,9 @@ class Dispatch:
             elif options['whisper'] is False or options['reply'] is False:
                 type = 'say'
             action = {
-                    'type': type,
-                    'message': response,
-                    }
+                'type': type,
+                'message': response,
+            }
 
             command = bot.commands.get(alias, None)
 
@@ -309,9 +314,9 @@ class Dispatch:
                 options['action'] = action
             elif not type == command.action.subtype:
                 options['action'] = {
-                        'type': type,
-                        'message': command.action.response,
-                        }
+                    'type': type,
+                    'message': command.action.response,
+                }
             bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
@@ -335,15 +340,18 @@ class Dispatch:
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
+            options['added_by'] = source.id
+            options['edited_by'] = source.id
+
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
                 return False
 
             alias_str = message_parts[0].replace('!', '').lower()
             action = {
-                    'type': 'func',
-                    'cb': response.strip(),
-                    }
+                'type': 'func',
+                'cb': response.strip(),
+            }
 
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
@@ -374,15 +382,17 @@ class Dispatch:
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
+            options['edited_by'] = source.id
+
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
                 return False
 
             alias = message_parts[0].replace('!', '').lower()
             action = {
-                    'type': 'func',
-                    'cb': response.strip(),
-                    }
+                'type': 'func',
+                'cb': response.strip(),
+            }
 
             command = bot.commands.get(alias, None)
 

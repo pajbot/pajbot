@@ -165,15 +165,16 @@ def links_whitelist(**options):
         return render_template('admin/links_whitelist.html',
                 links=links)
 
+
 @page.route('/commands/')
 @requires_level(500)
 def commands(**options):
     from pajbot.models.command import CommandManager
     from pajbot.models.module import ModuleManager
     bot_commands = CommandManager(
-            socket_manager=None,
-            module_manager=ModuleManager(None).load(),
-            bot=None).load(enabled=None)
+        socket_manager=None,
+        module_manager=ModuleManager(None).load(),
+        bot=None).load(enabled=None)
 
     bot_commands_list = bot_commands.parse_for_web()
     custom_commands = []
@@ -190,25 +191,32 @@ def commands(**options):
         else:
             custom_commands.append(command)
 
-    return render_template('admin/commands.html',
+    with DBManager.create_session_scope() as db_session:
+        moderator_users = db_session.query(User).filter(User.level > 100).order_by(User.id.desc()).all()
+        return render_template(
+            'admin/commands.html',
+            moderator_users=moderator_users,
             custom_commands=sorted(custom_commands, key=lambda f: f.command),
             point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
             moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)),
             created=session.pop('command_created_id', None),
             edited=session.pop('command_edited_id', None))
 
+
 @page.route('/commands/edit/<command_id>')
 @requires_level(500)
 def commands_edit(command_id, **options):
     with DBManager.create_session_scope() as db_session:
-        command = db_session.query(Command).filter_by(id=command_id).one_or_none()
+        command = db_session.query(Command).options(joinedload(Command.data).joinedload(CommandData.user)).filter_by(id=command_id).one_or_none()
 
         if command is None:
             return render_template('admin/command_404.html'), 404
 
-        return render_template('admin/edit_command.html',
-                command=command,
-                user=options.get('user', None))
+        return render_template(
+            'admin/edit_command.html',
+            command=command,
+            user=options.get('user', None))
+
 
 @page.route('/commands/create', methods=['GET', 'POST'])
 @requires_level(500)
@@ -243,12 +251,19 @@ def commands_create(**options):
         if cost < 0 or cost > 9999999:
             abort(403)
 
+        user = options.get('user', None)
+
+        if user is None:
+            abort(403)
+
         options = {
-                'delay_all': delay_all,
-                'delay_user': delay_user,
-                'level': level,
-                'cost': cost,
-                }
+            'delay_all': delay_all,
+            'delay_user': delay_user,
+            'level': level,
+            'cost': cost,
+            'added_by': user.id,
+            'edited_by': user.id,
+        }
 
         valid_action_types = ['say', 'me', 'whisper', 'reply']
         action_type = request.form.get('reply', 'say').lower()
@@ -260,15 +275,16 @@ def commands_create(**options):
             abort(403)
 
         action = {
-                'type': action_type,
-                'message': response
-                }
+            'type': action_type,
+            'message': response
+        }
         options['action'] = action
 
-        command_manager = CommandManager(
+        command_manager = (
+            CommandManager(
                 socket_manager=None,
                 module_manager=ModuleManager(None).load(),
-                bot=None).load(enabled=None)
+                bot=None).load(enabled=None))
 
         command_aliases = []
 
@@ -294,7 +310,7 @@ def commands_create(**options):
         alias_str = '|'.join(alias_list)
 
         command = Command(command=alias_str, **options)
-        command.data = CommandData(command.id)
+        command.data = CommandData(command.id, **options)
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             db_session.add(command)
             db_session.add(command.data)
@@ -307,6 +323,7 @@ def commands_create(**options):
         return redirect('/admin/commands/', 303)
     else:
         return render_template('admin/create_command.html')
+
 
 @page.route('/timers/')
 @requires_level(500)
