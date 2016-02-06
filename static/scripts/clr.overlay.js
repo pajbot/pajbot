@@ -25,7 +25,8 @@ samples = {
     'othernight': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/The%20other%20night.mp3' },
     'asswecan': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Ass%20we%20can.mp3' },
     'lashofthespanking': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Lash%20of%20the%20spanking.mp3' },
-    
+    'nyanpass': { 'url': 'https://pajlada.se/files/clr/nyanpass.mp3' },
+
 };
 $(document).ready(function() {
     connect_to_ws();

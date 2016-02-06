@@ -19,7 +19,7 @@ class PlaySoundTokenCommandModule(BaseModule):
         message = options['message']
         source = options['source']
 
-        valid_samples = ['bossofthisgym', 'fuckyou', 'idontdoanal', 'knock', 'slap', 'cumming', 'collegeboy', 'oooh', 'suction', 'takeit', 'amazing', 'power', 'othernight', 'asswecan', 'lashofthespanking']
+        valid_samples = ['bossofthisgym', 'fuckyou', 'idontdoanal', 'knock', 'slap', 'cumming', 'collegeboy', 'oooh', 'suction', 'takeit', 'amazing', 'power', 'othernight', 'asswecan', 'lashofthespanking', 'nyanpass']
 
         if message:
             sample = message.split(' ')[0].lower()
