@@ -120,7 +120,7 @@ class WinDuelPointsQuestModule(BaseQuest):
         redis.delete(self.points_required_key)
 
     def get_objective(self):
-        return 'Win {} points in duels'.format(self.points_required)
+        return 'Make a profit of {} or more points in one or multiple duels.'.format(self.points_required)
 
     def enable(self, bot):
         self.bot = bot
