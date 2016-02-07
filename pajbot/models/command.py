@@ -279,7 +279,7 @@ class Command(Base):
     @classmethod
     def pajbot_command(cls, bot, method_name, level=1000, **options):
         from pajbot.bot import Bot
-        cmd = cls()
+        cmd = cls(**options)
         cmd.level = level
         cmd.description = options.get('description', None)
         cmd.can_execute_with_whisper = True
