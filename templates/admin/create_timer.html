@@ -18,11 +18,11 @@
             <input type="text" name="name" placeholder="Name to describe Timer" value="{{ timer.name if timer else ''}}" />
         </div>
         <div class="required field four wide">
-            <label>Interval online</label>
+            <label>Interval online (minutes)</label>
             <input type="number" name="interval_online" placeholder="Interval in minutes" min="0" value="{{ timer.interval_online if timer else 10 }}" />
         </div>
         <div class="required field four wide">
-            <label>Interval offline</label>
+            <label>Interval offline (minutes)</label>
             <input type="number" name="interval_offline" placeholder="Interval in minutes" min="0" value="{{ timer.interval_offline if timer else 30 }}" />
         </div>
     </div>
