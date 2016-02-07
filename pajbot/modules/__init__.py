@@ -30,6 +30,7 @@ from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.multiraffle import MultiRaffleModule
 from pajbot.modules.subalert import SubAlertModule
+from pajbot.modules.paidsubmode import PaidSubmodeModule
 
 available_modules = [
         DummyModule,
@@ -64,4 +65,5 @@ available_modules = [
         SubAlertModule,
         TypeEmoteQuestModule,
         WinDuelPointsQuestModule,
+        PaidSubmodeModule,
         ]
