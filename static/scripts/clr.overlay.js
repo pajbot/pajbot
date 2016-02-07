@@ -28,7 +28,7 @@ samples = {
     'nyanpass': { 'url': 'https://pajlada.se/files/clr/nyanpass.mp3' },
     'scamazishere': { 'url': 'https://pajlada.se/files/clr/scamaz_is_here.mp3' },
     'lul': { 'url': 'https://pajlada.se/files/clr/LUL.mp3' },
-
+    'ohmyshoulder': { 'url': 'https://pajlada.se/files/clr/ohmyshoulder.mp3' },
 };
 $(document).ready(function() {
     connect_to_ws();
