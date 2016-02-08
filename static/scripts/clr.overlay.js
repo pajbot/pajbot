@@ -30,6 +30,8 @@ samples = {
     'lul': { 'url': 'https://pajlada.se/files/clr/LUL.mp3' },
     'ohmyshoulder': { 'url': 'https://pajlada.se/files/clr/ohmyshoulder.mp3' },
     'tuturu': { 'url': 'https://pajlada.se/files/clr/tuturu.mp3' },
+    'attention': { 'url': 'https://pajlada.se/files/clr/attention.mp3' },
+    'aaaah': { 'url': 'https://pajlada.se/files/clr/AAAAAAAH.mp3' },
 };
 $(document).ready(function() {
     connect_to_ws();

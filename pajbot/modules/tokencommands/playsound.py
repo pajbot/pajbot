@@ -40,6 +40,8 @@ class PlaySoundTokenCommandModule(BaseModule):
                 'lul',
                 'ohmyshoulder',
                 'tuturu',
+                'attention',
+                'aaaah',
                 ]
 
         if message:
