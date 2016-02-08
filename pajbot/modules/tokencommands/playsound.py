@@ -39,6 +39,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 'scamazishere',
                 'lul',
                 'ohmyshoulder',
+                'tuturu',
                 ]
 
         if message:
