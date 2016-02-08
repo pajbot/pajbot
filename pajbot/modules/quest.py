@@ -34,17 +34,20 @@ class QuestModule(BaseModule):
             bot.say('There is no quest active right now.')
 
     def get_current_quest(self, **options):
+        # TODO: This should be a messageaction
         bot = options['bot']
+        source = options['source']
         if self.current_quest is not None:
-            bot.say('Current quest active: {0.NAME} - {1}'.format(self.current_quest, self.current_quest.get_objective()))
+            bot.say('{0}, the current quest active is {1}'.format(source.username_raw, self.current_quest.get_objective()))
         else:
-            bot.say('There is no quest active right now.')
+            bot.say('{0}, there is no quest active right now.'.format(source.username_raw))
 
     def get_user_tokens(self, **options):
+        # TODO: This should be a MessageAction
         bot = options['bot']
         source = options['source']
 
-        bot.say('{} has {} tokens'.format(source.username_raw, source.get_tokens()))
+        bot.whisper(source.username, 'You have {} tokens'.format(source.get_tokens()))
 
     def load_commands(self, **options):
         self.commands['myprogress'] = Command.raw_command(self.my_progress)
