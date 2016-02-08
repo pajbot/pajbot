@@ -31,9 +31,9 @@
         <thead>
             <tr>
                 <th>Command</th>
-                <th>Output/Description</th>
-                <th>- times used<br/>- added by</th>
-                <th>- Actions<br/>- last edited by</th>
+                <th>Description</th>
+                <th>#&nbsp;uses</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -46,8 +46,7 @@
         </tr>
         <tr data-id="{{command.id}}">
             <td class="collapsing"></td>
-            <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
-            {% include 'admin/helper/command_user.html' %}
+            <td colspan="3">{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data.{% endif %} {% include 'admin/helper/command_user.html' %}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -60,8 +59,8 @@
                 <th>Command</th>
                 <th>Cost</th>
                 <th>Description</th>
-                <th>- times used<br/>- added by</th>
-                <th>- Actions<br/>- last edited by</th>
+                <th>#&nbsp;uses</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -76,8 +75,7 @@
         <tr data-id="{{command.id}}">
             <td class="collapsing"></td>
             <td class="collapsing"></td>
-            <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
-            {% include 'admin/helper/command_user.html' %}
+            <td colspan="3">{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data.{% endif %} {% include 'admin/helper/command_user.html' %}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -89,8 +87,8 @@
             <tr>
                 <th>Command</th>
                 <th>Description</th>
-                <th>- times used<br/>- added by</th>
-                <th>- Actions<br/>- last edited by</th>
+                <th>#&nbsp;uses</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -102,9 +100,8 @@
         {% include 'admin/helper/command_action.html' %}
         </tr>
         <tr data-id="{{command.id}}">
-        <td class="collapsing"></td>
-        <td>{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data{% endif %}</td>
-        {% include 'admin/helper/command_user.html' %}
+            <td class="collapsing"></td>
+            <td colspan="3">{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data.{% endif %} {% include 'admin/helper/command_user.html' %}</td>
         </tr>
         {% endfor %}
         </tbody>

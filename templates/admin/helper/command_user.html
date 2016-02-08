@@ -1,8 +1,6 @@
 {% for user in moderator_users %}
-{% if user.id == command.data.added_by %}<td class="collapsing">{% include 'user/username_link.html' %}</td>{% endif %}
+{% if user.id == command.data.added_by %}Created by {% include 'user/username_link_nobadge.html' %}. {% endif %}
 {% endfor %}
-{% if command.data.added_by == None %}<td class="collapsing">No Data</td>{% endif %}
 {% for user in moderator_users %}  
-{% if user.id == command.data.edited_by %}<td class="collapsing">{% include 'user/username_link.html' %}</td>{% endif %}
+{% if user.id == command.data.edited_by %}Last edited by {% include 'user/username_link_nobadge.html' %}{% endif %}
 {% endfor %}
-{% if command.data.edited_by == None %}<td class="collapsing">No Data</td>{% endif %}
