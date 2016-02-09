@@ -51,9 +51,9 @@ class QuestModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands['myprogress'] = Command.raw_command(self.my_progress)
-        self.commands['currentquest'] = Command.raw_command(self.get_current_quest)
+        self.commands['currentquest'] = Command.raw_command(self.get_current_quest, can_execute_with_whisper=True)
         self.commands['quest'] = self.commands['currentquest']
-        self.commands['tokens'] = Command.raw_command(self.get_user_tokens)
+        self.commands['tokens'] = Command.raw_command(self.get_user_tokens, can_execute_with_whisper=True)
 
     def on_stream_start(self):
         available_quests = list(filter(lambda m: m.ID.startswith('quest-'), self.submodules))
