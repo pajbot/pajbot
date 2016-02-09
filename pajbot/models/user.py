@@ -114,10 +114,7 @@ class User(Base):
             tokens_to_spend -= decrease_by
             num_tokens -= decrease_by
 
-            if num_tokens == 0:
-                redis.hdel(user_token_key, stream_id)
-            else:
-                redis.hset(user_token_key, stream_id, num_tokens)
+            redis.hset(user_token_key, stream_id, num_tokens)
 
             if tokens_to_spend == 0:
                 return True
