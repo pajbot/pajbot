@@ -57,4 +57,5 @@ class PlaySoundTokenCommandModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands['#playsound'] = Command.raw_command(self.play_sound,
-                tokens_cost=3)
+                tokens_cost=3,
+                sub_only=True)
