@@ -760,6 +760,8 @@ class Bot:
                         emote.add(emote_count, self.reactor)
                     except:
                         log.exception('Exception caught while splitting emote data')
+                        log.error('Emote data: {}'.format(emote_data))
+                        log.error('msg_raw: {}'.format(msg_raw))
             elif tag['key'] == 'display-name' and tag['value']:
                 try:
                     source.update_username(tag['value'])
