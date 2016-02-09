@@ -23,3 +23,6 @@ config.ini
 userdispatch.py
 
 node_modules
+
+# This is created when the user installs semantic.json
+semantic.json

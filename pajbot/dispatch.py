@@ -19,56 +19,10 @@ from sqlalchemy import func
 log = logging.getLogger('pajbot')
 
 
-def check_follow_age(bot, source, username, streamer):
-    streamer = bot.streamer if streamer is None else streamer.lower()
-    age = bot.twitchapi.get_follow_relationship(username, streamer)
-    if source.username == username:
-        if age is False:
-            bot.say('{}, you are not following {}'.format(source.username_raw, streamer))
-        else:
-            bot.say('{}, you have been following {} for {}'.format(source.username_raw, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
-    else:
-        if age is False:
-            bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
-        else:
-            bot.say('{}, {} has been following {} for {}'.format(source.username_raw, username, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
-
-
 class Dispatch:
     """
     Methods in this class accessible from commands
     """
-
-    raffle_running = False
-    global_emotes_read = False
-    global_emotes = []
-
-    # Roulette properties
-    rigged_percent = 50
-
-    def nl(bot, source, message, event, args):
-        if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
-            if user:
-                username = user.username_raw
-                num_lines = user.num_lines
-            else:
-                username = tmp_username
-                num_lines = 0
-        else:
-            username = source.username_raw
-            num_lines = source.num_lines
-
-        phrase_data = {
-                'username': username,
-                'num_lines': num_lines
-                }
-
-        if num_lines > 0:
-            bot.say(bot.phrases['nl'].format(**phrase_data))
-        else:
-            bot.say(bot.phrases['nl_0'].format(**phrase_data))
 
     def point_pos(bot, source, message, event, args):
         user = None
@@ -121,6 +75,7 @@ class Dispatch:
             bot.say(bot.phrases['nl_pos'].format(**phrase_data))
 
     def query(bot, source, message, event, args):
+        # XXX: This should be a module. Only when we've moved server though.
         if bot.wolfram is None:
             return False
 
@@ -140,17 +95,8 @@ class Dispatch:
         except Exception as e:
             log.error('caught exception: {0}'.format(e))
 
-    def multi(bot, source, message, event, args):
-        if message:
-            streams = message.strip().split(' ')
-            if len(streams) == 1:
-                streams.insert(0, bot.streamer)
-
-            url = 'http://multitwitch.tv/' + '/'.join(streams)
-
-            bot.say('{0}, {1}'.format(source.username, url))
-
     def ab(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
 
             msg_parts = message.split(' ')
@@ -164,14 +110,15 @@ class Dispatch:
 
         return False
 
-    def abc(bot, source, message, event, args):
-        return Dispatch.ab(bot, source, message, event, args)
-
     def silence(bot, source, message, event, args):
+        # XXX: This should be a module
         bot.silent = True
+        bot.whisper(source.username, 'The bot is now in silent mode.')
 
     def unsilence(bot, source, message, event, args):
+        # XXX: This should be a module
         bot.silent = False
+        bot.whisper(source.username, 'The bot is no longer in silent mode.')
 
     def add_banphrase(bot, source, message, event, args):
         """Dispatch method for creating and editing banphrases.
@@ -202,6 +149,7 @@ class Dispatch:
             bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options])))
 
     def add_win(bot, source, message, event, args):
+        # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()
         bot.me('{0} added a BR win!'.format(source.username))
         log.debug('{0} added a BR win!'.format(source.username))
@@ -426,6 +374,7 @@ class Dispatch:
             return False
 
     def remove_win(bot, source, message, event, args):
+        # XXX: This is also ugly as fuck
         bot.kvi['br_wins'].dec()
         bot.me('{0} removed a BR win!'.format(source.username))
         log.debug('{0} removed a BR win!'.format(source.username))
@@ -608,6 +557,7 @@ class Dispatch:
             data['points'] = user.points
             data['last_seen'] = user.last_seen
             data['last_active'] = user.last_active
+            data['tokens'] = user.get_tokens()
 
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:
@@ -636,6 +586,7 @@ class Dispatch:
         return False
 
     def say(bot, source, message, event, args):
+        # XXX: Remove this, just use !add command say --level 2000 $(args)
         if message:
             bot.say(message)
 
@@ -711,11 +662,13 @@ class Dispatch:
         return False
 
     def set_game(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
             bot.twitchapi.set_game(bot.streamer, message)
             bot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
 
     def set_title(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
             bot.twitchapi.set_title(bot.streamer, message)
             bot.say('{0} updated the title to "{1}"'.format(source.username_raw, message))
@@ -750,41 +703,6 @@ class Dispatch:
             _time = 600
 
         bot._timeout(source.username, _time)
-
-    def welcome_sub(bot, source, message, event, args):
-        log.error('DEPRECATED: Use the Sub Alert Module.')
-        match = args['match']
-
-        bot.kvi['active_subs'].inc()
-
-        phrase_data = {
-                'username': match.group(1)
-                }
-
-        bot.say(bot.phrases['new_sub'].format(**phrase_data))
-        bot.users[phrase_data['username']].subscriber = True
-
-        payload = {'username': phrase_data['username']}
-        bot.websocket_manager.emit('new_sub', payload)
-
-    def resub(bot, source, message, event, args):
-        log.error('DEPRECATED: Use the Sub Alert Module.')
-        match = args['match']
-
-        phrase_data = {
-                'username': match.group(1),
-                'num_months': match.group(2)
-                }
-
-        bot.say(bot.phrases['resub'].format(**phrase_data))
-        bot.users[phrase_data['username']].subscriber = True
-
-        payload = {'username': phrase_data['username'], 'num_months': phrase_data['num_months']}
-        bot.websocket_manager.emit('resub', payload)
-
-    def sync_to(bot, source, message, event, args):
-        log.debug('Calling sync_to from chat command...')
-        bot.sync_to()
 
     def ignore(bot, source, message, event, args):
         if message:
@@ -912,6 +830,7 @@ class Dispatch:
                 bot.say('{0}, No user with that name found.'.format(source.username_raw))
 
     def points(bot, source, message, event, args):
+        log.error('DEPRECATED: Use a normal message')
         if message:
             username = message.split(' ')[0].strip().lower()
             user = bot.users.find(username)
@@ -964,6 +883,7 @@ class Dispatch:
         source.timed_out = False
 
     def twitter_follow(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
             username = message.split(' ')[0].strip().lower()
             if bot.twitter_manager.follow_user(username):
@@ -972,6 +892,7 @@ class Dispatch:
                 bot.whisper(source.username, 'An error occured while attempting to follow {}, perhaps we are already following this person?'.format(username))
 
     def twitter_unfollow(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
             username = message.split(' ')[0].strip().lower()
             if bot.twitter_manager.unfollow_user(username):
@@ -1053,33 +974,9 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
-    def follow_age(bot, source, message, event, args):
-        log.warn('Dispatch follow_age is deprecated. Use the followage module.')
-
-        username = source.username
-        streamer = None
-        if message is not None and len(message) > 0:
-            message_split = message.split(' ')
-            potential_user = bot.users.find(message_split[0])
-            if potential_user is not None:
-                username = potential_user.username
-
-            if len(message_split) > 1 and message_split[1].replace('_', '').isalnum():
-                streamer = message_split[1]
-
-        bot.action_queue.add(check_follow_age, args=[bot, source, username, streamer])
-
     def get_bttv_emotes(bot, source, message, event, args):
+        # XXX: This should be a module
         if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:
             bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
         else:
             bot.say('No BTTV Emotes active in this chat')
-
-    def rig(bot, source, message, event, args):
-        try:
-            percent = int(message)
-        except (ValueError, TypeError):
-            bot.whisper(source.username, 'Usage: !rig PERCENT')
-
-        bot.whisper(source.username, 'Rig percent set to {0}'.format(percent))
-        Dispatch.rigged_percent = percent

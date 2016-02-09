@@ -4,3 +4,7 @@ semantic
 .webassets-cache/
 *.gen.*.css
 *.gen.*.js
+
+# These are created when the user installs semantic.json
+gulpfile.js
+tasks/
