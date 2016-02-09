@@ -17,7 +17,7 @@ class TypeEmoteQuestModule(BaseQuest):
     DESCRIPTION = 'A user needs to type a specific emote Y times to complete this quest.'
     PARENT_MODULE = QuestModule
 
-    PROGRESS = 40
+    PROGRESS = 100
     LIMIT = 1
     REWARD = 3
 
@@ -36,6 +36,7 @@ class TypeEmoteQuestModule(BaseQuest):
                     user_progress = 1
 
                 if user_progress > self.PROGRESS:
+                    log.debug('{} has already complete the quest. Moving along.'.format(source.username))
                     # no need to do more
                     return
 
