@@ -1,7 +1,7 @@
 import logging
 import random
 
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules import BaseModule
 from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
 from pajbot.managers import RedisManager

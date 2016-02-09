@@ -8,7 +8,7 @@ import re
 
 from pajbot.tbutil import find
 from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser, RawFuncAction, FuncAction
+from pajbot.models.action import ActionParser, RawFuncAction
 
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship, joinedload
@@ -278,7 +278,6 @@ class Command(Base):
 
     @classmethod
     def pajbot_command(cls, bot, method_name, level=1000, **options):
-        from pajbot.bot import Bot
         cmd = cls(**options)
         cmd.level = level
         cmd.description = options.get('description', None)
