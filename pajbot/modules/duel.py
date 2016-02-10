@@ -56,12 +56,34 @@ class DuelModule(BaseModule):
                     'min_str_len': 10,
                     'max_str_len': 400,
                     }),
+            ModuleSetting(
+                key='online_global_cd',
+                label='Global cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=0,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='online_user_cd',
+                label='Per-user cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=5,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 240,
+                    }),
                 ]
 
     def load_commands(self, **options):
         self.commands['duel'] = Command.raw_command(self.initiate_duel,
-                delay_all=0,
-                delay_user=5,
+                delay_all=self.settings['online_global_cd'],
+                delay_user=self.settings['online_user_cd'],
                 description='Initiate a duel with a user',
                 examples=[
                     CommandExample(None, '0-point duel',
