@@ -31,14 +31,34 @@ class LeagueRankModule(BaseModule):
                 required=True,
                 placeholder='i.e. euw/eune/na/br/oce',
                 default=''),
+            ModuleSetting(
+                key='online_global_cd',
+                label='Global cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=15,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='online_user_cd',
+                label='Per-user cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=30,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 240,
+                    }),
             ]
 
     def load_commands(self, **options):
-        # TODO: Aliases should be set in settings?
-        #       This way, it can be run alongside other modules
-        self.commands['rank'] = Command.raw_command(self.league_rank,
-                delay_all=15,
-                delay_user=30,
+        self.commands['lolrank'] = Command.raw_command(self.league_rank,
+                delay_all=self.settings['online_global_cd'],
+                delay_user=self.settings['online_user_cd'],
                 description='Check streamer\'s or other players League of Legends rank in chat.',
                 examples=[
                     CommandExample(None, 'Check streamer\'s rank',
@@ -55,9 +75,8 @@ class LeagueRankModule(BaseModule):
                         description='Bot says player\'s region, League-tier, division and LP. Other regions to use as arguments: euw, eune, na, oce, br, kr, las, lan, ru, tr').parse(),
                     ],
                 )
-        self.commands['lolrank'] = self.commands['rank']
-        self.commands['ranklol'] = self.commands['rank']
-        self.commands['leaguerank'] = self.commands['rank']
+        self.commands['ranklol'] = self.commands['lolrank']
+        self.commands['leaguerank'] = self.commands['lolrank']
 
     def league_rank(self, **options):
         try:
