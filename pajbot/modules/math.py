@@ -3,7 +3,7 @@ import math
 import ast
 import operator as op
 
-from pajbot.modules import BaseModule
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample
 from pajbot.actions import ActionQueue
 from pajbot.tbutil import time_limit, TimeoutException
@@ -47,17 +47,40 @@ class MathModule(BaseModule):
     NAME = 'Math'
     DESCRIPTION = 'Adds a !math command for simple arithmetic'
 
+    SETTINGS = [
+            ModuleSetting(
+                key='online_global_cd',
+                label='Global cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=2,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='online_user_cd',
+                label='Per-user cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=6,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 240,
+                    }),
+            ]
+
     def __init__(self):
         super().__init__()
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
     def load_commands(self, **options):
-        # TODO: Have delay modifiable in settings
-
         self.commands['math'] = Command.raw_command(self.math,
-                delay_all=2,
-                delay_user=6,
+                delay_all=self.settings['online_global_cd'],
+                delay_user=self.settings['online_user_cd'],
                 description='Calculate some simple math',
                 examples=[
                     ],
