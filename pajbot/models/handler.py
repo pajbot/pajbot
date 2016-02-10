@@ -79,7 +79,7 @@ class HandlerManager:
             try:
                 res = handler(*arguments)
             except:
-                log.exception('Unhandled exception from {} in on_message'.format(handler))
+                log.exception('Unhandled exception from {} in {}'.format(handler, event))
 
             if res is False and stop_on_false is True:
                 # Abort if handler returns false and stop_on_false is enabled
