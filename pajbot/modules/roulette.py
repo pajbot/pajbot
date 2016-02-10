@@ -48,6 +48,17 @@ class RouletteModule(BaseModule):
                     'min_value': 0,
                     'max_value': 240,
                     }),
+            ModuleSetting(
+                key='min_roulette_amount',
+                label='Minimum roulette amount',
+                type='number',
+                required=True,
+                placeholder='',
+                default=1,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 3000,
+                    }),
                 ]
 
     def load_commands(self, **options):
@@ -74,15 +85,15 @@ class RouletteModule(BaseModule):
         try:
             bet = int(message.split(' ')[0])
         except (ValueError, TypeError, AttributeError):
-            bot.me('Sorry, {0}, I didn\'t recognize your bet! FeelsBadMan Usage: !roulette 150 to bet 150 points'.format(user.username_raw))
+            bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')
             return False
 
         if bet > user.points:
-            bot.me('Sorry, {0}, you don\'t have enough points! FeelsBadMan'.format(user.username_raw))
+            bot.whisper(user.username, 'You don\'t have enough points to do a roulette for {} points :('.format(bet))
             return False
 
-        if bet <= 0:
-            bot.me('Sorry, {0}, you have to bet at least 1 point! FeelsBadMan'.format(user.username_raw))
+        if bet < self.settings['min_roulette_amount']:
+            bot.whisper(user.username, 'You have to bet at least {} point! :('.format(self.settings['min_roulette_amount']))
             return False
 
         # Calculating the result
