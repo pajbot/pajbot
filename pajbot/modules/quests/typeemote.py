@@ -17,9 +17,8 @@ class TypeEmoteQuestModule(BaseQuest):
     DESCRIPTION = 'A user needs to type a specific emote Y times to complete this quest.'
     PARENT_MODULE = QuestModule
 
-    PROGRESS = 100
-    LIMIT = 1
-    REWARD = 3
+    LIMIT = 100
+    REWARD = 5
 
     def __init__(self):
         super().__init__()
@@ -30,24 +29,19 @@ class TypeEmoteQuestModule(BaseQuest):
     def on_message(self, source, message, emotes, whisper, urls):
         for emote in emotes:
             if emote['code'] == self.current_emote:
-                if source.username in self.progress:
-                    user_progress = self.progress[source.username] + 1
-                else:
-                    user_progress = 1
+                user_progress = self.get_user_progress(source.username, default=0) + 1
 
-                if user_progress > self.PROGRESS:
+                if user_progress > self.LIMIT:
                     log.debug('{} has already complete the quest. Moving along.'.format(source.username))
                     # no need to do more
                     return
 
-                self.progress[source.username] = user_progress
-
                 redis = RedisManager.get()
 
-                if user_progress == self.PROGRESS:
+                if user_progress == self.LIMIT:
                     source.award_tokens(self.REWARD, redis=redis)
 
-                redis.hset(self.progress_key, source.username, user_progress)
+                self.set_user_progress(source.username, user_progress, redis=redis)
                 return
 
     def start_quest(self):
@@ -55,13 +49,8 @@ class TypeEmoteQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
-        self.progress = {}
-        old_progress = redis.hgetall(self.progress_key)
-        for user, progress in old_progress.items():
-            try:
-                self.progress[user.decode('utf8')] = int(progress)
-            except (TypeError, ValueError):
-                pass
+        self.load_progress(redis=redis)
+
         self.current_emote = redis.get(self.current_emote_key)
         if self.current_emote is None:
             # randomize an emote
@@ -76,11 +65,11 @@ class TypeEmoteQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
-        redis.delete(self.progress_key)
+        self.reset_progress(redis=redis)
         redis.delete(self.current_emote_key)
 
     def get_objective(self):
-        return 'Use the {} emote {} times'.format(self.current_emote, self.PROGRESS)
+        return 'Use the {} emote {} times'.format(self.current_emote, self.LIMIT)
 
     def enable(self, bot):
         self.bot = bot

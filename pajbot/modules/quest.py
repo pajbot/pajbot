@@ -25,13 +25,20 @@ class QuestModule(BaseModule):
         bot = options['bot']
         source = options['source']
         if self.current_quest is not None:
-            quest_progress = source.get_quest_progress()
-            if quest_progress is not False:
-                bot.say('Your current quest progress is {}'.format(quest_progress))
+            quest_progress = self.current_quest.get_user_progress(source.username)
+            try:
+                quest_limit = self.current_quest.LIMIT
+            except:
+                quest_limit = None
+
+            if quest_limit is not None and quest_progress >= quest_limit:
+                bot.whisper(source.username, 'You have completed todays quest!'.format(quest_progress))
+            elif quest_progress is not False:
+                bot.whisper(source.username, 'Your current quest progress is {}'.format(quest_progress))
             else:
-                bot.say('You have no progress on the current quest.')
+                bot.whisper(source.username, 'You have no progress on the current quest.')
         else:
-            bot.say('There is no quest active right now.')
+            bot.say('{}, There is no quest active right now.'.format(source.username_raw))
 
     def get_current_quest(self, **options):
         # TODO: This should be a messageaction

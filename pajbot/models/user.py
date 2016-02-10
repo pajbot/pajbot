@@ -161,69 +161,6 @@ class User(Base):
 
         return num_tokens
 
-    def get_quest_progress(self):
-        stream_id = StreamHelper.get_current_stream_id()
-
-        if stream_id is False:
-            return False
-
-        if stream_id not in self.quest_progress:
-            self.init_quest_progress()
-
-        return self.quest_progress[stream_id]
-
-    def init_quest_progress(self, redis=None):
-        """ Initialize quest progress for the current stream. """
-        streamer = StreamHelper.get_streamer()
-        stream_id = StreamHelper.get_current_stream_id()
-        if redis is None:
-            redis = RedisManager.get()
-
-        quest_progress_key = '{streamer}:{stream_id}:{username}:quest_progress'.format(
-                streamer=streamer,
-                stream_id=stream_id,
-                username=self.username)
-
-        old_progress = 0
-        try:
-            old_progress = int(redis.get(quest_progress_key))
-        except (TypeError, ValueError):
-            pass
-        self.quest_progress[stream_id] = old_progress
-
-    def progress_quest(self, amount, limit, completion_reward):
-        """ Progress the quest for `stream_id` by `amount`.
-        We load data from redis in case no progress has been made yet.
-        """
-        streamer = StreamHelper.get_streamer()
-        stream_id = StreamHelper.get_current_stream_id()
-
-        if stream_id is False:
-            return False
-
-        redis = RedisManager.get()
-        quest_progress_key = '{streamer}:{stream_id}:{username}:quest_progress'.format(
-                streamer=streamer,
-                stream_id=stream_id,
-                username=self.username)
-
-        if stream_id not in self.quest_progress:
-            # Load the old progress, or set it to 0 if no progress was found
-            self.init_quest_progress()
-
-        if self.quest_progress[stream_id] >= limit:
-            # The user has already completed this quest.
-            return False
-
-        self.quest_progress[stream_id] += amount
-
-        if self.quest_progress[stream_id] >= limit:
-            # The user just completed the quest for the first time
-            self.award_tokens(completion_reward, redis=redis)
-            return False
-
-        redis.set(quest_progress_key, self.quest_progress[stream_id])
-
     def tag_as(self, tag):
         if tag not in self.tags:
             log.debug('{0} has been tagged as a {1}'.format(self.username, tag))
