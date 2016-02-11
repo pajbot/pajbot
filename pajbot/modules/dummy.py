@@ -21,7 +21,13 @@ class DummyModule(BaseModule):
                 constraints={
                     'min_str_len': 2,
                     'max_str_len': 15,
-                    })
+                    }),
+            ModuleSetting(
+                key='boolean_shit',
+                label='boolean setting!',
+                type='boolean',
+                required=True,
+                default=False)
             ]
 
     def dummy_command(self, **options):
