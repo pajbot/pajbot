@@ -137,6 +137,7 @@ class Dispatch:
                 return False
 
             options['added_by'] = source.id
+            options['edited_by'] = source.id
 
             banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
 
@@ -145,8 +146,11 @@ class Dispatch:
                 return True
 
             banphrase.set(**options)
+            banphrase.data.set(edited_by=options['edited_by'])
             DBManager.session_add_expunge(banphrase)
-            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options])))
+            bot.banphrase_manager.commit()
+            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
+
 
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck

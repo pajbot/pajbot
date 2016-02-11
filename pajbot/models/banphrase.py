@@ -134,9 +134,17 @@ class BanphraseData(Base):
             autoincrement=False)
     num_uses = Column(Integer, nullable=False, default=0)
     added_by = Column(Integer, nullable=True)
+    edited_by = Column(Integer, nullable=True)
 
     user = relationship('User',
             primaryjoin='User.id==BanphraseData.added_by',
+            foreign_keys='User.id',
+            uselist=False,
+            cascade='',
+            lazy='noload')
+
+    user2 = relationship('User',
+            primaryjoin='User.id==BanphraseData.edited_by',
             foreign_keys='User.id',
             uselist=False,
             cascade='',
@@ -146,12 +154,14 @@ class BanphraseData(Base):
         self.banphrase_id = banphrase_id
         self.num_uses = 0
         self.added_by = None
+        self.edited_by = None
 
         self.set(**options)
 
     def set(self, **options):
         self.num_uses = options.get('num_uses', self.num_uses)
         self.added_by = options.get('added_by', self.added_by)
+        self.edited_by = options.get('edited_by', self.edited_by)
 
 class BanphraseManager:
     def __init__(self, bot):
@@ -312,7 +322,8 @@ class BanphraseManager:
                 notify=None,
                 permanent=None,
                 case_sensitive=None,
-                warning=None)
+                warning=None,
+                sub_immunity=None)
 
         try:
             args, unknown = parser.parse_known_args(message.split())
