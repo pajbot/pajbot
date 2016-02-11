@@ -192,10 +192,10 @@ def commands(**options):
             custom_commands.append(command)
 
     with DBManager.create_session_scope() as db_session:
-        moderator_users = db_session.query(User).filter(User.level > 100).order_by(User.id.desc()).all()
+        commands_data = db_session.query(CommandData).options(joinedload(CommandData.user), joinedload(CommandData.user2)).all()
         return render_template(
             'admin/commands.html',
-            moderator_users=moderator_users,
+            commands_data=commands_data,
             custom_commands=sorted(custom_commands, key=lambda f: f.command),
             point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
             moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)),
@@ -262,7 +262,6 @@ def commands_create(**options):
             'level': level,
             'cost': cost,
             'added_by': user.id,
-            'edited_by': user.id,
         }
 
         valid_action_types = ['say', 'me', 'whisper', 'reply']

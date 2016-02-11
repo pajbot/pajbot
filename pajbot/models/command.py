@@ -84,6 +84,14 @@ class CommandData(Base):
         cascade='',
         lazy='noload')
 
+    user2 = relationship(
+        'User',
+        primaryjoin='User.id==CommandData.added_by',
+        foreign_keys='User.id',
+        uselist=False,
+        cascade='',
+        lazy='noload')
+
     def __init__(self, command_id, **options):
         self.command_id = command_id
         self.num_uses = 0

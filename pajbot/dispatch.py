@@ -181,7 +181,6 @@ class Dispatch:
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
             options['added_by'] = source.id
-            options['edited_by'] = source.id
 
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
@@ -293,7 +292,6 @@ class Dispatch:
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
             options['added_by'] = source.id
-            options['edited_by'] = source.id
 
             if options is False:
                 bot.whisper(source.username, 'Invalid command')
