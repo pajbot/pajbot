@@ -141,7 +141,14 @@ class LinkCheckerModule(BaseModule):
     NAME = 'Link Checker'
     DESCRIPTION = 'Checks links if they\'re bad'
     ENABLED_DEFAULT = True
-    SETTINGS = []
+    SETTINGS = [
+            ModuleSetting(
+                key='ban_pleb_links',
+                label='Disallow links from non-subscribers',
+                type='boolean',
+                required=True,
+                default=False)
+            ]
 
     def __init__(self):
         super().__init__()
@@ -201,8 +208,26 @@ class LinkCheckerModule(BaseModule):
         log.info('Loaded {0} bad links and {1} good links'.format(len(self.blacklisted_links), len(self.whitelisted_links)))
         return self
 
+    super_whitelist = ['pajlada.se', 'pajlada.com', 'forsen.tv', 'pajbot.com']
+
     def on_message(self, source, message, emotes, whisper, urls):
         if not whisper and source.level < 500 and source.moderator is False:
+            if self.settings['ban_pleb_links'] is True and source.subscriber is False and len(urls) > 0:
+                # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
+                for url in urls:
+                    parsed_url = Url(url)
+                    if len(parsed_url.parsed.netloc.split('.')) < 2:
+                        continue
+                    whitelisted = False
+                    for whitelist in self.super_whitelist:
+                        if is_subdomain(parsed_url.parsed.netloc, whitelist):
+                            whitelisted = True
+                            break
+                    if whitelisted is False:
+                        self.bot.timeout(source.username, 30)
+                        self.bot.whisper(source.username, 'You cannot post non-verified links in chat if you\'re not a subscriber.')
+                        return False
+
             for url in urls:
                 # Action which will be taken when a bad link is found
                 action = Action(self.bot.timeout, args=[source.username, 20])
