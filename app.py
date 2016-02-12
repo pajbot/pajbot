@@ -107,6 +107,10 @@ assets.register('admin_create_command', admin_create_command)
 assets.register('admin_create_row', admin_create_row)
 assets.register('admin_edit_command', admin_edit_command)
 
+notifications_base = Bundle('scripts/notifications/base.js', filters='jsmin',
+        output='scripts/notifications/base.gen.%(version)s.js')
+assets.register('notifications_base', notifications_base)
+
 config = configparser.ConfigParser()
 
 parser = argparse.ArgumentParser(description='start the web app')
@@ -570,9 +574,9 @@ def pleblist_history_stream(stream_id):
                 stream_chunks=stream_chunks)
 
 
-@app.route('/discord')
-def discord():
-    return render_template('discord.html')
+@app.route('/notifications/')
+def notifications():
+    return render_template('notifications.html')
 
 @app.route('/test/')
 def test():

@@ -322,6 +322,7 @@ def get_substitutions(string, bot):
         method_mapping['last_stream'] = bot.stream_manager.get_last_stream_value
         method_mapping['current_song'] = bot.get_current_song_value
         method_mapping['args'] = bot.get_args_value
+        method_mapping['notify'] = bot.get_notify_value
     except AttributeError:
         pass
 
@@ -377,12 +378,14 @@ class MessageAction(BaseAction):
 
         return resp
 
-    def get_extra_data(self, source, message):
-        return {
+    def get_extra_data(self, source, message, args):
+        ret = {
                 'user': source.username if source else None,
                 'source': source,
                 'message': message,
                 }
+        ret.update(args)
+        return ret
 
     def run(self, bot, source, message, event={}, args={}):
         raise NotImplementedError('Please implement the run method.')
@@ -392,7 +395,7 @@ class SayAction(MessageAction):
     subtype = 'say'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message))
+        resp = self.get_response(bot, self.get_extra_data(source, message, args))
         if resp:
             bot.say(resp)
 
@@ -401,7 +404,7 @@ class MeAction(MessageAction):
     subtype = 'me'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message))
+        resp = self.get_response(bot, self.get_extra_data(source, message, args))
         if resp:
             bot.me(resp)
 
@@ -410,7 +413,7 @@ class WhisperAction(MessageAction):
     subtype = 'whisper'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message))
+        resp = self.get_response(bot, self.get_extra_data(source, message, args))
         if resp:
             bot.whisper(source.username, resp)
 
@@ -419,7 +422,7 @@ class ReplyAction(MessageAction):
     subtype = 'reply'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message))
+        resp = self.get_response(bot, self.get_extra_data(source, message, args))
         if resp:
             if irc.client.is_channel(event.target):
                 bot.say(resp, channel=event.target)

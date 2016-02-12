@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% set active_page = 'home' %}
+{% block title %}Notifications{% endblock %}
+{% block body %}
+<h3>Notifications</h3>
+<div class="ui list relaxed divided notifications">
+</div>
+{% endblock %}
+{% block footer %}
+<style>
+div.notifications div:first-child {
+    font-weight: bold;
+}
+</style>
+<script type="text/javascript">
+var ws_host = '{{ 'wss' if site.websocket.ssl else 'ws' }}://{{ site.websocket.host }}';
+var ws_port = {{ site.websocket.port }};
+</script>
+{% assets 'notifications_base' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
