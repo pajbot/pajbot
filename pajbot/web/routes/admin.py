@@ -47,7 +47,7 @@ def home(**options):
 @requires_level(500)
 def banphrases(**options):
     with DBManager.create_session_scope() as db_session:
-        banphrases = db_session.query(Banphrase).options(joinedload(Banphrase.data).joinedload(BanphraseData.user)).all()
+        banphrases = db_session.query(Banphrase).options(joinedload(Banphrase.data).joinedload(BanphraseData.user), joinedload(Banphrase.data).joinedload(BanphraseData.user2)).all()
         return render_template('admin/banphrases.html',
                 banphrases=banphrases)
 
@@ -107,6 +107,7 @@ def banphrases_create(**options):
                 'sub_immunity': sub_immunity,
                 'length': length,
                 'added_by': user.id,
+                'edited_by': user.id,
                 'operator': operator,
                 }
 
@@ -116,17 +117,16 @@ def banphrases_create(**options):
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             if id is not None:
-                banphrase = db_session.query(Banphrase).filter_by(id=id).one_or_none()
+                banphrase = db_session.query(Banphrase).options(joinedload(Banphrase.data)).filter_by(id=id).one_or_none()
                 if banphrase is None:
                     return redirect('/admin/banphrases/', 303)
                 banphrase.set(**options)
+                banphrase.data.set(edited_by=options['edited_by'])
+                log.info('Updated banphrase ID {} by user ID {}'.format(banphrase.id, options['edited_by']))
             else:
-                log.info('adding...')
                 db_session.add(banphrase)
-                log.info('adding data..')
                 db_session.add(banphrase.data)
-                log.info('should commit now...')
-        log.info('commited')
+                log.info('Added a new banphrase by user ID {}'.format(options['added_by']))
 
         SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
         if id is None:
@@ -192,10 +192,10 @@ def commands(**options):
             custom_commands.append(command)
 
     with DBManager.create_session_scope() as db_session:
-        moderator_users = db_session.query(User).filter(User.level > 100).order_by(User.id.desc()).all()
+        commands_data = db_session.query(CommandData).options(joinedload(CommandData.user), joinedload(CommandData.user2)).all()
         return render_template(
             'admin/commands.html',
-            moderator_users=moderator_users,
+            commands_data=commands_data,
             custom_commands=sorted(custom_commands, key=lambda f: f.command),
             point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
             moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)),
@@ -262,7 +262,6 @@ def commands_create(**options):
             'level': level,
             'cost': cost,
             'added_by': user.id,
-            'edited_by': user.id,
         }
 
         valid_action_types = ['say', 'me', 'whisper', 'reply']

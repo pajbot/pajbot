@@ -1,6 +1,8 @@
-{% for user in moderator_users %}
-{% if user.id == command.data.added_by %}Created by {% include 'user/username_link_nobadge.html' %}. {% endif %}
-{% endfor %}
-{% for user in moderator_users %}  
-{% if user.id == command.data.edited_by %}Last edited by {% include 'user/username_link_nobadge.html' %}{% endif %}
-{% endfor %}
+{%- for user_data in commands_data -%}
+{%- if user_data.command_id == command.id -%}
+{%- set user = user_data.user2 -%}
+{%- if user.id == command.data.added_by != command.data.edited_by %}Created by {% include 'user/username_link_nobadge.html' %}{% if command.data.added_by != command.data.edited_by != None %}. {% endif %}{% endif -%}
+{%- set user = user_data.user -%}
+{%- if user.id == command.data.edited_by %}Last edited by {% include 'user/username_link_nobadge.html' %}{% endif -%}
+{%- endif -%}
+{%- endfor %}
