@@ -49,6 +49,7 @@ numpy
 # Required for Websocket
 #pyOpenSSL
 #service_identity
+#cryptography
 
 # Required for the pleblist to work properly
 # -r requirements/pleblist.txt
