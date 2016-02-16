@@ -53,7 +53,7 @@ class TestURLMethods(unittest2.TestCase):
         self.assertEqual(find_unique_urls(regex, 'pajlada.se/ pajlada.se'), {'http://pajlada.se/', 'http://pajlada.se'})
 
         # TODO: The protocol of a URL is entirely thrown away, this behaviour should probably be changed.
-        self.assertEqual(find_unique_urls(regex, 'https://pajlada.se/ https://pajlada.se'), {'http://pajlada.se/', 'http://pajlada.se'})
+        self.assertEqual(find_unique_urls(regex, 'https://pajlada.se/ https://pajlada.se'), {'https://pajlada.se/', 'https://pajlada.se'})
 
 
 class ActionsTester(unittest2.TestCase):
