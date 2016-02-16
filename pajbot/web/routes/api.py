@@ -312,7 +312,7 @@ def streamtip_validate():
     if r.json()['user']['_id'] in valid_streamtip_ids:
         salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
         password = base64.b64encode(salted_password)
-        resp = make_response(jsonify({'password': password}))
+        resp = make_response(jsonify({'password': password.decode('utf8')}))
         resp.set_cookie('password', password)
         return resp
     else:
