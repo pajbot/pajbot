@@ -127,7 +127,7 @@ class BaseModule:
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False
-            print('{}: {}'.format(key, value))
+            log.debug('{}: {}'.format(key, value))
             res, new_value = setting.validate(value)
             if res is False:
                 # Something went wrong when validating one of the settings
@@ -135,6 +135,12 @@ class BaseModule:
                 return False
 
             ret[key] = new_value
+
+        for setting in self.SETTINGS:
+            if setting.type == 'boolean':
+                if setting.key not in ret:
+                    ret[setting.key] = False
+                    log.debug('{}: {} - special'.format(setting.key, False))
 
         return ret
 
