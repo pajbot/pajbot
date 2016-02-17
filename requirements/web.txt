@@ -4,3 +4,4 @@ flask-oauthlib
 Flask-Assets
 jsmin
 markdown
+uwsgidecorators

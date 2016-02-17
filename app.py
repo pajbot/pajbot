@@ -214,6 +214,7 @@ def nocache(view):
 
 
 def update_commands(signal_id):
+    log.debug('Updating commands...')
     global bot_commands_list
     from pajbot.models.command import CommandManager
     bot_commands = CommandManager(
@@ -246,6 +247,7 @@ try:
                 for highlight in highlights:
                     highlight.thumbnail = True
 except ImportError:
+    log.exception('Import error, disregard if debugging.')
     pass
 
 @app.route('/')
