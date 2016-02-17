@@ -3,13 +3,13 @@
 {% block title %}Admin - Predictions{% endblock %}
 {% block body %}
 <h2>Predictions</h2>
-<p>This is a list of all recorded prediction runs. (phrasing?)</p>
+<p>This is a list of all recorded prediction runs.</p>
 <div id="predictions" class="ui list celled">
     {%- for prediction in predictions %}
     <div class="item">
         <div class="content">
             <span class="header">
-                <a href="/admin/predictions/view/{{ prediction.id }}">Prediction #{{ prediction.id}}</a>
+                <a href="/admin/predictions/view/{{ prediction.id }}">{{ 'Mini ' if prediction.type == 1 else '' }}Prediction #{{ prediction.id}}</a>
             </span>
             <div class="description">
                 <p>There are currently <strong>{{ prediction.num_entries }}</strong> entries.</p>

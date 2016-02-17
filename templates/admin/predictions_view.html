@@ -2,7 +2,7 @@
 {% set active_page = 'admin_predictions' %}
 {% block title %}Admin - Prediction entries #{{ prediction.id }}{% endblock %}
 {% block body %}
-<h2>Entries for Prediction #{{ prediction.id }}</h2>
+<h2>Entries for {{ 'Mini ' if prediction.type == 1 else '' }}Prediction #{{ prediction.id }}</h2>
 <p>This is a list of entries, ordered by their prediction.</p>
 <p class="pemote">TODO: make this smarter KKona</p>
 <table id="entries" class="ui very basic table collapsing">
