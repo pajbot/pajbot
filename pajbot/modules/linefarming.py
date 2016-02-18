@@ -2,6 +2,7 @@ import logging
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
+from pajbot.models.handler import HandlerManager
 
 log = logging.getLogger(__name__)
 
@@ -31,10 +32,8 @@ class LineFarmingModule(BaseModule):
             source.num_lines += 1
 
     def enable(self, bot):
-        if bot:
-            bot.add_handler('on_pubmsg', self.on_pubmsg)
-            self.bot = bot
+        HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
+        self.bot = bot
 
     def disable(self, bot):
-        if bot:
-            bot.remove_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)

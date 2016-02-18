@@ -60,14 +60,14 @@ class HandlerManager:
             HandlerManager.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
-            pass
+            log.error('add_handler No handler for {} found.'.format(event))
 
     def remove_handler(event, method):
         try:
             HandlerManager.handlers[event][:] = [h for h in HandlerManager.handlers[event] if h[0] is method]
         except KeyError:
             # No handlers for this event found
-            pass
+            log.error('remove_handler No handler for {} found.'.format(event))
 
     def trigger(event, *arguments, stop_on_false=True):
         if event not in HandlerManager.handlers:

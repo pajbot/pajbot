@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
 from pajbot.models.db import DBManager, Base
+from pajbot.models.handler import HandlerManager
 
 from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.dialects.mysql import TEXT
@@ -85,9 +86,8 @@ class LinkTrackerModule(BaseModule):
             self.db_session.commit()
 
     def enable(self, bot):
-        if bot:
-            bot.add_handler('on_message', self.on_message, priority=100)
-            bot.add_handler('on_commit', self.on_commit)
+        HandlerManager.add_handler('on_message', self.on_message, priority=100)
+        HandlerManager.add_handler('on_commit', self.on_commit)
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -97,9 +97,8 @@ class LinkTrackerModule(BaseModule):
         self.db_session = DBManager.create_session()
 
     def disable(self, bot):
-        if bot:
-            bot.remove_handler('on_message', self.on_message)
-            bot.remove_handler('on_commit', self.on_commit)
+        HandlerManager.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler('on_commit', self.on_commit)
 
         if self.db_session is not None:
             self.db_session.commit()

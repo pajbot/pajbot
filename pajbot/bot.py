@@ -56,7 +56,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.5.1'
+    version = '2.5.2'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
@@ -920,16 +920,6 @@ class Bot:
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
         return resp
-
-    def add_handler(self, event, handler, priority=0):
-        # Leave this until we've cleaned up everywhere they're used
-        HandlerManager.add_handler(event, handler, priority)
-        log.warn('Use HandlerManager.add_handler instead ({})'.format(event))
-
-    def remove_handler(self, event, handler):
-        # Leave this until we've cleaned up everywhere they're used
-        HandlerManager.remove_handler(event, handler)
-        log.warn('Use HandlerManager.remove_handler instead ({})'.format(event))
 
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
