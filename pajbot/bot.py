@@ -525,7 +525,7 @@ class Bot:
         log.warning('Unknown key passed to get_value: {0}'.format(key))
         return None
 
-    def privmsg(self, message, channel=None):
+    def privmsg(self, message, channel=None, increase_message=True):
         try:
             if channel is None:
                 channel = self.channel
@@ -533,7 +533,7 @@ class Bot:
             if self.control_hub is not None and self.control_hub.channel == channel:
                 self.control_hub.privmsg(channel, message)
             else:
-                self.connection_manager.privmsg(channel, message)
+                self.connection_manager.privmsg(channel, message, increase_message=increase_message)
         except Exception:
             log.exception('Exception caught while sending privmsg')
 
@@ -557,7 +557,7 @@ class Bot:
                 return 'No recorded stream FeelsBadMan '
 
     def _ban(self, username):
-        self.privmsg('.ban {0}'.format(username))
+        self.privmsg('.ban {0}'.format(username), increase_message=False)
 
     def execute_at(self, at, function, arguments=()):
         self.reactor.execute_at(at, function, arguments)
@@ -578,10 +578,10 @@ class Bot:
             self.execute_delayed(1, self._ban, (user.username, ))
 
     def unban(self, username):
-        self.privmsg('.unban {0}'.format(username))
+        self.privmsg('.unban {0}'.format(username), increase_message=False)
 
     def _timeout(self, username, duration):
-        self.privmsg('.timeout {0} {1}'.format(username, duration))
+        self.privmsg('.timeout {0} {1}'.format(username, duration), increase_message=False)
 
     def timeout(self, username, duration):
         self._timeout(username, duration)
