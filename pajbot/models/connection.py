@@ -2,6 +2,8 @@ import urllib
 import random
 import logging
 
+import pajbot.tbutil
+
 import irc
 from irc.client import InvalidCharacters, MessageTooLong, ServerNotConnectedError
 import socket
@@ -184,14 +186,21 @@ class ConnectionManager:
         self.run_maintenance()
         return
 
-    def privmsg(self, channel, message):
-        i = 0
-        while((not self.connlist[i].conn.is_connected()) or self.connlist[i].num_msgs_sent >= self.message_limit):
-            i += 1  # find a usable connection
+    def privmsg(self, channel, message, increase_message=True):
+        if increase_message:
+            conn = pajbot.tbutil.find(lambda c: c.conn.is_connected() and c.num_msgs_sent < self.message_limit, self.connlist)
+        else:
+            conn = pajbot.tbutil.find(lambda c: c.conn.is_connected(), self.connlist)
 
-        self.connlist[i].num_msgs_sent += 1
-        self.connlist[i].conn.privmsg(channel, message)
-        self.reactor.execute_delayed(31, self.connlist[i].reduce_msgs_sent)
+        if conn is None:
+            log.error('No available connections to send messages from. Delaying message a few seconds.')
+            self.reactor.execute_delayed(2, self.privmsg, (channel, message, increase_message))
+            return False
 
-        if self.connlist[i].num_msgs_sent >= self.message_limit:
-            self.run_maintenance()
+        conn.conn.privmsg(channel, message)
+        if increase_message:
+            conn.num_msgs_sent += 1
+            self.reactor.execute_delayed(31, conn.reduce_msgs_sent)
+
+            if conn.num_msgs_sent >= self.message_limit:
+                self.run_maintenance()
