@@ -69,8 +69,8 @@ class RouletteModule(BaseModule):
                 examples=[
                     CommandExample(None, 'Roulette for 69 points',
                         chat='user:!roulette 69\n'
-                        'bot:You have challenged Karl_Kons for 0 points',
-                        description='Duel Karl_Kons for 0 points').parse(),
+                        'bot:pajlada won 69 points in roulette! FeelsGoodMan',
+                        description='Do a roulette for 69 points').parse(),
                     ],
                 )
 
