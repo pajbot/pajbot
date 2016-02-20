@@ -87,6 +87,10 @@ class HSBetModule(BaseModule):
         latest_game = game_data['history'][0]
 
         if latest_game['id'] != self.last_game_id:
+            winners = []
+            losers = []
+            total_winning_points = 0
+            total_losing_points = 0
             for username in self.bets:
                 bet_for_win, points = self.bets[username]
                 """
@@ -100,13 +104,38 @@ class HSBetModule(BaseModule):
 
                 correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
                 if correct_bet:
-                    user.points += points
-                    user.remove_debt(points)
-                    self.bot.say('{} won {} points by correctly betting on the hs game!'.format(user.username_raw, points))
-                    HandlerManager.trigger('on_user_win_hs_bet', user, points)
+                    winners.append((user, points))
+                    total_winning_points += points
                 else:
-                    user.pay_debt(points)
-                    log.debug('{} lost {} points!'.format())
+                    losers.append((user, points))
+                    total_losing_points += points
+
+            for obj in losers:
+                user, points = obj
+                user.pay_debt(points)
+                log.debug('{} lost {} points!'.format(user, points))
+
+            if total_losing_points > 0:
+                tax = 0.0  # 1.0 = 100% tax
+                total_losing_points_w_tax = int((total_losing_points - (total_losing_points * tax)))
+                if total_losing_points_w_tax > 0:
+                    for obj in winners:
+                        points_reward = 0
+
+                        user, points = obj
+                        user.remove_debt(points)
+
+                        if points == 0:
+                            # If you didn't bet any points, you don't get a part of the cut.
+                            HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                            continue
+
+                        pot_cut = points / total_winning_points
+                        points_reward = int(pot_cut * total_losing_points)
+                        user.points += points_reward
+                        HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                        self.bot.say('{} bet {} points, and won {} points by correctly betting on the HS game!'.format(
+                            user.username_raw, points, points_reward))
 
             self.bot.say('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
