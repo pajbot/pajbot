@@ -32,6 +32,7 @@ from pajbot.modules.multiraffle import MultiRaffleModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.givepoints import GivePointsModule
+from pajbot.modules.hsbet import HSBetModule
 
 available_modules = [
         DummyModule,
@@ -68,4 +69,5 @@ available_modules = [
         WinDuelPointsQuestModule,
         PaidSubmodeModule,
         GivePointsModule,
+        HSBetModule,
         ]

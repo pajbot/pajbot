@@ -18,6 +18,9 @@ requests
 # New regex library with support for some fancy features we require
 regex
 
+# Used for scheduling timed events, such as in the hsbet module
+apscheduler
+
 unittest2
 
 # Pylast for Last FM

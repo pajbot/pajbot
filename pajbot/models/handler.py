@@ -50,6 +50,9 @@ class HandlerManager:
         # on_user_gain_tokens(user, tokens_gained)
         HandlerManager.create_handler('on_user_gain_tokens')
 
+        # on_user_win_hs_bet(user, points_won)
+        HandlerManager.create_handler('on_user_win_hs_bet')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []
