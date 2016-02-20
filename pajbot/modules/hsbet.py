@@ -45,6 +45,17 @@ class HSBetModule(BaseModule):
                 required=True,
                 placeholder='Seconds until betting closes',
                 default=120),
+            ModuleSetting(
+                key='max_bet',
+                label='Max bet in points',
+                type='number',
+                required=True,
+                placeholder='Max bet',
+                default=5000,
+                constraints={
+                    'min_value': 500,
+                    'max_value': 30000,
+                    }),
             ]
 
     def __init__(self):
@@ -140,6 +151,14 @@ class HSBetModule(BaseModule):
             points = int(msg_parts[1])
         except (IndexError, ValueError, TypeError):
             pass
+
+        if points < 0:
+            bot.whisper(source.username, 'You cannot bet negative points.')
+            return False
+
+        if points > self.settings['max_bet']:
+            bot.whisper(source.username, 'You cannot bet more than {} points, please try again!'.format(self.settings['max_bet']))
+            return False
 
         if not source.can_afford(points):
             bot.whisper(source.username, 'You don\'t have {} points to bet'.format(points))
