@@ -151,7 +151,6 @@ class Dispatch:
             bot.banphrase_manager.commit()
             bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
 
-
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()
