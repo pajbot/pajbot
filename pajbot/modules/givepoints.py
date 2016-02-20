@@ -57,7 +57,7 @@ class GivePointsModule(BaseModule):
             return False
 
         if msg_split[1].lower() == 'all':
-            num_points = source.points
+            num_points = source.points_available()
         else:
             try:
                 num_points = int(msg_split[1])
@@ -71,7 +71,7 @@ class GivePointsModule(BaseModule):
             bot.whisper(source.username, 'You cannot give away negative points OMGScoots')
             return True
 
-        if num_points > source.points:
+        if not source.can_afford(num_points):
             # The user tried giving away more points than he owns
             bot.whisper(source.username, 'You cannot give away more points than you have. You have {} points.'.format(source.points))
             return False

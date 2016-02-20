@@ -88,7 +88,7 @@ class RouletteModule(BaseModule):
             bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')
             return False
 
-        if bet > user.points:
+        if not user.can_afford(bet):
             bot.whisper(user.username, 'You don\'t have enough points to do a roulette for {} points :('.format(bet))
             return False
 

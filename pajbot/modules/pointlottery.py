@@ -116,7 +116,7 @@ class PointLotteryModule(BaseModule):
             else:
                 tickets = int(message.split(' ')[1])
 
-            if source.points < tickets:
+            if not source.can_afford(tickets):
                 bot.me('Sorry, {0}, you don\'t have enough points! FeelsBadMan'.format(source.username_raw))
                 return False
 

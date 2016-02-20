@@ -165,7 +165,7 @@ class DuelModule(BaseModule):
             bot.whisper(source.username, 'This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge')
             return False
 
-        if user.points < duel_price or source.points < duel_price:
+        if not user.can_afford(duel_price) or not source.can_afford(duel_price):
             bot.whisper(source.username, 'You or your target do not have more than {} points, therefore you cannot duel for that amount.'.format(duel_price))
             return False
 
@@ -214,7 +214,7 @@ class DuelModule(BaseModule):
         duel_tax = 0.3  # 30% tax
 
         if source.duel_request is not False:
-            if source.points < source.duel_price or source.duel_request.points < source.duel_price:
+            if not source.can_afford(source.duel_price) or not source.duel_request.can_afford(source.duel_price):
                 bot.whisper(source.username, 'Your duel request with {} was cancelled due to one of you not having enough points.'.format(source.duel_request.username_raw))
                 bot.whisper(source.duel_request.username, 'Your duel request with {} was cancelled due to one of you not having enough points.'.format(source.username_raw))
                 source.duel_request.duel_target = False

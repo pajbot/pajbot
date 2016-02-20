@@ -348,7 +348,7 @@ class Command(Base):
             log.debug('{0} ran command {1:.2f} seconds ago, waiting...'.format(source.username, time_since_last_run_user))
             return False
 
-        if self.cost > 0 and source.points < self.cost:
+        if self.cost > 0 and not source.can_afford(self.cost):
             # User does not have enough points to use the command
             return False
 

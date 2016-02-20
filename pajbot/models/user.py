@@ -60,6 +60,7 @@ class User(Base):
         self.ban_immune = False
         self.tags = []
         self.quest_progress = {}
+        self.debts = []
 
         self.timed_out = False
 
@@ -87,6 +88,7 @@ class User(Base):
         self.timed_out = False
         self.moderator = False
         self.quest_progress = {}
+        self.debts = []
 
     def can_afford_with_tokens(self, cost):
         num_tokens = self.get_tokens()
@@ -207,6 +209,28 @@ class User(Base):
         user.minutes_in_chat_offline = 15
 
         return user
+
+    def create_debt(self, points):
+        self.debts.append(points)
+
+    def remove_debt(self, debt):
+        try:
+            self.debts.remove(debt)
+        except ValueError:
+            log.error('For some reason the debt {} was not in the list of debts {}'.format(debt, self.debts))
+
+    def pay_debt(self, debt):
+        self.points -= debt
+        self.remove_debt(debt)
+
+    def points_in_debt(self):
+        return sum(self.debts)
+
+    def points_available(self):
+        return self.points - self.points_in_debt()
+
+    def can_afford(self, points_to_spend):
+        return self.points_available() >= points_to_spend
 
     def spend(self, points_to_spend):
         if points_to_spend <= self.points:
