@@ -98,20 +98,28 @@ class DuelModule(BaseModule):
                 )
         self.commands['cancelduel'] = Command.raw_command(self.cancel_duel,
                 delay_all=0,
-                delay_user=10)
+                delay_user=10,
+                description='Cancel your duel request'
+                )
         self.commands['accept'] = Command.raw_command(self.accept_duel,
                 delay_all=0,
-                delay_user=0)
+                delay_user=0,
+                description='Accept a duel request'
+                )
         self.commands['decline'] = Command.raw_command(self.decline_duel,
                 delay_all=0,
-                delay_user=0)
+                delay_user=0,
+                description='Decline a duel request'
+                )
         self.commands['deny'] = self.commands['decline']
         self.commands['duelstatus'] = Command.raw_command(self.status_duel,
                 delay_all=0,
-                delay_user=5)
+                delay_user=5,
+                description='Current duel request info')
         self.commands['duelstats'] = Command.raw_command(self.get_duel_stats,
                 delay_all=0,
-                delay_user=120)
+                delay_user=120,
+                description='Get your duel statistics')
 
     def initiate_duel(self, **options):
         """
