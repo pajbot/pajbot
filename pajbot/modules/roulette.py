@@ -82,13 +82,17 @@ class RouletteModule(BaseModule):
         user = options['source']
         bot = options['bot']
 
+        if message is None:
+            bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')
+            return False
+
         msg_split = message.split(' ')
         if msg_split[0].lower() == 'all':
             bet = user.points_available()
         else:
             try:
                 bet = int(message.split(' ')[0])
-            except (ValueError, TypeError, AttributeError):
+            except (ValueError, TypeError):
                 bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')
                 return False
 
