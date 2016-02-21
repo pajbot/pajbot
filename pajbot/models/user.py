@@ -323,16 +323,34 @@ class UserManager(UserDict):
         self.db_session.commit()
 
     def find(self, username):
+        """
+        Attempts to find the user with the given username.
+
+        Arguments:
+        username - Username of the user we're trying to find. Case-insensitive.
+
+        Returns a user object if the user already existed, otherwise return None
+        """
+
+        # from pajbot.tbutil import print_traceback
+        # print_traceback()
+
+        # log.debug('UserManager::find({})'.format(username))
+
+        # This will be used when we access the cache dictionary
+        username_lower = username.lower()
+
+        # Replace any occurances of @ in the username
+        # This helps non-bttv-users who tab-complete usernames
         username = username.replace('@', '')
 
-        if username.lower() in self.data:
-            return self.data[username.lower()]
+        # Check if the user is already cached
+        if username_lower in self.data:
+            return self.data[username_lower]
 
-        user = self[username]
-        if user.id is None:
-            self.db_session.expunge(user)
-            del self.data[username.lower()]
-            return None
+        # Check for the username in the database
+        user = self.db_session.query(User).filter_by(username=username_lower).one_or_none()
+
         return user
 
     def bulk_load(self, usernames):
@@ -355,19 +373,43 @@ class UserManager(UserDict):
             self.db_session.add(user)
             self.data[username] = user
             users.append(user)
+        self.db_session.flush()
 
         return users
 
-    def __getitem__(self, key):
-        if key.lower() not in self.data:
-            user = self.db_session.query(User).filter_by(username=key.lower()).one_or_none()
-            if user is None:
-                user = User(username=key)
-                self.db_session.add(user)
+    def __getitem__(self, username):
+        """
+        Returns the user with the given username.
+        If the user does not exist, create it.
 
-            self.data[key.lower()] = user
+        Arguments:
+        username - Username of the user we're trying to find/create. Case-insensitive.
 
-        return self.data[key.lower()]
+        Returns a user object for the given username.
+        """
+
+        # log.debug('UserManager::__getitem__({})'.format(username))
+
+        # This will be used when we access the cache dictionary
+        username_lower = username.lower()
+
+        # Check if the user is already cached
+        if username_lower in self.data:
+            return self.data[username_lower]
+
+        # Check for the username in the database
+        user = self.db_session.query(User).filter_by(username=username_lower).one_or_none()
+
+        # If the user did not exist, create it
+        if user is None:
+            user = User(username=username)
+            self.db_session.add(user)
+            self.db_session.flush()
+
+        # Add the user object to the cache
+        self.data[username_lower] = user
+
+        return self.data[username_lower]
 
     def reset_subs(self):
         for user in self.db_session.query(User).filter_by(subscriber=True):
