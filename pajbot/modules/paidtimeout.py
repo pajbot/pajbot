@@ -122,6 +122,7 @@ class PaidTimeoutDiscountModule(BaseModule):
         # Discounts here!
         discounts = {
                 'trump_sub': (0.5, 'Trump (50%)'),
+                'massan_sub': (0.45, 'Massan (55%)'),
                 'nostam_sub': (0.4, 'Nostam (60%)'),
                 'reynad_sub': (0.8, 'Reynad (20%)'),
                 'forsen_sub': (0.95, 'Forsen (5%)'),
