@@ -209,8 +209,10 @@ class HSBetModule(BaseModule):
                 )
 
     def enable(self, bot):
-        self.job.resume()
+        if bot:
+            self.job.resume()
         self.bot = bot
 
     def disable(self, bot):
-        self.job.pause()
+        if bot:
+            self.job.pause()
