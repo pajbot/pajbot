@@ -110,8 +110,8 @@ class RouletteModule(BaseModule):
         user.points += points
 
         if points > 0:
-            bot.me('{0} won {1} points in roulette! FeelsGoodMan'.format(user.username_raw, bet))
+            bot.me('{0} won {1} points in roulette and now has {2} points! FeelsGoodMan'.format(user.username_raw, bet, user.points_available()))
         else:
-            bot.me('{0} lost {1} points in roulette! FeelsBadMan'.format(user.username_raw, bet))
+            bot.me('{0} lost {1} points in roulette and now has {2} points! FeelsBadMan'.format(user.username_raw, bet, user.points_available()))
 
         HandlerManager.trigger('on_roulette_finish', user, points)
