@@ -22,6 +22,7 @@
             <th class="collapsing">Interval online (minutes)</th>
             <th class="collapsing">Interval offline (minutes)</th>
             <th>Message</th>
+            <th>Enabled</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -63,7 +64,7 @@ $(document).ready(function() {
 
     enable_edit_row('timers');
     enable_remove_row('remove-timer', 'remove_timer');
-    enable_toggle_row('toggle_timer');
+    enable_toggle_row_cb('toggle_timer');
 
     $('.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');

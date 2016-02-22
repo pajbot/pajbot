@@ -14,6 +14,7 @@
             <th class="collapsing"></th>
             <th class="collapsing">#&nbsp;uses</th>
             <th class="collapsing">Notify</th>
+            <th class="collapsing">Enabled</th>
             <th class="collapsing">Actions</th>
         </tr>
     </thead>
@@ -62,7 +63,7 @@ $(document).ready(function() {
 
     enable_edit_row('banphrases');
     enable_remove_row('remove-banphrase', 'remove_banphrase');
-    enable_toggle_row('toggle_banphrase');
+    enable_toggle_row_cb('toggle_banphrase');
 });
 </script>
 {% endblock %}

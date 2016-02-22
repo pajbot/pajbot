@@ -21,6 +21,7 @@
             <tr>
                 <th class="collapsing">Module</th>
                 <th>Description</th>
+                <th class="collapsing">Enabled</th>
                 <th class="collapsing">Actions</th>
             </tr>
         </thead>
@@ -30,11 +31,12 @@
                 <td class="collapsing">{{ row.NAME }}</td>
                 <td>{{ row.DESCRIPTION }}</td>
                 <td class="right aligned collapsing">
-                    {%- if row.db_module.enabled %}
-                    <button class="ui compact button toggle-row"><i class="icon power red"></i><span class="text">Disable</span></button>
-                    {% else %}
-                    <button class="ui compact button toggle-row"><i class="icon power green"></i><span class="text">Enable</span></button>
-                    {% endif -%}
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.db_module.enabled else '' }}>
+                        <label></label>
+                    </div>
+                </td>
+                <td class="right aligned collapsing">
                 <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>
             </tr>
 {% endfor %}
@@ -113,7 +115,7 @@ $(document).ready(function() {
         $(this).closest('.message').transition('fade');
     });
     enable_edit_row('modules');
-    enable_toggle_row('toggle_module');
+    enable_toggle_row_cb('toggle_module');
 });
 </script>
 {% endblock %}
