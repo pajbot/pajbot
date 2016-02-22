@@ -72,7 +72,9 @@
         <div class="four wide column">{% if session.user %}
           <h4 class="ui inverted header">Hello {{ session.user.username_raw }}</h4>
           <div class="ui inverted link list">
-           <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
+           {% if not session.user.level or session.user.level >= 500 %}
+             <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
+           {% endif %}
            <a class="item" href="/logout"><i class="sign out icon"></i> Log out</a>{% else %}
           <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
           <div class="ui inverted link list">

@@ -649,9 +649,15 @@ def authorized():
         return redirect(url_for('login_error'))
     session['twitch_token'] = (resp['access_token'], )
     me = twitch.get('user')
+    level = 100
+    with DBManager.create_session_scope() as db_session:
+        db_user = db_session.query(User).filter_by(username=me.data['name'].lower()).one_or_none()
+        if db_user:
+            level = db_user.level
     session['user'] = {
             'username': me.data['name'],
             'username_raw': me.data['display_name'],
+            'level': level,
             }
     return redirect(url_for('index'))
 
