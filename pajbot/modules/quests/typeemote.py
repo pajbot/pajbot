@@ -50,6 +50,11 @@ class TypeEmoteQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.load_progress(redis=redis)
+        self.load_data(redis=redis)
+
+    def load_data(self, redis=None):
+        if redis is None:
+            redis = RedisManager.get()
 
         self.current_emote = redis.get(self.current_emote_key)
         if self.current_emote is None:

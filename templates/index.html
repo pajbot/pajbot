@@ -5,6 +5,10 @@
 <h3>
 This is the website for <strong>{{ bot.name }}</strong> that runs in <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
 </h3>
+{% if current_quest %}
+<h3>THE STREAM IS LIVE</h3>
+<h2>Current quest objective: {{ current_quest.get_objective() }}</h2>
+{% endif %}
 <h1>Global Changelog</h1>
 <h2>2015-12-12</h2>
 <ul>

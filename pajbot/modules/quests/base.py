@@ -43,6 +43,13 @@ class BaseQuest(BaseModule):
             except (TypeError, ValueError):
                 pass
 
+    def load_data(self, redis=None):
+        """
+        Useful base method for loading dynamic parts of the quest.
+        For example, what emote is supposed to be used in the type emote quest
+        """
+        pass
+
     def reset_progress(self, redis=None):
         if redis is None:
             redis = RedisManager.get()

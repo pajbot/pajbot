@@ -27,9 +27,11 @@ from pajbot.models.time import TimeManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.module import ModuleManager
+from pajbot.managers import RedisManager
 from pajbot.apiwrappers import TwitchAPI
 from pajbot.tbutil import time_since
 from pajbot.tbutil import find
+from pajbot.streamhelper import StreamHelper
 
 import markdown
 from flask import Flask
@@ -160,6 +162,14 @@ if 'logo' not in config['web']:
     except:
         pass
 
+StreamHelper.init_web(config['main']['streamer'])
+
+redis_options = {}
+if 'redis' in config:
+    redis_options = config._sections['redis']
+
+RedisManager.init(**redis_options)
+
 with open(args.config, 'w') as configfile:
     config.write(configfile)
 
@@ -184,6 +194,8 @@ twitch = oauth.remote_app(
 
 DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
+
+module_manager = ModuleManager(None).load()
 
 with DBManager.create_session_scope() as db_session:
     custom_web_content = {}
@@ -257,8 +269,19 @@ def index():
         custom_content = Markup(markdown.markdown(custom_content))
     except:
         log.exception('Unhandled exception in def index')
+
+    redis = RedisManager.get()
+    current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
+    current_quest_id = redis.get(current_quest_key)
+    if current_quest_id is not None:
+        current_quest = module_manager[current_quest_id.decode('utf8')]
+        current_quest.load_data()
+    else:
+        current_quest = None
+
     return render_template('index.html',
-            custom_content=custom_content)
+            custom_content=custom_content,
+            current_quest=current_quest)
 
 @app.route('/commands/')
 def commands():
@@ -582,7 +605,12 @@ def notifications():
 
 @app.route('/test/')
 def test():
-    return render_template('test.html')
+    redis = RedisManager.get()
+    current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
+    current_quest_id = redis.get(current_quest_key)
+    current_quest = module_manager[current_quest_id.decode('utf8')]
+    current_quest.load_data()
+    return render_template('test.html', current_quest=current_quest)
 
 
 @app.route('/clr/overlay/<widget_id>')
@@ -692,8 +720,6 @@ def number_format(value, tsep=',', dsep='.'):
         s = s[:-3]
 
     return lhs + splt[:-1] + rhs
-
-module_manager = ModuleManager(None).load()
 
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))

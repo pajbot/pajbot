@@ -8,8 +8,14 @@ class StreamHelper:
     stream_manager = None
 
     def init_bot(bot, stream_manager):
-        StreamHelper.streamer = bot.streamer
+        StreamHelper.init_streamer(bot.streamer)
         StreamHelper.stream_manager = stream_manager
+
+    def init_web(streamer):
+        StreamHelper.init_streamer(streamer)
+
+    def init_streamer(streamer):
+        StreamHelper.streamer = streamer
 
     def get_streamer():
         return StreamHelper.streamer
