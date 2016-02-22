@@ -38,6 +38,7 @@ from .tbutil import time_since
 from .tbutil import time_method
 from .actions import Action, ActionQueue
 
+from numpy import random
 from pytz import timezone
 import irc.client
 
@@ -885,7 +886,23 @@ class Bot:
 
         HandlerManager.trigger('on_commit', stop_on_false=False)
 
-    def quit(self, **options):
+    def quit(self, message, event, **options):
+        quit_chub = self.config['main'].get('control_hub', None)
+        quit_delay = 1
+
+        if quit_chub is not None and event.target == ('#{}'.format(quit_chub)):
+            quit_delay_random = 300
+            try:
+                if message is not None and int(message.split()[0]) >= 1:
+                    quit_delay_random = int(message.split()[0])
+            except (IndexError, ValueError, TypeError):
+                pass
+            quit_delay = random.randint(0, quit_delay_random)
+            log.info('{} is restarting in {} seconds.'.format(self.nickname, quit_delay))
+
+        self.execute_delayed(quit_delay, self.quit_bot)
+
+    def quit_bot(self, **options):
         self.commit_all()
         if self.phrases['quit']:
             phrase_data = {
