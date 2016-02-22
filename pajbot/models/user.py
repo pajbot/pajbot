@@ -337,6 +337,10 @@ class UserManager(UserDict):
 
         # log.debug('UserManager::find({})'.format(username))
 
+        # Return None if the username is an empty string!
+        if username == '':
+            return None
+
         # This will be used when we access the cache dictionary
         username_lower = username.lower()
 
