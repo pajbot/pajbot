@@ -87,7 +87,7 @@ class RouletteModule(BaseModule):
             return False
 
         msg_split = message.split(' ')
-        if msg_split[0].lower() == 'all':
+        if msg_split[0].lower() in ('all', 'allin'):
             bet = user.points_available()
         else:
             try:
