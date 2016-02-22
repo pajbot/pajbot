@@ -213,8 +213,12 @@ class BanphraseManager:
 
         removed_banphrase = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)
         if removed_banphrase:
+            if removed_banphrase.data and removed_banphrase.data in self.db_session:
+                self.db_session.expunge(removed_banphrase.data)
+
             if removed_banphrase in self.enabled_banphrases:
                 self.enabled_banphrases.remove(removed_banphrase)
+
             if removed_banphrase in self.banphrases:
                 self.banphrases.remove(removed_banphrase)
 
