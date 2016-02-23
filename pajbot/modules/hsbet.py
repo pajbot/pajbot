@@ -134,7 +134,7 @@ class HSBetModule(BaseModule):
                         points_reward = int(pot_cut * total_losing_points)
                         user.points += points_reward
                         HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
-                        self.bot.say('{} bet {} points, and won {} points by correctly betting on the HS game!'.format(
+                        self.bot.say('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
                             user.username_raw, points, points_reward))
 
             self.bot.say('A new game has begun! Vote with !hsbet win/lose POINTS')
