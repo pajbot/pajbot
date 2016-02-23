@@ -4,6 +4,11 @@
 {% block body %}
 <h3>Command details</h3>
 {% include 'helper/command_table.html' %}
+{% if command.long_description %}
+<p>
+{{ command.long_description|safe }}
+</p>
+{% endif %}
 {% if examples|length > 0 %}
 <div class="ui styled accordion examples">
     {% set index = 1 %}
