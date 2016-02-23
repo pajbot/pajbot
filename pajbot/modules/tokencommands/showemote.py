@@ -15,16 +15,23 @@ class ShowEmoteTokenCommandModule(BaseModule):
 
     def show_emote(self, **options):
         bot = options['bot']
+        source = options['source']
         args = options['args']
 
         if len(args['emotes']) == 0:
             # No emotes in the given message
+            bot.whisper(source.username, 'No valid emotes were found in your message.')
             return False
 
         first_emote = args['emotes'][0]
         payload = {'emote': first_emote}
         bot.websocket_manager.emit('new_emote', payload)
+        bot.whisper(source.username, 'Successfully sent the emote {} to the stream!'.format(first_emote['code']))
 
     def load_commands(self, **options):
-        self.commands['#showemote'] = Command.raw_command(self.show_emote,
-                tokens_cost=1)
+        self.commands['#showemote'] = Command.raw_command(
+                self.show_emote,
+                tokens_cost=1,
+                description='Show an emote on stream! Costs 1 token.',
+                can_execute_with_whisper=True,
+                )
