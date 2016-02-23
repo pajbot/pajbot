@@ -38,7 +38,7 @@ def run(args):
     pajbot.connect()
 
     def on_sigterm(signal, frame):
-        pajbot.quit()
+        pajbot.quit_bot()
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, on_sigterm)
@@ -46,7 +46,7 @@ def run(args):
     try:
         pajbot.start()
     except KeyboardInterrupt:
-        pajbot.quit()
+        pajbot.quit_bot()
         pass
 
 
