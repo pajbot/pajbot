@@ -99,9 +99,12 @@ class PlaySoundTokenCommandModule(BaseModule):
         return False
 
     def load_commands(self, **options):
-        self.commands['#playsound'] = Command.raw_command(self.play_sound,
+        self.commands['#playsound'] = Command.raw_command(
+                self.play_sound,
                 tokens_cost=3,
                 sub_only=True,
-                description='Play a sound on stream! Costs 3 tokens, sub only for now.')
+                description='Play a sound on stream! Costs 3 tokens, sub only for now.',
+                can_execute_with_whisper=True,
+                )
         html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td><td><a href="{0.href}" target="_blank">SAMPLE</a></td></tr>'.format(sample) for sample in Samples.all_samples])
         self.commands['#playsound'].long_description = '<h3>Valid samples</h3><table>{}</table>'.format(html_valid_samples)
