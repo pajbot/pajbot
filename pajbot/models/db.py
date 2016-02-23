@@ -15,7 +15,7 @@ log = logging.getLogger('pajbot')
 class DBManager:
     def init(url):
         DBManager.engine = create_engine(url)
-        DBManager.Session = sessionmaker(bind=DBManager.engine)
+        DBManager.Session = sessionmaker(bind=DBManager.engine, autoflush=False)
         DBManager.ScopedSession = scoped_session(sessionmaker(bind=DBManager.engine))
 
     def create_session(**options):
