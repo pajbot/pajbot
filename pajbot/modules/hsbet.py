@@ -4,6 +4,8 @@ import datetime
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
+from pajbot.managers.redis import RedisManager
+from pajbot.streamhelper import StreamHelper
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -62,8 +64,24 @@ class HSBetModule(BaseModule):
         super().__init__()
         self.bets = {}
 
+        redis = RedisManager.get()
+
         self.last_game_start = None
         self.last_game_id = None
+        try:
+            last_game_start_timestamp = int(redis.get('{streamer}:last_hsbet_game_start'.format(streamer=StreamHelper.get_streamer())))
+            self.last_game_start = datetime.fromtimestamp(last_game_start_timestamp)
+        except (TypeError, ValueError):
+            # Issue with the int-cast
+            pass
+        except (OverflowError, OSError):
+            # Issue with datetime.fromtimestamp
+            pass
+
+        try:
+            self.last_game_id = int(redis.get('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer())))
+        except (TypeError, ValueError):
+            pass
 
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()
@@ -84,6 +102,10 @@ class HSBetModule(BaseModule):
             log.error('No games found in the history.')
             return False
 
+        self.bot.mainthread_queue.add(self.poll_trackobot_stage2,
+                args=[game_data])
+
+    def poll_trackobot_stage2(self, game_data):
         latest_game = game_data['history'][0]
 
         if latest_game['id'] != self.last_game_id:
@@ -140,9 +162,21 @@ class HSBetModule(BaseModule):
             self.bot.say('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
             self.last_game_id = latest_game['id']
-            self.last_game_start = datetime.datetime.now()
+            self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
 
-    def hsbet_command(self, **options):
+            # stats about the game
+            ratio = 'infinity'
+            try:
+                ratio = total_winning_points / total_losing_points
+            except:
+                pass
+            self.bot.say('{0} points bet on win, {1} points bet on lose. {2}:1 win/lose ratio'.format(total_winning_points, total_losing_points, ratio))
+
+            redis = RedisManager.get()
+            redis.set('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer()), self.last_game_id)
+            redis.set('{streamer}:last_hsbet_game_start'.format(streamer=StreamHelper.get_streamer()), self.last_game_start.timestamp())
+
+    def command_bet(self, **options):
         bot = options['bot']
         source = options['source']
         message = options['message']
@@ -153,15 +187,13 @@ class HSBetModule(BaseModule):
         if self.last_game_start is None:
             return False
 
-        time_delta = datetime.datetime.now() - self.last_game_start
-
-        if time_delta.total_seconds() > self.settings['time_until_bet_closes']:
+        if datetime.datetime.now() > self.last_game_start:
             bot.whisper(source.username, 'The game is too far along for you to bet on it. Wait until the next game!')
             return False
 
         msg_parts = message.split(' ')
         if msg_parts == 0:
-            bot.whisper(source.username, 'Usage: !hsbet win/loss POINTS')
+            bot.whisper(source.username, 'Usage: !hsbet win/lose POINTS')
             return False
 
         outcome = msg_parts[0].lower()
@@ -179,7 +211,8 @@ class HSBetModule(BaseModule):
         try:
             points = int(msg_parts[1])
         except (IndexError, ValueError, TypeError):
-            pass
+            bot.whisper(source.username, 'Invalid bet. Usage: !hsbet win/loss POINTS')
+            return False
 
         if points < 0:
             bot.whisper(source.username, 'You cannot bet negative points.')
@@ -201,12 +234,47 @@ class HSBetModule(BaseModule):
         self.bets[source.username] = (bet_for_win, points)
         bot.whisper(source.username, 'You have bet {} points on this game resulting in a {}.'.format(points, 'win' if bet_for_win else 'loss'))
 
+    def command_open(self, **options):
+        bot = options['bot']
+        message = options['message']
+
+        time_limit = self.settings['time_until_bet_closes']
+
+        if message:
+            msg_split = message.split(' ')
+            try:
+                time_limit = int(msg_split[0])
+
+                if time_limit < 10:
+                    time_limit = 10
+                elif time_limit > 180:
+                    time_limit = 180
+            except (ValueError, TypeError):
+                pass
+
+        self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=time_limit)
+
+        bot.say('The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS'.format(time_limit))
+
     def load_commands(self, **options):
-        self.commands['hsbet'] = Command.raw_command(
-                self.hsbet_command,
+        self.commands['hsbet'] = Command.multiaction_command(
+                level=100,
+                default='bet',
+                fallback='bet',
                 delay_all=0,
-                delay_user=10,
-                )
+                delay_user=0,
+                commands={
+                    'bet': Command.raw_command(
+                        self.command_bet,
+                        delay_all=0,
+                        delay_user=10,
+                        ),
+                    'open': Command.raw_command(
+                        self.command_open,
+                        level=500,
+                        delay_all=0,
+                        delay_user=0)
+                    })
 
     def enable(self, bot):
         if bot:
