@@ -137,6 +137,8 @@ class HSBetModule(BaseModule):
                 else:
                     losers.append((user, points))
                     total_losing_points += points
+                    self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
+                        points))
 
             for obj in losers:
                 user, points = obj
@@ -162,8 +164,12 @@ class HSBetModule(BaseModule):
                         points_reward = int(pot_cut * total_losing_points)
                         user.points += points_reward
                         HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                        self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
+                            points, points_reward, pot_cut * 100))
+                        """
                         self.bot.say('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
                             user.username_raw, points, points_reward))
+                            """
 
             self.bot.say('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
