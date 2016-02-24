@@ -273,6 +273,17 @@ class HSBetModule(BaseModule):
 
         bot.say('The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS'.format(time_limit))
 
+    def command_close(self, **options):
+        bot = options['bot']
+
+        self.last_game_start = datetime.datetime.now() - datetime.timedelta(seconds=10)
+
+        for username in self.bets:
+            _, points = self.bets[username]
+            user = self.bot.users[username]
+            user.remove_debt(points)
+            bot.whisper(username, 'Your HS bet of {} points has been refunded because the bet has been cancelled.'.format(points))
+
     def load_commands(self, **options):
         self.commands['hsbet'] = Command.multiaction_command(
                 level=100,
@@ -288,6 +299,11 @@ class HSBetModule(BaseModule):
                         ),
                     'open': Command.raw_command(
                         self.command_open,
+                        level=500,
+                        delay_all=0,
+                        delay_user=0),
+                    'close': Command.raw_command(
+                        self.command_close,
                         level=500,
                         delay_all=0,
                         delay_user=0)
