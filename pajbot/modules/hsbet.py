@@ -87,6 +87,12 @@ class HSBetModule(BaseModule):
         self.scheduler.start()
         self.job = self.scheduler.add_job(self.poll_trackobot, 'interval', seconds=15)
         self.job.pause()
+        self.scheduler.add_job(self.reminder_bet, 'interval', seconds=15)
+
+    def reminder_bet(self):
+        if self.is_betting_open():
+            seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds())
+            self.bot.say('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
 
     def poll_trackobot(self):
         url = 'https://trackobot.com/profile/history.json?username={username}&token={api_key}'.format(
@@ -176,6 +182,11 @@ class HSBetModule(BaseModule):
             redis.set('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer()), self.last_game_id)
             redis.set('{streamer}:last_hsbet_game_start'.format(streamer=StreamHelper.get_streamer()), self.last_game_start.timestamp())
 
+    def is_betting_open(self):
+        if self.last_game_start is None:
+            return False
+        return datetime.datetime.now() < self.last_game_start
+
     def command_bet(self, **options):
         bot = options['bot']
         source = options['source']
@@ -187,7 +198,7 @@ class HSBetModule(BaseModule):
         if self.last_game_start is None:
             return False
 
-        if datetime.datetime.now() > self.last_game_start:
+        if not self.is_betting_open():
             bot.whisper(source.username, 'The game is too far along for you to bet on it. Wait until the next game!')
             return False
 
