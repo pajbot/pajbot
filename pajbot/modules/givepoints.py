@@ -104,5 +104,6 @@ class GivePointsModule(BaseModule):
                 self.give_points,
                 sub_only=self.settings['source_requires_sub'],
                 delay_all=0,
-                delay_user=30,
+                delay_user=0,
+                can_execute_with_whisper=True,
                 )
