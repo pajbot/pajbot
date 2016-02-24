@@ -671,7 +671,7 @@ class Bot:
 
     def on_disconnect(self, chatconn, event):
         if chatconn in self.whisper_manager:
-            log.debug('Disconnecting from Whisper server')
+            log.debug('Whispers: Disconnecting from Whisper server')
             self.whisper_manager.on_disconnect(chatconn)
 
         else:

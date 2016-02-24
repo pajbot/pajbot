@@ -103,9 +103,9 @@ class WhisperConnectionManager:
             connection.conn.quit('bye')
 
     def update_servers_list(self):
-            log.debug("Refreshing list of whisper servers")
-            servers_list = json.loads(requests.get("http://tmi.twitch.tv/servers?cluster=group").text)
-            self.servers_list = servers_list['servers']
+        log.debug("Refreshing list of whisper servers")
+        servers_list = json.loads(requests.get("http://tmi.twitch.tv/servers?cluster=group").text)
+        self.servers_list = servers_list['servers']
 
     def whisper_sender(self):
         while True:
@@ -154,7 +154,7 @@ class WhisperConnectionManager:
         server = random.choice(self.servers_list)
         ip, port = server.split(':')
         port = int(port)
-        log.debug("Whispers: Connection to server {0}".format(server))
+        log.debug("Whispers: Connecting to server {0}".format(server))
 
         newconn = CustomServerConnection(self.reactor)
         with self.reactor.mutex:
@@ -169,6 +169,7 @@ class WhisperConnectionManager:
         return WhisperConnection(newconn, name, oauth, can_send_whispers)
 
     def on_disconnect(self, conn):
+        log.debug('Whispers: Disconnected from server {} Reconnecting'.format(conn))
         conn.reconnect()
         conn.cap('REQ', 'twitch.tv/commands')
         return
