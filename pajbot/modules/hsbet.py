@@ -283,6 +283,7 @@ class HSBetModule(BaseModule):
             user = self.bot.users[username]
             user.remove_debt(points)
             bot.whisper(username, 'Your HS bet of {} points has been refunded because the bet has been cancelled.'.format(points))
+        self.bets = {}
 
     def load_commands(self, **options):
         self.commands['hsbet'] = Command.multiaction_command(
