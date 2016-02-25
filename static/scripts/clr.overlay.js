@@ -60,6 +60,7 @@ samples = {
     'sorry': { 'url': 'https://pajlada.se/files/clr/sorry.mp3' },
     'relax': { 'url': 'https://pajlada.se/files/clr/relax.mp3' },
     'vibrate': { 'url': 'https://pajlada.se/files/clr/vibrate.mp3' },
+    '4head': { 'url': 'https://pajlada.se/files/clr/4Head.mp3' },
 };
 $(document).ready(function() {
     connect_to_ws();

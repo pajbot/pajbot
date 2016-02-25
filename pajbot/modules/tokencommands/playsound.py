@@ -66,6 +66,7 @@ class Samples:
             Sample('sorry', 'https://pajlada.se/files/clr/sorry.mp3'),
             Sample('relax', 'https://pajlada.se/files/clr/relax.mp3'),
             Sample('vibrate', 'https://pajlada.se/files/clr/vibrate.mp3'),
+            Sample('4head', 'https://pajlada.se/files/clr/4Head.mp3'),
     ]
 
 class PlaySoundTokenCommandModule(BaseModule):
