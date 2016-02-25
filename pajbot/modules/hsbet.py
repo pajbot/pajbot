@@ -92,7 +92,7 @@ class HSBetModule(BaseModule):
     def reminder_bet(self):
         if self.is_betting_open():
             seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds())
-            self.bot.say('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
+            self.bot.me('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
 
     def poll_trackobot(self):
         url = 'https://trackobot.com/profile/history.json?username={username}&token={api_key}'.format(
@@ -122,7 +122,7 @@ class HSBetModule(BaseModule):
             for username in self.bets:
                 bet_for_win, points = self.bets[username]
                 """
-                self.bot.say('{} bet {} points on the last game to end up as a {}'.format(
+                self.bot.me('{} bet {} points on the last game to end up as a {}'.format(
                     username,
                     points,
                     'win' if bet_for_win else 'loss'))
@@ -167,11 +167,11 @@ class HSBetModule(BaseModule):
                         self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
                             points, points_reward, pot_cut * 100))
                         """
-                        self.bot.say('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
+                        self.bot.me('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
                             user.username_raw, points, points_reward))
                             """
 
-            self.bot.say('A new game has begun! Vote with !hsbet win/lose POINTS')
+            self.bot.me('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
             self.last_game_id = latest_game['id']
             self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
@@ -182,7 +182,7 @@ class HSBetModule(BaseModule):
                 ratio = total_winning_points / total_losing_points
             except:
                 pass
-            self.bot.say('{0} points bet on win, {1} points bet on lose. {2}:1 win/lose ratio'.format(total_winning_points, total_losing_points, ratio))
+            self.bot.me('The game ended as a {3}. {0} points bet on win, {1} points bet on lose. {2}:1 win/lose ratio'.format(total_winning_points, total_losing_points, ratio, latest_game['result']))
 
             redis = RedisManager.get()
             redis.set('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer()), self.last_game_id)
@@ -271,7 +271,7 @@ class HSBetModule(BaseModule):
 
         self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=time_limit)
 
-        bot.say('The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS'.format(time_limit))
+        bot.me('The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS'.format(time_limit))
 
     def command_close(self, **options):
         bot = options['bot']
