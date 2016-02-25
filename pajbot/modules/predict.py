@@ -60,6 +60,7 @@ class PredictModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Prediction module'
     DESCRIPTION = 'Handles predictions of arena wins'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='challenge_name',

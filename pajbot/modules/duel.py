@@ -22,6 +22,7 @@ class DuelModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Duel (mini game)'
     DESCRIPTION = 'Let players duel to win or lose points.'
+    CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
                 key='max_pot',
@@ -96,17 +97,20 @@ class DuelModule(BaseModule):
                         description='Duel Karl_Kons for 69 points').parse(),
                     ],
                 )
-        self.commands['cancelduel'] = Command.raw_command(self.cancel_duel,
+        self.commands['cancelduel'] = Command.raw_command(
+                self.cancel_duel,
                 delay_all=0,
                 delay_user=10,
                 description='Cancel your duel request'
                 )
-        self.commands['accept'] = Command.raw_command(self.accept_duel,
+        self.commands['accept'] = Command.raw_command(
+                self.accept_duel,
                 delay_all=0,
                 delay_user=0,
                 description='Accept a duel request'
                 )
-        self.commands['decline'] = Command.raw_command(self.decline_duel,
+        self.commands['decline'] = Command.raw_command(
+                self.decline_duel,
                 delay_all=0,
                 delay_user=0,
                 description='Decline a duel request'

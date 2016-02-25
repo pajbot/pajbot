@@ -9,6 +9,7 @@ class LastfmModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'LastFM module'
     DESCRIPTION = 'This uses the LastFM api to fetch the current artist and songname that the streamer is listening to on spotify or youtube.'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='api_key',

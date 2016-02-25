@@ -38,6 +38,7 @@ class LinkTrackerModule(BaseModule):
     NAME = 'Link Tracker'
     DESCRIPTION = 'Tracks links to see which links are most frequently posted in your chat'
     ENABLED_DEFAULT = True
+    CATEGORY = 'Feature'
     SETTINGS = []
 
     def __init__(self):

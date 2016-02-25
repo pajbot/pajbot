@@ -10,6 +10,7 @@ class DummyModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Dummy module'
     DESCRIPTION = 'This does not actually do anything'
+    CATEGORY = 'Debugging'
     SETTINGS = [
             ModuleSetting(
                 key='who',

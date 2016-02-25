@@ -12,6 +12,7 @@ class EmoteComboModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Emote Combo (web interface)'
     DESCRIPTION = 'Shows emote combos in the web interface CLR thing'
+    CATEGORY = 'Feature'
     SETTINGS = [
                 ]
 

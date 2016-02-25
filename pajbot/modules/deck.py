@@ -18,6 +18,7 @@ class DeckModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Decks (Hearthstone)'
     DESCRIPTION = 'Handles displaying/updating decks through commands and the website.'
+    CATEGORY = 'Feature'
 
     def load_commands(self, **options):
         self.commands['setdeck'] = Command.raw_command(self.set_deck,

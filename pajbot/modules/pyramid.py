@@ -12,6 +12,7 @@ class PyramidModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Pyramid'
     DESCRIPTION = 'Congratulates people who build successfully pyramids in twitch chat'
+    CATEGORY = 'Game'
     SETTINGS = [ModuleSetting(
                 key='message_5',
                 label='Message for a < 5 pyramid | Available arguments: {user}, {width}, {emote}',

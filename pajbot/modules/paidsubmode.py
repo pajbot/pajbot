@@ -14,6 +14,7 @@ class PaidSubmodeModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Paid SubOn/SubOff'
     DESCRIPTION = 'Allows user to toggle subscribers mode on and off using points.'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='subon_command_name',

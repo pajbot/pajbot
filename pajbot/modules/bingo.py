@@ -16,6 +16,7 @@ class BingoModule(BaseModule):
     NAME = 'Bingo Games'
     DESCRIPTION = 'Chat Bingo Game for Twitch and BTTV Emotes'
     ENABLED_DEFAULT = False
+    CATEGORY = 'Game'
     SETTINGS = [
             ]
 

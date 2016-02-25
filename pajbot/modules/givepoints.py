@@ -10,6 +10,7 @@ class GivePointsModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Give Points'
     DESCRIPTION = 'Allows users to donate points to others'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='command_name',

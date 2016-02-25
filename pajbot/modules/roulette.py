@@ -14,6 +14,7 @@ class RouletteModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Roulette (mini game)'
     DESCRIPTION = 'Lets players roulette with themselves for points'
+    CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
                 key='rigged_percentage',

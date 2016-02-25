@@ -9,6 +9,7 @@ class LeagueRankModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'LeagueRank module'
     DESCRIPTION = 'Enable this to check the rank of others in League of Legends in the chat.'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='riot_api_key',

@@ -17,6 +17,7 @@ class HSBetModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Hearthstone Betting'
     DESCRIPTION = 'Enables betting on Hearthstone game outcomes with !hsbet'
+    CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
                 key='trackobot_username',

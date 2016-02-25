@@ -12,6 +12,7 @@ class PointLotteryModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Point Lottery'
     DESCRIPTION = 'Lets players participate in lottery for points'
+    CATEGORY = 'Game'
     SETTINGS = []
 
     def __init__(self):

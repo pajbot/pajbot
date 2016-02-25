@@ -46,6 +46,7 @@ class MathModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Math'
     DESCRIPTION = 'Adds a !math command for simple arithmetic'
+    CATEGORY = 'Feature'
 
     SETTINGS = [
             ModuleSetting(

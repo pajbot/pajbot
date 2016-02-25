@@ -16,6 +16,7 @@ class RaffleModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Raffle (mini game)'
     DESCRIPTION = 'Enables raffles for points'
+    CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
                 key='max_points',
@@ -158,6 +159,7 @@ class MultiRaffleModule(BaseModule):
     ID = 'multiraffle'
     NAME = 'Multi Raffle (mini game)'
     DESCRIPTION = 'Split out points between multiple users'
+    CATEGORY = 'Game'
     PARENT_MODULE = RaffleModule
     SETTINGS = []
 

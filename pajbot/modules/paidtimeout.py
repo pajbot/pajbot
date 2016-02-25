@@ -14,6 +14,7 @@ class PaidTimeoutModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Paid Timeout'
     DESCRIPTION = 'Allows user to time out other users with points'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='command_name',
@@ -112,6 +113,7 @@ class PaidTimeoutDiscountModule(BaseModule):
     ID = 'paidtimeoutdiscount'
     NAME = 'Paid Timeout Discount'
     DESCRIPTION = 'Allows user to time out other users with points'
+    CATEGORY = 'Feature'
     PARENT_MODULE = PaidTimeoutModule
     # No settings to add yet. would like to have the message customizeable
     # would also like to have the discounts customizeable

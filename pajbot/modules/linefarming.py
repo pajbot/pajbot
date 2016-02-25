@@ -12,6 +12,7 @@ class LineFarmingModule(BaseModule):
     NAME = 'Line Farming'
     DESCRIPTION = 'Keep track on the amount of lines users type in chat'
     ENABLED_DEFAULT = True
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='count_offline',

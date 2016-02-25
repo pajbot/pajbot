@@ -142,6 +142,7 @@ class LinkCheckerModule(BaseModule):
     NAME = 'Link Checker'
     DESCRIPTION = 'Checks links if they\'re bad'
     ENABLED_DEFAULT = True
+    CATEGORY = 'Filter'
     SETTINGS = [
             ModuleSetting(
                 key='ban_pleb_links',

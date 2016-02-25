@@ -12,6 +12,7 @@ class EmotesOnScreenModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Emotes on Screen (CLR)'
     DESCRIPTION = 'Shows one emote on screen per message'
+    CATEGORY = 'Feature'
     SETTINGS = [
             ModuleSetting(
                 key='valid_emotes',

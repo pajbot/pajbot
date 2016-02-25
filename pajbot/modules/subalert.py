@@ -13,6 +13,7 @@ class SubAlertModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Subscription Alert (text)'
     DESCRIPTION = 'Prints a message in chat for someone who subscribed'
+    CATEGORY = 'Feature'
     ENABLED_DEFAULT = True
     SETTINGS = [
             ModuleSetting(

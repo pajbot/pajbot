@@ -11,6 +11,7 @@ class AsciiProtectionModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Ascii Protection'
     DESCRIPTION = 'Times out users who post messages that contain too many ASCII characters.'
+    CATEGORY = 'Filter'
     SETTINGS = [
             ModuleSetting(
                 key='min_msg_length',

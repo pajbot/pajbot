@@ -13,6 +13,7 @@ class FollowAgeModule(BaseModule):
     ID = __name__.split('.')[-1]
     NAME = 'Follow age'
     DESCRIPTION = 'Makes two commands available: !followage and !followsince'
+    CATEGORY = 'Feature'
 
     def __init__(self):
         super().__init__()
