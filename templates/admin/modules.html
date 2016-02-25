@@ -3,20 +3,22 @@
 {% block title %}Modules{% endblock %}
 {% block body %}
 <h2>Modules</h2>
-<div id="bot_moderators">
-    <table class="ui very basic table collapsing">
+<div id="modules">
+    <table class="ui sortable very basic table collapsing">
         <thead>
             <tr>
-                <th class="collapsing">Module</th>
+                <th class="sorted ascending collapsing">Module</th>
+                <th class="collapsing">Category</th>
                 <th>Description</th>
-                <th class="collapsing">Enabled</th>
-                <th class="collapsing">Actions</th>
+                <th class="no-sort collapsing">Enabled</th>
+                <th class="no-sort collapsing">Actions</th>
             </tr>
         </thead>
         <tbody>
 {% for row in modules if row.PARENT_MODULE is none %}
             <tr data-id="{{row.ID}}" data-enabled="{{1 if row.db_module.enabled else 0}}">
                 <td class="collapsing">{{ row.NAME }}</td>
+                <td class="collapsing">{{ row.CATEGORY }}</td>
                 <td>{{ row.DESCRIPTION }}</td>
                 <td class="right aligned collapsing">
                     <div class="ui toggle checkbox">
@@ -36,10 +38,13 @@
 {% assets 'admin_create_row' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
+<script type="text/javascript" src="https://cdn.pajlada.se/tablesort.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     enable_edit_row('modules');
     enable_toggle_row_cb('toggle_module');
+
+    $('table').tablesort();
 });
 </script>
 {% endblock %}
