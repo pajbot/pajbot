@@ -46,7 +46,7 @@ class HSBetModule(BaseModule):
                 type='number',
                 required=True,
                 placeholder='Seconds until betting closes',
-                default=120),
+                default=60),
             ModuleSetting(
                 key='max_bet',
                 label='Max bet in points',
