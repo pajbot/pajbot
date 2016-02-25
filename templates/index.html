@@ -7,13 +7,9 @@ This is the website for <strong>{{ bot.name }}</strong> that runs in <a href="ht
 </h3>
 {% if current_quest %}
 <h3>THE STREAM IS LIVE</h3>
-<h2>Current quest objective: {{ current_quest.get_objective() }}</h2>
+<div>Today's quest: <strong>{{ current_quest.NAME }}</strong></div>
+<div>{{ current_quest.get_objective() }}</div>
 {% endif %}
-<h1>Global Changelog</h1>
-<h2>2015-12-12</h2>
-<ul>
-    <li>Set up an admin system for anyone who's above level 500 in the bot.</li>
-    <li>It can be accessed through the link in the footer. Do note that I'm experiencing some caching issues right now, which might make the login page seem to not work, while it actually works.</li>
-</ul>
+<hr />
 {{ custom_content }}
 {% endblock %}
