@@ -78,7 +78,7 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(' +')
 
     def on_pubmsg(self, source, message):
-        if source == "twitchnotify" or source == "gempbot":
+        if source.username == "twitchnotify" or source.username == "gempbot":
             pass
         else:
             try:
@@ -90,13 +90,13 @@ class PyramidModule(BaseModule):
                     len_diff = cur_len - last_len
                     if abs(len_diff) == 1:
                         good = True
-    
+
                         # Make sure the pyramid consists of the same item over and over again
                         for x in msg_parts:
                             if not x == pyramid_thing:
                                 good = False
                                 break
-    
+
                         if good:
                             self.data.append(msg_parts)
                             if len_diff > 0:
@@ -111,13 +111,13 @@ class PyramidModule(BaseModule):
                                     for x in self.data:
                                         if len(x) > peak_length:
                                             peak_length = len(x)
-    
+
                                     arguments = {
                                         'emote': pyramid_thing,
                                         'user': source.username_raw,
                                         'width': peak_length
                                     }
-    
+
                                     if peak_length > 2:
                                         if peak_length < 5:
                                             self.bot.say(self.get_phrase('message_5', **arguments))
@@ -137,7 +137,7 @@ class PyramidModule(BaseModule):
                     else:
                         self.data = []
                         self.going_down = False
-    
+
                 if len(msg_parts) == 1 and len(self.data) == 0:
                     self.data.append(msg_parts)
             except:
