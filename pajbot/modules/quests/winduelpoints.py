@@ -85,6 +85,13 @@ class WinDuelPointsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.load_progress(redis=redis)
+        self.load_data(redis=redis)
+
+        self.LIMIT = self.points_required
+
+    def load_data(self, redis=None):
+        if redis is None:
+            redis = RedisManager.get()
 
         self.points_required = redis.get(self.points_required_key)
         try:
@@ -98,8 +105,6 @@ class WinDuelPointsQuestModule(BaseQuest):
                 # someone fucked up
                 self.points_required = 500
             redis.set(self.points_required_key, self.points_required)
-
-        self.LIMIT = self.points_required
 
     def stop_quest(self):
         HandlerManager.remove_handler('on_duel_complete', self.on_duel_complete)
