@@ -107,5 +107,5 @@ class PlaySoundTokenCommandModule(BaseModule):
                 description='Play a sound on stream! Costs 3 tokens, sub only for now.',
                 can_execute_with_whisper=True,
                 )
-        html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td><td><script>var {0.command} = new Audio("{0.href}");</script><button onclick="{0.command}.play();" type="button">Play</button></td></tr>'.format(sample) for sample in Samples.all_samples])
+        html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td><td><script>var snd{0.command} = new Audio("{0.href}");</script><button onclick="snd{0.command}.play();" type="button">Play</button></td></tr>'.format(sample) for sample in Samples.all_samples])
         self.commands['#playsound'].long_description = '<h3>Valid samples</h3><table>{}</table>'.format(html_valid_samples)
