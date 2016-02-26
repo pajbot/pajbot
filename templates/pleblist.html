@@ -11,6 +11,12 @@
     <p>Currently in <strong>Client Mode</strong>. All controls should work.</p>
     <div class="pleblist-wrapper">
         <div class="songlist-wrapper">
+            <h3>Recent Subs</h3>
+            <div class="ui feed">
+                <div class="event">
+                    <div class="content subs"></div>
+                </div>
+            </div>
             <button class="ui button fluid" onclick="start_pleblist()" id="start_button">Start</button>
             <h3>Songlist (<span id="num_songs">0</span> songs)</h3>
             <span><em>Total duration: <span id="total_duration">?</span></em></span>
@@ -32,10 +38,17 @@
 </div>
 {% endblock %}
 {% block footer %}
+<script type="text/javascript">
+var ws_host = '{{ 'wss' if site.websocket.ssl else 'ws' }}://{{ site.websocket.host }}';
+var ws_port = {{ site.websocket.port }};
+</script>
 {% assets 'pleblist_shared' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% assets 'pleblist_client' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets 'notifications_subscribers' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
