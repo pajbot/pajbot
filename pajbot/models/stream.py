@@ -7,6 +7,8 @@ import urllib
 
 from pajbot.models.db import DBManager, Base
 from pajbot.models.handler import HandlerManager
+from pajbot.managers.redis import RedisManager
+
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy import orm
@@ -283,6 +285,14 @@ class StreamManager:
             if status['error'] is True:
                 log.error('An error occured while fetching stream status')
                 return
+
+            redis = RedisManager.get()
+
+            redis.hmset('stream_data', {
+                '{streamer}:online'.format(streamer=self.bot.streamer): status['online'],
+                '{streamer}:viewers'.format(streamer=self.bot.streamer): status['viewers'],
+                '{streamer}:game'.format(streamer=self.bot.streamer): status['game'],
+                })
 
             if status['online']:
                 if self.current_stream is None:

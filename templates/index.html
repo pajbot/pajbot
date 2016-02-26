@@ -5,8 +5,10 @@
 <h4>
     This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
 </h4>
+{% if stream_data['online'] == 'True' %}
+<h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong> with <strong>{{ stream_data['viewers']}}</strong> viewers.</h4>
+{% endif %}
 {% if current_quest %}
-<h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong></h4>
 <div>Today's quest: <strong>{{ current_quest.NAME }}</strong></div>
 <div>{{ current_quest.get_objective() }}</div>
 {% endif %}

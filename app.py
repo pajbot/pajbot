@@ -271,6 +271,13 @@ def index():
         log.exception('Unhandled exception in def index')
 
     redis = RedisManager.get()
+    streamer = StreamHelper.get_streamer()
+
+    keys = ('online', 'viewers', 'game')
+    stream_data_keys = ['{streamer}:{key}'.format(streamer=streamer, key=key) for key in keys]
+    stream_data_list = redis.hmget('stream_data', stream_data_keys)
+    stream_data = {keys[x]: stream_data_list[x] for x in range(0, len(keys))}
+
     current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
     current_quest_id = redis.get(current_quest_key)
     if current_quest_id is not None:
@@ -288,6 +295,7 @@ def index():
     return render_template('index.html',
             custom_content=custom_content,
             current_quest=current_quest,
+            stream_data=stream_data,
             **social_dict)
 
 @app.route('/commands/')
