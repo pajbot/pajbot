@@ -113,6 +113,10 @@ notifications_base = Bundle('scripts/notifications/base.js', filters='jsmin',
         output='scripts/notifications/base.gen.%(version)s.js')
 assets.register('notifications_base', notifications_base)
 
+notifications_subscribers = Bundle('scripts/notifications/subscribers.js', filters='jsmin',
+        output='scripts/notifications/subscribers.gen.%(version)s.js')
+assets.register('notifications_subscribers', notifications_subscribers)
+
 config = configparser.ConfigParser()
 
 parser = argparse.ArgumentParser(description='start the web app')
