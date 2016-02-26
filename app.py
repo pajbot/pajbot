@@ -274,14 +274,21 @@ def index():
     current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
     current_quest_id = redis.get(current_quest_key)
     if current_quest_id is not None:
-        current_quest = module_manager[current_quest_id.decode('utf8')]
+        current_quest = module_manager[current_quest_id]
         current_quest.load_data()
     else:
         current_quest = None
 
+    # get social shit
+    social_networks = ('twitter', 'github')
+    social_dict = {}
+    for social_network in social_networks:
+        social_dict[social_network] = redis.hget('streamer_info', '{streamer}:{social_network}'.format(streamer=StreamHelper.get_streamer(), social_network=social_network))
+
     return render_template('index.html',
             custom_content=custom_content,
-            current_quest=current_quest)
+            current_quest=current_quest,
+            **social_dict)
 
 @app.route('/commands/')
 def commands():
@@ -608,7 +615,7 @@ def test():
     redis = RedisManager.get()
     current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
     current_quest_id = redis.get(current_quest_key)
-    current_quest = module_manager[current_quest_id.decode('utf8')]
+    current_quest = module_manager[current_quest_id]
     current_quest.load_data()
     return render_template('test.html', current_quest=current_quest)
 

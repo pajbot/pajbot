@@ -2,14 +2,22 @@
 {% set active_page = 'home' %}
 {% block title %}Home{% endblock %}
 {% block body %}
-<h3>
-This is the website for <strong>{{ bot.name }}</strong> that runs in <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
-</h3>
+<h4>
+    This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
+</h4>
 {% if current_quest %}
-<h3>THE STREAM IS LIVE</h3>
+<h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong></h4>
 <div>Today's quest: <strong>{{ current_quest.NAME }}</strong></div>
 <div>{{ current_quest.get_objective() }}</div>
 {% endif %}
 <hr />
+<p>
+{% if twitter %}
+<a href="https://twitter.com/{{ twitter }}"><i class="twitter icon"></i>Twitter</a>&emsp;
+{% endif %}
+{% if github %}
+<a href="https://github.com/{{ github }}"><i class="github icon"></i>Github</a>&emsp;
+{% endif %}
+</p>
 {{ custom_content }}
 {% endblock %}
