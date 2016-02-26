@@ -143,7 +143,7 @@ class QuestModule(BaseModule):
             log.info('Try to load submodule with ID {}'.format(current_quest_id))
 
             if current_quest_id is not None:
-                current_quest_id = current_quest_id.decode('utf8')
+                current_quest_id = current_quest_id
                 quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
                 if quest is not None:

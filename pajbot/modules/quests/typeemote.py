@@ -63,7 +63,7 @@ class TypeEmoteQuestModule(BaseQuest):
             self.current_emote = random.choice(global_twitch_emotes)
             redis.set(self.current_emote_key, self.current_emote)
         else:
-            self.current_emote = self.current_emote.decode('utf8')
+            self.current_emote = self.current_emote
 
     def stop_quest(self):
         HandlerManager.remove_handler('on_message', self.on_message)

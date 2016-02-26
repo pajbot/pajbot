@@ -39,7 +39,7 @@ class BaseQuest(BaseModule):
         old_progress = redis.hgetall(self.progress_key)
         for user, progress in old_progress.items():
             try:
-                self.progress[user.decode('utf8')] = int(progress)
+                self.progress[user] = int(progress)
             except (TypeError, ValueError):
                 pass
 

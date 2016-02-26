@@ -389,10 +389,10 @@ class TwitchAPI(APIBase):
                 log.exception('Unhandled exception in get_follow_relationship')
                 return False
         else:
-            if follow_relationship == b'-1':
+            if follow_relationship == '-1':
                 return False
             else:
-                return TwitchAPI.parse_datetime(follow_relationship.decode('utf-8'))
+                return TwitchAPI.parse_datetime(follow_relationship)
 
 
 class SafeBrowsingAPI:

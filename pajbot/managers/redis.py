@@ -10,7 +10,11 @@ class RedisManager:
     redis = None
 
     def init(**options):
-        RedisManager.redis = redis.Redis(**options)
+        default_options = {
+                'decode_responses': True,
+                }
+        default_options.update(options)
+        RedisManager.redis = redis.Redis(**default_options)
 
     def get():
         return RedisManager.redis
