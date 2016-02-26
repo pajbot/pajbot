@@ -6,7 +6,9 @@
     This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
 </h4>
 {% if stream_data['online'] == 'True' %}
-<h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong> with <strong>{{ stream_data['viewers']}}</strong> viewers.</h4>
+<h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong> with <strong>{{ stream_data['viewers']}}</strong> viewers ({{ stream_data['game'] }}).</h4>
+{% else %}
+<h4>The stream is currently <strong>OFFLINE</strong>.</h4>
 {% endif %}
 {% if current_quest %}
 <div>Today's quest: <strong>{{ current_quest.NAME }}</strong></div>
