@@ -88,12 +88,18 @@ class HSBetModule(BaseModule):
         self.scheduler.start()
         self.job = self.scheduler.add_job(self.poll_trackobot, 'interval', seconds=15)
         self.job.pause()
-        self.scheduler.add_job(self.reminder_bet, 'interval', seconds=15)
+        self.reminder_job = self.scheduler.add_job(self.reminder_bet, 'interval', seconds=1)
+        self.reminder_job.pause()
 
     def reminder_bet(self):
         if self.is_betting_open():
-            seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds())
-            self.bot.me('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
+            seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds()) - 1
+            if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
+                self.bot.me('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
+            elif seconds_until_bet_closes == 5:
+                self.bot.me('The hearthstone betting closes in 5 seconds...')
+            elif seconds_until_bet_closes == 0:
+                self.bot.me('The hearthstone betting has been closed! No longer accepting bets.')
 
     def poll_trackobot(self):
         url = 'https://trackobot.com/profile/history.json?username={username}&token={api_key}'.format(
@@ -314,8 +320,10 @@ class HSBetModule(BaseModule):
     def enable(self, bot):
         if bot:
             self.job.resume()
+            self.reminder_job.resume()
         self.bot = bot
 
     def disable(self, bot):
         if bot:
             self.job.pause()
+            self.reminder_job.pause()
