@@ -17,6 +17,8 @@ from pajbot.models.db import DBManager
 from pajbot.modules.linkchecker import BlacklistedLink
 from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.predict import PredictionRun, PredictionRunEntry
+from pajbot.managers.redis import RedisManager
+from pajbot.streamhelper import StreamHelper
 
 import requests
 from flask import Blueprint
@@ -517,3 +519,23 @@ def predictions_view(prediction_run_id, **options):
         return render_template('admin/predictions_view.html',
                 prediction=prediction,
                 entries=entries)
+
+@page.route('/streamer/')
+@requires_level(500)
+def admin_streamer(**options):
+    redis = RedisManager.get()
+    streamer = StreamHelper.get_streamer()
+    keys = StreamHelper.social_keys
+    streamer_info_keys = ['{streamer}:{key}'.format(streamer=streamer, key=key) for key in keys.keys()]
+    log.info(streamer_info_keys)
+    streamer_info_list = redis.hmget('streamer_info', streamer_info_keys)
+    streamer_info = collections.OrderedDict()
+    for key in keys:
+        value = streamer_info_list.pop(0)
+        streamer_info[key] = {
+                'value': value,
+                'title': keys[key]['title'],
+                'format': keys[key]['format'],
+                }
+    return render_template('admin/streamer.html',
+            streamer_info=streamer_info)

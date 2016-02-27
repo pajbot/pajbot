@@ -10,6 +10,7 @@ import logging
 import subprocess
 import datetime
 import urllib
+import collections
 
 from pajbot.bot import Bot
 from pajbot.web.routes import api
@@ -282,6 +283,20 @@ def index():
     stream_data_list = redis.hmget('stream_data', stream_data_keys)
     stream_data = {keys[x]: stream_data_list[x] for x in range(0, len(keys))}
 
+    keys = StreamHelper.social_keys
+    streamer_info_keys = ['{streamer}:{key}'.format(streamer=streamer, key=key) for key in keys.keys()]
+    log.info(streamer_info_keys)
+    streamer_info_list = redis.hmget('streamer_info', streamer_info_keys)
+    streamer_info = collections.OrderedDict()
+    for key in keys:
+        value = streamer_info_list.pop(0)
+        if value:
+            streamer_info[key] = {
+                    'value': keys[key]['format'].format(value),
+                    'title': keys[key]['title'],
+                    'format': keys[key]['format'],
+                    }
+
     current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
     current_quest_id = redis.get(current_quest_key)
     if current_quest_id is not None:
@@ -290,17 +305,11 @@ def index():
     else:
         current_quest = None
 
-    # get social shit
-    social_networks = ('twitter', 'github')
-    social_dict = {}
-    for social_network in social_networks:
-        social_dict[social_network] = redis.hget('streamer_info', '{streamer}:{social_network}'.format(streamer=StreamHelper.get_streamer(), social_network=social_network))
-
     return render_template('index.html',
             custom_content=custom_content,
             current_quest=current_quest,
             stream_data=stream_data,
-            **social_dict)
+            streamer_info=streamer_info)
 
 @app.route('/commands/')
 def commands():
@@ -772,6 +781,7 @@ nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderato
 nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
 if 'predict' in module_manager:
     nav_bar_admin_header.append(('/admin/predictions/', 'admin_predictions', 'Predictions'))
+nav_bar_admin_header.append(('/admin/streamer/', 'admin_streamer', 'Streamer Info'))
 
 version = Bot.version
 last_commit = ''

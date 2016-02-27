@@ -13,6 +13,7 @@ $.fn.api.settings.api = {
     'toggle_banphrase': '/api/v1/banphrase/toggle/{id}',
     'remove_banphrase': '/api/v1/banphrase/remove/{id}',
     'toggle_module': '/api/v1/module/toggle/{id}',
+    'social_set': '/api/v1/social/{key}/set',
 };
 
 $(document).ready(function() {

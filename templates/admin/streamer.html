@@ -1,0 +1,72 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_streamer' %}
+{% block title %}Admin - Streamer Info{% endblock %}
+{% block body %}
+<h2>Streamer Info</h2>
+Use the links in the menu to browse admin-only sites.
+<table class="social ui single line table collapsing">
+    <thead>
+        <tr>
+            <th></th><th></th><th>Preview</th>
+        </tr>
+    <tbody>
+{% for social in streamer_info %}
+<tr data-key="{{ social }}" data-format=" {{ streamer_info[social].format }}">
+    <td><i class="icon {{ social }}"></i> {{ streamer_info[social].title }}</td>
+    <td>
+        <div class="ui input">
+            <input class="social" type="text" placeholder="{{ streamer_info[social].title }} name/link..." value="{{ streamer_info[social].value if streamer_info[social].value else '' }}"/>
+        </div>
+    </td>
+    <td><span class="full-value">X</span></td>
+</tr>
+{% endfor %}
+    </tbody>
+</table>
+<p>
+<button class="ui button green" onclick="save_social();">Save</button>
+</p>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+function save_social()
+{
+    $('table.social tbody tr').each(function() {
+        var row = $(this);
+        var key = row.data('key');
+        var input = row.find('input.social');
+        var value = input.val().trim();
+        input.api({
+            action: 'social_set',
+            on: 'now',
+            method: 'post',
+            beforeSend: function(settings) {
+                settings.urlData.key = row.data('key');
+                settings.data.value = value;
+                return settings;
+            },
+        });
+    });
+}
+function update_value(row) {
+    var input = row.find('input');
+    var display = row.find('.full-value');
+    var value = input.val();
+    if (value.length == 0) {
+        display.html('<em>Disabled</em>');
+    } else {
+        var format = row.data('format');
+        display.text(row.data('format').replace('{}', value));
+    }
+}
+$(document).ready(function() {
+    $('input.social').on('input', function(e) {
+        update_value($(this).closest('tr'));
+    });
+    $('.full-value').each(function() {
+        var row = $(this).closest('tr');
+        update_value(row);
+    });
+});
+</script>
+{% endblock %}

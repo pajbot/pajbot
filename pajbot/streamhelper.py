@@ -1,3 +1,5 @@
+import collections
+
 class StreamHelper:
     """ Staticly available class with a bunch of useful variables.
     streamer: The name of the streamer in full lowercase
@@ -6,6 +8,38 @@ class StreamHelper:
 
     streamer = 'Unknown'
     stream_manager = None
+    social_keys_unsorted = {
+            'twitter': {
+                'format': 'https://twitter.com/{}',
+                'title': 'Twitter',
+                },
+            'github': {
+                'format': 'https://github.com/{}',
+                'title': 'Github',
+                },
+            'youtube': {
+                'format': '{}',
+                'title': 'YouTube',
+                },
+            'instagram': {
+                'format': 'https://www.instagram.com/{}/',
+                'title': 'Instagram',
+                },
+            'reddit': {
+                'format': 'https://www.reddit.com/r/{}/',
+                'title': 'Reddit',
+                },
+            'steam': {
+                'format': '{}',
+                'title': 'Steam',
+                },
+            'facebook': {
+                'format': '{}',
+                'title': 'Facebook',
+                },
+            }
+    social_keys = collections.OrderedDict(sorted(social_keys_unsorted.items(), key=lambda t: t[0]))
+    valid_social_keys = set(social_keys.keys())
 
     def init_bot(bot, stream_manager):
         StreamHelper.init_streamer(bot.streamer)

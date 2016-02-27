@@ -18,6 +18,8 @@ from pajbot.models.pleblist import PleblistManager
 from pajbot.models.stream import Stream
 from pajbot.models.db import DBManager
 from pajbot.models.sock import SocketClientManager
+from pajbot.managers.redis import RedisManager
+from pajbot.streamhelper import StreamHelper
 
 import requests
 from flask import Blueprint
@@ -501,3 +503,24 @@ def generic_toggle(route_key, row_id, **options):
             return make_response(jsonify({'success': 'successful toggle', 'new_state': new_state}))
         else:
             return make_response(jsonify({'error': 'invalid {} id'.format(route_key)}))
+
+@page.route('/api/v1/social/<social_key>/set', methods=['POST'])
+@requires_level(500)
+def social_set(social_key, **options):
+    streamer = StreamHelper.get_streamer()
+    if social_key not in StreamHelper.valid_social_keys:
+        return make_response(jsonify({'error': 'invalid social key'}))
+    if 'value' not in request.form:
+        return make_response(jsonify({'error': 'Missing `value` parameter.'}), 400)
+
+    value = request.form['value'].strip()
+
+    key = '{streamer}:{key}'.format(streamer=streamer, key=social_key)
+    redis = RedisManager.get()
+
+    if len(value) == 0:
+        redis.hdel('streamer_info', key)
+    else:
+        redis.hset('streamer_info', key, value)
+
+    return make_response(jsonify({'message': 'success!'}))

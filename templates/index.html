@@ -16,12 +16,9 @@
 {% endif %}
 <hr />
 <p>
-{% if twitter %}
-<a href="https://twitter.com/{{ twitter }}"><i class="twitter icon"></i>Twitter</a>&emsp;
-{% endif %}
-{% if github %}
-<a href="https://github.com/{{ github }}"><i class="github icon"></i>Github</a>&emsp;
-{% endif %}
+{% for social in streamer_info %}
+<a href="{{ streamer_info[social].value }}"><i class="icon {{social}}"></i>{{streamer_info[social].title}}</a>&emsp;
+{% endfor %}
 </p>
 {{ custom_content }}
 {% endblock %}
