@@ -933,6 +933,7 @@ class Bot:
                 'time_since_dt': _filter_time_since_dt,
                 'urlencode': lambda var, args: urllib.parse.urlencode(var),
                 'join': _filter_join,
+                'number_format': _filter_number_format,
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
@@ -959,3 +960,10 @@ def _filter_join(var, args):
         separator = ', '
 
     return separator.join(var.split(' '))
+
+def _filter_number_format(var, args):
+    try:
+        return '{0:,d}'.format(int(var))
+    except:
+        log.exception('asdasd')
+    return var
