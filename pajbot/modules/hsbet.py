@@ -126,6 +126,10 @@ class HSBetModule(BaseModule):
             losers = []
             total_winning_points = 0
             total_losing_points = 0
+            points_bet = {
+                    'win': 0,
+                    'loss': 0,
+                    }
             for username in self.bets:
                 bet_for_win, points = self.bets[username]
                 """
@@ -138,6 +142,7 @@ class HSBetModule(BaseModule):
                 user = self.bot.users[username]
 
                 correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
+                points_bet['win' if bet_for_win else 'loss'] += points
                 if correct_bet:
                     winners.append((user, points))
                     total_winning_points += points
@@ -184,12 +189,12 @@ class HSBetModule(BaseModule):
             self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
 
             # stats about the game
-            ratio = 'infinity'
+            ratio = 0.0
             try:
-                ratio = total_winning_points / total_losing_points
+                ratio = (total_losing_points / total_winning_points) * 100.0
             except:
                 pass
-            self.bot.me('The game ended as a {3}. {0} points bet on win, {1} points bet on lose. {2}:1 win/lose ratio'.format(total_winning_points, total_losing_points, ratio, latest_game['result']))
+            self.bot.me('The game ended as a {result}. {points_bet[win]} points bet on win, {points_bet[loss]} points bet on loss. Winners can expect a {ratio:.2f}% return on their bet points.'.format(ratio=ratio, result=latest_game['result'], points_bet=points_bet))
 
             redis = RedisManager.get()
             redis.set('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer()), self.last_game_id)
