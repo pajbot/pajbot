@@ -113,9 +113,14 @@ function add_to_pleblist(song)
     $div.append($div_content);
     var title = '???';
     var song_length = '???';
+    if (song.skip_after !== null) {
+        song_duration = song.skip_after;
+        } else {
+        song_duration = song.info.duration;
+        }
     if (song.info !== null) {
         title = song.info.title;
-        song_length = moment.duration(song.info.duration, 'seconds').format('h:mm:ss');
+        song_length = moment.duration(song_duration, 'seconds').format('h:mm:ss');
     }
     $a_header = $('<a>', {class: 'header', 'href': 'https://youtu.be/' + song.youtube_id, }).text(title);
     $div_content.append($a_header);
@@ -143,8 +148,13 @@ function update_song_counter()
     var total_duration = 0;
     for (song_id in pleblist_songs) {
         var song = pleblist_songs[song_id];
+        if (song.skip_after !== null) {
+        song_duration = song.skip_after;
+        } else {
+        song_duration = song.info.duration;
+        }
         if (song.info !== null) {
-            total_duration += song.info.duration;
+            total_duration += song_duration;
         }
     }
     $('#total_duration').text(moment.duration(total_duration, 'seconds').format('h:mm:ss'));
