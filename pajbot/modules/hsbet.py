@@ -95,7 +95,7 @@ class HSBetModule(BaseModule):
         if self.is_betting_open():
             seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds()) - 1
             if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
-                self.bot.me('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
+                self.bot.me('The hearthstone betting closes in {} seconds'.format(seconds_until_bet_closes))
             elif seconds_until_bet_closes == 5:
                 self.bot.me('The hearthstone betting closes in 5 seconds...')
             elif seconds_until_bet_closes == 0:
