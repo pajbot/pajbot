@@ -821,6 +821,7 @@ default_variables = {
         'modules': modules,
         'request': request,
         'session': session,
+        'google_analytics': config['web'].get('google_analytics', None),
         }
 
 if 'streamtip' in config:
