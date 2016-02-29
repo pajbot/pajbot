@@ -58,6 +58,13 @@
             Playing now!
             {% endif %}
             {% set num_not_played = num_not_played + 1 %}
+            {% if song.skip_after is none %}
+            {% set song_duration = song.song_info.duration %}
+            {% elif song.skip_after is not none %}
+            {% set song_duration = song.skip_after %}
+            {% else %}
+            {% set song_duration = 1 %}
+            {% endif %}
             {% set time_until_song_played = time_until_song_played + song_duration %}
             {% endif %}
             {% endif %}

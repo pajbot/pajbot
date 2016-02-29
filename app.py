@@ -614,7 +614,7 @@ def pleblist_history_stream(stream_id):
             return render_template('pleblist_history_404.html'), 404
 
         songs = session.query(PleblistSong).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.id.asc(), PleblistSong.id.asc()).all()
-        total_length_left = sum([song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
+        total_length_left = sum([song.skip_after or song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
 
         first_unplayed_song = find(lambda song: song.date_played is None, songs)
         stream_chunks = session.query(StreamChunk).filter(StreamChunk.stream_id == stream.id).all()
