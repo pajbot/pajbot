@@ -499,7 +499,12 @@ def generic_toggle(route_key, row_id, **options):
         if row:
             row.enabled = True if new_state == 1 else False
             db_session.commit()
-            SocketClientManager.send('{}.update'.format(route_key), {'{}_id'.format(route_key): row.id})
+            payload = {
+                    '{}_id'.format(route_key): row.id,  # remove this
+                    'id': row.id,
+                    'new_state': row.enabled,
+                    }
+            SocketClientManager.send('{}.update'.format(route_key), payload)
             return make_response(jsonify({'success': 'successful toggle', 'new_state': new_state}))
         else:
             return make_response(jsonify({'error': 'invalid {} id'.format(route_key)}))
