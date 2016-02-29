@@ -428,7 +428,9 @@ class CommandManager(UserDict):
             socket_manager.add_handler('command.remove', self.on_command_remove)
 
     def on_module_reload(self, data, conn):
+        log.debug('Rebuilding commands...')
         self.rebuild()
+        log.debug('Done rebuilding commands')
 
     def on_command_update(self, data, conn):
         try:

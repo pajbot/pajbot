@@ -43,12 +43,58 @@ class ModuleManager:
         self.bot = bot
 
         if socket_manager:
-            socket_manager.add_handler('module.update', self.on_module_reload)
+            socket_manager.add_handler('module.update', self.on_module_update)
 
-    def on_module_reload(self, data, conn):
-        log.info('ModuleManager: module.update begin')
-        self.reload()
+    def on_module_update(self, data, conn):
+        log.info('ModuleManager: module.update begin ({})'.format(data))
+        # self.reload()
+        if data['new_state'] is True:
+            self.enable_module(data['id'])
+        else:
+            self.disable_module(data['id'])
         log.info('ModuleManager: module.update done')
+
+    def enable_module(self, module_id):
+        log.debug('Enabling module {}'.format(module_id))
+        module = find(lambda m: m.ID == module_id, self.all_modules)
+        if module is None:
+            log.error('No module with the ID {} found.'.format(module_id))
+            return False
+
+        module.enable(self.bot)
+
+        if module in self.modules:
+            log.error('Module {} is already in the list of enabled modules pajaW'.format(module_id))
+            return False
+
+        self.modules.append(module)
+
+        with DBManager.create_session_scope() as db_session:
+            db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
+            options = {}
+            if db_module is not None:
+                if db_module.settings is not None:
+                    try:
+                        options['settings'] = json.loads(db_module.settings)
+                    except ValueError:
+                        log.warn('Invalid JSON in the settings for module {}'.format(module_id))
+
+            log.debug('Enabling {module.NAME}'.format(module=module))
+            module.load(**options)
+
+    def disable_module(self, module_id, reload_commands=False):
+        module = find(lambda m: m.ID == module_id, self.all_modules)
+        if module is None:
+            log.error('No module with the ID {} found.'.format(module_id))
+            return False
+
+        module.disable(self.bot)
+
+        if module not in self.modules:
+            log.error('Module {} is not in the list of enabled modules pajaW'.format(module_id))
+            return False
+
+        self.modules.remove(module)
 
     def load(self, do_reload=True):
         """ Load module classes """
