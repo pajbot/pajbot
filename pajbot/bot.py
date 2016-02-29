@@ -832,7 +832,7 @@ class Bot:
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
-        self.parse_message(event.arguments[0], source, event, whisper=True)
+        self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
         # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))

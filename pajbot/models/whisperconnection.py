@@ -172,6 +172,7 @@ class WhisperConnectionManager:
         log.debug('Whispers: Disconnected from server {} Reconnecting'.format(conn))
         conn.reconnect()
         conn.cap('REQ', 'twitch.tv/commands')
+        conn.cap('REQ', 'twitch.tv/tags')
         return
 
     def whisper(self, target, message):
