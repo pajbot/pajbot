@@ -31,7 +31,7 @@ class EightBallModule(BaseModule):
                 type='number',
                 required=True,
                 placeholder='',
-                default=60,
+                default=10,
                 constraints={
                     'min_value': 0,
                     'max_value': 240,
@@ -111,6 +111,8 @@ class EightBallModule(BaseModule):
         if message and len(message) > 0:
             phrase = random.choice(self.phrases)
             bot.me('{source.username_raw}, the 8-ball says... {phrase}'.format(source=source, phrase=phrase))
+        else:
+            return False
 
     def load_commands(self, **options):
         self.commands['8ball'] = Command.raw_command(self.eightball_command,
