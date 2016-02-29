@@ -5,6 +5,7 @@ from pajbot.modules.bingo import BingoModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
+from pajbot.modules.eightball import EightBallModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.followage import FollowAgeModule
@@ -40,6 +41,7 @@ available_modules = [
         DeckModule,
         DuelModule,
         DummyModule,
+        EightBallModule,
         EmoteComboModule,
         EmotesOnScreenModule,
         FollowAgeModule,
