@@ -304,22 +304,28 @@ class HSBetModule(BaseModule):
                 fallback='bet',
                 delay_all=0,
                 delay_user=0,
+                can_execute_with_whisper=True,
                 commands={
                     'bet': Command.raw_command(
                         self.command_bet,
                         delay_all=0,
                         delay_user=10,
+                        can_execute_with_whisper=True,
                         ),
                     'open': Command.raw_command(
                         self.command_open,
                         level=500,
                         delay_all=0,
-                        delay_user=0),
+                        delay_user=0,
+                        can_execute_with_whisper=True,
+                        ),
                     'close': Command.raw_command(
                         self.command_close,
                         level=500,
                         delay_all=0,
-                        delay_user=0)
+                        delay_user=0,
+                        can_execute_with_whisper=True,
+                        ),
                     })
 
     def enable(self, bot):
