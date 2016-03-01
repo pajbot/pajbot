@@ -926,6 +926,8 @@ class Dispatch:
             bot.whisper(source.username, 'Invalid highlight arguments.')
             return False
 
+        options['created_by'] = source.id
+
         if len(description) > 0:
             options['description'] = description
 

@@ -553,19 +553,17 @@ def highlight_list_date(date):
 @app.route('/highlights/<date>/<highlight_id>', defaults={'highlight_title': None})
 @app.route('/highlights/<date>/<highlight_id>-<highlight_title>')
 def highlight_id(date, highlight_id, highlight_title=None):
-    session = DBManager.create_session()
-    highlight = session.query(StreamChunkHighlight).filter_by(id=highlight_id).first()
-    if highlight is None:
-        session.close()
-        return render_template('highlight_404.html'), 404
-    else:
-        stream_chunk = highlight.stream_chunk
-        stream = stream_chunk.stream
-        session.close()
-    return render_template('highlight.html',
-            highlight=highlight,
-            stream_chunk=stream_chunk,
-            stream=stream)
+    with DBManager.create_session_scope() as db_session:
+        highlight = db_session.query(StreamChunkHighlight).filter_by(id=highlight_id).first()
+        if highlight is None:
+            return render_template('highlight_404.html'), 404
+        else:
+            stream_chunk = highlight.stream_chunk
+            stream = stream_chunk.stream
+        return render_template('highlight.html',
+                highlight=highlight,
+                stream_chunk=stream_chunk,
+                stream=stream)
 
 @app.route('/highlights/')
 def highlights():

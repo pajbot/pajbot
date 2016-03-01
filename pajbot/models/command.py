@@ -478,13 +478,6 @@ class CommandManager(UserDict):
         if len(self.internal_commands) > 0:
             return self.internal_commands
 
-        try:
-            level_trusted_mods = 100 if self.bot.trusted_mods else 500
-            mod_only_trusted_mods = True if self.bot.trusted_mods else False
-        except AttributeError:
-            level_trusted_mods = 500
-            mod_only_trusted_mods = False
-
         self.internal_commands = {}
 
         self.internal_commands['reload'] = Command.dispatch_command('reload',
@@ -601,36 +594,6 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully added the aliases alsotest, newtest, test123 to test',
                                 description='Adds the aliases !alsotest, !newtest, and !test123 to the existing command !test').parse(),
                             ]),
-                    'highlight': Command.dispatch_command('add_highlight',
-                        level=100,
-                        mod_only=True,
-                        description='Creates a highlight at the current timestamp',
-                        examples=[
-                            CommandExample(None, 'Create a highlight',
-                                chat='user:!add highlight 1v5 Pentakill\n'
-                                'bot>user:Successfully created your highlight',
-                                description='Creates a highlight with the description 1v5 Pentakill').parse(),
-                            CommandExample(None, 'Create a highlight with a different offset',
-                                chat='user:!add highlight 1v5 Pentakill --offset 60\n'
-                                'bot>user:Successfully created your highlight',
-                                description='Creates a highlight with the description 1v5 Pentakill and an offset of 60 seconds.').parse(),
-                            CommandExample(None, 'Change the offset with the given ID.',
-                                chat='user:!add highlight --offset 180 --id 12\n'
-                                'bot>user:Successfully updated your highlight (offset)',
-                                description='Changes the offset to 180 seconds for the highlight ID 12').parse(),
-                            CommandExample(None, 'Change the description with the given ID.',
-                                chat='user:!add highlight 1v5 Pentakill PogChamp VAC --id 12\n'
-                                'bot>user:Successfully updated your highlight (description)',
-                                description='Changes the description to \'1v5 Pentakill PogChamp VAC\' for highlight ID 12.').parse(),
-                            CommandExample(None, 'Change the VOD link to a mirror link.',
-                                chat='user:!add highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n'  # TODO turn off autolink
-                                'bot>user:Successfully updated your highlight (override_link)',
-                                description='Changes the link for highlight ID 12 to http://www.twitch.tv/imaqtpie/v/27878606').parse(),
-                            CommandExample(None, 'Change the mirror link back to the VOD link.',
-                                chat='user:!add highlight --id 12 --no-link\n'
-                                'bot>user:Successfully updated your highlight (override_link)',
-                                description='Changes the link for highlight ID 12 back to the twitch VOD link.').parse(),
-                            ]),
 
                     })
         self.internal_commands['edit'] = Command.multiaction_command(
@@ -708,16 +671,6 @@ class CommandManager(UserDict):
                                 chat='user:!remove alias KeepoKeepo Keepo2Keepo\n'
                                 'bot>user:Successfully removed 2 aliases.',
                                 description='Removes KeepoKeepo and Keepo2Keepo as aliases').parse(),
-                            ]),
-                    'highlight': Command.dispatch_command('remove_highlight',
-                        level=level_trusted_mods,
-                        mod_only=mod_only_trusted_mods,
-                        description='Removes a highlight with the given ID.',
-                        examples=[
-                            CommandExample(None, 'Remove a highlight',
-                                chat='user:!remove highlight 2\n'
-                                'bot>user:Successfully removed highlight with ID 2.',
-                                description='Removes the highlight ID 2').parse(),
                             ]),
                     })
         self.internal_commands['rem'] = self.internal_commands['remove']

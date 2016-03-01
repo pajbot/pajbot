@@ -7,6 +7,7 @@
     {%- include 'helper/highlight_thumbnail_img.html' -%}
 </div>
 <table class="ui very basic table">
+{% set user = highlight.created_by_user %}
     <tbody>
         <tr>
             <th>Created at</th>
@@ -16,6 +17,12 @@
         <tr>
             <th>Description</th>
             <td class="pemote">{{ highlight.description }}</td>
+        </tr>
+        {% endif %}
+        {% if user %}
+        <tr>
+            <th>Created by</th>
+            <td>Highlight created by {% include 'user/username_link_nobadge.html' %}</td>
         </tr>
         {% endif %}
         <tr>

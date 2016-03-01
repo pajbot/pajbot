@@ -1,3 +1,4 @@
+{% set user = highlight.created_by_user %}
 <div class="item">
     <div class="ui image video_thumbnail">
         {%- include 'helper/highlight_thumbnail_img.html' -%}
@@ -21,6 +22,9 @@
         </div>
         <div class="description">
             <div>Link: <a href="{{ highlight.video_url }}">{{ highlight.video_url }}</a></div>
+            {% if user %}
+            Highlight created by {% include 'user/username_link_nobadge.html' %}<br />
+            {% endif %}
             {% if highlight.description %}
             <p class="pemote">{{ highlight.stream_chunk.stream.title }}</p>
             {% endif %}
