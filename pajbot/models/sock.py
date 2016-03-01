@@ -99,7 +99,10 @@ class SocketManager:
 
                     if event in self.handlers:
                         for handler in self.handlers[event]:
-                            handler(json_data['data'], conn)
+                            try:
+                                handler(json_data['data'], conn)
+                            except:
+                                log.exception('Unhandled exception in handler for event {}'.format(event))
                     else:
                         log.debug('Unhandled handler: {}'.format(event))
 
