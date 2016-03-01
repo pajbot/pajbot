@@ -89,6 +89,7 @@ class StreamChunkHighlight(Base):
 
     id = Column(Integer, primary_key=True)
     stream_chunk_id = Column(Integer, ForeignKey('tb_stream_chunk.id'), nullable=False)
+    created_by = Column(Integer, ForeignKey('tb_user.id'), nullable=True)
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
