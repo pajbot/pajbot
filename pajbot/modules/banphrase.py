@@ -40,12 +40,12 @@ class BanphraseModule(BaseModule):
                 m = f.search(source, msg_lower)
                 if m:
                     log.debug('Matched regex filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event, {'match': m})
+                    f.run(self.bot, source, msg_raw, event, {'match': m})
                     return True
             elif f.type == 'banphrase':
                 if f.filter in msg_lower:
                     log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event)
+                    f.run(self.bot, source, msg_raw, event)
                     return True
 
         return False  # message was ok
