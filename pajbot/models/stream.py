@@ -90,12 +90,20 @@ class StreamChunkHighlight(Base):
     id = Column(Integer, primary_key=True)
     stream_chunk_id = Column(Integer, ForeignKey('tb_stream_chunk.id'), nullable=False)
     created_by = Column(Integer, ForeignKey('tb_user.id'), nullable=True)
+    last_edited_by = Column(Integer, ForeignKey('tb_user.id'), nullable=True)
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
     override_link = Column(String(256), nullable=True)
     thumbnail = Column(Boolean, nullable=True, default=None)
     video_url = None
+
+    created_by_user = relationship('User',
+            cascade='save-update, merge, expunge',
+            uselist=False)
+    last_edited_by_user = relationship('User',
+            cascade='save-update, merge, expunge',
+            uselist=False)
 
     DEFAULT_OFFSET = 0
 
@@ -106,6 +114,8 @@ class StreamChunkHighlight(Base):
         self.description = options.get('description', None)
         self.override_link = options.get('override_link', None)
         self.thumbnail = None
+        self.created_by = options.get('created_by', None)
+        self.last_edited_by = options.get('last_edited_by', None)
 
         self.stream_chunk = stream_chunk
         self.refresh_video_url()
