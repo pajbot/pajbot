@@ -17,10 +17,10 @@ log = logging.getLogger(__name__)
 
 class HighlightModule(BaseModule):
     ID = __name__.split('.')[-1]
-    NAME = 'Banphrase'
-    DESCRIPTION = 'Looks at each message for banned phrases, and takes actions accordingly'
-    ENABLED_DEFAULT = True
-    CATEGORY = 'Filter'
+    NAME = 'Highlight'
+    DESCRIPTION = 'Gives users the ability to create highlights that happen on the stream'
+    ENABLED_DEFAULT = False
+    CATEGORY = 'Feature'
     SETTINGS = []
 
     def is_message_bad(self, source, msg_raw, event):
