@@ -70,7 +70,7 @@ class SubAlertModule(BaseModule):
 
         self.bot.say(self.get_phrase('resub', **payload))
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper is False and source.username == 'twitchnotify':
             # Did twitchnotify tell us about a new sub?
             m = self.new_sub_regex.search(message)

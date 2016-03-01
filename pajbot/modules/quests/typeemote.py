@@ -26,7 +26,7 @@ class TypeEmoteQuestModule(BaseQuest):
         self.current_emote = '???'
         self.progress = {}
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         for emote in emotes:
             if emote['code'] == self.current_emote:
                 user_progress = self.get_user_progress(source.username, default=0) + 1

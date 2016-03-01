@@ -57,7 +57,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.6.1'
+    version = '2.6.2'
     date_fmt = '%H:%M'
     update_chatters_interval = 5
     admin = None
@@ -797,7 +797,7 @@ class Bot:
         urls = self.find_unique_urls(msg_raw)
 
         res = HandlerManager.trigger('on_message',
-                source, msg_raw, message_emotes, whisper, urls,
+                source, msg_raw, message_emotes, whisper, urls, event,
                 stop_on_false=True)
         if res is False:
             return False
