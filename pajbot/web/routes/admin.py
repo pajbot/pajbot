@@ -475,7 +475,11 @@ def modules_edit(module_id, **options):
                 pass
             current_module.load(settings=settings)
 
-            SocketClientManager.send('module.update', {'module_id': current_module.db_module.id})
+            payload = {
+                    'id': current_module.db_module.id,
+                    }
+
+            SocketClientManager.send('module.update', payload)
 
             return render_template('admin/configure_module.html',
                     module=current_module,

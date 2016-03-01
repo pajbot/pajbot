@@ -48,10 +48,14 @@ class ModuleManager:
     def on_module_update(self, data, conn):
         log.info('ModuleManager: module.update begin ({})'.format(data))
         # self.reload()
-        if data['new_state'] is True:
+        new_state = data.get('new_state', None)
+        if new_state is True:
             self.enable_module(data['id'])
-        else:
+        elif new_state is False:
             self.disable_module(data['id'])
+        else:
+            module = find(lambda m: m.ID == data['id'], self.all_modules)
+            self.load_module(module)
         log.info('ModuleManager: module.update done')
 
     def enable_module(self, module_id):
@@ -69,15 +73,21 @@ class ModuleManager:
 
         self.modules.append(module)
 
+        self.load_module(module)
+
+    def load_module(self, module):
+        if module is None:
+            return False
+
         with DBManager.create_session_scope() as db_session:
-            db_module = db_session.query(Module).filter_by(id=module_id).one_or_none()
+            db_module = db_session.query(Module).filter_by(id=module.ID).one_or_none()
             options = {}
             if db_module is not None:
                 if db_module.settings is not None:
                     try:
                         options['settings'] = json.loads(db_module.settings)
                     except ValueError:
-                        log.warn('Invalid JSON in the settings for module {}'.format(module_id))
+                        log.warn('Invalid JSON in the settings for module {}'.format(module.ID))
 
             log.debug('Enabling {module.NAME}'.format(module=module))
             module.load(**options)
