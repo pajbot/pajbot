@@ -64,6 +64,78 @@ class HighlightModule(BaseModule):
             # return False so no more code is run for this message
             return False
 
+    def add_highlight(self, **options):
+        """Method for creating highlights
+        Usage: !add highlight [options] DESCRIPTION
+        Options available:
+        --offset SECONDS
+        """
+
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        # Failsafe in case the user does not send a message
+        message = message if message else ''
+
+        options, description = bot.stream_manager.parse_highlight_arguments(message)
+
+        if options is False:
+            bot.whisper(source.username, 'Invalid highlight arguments.')
+            return False
+
+        options['created_by'] = source.id
+
+        if len(description) > 0:
+            options['description'] = description
+
+        if 'id' in options:
+            id = options['id']
+            del options['id']
+            if len(options) > 0:
+                res = bot.stream_manager.update_highlight(id, **options)
+
+                if res is True:
+                    bot.whisper(source.username, 'Successfully updated your highlight ({0})'.format(', '.join([key for key in options])))
+                else:
+                    bot.whisper(source.username, 'A highlight with this ID does not exist.')
+            else:
+                bot.whisper(source.username, 'Nothing to update! Give me some arguments')
+        else:
+            res = bot.stream_manager.create_highlight(**options)
+
+            if res is True:
+                bot.whisper(source.username, 'Successfully created your highlight')
+            else:
+                bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
+
+            log.info('Create a highlight at the current timestamp!')
+
+    def remove_highlight(self, **options):
+        """Dispatch method for removing highlights
+        Usage: !remove highlight HIGHLIGHT_ID
+        """
+
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message is None:
+            bot.whisper(source.username, 'Usage: !remove highlight ID')
+            return False
+
+        try:
+            id = int(message.split()[0])
+        except ValueError:
+            bot.whisper(source.username, 'Usage: !remove highlight ID')
+            return False
+
+        res = bot.stream_manager.remove_highlight(id)
+        if res is True:
+            bot.whisper(source.username, 'Successfully removed highlight with ID {}.'.format(id))
+        else:
+            bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
+
     def load_commands(self, **options):
         try:
             level_trusted_mods = 100 if self.bot.trusted_mods else 500
@@ -79,7 +151,7 @@ class HighlightModule(BaseModule):
                 default=None,
                 command='add',
                 commands={
-                    'highlight': Command.dispatch_command('add_highlight',
+                    'highlight': Command.raw_command(self.add_highlight,
                         level=100,
                         mod_only=True,
                         description='Creates a highlight at the current timestamp',
@@ -119,7 +191,7 @@ class HighlightModule(BaseModule):
                 default=None,
                 command='remove',
                 commands={
-                    'highlight': Command.dispatch_command('remove_highlight',
+                    'highlight': Command.raw_command(self.remove_highlight,
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
                         description='Removes a highlight with the given ID.',
