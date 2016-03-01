@@ -741,12 +741,9 @@ class Dispatch:
 
     def permaban(bot, source, message, event, args):
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
-
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+            msg_args = message.split(' ')
+            username = msg_args[0].lower()
+            user = bot.users[username]
 
             if user.banned:
                 bot.whisper(source.username, 'User is already permabanned.')
