@@ -673,33 +673,9 @@ class Bot:
         if chatconn in self.whisper_manager:
             log.debug('Whispers: Disconnecting from Whisper server')
             self.whisper_manager.on_disconnect(chatconn)
-
         else:
             log.debug('Disconnected from IRC server')
             self.connection_manager.on_disconnect(chatconn)
-
-    def check_msg_content(self, source, msg_raw, event):
-        msg_lower = msg_raw.lower()
-
-        res = self.banphrase_manager.check_message(msg_raw, source)
-        if res is not False:
-            self.banphrase_manager.punish(source, res)
-            return True
-
-        for f in self.filters:
-            if f.type == 'regex':
-                m = f.search(source, msg_lower)
-                if m:
-                    log.debug('Matched regex filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event, {'match': m})
-                    return True
-            elif f.type == 'banphrase':
-                if f.filter in msg_lower:
-                    log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event)
-                    return True
-
-        return False  # message was ok
 
     def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
@@ -796,19 +772,13 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
+        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
+
         res = HandlerManager.trigger('on_message',
                 source, msg_raw, message_emotes, whisper, urls, event,
                 stop_on_false=True)
         if res is False:
             return False
-
-        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
-
-        if not whisper:
-            if source.level < 500 and source.moderator is False:
-                if self.check_msg_content(source, msg_raw, event):
-                    # If we've matched a filter, we should not have to run a command.
-                    return
 
         source.last_seen = datetime.datetime.now()
         source.last_active = datetime.datetime.now()

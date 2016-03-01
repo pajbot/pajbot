@@ -582,31 +582,6 @@ class CommandManager(UserDict):
                                 'bot>user:Added your command (ID: 7)',
                                 description='This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command').parse(),
                             ]),
-                    'banphrase': Command.dispatch_command('add_banphrase',
-                        level=500,
-                        description='Add a banphrase!',
-                        examples=[
-                            CommandExample(None, 'Create a banphrase',
-                                chat='user:!add banphrase testman123\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            CommandExample(None, 'Create a banphrase that permabans people',
-                                chat='user:!add banphrase testman123 --perma\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            CommandExample(None, 'Create a banphrase that permabans people without a notification',
-                                chat='user:!add banphrase testman123 --perma --no-notify\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat').parse(),
-                            CommandExample(None, 'Change the default timeout length for a banphrase',
-                                chat='user:!add banphrase testman123 --time 123\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)',
-                                description='Changes the default timeout length to a custom time of 123 seconds').parse(),
-                            CommandExample(None, 'Make it so a banphrase cannot be triggered by subs',
-                                chat='user:!add banphrase testman123 --subimmunity\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (sub_immunity)',
-                                description='Changes a command so that the banphrase can only be triggered by people who are not subscribed to the channel.').parse(),
-                            ]),
                     'win': Command.dispatch_command('add_win',
                         level=500,
                         description='Add a win to something!'),
@@ -721,19 +696,6 @@ class CommandManager(UserDict):
                                 chat='user:!remove command 28\n'
                                 'bot>user:Successfully removed command with id 28',
                                 description='Removes a command with id 28').parse(),
-                            ]),
-                    'banphrase': Command.dispatch_command('remove_banphrase',
-                        level=500,
-                        description='Remove a banphrase!',
-                        examples=[
-                            CommandExample(None, 'Remove a banphrase',
-                                chat='user:!remove banphrase KeepoKeepo\n'
-                                'bot>user:Successfully removed banphrase with id 33',
-                                description='Removes a banphrase with the trigger KeepoKeepo.').parse(),
-                            CommandExample(None, 'Remove a banphrase with the given ID.',
-                                chat='user:!remove banphrase 25\n'
-                                'bot>user:Successfully removed banphrase with id 25',
-                                description='Removes a banphrase with id 25').parse(),
                             ]),
                     'win': Command.dispatch_command('remove_win',
                         level=500,
