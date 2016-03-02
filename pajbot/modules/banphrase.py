@@ -68,6 +68,65 @@ class BanphraseModule(BaseModule):
             # return False so no more code is run for this message
             return False
 
+    def add_banphrase(self, **options):
+        """Method for creating and editing banphrases.
+        Usage: !add banphrase BANPHRASE [options]
+        Multiple options available:
+        --length LENGTH
+        --perma/--no-perma
+        --notify/--no-notify
+        """
+
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message:
+            options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
+
+            if options is False:
+                bot.whisper(source.username, 'Invalid banphrase')
+                return False
+
+            options['added_by'] = source.id
+            options['edited_by'] = source.id
+
+            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
+
+            if new_banphrase is True:
+                bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
+                return True
+
+            banphrase.set(**options)
+            banphrase.data.set(edited_by=options['edited_by'])
+            DBManager.session_add_expunge(banphrase)
+            bot.banphrase_manager.commit()
+            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
+
+    def remove_banphrase(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message:
+            id = None
+            try:
+                id = int(message)
+            except ValueError:
+                pass
+
+            banphrase = bot.banphrase_manager.find_match(message=message, id=id)
+
+            if banphrase is None:
+                bot.whisper(source.username, 'No banphrase with the given parameters found')
+                return False
+
+            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
+            bot.banphrase_manager.remove_banphrase(banphrase)
+        else:
+            bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
+            return False
+
     def load_commands(self, **options):
         self.commands['add'] = Command.multiaction_command(
                 level=100,
@@ -76,7 +135,7 @@ class BanphraseModule(BaseModule):
                 default=None,
                 command='add',
                 commands={
-                    'banphrase': Command.dispatch_command('add_banphrase',
+                    'banphrase': Command.raw_command(self.add_banphrase,
                         level=500,
                         description='Add a banphrase!',
                         examples=[
@@ -111,7 +170,7 @@ class BanphraseModule(BaseModule):
                 default=None,
                 command='remove',
                 commands={
-                    'banphrase': Command.dispatch_command('remove_banphrase',
+                    'banphrase': Command.raw_command(self.remove_banphrase,
                         level=500,
                         description='Remove a banphrase!',
                         examples=[
