@@ -10,7 +10,7 @@ Examples of twitch channels where the bot is run:
 | BotSeventeen | [Dyrus](http://twitch.tv/tsm_dyrus) | [Pajlada](http://twitch.tv/pajlada) |
 | Linneasbot | [Linneafly](http://twitch.tv/linneafly) | [GiggleArrows](http://twitch.tv/gigglearrows) |
 | Niconicobot | [Eloise](http://twitch.tv/eloise_ailv) | [Pajlada](http://twitch.tv/pajlada) |
-| ProxyMyBot | [Amaliuz](http://twitch.tv/amaliuz) | [Pajlada](http://twitch.tv/pajlada) |
+| ProxyMyBot | [Amaliuz](http://twitch.tv/amaliuz) | [GiggleArrows](http://twitch.tv/gigglearrows) |
 | ScamazBot | [Amaz](http://twitch.tv/amazhs) | [Pajlada](http://twitch.tv/pajlada) |
 | Snookibot | [SnookiPoof](http://twitch.tv/snookipoof) | [Dorsens](http://twitch.tv/dorsens) |
 | Snusbot | [Forsen](http://twitch.tv/forsenlol) | [Pajlada](http://twitch.tv/pajlada) |
