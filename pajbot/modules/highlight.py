@@ -145,7 +145,7 @@ class HighlightModule(BaseModule):
             else:
                 bot.whisper(source.username, 'Nothing to update! Give me some arguments')
         else:
-            bot.whisper(source.username, 'Missing --id for which highlight to edit')
+            bot.whisper(source.username, 'Missing --id for which highlight to edit. Did you mean to create a new highlight? In that case, use !add highlight instead!')
 
     def remove_highlight(self, **options):
         """Dispatch method for removing highlights
