@@ -99,10 +99,12 @@ class StreamChunkHighlight(Base):
     video_url = None
 
     created_by_user = relationship('User',
+            lazy='noload',
             foreign_keys='StreamChunkHighlight.created_by',
             cascade='save-update, merge, expunge',
             uselist=False)
     last_edited_by_user = relationship('User',
+            lazy='noload',
             foreign_keys='StreamChunkHighlight.last_edited_by',
             cascade='save-update, merge, expunge',
             uselist=False)

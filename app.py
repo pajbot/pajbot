@@ -47,9 +47,8 @@ from flask.ext.scrypt import generate_random_salt
 from flask.ext.assets import Environment, Bundle
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
-# from flask import make_response
-# from flask import jsonify
 from sqlalchemy import func, cast, Date
+from sqlalchemy.orm import joinedload
 
 init_logging('pajbot')
 log = logging.getLogger('pajbot')
@@ -570,7 +569,7 @@ def highlight_id(date, highlight_id, highlight_title=None):
 def highlights():
     session = DBManager.create_session()
     dates_with_highlights = []
-    highlights = session.query(StreamChunkHighlight).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
+    highlights = session.query(StreamChunkHighlight).options(joinedload('*')).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
     for highlight in highlights:
         dates_with_highlights.append(datetime.datetime(
             year=highlight.created_at.year,
