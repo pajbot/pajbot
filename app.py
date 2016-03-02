@@ -535,7 +535,7 @@ def highlight_list_date(date):
         return redirect('/highlights/', 303)
     session = DBManager.create_session()
     dates_with_highlights = []
-    highlights = session.query(StreamChunkHighlight).filter(cast(StreamChunkHighlight.created_at, Date) == parsed_date).order_by(StreamChunkHighlight.created_at.desc()).all()
+    highlights = session.query(StreamChunkHighlight).options(joinedload('*')).filter(cast(StreamChunkHighlight.created_at, Date) == parsed_date).order_by(StreamChunkHighlight.created_at.desc()).all()
     for highlight in session.query(StreamChunkHighlight):
         dates_with_highlights.append(datetime.datetime(
             year=highlight.created_at.year,
@@ -554,7 +554,7 @@ def highlight_list_date(date):
 @app.route('/highlights/<date>/<highlight_id>-<highlight_title>')
 def highlight_id(date, highlight_id, highlight_title=None):
     with DBManager.create_session_scope() as db_session:
-        highlight = db_session.query(StreamChunkHighlight).filter_by(id=highlight_id).first()
+        highlight = db_session.query(StreamChunkHighlight).options(joinedload('*')).filter_by(id=highlight_id).first()
         if highlight is None:
             return render_template('highlight_404.html'), 404
         else:
