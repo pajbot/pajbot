@@ -246,6 +246,7 @@ class StreamManager:
         log.info('Attempting to create a stream!')
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
+            new_stream = False
             if stream_chunk is not None:
                 stream = stream_chunk.stream
             else:
