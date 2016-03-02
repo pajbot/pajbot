@@ -146,15 +146,16 @@ class HSBetModule(BaseModule):
                 if correct_bet:
                     winners.append((user, points))
                     total_winning_points += points
+                    user.remove_debt(points)
                 else:
                     losers.append((user, points))
                     total_losing_points += points
+                    user.pay_debt(points)
                     self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
                         points))
 
             for obj in losers:
                 user, points = obj
-                user.pay_debt(points)
                 log.debug('{} lost {} points!'.format(user, points))
 
             if total_losing_points > 0:
@@ -165,7 +166,6 @@ class HSBetModule(BaseModule):
                         points_reward = 0
 
                         user, points = obj
-                        user.remove_debt(points)
 
                         if points == 0:
                             # If you didn't bet any points, you don't get a part of the cut.
