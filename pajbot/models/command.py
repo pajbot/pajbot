@@ -325,7 +325,7 @@ class Command(Base):
             # This user cannot execute the command through a whisper
             return False
 
-        if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL:
+        if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL and source.moderator is False:
             # User is not a sub or a moderator, and cannot use the command.
             return False
 
