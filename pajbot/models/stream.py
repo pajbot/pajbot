@@ -434,8 +434,12 @@ class StreamManager:
         if 'offset' in options:
             options['highlight_offset'] = options.pop('offset')
 
-        with DBManager.create_session_scope() as db_session:
-            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).update(options)
+        num_rows = 0
+        try:
+            with DBManager.create_session_scope() as db_session:
+                num_rows = db_session.query(StreamChunkHighlight).filter_by(id=id).update(options)
+        except:
+            log.exception('AAAAAAAAAA FIXME')
 
         return (num_rows == 1)
 

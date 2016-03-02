@@ -22,7 +22,14 @@
         {% if user %}
         <tr>
             <th>Created by</th>
-            <td>Highlight created by {% include 'user/username_link_nobadge.html' %}</td>
+            <td>{% include 'user/username_link_nobadge.html' %}</td>
+        </tr>
+        {% endif %}
+        {% set user = highlight.last_edited_by_user %}
+        {% if user %}
+        <tr>
+            <th>Last edited by</th>
+            <td>{% include 'user/username_link_nobadge.html' %}</td>
         </tr>
         {% endif %}
         <tr>
