@@ -232,7 +232,7 @@ class BingoModule(BaseModule):
             bot.me('{0}, no bingo is currently running FailFish'.format(source.username_raw))
             return False
 
-    def on_message(self, source, msg_raw, message_emotes, whisper, urls):
+    def on_message(self, source, msg_raw, message_emotes, whisper, urls, event):
         if len(message_emotes) > 0:
             if hasattr(self, 'bingo_running') and self.bingo_running is True:
                 if len(message_emotes) == 1 and len(msg_raw.split(' ')) == 1:

@@ -46,7 +46,7 @@ class LinkTrackerModule(BaseModule):
         self.db_session = None
         self.links = {}
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper is False:
             for url in urls:
                 self.add_url(url)

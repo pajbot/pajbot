@@ -14,7 +14,8 @@ notification_sound = null;
 $(document).ready(function() {
     connect_to_ws();
     //notification_sound = new Audio('https://pajlada.se/files/clr/psst.mp3');
-    notification_sound = new Audio('https://pajlada.se/files/clr/notificationpaj.wav');
+    //notification_sound = new Audio('https://pajlada.se/files/clr/notificationpaj.wav');
+    notification_sound = new Audio('https://pajlada.se/files/clr/suction.mp3');
     notification_sound.load();
 
     setTimeout(function() {

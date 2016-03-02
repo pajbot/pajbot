@@ -1,6 +1,7 @@
 from pajbot.modules.base import BaseModule, ModuleSetting
 
 from pajbot.modules.ascii import AsciiProtectionModule
+from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
@@ -10,6 +11,7 @@ from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.givepoints import GivePointsModule
+from pajbot.modules.highlight import HighlightModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
@@ -38,6 +40,7 @@ from pajbot.modules.warning import WarningModule
 
 available_modules = [
         AsciiProtectionModule,
+        BanphraseModule,
         BingoModule,
         DeckModule,
         DuelModule,
@@ -49,6 +52,7 @@ available_modules = [
         GetTimedOutQuestModule,
         GivePointsModule,
         HSBetModule,
+        HighlightModule,
         LastfmModule,
         LeagueRankModule,
         LineFarmingModule,

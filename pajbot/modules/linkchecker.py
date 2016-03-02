@@ -211,7 +211,7 @@ class LinkCheckerModule(BaseModule):
 
     super_whitelist = ['pajlada.se', 'pajlada.com', 'forsen.tv', 'pajbot.com']
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if not whisper and source.level < 500 and source.moderator is False:
             if self.settings['ban_pleb_links'] is True and source.subscriber is False and len(urls) > 0:
                 # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv

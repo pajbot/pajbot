@@ -120,37 +120,6 @@ class Dispatch:
         bot.silent = False
         bot.whisper(source.username, 'The bot is no longer in silent mode.')
 
-    def add_banphrase(bot, source, message, event, args):
-        """Dispatch method for creating and editing banphrases.
-        Usage: !add banphrase BANPHRASE [options]
-        Multiple options available:
-        --length LENGTH
-        --perma/--no-perma
-        --notify/--no-notify
-        """
-
-        if message:
-            options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
-
-            if options is False:
-                bot.whisper(source.username, 'Invalid banphrase')
-                return False
-
-            options['added_by'] = source.id
-            options['edited_by'] = source.id
-
-            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
-
-            if new_banphrase is True:
-                bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
-                return True
-
-            banphrase.set(**options)
-            banphrase.data.set(edited_by=options['edited_by'])
-            DBManager.session_add_expunge(banphrase)
-            bot.banphrase_manager.commit()
-            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
-
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()
@@ -353,26 +322,6 @@ class Dispatch:
                 options['action'] = action
             bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
-
-    def remove_banphrase(bot, source, message, event, args):
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
-
-            banphrase = bot.banphrase_manager.find_match(message=message, id=id)
-
-            if banphrase is None:
-                bot.whisper(source.username, 'No banphrase with the given parameters found')
-                return False
-
-            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
-            bot.banphrase_manager.remove_banphrase(banphrase)
-        else:
-            bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
-            return False
 
     def remove_win(bot, source, message, event, args):
         # XXX: This is also ugly as fuck
@@ -741,12 +690,9 @@ class Dispatch:
 
     def permaban(bot, source, message, event, args):
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
-
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+            msg_args = message.split(' ')
+            username = msg_args[0].lower()
+            user = bot.users[username]
 
             if user.banned:
                 bot.whisper(source.username, 'User is already permabanned.')
@@ -912,68 +858,6 @@ class Dispatch:
             bot.commitable[message].commit()
         else:
             bot.commit_all()
-
-    def add_highlight(bot, source, message, event, args):
-        """Dispatch method for creating highlights
-        Usage: !add highlight [options] DESCRIPTION
-        Options available:
-        --offset SECONDS
-        """
-
-        # Failsafe in case the user does not send a message
-        message = message if message else ''
-
-        options, description = bot.stream_manager.parse_highlight_arguments(message)
-
-        if options is False:
-            bot.whisper(source.username, 'Invalid highlight arguments.')
-            return False
-
-        if len(description) > 0:
-            options['description'] = description
-
-        if 'id' in options:
-            id = options['id']
-            del options['id']
-            if len(options) > 0:
-                res = bot.stream_manager.update_highlight(id, **options)
-
-                if res is True:
-                    bot.whisper(source.username, 'Successfully updated your highlight ({0})'.format(', '.join([key for key in options])))
-                else:
-                    bot.whisper(source.username, 'A highlight with this ID does not exist.')
-            else:
-                bot.whisper(source.username, 'Nothing to update! Give me some arguments')
-        else:
-            res = bot.stream_manager.create_highlight(**options)
-
-            if res is True:
-                bot.whisper(source.username, 'Successfully created your highlight')
-            else:
-                bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
-
-            log.info('Create a highlight at the current timestamp!')
-
-    def remove_highlight(bot, source, message, event, args):
-        """Dispatch method for removing highlights
-        Usage: !remove highlight HIGHLIGHT_ID
-        """
-
-        if message is None:
-            bot.whisper(source.username, 'Usage: !remove highlight ID')
-            return False
-
-        try:
-            id = int(message.split()[0])
-        except ValueError:
-            bot.whisper(source.username, 'Usage: !remove highlight ID')
-            return False
-
-        res = bot.stream_manager.remove_highlight(id)
-        if res is True:
-            bot.whisper(source.username, 'Successfully removed highlight with ID {}.'.format(id))
-        else:
-            bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
     def get_bttv_emotes(bot, source, message, event, args):
         # XXX: This should be a module

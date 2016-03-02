@@ -21,6 +21,14 @@
         </div>
         <div class="description">
             <div>Link: <a href="{{ highlight.video_url }}">{{ highlight.video_url }}</a></div>
+            {% set user = highlight.created_by_user %}
+            {% if user %}
+            Highlight created by {% include 'user/username_link_nobadge.html' %}<br />
+            {% endif %}
+            {% set user = highlight.last_edited_by_user %}
+            {% if user %}
+            Highlight last edited by {% include 'user/username_link_nobadge.html' %}<br />
+            {% endif %}
             {% if highlight.description %}
             <p class="pemote">{{ highlight.stream_chunk.stream.title }}</p>
             {% endif %}

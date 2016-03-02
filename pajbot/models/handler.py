@@ -16,7 +16,7 @@ class HandlerManager:
         # on_pubmsg(source, message)
         HandlerManager.create_handler('on_pubmsg')
 
-        # on_message(source, message, emotes, whisper, urls)
+        # on_message(source, message, emotes, whisper, urls, event)
         HandlerManager.create_handler('on_message')
 
         # on_commit()
