@@ -301,7 +301,8 @@ def index():
     current_quest_id = redis.get(current_quest_key)
     if current_quest_id is not None:
         current_quest = module_manager[current_quest_id]
-        current_quest.load_data()
+        if current_quest:
+            current_quest.load_data()
     else:
         current_quest = None
 
