@@ -173,6 +173,7 @@ class WhisperConnectionManager:
         conn.reconnect()
         conn.cap('REQ', 'twitch.tv/commands')
         conn.cap('REQ', 'twitch.tv/tags')
+        conn.cap('REQ', 'twitch.tv/membership')
         return
 
     def whisper(self, target, message):
