@@ -226,7 +226,8 @@ class LinkCheckerModule(BaseModule):
                             break
                     if whitelisted is False:
                         self.bot.timeout(source.username, 30)
-                        self.bot.whisper(source.username, 'You cannot post non-verified links in chat if you\'re not a subscriber.')
+                        if source.minutes_in_chat_online > 60:
+                            self.bot.whisper(source.username, 'You cannot post non-verified links in chat if you\'re not a subscriber.')
                         return False
 
             for url in urls:
