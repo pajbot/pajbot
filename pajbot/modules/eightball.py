@@ -86,10 +86,9 @@ class EightBallModule(BaseModule):
             "Keepo",
             "xD",
             "KKona",
-            "AlkXD",
             "4Head",
             "EleGiggle",
-            "nymnWink",
+            "DansGame",
             "KappaCool",
             "BrokeBack",
             "OpieOP",
@@ -106,12 +105,7 @@ class EightBallModule(BaseModule):
             "VoHiYo",
             "haHAA",
             "FeelsBirthdayMan",
-            "LUL",
-            "pajaHey",
-            "pajaPepe",
-            "pajaHappy",
-            "pajaW",
-            "pajaGASM"
+            "LUL"
             ]
                 
 
