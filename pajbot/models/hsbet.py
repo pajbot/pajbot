@@ -31,16 +31,10 @@ class HSBetBet(Base):
 
     id = Column(Integer, primary_key=True)
     game_id = Column(Integer, ForeignKey('tb_hsbet_game.id'), nullable=False, index=True)
-    user_id = Column(Integer, ForeignKey('tb_user.id'), nullable=False, index=True)
+    user_id = Column(Integer, nullable=False, index=True)
     outcome = Column(Enum('win', 'loss', name='win_or_loss'), nullable=False)
     points = Column(Integer, nullable=False)
     profit = Column(Integer, nullable=False)
-
-    user = relationship('User',
-            lazy='noload')
-
-    game = relationship('HSBetGame',
-            lazy='noload')
 
     def __init__(self, game_id, user_id, outcome, points, profit):
         self.game_id = game_id
