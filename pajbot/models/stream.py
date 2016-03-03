@@ -89,8 +89,8 @@ class StreamChunkHighlight(Base):
 
     id = Column(Integer, primary_key=True)
     stream_chunk_id = Column(Integer, ForeignKey('tb_stream_chunk.id'), nullable=False)
-    created_by = Column(Integer, ForeignKey('tb_user.id'), nullable=True)
-    last_edited_by = Column(Integer, ForeignKey('tb_user.id'), nullable=True)
+    created_by = Column(Integer, nullable=True)
+    last_edited_by = Column(Integer, nullable=True)
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
@@ -100,11 +100,13 @@ class StreamChunkHighlight(Base):
 
     created_by_user = relationship('User',
             lazy='noload',
+            primaryjoin='User.id==StreamChunkHighlight.created_by',
             foreign_keys='StreamChunkHighlight.created_by',
             cascade='save-update, merge, expunge',
             uselist=False)
     last_edited_by_user = relationship('User',
             lazy='noload',
+            primaryjoin='User.id==StreamChunkHighlight.last_edited_by',
             foreign_keys='StreamChunkHighlight.last_edited_by',
             cascade='save-update, merge, expunge',
             uselist=False)
