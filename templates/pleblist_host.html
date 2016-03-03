@@ -17,6 +17,11 @@ function streamtip_auth()
 {
     window.location.href = 'https://streamtip.com/api/oauth2/authorize?response_type=code&client_id={{ streamtip_data.client_id }}&redirect_uri={{ streamtip_data.redirect_uri }}';
 }
+twitchalerts_client_id = '{{ twitchalerts_data.client_id }}';
+function twitchalerts_auth()
+{
+    window.location.href = 'https://www.twitchalerts.com/api/v1.0/authorize?client_id=lSgo4ZQthJJ5PF5oBYvHHroISRkL3VZXNJtELdgM&redirect_uri=https://paj.pajlada.se/api/v1/twitchalerts/oauth&response_type=code&scope=donations.read+donations.create';
+}
 </script>
 {% assets 'pleblist_shared' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
