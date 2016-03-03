@@ -115,8 +115,9 @@ class EightBallModule(BaseModule):
         message = options['message']
 
         if message and len(message) > 0:
-            phrase = random.choice(self.phrases) + " " + random.choice(self.emotes)
-            bot.me('{source.username_raw}, the 8-ball says... {phrase}'.format(source=source, phrase=phrase))
+            phrase = random.choice(self.phrases)
+            emote = random.choice(self.emotes)
+            bot.me('{source.username_raw}, the 8-ball says... {phrase} {emote}'.format(source=source, phrase=phrase, emote=emote))
         else:
             return False
 
