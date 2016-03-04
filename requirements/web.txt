@@ -5,3 +5,4 @@ Flask-Assets
 jsmin
 markdown
 uwsgidecorators
+flask-restful
