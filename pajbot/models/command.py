@@ -848,6 +848,8 @@ class CommandManager(UserDict):
         parser.add_argument('--cost', type=int, dest='cost')
         parser.add_argument('--modonly', dest='mod_only', action='store_true')
         parser.add_argument('--no-modonly', dest='mod_only', action='store_false')
+        parser.add_argument('--subonly', dest='sub_only', action='store_true')
+        parser.add_argument('--no-subonly', dest='sub_only', action='store_false')
 
         try:
             args, unknown = parser.parse_known_args(message)
