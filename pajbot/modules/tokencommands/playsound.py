@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.modules import BaseModule
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules import QuestModule
 from pajbot.models.command import Command
 
@@ -72,9 +72,33 @@ class Samples:
 class PlaySoundTokenCommandModule(BaseModule):
 
     ID = 'tokencommand-' + __name__.split('.')[-1]
-    NAME = 'Token Command'
+    NAME = '!playsound'
     DESCRIPTION = 'Play a sound on stream'
     PARENT_MODULE = QuestModule
+    SETTINGS = [
+            ModuleSetting(
+                key='point_cost',
+                label='Point cost',
+                type='number',
+                required=True,
+                placeholder='Point cost',
+                default=0,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 999999,
+                    }),
+            ModuleSetting(
+                key='token_cost',
+                label='Token cost',
+                type='number',
+                required=True,
+                placeholder='Token cost',
+                default=3,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 15,
+                    }),
+            ]
 
     def __init__(self):
         super().__init__()
@@ -102,9 +126,10 @@ class PlaySoundTokenCommandModule(BaseModule):
     def load_commands(self, **options):
         self.commands['#playsound'] = Command.raw_command(
                 self.play_sound,
-                tokens_cost=3,
+                tokens_cost=self.settings['token_cost'],
+                cost=self.settings['point_cost'],
                 sub_only=True,
-                description='Play a sound on stream! Costs 3 tokens, sub only for now.',
+                description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
                 )
         html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td><td><script>var snd{0.command} = new Audio("{0.href}");</script><button onclick="snd{0.command}.play();" type="button">Play</button></td></tr>'.format(sample) for sample in Samples.all_samples])
