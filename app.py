@@ -14,6 +14,7 @@ import collections
 
 from pajbot.bot import Bot
 from pajbot.web.routes import api
+import pajbot.web.routes
 from pajbot.web.routes import admin
 from pajbot.web.models import errors
 from pajbot.models.db import DBManager
@@ -57,6 +58,8 @@ app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app.register_blueprint(api.page)
 app.register_blueprint(admin.page)
+
+pajbot.web.routes.api.init(app)
 
 assets = Environment(app)
 
@@ -826,6 +829,22 @@ if 'streamtip' in config:
     default_variables['streamtip_data'] = {
             'client_id': config['streamtip']['client_id'],
             'redirect_uri': config['streamtip']['redirect_uri'],
+            }
+else:
+    default_variables['streamtip_data'] = {
+            'client_id': 'MISSING',
+            'redirect_uri': 'MISSING',
+            }
+
+if 'twitchalerts' in config:
+    default_variables['twitchalerts_data'] = {
+            'client_id': config['twitchalerts']['client_id'],
+            'redirect_uri': config['twitchalerts']['redirect_uri'],
+            }
+else:
+    default_variables['twitchalerts_data'] = {
+            'client_id': 'MISSING',
+            'redirect_uri': 'MISSING',
             }
 
 @app.context_processor

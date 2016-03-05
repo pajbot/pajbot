@@ -3,6 +3,7 @@ from pajbot.modules.base import BaseModule, ModuleSetting
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.bingo import BingoModule
+from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule

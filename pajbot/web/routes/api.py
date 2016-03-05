@@ -89,7 +89,6 @@ def get_user(username):
 
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-
 @page.route('/api/v1/pleblist/list')
 def pleblist_list():
     with DBManager.create_session_scope() as session:
@@ -295,7 +294,31 @@ def streamtip_oauth():
 
     r = requests.post('https://streamtip.com/api/oauth2/token', data=payload)
 
-    return redirect('/pleblist/host/#{}'.format(r.json()['access_token']), 303)
+    return redirect('/pleblist/host/#STREAMTIP{}'.format(r.json()['access_token']), 303)
+
+
+@page.route('/api/v1/twitchalerts/oauth')
+def twitchalerts_oauth():
+    if not request.method == 'GET':
+        return make_response(jsonify({'error': 'Invalid request method. (Expected GET)'}), 400)
+
+    if 'code' not in request.args:
+        return make_response(jsonify({'error': 'Missing `code` parameter.'}), 400)
+
+    if 'twitchalerts' not in config:
+        return make_response(jsonify({'error': 'Config not set up properly.'}), 400)
+
+    payload = {
+            'client_id': config['twitchalerts']['client_id'],
+            'client_secret': config['twitchalerts']['client_secret'],
+            'grant_type': 'authorization_code',
+            'redirect_uri': config['twitchalerts']['redirect_uri'],
+            'code': request.args['code'],
+            }
+
+    r = requests.post('https://www.twitchalerts.com/api/v1.0/token', data=payload)
+
+    return redirect('/pleblist/host/#TWITCHALERTS{}'.format(r.json()['access_token']), 303)
 
 
 @page.route('/api/v1/streamtip/validate', methods=['POST', 'GET'])
@@ -319,6 +342,15 @@ def streamtip_validate():
         return resp
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)
+
+@page.route('/api/v1/twitchalerts/validate', methods=['POST', 'GET'])
+@requires_level(1000)
+def twitchalerts_validate(**options):
+    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+    password = base64.b64encode(salted_password)
+    resp = make_response(jsonify({'password': password.decode('utf8')}))
+    resp.set_cookie('password', password)
+    return resp
 
 @page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
 @requires_level(500)
@@ -529,3 +561,120 @@ def social_set(social_key, **options):
         redis.hset('streamer_info', key, value)
 
     return make_response(jsonify({'message': 'success!'}))
+
+def init(app):
+    from flask_restful import Resource, Api, reqparse
+
+    api = Api(app)
+
+    class APIEmailTags(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.get_parser = reqparse.RequestParser()
+            self.get_parser.add_argument('email', trim=True, required=True, location='args')
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('email', trim=True, required=True)
+            self.post_parser.add_argument('tag', trim=True, required=True)
+
+            self.delete_parser = reqparse.RequestParser()
+            self.delete_parser.add_argument('email', trim=True, required=True)
+            self.delete_parser.add_argument('tag', trim=True, required=True)
+
+            self.delim = '|||'
+
+        def get(self):
+            args = self.get_parser.parse_args()
+
+            email = args['email'].lower()
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            payload = {}
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            payload['tags'] = tags
+
+            return payload
+
+        def post(self):
+            # Add a single tag to the email
+            args = self.post_parser.parse_args()
+
+            email = args['email'].lower()
+            new_tag = args['tag'].lower()
+            if len(new_tag) == 0:
+                return {
+                        'message': 'The tag must be at least 1 character long.'
+                        }, 400
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            # Is the tag already active?
+            if new_tag in tags:
+                return {
+                        'message': 'This tag is already set on the email.'
+                        }, 409
+
+            tags.append(new_tag)
+
+            redis.hset(key, email, json.dumps(tags))
+
+            return {
+                    'message': 'Successfully added the tag {} to {}'.format(new_tag, email)
+                    }
+
+        def delete(self):
+            # Add a single tag to the email
+            args = self.delete_parser.parse_args()
+
+            email = args['email'].lower()
+            new_tag = args['tag'].lower()
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            # Is the tag already active?
+            if new_tag not in tags:
+                return {
+                        'message': 'This tag is not set on the email.'
+                        }, 409
+
+            tags.remove(new_tag)
+
+            if len(tags) > 0:
+                redis.hset(key, email, json.dumps(tags))
+            else:
+                redis.hdel(key, email)
+
+            return {
+                    'message': 'Successfully removed the tag {} from {}'.format(new_tag, email)
+                    }
+
+    api.add_resource(APIEmailTags, '/api/v1/email/tags')

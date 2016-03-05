@@ -30,6 +30,12 @@ function get_donations(client_id, access_token, on_finished, limit, offset, date
     })
     .fail(function(xhrObj, textStatus) {
         console.log('Fail!' + textStatus);
+
+        console.log('Retrying in 5 seconds...');
+        setTimeout(function() {
+            console.log('Retrying!');
+            get_donations(client_id, access_token, on_finished, limit, offset, date_from);
+        }, 5000);
     });
 }
 
@@ -273,6 +279,39 @@ function streamtip_connect(access_token)
     });
 }
 
+var latest_donation_id = -1;
+
+function get_twitchalerts_donations(access_token)
+{
+    $.ajax({
+    url: 'https://www.twitchalerts.com/api/v1.0/donations?access_token=' + access_token + '&after=' + latest_donation_id,
+        cache: false,
+    }).done(function(result, b, c) {
+        for (var i=result.data.length-1; i>=0; --i) {
+            var donation = result.data[i];
+            add_tip(donation.name, null, parseFloat(donation.amount) * 100, donation.message);
+            latest_donation_id = parseInt(donation.donation_id);
+        }
+    });
+}
+
+function twitchalerts_connect(access_token)
+{
+    console.log('TWITCHALERTS CONNECT');
+    $.post('/api/v1/twitchalerts/validate').done(function(data) {
+        $('#notification').text('Successfully validated with TwitchAlerts');
+        secret_password = data.password;
+    }).fail(function(data) {
+        $('#notification').text('Unable to validate with this TwitchAlerts. Contact pajlada if you believe this is wrong.');
+    });
+
+    get_twitchalerts_donations(access_token);
+
+    setInterval(function() {
+        get_twitchalerts_donations(access_token);
+    }, 10 * 1000);
+}
+
 function add_tip2(message)
 {
     add_tip('Karl_Kons', null, 200, message);
@@ -341,22 +380,28 @@ $(document).ready(function() {
         window.location.hash = '';
 
         if (hash.length > 2) {
-            streamtip_connect(hash);
-            return true;
+            if (hash.substr(0, 9) == 'STREAMTIP') {
+                hash = hash.substr(9);
+                streamtip_connect(hash);
+                return 'streamtip'
+            } else if (hash.substr(0, 12) == 'TWITCHALERTS') {
+                hash = hash.substr(12);
+                twitchalerts_connect(hash);
+                return 'twitchalerts';
+            }
         }
-
         return false;
     }
 
-    //add_tests();
-
     var res = use_access_token_from_hash();
-    if (res == true) {
-        var $p = $('<p>').text('Logged in with streamtip!');
+    if (res !== false) {
+        var $p = $('<p>').text('Logged in with ' + res + '!');
         $('#button_div').append($p);
     } else {
-        var $button = $('<button>', {'class': 'ui button', 'onclick': 'streamtip_auth()'}).text('Log in with Streamtip');
-        $('#button_div').append($button);
+        var $streamtip_button = $('<button>', {'class': 'ui button', 'onclick': 'streamtip_auth()'}).text('Log in with Streamtip');
+        var $twitchalerts_button = $('<button>', {'class': 'ui button', 'onclick': 'twitchalerts_auth()'}).text('Log in with TwitchAlerts');
+        $('#button_div').append($streamtip_button);
+        $('#button_div').append($twitchalerts_button);
     }
 });
 
