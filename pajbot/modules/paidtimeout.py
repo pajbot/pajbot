@@ -49,6 +49,17 @@ class PaidTimeoutModule(BaseModule):
                     'min_value': 1,
                     'max_value': 10000,
                     }),
+            ModuleSetting(
+                key='bypass_level',
+                label='Level to bypass module',
+                type='number',
+                required=True,
+                placeholder='',
+                default=500,
+                constraints={
+                    'min_value': 100,
+                    'max_value': 1000,
+                    }),
             ]
 
     def paid_timeout(self, **options):
@@ -77,8 +88,12 @@ class PaidTimeoutModule(BaseModule):
             return False
             """
 
-        if victim.level >= 500:
+        if victim.moderator is True:
             bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
+            return False
+
+        if victim.level >= self.settings['bypass_level']:
+            bot.whisper(source.username, 'This person\'s user level is too high, you can\'t timeout this person.')
             return False
 
         now = datetime.datetime.now()
