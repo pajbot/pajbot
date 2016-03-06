@@ -57,7 +57,7 @@ log = logging.getLogger('pajbot')
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app.register_blueprint(api.page)
-app.register_blueprint(admin.page)
+pajbot.web.routes.admin.init(app)
 app.register_blueprint(pajbot.web.routes.clr.page)
 
 pajbot.web.routes.api.init(app)
@@ -782,6 +782,7 @@ nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
 if 'predict' in module_manager:
     nav_bar_admin_header.append(('/admin/predictions/', 'admin_predictions', 'Predictions'))
 nav_bar_admin_header.append(('/admin/streamer/', 'admin_streamer', 'Streamer Info'))
+nav_bar_admin_header.append(('/admin/clr/', 'admin_clr', 'CLR'))
 
 version = Bot.version
 last_commit = ''
