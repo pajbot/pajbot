@@ -245,7 +245,7 @@ class HSBetModule(BaseModule):
 
         if outcome in ('win', 'winner'):
             bet_for_win = True
-        elif outcome in ('lose', 'loss', 'loser'):
+        elif outcome in ('lose', 'loss', 'loser', 'loose'):
             bet_for_win = False
         else:
             bot.whisper(source.username, 'Invalid bet. Usage: !hsbet win/loss POINTS')
