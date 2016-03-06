@@ -58,6 +58,7 @@ app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 app.register_blueprint(api.page)
 app.register_blueprint(admin.page)
+app.register_blueprint(pajbot.web.routes.clr.page)
 
 pajbot.web.routes.api.init(app)
 
@@ -91,10 +92,16 @@ assets.register('pleblist_client', pleblist_client)
 assets.register('pleblist_host', pleblist_host)
 
 # CLR Overlay
-# Availabe under: clr_overlay
+# Availabe under: clr_overlay, clr_donations, clr_shared
 clr_overlay = Bundle('scripts/clr.overlay.js', filters='jsmin',
         output='scripts/clr.gen.overlay.%(version)s.js')
+clr_donations = Bundle('scripts/clr.donations.js', filters='jsmin',
+        output='scripts/clr.gen.donations.%(version)s.js')
+clr_shared = Bundle('scripts/clr.shared.js', filters='jsmin',
+        output='scripts/clr.gen.shared.%(version)s.js')
 assets.register('clr_overlay', clr_overlay)
+assets.register('clr_donations', clr_donations)
+assets.register('clr_shared', clr_shared)
 
 # Admin site
 # Availabe under: admin_create_banphrase, admin_create_command,
@@ -133,6 +140,7 @@ parser.set_defaults(debug=False)
 args = parser.parse_args()
 
 config = load_config(args.config)
+config.read('webconfig.ini')
 
 if 'web' not in config:
     log.error('Missing [web] section in config.ini')
@@ -211,6 +219,7 @@ with DBManager.create_session_scope() as db_session:
 
 errors.init(app)
 api.config = config
+pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
 
@@ -640,16 +649,6 @@ def test():
     current_quest = module_manager[current_quest_id]
     current_quest.load_data()
     return render_template('test.html', current_quest=current_quest)
-
-
-@app.route('/clr/overlay/<widget_id>')
-@nocache
-def clr_overlay(widget_id):
-    if widget_id == config['web']['clr_widget_id'] or True:
-        return render_template('clr/overlay.html',
-                widget={})
-    else:
-        return render_template('errors/404.html'), 404
 
 @app.route('/login')
 def login():

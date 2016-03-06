@@ -40,8 +40,6 @@ from functools import wraps, update_wrapper
 page = Blueprint('api', __name__)
 config = None
 
-sqlconn = False
-
 log = logging.getLogger('pajbot')
 
 
@@ -584,7 +582,8 @@ def init(app):
 
             self.delim = '|||'
 
-        def get(self):
+        # @requires_level(500)
+        def get(self, **options):
             args = self.get_parser.parse_args()
 
             email = args['email'].lower()
@@ -606,7 +605,8 @@ def init(app):
 
             return payload
 
-        def post(self):
+        # @requires_level(500)
+        def post(self, **options):
             # Add a single tag to the email
             args = self.post_parser.parse_args()
 
@@ -642,7 +642,8 @@ def init(app):
                     'message': 'Successfully added the tag {} to {}'.format(new_tag, email)
                     }
 
-        def delete(self):
+        # @requires_level(500)
+        def delete(self, **options):
             # Add a single tag to the email
             args = self.delete_parser.parse_args()
 

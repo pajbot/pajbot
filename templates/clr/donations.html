@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CLR Donation Alert - {{ streamer.name }}</title>
+    <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="/static/css/clr.donations.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+{%- assets 'clr_donations' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
+{%- assets 'clr_shared' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
+<script type="text/javascript" src="/static/scripts/clr.queue.js"></script>
+    <style>
+#tip-alert {
+    background-image: url('{{ widget.basic.image }}');
+    width: {{ widget.basic.width }}px;
+    height: {{ widget.basic.height }}px;
+}
+    /* TODO: Custom CSS from widget in database */
+    /* redis? */
+    </style>
+  </head>
+  <body>
+    <div id="tip-alert">
+     <div class="text from large" id="new-tip"></div>
+     <div class="text note small" id="new-tip-note"></div>
+    </div>
+    <script type="text/javascript">
+var emotes = {
+    {%- for emote in emotes %}'{{ emote.code }}':{i:{{ emote.emote_id if emote.emote_id else 'null' }},h:{{ "'{}'".format(emote.emote_hash)|safe if emote.emote_hash else 'null' }}},{% endfor -%}
+};
+/* TODO: emotes */
+var queue = new Queue();
+var queue_active = false;
+
+function on_error(data)
+{
+    console.log(data);
+}
+
+function on_new_tip(data)
+{
+    queue.enqueue(data);
+
+    if (queue_active === false) {
+        queue_active = true;
+        check_queue();
+    }
+}
+
+var bad_words = [
+    'jew',
+    'nigger',
+    'nigga',
+    'penis',
+    'pussy',
+    'slut',
+    'whore'
+];
+
+function filter_words(note)
+{
+    for (var i=0; i<bad_words.length; ++i) {
+        note = note.replace(new RegExp(bad_words[i], 'g'), '***');
+    }
+    return note;
+}
+
+function check_queue()
+{
+    setTimeout(function() {
+        if (!queue.isEmpty()) {
+            if (!($('#tip-alert').is(':visible')) && tts_playing === false) {
+                var donation = queue.dequeue();
+                var note = filter_words(donation['note']);
+                var username = filter_words(donation['username']);
+                show_tip(username, donation['amount'], donation['currencySymbol'], note);
+            }
+        }
+        check_queue();
+    }, 500);
+}
+
+var client_id = '{{ widget.client_id }}';
+var access_token = '{{ widget.access_token }}';
+{% if widget.sound %}
+sound = {
+    enabled: true,
+    volume: {{ widget.sound.volume or 1.0 }},
+    delay: {{ widget.sound.delay or 0 }},
+    url: '{{ widget.sound.url }}',
+};
+{% else %}
+sound = {
+    enabled: false,
+};
+{% endif %}
+
+if (sound.enabled) {
+    var param = getParameterByName('volume');
+    if (param.length > 0) {
+        var new_volume = sound.volume;
+        try {
+            new_volume = parseFloat(param);
+        } catch (err) {
+        }
+
+        if (new_volume > 1.0) {
+            new_volume = 1.0;
+        } else if (new_volume < 0.0) {
+            new_volume = 0.0;
+        }
+
+        sound.volume = new_volume;
+    }
+
+    console.log('Loading audio from ' + sound.url);
+    sound.audio = new Audio(sound.url);
+    sound.audio.volume = sound.volume;
+    sound.audio.addEventListener('error', function(e) {
+        console.log('An error occured while loading the sound.');
+        switch (e.target.error.code) {
+            case e.target.error.MEDIA_ERR_ABORTED:
+                console.error('You aborted the video playback.');
+                break;
+            case e.target.error.MEDIA_ERR_NETWORK:
+                console.error('A network error caused the audio download to fail.');
+                break;
+            case e.target.error.MEDIA_ERR_DECODE:
+                console.error('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+                break;
+            case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                console.error('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
+                break;
+            default:
+                console.error('An unknown error occurred.');
+                break;
+        }
+        console.error(e);
+    });
+}
+tts_playing = false;
+streamer = '{{ streamer.full_name }}';
+var timer = false;
+tts_authorization = '{{ tts_authentication }}';
+var use_tts = {{ widget.tts or 'false' }};
+
+$(document).ready(function() {
+    streamtip_connect(client_id, access_token, on_error, on_new_tip, on_authenticated);
+});
+    </script>
+  </body>
+</html>
