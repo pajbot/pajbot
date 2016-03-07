@@ -76,10 +76,10 @@
            {% if not session.user.level or session.user.level >= 500 %}
              <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
            {% endif %}
-           <a class="item" href="/logout"><i class="sign out icon"></i> Log out</a>{% else %}
+           <a class="item" href="/logout?n={{ request.path }}"><i class="sign out icon"></i> Log out</a>{% else %}
           <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
           <div class="ui inverted link list">
-          <a href="/login" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
+          <a href="/login?n={{ request.path }}" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
           </div>
         </div>
       </div>

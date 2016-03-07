@@ -127,7 +127,9 @@ twitch = oauth.remote_app(
         'twitch',
         consumer_key=config['webtwitchapi']['client_id'],
         consumer_secret=config['webtwitchapi']['client_secret'],
-        request_token_params={'scope': 'user_read'},
+        request_token_params={
+            'scope': 'user_read',
+            },
         base_url='https://api.twitch.tv/kraken/',
         request_token_url=None,
         access_token_method='POST',
@@ -229,6 +231,7 @@ def points():
 
 @app.route('/debug')
 def debug():
+    return redirect('http://google.com')
     return render_template('debug.html')
 
 
@@ -243,7 +246,12 @@ def notifications():
 
 @app.route('/login')
 def login():
-    return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True))
+    callback_url = config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True)
+    state = request.args.get('n') or request.referrer or None
+    return twitch.authorize(
+            callback=callback_url,
+            state=state,
+            )
 
 @app.route('/login/error')
 def login_error():
@@ -255,17 +263,20 @@ def authorized():
         resp = twitch.authorized_response()
     except OAuthException:
         log.exception('An exception was caught while authorizing')
-        return redirect(url_for('index'))
+        next_url = get_next_url(request, 'state')
+        return redirect(next_url)
 
     print(resp)
     if resp is None:
         log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
-        return redirect(url_for('index'))
+        next_url = get_next_url(request, 'state')
+        return redirect(next_url)
     elif type(resp) is OAuthException:
         log.warn(resp.message)
         log.warn(resp.data)
         log.warn(resp.type)
-        return redirect(url_for('login_error'))
+        next_url = get_next_url(request, 'state')
+        return redirect(next_url)
     session['twitch_token'] = (resp['access_token'], )
     me = twitch.get('user')
     level = 100
@@ -278,13 +289,23 @@ def authorized():
             'username_raw': me.data['display_name'],
             'level': level,
             }
-    return redirect(url_for('index'))
+    next_url = get_next_url(request, 'state')
+    return redirect(next_url)
+
+def get_next_url(request, key='n'):
+    next_url = request.args.get(key, '/')
+    if next_url.startswith('//'):
+        return '/'
+    return next_url
 
 @app.route('/logout')
 def logout():
     session.pop('twitch_token', None)
     session.pop('user', None)
-    return redirect(url_for('index'))
+    next_url = get_next_url(request)
+    if next_url.startswith('/admin'):
+        next_url = '/'
+    return redirect(next_url)
 
 @twitch.tokengetter
 def get_twitch_oauth_token():
