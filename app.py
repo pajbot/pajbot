@@ -26,9 +26,9 @@ from pajbot.models.webcontent import WebContent
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import find
 from pajbot.tbutil import load_config, init_logging
-from pajbot.tbutil import time_since
 from pajbot.web.models import errors
 import pajbot.web.routes
+import pajbot.web.common
 
 from flask import Flask
 from flask import Markup
@@ -37,7 +37,6 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
-from flask.ext.assets import Environment, Bundle
 from flask.ext.scrypt import generate_random_salt
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
@@ -50,75 +49,15 @@ log = logging.getLogger('pajbot')
 
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+
 pajbot.web.routes.admin.init(app)
 pajbot.web.routes.api.init(app)
+
+pajbot.web.common.filters.init(app)
+pajbot.web.common.assets.init(app)
+
 app.register_blueprint(pajbot.web.routes.clr.page)
 app.register_blueprint(pajbot.web.routes.api.page)
-
-assets = Environment(app)
-
-# Basic CSS and Javascript:
-# Available under: base_css, semantic_css, base_js
-base_css = Bundle('css/base.min.css',
-        output='css/base.gen.%(version)s.css')
-semantic_css = Bundle('semantic/semantic.min.css',
-        output='semantic/semantic.gen.%(version)s.css')
-base_js = Bundle('scripts/base.js', filters='jsmin',
-        output='scripts/base.gen.%(version)s.js')
-semantic_js = Bundle('semantic/semantic.min.js',
-        output='semantic/semantic.gen.%(version)s.js')
-assets.register('base_css', base_css)
-assets.register('base_js', base_js)
-assets.register('semantic_css', semantic_css)
-assets.register('semantic_js', semantic_js)
-
-# Pleblist-related javascript
-# Available undeer the following assets: pleblist_shared, pleblist_host, pleblist_client
-pleblist_client = Bundle('scripts/pleblist.js', filters='jsmin',
-        output='scripts/pleblist.gen.%(version)s.js')
-pleblist_shared = Bundle('scripts/pleblist.shared.js', filters='jsmin',
-        output='scripts/pleblist.gen.shared.%(version)s.js')
-pleblist_host = Bundle('scripts/pleblist.host.js', filters='jsmin',
-        output='scripts/pleblist.gen.host.%(version)s.js')
-assets.register('pleblist_shared', pleblist_shared)
-assets.register('pleblist_client', pleblist_client)
-assets.register('pleblist_host', pleblist_host)
-
-# CLR Overlay
-# Availabe under: clr_overlay, clr_donations, clr_shared
-clr_overlay = Bundle('scripts/clr.overlay.js', filters='jsmin',
-        output='scripts/clr.gen.overlay.%(version)s.js')
-clr_donations = Bundle('scripts/clr.donations.js', filters='jsmin',
-        output='scripts/clr.gen.donations.%(version)s.js')
-clr_shared = Bundle('scripts/clr.shared.js', filters='jsmin',
-        output='scripts/clr.gen.shared.%(version)s.js')
-assets.register('clr_overlay', clr_overlay)
-assets.register('clr_donations', clr_donations)
-assets.register('clr_shared', clr_shared)
-
-# Admin site
-# Availabe under: admin_create_banphrase, admin_create_command,
-#                 admin_create_row, admin_edit_command
-admin_create_banphrase = Bundle('scripts/admin/create_banphrase.js', filters='jsmin',
-        output='scripts/admin/create_banphrase.gen.%(version)s.js')
-admin_create_command = Bundle('scripts/admin/create_command.js', filters='jsmin',
-        output='scripts/admin/create_command.gen.%(version)s.js')
-admin_create_row = Bundle('scripts/admin/create_row.js', filters='jsmin',
-        output='scripts/admin/create_row.gen.%(version)s.js')
-admin_edit_command = Bundle('scripts/admin/edit_command.js', filters='jsmin',
-        output='scripts/admin/edit_command.gen.%(version)s.js')
-assets.register('admin_create_banphrase', admin_create_banphrase)
-assets.register('admin_create_command', admin_create_command)
-assets.register('admin_create_row', admin_create_row)
-assets.register('admin_edit_command', admin_edit_command)
-
-notifications_base = Bundle('scripts/notifications/base.js', filters='jsmin',
-        output='scripts/notifications/base.gen.%(version)s.js')
-assets.register('notifications_base', notifications_base)
-
-notifications_subscribers = Bundle('scripts/notifications/subscribers.js', filters='jsmin',
-        output='scripts/notifications/subscribers.gen.%(version)s.js')
-assets.register('notifications_subscribers', notifications_subscribers)
 
 config = configparser.ConfigParser()
 
@@ -701,53 +640,6 @@ def change_twitch_header(uri, headers, body):
 
 twitch.pre_request = change_twitch_header
 
-@app.template_filter()
-def date_format(value, format='full'):
-    if format == 'full':
-        date_format = '%Y-%m-%d %H:%M:%S'
-
-    return value.strftime(date_format)
-
-@app.template_filter('strftime')
-def time_strftime(value, format):
-    return value.strftime(format)
-
-@app.template_filter('localize')
-def time_localize(value):
-    return TimeManager.localize(value)
-
-@app.template_filter('unix_timestamp')
-def time_unix_timestamp(value):
-    return value.timestamp()
-
-@app.template_filter()
-def number_format(value, tsep=',', dsep='.'):
-    s = str(value)
-    cnt = 0
-    numchars = dsep + '0123456789'
-    ls = len(s)
-    while cnt < ls and s[cnt] not in numchars:
-        cnt += 1
-
-    lhs = s[:cnt]
-    s = s[cnt:]
-    if not dsep:
-        cnt = -1
-    else:
-        cnt = s.rfind(dsep)
-    if cnt > 0:
-        rhs = dsep + s[cnt + 1:]
-        s = s[:cnt]
-    else:
-        rhs = ''
-
-    splt = ''
-    while s != '':
-        splt = s[-3:] + tsep + splt
-        s = s[:-3]
-
-    return lhs + splt[:-1] + rhs
-
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
 nav_bar_header.append(('/commands/', 'commands', 'Commands'))
@@ -849,27 +741,6 @@ def current_time():
 @app.context_processor
 def inject_default_variables():
     return default_variables
-
-@app.template_filter('time_ago')
-def time_ago(t, format='long'):
-    return time_since(datetime.datetime.now().timestamp(), t.timestamp(), format)
-
-@app.template_filter('time_diff')
-def time_diff(t1, t2, format='long'):
-    return time_since(t1.timestamp(), t2.timestamp(), format)
-
-@app.template_filter('time_ago_timespan_seconds')
-def time_ago_timespan_seconds(t, format='long'):
-    v = time_since(t, 0, format)
-    return 'None' if len(v) == 0 else v
-
-@app.template_filter('seconds_to_vodtime')
-def seconds_to_vodtime(t):
-    s = int(t)
-    h = s / 3600
-    m = s % 3600 / 60
-    s = s % 60
-    return '%dh%02dm%02ds' % (h, m, s)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
