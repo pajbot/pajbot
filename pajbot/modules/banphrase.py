@@ -138,6 +138,8 @@ class BanphraseModule(BaseModule):
                     'banphrase': Command.raw_command(self.add_banphrase,
                         level=500,
                         description='Add a banphrase!',
+                        delay_all=0,
+                        delay_user=0,
                         examples=[
                             CommandExample(None, 'Create a banphrase',
                                 chat='user:!add banphrase testman123\n'
@@ -172,6 +174,8 @@ class BanphraseModule(BaseModule):
                 commands={
                     'banphrase': Command.raw_command(self.remove_banphrase,
                         level=500,
+                        delay_all=0,
+                        delay_user=0,
                         description='Remove a banphrase!',
                         examples=[
                             CommandExample(None, 'Remove a banphrase',

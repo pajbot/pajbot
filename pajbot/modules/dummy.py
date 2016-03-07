@@ -28,7 +28,18 @@ class DummyModule(BaseModule):
                 label='boolean setting!',
                 type='boolean',
                 required=True,
-                default=False)
+                default=False),
+            ModuleSetting(
+                key='timeout_length',
+                label='Timeout length',
+                type='number',
+                required=True,
+                placeholder='Timeout length in seconds',
+                default=60,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 3600,
+                    }),
             ]
 
     def dummy_command(self, **options):
