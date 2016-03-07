@@ -94,6 +94,7 @@ RedisManager.init(**redis_options)
 with open(args.config, 'w') as configfile:
     config.write(configfile)
 
+app.bot_modules = config['web'].get('modules', '').split()
 app.bot_commands_list = []
 app.bot_config = config
 app.secret_key = config['web']['secret_key']
@@ -116,6 +117,7 @@ pajbot.web.routes.base.init(app)
 pajbot.web.common.filters.init(app)
 pajbot.web.common.assets.init(app)
 pajbot.web.common.tasks.init(app)
+pajbot.web.common.menu.init(app)
 
 app.register_blueprint(pajbot.web.routes.clr.page)
 app.register_blueprint(pajbot.web.routes.api.page)
@@ -123,37 +125,6 @@ app.register_blueprint(pajbot.web.routes.api.page)
 errors.init(app)
 pajbot.web.routes.api.config = config
 pajbot.web.routes.clr.config = config
-
-modules = config['web'].get('modules', '').split()
-
-nav_bar_header = []
-nav_bar_header.append(('/', 'home', 'Home'))
-nav_bar_header.append(('/commands/', 'commands', 'Commands'))
-if 'deck' in app.module_manager:
-    nav_bar_header.append(('/decks/', 'decks', 'Decks'))
-if config['main']['nickname'] not in ['scamazbot']:
-    nav_bar_header.append(('/points/', 'points', 'Points'))
-nav_bar_header.append(('/stats/', 'stats', 'Stats'))
-nav_bar_header.append(('/highlights/', 'highlights', 'Highlights'))
-if 'pleblist' in modules:
-    nav_bar_header.append(('/pleblist/history/', 'pleblist', 'Pleblist'))
-
-nav_bar_admin_header = []
-nav_bar_admin_header.append(('/', 'home', 'Home'))
-nav_bar_admin_header.append(('/admin/', 'admin_home', 'Admin Home'))
-nav_bar_admin_header.append(([
-    ('/admin/banphrases/', 'admin_banphrases', 'Banphrases'),
-    ('/admin/links/blacklist/', 'admin_links_blacklist', 'Blacklisted links'),
-    ('/admin/links/whitelist/', 'admin_links_whitelist', 'Whitelisted links'),
-    ], None, 'Filters'))
-nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
-nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
-nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
-nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
-if 'predict' in app.module_manager:
-    nav_bar_admin_header.append(('/admin/predictions/', 'admin_predictions', 'Predictions'))
-nav_bar_admin_header.append(('/admin/streamer/', 'admin_streamer', 'Streamer Info'))
-nav_bar_admin_header.append(('/admin/clr/', 'admin_clr', 'CLR'))
 
 version = Bot.version
 last_commit = ''
@@ -166,7 +137,6 @@ try:
     version = '{0} DEV ({1}, {2}, commit {3})'.format(version, current_branch, latest_commit, commit_number)
 except:
     pass
-
 
 default_variables = {
         'version': version,
@@ -188,9 +158,7 @@ default_variables = {
             'name': config['web']['streamer_name'],
             'full_name': config['main']['streamer']
             },
-        'nav_bar_header': nav_bar_header,
-        'nav_bar_admin_header': nav_bar_admin_header,
-        'modules': modules,
+        'modules': app.bot_modules,
         'request': request,
         'session': session,
         'google_analytics': config['web'].get('google_analytics', None),
