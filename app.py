@@ -23,7 +23,6 @@ import pajbot.web.routes
 import pajbot.web.common
 
 from flask import Flask
-from flask import render_template
 from flask import request
 from flask import session
 from flask.ext.scrypt import generate_random_salt
@@ -126,16 +125,6 @@ pajbot.web.routes.api.config = config
 pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
-
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-
-@app.route('/notifications/')
-def notifications():
-    return render_template('notifications.html')
 
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
