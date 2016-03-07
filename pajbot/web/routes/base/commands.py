@@ -1,21 +1,10 @@
-from pajbot.models.module import ModuleManager
 from pajbot.tbutil import find
 
 from flask import render_template
 
 def init(app):
     def get_commands_list():
-        # TODO: redis caching for this shit
-        from pajbot.models.command import CommandManager
-        bot_commands = CommandManager(
-                socket_manager=None,
-                module_manager=ModuleManager(None).load(),
-                bot=None).load(load_examples=True)
-        bot_commands_list = bot_commands.parse_for_web()
-
-        bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
-        del bot_commands
-        return bot_commands_list
+        return app.bot_commands_list
 
     @app.route('/commands/')
     def commands():

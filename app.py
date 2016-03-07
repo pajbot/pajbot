@@ -15,14 +15,12 @@ from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.module import ModuleManager
-from pajbot.models.pleblist import PleblistSong
 from pajbot.models.sock import SocketClientManager
-from pajbot.models.stream import Stream, StreamChunk, StreamChunkHighlight
+from pajbot.models.stream import StreamChunkHighlight
 from pajbot.models.time import TimeManager
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
 from pajbot.streamhelper import StreamHelper
-from pajbot.tbutil import find
 from pajbot.tbutil import load_config, init_logging
 from pajbot.web.models import errors
 import pajbot.web.routes
@@ -156,24 +154,25 @@ modules = config['web'].get('modules', '').split()
 
 app.bot_commands_list = []
 
+def update_commands(signal_id):
+    log.debug('Updating commands...')
+    from pajbot.models.command import CommandManager
+    bot_commands = CommandManager(
+            socket_manager=None,
+            module_manager=ModuleManager(None).load(),
+            bot=None).load(load_examples=True)
+    app.bot_commands_list = bot_commands.parse_for_web()
+
+    app.bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
+    del bot_commands
+
+
+update_commands(26)
 try:
+    import uwsgi
     from uwsgidecorators import thread, timer
-
-    @thread
-    @timer(60 * 10)
-    def update_commands(signal_id):
-        log.debug('Updating commands...')
-        from pajbot.models.command import CommandManager
-        bot_commands = CommandManager(
-                socket_manager=None,
-                module_manager=ModuleManager(None).load(),
-                bot=None).load(load_examples=True)
-        app.bot_commands_list = bot_commands.parse_for_web()
-
-        app.bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
-        del bot_commands
-
-    update_commands(123)
+    uwsgi.register_signal(26, "worker", update_commands)
+    uwsgi.add_timer(26, 60 * 10)
 
     @thread
     @timer(5)
@@ -294,49 +293,6 @@ def highlights():
                 dates_with_highlights=set(dates_with_highlights))
     finally:
         session.close()
-
-
-@app.route('/pleblist/')
-def pleblist():
-    return render_template('pleblist.html')
-
-@app.route('/pleblist/host/')
-def pleblist_host():
-    return render_template('pleblist_host.html')
-
-@app.route('/pleblist/history/')
-def pleblist_history_redirect():
-    with DBManager.create_session_scope() as session:
-        current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
-        if current_stream is not None:
-            return redirect('/pleblist/history/{}/'.format(current_stream.id), 303)
-
-        last_stream = session.query(Stream).filter_by(ended=True).order_by(Stream.stream_start.desc()).first()
-        if last_stream is not None:
-            return redirect('/pleblist/history/{}/'.format(last_stream.id), 303)
-
-        return render_template('pleblist_history_no_stream.html'), 404
-
-@app.route('/pleblist/history/<stream_id>/')
-def pleblist_history_stream(stream_id):
-    with DBManager.create_session_scope() as session:
-        stream = session.query(Stream).filter_by(id=stream_id).one_or_none()
-        if stream is None:
-            return render_template('pleblist_history_404.html'), 404
-
-        songs = session.query(PleblistSong).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.id.asc(), PleblistSong.id.asc()).all()
-        total_length_left = sum([song.skip_after or song.song_info.duration if song.date_played is None and song.song_info is not None else 0 for song in songs])
-
-        first_unplayed_song = find(lambda song: song.date_played is None, songs)
-        stream_chunks = session.query(StreamChunk).filter(StreamChunk.stream_id == stream.id).all()
-
-        return render_template('pleblist_history.html',
-                stream=stream,
-                songs=songs,
-                total_length_left=total_length_left,
-                first_unplayed_song=first_unplayed_song,
-                stream_chunks=stream_chunks)
-
 
 @app.route('/notifications/')
 def notifications():
