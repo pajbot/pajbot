@@ -731,6 +731,8 @@ class Bot:
                             tag_as = 'nostam_sub'
                         elif emote_code.startswith('reynad'):
                             tag_as = 'reynad_sub'
+                        elif emote_code.startswith('athene'):
+                            tag_as = 'athene_sub'
                         elif emote_id in [12760, 35600, 68498, 54065, 59411, 59412, 59413, 62683, 70183, 70181, 68499, 70429, 70432, 71432, 71433]:
                             tag_as = 'massan_sub'
 
