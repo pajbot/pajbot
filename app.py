@@ -241,15 +241,6 @@ def contact():
 def notifications():
     return render_template('notifications.html')
 
-@app.route('/test/')
-def test():
-    redis = RedisManager.get()
-    current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
-    current_quest_id = redis.get(current_quest_key)
-    current_quest = app.module_manager[current_quest_id]
-    current_quest.load_data()
-    return render_template('test.html', current_quest=current_quest)
-
 @app.route('/login')
 def login():
     return twitch.authorize(callback=config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True))
