@@ -13,12 +13,9 @@ from pajbot.apiwrappers import TwitchAPI
 from pajbot.bot import Bot
 from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
-from pajbot.models.duel import UserDuelStats
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.time import TimeManager
-from pajbot.models.user import User
-from pajbot.models.webcontent import WebContent
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import load_config, init_logging
 from pajbot.web.models import errors
@@ -26,13 +23,10 @@ import pajbot.web.routes
 import pajbot.web.common
 
 from flask import Flask
-from flask import Markup
 from flask import render_template
 from flask import request
 from flask import session
 from flask.ext.scrypt import generate_random_salt
-from sqlalchemy import func
-import markdown
 
 init_logging('pajbot')
 log = logging.getLogger('pajbot')
@@ -115,10 +109,6 @@ TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
 app.module_manager = ModuleManager(None).load()
 
-with DBManager.create_session_scope() as db_session:
-    custom_web_content = {}
-    for web_content in db_session.query(WebContent).filter(WebContent.content is not None):
-        custom_web_content[web_content.page] = web_content.content
 
 pajbot.web.routes.admin.init(app)
 pajbot.web.routes.api.init(app)
@@ -137,43 +127,6 @@ pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
 
-
-@app.route('/user/<username>')
-def user_profile(username):
-    session = DBManager.create_session()
-    user = session.query(User).filter_by(username=username).one_or_none()
-    if user is None:
-        return render_template('no_user.html'), 404
-
-    rank = session.query(func.Count(User.id)).filter(User.points > user.points).one()
-    rank = rank[0] + 1
-    user.rank = rank
-
-    user_duel_stats = session.query(UserDuelStats).filter_by(user_id=user.id).one_or_none()
-
-    try:
-        return render_template('user.html',
-                user=user,
-                user_duel_stats=user_duel_stats)
-    finally:
-        session.close()
-
-
-@app.route('/points/')
-def points():
-    custom_content = custom_web_content.get('points', '')
-    try:
-        custom_content = Markup(markdown.markdown(custom_content))
-    except:
-        log.exception('Unhandled exception in def index')
-    session = DBManager.create_session()
-    top_30_users = []
-    for user in session.query(User).order_by(User.points.desc())[:30]:
-        top_30_users.append(user)
-    session.close()
-    return render_template('points.html',
-            top_30_users=top_30_users,
-            custom_content=custom_content)
 
 @app.route('/contact')
 def contact():
