@@ -1,66 +1,59 @@
 #!/usr/bin/env python3
 
-import sys
 import argparse
-import os
-import configparser
-import json
-import math
-import logging
-import subprocess
-import datetime
-import urllib
 import collections
+import configparser
+import datetime
+import logging
+import os
+import subprocess
+import sys
+import urllib
 
+from pajbot.apiwrappers import TwitchAPI
 from pajbot.bot import Bot
-from pajbot.web.routes import api
-import pajbot.web.routes
-from pajbot.web.routes import admin
-from pajbot.web.models import errors
+from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
-from pajbot.tbutil import load_config, init_logging, time_nonclass_method
 from pajbot.models.deck import Deck
-from pajbot.models.command import CommandExample
-from pajbot.models.user import User
 from pajbot.models.duel import UserDuelStats
-from pajbot.models.stream import Stream, StreamChunk, StreamChunkHighlight
-from pajbot.models.webcontent import WebContent
-from pajbot.models.time import TimeManager
+from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.sock import SocketClientManager
-from pajbot.models.module import ModuleManager
-from pajbot.managers import RedisManager
-from pajbot.apiwrappers import TwitchAPI
-from pajbot.tbutil import time_since
-from pajbot.tbutil import find
+from pajbot.models.stream import Stream, StreamChunk, StreamChunkHighlight
+from pajbot.models.time import TimeManager
+from pajbot.models.user import User
+from pajbot.models.webcontent import WebContent
 from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import find
+from pajbot.tbutil import load_config, init_logging
+from pajbot.tbutil import time_since
+from pajbot.web.models import errors
+import pajbot.web.routes
 
-import markdown
 from flask import Flask
-from flask import request
-from flask import render_template
 from flask import Markup
 from flask import redirect
-from flask import url_for
+from flask import render_template
+from flask import request
 from flask import session
-from flask import jsonify
-from flask.ext.scrypt import generate_random_salt
+from flask import url_for
 from flask.ext.assets import Environment, Bundle
+from flask.ext.scrypt import generate_random_salt
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 from sqlalchemy import func, cast, Date
 from sqlalchemy.orm import joinedload
+import markdown
 
 init_logging('pajbot')
 log = logging.getLogger('pajbot')
 
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-app.register_blueprint(api.page)
 pajbot.web.routes.admin.init(app)
-app.register_blueprint(pajbot.web.routes.clr.page)
-
 pajbot.web.routes.api.init(app)
+app.register_blueprint(pajbot.web.routes.clr.page)
+app.register_blueprint(pajbot.web.routes.api.page)
 
 assets = Environment(app)
 
@@ -218,7 +211,7 @@ with DBManager.create_session_scope() as db_session:
         custom_web_content[web_content.page] = web_content.content
 
 errors.init(app)
-api.config = config
+pajbot.web.routes.api.config = config
 pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
