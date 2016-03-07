@@ -11,3 +11,4 @@ def init(app):
     pajbot.web.routes.base.highlights.init(app)
     pajbot.web.routes.base.home.init(app)
     pajbot.web.routes.base.pleblist.init(app)
+    pajbot.web.routes.base.stats.init(app)
