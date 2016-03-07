@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import collections
 import configparser
 import datetime
 import logging
@@ -142,7 +141,7 @@ twitch = oauth.remote_app(
 DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
-module_manager = ModuleManager(None).load()
+app.module_manager = ModuleManager(None).load()
 
 with DBManager.create_session_scope() as db_session:
     custom_web_content = {}
@@ -209,52 +208,6 @@ try:
 except ImportError:
     log.exception('Import error, disregard if debugging.')
     pass
-
-@app.route('/')
-def index():
-    custom_content = custom_web_content.get('home', '')
-    try:
-        custom_content = Markup(markdown.markdown(custom_content))
-    except:
-        log.exception('Unhandled exception in def index')
-
-    redis = RedisManager.get()
-    streamer = StreamHelper.get_streamer()
-
-    keys = ('online', 'viewers', 'game')
-    stream_data_keys = ['{streamer}:{key}'.format(streamer=streamer, key=key) for key in keys]
-    stream_data_list = redis.hmget('stream_data', stream_data_keys)
-    stream_data = {keys[x]: stream_data_list[x] for x in range(0, len(keys))}
-
-    keys = StreamHelper.social_keys
-    streamer_info_keys = ['{streamer}:{key}'.format(streamer=streamer, key=key) for key in keys.keys()]
-    log.info(streamer_info_keys)
-    streamer_info_list = redis.hmget('streamer_info', streamer_info_keys)
-    streamer_info = collections.OrderedDict()
-    for key in keys:
-        value = streamer_info_list.pop(0)
-        if value:
-            streamer_info[key] = {
-                    'value': keys[key]['format'].format(value),
-                    'title': keys[key]['title'],
-                    'format': keys[key]['format'],
-                    }
-
-    current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
-    current_quest_id = redis.get(current_quest_key)
-    if current_quest_id is not None:
-        current_quest = module_manager[current_quest_id]
-        if current_quest:
-            current_quest.load_data()
-    else:
-        current_quest = None
-
-    return render_template('index.html',
-            custom_content=custom_content,
-            current_quest=current_quest,
-            stream_data=stream_data,
-            streamer_info=streamer_info)
-
 
 @app.route('/user/<username>')
 def user_profile(username):
@@ -445,7 +398,7 @@ def test():
     redis = RedisManager.get()
     current_quest_key = '{streamer}:current_quest'.format(streamer=StreamHelper.get_streamer())
     current_quest_id = redis.get(current_quest_key)
-    current_quest = module_manager[current_quest_id]
+    current_quest = app.module_manager[current_quest_id]
     current_quest.load_data()
     return render_template('test.html', current_quest=current_quest)
 
@@ -510,7 +463,7 @@ twitch.pre_request = change_twitch_header
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
 nav_bar_header.append(('/commands/', 'commands', 'Commands'))
-if 'deck' in module_manager:
+if 'deck' in app.module_manager:
     nav_bar_header.append(('/decks/', 'decks', 'Decks'))
 if config['main']['nickname'] not in ['scamazbot']:
     nav_bar_header.append(('/points/', 'points', 'Points'))
@@ -531,7 +484,7 @@ nav_bar_admin_header.append(('/admin/commands/', 'admin_commands', 'Commands'))
 nav_bar_admin_header.append(('/admin/timers/', 'admin_timers', 'Timers'))
 nav_bar_admin_header.append(('/admin/moderators/', 'admin_moderators', 'Moderators'))
 nav_bar_admin_header.append(('/admin/modules/', 'admin_modules', 'Modules'))
-if 'predict' in module_manager:
+if 'predict' in app.module_manager:
     nav_bar_admin_header.append(('/admin/predictions/', 'admin_predictions', 'Predictions'))
 nav_bar_admin_header.append(('/admin/streamer/', 'admin_streamer', 'Streamer Info'))
 nav_bar_admin_header.append(('/admin/clr/', 'admin_clr', 'CLR'))
