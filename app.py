@@ -154,44 +154,26 @@ pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
 
-bot_commands_list = []
+app.bot_commands_list = []
 
-from flask import make_response
-from functools import wraps, update_wrapper
-
-def nocache(view):
-    @wraps(view)
-    def no_cache(*args, **kwargs):
-        response = make_response(view(*args, **kwargs))
-        response.headers['Last-Modified'] = datetime.datetime.now()
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        return response
-
-    return update_wrapper(no_cache, view)
-
-
-def update_commands(signal_id):
-    log.debug('Updating commands...')
-    global bot_commands_list
-    from pajbot.models.command import CommandManager
-    bot_commands = CommandManager(
-            socket_manager=None,
-            module_manager=ModuleManager(None).load(),
-            bot=None).load(load_examples=True)
-    bot_commands_list = bot_commands.parse_for_web()
-
-    bot_commands_list = sorted(bot_commands_list, key=lambda x: (x.id or -1, x.main_alias))
-    del bot_commands
-
-
-update_commands(26)
 try:
-    import uwsgi
     from uwsgidecorators import thread, timer
-    uwsgi.register_signal(26, "worker", update_commands)
-    uwsgi.add_timer(26, 60 * 10)
+
+    @thread
+    @timer(60 * 10)
+    def update_commands(signal_id):
+        log.debug('Updating commands...')
+        from pajbot.models.command import CommandManager
+        bot_commands = CommandManager(
+                socket_manager=None,
+                module_manager=ModuleManager(None).load(),
+                bot=None).load(load_examples=True)
+        app.bot_commands_list = bot_commands.parse_for_web()
+
+        app.bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
+        del bot_commands
+
+    update_commands(123)
 
     @thread
     @timer(5)
@@ -251,39 +233,6 @@ def points():
 def debug():
     return render_template('debug.html')
 
-
-@app.route('/stats/')
-def stats():
-    top_5_commands = sorted(bot_commands_list, key=lambda c: c.data.num_uses if c.data is not None else -1, reverse=True)[:5]
-
-    if 'linefarming' in modules:
-        session = DBManager.create_session()
-        top_5_line_farmers = session.query(User).order_by(User.num_lines.desc())[:5]
-        session.close()
-    else:
-        top_5_line_farmers = []
-
-    return render_template('stats.html',
-            top_5_commands=top_5_commands,
-            top_5_line_farmers=top_5_line_farmers)
-
-@app.route('/stats/duels/')
-def stats_duels():
-    session = DBManager.create_session()
-
-    data = {
-            'top_5_winners': session.query(UserDuelStats).order_by(UserDuelStats.duels_won.desc())[:5],
-            'top_5_points_won': session.query(UserDuelStats).order_by(UserDuelStats.profit.desc())[:5],
-            'top_5_points_lost': session.query(UserDuelStats).order_by(UserDuelStats.profit.asc())[:5],
-            'top_5_losers': session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc())[:5],
-            'top_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_won >= 5).order_by(UserDuelStats.winrate.desc())[:5],
-            'bottom_5_winrate': session.query(UserDuelStats).filter(UserDuelStats.duels_lost >= 5).order_by(UserDuelStats.winrate.asc())[:5],
-            }
-
-    try:
-        return render_template('stats_duels.html', **data)
-    finally:
-        session.close()
 
 @app.route('/contact')
 def contact():
