@@ -27,7 +27,6 @@ import pajbot.web.common
 
 from flask import Flask
 from flask import Markup
-from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
@@ -175,13 +174,6 @@ def points():
     return render_template('points.html',
             top_30_users=top_30_users,
             custom_content=custom_content)
-
-
-@app.route('/debug')
-def debug():
-    return redirect('http://google.com')
-    return render_template('debug.html')
-
 
 @app.route('/contact')
 def contact():
