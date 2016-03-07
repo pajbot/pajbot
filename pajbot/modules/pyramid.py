@@ -79,68 +79,71 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(' +')
 
     def on_pubmsg(self, source, message):
-        try:
-            msg_parts = message.split(' ')
-            if len(self.data) > 0:
-                cur_len = len(msg_parts)
-                last_len = len(self.data[-1])
-                pyramid_thing = self.data[-1][0]
-                len_diff = cur_len - last_len
-                if abs(len_diff) == 1:
-                    good = True
+        if source.username == "twitchnotify" or source.username == "gempbot":
+            pass
+        else:
+            try:
+                msg_parts = message.split(' ')
+                if len(self.data) > 0:
+                    cur_len = len(msg_parts)
+                    last_len = len(self.data[-1])
+                    pyramid_thing = self.data[-1][0]
+                    len_diff = cur_len - last_len
+                    if abs(len_diff) == 1:
+                        good = True
 
-                    # Make sure the pyramid consists of the same item over and over again
-                    for x in msg_parts:
-                        if not x == pyramid_thing:
-                            good = False
-                            break
+                        # Make sure the pyramid consists of the same item over and over again
+                        for x in msg_parts:
+                            if not x == pyramid_thing:
+                                good = False
+                                break
 
-                    if good:
-                        self.data.append(msg_parts)
-                        if len_diff > 0:
-                            if self.going_down:
-                                self.data = []
-                                self.going_down = False
-                        elif len_diff < 0:
-                            self.going_down = True
-                            if cur_len == 1:
-                                # A pyramid was finished
-                                peak_length = 0
-                                for x in self.data:
-                                    if len(x) > peak_length:
-                                        peak_length = len(x)
+                        if good:
+                            self.data.append(msg_parts)
+                            if len_diff > 0:
+                                if self.going_down:
+                                    self.data = []
+                                    self.going_down = False
+                            elif len_diff < 0:
+                                self.going_down = True
+                                if cur_len == 1:
+                                    # A pyramid was finished
+                                    peak_length = 0
+                                    for x in self.data:
+                                        if len(x) > peak_length:
+                                            peak_length = len(x)
 
-                                arguments = {
-                                    'emote': pyramid_thing,
-                                    'user': source.username_raw,
-                                    'width': peak_length
-                                }
+                                    arguments = {
+                                        'emote': pyramid_thing,
+                                        'user': source.username_raw,
+                                        'width': peak_length
+                                    }
 
-                                if peak_length > 2:
-                                    if peak_length < 5:
-                                        self.bot.say(self.get_phrase('message_5', **arguments))
-                                    elif peak_length < 7:
-                                        self.bot.say(self.get_phrase('message_7', **arguments))
-                                    elif peak_length < 15:
-                                        self.bot.say(self.get_phrase('message_15', **arguments))
-                                    elif peak_length < 25:
-                                        self.bot.say(self.get_phrase('message_25', **arguments))
-                                    else:
-                                        self.bot.say(self.get_phrase('message_else', **arguments))
-                                self.data = []
-                                self.going_down = False
+                                    if peak_length > 2:
+                                        if peak_length < 5:
+                                            self.bot.say(self.get_phrase('message_5', **arguments))
+                                        elif peak_length < 7:
+                                            self.bot.say(self.get_phrase('message_7', **arguments))
+                                        elif peak_length < 15:
+                                            self.bot.say(self.get_phrase('message_15', **arguments))
+                                        elif peak_length < 25:
+                                            self.bot.say(self.get_phrase('message_25', **arguments))
+                                        else:
+                                            self.bot.say(self.get_phrase('message_else', **arguments))
+                                    self.data = []
+                                    self.going_down = False
+                        else:
+                            self.data = []
+                            self.going_down = False
                     else:
                         self.data = []
                         self.going_down = False
-                else:
-                    self.data = []
-                    self.going_down = False
 
-            if len(msg_parts) == 1 and len(self.data) == 0:
-                self.data.append(msg_parts)
-        except:
-            # Let's just catch all exceptions, in case I fucked up in the above spaghetti code
-            log.exception('Unhandled exception in pyramid parser')
+                if len(msg_parts) == 1 and len(self.data) == 0:
+                    self.data.append(msg_parts)
+            except:
+                # Let's just catch all exceptions, in case I fucked up in the above spaghetti code
+                log.exception('Unhandled exception in pyramid parser')
 
     def enable(self, bot):
         HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
