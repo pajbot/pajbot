@@ -79,6 +79,9 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(' +')
 
     def on_pubmsg(self, source, message):
+        if source.username == 'twitchnotify':
+            return
+
         try:
             msg_parts = message.split(' ')
             if len(self.data) > 0:
