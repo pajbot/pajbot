@@ -16,7 +16,6 @@ from pajbot.models.db import DBManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.models.stream import StreamChunkHighlight
 from pajbot.models.time import TimeManager
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
@@ -32,10 +31,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
-from flask import url_for
 from flask.ext.scrypt import generate_random_salt
-from flask_oauthlib.client import OAuth
-from flask_oauthlib.client import OAuthException
 from sqlalchemy import func
 import markdown
 
@@ -44,16 +40,6 @@ log = logging.getLogger('pajbot')
 
 app = Flask(__name__)
 app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-
-pajbot.web.routes.admin.init(app)
-pajbot.web.routes.api.init(app)
-pajbot.web.routes.base.init(app)
-
-pajbot.web.common.filters.init(app)
-pajbot.web.common.assets.init(app)
-
-app.register_blueprint(pajbot.web.routes.clr.page)
-app.register_blueprint(pajbot.web.routes.api.page)
 
 config = configparser.ConfigParser()
 
@@ -116,26 +102,14 @@ RedisManager.init(**redis_options)
 with open(args.config, 'w') as configfile:
     config.write(configfile)
 
+app.bot_commands_list = []
+app.bot_config = config
 app.secret_key = config['web']['secret_key']
-oauth = OAuth(app)
 
 
 if 'sock' in config and 'sock_file' in config['sock']:
     SocketClientManager.init(config['sock']['sock_file'])
 
-twitch = oauth.remote_app(
-        'twitch',
-        consumer_key=config['webtwitchapi']['client_id'],
-        consumer_secret=config['webtwitchapi']['client_secret'],
-        request_token_params={
-            'scope': 'user_read',
-            },
-        base_url='https://api.twitch.tv/kraken/',
-        request_token_url=None,
-        access_token_method='POST',
-        access_token_url='https://api.twitch.tv/kraken/oauth2/token',
-        authorize_url='https://api.twitch.tv/kraken/oauth2/authorize',
-        )
 
 DBManager.init(config['main']['db'])
 TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
@@ -147,49 +121,23 @@ with DBManager.create_session_scope() as db_session:
     for web_content in db_session.query(WebContent).filter(WebContent.content is not None):
         custom_web_content[web_content.page] = web_content.content
 
+pajbot.web.routes.admin.init(app)
+pajbot.web.routes.api.init(app)
+pajbot.web.routes.base.init(app)
+
+pajbot.web.common.filters.init(app)
+pajbot.web.common.assets.init(app)
+pajbot.web.common.tasks.init(app)
+
+app.register_blueprint(pajbot.web.routes.clr.page)
+app.register_blueprint(pajbot.web.routes.api.page)
+
 errors.init(app)
 pajbot.web.routes.api.config = config
 pajbot.web.routes.clr.config = config
 
 modules = config['web'].get('modules', '').split()
 
-app.bot_commands_list = []
-
-def update_commands(signal_id):
-    log.debug('Updating commands...')
-    from pajbot.models.command import CommandManager
-    bot_commands = CommandManager(
-            socket_manager=None,
-            module_manager=ModuleManager(None).load(),
-            bot=None).load(load_examples=True)
-    app.bot_commands_list = bot_commands.parse_for_web()
-
-    app.bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
-    del bot_commands
-
-
-update_commands(26)
-try:
-    import uwsgi
-    from uwsgidecorators import thread, timer
-    uwsgi.register_signal(26, "worker", update_commands)
-    uwsgi.add_timer(26, 60 * 10)
-
-    @thread
-    @timer(5)
-    def get_highlight_thumbnails(no_clue_what_this_does):
-        from pajbot.web.models.thumbnail import StreamThumbnailWriter
-        with DBManager.create_session_scope() as db_session:
-            highlights = db_session.query(StreamChunkHighlight).filter_by(thumbnail=None).all()
-            if len(highlights) > 0:
-                log.info('Writing {} thumbnails...'.format(len(highlights)))
-                StreamThumbnailWriter(config['main']['streamer'], [h.id for h in highlights])
-                log.info('Done!')
-                for highlight in highlights:
-                    highlight.thumbnail = True
-except ImportError:
-    log.exception('Import error, disregard if debugging.')
-    pass
 
 @app.route('/user/<username>')
 def user_profile(username):
@@ -243,82 +191,6 @@ def contact():
 @app.route('/notifications/')
 def notifications():
     return render_template('notifications.html')
-
-@app.route('/login')
-def login():
-    callback_url = config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in config['webtwitchapi'] else url_for('authorized', _external=True)
-    state = request.args.get('n') or request.referrer or None
-    return twitch.authorize(
-            callback=callback_url,
-            state=state,
-            )
-
-@app.route('/login/error')
-def login_error():
-    return render_template('login_error.html')
-
-@app.route('/login/authorized')
-def authorized():
-    try:
-        resp = twitch.authorized_response()
-    except OAuthException:
-        log.exception('An exception was caught while authorizing')
-        next_url = get_next_url(request, 'state')
-        return redirect(next_url)
-
-    print(resp)
-    if resp is None:
-        log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
-        next_url = get_next_url(request, 'state')
-        return redirect(next_url)
-    elif type(resp) is OAuthException:
-        log.warn(resp.message)
-        log.warn(resp.data)
-        log.warn(resp.type)
-        next_url = get_next_url(request, 'state')
-        return redirect(next_url)
-    session['twitch_token'] = (resp['access_token'], )
-    me = twitch.get('user')
-    level = 100
-    with DBManager.create_session_scope() as db_session:
-        db_user = db_session.query(User).filter_by(username=me.data['name'].lower()).one_or_none()
-        if db_user:
-            level = db_user.level
-    session['user'] = {
-            'username': me.data['name'],
-            'username_raw': me.data['display_name'],
-            'level': level,
-            }
-    next_url = get_next_url(request, 'state')
-    return redirect(next_url)
-
-def get_next_url(request, key='n'):
-    next_url = request.args.get(key, '/')
-    if next_url.startswith('//'):
-        return '/'
-    return next_url
-
-@app.route('/logout')
-def logout():
-    session.pop('twitch_token', None)
-    session.pop('user', None)
-    next_url = get_next_url(request)
-    if next_url.startswith('/admin'):
-        next_url = '/'
-    return redirect(next_url)
-
-@twitch.tokengetter
-def get_twitch_oauth_token():
-    return session.get('twitch_token')
-
-def change_twitch_header(uri, headers, body):
-    auth = headers.get('Authorization')
-    if auth:
-        auth = auth.replace('Bearer', 'OAuth')
-        headers['Authorization'] = auth
-    return uri, headers, body
-
-twitch.pre_request = change_twitch_header
 
 nav_bar_header = []
 nav_bar_header.append(('/', 'home', 'Home'))
