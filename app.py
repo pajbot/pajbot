@@ -14,7 +14,6 @@ from pajbot.apiwrappers import TwitchAPI
 from pajbot.bot import Bot
 from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
-from pajbot.models.deck import Deck
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistSong
@@ -52,6 +51,7 @@ app._static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 's
 
 pajbot.web.routes.admin.init(app)
 pajbot.web.routes.api.init(app)
+pajbot.web.routes.base.init(app)
 
 pajbot.web.common.filters.init(app)
 pajbot.web.common.assets.init(app)
@@ -255,139 +255,6 @@ def index():
             stream_data=stream_data,
             streamer_info=streamer_info)
 
-@app.route('/commands/')
-def commands():
-    custom_commands = []
-    point_commands = []
-    moderator_commands = []
-
-    for command in bot_commands_list:
-        if command.level > 100 or command.mod_only:
-            moderator_commands.append(command)
-        elif command.cost > 0:
-            point_commands.append(command)
-        else:
-            custom_commands.append(command)
-
-    return render_template('commands.html',
-            custom_commands=sorted(custom_commands, key=lambda f: f.command),
-            point_commands=sorted(point_commands, key=lambda a: (a.cost, a.command)),
-            moderator_commands=sorted(moderator_commands, key=lambda c: (c.level if c.mod_only is False else 500, c.command)))
-
-@app.route('/commands/<raw_command_string>')
-def command_detailed(raw_command_string):
-    command_string_parts = raw_command_string.split('-')
-    command_string = command_string_parts[0]
-    command_id = None
-    try:
-        command_id = int(command_string)
-    except ValueError:
-        pass
-
-    if command_id is not None:
-        command = find(lambda c: c.id == command_id, bot_commands_list)
-    else:
-        command = find(lambda c: c.resolve_string == command_string, bot_commands_list)
-
-    if command is None:
-        # XXX: Is it proper to have it return a 404 code as well?
-        return render_template('command_404.html')
-
-    examples = command.autogenerate_examples()
-
-    return render_template('command_detailed.html', command=command, examples=examples)
-
-@app.route('/decks/')
-def decks():
-    session = DBManager.create_session()
-    top_decks = []
-    for deck in session.query(Deck).order_by(Deck.last_used.desc(), Deck.first_used.desc())[:25]:
-        top_decks.append(deck)
-    session.close()
-    return render_template('decks/all.html',
-            top_decks=top_decks,
-            deck_class=None)
-
-@app.route('/decks/druid/')
-def decks_druid():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='druid').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Druid')
-
-@app.route('/decks/hunter/')
-def decks_hunter():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='hunter').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Hunter')
-
-@app.route('/decks/mage/')
-def decks_mage():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='mage').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Mage')
-
-@app.route('/decks/paladin/')
-def decks_paladin():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='paladin').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Paladin')
-
-@app.route('/decks/priest/')
-def decks_priest():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='priest').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Priest')
-
-@app.route('/decks/rogue/')
-def decks_rogue():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='rogue').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Rogue')
-
-@app.route('/decks/shaman/')
-def decks_shaman():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='shaman').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Shaman')
-
-@app.route('/decks/warlock/')
-def decks_warlock():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='warlock').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Warlock')
-
-@app.route('/decks/warrior/')
-def decks_warrior():
-    session = DBManager.create_session()
-    decks = session.query(Deck).filter_by(deck_class='warrior').order_by(Deck.last_used.desc(), Deck.first_used.desc()).all()
-    session.close()
-    return render_template('decks/by_class.html',
-            decks=decks,
-            deck_class='Warrior')
 
 @app.route('/user/<username>')
 def user_profile(username):
