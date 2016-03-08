@@ -1,6 +1,4 @@
 import json
-import re
-import argparse
 import random
 import urllib
 import logging
@@ -63,7 +61,6 @@ class StreamThumbnailWriter:
                             f.write(chunk)
 
                 import av
-                from PIL import Image
                 container = av.open(self.ts_path)
                 video = next(s for s in container.streams if s.type == 'video')
 

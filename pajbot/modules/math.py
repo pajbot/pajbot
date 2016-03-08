@@ -4,7 +4,7 @@ import ast
 import operator as op
 
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
 from pajbot.actions import ActionQueue
 from pajbot.tbutil import time_limit, TimeoutException
 

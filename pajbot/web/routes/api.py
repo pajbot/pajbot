@@ -4,7 +4,6 @@ import binascii
 import logging
 import socket
 import json
-import time
 
 from pajbot.web.utils import requires_level
 from pajbot.models.user import User
@@ -29,7 +28,6 @@ from flask import request
 from flask import redirect
 from flask import abort
 from flask.ext.scrypt import generate_password_hash
-from flask.ext.scrypt import check_password_hash
 from sqlalchemy import func
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload

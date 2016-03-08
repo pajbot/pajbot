@@ -80,34 +80,33 @@ class EightBallModule(BaseModule):
             'yesterday it would\'ve been a yes, but today it\'s a yep',
             'you will have to wait'
             ]
-        
+
         self.emotes = [
-            "Kappa",
-            "Keepo",
-            "xD",
-            "KKona",
-            "4Head",
-            "EleGiggle",
-            "DansGame",
-            "KappaCool",
-            "BrokeBack",
-            "OpieOP",
-            "KappaRoss",
-            "KappaPride",
-            "FeelsBadMan",
-            "FeelsGoodMan",
-            "PogChamp",
-            "VisLaud",
-            "OhMyDog",
-            "FrankerZ",
-            "DatSheffy",
-            "BabyRage",
-            "VoHiYo",
-            "haHAA",
-            "FeelsBirthdayMan",
-            "LUL"
+            'Kappa',
+            'Keepo',
+            'xD',
+            'KKona',
+            '4Head',
+            'EleGiggle',
+            'DansGame',
+            'KappaCool',
+            'BrokeBack',
+            'OpieOP',
+            'KappaRoss',
+            'KappaPride',
+            'FeelsBadMan',
+            'FeelsGoodMan',
+            'PogChamp',
+            'VisLaud',
+            'OhMyDog',
+            'FrankerZ',
+            'DatSheffy',
+            'BabyRage',
+            'VoHiYo',
+            'haHAA',
+            'FeelsBirthdayMan',
+            'LUL'
             ]
-                
 
     def eightball_command(self, **options):
         source = options['source']

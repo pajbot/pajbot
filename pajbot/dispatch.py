@@ -1,18 +1,10 @@
-import math
 import re
 import logging
 import collections
-import json
 import datetime
 
 from pajbot.models.user import User
-from pajbot.models.filter import Filter
-from pajbot.models.db import DBManager
-from pajbot.models.handler import HandlerManager
-from pajbot.tbutil import time_limit, TimeoutException, time_since
-from pajbot.apiwrappers import APIBase
 
-from numpy import random
 from sqlalchemy import desc
 from sqlalchemy import func
 
@@ -339,7 +331,7 @@ class Dispatch:
             # Make sure we got both an existing alias and at least one new alias
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(source.username, "Usage: !add alias existingalias newalias")
+                bot.whisper(source.username, 'Usage: !add alias existingalias newalias')
                 return False
 
             existing_alias = message_parts[0]
@@ -368,7 +360,7 @@ class Dispatch:
             if len(already_used_aliases) > 0:
                 bot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
         else:
-            bot.whisper(source.username, "Usage: !add alias existingalias newalias")
+            bot.whisper(source.username, 'Usage: !add alias existingalias newalias')
 
     def remove_alias(bot, source, message, event, args):
         """Dispatch method for removing aliases from a command.
@@ -377,7 +369,7 @@ class Dispatch:
             aliases = re.split('\|| ', message.lower())
             log.info(aliases)
             if len(aliases) < 1:
-                bot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
+                bot.whisper(source.username, 'Usage: !remove alias EXISTINGALIAS')
                 return False
 
             num_removed = 0
@@ -410,7 +402,7 @@ class Dispatch:
             if len(whisper_str) > 0:
                 bot.whisper(source.username, whisper_str)
         else:
-            bot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
+            bot.whisper(source.username, 'Usage: !remove alias EXISTINGALIAS')
 
     def remove_command(bot, source, message, event, args):
         if message:

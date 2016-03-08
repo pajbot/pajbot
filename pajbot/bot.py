@@ -1,50 +1,49 @@
-import time
 import argparse
-import sys
-import logging
-import subprocess
-import re
-
 import datetime
+import logging
+import re
+import subprocess
+import sys
+import time
 import urllib
-
-from .models.sock import SocketManager
-from .models.user import UserManager
-from .models.emote import EmoteManager
-from .models.connection import ConnectionManager
-from .models.whisperconnection import WhisperConnectionManager
-from .models.websocket import WebSocketManager
-from .models.twitter import TwitterManager
-from .models.db import DBManager
-from .models.filter import FilterManager
-from .models.command import CommandManager
-from .models.kvi import KVIManager
-from .models.deck import DeckManager
-from .models.stream import StreamManager
-from .models.webcontent import WebContent
-from .models.time import TimeManager
-from .models.action import ActionParser
-from .models.duel import UserDuelStats, DuelManager
-from .models.pleblist import PleblistSong, PleblistManager
-from .models.timer import TimerManager, Timer
-from pajbot.models.banphrase import BanphraseManager
-from pajbot.models.module import ModuleManager
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-from pajbot.modules import PredictModule
-from pajbot.streamhelper import StreamHelper
-from .apiwrappers import TwitchAPI
-from .tbutil import time_since
-from .tbutil import time_method
-from .actions import Action, ActionQueue
 
 from numpy import random
 from pytz import timezone
 import irc.client
 
+from pajbot.actions import ActionQueue
+from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers.redis import RedisManager
+from pajbot.models.action import ActionParser
+from pajbot.models.banphrase import BanphraseManager
+from pajbot.models.command import CommandManager
+from pajbot.models.connection import ConnectionManager
+from pajbot.models.db import DBManager
+from pajbot.models.deck import DeckManager
+from pajbot.models.duel import DuelManager
+from pajbot.models.emote import EmoteManager
+from pajbot.models.filter import FilterManager
+from pajbot.models.handler import HandlerManager
+from pajbot.models.kvi import KVIManager
+from pajbot.models.module import ModuleManager
+from pajbot.models.pleblist import PleblistManager
+from pajbot.models.sock import SocketManager
+from pajbot.models.stream import StreamManager
+from pajbot.models.time import TimeManager
+from pajbot.models.timer import TimerManager
+from pajbot.models.twitter import TwitterManager
+from pajbot.models.user import UserManager
+from pajbot.models.websocket import WebSocketManager
+from pajbot.models.whisperconnection import WhisperConnectionManager
+from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import time_method
+from pajbot.tbutil import time_since
 
 log = logging.getLogger('pajbot')
 
+
+def do_nothing(c, e):
+    pass
 
 class TMI:
     message_limit = 90
@@ -403,8 +402,7 @@ class Bot:
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
-            do_nothing = lambda c, e: None
-            method = getattr(self, "on_" + event.type, do_nothing)
+            method = getattr(self, 'on_' + event.type, do_nothing)
             method(connection, event)
 
     def start(self):

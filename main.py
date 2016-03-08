@@ -5,6 +5,8 @@ import sys
 import signal
 import logging
 
+from pajbot.bot import Bot
+
 try:
     basestring
 except NameError:
@@ -13,9 +15,6 @@ except NameError:
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 log = logging.getLogger('pajbot')
-
-from pajbot.bot import Bot
-
 
 def run(args):
     from pajbot.tbutil import load_config
@@ -53,7 +52,7 @@ def run(args):
 def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     from pajbot.tbutil import init_logging
 
     sys.excepthook = handle_exceptions

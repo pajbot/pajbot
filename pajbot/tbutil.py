@@ -47,7 +47,7 @@ def init_logging(app='pajbot'):
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
-    colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
+    colored_formatter = ColoredFormatter('[%(asctime)s] [%(levelname)-20s] %(message)s')
     log_filter = LogFilter(logging.WARNING)
 
     logger_stdout = logging.StreamHandler(sys.stdout)
@@ -96,7 +96,7 @@ class TimeoutException(Exception):
 @contextmanager
 def time_limit(seconds):
     def signal_handler(signum, frame):
-        raise TimeoutException("Timed out!")
+        raise TimeoutException('Timed out!')
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
     try:

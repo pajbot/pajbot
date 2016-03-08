@@ -118,8 +118,8 @@ class LeagueRankModule(BaseModule):
         if len(summoner_name) == 0 or len(region) == 0:
             return False
 
-        error_404 = "Game data not found"
-        error_429 = "Too many requests"
+        error_404 = 'Game data not found'
+        error_429 = 'Too many requests'
 
         try:
             rw = RiotWatcher(riot_api_key, default_region=region)

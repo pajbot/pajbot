@@ -1,16 +1,8 @@
 import logging
-from collections import UserDict
-import datetime
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.time import TimeManager
-from pajbot.models.handler import HandlerManager
-from pajbot.managers import RedisManager
-from pajbot.streamhelper import StreamHelper
+from pajbot.models.db import Base
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, ForeignKey
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Enum, ForeignKey
 
 log = logging.getLogger('pajbot')
 

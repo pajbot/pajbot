@@ -1,24 +1,15 @@
-import datetime
-import base64
-import binascii
-import logging
-import socket
 import json
-import time
-
-from pajbot.web.utils import requires_level
-from pajbot.web.utils import nocache
-from pajbot.models.user import User
-from pajbot.models.emote import Emote
-from pajbot.models.stream import Stream
-from pajbot.models.db import DBManager
-from pajbot.models.sock import SocketClientManager
-from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
+import logging
 
 from flask import Blueprint
-from flask import render_template
 from flask import abort
+from flask import render_template
+
+from pajbot.managers.redis import RedisManager
+from pajbot.models.db import DBManager
+from pajbot.models.emote import Emote
+from pajbot.streamhelper import StreamHelper
+from pajbot.web.utils import nocache
 
 page = Blueprint('clr', __name__, url_prefix='/clr')
 config = None

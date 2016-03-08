@@ -7,7 +7,6 @@ from pajbot.actions import ActionQueue, Action
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.handler import HandlerManager
 
-import re
 import requests
 import logging
 import time
@@ -244,19 +243,19 @@ class LinkCheckerModule(BaseModule):
 
     def delete_from_cache(self, url):
         if url in self.cache:
-            log.debug("LinkChecker: Removing url {0} from cache".format(url))
+            log.debug('LinkChecker: Removing url {0} from cache'.format(url))
             del self.cache[url]
 
     def cache_url(self, url, safe):
         if url in self.cache and self.cache[url] == safe:
             return
 
-        log.debug("LinkChecker: Caching url {0} as {1}".format(url, 'SAFE' if safe is True else 'UNSAFE'))
+        log.debug('LinkChecker: Caching url {0} as {1}'.format(url, 'SAFE' if safe is True else 'UNSAFE'))
         self.cache[url] = safe
         self.run_later(20, self.delete_from_cache, (url, ))
 
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=True):
-        log.debug("LinkChecker: BAD URL FOUND {0}".format(url.url))
+        log.debug('LinkChecker: BAD URL FOUND {0}'.format(url.url))
         if action:
             action.run()
         if want_to_cache:
@@ -398,7 +397,7 @@ class LinkCheckerModule(BaseModule):
         0 = Link needs further analysis
         """
         if url.url in self.cache:
-            log.debug("LinkChecker: Url {0} found in cache".format(url.url))
+            log.debug('LinkChecker: Url {0} found in cache'.format(url.url))
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
                 return self.RET_BAD_LINK
@@ -406,13 +405,13 @@ class LinkCheckerModule(BaseModule):
 
         log.info('Checking if link is blacklisted...')
         if self.is_blacklisted(url.url, url.parsed, sublink):
-            log.debug("LinkChecker: Url {0} is blacklisted".format(url.url))
+            log.debug('LinkChecker: Url {0} is blacklisted'.format(url.url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             return self.RET_BAD_LINK
 
         log.info('Checking if link is whitelisted...')
         if self.is_whitelisted(url.url, url.parsed):
-            log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url.url))
+            log.debug('LinkChecker: Url {0} allowed by the whitelist'.format(url.url))
             self.cache_url(url.url, True)
             return self.RET_GOOD_LINK
 
@@ -435,10 +434,10 @@ class LinkCheckerModule(BaseModule):
         try:
             self._check_url(url, action)
         except:
-            log.exception("LinkChecker unhanled exception while _check_url")
+            log.exception('LinkChecker unhanled exception while _check_url')
 
     def _check_url(self, url, action):
-        log.debug("LinkChecker: Checking url {0}".format(url.url))
+        log.debug('LinkChecker: Checking url {0}'.format(url.url))
 
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
@@ -472,7 +471,7 @@ class LinkCheckerModule(BaseModule):
 
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
-                log.debug("Bad url because google api")
+                log.debug('Bad url because google api')
                 self.counteract_bad_url(url, action)
                 self.counteract_bad_url(redirected_url)
                 return
@@ -538,10 +537,10 @@ class LinkCheckerModule(BaseModule):
             url = Url(url)
 
             if is_subdomain(url.parsed.netloc, original_url.parsed.netloc):
-                # log.debug("Skipping because internal link")
+                # log.debug('Skipping because internal link')
                 continue
 
-            log.debug("Checking sublink {0}".format(url.url))
+            log.debug('Checking sublink {0}'.format(url.url))
             res = self.basic_check(url, action, sublink=True)
             if res == self.RET_BAD_LINK:
                 self.counteract_bad_url(url)
@@ -569,7 +568,7 @@ class LinkCheckerModule(BaseModule):
 
             if self.safeBrowsingAPI:
                 if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
-                    log.debug("Evil sublink {0} by google API".format(url))
+                    log.debug('Evil sublink {0} by google API'.format(url))
                     self.counteract_bad_url(original_url, action)
                     self.counteract_bad_url(original_redirected_url)
                     self.counteract_bad_url(url)

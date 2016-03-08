@@ -1,21 +1,12 @@
-import json
-import time
 import logging
-from collections import UserDict
 import argparse
-import datetime
-import re
 
 from pajbot.tbutil import find
 from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser, RawFuncAction, FuncAction
-from pajbot.managers.redis import RedisManager
 
 import sqlalchemy
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String, Enum
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, String, Enum
 
 log = logging.getLogger('pajbot')
 

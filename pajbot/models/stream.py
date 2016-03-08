@@ -13,7 +13,6 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
-from sqlalchemy import inspect
 from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger('pajbot')

@@ -1,12 +1,9 @@
 import logging
-from collections import UserDict
 import datetime
 
 from pajbot.models.db import DBManager, Base
-from pajbot.models.time import TimeManager
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 
 log = logging.getLogger('pajbot')

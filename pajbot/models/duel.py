@@ -1,8 +1,7 @@
 import logging
 import datetime
 
-from pajbot.models.user import User
-from pajbot.models.db import DBManager, Base
+from pajbot.models.db import Base
 
 from sqlalchemy import Column, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship

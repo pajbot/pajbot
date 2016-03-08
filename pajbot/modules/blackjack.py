@@ -4,8 +4,6 @@ import itertools
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
-from pajbot.models.handler import HandlerManager
-from pajbot.streamhelper import StreamHelper
 
 from numpy import random
 

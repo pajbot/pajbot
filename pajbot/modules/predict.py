@@ -3,13 +3,11 @@ import datetime
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.db import DBManager, Base
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
 
 import sqlalchemy
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload, backref
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
 
 log = logging.getLogger(__name__)
 

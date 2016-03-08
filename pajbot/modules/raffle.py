@@ -1,5 +1,4 @@
 import logging
-import datetime
 import math
 
 from pajbot.modules import BaseModule, ModuleSetting

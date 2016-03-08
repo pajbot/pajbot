@@ -1,5 +1,4 @@
 import logging
-import datetime
 
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command, CommandExample

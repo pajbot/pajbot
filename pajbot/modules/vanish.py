@@ -1,9 +1,7 @@
 import logging
 
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command, CommandExample
-
-from numpy import random
+from pajbot.models.command import Command
 
 log = logging.getLogger(__name__)
 

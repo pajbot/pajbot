@@ -26,22 +26,22 @@ class CustomServerConnection(irc.client.ServerConnection):
         # one added here.
         if '\n' in string:
             raise InvalidCharacters(
-                "Carriage returns not allowed in privmsg(text)")
+                'Carriage returns not allowed in privmsg(text)')
         bytes = string.encode('utf-8') + b'\r\n'
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
         # However, Twitch have raised that limit to 2048 in their servers.
         if len(bytes) > 2048:
             raise MessageTooLong(
-                "Messages limited to 2048 bytes including CR/LF")
+                'Messages limited to 2048 bytes including CR/LF')
         if self.socket is None:
-            raise ServerNotConnectedError("Not connected.")
+            raise ServerNotConnectedError('Not connected.')
         sender = getattr(self.socket, 'write', self.socket.send)
         try:
             sender(bytes)
         except socket.error:
             # Ouch!
-            self.disconnect("Connection reset by peer.")
+            self.disconnect('Connection reset by peer.')
 
 
 class Connection:
@@ -71,7 +71,7 @@ class ConnectionManager:
         self.maintenance_lock = False
 
     def start(self):
-        log.debug("Starting connection manager")
+        log.debug('Starting connection manager')
         try:
             for i in range(0, self.backup_conns_number + 1):
                 newconn = self.make_new_connection()
@@ -101,12 +101,12 @@ class ConnectionManager:
         tmp = []  # new list of connections
         for connection in self.connlist:
             if not connection.conn.is_connected():
-                log.debug("Removing connection because not connected")
+                log.debug('Removing connection because not connected')
                 continue  # don't want this connection in the new list
 
             if connection.num_msgs_sent <= 5:
                 if clean_conns_count >= self.backup_conns_number and connection.num_msgs_sent == 0:  # we have more connections than needed
-                    log.debug("Removing connection because we have enough backup")
+                    log.debug('Removing connection because we have enough backup')
                     connection.conn.close()
                     continue  # don't want this connection
                 else:
@@ -130,7 +130,7 @@ class ConnectionManager:
                 if not connection.in_channel:
                     if irc.client.is_channel(self.channel):
                         connection.conn.join(self.channel)
-                        log.debug("Joined channel")
+                        log.debug('Joined channel')
                         connection.in_channel = True
 
                 return connection.conn
@@ -156,7 +156,7 @@ class ConnectionManager:
         return ip, int(port)
 
     def make_new_connection(self):
-        log.debug("Creating a new IRC connection...")
+        log.debug('Creating a new IRC connection...')
         log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
 
         ip, port = self.get_chat_server(self.streamer)
@@ -179,7 +179,7 @@ class ConnectionManager:
             return
 
         else:
-            log.error("No proper data returned when fetching IRC servers")
+            log.error('No proper data returned when fetching IRC servers')
             return None
 
     def on_disconnect(self, chatconn):

@@ -11,6 +11,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 from pajbot.bot import Bot
 from pajbot.tbutil import load_config
+from pajbot.models.webcontent import WebContent
+from pajbot.modules import PredictModule
 import pajbot.models.hsbet
 
 tag = context.get_tag_argument()

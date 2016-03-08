@@ -1,16 +1,8 @@
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.db import DBManager, Base
-from pajbot.actions import ActionQueue, Action
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.handler import HandlerManager
 
-import re
-import requests
 import logging
-import time
-import urllib.parse
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.mysql import TEXT
 
 log = logging.getLogger(__name__)
 

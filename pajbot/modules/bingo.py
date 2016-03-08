@@ -1,10 +1,8 @@
 import logging
-import json
 
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules import BaseModule
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.handler import HandlerManager
-from pajbot.apiwrappers import APIBase
 
 from numpy import random
 
@@ -224,7 +222,7 @@ class BingoModule(BaseModule):
     def bingo_help_first(self, bot, source, message, event, args):
         """ First letter of the target """
         if hasattr(self, 'bingo_running') and self.bingo_running is True:
-            target_first_letter = " ".join(list(self.bingo_target)[:1])
+            target_first_letter = ' '.join(list(self.bingo_target)[:1])
             bot.me('A bingo for {0} points is still running. You should use {1} {1} {1} {1} {1} as the first letter for the target'.format(self.bingo_points, target_first_letter))
             log.debug('Bingo help: {0}'.format(target_first_letter))
             return True

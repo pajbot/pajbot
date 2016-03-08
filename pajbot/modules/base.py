@@ -1,4 +1,3 @@
-import json
 import logging
 
 from pajbot.tbutil import find

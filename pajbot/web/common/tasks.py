@@ -24,7 +24,7 @@ def init(app):
     try:
         import uwsgi
         from uwsgidecorators import thread, timer
-        uwsgi.register_signal(26, "worker", update_commands)
+        uwsgi.register_signal(26, 'worker', update_commands)
         uwsgi.add_timer(26, 60 * 10)
 
         @thread
