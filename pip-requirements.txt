@@ -24,10 +24,10 @@ apscheduler
 unittest2
 
 # Pylast for Last FM
-# pylast
+pylast
 
 # Riotwatcher for League of Legends api
-# riotwatcher
+riotwatcher
 
 # Used to communicating with the redis server
 # The redis service is required for storing data such as
@@ -35,10 +35,10 @@ unittest2
 redis
 
 # Required for websockets
-# autobahn[twisted]
+autobahn[twisted]
 
 # Required if we want to use the wolfram api
-# wolframalpha
+wolframalpha
 
 # MySQL for python3
 pymysql
@@ -47,15 +47,15 @@ pymysql
 numpy
 
 # Required for the basic features of the web interface
-# -r requirements/web.txt
+-r requirements/web.txt
 
 # Required for Websocket
-#pyOpenSSL
-#service_identity
-#cryptography
+pyOpenSSL
+service_identity
+cryptography
 
 # Required for the pleblist to work properly
-# -r requirements/pleblist.txt
+-r requirements/pleblist.txt
 
 # Required for generating thumbnails for the logo
 # -r requirements/thumbnail.txt
