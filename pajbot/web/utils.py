@@ -1,3 +1,5 @@
+import logging
+
 import datetime
 from functools import wraps, update_wrapper
 
@@ -7,6 +9,8 @@ from pajbot.models.db import DBManager
 from flask import session
 from flask import abort
 from flask import make_response
+
+log = logging.getLogger(__name__)
 
 def requires_level(level):
     def decorator(f):
@@ -40,3 +44,30 @@ def nocache(view):
         return response
 
     return update_wrapper(no_cache, view)
+
+def download_logo(streamer):
+    import urllib
+    from pajbot.apiwrappers import TwitchAPI
+
+    twitchapi = TwitchAPI()
+    try:
+        data = twitchapi.get(['users', streamer], base='https://api.twitch.tv/kraken/')
+        log.info(data)
+        if data:
+            logo_raw = 'static/images/logo_{}.png'.format(streamer)
+            logo_tn = 'static/images/logo_{}_tn.png'.format(streamer)
+            with urllib.request.urlopen(data['logo']) as response, open(logo_raw, 'wb') as out_file:
+                data = response.read()
+                out_file.write(data)
+                try:
+                    from PIL import Image
+                    im = Image.open(logo_raw)
+                    im.thumbnail((64, 64), Image.ANTIALIAS)
+                    im.save(logo_tn, 'png')
+                except:
+                    log.exception('Unhandled exception in download_logo PIL shit')
+            log.info('set logo')
+            return True
+    except:
+        log.exception('Unhandled exception in download_logo')
+    return False

@@ -7,9 +7,7 @@ import logging
 import os
 import subprocess
 import sys
-import urllib
 
-from pajbot.apiwrappers import TwitchAPI
 from pajbot.bot import Bot
 from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
@@ -18,6 +16,7 @@ from pajbot.models.sock import SocketClientManager
 from pajbot.models.time import TimeManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import load_config, init_logging
+from pajbot.web.utils import download_logo
 from pajbot.web.models import errors
 import pajbot.web.routes
 import pajbot.web.common
@@ -61,27 +60,9 @@ if 'secret_key' not in config['web']:
     config.set('web', 'secret_key', salt.decode('utf-8'))
 
 if 'logo' not in config['web']:
-    twitchapi = TwitchAPI()
-    try:
-        data = twitchapi.get(['users', config['main']['streamer']], base='https://api.twitch.tv/kraken/')
-        log.info(data)
-        if data:
-            logo_raw = 'static/images/logo_{}.png'.format(config['main']['streamer'])
-            logo_tn = 'static/images/logo_{}_tn.png'.format(config['main']['streamer'])
-            with urllib.request.urlopen(data['logo']) as response, open(logo_raw, 'wb') as out_file:
-                data = response.read()
-                out_file.write(data)
-                try:
-                    from PIL import Image
-                    im = Image.open(logo_raw)
-                    im.thumbnail((64, 64), Image.ANTIALIAS)
-                    im.save(logo_tn, 'png')
-                except:
-                    pass
-            config.set('web', 'logo', 'set')
-            log.info('set logo')
-    except:
-        pass
+    res = download_logo(config['main']['streamer'])
+    if res:
+        config.set('web', 'logo', 'set')
 
 StreamHelper.init_web(config['main']['streamer'])
 
