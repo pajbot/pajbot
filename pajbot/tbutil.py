@@ -1,13 +1,14 @@
-import logging
-import threading
-import signal
-import math
-import sys
-import time
 import datetime
-
-from colorama import Fore, Style
+import logging
+import math
+import signal
+import sys
+import threading
+import time
 from contextlib import contextmanager
+
+from colorama import Fore
+from colorama import Style
 
 log = logging.getLogger('pajbot')
 

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-
-import os
-import sys
-import signal
 import logging
+import os
+import signal
+import sys
 
 from pajbot.bot import Bot
 

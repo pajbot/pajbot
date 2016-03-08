@@ -1,11 +1,12 @@
-import logging
 import datetime
 import itertools
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
+import logging
 
 from numpy import random
+
+from pajbot.models.command import Command
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 

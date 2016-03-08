@@ -1,10 +1,11 @@
-import logging
 import datetime
+import logging
 
-from pajbot.modules import BaseModule
-from pajbot.models.command import Command, CommandExample
-from pajbot.tbutil import time_since
 from pajbot.actions import ActionQueue
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.modules import BaseModule
+from pajbot.tbutil import time_since
 
 log = logging.getLogger('pajbot')
 

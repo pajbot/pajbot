@@ -1,12 +1,12 @@
-import re
-import logging
 import collections
 import datetime
-
-from pajbot.models.user import User
+import logging
+import re
 
 from sqlalchemy import desc
 from sqlalchemy import func
+
+from pajbot.models.user import User
 
 log = logging.getLogger('pajbot')
 

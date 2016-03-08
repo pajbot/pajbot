@@ -1,5 +1,5 @@
-import operator
 import logging
+import operator
 
 from pajbot.tbutil import find
 

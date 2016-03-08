@@ -1,8 +1,11 @@
 import logging
 
-from pajbot.models.db import Base
+from sqlalchemy import Column
+from sqlalchemy import Enum
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
 
-from sqlalchemy import Column, Integer, Enum, ForeignKey
+from pajbot.models.db import Base
 
 log = logging.getLogger('pajbot')
 

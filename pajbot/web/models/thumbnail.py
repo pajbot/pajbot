@@ -1,7 +1,7 @@
 import json
+import logging
 import random
 import urllib
-import logging
 
 import requests
 

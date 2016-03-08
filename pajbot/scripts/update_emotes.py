@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import logging
 import json
+import logging
 import os
+
 import pymysql
 
 log = logging.getLogger('pajbot')

@@ -1,8 +1,8 @@
 import logging
 
+from pajbot.managers import RedisManager
 from pajbot.modules import BaseModule
 from pajbot.streamhelper import StreamHelper
-from pajbot.managers import RedisManager
 
 log = logging.getLogger(__name__)
 

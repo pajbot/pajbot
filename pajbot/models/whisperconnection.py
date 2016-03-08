@@ -1,16 +1,18 @@
-import random
-from queue import Queue
-import threading
 import json
 import logging
+import random
+import threading
 import time
-
-from pajbot.models.connection import CustomServerConnection
-from pajbot.models.db import DBManager, Base
+from queue import Queue
 
 import requests
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import String
 
+from pajbot.models.connection import CustomServerConnection
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
 
 log = logging.getLogger('pajbot')
 

@@ -1,12 +1,12 @@
 import logging
 import random
 
-from pajbot.modules import BaseModule
+from pajbot.managers import RedisManager
 from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
-from pajbot.managers import RedisManager
-from pajbot.tbutil import find
+from pajbot.modules import BaseModule
 from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import find
 
 log = logging.getLogger(__name__)
 

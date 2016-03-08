@@ -1,14 +1,14 @@
-import logging
-
 import datetime
-from functools import wraps, update_wrapper
+import logging
+from functools import update_wrapper
+from functools import wraps
 
-from pajbot.models.user import User
-from pajbot.models.db import DBManager
-
-from flask import session
 from flask import abort
 from flask import make_response
+from flask import session
+
+from pajbot.models.db import DBManager
+from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import configparser
 import datetime
@@ -8,6 +7,13 @@ import os
 import subprocess
 import sys
 
+from flask import Flask
+from flask import request
+from flask import session
+from flask.ext.scrypt import generate_random_salt
+
+import pajbot.web.common
+import pajbot.web.routes
 from pajbot.bot import Bot
 from pajbot.managers import RedisManager
 from pajbot.models.db import DBManager
@@ -15,16 +21,10 @@ from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.time import TimeManager
 from pajbot.streamhelper import StreamHelper
-from pajbot.tbutil import load_config, init_logging
-from pajbot.web.utils import download_logo
+from pajbot.tbutil import init_logging
+from pajbot.tbutil import load_config
 from pajbot.web.models import errors
-import pajbot.web.routes
-import pajbot.web.common
-
-from flask import Flask
-from flask import request
-from flask import session
-from flask.ext.scrypt import generate_random_salt
+from pajbot.web.utils import download_logo
 
 init_logging('pajbot')
 log = logging.getLogger('pajbot')

@@ -1,7 +1,8 @@
 import logging
 
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
-from pajbot.models.command import Command, CommandExample
 
 log = logging.getLogger('pajbot')
 

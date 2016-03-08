@@ -2,9 +2,7 @@
 
 language: python
 sudo: false
-cache:
-  directories:
-    - $HOME/.cache/pip
+cache: pip
 
 python:
   - 3.4
@@ -15,7 +13,7 @@ services:
 
 before_install:
   - mysql -e "create database IF NOT EXISTS test;" -uroot
-  - pip install pip flake8 flake8-quotes --upgrade
+  - pip install pip flake8 flake8-quotes flake8-import-order --upgrade
   - flake8
 
 install:

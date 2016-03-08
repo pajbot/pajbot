@@ -1,10 +1,12 @@
-from pajbot.models.db import DBManager
-from pajbot.modules.predict import PredictionRun, PredictionRunEntry
-from pajbot.web.utils import requires_level
-
 from flask import abort
 from flask import render_template
 from sqlalchemy.orm import joinedload
+
+from pajbot.models.db import DBManager
+from pajbot.modules.predict import PredictionRun
+from pajbot.modules.predict import PredictionRunEntry
+from pajbot.web.utils import requires_level
+
 
 def init(page):
     @page.route('/predictions/')

@@ -1,12 +1,15 @@
-import logging
 import datetime
+import logging
+
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import relationship
 
 from pajbot.models.db import Base
-
-from sqlalchemy import Column, Integer, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import backref
-from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger('pajbot')
 

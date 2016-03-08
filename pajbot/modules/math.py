@@ -1,12 +1,14 @@
+import ast
 import logging
 import math
-import ast
 import operator as op
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
 from pajbot.actions import ActionQueue
-from pajbot.tbutil import time_limit, TimeoutException
+from pajbot.models.command import Command
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.tbutil import time_limit
+from pajbot.tbutil import TimeoutException
 
 log = logging.getLogger('pajbot')
 

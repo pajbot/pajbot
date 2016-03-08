@@ -1,7 +1,7 @@
 import logging
 
-from pajbot.modules import BaseModule
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
 

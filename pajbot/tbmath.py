@@ -1,6 +1,6 @@
 import ast
-import operator as op
 import logging
+import operator as op
 
 # DEPRECATED. This will be inlined in the math module instead
 

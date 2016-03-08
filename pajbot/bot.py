@@ -7,9 +7,9 @@ import sys
 import time
 import urllib
 
+import irc.client
 from numpy import random
 from pytz import timezone
-import irc.client
 
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI

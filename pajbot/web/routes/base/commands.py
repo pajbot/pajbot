@@ -1,6 +1,7 @@
+from flask import render_template
+
 from pajbot.tbutil import find
 
-from flask import render_template
 
 def init(app):
     def get_commands_list():

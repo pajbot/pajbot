@@ -1,9 +1,9 @@
 import logging
 
+from pajbot.managers.redis import RedisManager
+from pajbot.models.handler import HandlerManager
 from pajbot.modules import QuestModule
 from pajbot.modules.quests import BaseQuest
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
 
 log = logging.getLogger(__name__)
 

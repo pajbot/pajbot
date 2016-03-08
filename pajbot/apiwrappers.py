@@ -1,9 +1,10 @@
-import urllib.parse
-import urllib.request
+import datetime
 import json
 import logging
+import urllib.parse
+import urllib.request
+
 import requests
-import datetime
 
 from pajbot.managers import RedisManager
 

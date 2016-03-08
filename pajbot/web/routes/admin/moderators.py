@@ -1,10 +1,11 @@
 import collections
 
+from flask import render_template
+
 from pajbot.models.db import DBManager
 from pajbot.models.user import User
 from pajbot.web.utils import requires_level
 
-from flask import render_template
 
 def init(page):
     @page.route('/moderators/')

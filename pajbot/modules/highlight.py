@@ -1,8 +1,10 @@
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command, CommandExample
-from pajbot.models.handler import HandlerManager
-
 import logging
+
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 

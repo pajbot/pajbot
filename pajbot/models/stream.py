@@ -1,19 +1,25 @@
-import logging
-import datetime
 import argparse
-import math
 import collections
+import datetime
+import logging
+import math
 import urllib
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import BIGINT
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
+
+from pajbot.managers.redis import RedisManager
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
 
 log = logging.getLogger('pajbot')
 
@@ -127,7 +133,7 @@ class StreamChunkHighlight(Base):
 
         stream_chunk.highlights.append(self)
 
-    @orm.reconstructor
+    @reconstructor
     def on_load(self):
         self.refresh_video_url()
 

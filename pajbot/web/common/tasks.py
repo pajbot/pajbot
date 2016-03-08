@@ -1,8 +1,8 @@
 import logging
 
+from pajbot.models.db import DBManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.stream import StreamChunkHighlight
-from pajbot.models.db import DBManager
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,8 @@
+from flask import render_template
+
 from pajbot.models.db import DBManager
 from pajbot.models.deck import Deck
 
-from flask import render_template
 
 def init(app):
     @app.route('/decks/')

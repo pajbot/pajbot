@@ -1,11 +1,15 @@
 import logging
 from datetime import datetime
 
-from pajbot.tbutil import time_since, tweet_prettify_urls
-from pajbot.models.db import DBManager, Base
-
 import tweepy
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.tbutil import time_since
+from pajbot.tbutil import tweet_prettify_urls
 
 log = logging.getLogger('pajbot')
 

@@ -1,15 +1,15 @@
 import logging
 
-from pajbot.models.db import DBManager
-from pajbot.models.sock import SocketClientManager
-from pajbot.models.timer import Timer
-from pajbot.web.utils import requires_level
-
 from flask import abort
 from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
+
+from pajbot.models.db import DBManager
+from pajbot.models.sock import SocketClientManager
+from pajbot.models.timer import Timer
+from pajbot.web.utils import requires_level
 
 log = logging.getLogger(__name__)
 

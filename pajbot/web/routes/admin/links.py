@@ -1,11 +1,11 @@
 import logging
 
+from flask import render_template
+
 from pajbot.models.db import DBManager
 from pajbot.modules.linkchecker import BlacklistedLink
 from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.web.utils import requires_level
-
-from flask import render_template
 
 log = logging.getLogger(__name__)
 

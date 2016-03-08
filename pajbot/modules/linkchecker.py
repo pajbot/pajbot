@@ -1,18 +1,24 @@
-from bs4 import BeautifulSoup
-from pajbot.apiwrappers import SafeBrowsingAPI
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.db import DBManager, Base
-from pajbot.actions import ActionQueue, Action
-from pajbot.models.command import Command, CommandExample
-from pajbot.models.handler import HandlerManager
-
-import requests
 import logging
 import time
 import urllib.parse
-from sqlalchemy import Column, Integer, String
+
+import requests
+from bs4 import BeautifulSoup
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
+
+from pajbot.actions import Action
+from pajbot.actions import ActionQueue
+from pajbot.apiwrappers import SafeBrowsingAPI
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 

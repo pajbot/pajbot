@@ -1,9 +1,12 @@
 import logging
 from collections import UserDict
 
-from pajbot.models.db import DBManager, Base
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 
-from sqlalchemy import Column, Integer, String
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
 
 log = logging.getLogger('pajbot')
 

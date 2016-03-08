@@ -1,13 +1,16 @@
-import logging
 import datetime
+import logging
 from urllib.parse import urlsplit
 
-from pajbot.modules import BaseModule
-from pajbot.models.db import DBManager, Base
-from pajbot.models.handler import HandlerManager
-
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
 from sqlalchemy.dialects.mysql import TEXT
+
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
 

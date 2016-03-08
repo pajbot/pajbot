@@ -1,15 +1,20 @@
-import logging
 import datetime
-from collections import UserDict
-import re
 import json
+import logging
+import re
+from collections import UserDict
 
-from pajbot.models.db import DBManager, Base
-from pajbot.apiwrappers import APIBase
-
-from sqlalchemy import orm
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
+
+from pajbot.apiwrappers import APIBase
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
 
 log = logging.getLogger('pajbot')
 
@@ -36,7 +41,7 @@ class Emote(Base):
         else:
             self.regex = None
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         if self.emote_id is None:
             self.regex = re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(self.code)))
@@ -81,7 +86,7 @@ class EmoteStats(Base):
 
         self.tm = 0
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.tm = 0
 

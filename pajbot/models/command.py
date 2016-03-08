@@ -1,19 +1,27 @@
-import json
-import time
-import logging
-from collections import UserDict
 import argparse
 import datetime
+import json
+import logging
 import re
+import time
+from collections import UserDict
 
-from pajbot.tbutil import find
-from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser, RawFuncAction
-
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
+
+from pajbot.models.action import ActionParser
+from pajbot.models.action import RawFuncAction
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
@@ -125,7 +133,7 @@ class CommandExample(Base):
         self.description = description
         self.chat_messages = []
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.parse()
 
@@ -248,7 +256,7 @@ class Command(Base):
         self.mod_only = options.get('mod_only', self.mod_only)
         self.examples = options.get('examples', self.examples)
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.last_run = 0
         self.last_run_by_user = {}

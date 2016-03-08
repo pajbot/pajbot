@@ -1,6 +1,6 @@
-from pajbot.web.utils import requires_level
-
 from flask import render_template
+
+from pajbot.web.utils import requires_level
 
 
 def init(page):

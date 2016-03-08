@@ -1,13 +1,17 @@
 import json
 import logging
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser
-from pajbot.tbutil import find
-
-from sqlalchemy import orm
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import reconstructor
+
+from pajbot.models.action import ActionParser
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
@@ -45,7 +49,7 @@ class Timer(Base):
         self.interval_offline = options.get('interval_offline', self.interval_offline)
         self.enabled = options.get('enabled', self.enabled)
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.action = ActionParser.parse(self.action_json)
 

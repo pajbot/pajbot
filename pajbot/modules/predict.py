@@ -1,13 +1,19 @@
-import logging
 import datetime
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.db import DBManager, Base
-from pajbot.models.command import Command
+import logging
 
 import sqlalchemy
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
+
+from pajbot.models.command import Command
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 

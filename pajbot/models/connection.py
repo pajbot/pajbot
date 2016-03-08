@@ -1,12 +1,14 @@
-import urllib
-import random
 import logging
-
-import pajbot.tbutil
+import random
+import socket
+import urllib
 
 import irc
-from irc.client import InvalidCharacters, MessageTooLong, ServerNotConnectedError
-import socket
+from irc.client import InvalidCharacters
+from irc.client import MessageTooLong
+from irc.client import ServerNotConnectedError
+
+import pajbot.tbutil
 
 log = logging.getLogger('pajbot')
 

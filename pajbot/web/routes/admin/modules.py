@@ -1,13 +1,15 @@
 import json
 
+from flask import render_template
+from flask import request
+
 from pajbot.models.db import DBManager
-from pajbot.models.module import ModuleManager, Module
+from pajbot.models.module import Module
+from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
 
-from flask import render_template
-from flask import request
 
 def init(page):
     @page.route('/modules/')

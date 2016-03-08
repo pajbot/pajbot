@@ -1,12 +1,12 @@
 import logging
 
-from pajbot.modules import QuestModule
-from pajbot.modules.quests import BaseQuest
+from numpy import random
+
 from pajbot.managers import RedisManager
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import QuestModule
+from pajbot.modules.quests import BaseQuest
 from pajbot.streamhelper import StreamHelper
-
-from numpy import random
 
 log = logging.getLogger(__name__)
 

@@ -1,12 +1,14 @@
 import datetime
 
+from flask import redirect
+from flask import render_template
+from sqlalchemy import cast
+from sqlalchemy import Date
+from sqlalchemy.orm import joinedload
+
 from pajbot.models.db import DBManager
 from pajbot.models.stream import StreamChunkHighlight
 
-from flask import render_template
-from flask import redirect
-from sqlalchemy.orm import joinedload
-from sqlalchemy import cast, Date
 
 def init(app):
     @app.route('/highlights/<date>/')

@@ -1,15 +1,20 @@
+import datetime
 import logging
 from collections import UserDict
-import datetime
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.time import TimeManager
-from pajbot.models.handler import HandlerManager
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import reconstructor
+
 from pajbot.managers import RedisManager
+from pajbot.models.db import Base
+from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
+from pajbot.models.time import TimeManager
 from pajbot.streamhelper import StreamHelper
-
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy import orm
 
 log = logging.getLogger('pajbot')
 
@@ -82,7 +87,7 @@ class User(Base):
     def last_active(self, value):
         self._last_active = value
 
-    @orm.reconstructor
+    @reconstructor
     def on_load(self):
         self.tags = []
         self.timed_out = False

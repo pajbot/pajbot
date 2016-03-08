@@ -1,16 +1,18 @@
-import logging
 import datetime
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
-from pajbot.models.db import DBManager
-from pajbot.models.hsbet import HSBetGame, HSBetBet
+import logging
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from pajbot.managers.redis import RedisManager
+from pajbot.models.command import Command
+from pajbot.models.db import DBManager
+from pajbot.models.handler import HandlerManager
+from pajbot.models.hsbet import HSBetBet
+from pajbot.models.hsbet import HSBetGame
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 

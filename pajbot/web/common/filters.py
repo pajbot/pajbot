@@ -3,6 +3,7 @@ import datetime
 from pajbot.models.time import TimeManager
 from pajbot.tbutil import time_since
 
+
 def init(app):
     @app.template_filter()
     def date_format(value, format='full'):

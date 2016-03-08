@@ -1,6 +1,6 @@
+import collections
 import json
 import logging
-import collections
 
 import irc
 import regex as re

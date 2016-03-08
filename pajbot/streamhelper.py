@@ -1,5 +1,6 @@
 import collections
 
+
 class StreamHelper:
     """ Staticly available class with a bunch of useful variables.
     streamer: The name of the streamer in full lowercase
