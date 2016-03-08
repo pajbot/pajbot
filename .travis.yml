@@ -19,7 +19,7 @@ before_install:
   - flake8
 
 install:
-  - pip install -r pip-requirements.txt
+  - pip install -U -r pip-requirements.txt
   - cp ./install/config.example.ini ./config.ini
 
 script:
