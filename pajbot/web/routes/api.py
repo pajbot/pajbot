@@ -580,8 +580,6 @@ def init(app):
             self.delete_parser.add_argument('email', trim=True, required=True)
             self.delete_parser.add_argument('tag', trim=True, required=True)
 
-            self.delim = '|||'
-
         # @requires_level(500)
         def get(self, **options):
             args = self.get_parser.parse_args()
@@ -678,4 +676,38 @@ def init(app):
                     'message': 'Successfully removed the tag {} from {}'.format(new_tag, email)
                     }
 
+    class APICLRDonationsSave(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('name', trim=True, required=True)
+            self.post_parser.add_argument('streamtip_client_id', trim=True, required=True)
+            self.post_parser.add_argument('streamtip_access_token', trim=True, required=True)
+            self.post_parser.add_argument('sound_url', trim=True, required=True)
+            self.post_parser.add_argument('sound_delay', type=int, required=True)
+            self.post_parser.add_argument('sound_volume', type=float, required=True)
+            self.post_parser.add_argument('image_url', trim=True, required=True)
+            self.post_parser.add_argument('widget_width', type=int, required=True)
+            self.post_parser.add_argument('widget_height', type=int, required=True)
+            self.post_parser.add_argument('custom_css', trim=True, required=True)
+            self.post_parser.add_argument('tts', trim=True, required=True)
+
+        @requires_level(1500)
+        def post(self, widget_id, **options):
+            args = self.post_parser.parse_args()
+
+            # special case for boolean values
+            args['tts'] = args['tts'] == 'true'
+
+            streamer = StreamHelper.get_streamer()
+            key = '{streamer}:clr:donations'.format(streamer=streamer)
+            redis = RedisManager.get()
+            redis.hset(key, widget_id, json.dumps(args))
+
+            return {
+                    'message': 'GOT EM'
+                    }, 200
+
     api.add_resource(APIEmailTags, '/api/v1/email/tags')
+    api.add_resource(APICLRDonationsSave, '/api/v1/clr/donations/<widget_id>/save')

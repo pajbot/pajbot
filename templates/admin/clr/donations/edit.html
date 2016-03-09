@@ -1,0 +1,179 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_clr' %}
+{% block title %}Admin - CLR - Donations - Edit{% endblock %}
+{% block body %}
+{% if new %}
+<h2>Creating new widget</h2>
+{% else %}
+<h2>Editing existing widget</h2>
+{% endif %}
+<p>
+<a href="/admin/clr/donations/"><i class="icon long arrow left"></i> Back to widget list</a>
+</p>
+<p>
+Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.com/account/payments">https://streamtip.com/account/payments</a>
+</p>
+<div class="ui form">
+<table class="social ui single line table collapsing">
+    <tbody>
+        <tr data-key="name">
+            <td class="label">Widget Name</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" value="Widget!" />
+                </div>
+            </td>
+        </tr>
+        <tr data-key="streamtip_client_id">
+            <td class="label">Streamtip Client ID</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" />
+                </div>
+            </td>
+        </tr>
+        <tr data-key="streamtip_access_token">
+            <td class="label">Streamtip Access Token</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" />
+                </div>
+            </td>
+        </tr>
+        <tr data-key="sound_url">
+            <td class="label">Sound URL</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" />
+                </div>
+            </td>
+        </tr>
+        <tr data-key="sound_delay">
+            <td class="label">Sound Delay</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" value="0" />
+                </div>
+            </td>
+            <td>milliseconds</td>
+        </tr>
+        <tr data-key="sound_volume">
+            <td class="label">Sound Volume</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" value="1.0" />
+                </div>
+            </td>
+            <td>0.0 = mute<br />1.0 max volume</td>
+        </tr>
+        <tr data-key="image_url">
+            <td class="label">Image URL</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" />
+                </div>
+            </td>
+        </tr>
+        <tr data-key="widget_width">
+            <td class="label">Widget Width</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" value="540" />
+                </div>
+            </td>
+            <td>px</td>
+        </tr>
+        <tr data-key="widget_height">
+            <td class="label">Widget Height</td>
+            <td>
+                <div class="ui input">
+                    <input type="text" value="110" />
+                </div>
+            </td>
+            <td>px</td>
+        </tr>
+        <tr data-key="custom_css">
+            <td class="label">Custom CSS</td>
+            <td>
+                <div class="ui field">
+                    <textarea rows="5" style="font-family: monospace;"></textarea>
+                </div>
+            </td>
+        </tr>
+        <tr data-key="tts">
+            <td class="label">Text to speech</td>
+            <td>
+                <div class="ui checkbox">
+                    <input type="checkbox" name="xd">
+                    <label>TTS Enabled</label>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>
+<a href="/clr/donations/{{ widget_id }}">WIDGET LINK</a>
+</p>
+<p>
+<button class="ui button green save"><i class="icon save"></i> Save</button>
+</p>
+</div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+var current_widget_id = '{{widget_id}}';
+
+function load_widget(data)
+{
+    for (k in data) {
+        var row = $('tr[data-key=\'' + k + '\']');
+        var text_input = row.find('input[type="text"]');
+        if (text_input.length == 0) {
+            text_input = row.find('textarea');
+        }
+        if (text_input.length == 1) {
+            text_input.val(data[k]);
+        } else {
+            var checkbox = row.find('input[type="checkbox"]');
+            if (checkbox.length == 1) {
+                checkbox[0].checked = data[k];
+            }
+        }
+    }
+}
+
+$(document).ready(function() {
+    load_widget({{ widget_data|safe }});
+
+    $('button.save').api({
+        action: 'clr_donation_save',
+        method: 'post',
+        beforeSend: function(settings) {
+            settings.urlData.widget_id = current_widget_id;
+            var save_data = {};
+
+            $('tr').each(function() {
+                var row = $(this);
+                var key = row.data('key');
+                var value = null;
+                var text_input = row.find('input[type="text"]');
+                if (text_input.length == 0) {
+                    text_input = row.find('textarea');
+                }
+                if (text_input.length == 1) {
+                    value = text_input.val();
+                } else {
+                    var checkbox = row.find('input[type="checkbox"]');
+                    if (checkbox.length == 1) {
+                        value = checkbox[0].checked;
+                    }
+                }
+                save_data[key] = value;
+            });
+            settings.data = save_data;
+            return settings;
+        }
+    });
+});
+</script>
+{% endblock %}

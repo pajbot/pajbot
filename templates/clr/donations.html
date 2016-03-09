@@ -12,10 +12,12 @@
 <script type="text/javascript" src="/static/scripts/clr.queue.js"></script>
     <style>
 #tip-alert {
-    background-image: url('{{ widget.basic.image }}');
-    width: {{ widget.basic.width }}px;
-    height: {{ widget.basic.height }}px;
+    background-image: url('{{ widget.image_url }}');
+    width: {{ widget.widget_width }}px;
+    height: {{ widget.widget_height }}px;
 }
+
+{{ widget.custom_css|safe}}
     /* TODO: Custom CSS from widget in database */
     /* redis? */
     </style>
@@ -81,14 +83,14 @@ function check_queue()
     }, 500);
 }
 
-var client_id = '{{ widget.client_id }}';
-var access_token = '{{ widget.access_token }}';
-{% if widget.sound %}
+var client_id = '{{ widget.streamtip_client_id }}';
+var access_token = '{{ widget.streamtip_access_token }}';
+{% if widget.sound_url|length > 0 %}
 sound = {
     enabled: true,
-    volume: {{ widget.sound.volume or 1.0 }},
-    delay: {{ widget.sound.delay or 0 }},
-    url: '{{ widget.sound.url }}',
+    volume: {{ widget.sound_volume or 1.0 }},
+    delay: {{ widget.sound_delay or 0 }},
+    url: '{{ widget.sound_url }}',
 };
 {% else %}
 sound = {
