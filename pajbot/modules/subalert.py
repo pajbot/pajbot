@@ -89,6 +89,7 @@ class SubAlertModule(BaseModule):
         super().__init__()
         self.new_sub_regex = re.compile('^(\w+) just subscribed!')
         self.resub_regex = re.compile('^(\w+) subscribed for (\d+) months in a row!')
+        self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_new_sub(self, user):
         """
@@ -124,7 +125,7 @@ class SubAlertModule(BaseModule):
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('resub_whisper', **payload)), )
 
     def on_message(self, source, message, emotes, whisper, urls, event):
-        if whisper is False and source.username == 'twitchnotify':
+        if whisper is False and source.username in self.valid_usernames:
             # Did twitchnotify tell us about a new sub?
             m = self.new_sub_regex.search(message)
             if m:
