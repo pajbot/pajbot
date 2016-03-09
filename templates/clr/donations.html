@@ -143,7 +143,7 @@ tts_playing = false;
 streamer = '{{ streamer.full_name }}';
 var timer = false;
 tts_authorization = '{{ tts_authentication }}';
-var use_tts = {{ widget.tts or 'false' }};
+var use_tts = {{ 'true' if widget.tts else 'false' }};
 
 $(document).ready(function() {
     streamtip_connect(client_id, access_token, on_error, on_new_tip, on_authenticated);
