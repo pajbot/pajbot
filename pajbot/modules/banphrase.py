@@ -43,7 +43,7 @@ class BanphraseModule(BaseModule):
 
     def enable(self, bot):
         self.bot = bot
-        HandlerManager.add_handler('on_message', self.on_message, priority=50)
+        HandlerManager.add_handler('on_message', self.on_message, priority=150)
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)
