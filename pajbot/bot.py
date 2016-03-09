@@ -489,14 +489,33 @@ class Bot:
                 return val
         return None
 
+    def get_strictargs_value(self, key, extra={}):
+        ret = self.get_args_value(key, extra)
+
+        if len(ret) == 0:
+            return None
+        return ret
+
     def get_args_value(self, key, extra={}):
+        range = None
         try:
-            offset = int(key)
-        except (TypeError, ValueError):
-            offset = 0
+            msg_parts = extra['message'].split(' ')
+        except (KeyError, AttributeError):
+            msg_parts = ['']
 
         try:
-            return ' '.join(extra['message'].split(' ')[offset:])
+            if '-' in key:
+                range_str = key.split('-')
+                if len(range_str) == 2:
+                    range = (int(range_str[0]), int(range_str[1]))
+
+            if range is None:
+                range = (int(key), len(msg_parts))
+        except (TypeError, ValueError):
+            range = (0, len(msg_parts))
+
+        try:
+            return ' '.join(msg_parts[range[0]:range[1]])
         except AttributeError:
             return ''
         except:
