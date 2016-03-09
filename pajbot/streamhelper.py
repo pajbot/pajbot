@@ -38,6 +38,10 @@ class StreamHelper:
                 'format': '{}',
                 'title': 'Facebook',
                 },
+            'star': {
+                'format': '{}',
+                'title': 'Website',
+                },
             }
     social_keys = collections.OrderedDict(sorted(social_keys_unsorted.items(), key=lambda t: t[0]))
     valid_social_keys = set(social_keys.keys())
