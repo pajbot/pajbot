@@ -11,4 +11,4 @@ def init(page):
     @page.route('/clr/')
     @requires_level(500)
     def clr_home(**options):
-        return render_template('admin/clr_home.html')
+        return render_template('admin/clr/home.html')
