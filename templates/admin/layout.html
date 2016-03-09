@@ -2,7 +2,7 @@
 {% block menu %}
     <div class="ui top fixed menu inverted blue">
         {% for menuitem in nav_bar_admin_header %}
-        {%- if session.user.level > menuitem.level %}
+        {%- if not session.user or session.user.level > menuitem.level %}
             {%- if menuitem.id %}
             <a class="inverted blue item{%- if menuitem.id == active_page %} active{% endif -%}" href="{{ menuitem.href }}">
                 {%- if menuitem.id == 'home' %}
