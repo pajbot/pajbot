@@ -8,9 +8,10 @@ from pajbot.modules import QuestModule
 log = logging.getLogger(__name__)
 
 class Sample:
-    def __init__(self, command, href):
+    def __init__(self, command, href, new=False):
         self.command = command
         self.href = href
+        self.new = new
 
     def __lt__(self, other):
         return self.command < other.command
@@ -68,6 +69,26 @@ class Samples:
             Sample('relax', 'https://pajlada.se/files/clr/relax.mp3'),
             Sample('vibrate', 'https://pajlada.se/files/clr/vibrate.mp3'),
             Sample('4head', 'https://pajlada.se/files/clr/4Head.mp3'),
+            Sample('akarin', 'https://pajlada.se/files/clr/akarin.mp3', new=True),
+            Sample('behindyou', 'https://pajlada.se/files/clr/behindyou.mp3', new=True),
+            Sample('bitch', 'https://pajlada.se/files/clr/bitch.mp3', new=True),
+            Sample('damnson', 'https://pajlada.se/files/clr/damnson.mp3', new=True),
+            Sample('desu', 'https://pajlada.se/files/clr/desu.mp3', new=True),
+            Sample('fatcock', 'https://pajlada.se/files/clr/fatcock.mp3', new=True),
+            Sample('gangingup', 'https://pajlada.se/files/clr/gangingup.mp3', new=True),
+            Sample('iseeyou1', 'https://pajlada.se/files/clr/iseeyou1.mp3', new=True),
+            Sample('iseeyou2', 'https://pajlada.se/files/clr/iseeyou2.mp3', new=True),
+            Sample('jeff', 'https://pajlada.se/files/clr/jeff.mp3', new=True),
+            Sample('mistake', 'https://pajlada.se/files/clr/mistake.mp3', new=True),
+            Sample('ohbabyatriple', 'https://pajlada.se/files/clr/ohbabyatriple.mp3', new=True),
+            Sample('rin', 'https://pajlada.se/files/clr/rin.mp3', new=True),
+            Sample('sheeeit', 'https://pajlada.se/files/clr/sheeeit.mp3', new=True),
+            Sample('spook', 'https://pajlada.se/files/clr/spook.mp3', new=True),
+            Sample('surprise', 'https://pajlada.se/files/clr/surprise.mp3', new=True),
+            Sample('tuckfrump', 'https://pajlada.se/files/clr/tuckfrump.mp3', new=True),
+            Sample('uguu', 'https://pajlada.se/files/clr/uguu.mp3', new=True),
+            Sample('weed', 'https://pajlada.se/files/clr/weed.mp3', new=True),
+            Sample('wrongdoor', 'https://pajlada.se/files/clr/wrongdoor.mp3', new=True),
     ]
 
 class PlaySoundTokenCommandModule(BaseModule):
@@ -133,5 +154,5 @@ class PlaySoundTokenCommandModule(BaseModule):
                 description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
                 )
-        html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td><td><script>var snd{0.command} = new Audio("{0.href}");</script><button onclick="snd{0.command}.play();" type="button">Play</button></td></tr>'.format(sample) for sample in Samples.all_samples])
+        html_valid_samples = ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><script>var snd{0.command} = new Audio("{0.href}");</script><button onclick="snd{0.command}.play();" type="button">Play</button></td></tr>'.format(sample, ' new' if sample.new else '') for sample in Samples.all_samples])
         self.commands['#playsound'].long_description = '<h3>Valid samples</h3><table>{}</table>'.format(html_valid_samples)
