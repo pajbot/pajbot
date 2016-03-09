@@ -23,8 +23,9 @@ def overlay(widget_id):
             widget={})
 
 @page.route('/donations/<widget_id>')
+@page.route('/donations/<widget_id>/<random_shit>')
 @nocache
-def donations(widget_id):
+def donations(widget_id, **options):
     redis = RedisManager.get()
     widget = redis.hget(
             '{streamer}:clr:donations'.format(streamer=StreamHelper.get_streamer()),
