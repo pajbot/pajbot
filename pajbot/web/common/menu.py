@@ -4,7 +4,7 @@ def init(app):
     nav_bar_header.append(('/commands/', 'commands', 'Commands'))
     if 'deck' in app.module_manager:
         nav_bar_header.append(('/decks/', 'decks', 'Decks'))
-    if app.bot_config['main']['nickname'] not in ['scamazbot']:
+    if app.bot_config['main']['nickname'] not in ['scamazbot', 'exdeebot']:
         nav_bar_header.append(('/points/', 'points', 'Points'))
     nav_bar_header.append(('/stats/', 'stats', 'Stats'))
     nav_bar_header.append(('/highlights/', 'highlights', 'Highlights'))
