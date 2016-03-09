@@ -270,6 +270,7 @@ class Bot:
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
+        self.data_cb['current_time'] = self.c_current_time
 
         self.silent = True if args.silent else self.silent
 
@@ -557,6 +558,9 @@ class Bot:
 
     def c_uptime(self):
         return time_since(datetime.datetime.now().timestamp(), self.start_time.timestamp())
+
+    def c_current_time(self):
+        return datetime.datetime.now()
 
     @property
     def is_online(self):
