@@ -24,12 +24,12 @@
 <header class="main header">
 {% block menu %}
     <div class="ui top fixed menu">
-        {% for href, id, caption in nav_bar_header %}
-        <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">
-            {% if id == 'home' %}
+        {% for menuitem in nav_bar_header %}
+        <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
+            {% if menuitem.id == 'home' %}
             <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
-            {{ caption }}</a>
+            {{ menuitem.caption }}</a>
         {% endfor %}
         <div class="right menu">
             <div class="item">
