@@ -128,7 +128,7 @@ class User(Base):
 
         return False
 
-    def award_tokens(self, tokens, redis=None):
+    def award_tokens(self, tokens, redis=None, force=False):
         """ Returns True if tokens were awarded properly.
         Returns False if not.
         Tokens can only be rewarded once per stream ID.
@@ -146,9 +146,13 @@ class User(Base):
         key = '{streamer}:{username}:tokens'.format(
                 streamer=streamer, username=self.username)
 
-        res = True if redis.hsetnx(key, stream_id, tokens) == 1 else False
-        if res is True:
-            HandlerManager.trigger('on_user_gain_tokens', self, tokens)
+        if force:
+            res = True
+            redis.hset(key, stream_id, tokens)
+        else:
+            res = True if redis.hsetnx(key, stream_id, tokens) == 1 else False
+            if res is True:
+                HandlerManager.trigger('on_user_gain_tokens', self, tokens)
         return res
 
     def get_tokens(self, redis=None):
