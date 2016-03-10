@@ -17,12 +17,16 @@ from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.linefarming import LineFarmingModule
-from pajbot.modules.linkchecker import LinkCheckerModule, WhitelistedLink, BlacklistedLink
-from pajbot.modules.linktracker import LinkTrackerModule, LinkTrackerLink
+from pajbot.modules.linkchecker import BlacklistedLink
+from pajbot.modules.linkchecker import LinkCheckerModule
+from pajbot.modules.linkchecker import WhitelistedLink
+from pajbot.modules.linktracker import LinkTrackerLink
+from pajbot.modules.linktracker import LinkTrackerModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
-from pajbot.modules.paidtimeout import PaidTimeoutModule, PaidTimeoutDiscountModule
+from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
+from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.pointlottery import PointLotteryModule
 from pajbot.modules.predict import PredictModule
 from pajbot.modules.pyramid import PyramidModule
@@ -31,11 +35,13 @@ from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
 from pajbot.modules.quests.winduelpoints import WinDuelPointsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
-from pajbot.modules.raffle import RaffleModule, MultiRaffleModule
+from pajbot.modules.raffle import MultiRaffleModule
+from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
 from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
+from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 
@@ -74,6 +80,7 @@ available_modules = [
         RouletteModule,
         ShowEmoteTokenCommandModule,
         SubAlertModule,
+        TriviaModule,
         TypeEmoteQuestModule,
         VanishModule,
         WarningModule,
