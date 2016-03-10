@@ -591,6 +591,7 @@ class Bot:
         self.reactor.execute_every(period, function, arguments)
 
     def ban(self, username):
+        log.debug('Banning {}'.format(username))
         self._timeout(username, 30)
         self.execute_delayed(1, self._ban, (username, ))
 
@@ -606,6 +607,7 @@ class Bot:
         self.privmsg('.timeout {0} {1}'.format(username, duration), increase_message=False)
 
     def timeout(self, username, duration):
+        log.debug('Timing out {} for {} seconds'.format(username, duration))
         self._timeout(username, duration)
         self.execute_delayed(1, self._timeout, (username, duration))
 
