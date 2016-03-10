@@ -14,15 +14,23 @@
 Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.com/account/payments">https://streamtip.com/account/payments</a>
 </p>
 <div class="ui form">
-<table class="social ui single line table collapsing">
+<table class="formtable ui single line table">
+    <thead>
+        <tr>
+            <th class="collapsing"></th>
+            <th></th>
+            <th class="collapsing"></th>
+        </tr>
+    </thead>
     <tbody>
         <tr data-key="name">
             <td class="label">Widget Name</td>
             <td>
-                <div class="ui input">
+                <div class="ui input" style="display: block;">
                     <input type="text" value="Widget!" />
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="streamtip_client_id">
             <td class="label">Streamtip Client ID</td>
@@ -31,6 +39,7 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
                     <input type="text" />
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="streamtip_access_token">
             <td class="label">Streamtip Access Token</td>
@@ -39,6 +48,7 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
                     <input type="text" />
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="sound_url">
             <td class="label">Sound URL</td>
@@ -47,6 +57,7 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
                     <input type="text" />
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="sound_delay">
             <td class="label">Sound Delay</td>
@@ -73,6 +84,7 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
                     <input type="text" />
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="widget_width">
             <td class="label">Widget Width</td>
@@ -96,9 +108,10 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
             <td class="label">Custom CSS</td>
             <td>
                 <div class="ui field">
-                    <textarea rows="5" style="font-family: monospace;"></textarea>
+                    <textarea rows="10" style="font-family: monospace;"></textarea>
                 </div>
             </td>
+            <td></td>
         </tr>
         <tr data-key="tts">
             <td class="label">Text to speech</td>
@@ -108,6 +121,7 @@ Get your Streamtip Client ID and Access Token here: <a href="https://streamtip.c
                     <label>TTS Enabled</label>
                 </div>
             </td>
+            <td></td>
         </tr>
     </tbody>
 </table>
