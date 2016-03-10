@@ -149,6 +149,12 @@ class ActionsTester(unittest2.TestCase):
                     'num_subs': 1,
                     'arguments': '',
                     'result': 'BEFORE NO AFTER',
+                }, {
+                    'message': 'BEFORE $(source:username|lower|upper) AFTER',
+                    'num_argument_subs': 0,
+                    'num_subs': 1,
+                    'arguments': '',
+                    'result': 'BEFORE OMGTHISUSERDOESNOTEXIST123 AFTER',
                 },
                 ]
 

@@ -60,8 +60,8 @@ def apply_substitutions(text, substitutions, bot, extra):
             continue
         value = sub.cb(param, extra)
         try:
-            if sub.filter is not None:
-                value = bot.apply_filter(value, sub.filter)
+            for filter in sub.filters:
+                value = bot.apply_filter(value, filter)
         except:
             log.exception('Exception caught in filter application')
         if value is None:
@@ -112,13 +112,14 @@ class IfSubstitution:
 
 class Substitution:
     argument_substitution_regex = re.compile(r'\$\((\d+)\)')
-    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)?(\,[\'"]{1}[\w $;|_\-:()\.]+[\'"]{1}){0,2}\)')
+    # substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)?(\,[\'"]{1}[\w $;|_\-:()\.]+[\'"]{1}){0,2}\)')
+    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w $;_\-:()\.]+[\'"]{1}){0,2}\)')
 
-    def __init__(self, cb, needle, key=None, argument=None, filter=None):
+    def __init__(self, cb, needle, key=None, argument=None, filters=[]):
         self.cb = cb
         self.key = key
         self.argument = argument
-        self.filter = filter
+        self.filters = filters
         self.needle = needle
 
 
@@ -262,20 +263,25 @@ def get_substitution_arguments(sub_key):
     key = sub_key.group(3)
     if key is not None:
         key = key[1:]
-    filter = sub_key.group(4)
-    filter_arguments = []
-    if filter is not None:
+    matched_filters = sub_key.captures(4)
+    matched_filter_arguments = sub_key.captures(5)
+
+    filters = []
+    filter_argument_index = 0
+    for filter in matched_filters:
         filter = filter[1:]
-        filter_arguments = sub_key.group(5)
-        if filter_arguments is not None:
-            filter = filter[:-len(filter_arguments)]
-            filter_arguments = [filter_arguments[1:-1]]
-        else:
-            filter_arguments = []
+        filter_arguments = []
+        if '(' in filter:
+            filter = filter[:-len(matched_filter_arguments[filter_argument_index])]
+            filter_arguments = [matched_filter_arguments[filter_argument_index][1:-1]]
+            filter_argument_index += 1
+
         filter = SubstitutionFilter(filter, filter_arguments)
+        filters.append(filter)
+
     if_arguments = sub_key.captures(6)
 
-    return sub_string, path, argument, key, filter, if_arguments
+    return sub_string, path, argument, key, filters, if_arguments
 
 
 def get_substitutions(string, bot):
@@ -288,7 +294,7 @@ def get_substitutions(string, bot):
     substitutions = collections.OrderedDict()
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filter, if_arguments = get_substitution_arguments(sub_key)
+        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
 
         if sub_string in substitutions:
             # We already matched this variable
@@ -300,7 +306,7 @@ def get_substitutions(string, bot):
                     if_substitution = IfSubstitution(key, if_arguments, bot)
                     if if_substitution.sub is None:
                         continue
-                    sub = Substitution(if_substitution, needle=sub_string, key=key, argument=argument, filter=filter)
+                    sub = Substitution(if_substitution, needle=sub_string, key=key, argument=argument, filters=filters)
                     substitutions[sub_string] = sub
         except:
             log.exception('BabyRage')
@@ -328,14 +334,14 @@ def get_substitutions(string, bot):
         pass
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filter, if_arguments = get_substitution_arguments(sub_key)
+        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
 
         if sub_string in substitutions:
             # We already matched this variable
             continue
 
         if path in method_mapping:
-            sub = Substitution(method_mapping[path], needle=sub_string, key=key, argument=argument, filter=filter)
+            sub = Substitution(method_mapping[path], needle=sub_string, key=key, argument=argument, filters=filters)
             substitutions[sub_string] = sub
 
     return substitutions
