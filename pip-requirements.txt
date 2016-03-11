@@ -54,6 +54,9 @@ pyOpenSSL
 service_identity
 cryptography
 
+# Used for the Trivia module
+python-Levenshtein
+
 # Required for the pleblist to work properly
 -r requirements/pleblist.txt
 
