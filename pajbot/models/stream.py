@@ -201,6 +201,8 @@ class StreamManager:
         self.num_offlines = 0
         self.first_offline = None
 
+        self.num_viewers = 0
+
         self.bot.execute_every(self.STATUS_CHECK_INTERVAL, self.refresh_stream_status)
         self.bot.execute_every(self.VIDEO_URL_CHECK_INTERVAL, self.refresh_video_url)
 
@@ -316,6 +318,8 @@ class StreamManager:
                 '{streamer}:viewers'.format(streamer=self.bot.streamer): status['viewers'],
                 '{streamer}:game'.format(streamer=self.bot.streamer): status['game'],
                 })
+
+            self.num_viewers = status['viewers']
 
             if status['online']:
                 if self.current_stream is None:

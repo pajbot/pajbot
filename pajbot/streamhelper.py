@@ -61,7 +61,7 @@ class StreamHelper:
 
     def get_current_stream_id():
         """ Gets the stream ID of the current stream.
-        Returns False if the stream manager has not been initialized.
+        Returns None if the stream manager has not been initialized.
         Returns False if there is no stream online.
         Returns the current streams ID (integer) otherwise.
         """
@@ -78,7 +78,7 @@ class StreamHelper:
 
     def get_last_stream_id():
         """ Gets the stream ID of the last stream.
-        Returns False if the stream manager has not been initialized.
+        Returns None if the stream manager has not been initialized.
         Returns False if there is no stream online.
         Returns the current streams ID (integer) otherwise.
         """
@@ -92,3 +92,18 @@ class StreamHelper:
             return False
 
         return StreamHelper.stream_manager.last_stream.id
+
+    def get_viewers():
+        """ Returns how many viewers are currently watching the stream.
+        Returns 0 if something fails
+        """
+
+        if StreamHelper.stream_manager is None:
+            # Stream manager not initialized, web interface?
+            return 0
+
+        if StreamHelper.stream_manager.current_stream is None:
+            # Stream is offline
+            return 0
+
+        return StreamHelper.stream_manager.num_viewers
