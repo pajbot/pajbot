@@ -130,14 +130,18 @@ class SubAlertModule(BaseModule):
             m = self.new_sub_regex.search(message)
             if m:
                 username = m.group(1)
-                self.on_new_sub(self.bot.users[username])
+                user = self.bot.users[username]
+                self.on_new_sub(user)
+                HandlerManager.trigger('on_user_sub', user)
             else:
                 # Did twitchnotify tell us about a resub?
                 m = self.resub_regex.search(message)
                 if m:
                     username = m.group(1)
-                    num_months = m.group(2)
-                    self.on_resub(self.bot.users[username], int(num_months))
+                    num_months = int(m.group(2))
+                    user = self.bot.users[username]
+                    self.on_resub(user, num_months)
+                    HandlerManager.trigger('on_user_resub', user, num_months)
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
