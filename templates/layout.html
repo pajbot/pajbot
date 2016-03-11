@@ -100,7 +100,9 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script async src="//cdn.pajlada.se/emote.js"></script>
-<script src="/static/scripts/autolinker.min.js"></script>
+{% assets 'autolinker' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script src="//cdn.pajlada.se/js/pickadate/picker.js"></script>
 <script src="//cdn.pajlada.se/js/pickadate/picker.date.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>

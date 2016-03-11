@@ -67,3 +67,9 @@ def init(app):
     notifications_subscribers = Bundle('scripts/notifications/subscribers.js', filters='jsmin',
             output='scripts/notifications/subscribers.gen.%(version)s.js')
     assets.register('notifications_subscribers', notifications_subscribers)
+
+    # Third party libraries
+    # Available under: autolinker
+    autolinker = Bundle('scripts/autolinker.js', filters='jsmin',
+            output='scripts/autolinker.gen.%(version)s.js')
+    assets.register('autolinker', autolinker)
