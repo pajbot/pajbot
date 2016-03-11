@@ -179,7 +179,7 @@ class TriviaModule(BaseModule):
                 correct = right_answer == user_answer
             else:
                 ratio = Levenshtein.ratio(right_answer, user_answer)
-                correct = ratio >= 0.875
+                correct = ratio >= 0.94
 
             if correct:
                 if self.point_bounty > 0:
