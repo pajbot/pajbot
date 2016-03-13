@@ -4,7 +4,9 @@ from numpy import random
 
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.db import DBManager
 from pajbot.models.handler import HandlerManager
+from pajbot.models.roulette import Roulette
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -110,6 +112,10 @@ class RouletteModule(BaseModule):
         result = self.rigged_random_result()
         points = bet if result else -bet
         user.points += points
+
+        with DBManager.create_session_scope() as db_session:
+            r = Roulette(user.id, points)
+            db_session.add(r)
 
         if points > 0:
             bot.me('{0} won {1} points in roulette and now has {2} points! FeelsGoodMan'.format(user.username_raw, bet, user.points_available()))
