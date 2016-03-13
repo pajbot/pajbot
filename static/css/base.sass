@@ -244,3 +244,21 @@ td.label
 
 table.formtable .ui.input
     display: block
+
+span.points
+  font-weight: bold
+
+  &.negative
+    color: red
+  &.positive
+    color: green
+    &::before
+      content: "+"
+
+span.winrate
+  font-weight: bold
+
+  &.negative
+    color: red
+  &.positive
+    color: green
