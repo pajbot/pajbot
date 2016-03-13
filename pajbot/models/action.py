@@ -112,8 +112,7 @@ class IfSubstitution:
 
 class Substitution:
     argument_substitution_regex = re.compile(r'\$\((\d+)\)')
-    # substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)?(\,[\'"]{1}[\w $;|_\-:()\.]+[\'"]{1}){0,2}\)')
-    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w $;_\-:()\.]+[\'"]{1}){0,2}\)')
+    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)')
 
     def __init__(self, cb, needle, key=None, argument=None, filters=[]):
         self.cb = cb
