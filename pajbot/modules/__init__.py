@@ -35,7 +35,6 @@ from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
 from pajbot.modules.quests.winduelpoints import WinDuelPointsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
-from pajbot.modules.raffle import MultiRaffleModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.subalert import SubAlertModule
@@ -67,7 +66,6 @@ available_modules = [
         LinkTrackerModule,
         MathModule,
         MaxMsgLengthModule,
-        MultiRaffleModule,
         PaidSubmodeModule,
         PaidTimeoutDiscountModule,
         PaidTimeoutModule,
