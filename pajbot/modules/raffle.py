@@ -130,6 +130,7 @@ class RaffleModule(BaseModule):
                 delay_user=0,
                 level=500,
                 description='Start a raffle for points',
+                command='raffle',
                 examples=[
                     CommandExample(None, 'Start a raffle for 69 points',
                         chat='user:!raffle 69\n'
@@ -141,6 +142,8 @@ class RaffleModule(BaseModule):
                         description='Start a 30-second raffle for 69 points').parse(),
                     ],
                 )
+        self.commands['singleraffle'] = self.commands['raffle']
+        self.commands['sraffle'] = self.commands['raffle']
         self.commands['join'] = Command.raw_command(self.join,
                 delay_all=0,
                 delay_user=5,
@@ -157,6 +160,7 @@ class RaffleModule(BaseModule):
                     delay_user=0,
                     level=500,
                     description='Start a multi-raffle for points',
+                    command='multiraffle',
                     examples=[
                         CommandExample(None, 'Start a multi-raffle for 69 points',
                             chat='user:!multiraffle 69\n'
@@ -168,6 +172,7 @@ class RaffleModule(BaseModule):
                             description='Start a 30-second multi-raffle for 69 points').parse(),
                         ],
                     )
+            self.commands['mraffle'] = self.commands['multiraffle']
 
     def raffle(self, **options):
         bot = options['bot']
