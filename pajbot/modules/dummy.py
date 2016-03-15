@@ -12,6 +12,7 @@ class DummyModule(BaseModule):
     NAME = 'Dummy module'
     DESCRIPTION = 'This does not actually do anything'
     CATEGORY = 'Debugging'
+    HIDDEN = True
     SETTINGS = [
             ModuleSetting(
                 key='who',

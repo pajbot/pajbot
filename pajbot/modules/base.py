@@ -86,6 +86,7 @@ class BaseModule:
     ENABLED_DEFAULT = False
     PARENT_MODULE = None
     CATEGORY = 'Uncategorized'
+    HIDDEN = False
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """
