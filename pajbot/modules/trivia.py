@@ -1,5 +1,6 @@
 import datetime
 import logging
+import math
 
 import Levenshtein
 import requests
@@ -65,14 +66,21 @@ class TriviaModule(BaseModule):
         self.last_question = None
         self.question = None
         self.step = 0
+        self.last_step = None
 
         self.point_bounty = 0
 
     def poll_trivia(self):
-        if self.question is None and (self.last_question is None or datetime.datetime.now() - self.last_question >= datetime.timedelta(seconds=5)):
+        if self.question is None and (self.last_question is None or datetime.datetime.now() - self.last_question >= datetime.timedelta(seconds=12)):
             url = 'http://jservice.io/api/random'
             r = requests.get(url)
             self.question = r.json()[0]
+            self.question['answer'] = self.question['answer'].replace('<i>', '').replace('</i>', '').replace('\\', '').strip('"')
+
+            if len(self.question['answer']) == 0 or len(self.question['question']) == 0:
+                self.question = None
+                return
+
             self.step = 0
             self.last_step = None
 
@@ -90,7 +98,7 @@ class TriviaModule(BaseModule):
 
     def step_announce(self):
         try:
-            self.bot.me('A new question has begun! In the category "{0[category][title]}", the question/hint/clue is "{0[question]}"'.format(self.question))
+            self.bot.me('OMGScoots A new question has begun! In the category "{0[category][title]}", the question/hint/clue is "{0[question]}" OMGScoots'.format(self.question))
         except:
             self.step = 0
             self.question = None
@@ -98,28 +106,26 @@ class TriviaModule(BaseModule):
 
     def step_hint(self):
         # find out what % of the answer should be revealed
-        full_hint_reveal = int(round(len(self.question['answer']) / 2))
-        current_hint_reveal = int(round(((self.step) / self.settings['hint_count']) * full_hint_reveal))
+        full_hint_reveal = int(math.floor(len(self.question['answer']) / 2))
+        current_hint_reveal = int(math.floor(((self.step) / self.settings['hint_count']) * full_hint_reveal))
         hint_arr = []
         index = 0
-        actual_index = 0
         for c in self.question['answer']:
             if c == ' ':
                 hint_arr.append(' ')
             else:
                 if index < current_hint_reveal:
-                    hint_arr.append(self.question['answer'][actual_index])
+                    hint_arr.append(self.question['answer'][index])
                 else:
                     hint_arr.append('_')
-                index += 1
-            actual_index += 1
+            index += 1
         hint_str = ''.join(hint_arr)
 
-        self.bot.me('Here\'s a hint, "{hint_str}"'.format(hint_str=hint_str))
+        self.bot.me('OpieOP Here\'s a hint, "{hint_str}" OpieOP'.format(hint_str=hint_str))
 
     def step_end(self):
         if self.question is not None:
-            self.bot.me('No one could answer the trivia! The answer was "{}"'.format(self.question['answer']))
+            self.bot.me('MingLee No one could answer the trivia! The answer was "{}" MingLee'.format(self.question['answer']))
             self.question = None
             self.step = 0
             self.last_question = datetime.datetime.now()
