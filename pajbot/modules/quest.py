@@ -27,10 +27,7 @@ class QuestModule(BaseModule):
         source = options['source']
         if self.current_quest is not None:
             quest_progress = self.current_quest.get_user_progress(source.username)
-            try:
-                quest_limit = self.current_quest.LIMIT
-            except:
-                quest_limit = None
+            quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
                 bot.whisper(source.username, 'You have completed todays quest!'.format(quest_progress))

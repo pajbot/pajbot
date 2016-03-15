@@ -57,3 +57,12 @@ class BaseQuest(BaseModule):
 
     def get_objective(self):
         return self.OBJECTIVE
+
+    def get_limit(self):
+        """ Returns the quest limit specified in the module.
+        If no quest limit is set, return None. """
+
+        try:
+            return self.LIMIT
+        except:
+            return None
