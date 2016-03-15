@@ -542,6 +542,7 @@ class Dispatch:
 
     def top3(bot, source, message, event, args):
         """Prints out the top 3 chatters"""
+        log.error('USE THE Top commands module instead of this')
         users = []
         for user in bot.users.db_session.query(User).order_by(desc(User.num_lines))[:3]:
             users.append('{user.username_raw} ({user.num_lines})'.format(user=user))

@@ -40,6 +40,7 @@ from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
 from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
+from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
@@ -78,6 +79,7 @@ available_modules = [
         RouletteModule,
         ShowEmoteTokenCommandModule,
         SubAlertModule,
+        TopModule,
         TriviaModule,
         TypeEmoteQuestModule,
         VanishModule,
