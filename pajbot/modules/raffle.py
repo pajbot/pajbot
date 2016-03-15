@@ -309,7 +309,6 @@ class RaffleModule(BaseModule):
 
         self.multi_start_raffle(points, length)
 
-
     def multi_end_raffle(self):
         if not self.raffle_running:
             return False
