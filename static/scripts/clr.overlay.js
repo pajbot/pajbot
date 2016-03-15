@@ -274,6 +274,13 @@ function play_sound(sample)
     }
 }
 
+function play_custom_sound(url)
+{
+    var audio = new Audio(url);
+    audio.volume = 0.4;
+    audio.play();
+}
+
 function connect_to_ws()
 {
     if (isopen) {
@@ -312,6 +319,9 @@ function connect_to_ws()
                         break;
                     case 'play_sound':
                         play_sound(json_data['data']['sample']);
+                        break;
+                    case 'play_custom_sound':
+                        play_custom_sound(json_data['data']['url']);
                         break;
                     case 'emote_combo':
                         refresh_emote_combo(json_data['data']['emote'], json_data['data']['count']);
