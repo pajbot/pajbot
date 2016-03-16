@@ -219,6 +219,24 @@ class StreamManager:
                 log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
             db_session.expunge_all()
 
+    def get_viewer_data(self, redis=None):
+        if self.offline:
+            return False
+
+        if not redis:
+            redis = RedisManager.get()
+
+        data = redis.hget(
+                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
+                self.current_stream.id)
+
+        if data is None:
+            data = {}
+        else:
+            data = json.loads(data)
+
+        return data
+
     def update_chatters(self, chatters, minutes):
         """
         chatters is a list of usernames
@@ -229,14 +247,7 @@ class StreamManager:
 
         redis = RedisManager.get()
 
-        data = redis.hget(
-                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
-                self.current_stream.id)
-
-        if data is None:
-            data = {}
-        else:
-            data = json.loads(data)
+        data = self.get_viewer_data(redis=redis)
 
         for chatter in chatters:
             if chatter in data:
