@@ -52,15 +52,16 @@ class ChattersModule(BaseModule):
         """
         self.bot = bot
 
-        if not self.initialized:
-            self.bot.execute_every(self.update_chatters_interval * 60,
-                               self.bot.action_queue.add,
-                               (self.update_chatters_stage1, ))
-            self.initialized = True
-        else:
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
-            self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+        if bot:
+            if not self.initialized:
+                self.bot.execute_every(self.update_chatters_interval * 60,
+                                   self.bot.action_queue.add,
+                                   (self.update_chatters_stage1, ))
+                self.initialized = True
+            else:
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
+                self.error('XXXXXXXXXX THIS SHOULD NOT HAPPEN')
