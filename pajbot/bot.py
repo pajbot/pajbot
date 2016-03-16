@@ -58,7 +58,6 @@ class Bot:
 
     version = '2.6.3'
     date_fmt = '%H:%M'
-    update_chatters_interval = 5
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
 
@@ -288,14 +287,6 @@ class Bot:
 
         self.websocket_manager = WebSocketManager(self)
 
-        """
-        Update chatters every `update_chatters_interval' minutes.
-        By default, this is set to run every 5 minutes.
-        """
-        self.execute_every(self.update_chatters_interval * 60,
-                           self.action_queue.add,
-                           (self.update_chatters_stage1, ))
-
         try:
             if self.config['twitchapi']['update_subscribers'] == '1':
                 self.execute_every(30 * 60,
@@ -376,30 +367,6 @@ class Bot:
             user.subscriber = True
 
         log.debug('end of stage 2 of update subs')
-
-    def update_chatters_stage1(self):
-        chatters = self.twitchapi.get_chatters(self.streamer)
-        if len(chatters) > 0:
-            self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
-
-    def update_chatters_stage2(self, chatters):
-        points = 1 if self.is_online else 0
-
-        log.debug('Updating {0} chatters'.format(len(chatters)))
-
-        u_chatters = self.users.bulk_load(chatters)
-
-        for user in u_chatters:
-            if self.is_online:
-                user.minutes_in_chat_online += self.update_chatters_interval
-            else:
-                user.minutes_in_chat_offline += self.update_chatters_interval
-            num_points = points
-            if user.subscriber:
-                num_points *= 5
-            if self.streamer == 'forsenlol' and 'trump_sub' in user.tags:
-                num_points *= 0.5
-            user.touch(num_points)
 
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
@@ -944,7 +911,7 @@ def _filter_time_since_dt(var, args):
         if len(ts) > 0:
             return ts
         else:
-            return 'never FeelsBadMan'
+            return '0 seconds'
     except:
         return 'never FeelsBadMan ?'
 

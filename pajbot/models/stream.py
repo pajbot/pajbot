@@ -1,6 +1,7 @@
 import argparse
 import collections
 import datetime
+import json
 import logging
 import math
 import urllib
@@ -217,6 +218,36 @@ class StreamManager:
                 self.current_stream_chunk = db_session.query(StreamChunk).filter_by(stream_id=self.current_stream.id).order_by(StreamChunk.chunk_start.desc()).first()
                 log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
             db_session.expunge_all()
+
+    def update_chatters(self, chatters, minutes):
+        """
+        chatters is a list of usernames
+        """
+
+        if self.offline:
+            return False
+
+        redis = RedisManager.get()
+
+        data = redis.hget(
+                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
+                self.current_stream.id)
+
+        if data is None:
+            data = {}
+        else:
+            data = json.loads(data)
+
+        for chatter in chatters:
+            if chatter in data:
+                data[chatter] += minutes
+            else:
+                data[chatter] = minutes
+
+        redis.hset(
+                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
+                self.current_stream.id,
+                json.dumps(data, separators=(',', ':')))
 
     @property
     def online(self):

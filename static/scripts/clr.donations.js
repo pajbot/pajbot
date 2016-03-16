@@ -48,8 +48,8 @@ function show_tip(user, amount, symbol, note)
         });
     }
     amount = +(parseFloat(amount)).toFixed(2);
-    $("#new-tip").html(symbol+amount+' from '+user);
-    $("#new-tip-note").html(note);
+    $("#new-tip").text(symbol+amount+' from '+user);
+    $("#new-tip-note").text(note);
     $("#tip-alert").fadeIn("slow", function() {
         // do nothing
     });
