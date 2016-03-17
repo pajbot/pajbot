@@ -222,8 +222,13 @@ class Dispatch:
                 bot.whisper(source.username, 'No command found with the alias {}. Did you mean to create the command? If so, use !add command instead.'.format(alias))
                 return False
 
+            old_message = ''
+            new_message = ''
+
             if len(action['message']) > 0:
                 options['action'] = action
+                old_message = command.action.response
+                new_message = action['message']
             elif not type == command.action.subtype:
                 options['action'] = {
                     'type': type,
@@ -231,6 +236,22 @@ class Dispatch:
                 }
             bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
+
+            if len(new_message) > 0:
+                log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
+                        command.command.split('|')[0],
+                        old_message,
+                        new_message)
+            else:
+                log_msg = 'The !{} command has been updated'.format(command.command.split('|')[0])
+
+            AdminLogManager.add_entry('Command edited',
+                    source,
+                    log_msg,
+                    data={
+                        'old_message': old_message,
+                        'new_message': new_message,
+                        })
 
     def add_funccommand(bot, source, message, event, args):
         """Dispatch method for creating function commands.
@@ -617,13 +638,19 @@ class Dispatch:
         # XXX: This should be a module
         if message:
             bot.twitchapi.set_game(bot.streamer, message)
-            bot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
+            log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
+            bot.say(log_msg)
+
+            AdminLogManager.add_entry('Game set', source, log_msg)
 
     def set_title(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
             bot.twitchapi.set_title(bot.streamer, message)
-            bot.say('{0} updated the title to "{1}"'.format(source.username_raw, message))
+            log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
+            bot.say(log_msg)
+
+            AdminLogManager.add_entry('Title set', source, log_msg)
 
     def ban_source(bot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
@@ -702,7 +729,10 @@ class Dispatch:
 
             user.banned = True
             message = message.lower()
-            bot.whisper(source.username, '{0} has now been permabanned.'.format(user.username))
+            log_msg = '{} has been permabanned'.format(user.username_raw)
+            bot.whisper(source.username, log_msg)
+
+            AdminLogManager.add_entry('Permaban added', source, log_msg)
 
     def unpermaban(bot, source, message, event, args):
         if message:
@@ -719,7 +749,10 @@ class Dispatch:
 
             user.banned = False
             message = message.lower()
-            bot.whisper(source.username, '{0} is no longer permabanned'.format(user.username))
+            log_msg = '{} is no longer permabanned'.format(user.username_raw)
+            bot.whisper(source.username, log_msg)
+
+            AdminLogManager.add_entry('Permaban remove', source, log_msg)
 
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
