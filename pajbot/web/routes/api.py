@@ -19,6 +19,7 @@ from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
+from pajbot.managers import AdminLogManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.command import Command
@@ -380,7 +381,7 @@ def command_remove(command_id, **options):
 
 @page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
 @requires_level(500)
-def command_update(command_id, **options):
+def command_update(command_id, **extra_args):
     if not request.method == 'POST':
         return make_response(jsonify({'error': 'Invalid request method. (Expected POST)'}), 400)
     if len(request.form) == 0:
@@ -405,11 +406,11 @@ def command_update(command_id, **options):
         command = db_session.query(Command).options(joinedload(Command.data).joinedload(CommandData.user)).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
-        if command.level > options['user'].level:
+        if command.level > extra_args['user'].level:
             abort(403)
         parsed_action = json.loads(command.action_json)
         options = {
-            'edited_by': options['user'].id,
+            'edited_by': extra_args['user'].id,
         }
 
         for key in request.form:
@@ -446,8 +447,33 @@ def command_update(command_id, **options):
                             parsed_value = value
                         options[name] = parsed_value
 
+        aj = json.loads(command.action_json)
+        old_message = ''
+        new_message = ''
+        try:
+            old_message = command.action.response
+            new_message = aj['message']
+        except:
+            pass
+
         command.set(**options)
         command.data.set(**options)
+
+        if len(old_message) > 0 and old_message != new_message:
+            log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
+                    command.command.split('|')[0],
+                    old_message,
+                    new_message)
+        else:
+            log_msg = 'The !{} command has been updated'.format(command.command.split('|')[0])
+
+        AdminLogManager.add_entry('Command edited',
+                extra_args['user'],
+                log_msg,
+                data={
+                    'old_message': old_message,
+                    'new_message': new_message,
+                    })
 
     if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
         return make_response(jsonify({'success': 'good job'}))
