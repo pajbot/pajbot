@@ -360,6 +360,10 @@ def command_remove(command_id, **options):
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
         if command.level > options['user'].level:
             abort(403)
+        log_msg = 'The !{} command has been removed'.format(command.command.split('|')[0])
+        AdminLogManager.add_entry('Command removed',
+                options['user'],
+                log_msg)
         db_session.delete(command.data)
         db_session.delete(command)
 
@@ -525,6 +529,7 @@ def banphrase_remove(banphrase_id, **options):
         banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
         if banphrase is None:
             return make_response(jsonify({'error': 'Invalid banphrase ID'}))
+        AdminLogManager.post('Banphrase removed', options['user'], banphrase.phrase)
         db_session.delete(banphrase)
         db_session.delete(banphrase.data)
         SocketClientManager.send('banphrase.remove', {'banphrase_id': banphrase.id})

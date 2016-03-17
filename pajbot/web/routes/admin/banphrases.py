@@ -7,6 +7,7 @@ from flask import request
 from flask import session
 from sqlalchemy.orm import joinedload
 
+from pajbot.managers import AdminLogManager
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.banphrase import BanphraseData
 from pajbot.models.db import DBManager
@@ -96,10 +97,12 @@ def init(page):
                     banphrase.set(**options)
                     banphrase.data.set(edited_by=options['edited_by'])
                     log.info('Updated banphrase ID {} by user ID {}'.format(banphrase.id, options['edited_by']))
+                    AdminLogManager.post('Banphrase edited', user, banphrase.phrase)
                 else:
                     db_session.add(banphrase)
                     db_session.add(banphrase.data)
                     log.info('Added a new banphrase by user ID {}'.format(options['added_by']))
+                    AdminLogManager.post('Banphrase added', user, banphrase.phrase)
 
             SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
             if id is None:

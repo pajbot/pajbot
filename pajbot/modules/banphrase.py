@@ -1,5 +1,6 @@
 import logging
 
+from pajbot.managers import AdminLogManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.models.db import DBManager
@@ -86,6 +87,7 @@ class BanphraseModule(BaseModule):
 
             if new_banphrase is True:
                 bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
+                AdminLogManager.post('Banphrase added', source, phrase)
                 return True
 
             banphrase.set(**options)
@@ -93,6 +95,7 @@ class BanphraseModule(BaseModule):
             DBManager.session_add_expunge(banphrase)
             bot.banphrase_manager.commit()
             bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
+            AdminLogManager.post('Banphrase edited', source, phrase)
 
     def remove_banphrase(self, **options):
         message = options['message']
@@ -112,6 +115,7 @@ class BanphraseModule(BaseModule):
                 bot.whisper(source.username, 'No banphrase with the given parameters found')
                 return False
 
+            AdminLogManager.post('Banphrase removed', source, banphrase.phrase)
             bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
             bot.banphrase_manager.remove_banphrase(banphrase)
         else:

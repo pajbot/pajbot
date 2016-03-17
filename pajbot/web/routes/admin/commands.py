@@ -7,6 +7,7 @@ from flask import request
 from flask import session
 from sqlalchemy.orm import joinedload
 
+from pajbot.managers import AdminLogManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.command import CommandManager
@@ -161,6 +162,10 @@ def init(page):
 
             command = Command(command=alias_str, **options)
             command.data = CommandData(command.id, **options)
+            log_msg = 'The !{} command has been created'.format(command.command.split('|')[0])
+            AdminLogManager.add_entry('Command created',
+                    user,
+                    log_msg)
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 db_session.add(command)
                 db_session.add(command.data)

@@ -4,8 +4,20 @@ import json
 from pajbot.managers import RedisManager
 from pajbot.streamhelper import StreamHelper
 
+class LogEntryTemplate:
+    def __init__(self, message_fmt):
+        self.message_fmt = message_fmt
+
+    def get_message(self, *args):
+        return self.message_fmt.format(*args)
+
 class AdminLogManager:
     KEY = None
+    TEMPLATES = {
+            'Banphrase removed': LogEntryTemplate('Removed banphrase "{}"'),
+            'Banphrase added': LogEntryTemplate('Added banphrase "{}"'),
+            'Banphrase edited': LogEntryTemplate('Edited banphrase from "{}"'),
+            }
 
     def get_key():
         if AdminLogManager.KEY is None:
@@ -30,3 +42,15 @@ class AdminLogManager:
         redis = RedisManager.get()
 
         return [json.loads(entry) for entry in redis.lrange(AdminLogManager.get_key(), offset, limit)]
+
+    def post(type, source, *args, data={}):
+        if type not in AdminLogManager.TEMPLATES:
+            return False
+
+        message = AdminLogManager.TEMPLATES[type].get_message(*args)
+        AdminLogManager.add_entry(
+                type, source,
+                message,
+                data=data)
+
+        return True

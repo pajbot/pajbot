@@ -166,6 +166,11 @@ class Dispatch:
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
+
+                log_msg = 'The !{} command has been created'.format(command.command.split('|')[0])
+                AdminLogManager.add_entry('Command created',
+                        source,
+                        log_msg)
                 return True
 
             # At least one alias is already in use, notify the user to use !edit command instead
@@ -460,6 +465,10 @@ class Dispatch:
                     return False
 
             bot.whisper(source.username, 'Successfully removed command with id {0}'.format(command.id))
+            log_msg = 'The !{} command has been removed'.format(command.command.split('|')[0])
+            AdminLogManager.add_entry('Command removed',
+                    source,
+                    log_msg)
             bot.commands.remove_command(command)
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
