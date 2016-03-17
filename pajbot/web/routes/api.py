@@ -544,6 +544,18 @@ def generic_toggle(route_key, row_id, **options):
             'module': Module,
             }
 
+    route_name = {
+            'timer': lambda x: x.name,
+            'banphrase': lambda x: x.phrase,
+            'module': lambda x: x.id,
+            }
+
+    route_title = {
+            'timer': 'Timer',
+            'banphrase': 'Banphrase',
+            'module': 'Module',
+            }
+
     if route_key not in valid_routes:
         return make_response(jsonify({'error': 'Invalid route.'}), 400)
     if 'new_state' not in request.form:
@@ -565,6 +577,10 @@ def generic_toggle(route_key, row_id, **options):
                     'id': row.id,
                     'new_state': row.enabled,
                     }
+            AdminLogManager.post('{title} toggled'.format(title=route_title[route_key]),
+                    options['user'],
+                    'Enabled' if row.enabled else 'Disabled',
+                    route_name[route_key](row))
             SocketClientManager.send('{}.update'.format(route_key), payload)
             return make_response(jsonify({'success': 'successful toggle', 'new_state': new_state}))
         else:

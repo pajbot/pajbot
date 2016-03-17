@@ -1,8 +1,12 @@
 import datetime
 import json
+import logging
 
 from pajbot.managers import RedisManager
 from pajbot.streamhelper import StreamHelper
+
+log = logging.getLogger(__name__)
+
 
 class LogEntryTemplate:
     def __init__(self, message_fmt):
@@ -17,6 +21,10 @@ class AdminLogManager:
             'Banphrase removed': LogEntryTemplate('Removed banphrase "{}"'),
             'Banphrase added': LogEntryTemplate('Added banphrase "{}"'),
             'Banphrase edited': LogEntryTemplate('Edited banphrase from "{}"'),
+            'Banphrase toggled': LogEntryTemplate('{} banphrase "{}"'),
+            'Module toggled': LogEntryTemplate('{} module "{}"'),
+            'Module edited': LogEntryTemplate('Edited module "{}"'),
+            'Timer toggled': LogEntryTemplate('{} timer "{}"'),
             }
 
     def get_key():
@@ -45,6 +53,7 @@ class AdminLogManager:
 
     def post(type, source, *args, data={}):
         if type not in AdminLogManager.TEMPLATES:
+            log.warn('{} has no template'.format(type))
             return False
 
         message = AdminLogManager.TEMPLATES[type].get_message(*args)
