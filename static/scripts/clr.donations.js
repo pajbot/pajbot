@@ -34,6 +34,8 @@ function show_tip(user, amount, symbol, note)
     
     var original_note = note;
 
+    note = $('<div/>').html(note).text();
+
     if (typeof emotes !== 'undefined') {
         /* TODO: preload commonly used emotes */
         $.each(emotes, function(code, emote) {
@@ -49,15 +51,13 @@ function show_tip(user, amount, symbol, note)
     }
     amount = +(parseFloat(amount)).toFixed(2);
     $("#new-tip").text(symbol+amount+' from '+user);
-    $("#new-tip-note").text(note);
+    $("#new-tip-note").html(note);
     $("#tip-alert").fadeIn("slow", function() {
         // do nothing
     });
     timer = setTimeout(function() {
         $("#tip-alert").fadeOut("slow");
     }, 10000);
-
-    console.log(use_tts);
 
     if (use_tts) {
         tts_message(original_note);
@@ -71,12 +71,8 @@ function tts_message(message)
     var voice = 'en-US_LisaVoice';
     var voice = 'en-GB_KateVoice';
     var voice = 'en-US_AllisonVoice';
-    //message = 'gachiGASM';
-    console.log(tts_authorization);
     message = message.replace('#', 'hashtag');
     var tts_url = 'https://hosted.stylerdev.io/api/synthesize?voice=' + voice + '&text=' + encodeURI(message) + '&token=' + tts_authorization;
-    //var tts_url = 'https://pajlada.se/files/clr/slap.mp3';
-    //var tts_url = 'https://pajlada.se/files/fuckyou.mp3';
 
     tts_sound = new Audio();
     tts_sound.addEventListener('playing', function() {
