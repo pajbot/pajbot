@@ -20,7 +20,7 @@ function escapeRegExp(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
 
-function show_tip(user, amount, symbol, note)
+function show_tip(user, amount, symbol, note, type)
 {
     if (timer) {
         clearTimeout(timer);
@@ -35,6 +35,7 @@ function show_tip(user, amount, symbol, note)
     var original_note = note;
 
     note = $('<div/>').html(note).text();
+    user = $('<div/>').html(user).text();
 
     if (typeof emotes !== 'undefined') {
         /* TODO: preload commonly used emotes */
@@ -50,8 +51,12 @@ function show_tip(user, amount, symbol, note)
         });
     }
     amount = +(parseFloat(amount)).toFixed(2);
-    $("#new-tip").text(symbol+amount+' from '+user);
-    $("#new-tip-note").html(note);
+    if (type == 'basic') {
+        $("#new-tip .note").html(user + ' (' + symbol + amount + '): ' + note);
+    } else {
+        $("#new-tip").text(symbol+amount+' from '+user);
+        $("#new-tip-note").html(note);
+    }
     $("#tip-alert").fadeIn("slow", function() {
         // do nothing
     });

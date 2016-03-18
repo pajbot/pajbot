@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>CLR Donation Alert - {{ streamer.name }}</title>
-    <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300|Roboto:300,400,500,700|Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Hind:400,500,600,700' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="/static/css/clr.donations.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
@@ -21,11 +22,16 @@
     /* TODO: Custom CSS from widget in database */
     /* redis? */
     </style>
+{% set widget_type = widget.widget_type or 'split' %}
   </head>
   <body>
-    <div id="tip-alert">
-     <div class="text from large" id="new-tip"></div>
-     <div class="text note small" id="new-tip-note"></div>
+      <div id="tip-alert" class="{{ widget_type }}">
+          {% if widget_type == 'basic' %}
+          <div id="new-tip"><div class="note-wrapper"><div class="note"></div></div></div>
+          {% else %}
+              <div class="text from large" id="new-tip"></div>
+              <div class="text note small" id="new-tip-note"></div>
+          {% endif %}
     </div>
     <script type="text/javascript">
 var emotes = {
@@ -76,7 +82,7 @@ function check_queue()
                 var donation = queue.dequeue();
                 var note = filter_words(donation['note']);
                 var username = filter_words(donation['username']);
-                show_tip(username, donation['amount'], donation['currencySymbol'], note);
+            show_tip(username, donation['amount'], donation['currencySymbol'], note, '{{ widget_type }}');
             }
         }
         check_queue();
@@ -146,6 +152,7 @@ streamer = '{{ streamer.full_name }}';
 var timer = false;
 tts_authorization = '{{ tts_authentication }}';
 var use_tts = {{ 'true' if widget.tts else 'false' }};
+var widget_type = '{{ widget.widget_type if widget.widget_type else 'split' }}';
 
 $(document).ready(function() {
     streamtip_connect(client_id, access_token, on_error, on_new_tip, on_authenticated);

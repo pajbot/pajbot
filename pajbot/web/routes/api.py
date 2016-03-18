@@ -731,6 +731,7 @@ def init(app):
             self.post_parser.add_argument('name', trim=True, required=True)
             self.post_parser.add_argument('streamtip_client_id', trim=True, required=True)
             self.post_parser.add_argument('streamtip_access_token', trim=True, required=True)
+            self.post_parser.add_argument('widget_type', trim=True, required=True)
             self.post_parser.add_argument('sound_url', trim=True, required=True)
             self.post_parser.add_argument('sound_delay', type=int, required=True)
             self.post_parser.add_argument('sound_volume', type=float, required=True)
