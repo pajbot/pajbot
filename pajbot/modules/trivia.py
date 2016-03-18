@@ -75,9 +75,9 @@ class TriviaModule(BaseModule):
             url = 'http://jservice.io/api/random'
             r = requests.get(url)
             self.question = r.json()[0]
-            self.question['answer'] = self.question['answer'].replace('<i>', '').replace('</i>', '').replace('\\', '').strip('"')
+            self.question['answer'] = self.question['answer'].replace('<i>', '').replace('</i>', '').replace('\\', '').replace('(', '').replace(')', '').strip('"').strip('.')
 
-            if len(self.question['answer']) == 0 or len(self.question['question']) == 0:
+            if len(self.question['answer']) == 0 or len(self.question['question']) <= 1:
                 self.question = None
                 return
 
