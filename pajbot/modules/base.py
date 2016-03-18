@@ -106,6 +106,7 @@ class BaseModule:
 
         self.load_settings(options.get('settings', {}))
 
+        self.commands = {}
         self.load_commands(**options)
 
         return self
