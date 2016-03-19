@@ -1,5 +1,6 @@
 import datetime
 import logging
+import math
 
 from numpy import random
 
@@ -121,6 +122,17 @@ class RouletteModule(BaseModule):
         msg_split = message.split(' ')
         if msg_split[0].lower() in ('all', 'allin'):
             bet = user.points_available()
+        elif msg_split[0].endswith('%'):
+            try:
+                percentage = int(msg_split[0][:-1])
+                if percentage < 1 or percentage > 100:
+                    bot.whisper(user.username, 'To bet with percentages you need to specify a number between 1 and 100 (like !roulette 50%)')
+                    return False
+
+                bet = math.floor(user.points_available() * (percentage / 100))
+            except (ValueError, TypeError):
+                bot.whisper(user.username, 'Invalid percentage specified haHAA')
+                return False
         else:
             try:
                 bet = int(message.split(' ')[0])
