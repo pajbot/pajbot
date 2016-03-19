@@ -289,8 +289,8 @@ class StreamManager:
                 log.info('We already have a stream chunk!')
                 self.current_stream_chunk = stream_chunk
             db_session.expunge_all()
-            db_session.close()
 
+        log.debug(self.current_stream.stream_chunks)
         self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
