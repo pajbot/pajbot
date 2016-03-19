@@ -3,6 +3,7 @@ import json
 from flask import render_template
 from flask import request
 
+from pajbot.managers import AdminLogManager
 from pajbot.models.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.module import ModuleManager
@@ -72,6 +73,8 @@ def init(page):
                         }
 
                 SocketClientManager.send('module.update', payload)
+
+                AdminLogManager.post('Module edited', options['user'], current_module.NAME)
 
                 return render_template('admin/configure_module.html',
                         module=current_module,
