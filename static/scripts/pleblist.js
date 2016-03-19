@@ -105,7 +105,7 @@ function add_to_pleblist(song)
 {
     pleblist_songs.push(song);
     latest_song_id = song.id;
-    $div = $('<div>', {class: 'item', id: 'song-' + song.id});
+    var $div = $('<div>', {class: 'item', id: 'song-' + song.id});
     $('#pleblist div.ui.list').append($div);
     var $index = $('<div>', {class: 'song-index'});
     $div.append($index);
@@ -115,17 +115,56 @@ function add_to_pleblist(song)
     var song_length = '???';
     if (song.skip_after !== null) {
         song_duration = song.skip_after;
-        } else {
+    } else {
         song_duration = song.info.duration;
-        }
+    }
     if (song.info !== null) {
         title = song.info.title;
         song_length = moment.duration(song_duration, 'seconds').format('h:mm:ss');
     }
-    $a_header = $('<a>', {class: 'header', 'href': 'https://youtu.be/' + song.youtube_id, }).text(title);
-    $div_content.append($a_header);
+    $div_header = $('<div>', {class: 'header'});
+    $a_link = $('<a>', {'href': 'https://youtu.be/' + song.youtube_id }).text(title);
+    $a_close = $('<a>', {class: 'skip', 'href': '#', style: 'padding-left: 15px; float: right;'}).text('SKIP');
+    $div_header.append($a_close);
+    $div_header.append($a_link);
+    $div_content.append($div_header);
     $div_description = $('<div>', {class: 'description'}).text(song_length);
     $div_content.append($div_description);
+
+    $a_close.api({
+        action: 'pleblist_skip_future_song',
+        method: 'post',
+        urlData: {
+            'id': song.id,
+        },
+        beforeSend: function(settings) {
+            if (song == current_song) {
+                console.log('JUST EMULATING A SKIP BRO');
+                next_song();
+                settings.urlData.id = -1;
+                /**
+                 * XXX: We modify the song ID instead of just aborting the request here
+                 * because of a bug in semantic ui which doesn't let us abort requests
+                 * in beforeSend. If I wasn't as lazy I'd just make an on_click button which
+                 * doesn't call the api()-method until we've made sure we shouldn't do next_song()
+                 **/
+                return settings; /* XXX: Should return null and abort the request here */
+            }
+            settings.data.password = secret_password;
+            return settings;
+        },
+        onSuccess: function(response, element, xhr) {
+            console.log(response);
+            console.log('SUCCESS!');
+            $div.remove();
+            var index = pleblist_songs.indexOf(song);
+            console.log(index);
+            pleblist_songs.splice(index, 1);
+
+            update_song_counter();
+            update_indices();
+        }
+    });
 
     if (current_song == null && pleblist_started === true) {
         next_song();
@@ -137,7 +176,6 @@ function add_to_pleblist(song)
 function update_indices()
 {
     $.each($('#songlist div.item'), function(index, el) {
-        console.log(index);
         $(el).find('div.song-index').text((index + 1) + '.');
     });
 }

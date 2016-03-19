@@ -18,6 +18,7 @@ from flask.ext.scrypt import generate_password_hash
 from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import noload
 
 from pajbot.managers import AdminLogManager
 from pajbot.managers.redis import RedisManager
@@ -757,5 +758,37 @@ def init(app):
                     'message': 'GOT EM'
                     }, 200
 
+    class APIPleblistSkip(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('password', required=True, location='cookies')
+
+        def post(self, song_id, **options):
+            args = self.post_parser.parse_args()
+
+            salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+            try:
+                user_password = base64.b64decode(args['password'])
+            except binascii.Error:
+                abort(400)
+
+            if not user_password == salted_password:
+                abort(401)
+
+            with DBManager.create_session_scope() as db_session:
+                song = db_session.query(PleblistSong).options(noload('*')).filter_by(id=song_id).one_or_none()
+                if song is None:
+                    abort(404)
+
+                db_session.delete(song)
+                db_session.flush()
+
+                return {
+                        'message': 'GOT EM'
+                        }, 200
+
     api.add_resource(APIEmailTags, '/api/v1/email/tags')
     api.add_resource(APICLRDonationsSave, '/api/v1/clr/donations/<widget_id>/save')
+    api.add_resource(APIPleblistSkip, '/api/v1/pleblist/skip/<int:song_id>')
