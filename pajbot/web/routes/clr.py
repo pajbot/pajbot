@@ -43,6 +43,7 @@ def donations(widget_id, **options):
 
     with DBManager.create_session_scope() as db_session:
         emotes = db_session.query(Emote).join(EmoteStats).all()
+        emotes.sort(key=lambda emote: len(emote.code), reverse=True)
         return render_template('clr/donations.html',
                 widget=json.loads(widget),
                 emotes=emotes,
