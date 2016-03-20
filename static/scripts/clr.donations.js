@@ -41,9 +41,9 @@ function show_tip(user, amount, symbol, note, type)
         /* TODO: preload commonly used emotes */
         $.each(emotes, function(code, emote) {
             if (emote.i !== null) {
-                var replacement = '<img style="height:1.2em;margin: -5px 0;" src="//static-cdn.jtvnw.net/emoticons/v1/'+emote.i+'/3.0"/>';
+                var replacement = '<img class="emote" src="//static-cdn.jtvnw.net/emoticons/v1/'+emote.i+'/3.0"/>';
             } else if (emote.h !== null) {
-                var replacement = '<img style="height:1.2em;margin: -5px 0;" src="//cdn.betterttv.net/emote/'+emote.h+'/3x"/>';
+                var replacement = '<img class="emote" src="//cdn.betterttv.net/emote/'+emote.h+'/3x"/>';
             } else {
                 return;
             }
