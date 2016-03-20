@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 
-from pajbot.managers import RedisManager
+from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
