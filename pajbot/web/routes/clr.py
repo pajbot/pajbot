@@ -8,6 +8,7 @@ from flask import render_template
 from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.emote import Emote
+from pajbot.models.emote import EmoteStats
 from pajbot.streamhelper import StreamHelper
 from pajbot.web.utils import nocache
 
@@ -41,7 +42,7 @@ def donations(widget_id, **options):
         tts_authentication = config['extra'].get('tts_authentication', '')
 
     with DBManager.create_session_scope() as db_session:
-        emotes = db_session.query(Emote).all()
+        emotes = db_session.query(Emote).join(EmoteStats).all()
         return render_template('clr/donations.html',
                 widget=json.loads(widget),
                 emotes=emotes,
