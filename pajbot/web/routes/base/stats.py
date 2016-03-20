@@ -1,6 +1,6 @@
 from flask import render_template
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.user import User
 

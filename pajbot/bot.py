@@ -13,12 +13,12 @@ from pytz import timezone
 
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
 from pajbot.models.connection import ConnectionManager
-from pajbot.models.db import DBManager
 from pajbot.models.deck import DeckManager
 from pajbot.models.duel import DuelManager
 from pajbot.models.emote import EmoteManager

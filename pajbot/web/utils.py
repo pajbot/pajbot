@@ -7,7 +7,7 @@ from flask import abort
 from flask import make_response
 from flask import session
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.user import User
 
 log = logging.getLogger(__name__)

@@ -9,9 +9,9 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import reconstructor
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.managers import RedisManager
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
 from pajbot.models.handler import HandlerManager
 from pajbot.models.time import TimeManager
 from pajbot.streamhelper import StreamHelper

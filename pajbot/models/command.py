@@ -17,10 +17,10 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.models.action import ActionParser
 from pajbot.models.action import RawFuncAction
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
 from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')

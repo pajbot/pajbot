@@ -11,9 +11,9 @@ from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
 from sqlalchemy.orm import reconstructor
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.models.action import ActionParser
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
 
 log = logging.getLogger('pajbot')
 

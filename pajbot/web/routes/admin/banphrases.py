@@ -8,9 +8,9 @@ from flask import session
 from sqlalchemy.orm import joinedload
 
 from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.banphrase import BanphraseData
-from pajbot.models.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.web.utils import requires_level
 

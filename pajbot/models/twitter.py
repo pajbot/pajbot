@@ -6,8 +6,8 @@ from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.tbutil import time_since
 from pajbot.tbutil import tweet_prettify_urls
 

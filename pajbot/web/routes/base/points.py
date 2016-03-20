@@ -4,7 +4,7 @@ import markdown
 from flask import Markup
 from flask import render_template
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
 

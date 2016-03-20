@@ -8,10 +8,10 @@ from flask import session
 from sqlalchemy.orm import joinedload
 
 from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.command import CommandManager
-from pajbot.models.db import DBManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.web.utils import requires_level

@@ -9,7 +9,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
-from pajbot.models.db import Base
+from pajbot.managers import Base
 
 log = logging.getLogger('pajbot')
 

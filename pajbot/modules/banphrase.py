@@ -1,9 +1,9 @@
 import logging
 
 from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.db import DBManager
 from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 

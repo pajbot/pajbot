@@ -7,8 +7,8 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy.dialects.mysql import TEXT
 
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 

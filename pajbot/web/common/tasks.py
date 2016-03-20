@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.stream import StreamChunkHighlight
 

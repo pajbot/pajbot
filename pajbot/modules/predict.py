@@ -9,9 +9,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.models.command import Command
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 

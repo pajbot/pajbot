@@ -31,7 +31,7 @@ args, unknown = parser.parse_known_args(args=custom_args)
 print('Loading config from {0}'.format(args.config))
 tb_config = load_config(args.config)
 
-from pajbot.models.db import Base
+from pajbot.managers import Base
 # from pajbot.models.user import User
 # from pajbot.models.command import Command
 # from pajbot.models import *

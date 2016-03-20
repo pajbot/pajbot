@@ -6,7 +6,7 @@ from sqlalchemy import cast
 from sqlalchemy import Date
 from sqlalchemy.orm import joinedload
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.stream import StreamChunkHighlight
 
 

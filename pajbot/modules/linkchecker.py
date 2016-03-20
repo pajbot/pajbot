@@ -12,10 +12,10 @@ from sqlalchemy.dialects.mysql import TEXT
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import SafeBrowsingAPI
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
 from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting

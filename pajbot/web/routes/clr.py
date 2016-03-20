@@ -5,8 +5,8 @@ from flask import abort
 from flask import Blueprint
 from flask import render_template
 
+from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.db import DBManager
 from pajbot.models.emote import Emote
 from pajbot.streamhelper import StreamHelper
 from pajbot.web.utils import nocache

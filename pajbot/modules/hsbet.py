@@ -4,9 +4,9 @@ import logging
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.command import Command
-from pajbot.models.db import DBManager
 from pajbot.models.handler import HandlerManager
 from pajbot.models.hsbet import HSBetBet
 from pajbot.models.hsbet import HSBetGame

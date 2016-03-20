@@ -21,12 +21,12 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import noload
 
 from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.command import CommandManager
-from pajbot.models.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager

@@ -10,8 +10,8 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
-from pajbot.models.db import Base
-from pajbot.models.db import DBManager
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')

@@ -8,7 +8,7 @@ from flask import url_for
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 
-from pajbot.models.db import DBManager
+from pajbot.managers import DBManager
 from pajbot.models.user import User
 
 log = logging.getLogger(__name__)

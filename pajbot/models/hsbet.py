@@ -5,7 +5,7 @@ from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 
-from pajbot.models.db import Base
+from pajbot.managers import Base
 
 log = logging.getLogger('pajbot')
 

@@ -15,8 +15,8 @@ from flask.ext.scrypt import generate_random_salt
 import pajbot.web.common
 import pajbot.web.routes
 from pajbot.bot import Bot
+from pajbot.managers import DBManager
 from pajbot.managers import RedisManager
-from pajbot.models.db import DBManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.time import TimeManager
