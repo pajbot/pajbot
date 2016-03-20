@@ -277,6 +277,8 @@ class StreamManager:
             self.current_stream_chunk.chunk_end = datetime.datetime.now()
             DBManager.session_add_expunge(self.current_stream_chunk)
 
+        stream_chunk = None
+
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
             if stream_chunk is None:
@@ -288,10 +290,11 @@ class StreamManager:
             else:
                 log.info('We already have a stream chunk!')
                 self.current_stream_chunk = stream_chunk
+                stream_chunk = None
             db_session.expunge_all()
 
-        log.debug(self.current_stream.stream_chunks)
-        self.current_stream.stream_chunks.append(stream_chunk)
+        if stream_chunk:
+            self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
         log.info('Attempting to create a stream!')
