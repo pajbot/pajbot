@@ -1,19 +1,19 @@
 function testtip()
 {
-    show_tip('fake user', '5', '$', 'Hello, I hope this works Kappa. forsenW');
+    show_tip('fake user', '5', '$', 'Hello, I hope this works Kappa. forsenW', widget_type);
 }
 
 function testlong()
 {
     var msg = 'Hello, I hope this works Kappa. forsenW! Hello, I hope this works Kappa. forsenW! Hello, I hope this works Kappa. forsenW! Hello, I hope this works Kappa. forsenW! Hello, I hope this works Kappa.';
 
-    show_tip('test_long', '5', '$', msg);
+    show_tip('test_long', '5', '$', msg, widget_type);
 }
 
 function teststrange()
 {
     var msg = 'kalsdfyuasdf98723985423$%@^oipa[{}asiodf798^*&^&*#$@#Uih234ui23h4iu23h4iIUIZIISWWWWWWWWWWWWWWWWWWWWWWwwwwwwwwwwjlkjdglksdgsdoiio9z876&*^*&&******&^*&^FSUHFEKJRwkjerhwjerhsljdfhgksjdfghskdlfjghsdkgwwll';
-    show_tip('test_trange', '5', '$', msg);
+    show_tip('test_trange', '5', '$', msg, widget_type);
 }
 
 function escapeRegExp(str) {
