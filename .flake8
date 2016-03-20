@@ -1,6 +1,6 @@
 [flake8]
 exclude = alembic/*,configs/*,install/*,myvenv/*,node_modules/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
-ignore = E123,E126,E127,E128,E302,E501,F401,I101
+ignore = E123,E126,E127,E128,E501
 application-import-names = pajbot
 import-order-style = smarkets
 
@@ -8,7 +8,9 @@ import-order-style = smarkets
 # E126 = continuation line over-indented for hanging indent
 # E127 = continuation line over-indented for visual indent
 # E128 = continuation line under-indented for visual indent
-# E302 = expected 2 blank lines, found 0
 # E501 = line too long (82 > 79 characters)
+
+# Unused
+# E302 = expected 2 blank lines, found 0
 # F401 = module imported but unused
 # I101 = The names in your from import are in wrong order
