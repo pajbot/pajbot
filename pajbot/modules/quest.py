@@ -10,6 +10,7 @@ from pajbot.tbutil import find
 
 log = logging.getLogger(__name__)
 
+
 class QuestModule(BaseModule):
 
     ID = __name__.split('.')[-1]

@@ -17,6 +17,7 @@ def generate_winner_list(winners):
     """ Takes a list of winners, and combines them into a string. """
     return ', '.join([winner.username_raw for winner in winners])
 
+
 class RaffleModule(BaseModule):
 
     ID = __name__.split('.')[-1]

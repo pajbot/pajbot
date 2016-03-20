@@ -188,6 +188,7 @@ def create_update_query(table, values, extra=''):
     values_formatted = ','.join(['`{}`=%s'.format(x) for x in values])
     return 'UPDATE `{table}` SET {values_formatted} {extra}'.format(table=table, values_formatted=values_formatted, extra=extra)
 
+
 def time_method(f):
     import inspect
 
@@ -212,6 +213,7 @@ def time_method(f):
         return ret
     return wrap
 
+
 def time_nonclass_method(f):
     def wrap(*args):
         time1 = time.time()
@@ -221,9 +223,11 @@ def time_nonclass_method(f):
         return ret
     return wrap
 
+
 def print_traceback():
     import traceback
     traceback.print_stack()
+
 
 def find(predicate, seq):
     """Method shamelessly taken from https://github.com/Rapptz/discord.py """

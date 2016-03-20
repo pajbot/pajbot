@@ -6,6 +6,7 @@ from pajbot.modules import QuestModule
 
 log = logging.getLogger(__name__)
 
+
 class ShowEmoteTokenCommandModule(BaseModule):
 
     ID = 'tokencommand-' + __name__.split('.')[-1]

@@ -4,6 +4,7 @@ from pajbot.tbutil import find
 
 log = logging.getLogger(__name__)
 
+
 class ModuleSetting:
     """
     A single setting for a Module.
@@ -70,6 +71,7 @@ class ModuleSetting:
     def validate_boolean(self, value):
         """ Validate a boolean value """
         return True, value == 'on'
+
 
 class BaseModule:
     """

@@ -21,6 +21,7 @@ class HSBetGame(Base):
         self.internal_id = internal_id
         self.outcome = outcome
 
+
 class HSBetBet(Base):
     __tablename__ = 'tb_hsbet_bet'
 

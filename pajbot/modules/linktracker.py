@@ -14,6 +14,7 @@ from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
 
+
 class LinkTrackerLink(Base):
     __tablename__ = 'tb_link_data'
 
@@ -33,6 +34,7 @@ class LinkTrackerLink(Base):
     def increment(self):
         self.times_linked += 1
         self.last_linked = datetime.datetime.now()
+
 
 class LinkTrackerModule(BaseModule):
 

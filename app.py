@@ -167,11 +167,13 @@ else:
             'redirect_uri': 'MISSING',
             }
 
+
 @app.context_processor
 def current_time():
     current_time = {}
     current_time['current_time'] = datetime.datetime.now()
     return current_time
+
 
 @app.context_processor
 def inject_default_variables():

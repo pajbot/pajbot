@@ -8,6 +8,7 @@ from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
+
 def init(app):
     @app.route('/')
     def home():

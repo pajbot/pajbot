@@ -5,6 +5,7 @@ class MenuItem:
         self.caption = caption
         self.level = level
 
+
 def init(app):
     nav_bar_header = []
     nav_bar_header.append(MenuItem('/', 'home', 'Home'))

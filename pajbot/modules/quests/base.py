@@ -6,6 +6,7 @@ from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
+
 class BaseQuest(BaseModule):
     OBJECTIVE = 'No objective set.'
 

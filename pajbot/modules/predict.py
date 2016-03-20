@@ -17,6 +17,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+
 class PredictionRun(Base):
     __tablename__ = 'tb_prediction_run'
 
@@ -36,6 +37,7 @@ class PredictionRun(Base):
         self.winner_id = None
         self.started = datetime.datetime.now()
         self.ended = None
+
 
 class PredictionRunEntry(Base):
     __tablename__ = 'tb_prediction_run_entry'

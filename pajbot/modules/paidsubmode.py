@@ -6,6 +6,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+
 class PaidSubmodeModule(BaseModule):
 
     ID = __name__.split('.')[-1]

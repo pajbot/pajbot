@@ -7,6 +7,7 @@ from pajbot.modules import QuestModule
 
 log = logging.getLogger(__name__)
 
+
 class Sample:
     def __init__(self, command, href, new=False):
         self.command = command
@@ -15,6 +16,7 @@ class Sample:
 
     def __lt__(self, other):
         return self.command < other.command
+
 
 class Samples:
     all_samples = [
@@ -90,6 +92,7 @@ class Samples:
             Sample('weed', 'https://pajlada.se/files/clr/weed.mp3', new=True),
             Sample('wrongdoor', 'https://pajlada.se/files/clr/wrongdoor.mp3', new=True),
     ]
+
 
 class PlaySoundTokenCommandModule(BaseModule):
 

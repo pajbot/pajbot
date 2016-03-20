@@ -15,6 +15,7 @@ class LogEntryTemplate:
     def get_message(self, *args):
         return self.message_fmt.format(*args)
 
+
 class AdminLogManager:
     KEY = None
     TEMPLATES = {

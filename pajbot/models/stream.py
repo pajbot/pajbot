@@ -61,6 +61,7 @@ class Stream(Base):
         else:
             return self.stream_end - self.stream_start
 
+
 class StreamChunk(Base):
     __tablename__ = 'tb_stream_chunk'
 
@@ -89,6 +90,7 @@ class StreamChunk(Base):
         self.stream = stream
 
         self.highlights = []
+
 
 class StreamChunkHighlight(Base):
     __tablename__ = 'tb_stream_chunk_highlight'
@@ -164,6 +166,7 @@ class StreamChunkHighlight(Base):
             # i.e. a time format with minutes but _not_ seconds? try it out
             timestamp = ''.join(['{value:02d}{key}'.format(value=value, key=key) for key, value in timedata.items() if value > 0 or pretimedata[key] > 0])
             self.video_url = '{stream_chunk.video_url}?t={timestamp}'.format(stream_chunk=self.stream_chunk, timestamp=timestamp)
+
 
 class StreamManager:
     NUM_OFFLINES_REQUIRED = 10

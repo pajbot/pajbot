@@ -227,6 +227,7 @@ class RawFuncAction(BaseAction):
     def run(self, bot, source, message, event={}, args={}):
         return self.cb(bot=bot, source=source, message=message, event=event, args=args)
 
+
 def get_argument_substitutions(string):
     """
     Returns a list of `Substitution` objects that are found in the passed `string`.
@@ -252,6 +253,7 @@ def get_argument_substitutions(string):
         argument_substitutions.append(Substitution(None, needle=needle, argument=argument_num))
 
     return argument_substitutions
+
 
 def get_substitution_arguments(sub_key):
     sub_string = sub_key.group(0)

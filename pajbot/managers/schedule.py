@@ -22,6 +22,7 @@ class ScheduledJob:
         if self.job:
             self.job.remove(*args, **kwargs)
 
+
 class ScheduleManager:
     base_scheduler = None
 

@@ -10,6 +10,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+
 class BlackjackDeck:
     SUITS = 'cdhs'
     RANKS = '23456789TJQKA'
@@ -22,6 +23,7 @@ class BlackjackDeck:
 
     def __repr__(self):
         return 'Cards: {}'.format(self.cards)
+
 
 class BlackjackGame:
     def __init__(self, bot, player, bet):
@@ -41,6 +43,7 @@ class BlackjackGame:
     def deal(self):
         pass
         # Deal cards
+
 
 class BlackjackModule(BaseModule):
 

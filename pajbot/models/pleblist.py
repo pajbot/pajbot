@@ -54,6 +54,7 @@ class PleblistSong(Base):
     def link(self):
         return 'youtu.be/{}'.format(self.youtube_id)
 
+
 class PleblistSongInfo(Base):
     __tablename__ = 'tb_pleblist_song_info'
 

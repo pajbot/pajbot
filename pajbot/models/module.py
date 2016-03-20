@@ -13,6 +13,7 @@ from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
+
 class Module(Base):
     __tablename__ = 'tb_module'
 
@@ -30,6 +31,7 @@ class Module(Base):
         self.id = id
         self.enabled = options.get('enabled', False)
         self.settings = None
+
 
 class ModuleManager:
     def __init__(self, socket_manager, bot=None):

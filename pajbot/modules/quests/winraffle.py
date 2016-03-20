@@ -7,6 +7,7 @@ from pajbot.modules.quests import BaseQuest
 
 log = logging.getLogger(__name__)
 
+
 class WinRaffleQuestModule(BaseQuest):
 
     ID = 'quest-' + __name__.split('.')[-1]

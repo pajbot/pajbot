@@ -6,6 +6,7 @@ from pajbot.tbutil import time_since
 
 log = logging.getLogger(__name__)
 
+
 class PersonalUptimeModule(BaseModule):
 
     ID = __name__.split('.')[-1]

@@ -6,6 +6,7 @@ import threading
 
 log = logging.getLogger(__name__)
 
+
 class SocketResource:
     def __init__(self, socket_file):
         self.socket_file = socket_file
@@ -26,6 +27,7 @@ class SocketResource:
             os.remove(self.socket_file)
         except OSError:
             pass
+
 
 class SocketManager:
     def __init__(self, bot):
@@ -105,6 +107,7 @@ class SocketManager:
                                 log.exception('Unhandled exception in handler for event {}'.format(event))
                     else:
                         log.debug('Unhandled handler: {}'.format(event))
+
 
 class SocketClientManager:
     sock_file = None

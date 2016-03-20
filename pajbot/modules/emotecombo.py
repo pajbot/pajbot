@@ -5,6 +5,7 @@ from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
 
+
 class EmoteComboModule(BaseModule):
 
     ID = __name__.split('.')[-1]

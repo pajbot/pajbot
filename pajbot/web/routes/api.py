@@ -89,6 +89,7 @@ def get_user(username):
 
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+
 @page.route('/api/v1/pleblist/list')
 def pleblist_list():
     with DBManager.create_session_scope() as session:
@@ -103,6 +104,7 @@ def pleblist_list():
                 }
 
         return jsonify(payload)
+
 
 @page.route('/api/v1/pleblist/list/after/<song_id>')
 @nocache
@@ -343,6 +345,7 @@ def streamtip_validate():
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)
 
+
 @page.route('/api/v1/twitchalerts/validate', methods=['POST', 'GET'])
 @requires_level(1000)
 def twitchalerts_validate(**options):
@@ -351,6 +354,7 @@ def twitchalerts_validate(**options):
     resp = make_response(jsonify({'password': password.decode('utf8')}))
     resp.set_cookie('password', password)
     return resp
+
 
 @page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
 @requires_level(500)
@@ -383,6 +387,7 @@ def command_remove(command_id, **options):
     except:
         log.exception('???')
         return make_response(jsonify({'error': 'Could not push update'}))
+
 
 @page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
 @requires_level(500)
@@ -485,6 +490,7 @@ def command_update(command_id, **extra_args):
     else:
         return make_response(jsonify({'error': 'Could not push update'}))
 
+
 @page.route('/api/v1/command/checkalias', methods=['POST'])
 @requires_level(500)
 def command_checkalias(**options):
@@ -512,6 +518,7 @@ def command_checkalias(**options):
     else:
         return make_response(jsonify({'success': 'good job'}))
 
+
 @page.route('/api/v1/timer/remove/<timer_id>', methods=['GET'])
 @requires_level(500)
 def timer_remove(timer_id, **options):
@@ -522,6 +529,7 @@ def timer_remove(timer_id, **options):
         db_session.delete(timer)
         SocketClientManager.send('timer.remove', {'timer_id': timer.id})
         return make_response(jsonify({'success': 'good job'}))
+
 
 @page.route('/api/v1/banphrase/remove/<banphrase_id>', methods=['GET'])
 @requires_level(500)
@@ -535,6 +543,7 @@ def banphrase_remove(banphrase_id, **options):
         db_session.delete(banphrase.data)
         SocketClientManager.send('banphrase.remove', {'banphrase_id': banphrase.id})
         return make_response(jsonify({'success': 'good job'}))
+
 
 @page.route('/api/v1/<route_key>/toggle/<row_id>', methods=['POST'])
 @requires_level(500)
@@ -587,6 +596,7 @@ def generic_toggle(route_key, row_id, **options):
         else:
             return make_response(jsonify({'error': 'invalid {} id'.format(route_key)}))
 
+
 @page.route('/api/v1/social/<social_key>/set', methods=['POST'])
 @requires_level(500)
 def social_set(social_key, **options):
@@ -607,6 +617,7 @@ def social_set(social_key, **options):
         redis.hset('streamer_info', key, value)
 
     return make_response(jsonify({'message': 'success!'}))
+
 
 def init(app):
     from flask_restful import Resource, Api, reqparse

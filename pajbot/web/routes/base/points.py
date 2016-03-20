@@ -10,6 +10,7 @@ from pajbot.models.webcontent import WebContent
 
 log = logging.getLogger(__name__)
 
+
 def init(app):
     @app.route('/points/')
     def points():

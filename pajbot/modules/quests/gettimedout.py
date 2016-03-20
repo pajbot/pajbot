@@ -6,6 +6,7 @@ from pajbot.modules.quests import BaseQuest
 
 log = logging.getLogger(__name__)
 
+
 class GetTimedOutQuestModule(BaseQuest):
 
     ID = 'quest-' + __name__.split('.')[-1]

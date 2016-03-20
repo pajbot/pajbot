@@ -12,6 +12,7 @@ from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
+
 def requires_level(level):
     def decorator(f):
         @wraps(f)
@@ -33,6 +34,7 @@ def requires_level(level):
         return update_wrapper(decorated_function, f)
     return decorator
 
+
 def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
@@ -44,6 +46,7 @@ def nocache(view):
         return response
 
     return update_wrapper(no_cache, view)
+
 
 def download_logo(streamer):
     import urllib

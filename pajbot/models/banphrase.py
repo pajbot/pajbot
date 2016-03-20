@@ -16,6 +16,7 @@ from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
+
 class Banphrase(Base):
     __tablename__ = 'tb_banphrase'
 
@@ -114,13 +115,16 @@ class Banphrase(Base):
         else:
             return self.phrase.lower() == message.lower()
 
+
 @sqlalchemy.event.listens_for(Banphrase, 'load')
 def on_banphrase_load(target, context):
     target.refresh_operator()
 
+
 @sqlalchemy.event.listens_for(Banphrase, 'refresh')
 def on_banphrase_refresh(target, context, attrs):
     target.refresh_operator()
+
 
 class BanphraseData(Base):
     __tablename__ = 'tb_banphrase_data'
@@ -159,6 +163,7 @@ class BanphraseData(Base):
         self.num_uses = options.get('num_uses', self.num_uses)
         self.added_by = options.get('added_by', self.added_by)
         self.edited_by = options.get('edited_by', self.edited_by)
+
 
 class BanphraseManager:
     def __init__(self, bot):

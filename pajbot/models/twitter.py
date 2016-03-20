@@ -11,7 +11,8 @@ from pajbot.managers import DBManager
 from pajbot.tbutil import time_since
 from pajbot.tbutil import tweet_prettify_urls
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
+
 
 class TwitterUser(Base):
     __tablename__ = 'tb_twitter_following'
@@ -21,6 +22,7 @@ class TwitterUser(Base):
 
     def __init__(self, username):
         self.username = username
+
 
 class TwitterManager:
     def __init__(self, bot):

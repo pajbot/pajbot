@@ -6,6 +6,7 @@ from pajbot.modules import BaseModule
 
 log = logging.getLogger('pajbot')
 
+
 class DeckModule(BaseModule):
 
     ID = __name__.split('.')[-1]

@@ -12,6 +12,7 @@ USHER_API = 'http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitch
     '&type=any&p={random}'
 TOKEN_API = 'http://api.twitch.tv/api/channels/{channel}/access_token'
 
+
 class StreamThumbnailWriter:
     original_path = 'static/images/highlights/{streamer}_{id}.jpg'
     thumbnail_path = 'static/images/highlights/{streamer}_{id}_tn.jpg'

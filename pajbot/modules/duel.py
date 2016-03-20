@@ -11,6 +11,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+
 def init_dueling_variables(user):
     if hasattr(user, 'duel_request'):
         return False

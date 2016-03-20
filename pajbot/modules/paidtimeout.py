@@ -9,6 +9,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+
 class PaidTimeoutModule(BaseModule):
 
     ID = __name__.split('.')[-1]
@@ -122,6 +123,7 @@ class PaidTimeoutModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.paid_timeout, cost=self.settings['cost'])
+
 
 class PaidTimeoutDiscountModule(BaseModule):
 

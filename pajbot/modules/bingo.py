@@ -9,6 +9,7 @@ from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
 
+
 class BingoModule(BaseModule):
 
     ID = __name__.split('.')[-1]

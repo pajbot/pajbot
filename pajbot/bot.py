@@ -45,6 +45,7 @@ log = logging.getLogger('pajbot')
 def do_nothing(c, e):
     pass
 
+
 class TMI:
     message_limit = 90
     whispers_message_limit = 20
@@ -905,6 +906,7 @@ class Bot:
         from pajbot.modules.linkchecker import find_unique_urls
         return find_unique_urls(self.url_regex, message)
 
+
 def _filter_time_since_dt(var, args):
     try:
         ts = time_since(datetime.datetime.now().timestamp(), var.timestamp())
@@ -915,6 +917,7 @@ def _filter_time_since_dt(var, args):
     except:
         return 'never FeelsBadMan ?'
 
+
 def _filter_join(var, args):
     try:
         separator = args[0]
@@ -923,12 +926,14 @@ def _filter_join(var, args):
 
     return separator.join(var.split(' '))
 
+
 def _filter_number_format(var, args):
     try:
         return '{0:,d}'.format(int(var))
     except:
         log.exception('asdasd')
     return var
+
 
 def _filter_strftime(var, args):
     return var.strftime(args[0])

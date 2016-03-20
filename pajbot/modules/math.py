@@ -43,6 +43,7 @@ class PBMath:
         else:
             raise TypeError(node)
 
+
 class MathModule(BaseModule):
 
     ID = __name__.split('.')[-1]

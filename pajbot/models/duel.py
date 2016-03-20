@@ -57,6 +57,7 @@ class UserDuelStats(Base):
     def profit(self):
         return self.points_won - self.points_lost
 
+
 class DuelManager:
     def __init__(self, bot):
         self.db_session = bot.users.db_session

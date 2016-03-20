@@ -11,6 +11,7 @@ from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
+
 class WinDuelPointsQuestModule(BaseQuest):
 
     ID = 'quest-' + __name__.split('.')[-1]

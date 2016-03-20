@@ -16,6 +16,7 @@ from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
+
 class HSBetModule(BaseModule):
 
     ID = __name__.split('.')[-1]
