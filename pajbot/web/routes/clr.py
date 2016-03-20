@@ -16,11 +16,14 @@ config = None
 
 log = logging.getLogger('pajbot')
 
+
 @page.route('/overlay/<widget_id>')
+@page.route('/overlay/<widget_id>/<random_shit>')
 @nocache
-def overlay(widget_id):
+def overlay(widget_id, **options):
     return render_template('clr/overlay.html',
             widget={})
+
 
 @page.route('/donations/<widget_id>')
 @page.route('/donations/<widget_id>/<random_shit>')
