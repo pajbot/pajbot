@@ -13,12 +13,14 @@ from pytz import timezone
 
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
+from pajbot.managers import WebSocketManager
+from pajbot.managers import WhisperConnectionManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
-from pajbot.models.connection import ConnectionManager
 from pajbot.models.deck import DeckManager
 from pajbot.models.duel import DuelManager
 from pajbot.models.emote import EmoteManager
@@ -33,8 +35,6 @@ from pajbot.models.time import TimeManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.twitter import TwitterManager
 from pajbot.models.user import UserManager
-from pajbot.models.websocket import WebSocketManager
-from pajbot.models.whisperconnection import WhisperConnectionManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method
 from pajbot.tbutil import time_since

@@ -12,7 +12,7 @@ from sqlalchemy import String
 
 from pajbot.managers import Base
 from pajbot.managers import DBManager
-from pajbot.models.connection import CustomServerConnection
+from pajbot.managers.connection import CustomServerConnection
 
 log = logging.getLogger('pajbot')
 
