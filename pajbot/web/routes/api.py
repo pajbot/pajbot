@@ -37,6 +37,7 @@ from pajbot.models.stream import Stream
 from pajbot.models.timer import Timer
 from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
 
 page = Blueprint('api', __name__)
@@ -800,6 +801,31 @@ def init(app):
                         'message': 'GOT EM'
                         }, 200
 
+    class APICommands(Resource):
+        def get(self, raw_command_id):
+            command_string = raw_command_id
+            command_id = None
+
+            try:
+                command_id = int(command_string)
+            except (ValueError, TypeError):
+                pass
+
+            if command_id:
+                command = find(lambda c: c.id == command_id, app.bot_commands_list)
+            else:
+                command = find(lambda c: c.resolve_string == command_string, app.bot_commands_list)
+
+            if not command:
+                return {
+                    'message': 'A command with the given ID was not found.'
+                }, 404
+
+            return {
+                    'command': command.jsonify()
+                    }, 200
+
     api.add_resource(APIEmailTags, '/api/v1/email/tags')
     api.add_resource(APICLRDonationsSave, '/api/v1/clr/donations/<widget_id>/save')
     api.add_resource(APIPleblistSkip, '/api/v1/pleblist/skip/<int:song_id>')
+    api.add_resource(APICommands, '/api/v1/commands/<raw_command_id>')

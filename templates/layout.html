@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name=viewport content="width=device-width, initial-scale=1">
 <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
 <meta charset="utf-8">
 <link rel="shortcut icon" href="/static/images/favicon_{{ streamer.full_name }}.ico" />
@@ -49,7 +50,9 @@
 {% endblock %}
 </header>
 <main class="main container">
+<div class="ui container">
     {% block body %}{% endblock %}
+</div>
 </main>
 <br />
 <footer class="main footer">
@@ -91,18 +94,21 @@
   </div>
 </div>
 </footer>
+<script>
+var bot_name = '{{ bot.name }}';
+</script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-{% assets 'semantic_js' %}
+{%- assets 'semantic_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-{% assets 'base_js' %}
+{% endassets -%}
+{%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+{% endassets -%}
 <script async src="//cdn.pajlada.se/emote.js"></script>
-{% assets 'autolinker' %}
+{%- assets 'autolinker' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+{% endassets -%}
 <script src="//cdn.pajlada.se/js/pickadate/picker.js"></script>
 <script src="//cdn.pajlada.se/js/pickadate/picker.date.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>

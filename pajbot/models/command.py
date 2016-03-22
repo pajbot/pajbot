@@ -159,6 +159,15 @@ class CommandExample(Base):
                 self.add_chat_message('say', message, users)
         return self
 
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'command_id': self.command_id,
+                'title': self.title,
+                'description': self.description,
+                'messages': self.chat_messages,
+                }
+
 
 class Command(Base):
     __tablename__ = 'tb_command'
@@ -181,6 +190,7 @@ class Command(Base):
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
+    long_description = ''
 
     data = relationship(
         'CommandData',
@@ -407,6 +417,24 @@ class Command(Base):
             examples.append(example)
             return examples
         return self.examples
+
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'level': self.level,
+                'aliases': self.command.split('|'),
+                'description': self.description,
+                'long_description': self.long_description,
+                'cd_all': self.delay_all,
+                'cd_user': self.delay_user,
+                'enabled': self.enabled,
+                'cost': self.cost,
+                'tokens_cost': self.tokens_cost,
+                'can_execute_with_whisper': self.can_execute_with_whisper,
+                'sub_only': self.sub_only,
+                'mod_only': self.mod_only,
+                'examples': [example.jsonify() for example in self.autogenerate_examples()],
+                }
 
 
 class CommandManager(UserDict):

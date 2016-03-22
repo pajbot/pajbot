@@ -47,6 +47,8 @@
     display: flex
     min-height: 100vh
     flex-direction: column
+  &.header
+    z-index: 1001
   &.header, &.footer
     flex: none
   &.container
@@ -271,3 +273,7 @@ span.winrate
     color: red
   &.positive
     color: green
+
+#commands
+  div.segment.tab
+    min-height: 1024px

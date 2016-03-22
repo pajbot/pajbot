@@ -73,3 +73,9 @@ def init(app):
     autolinker = Bundle('scripts/autolinker.js', filters='jsmin',
             output='scripts/autolinker.gen.%(version)s.js')
     assets.register('autolinker', autolinker)
+
+    # Commands
+    # Available under: commands_js
+    commands_js = Bundle('scripts/commands.js', filters='jsmin',
+            output='scripts/gen.commands.%(version)s.js')
+    assets.register('commands_js', commands_js)
