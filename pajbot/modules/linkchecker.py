@@ -478,8 +478,8 @@ class LinkCheckerModule(BaseModule):
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
                 log.debug('Bad url because google api')
-                self.counteract_bad_url(url, action)
-                self.counteract_bad_url(redirected_url)
+                self.counteract_bad_url(url, action, want_to_blacklist=False)
+                self.counteract_bad_url(redirected_url, want_to_blacklist=False)
                 return
 
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):
