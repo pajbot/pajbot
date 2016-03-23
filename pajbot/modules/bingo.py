@@ -6,6 +6,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +19,34 @@ class BingoModule(BaseModule):
     ENABLED_DEFAULT = False
     CATEGORY = 'Game'
     SETTINGS = [
+            ModuleSetting(
+                key='max_points',
+                label='Max points for a bingo',
+                type='number',
+                required=True,
+                placeholder='',
+                default=3000,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 35000,
+                    }),
+            ModuleSetting(
+                key='allow_negative_bingo',
+                label='Allow negative bingo',
+                type='boolean',
+                required=True,
+                default=True),
+            ModuleSetting(
+                key='max_negative_points',
+                label='Max negative points for a bingo',
+                type='number',
+                required=True,
+                placeholder='',
+                default=1500,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 35000,
+                    })
             ]
 
     def __init__(self):
@@ -144,14 +173,21 @@ class BingoModule(BaseModule):
             bot.me('{0}, a bingo is already running OMGScoots'.format(source.username_raw))
             return False
 
+        bingo_points_win = 100
+
         try:
-            if message is not None:
+            if message is not None and self.settings['allow_negative_bingo'] is True:
                 bingo_points_win = int(message.split()[0])
-        except (IndexError, ValueError):
-            if message is not None:
-                bingo_points_win = 100
-        except TypeError:
+            if message is not None and self.settings['allow_negative_bingo'] is False:
+                if int(message.split()[0]) >= 0:
+                    bingo_points_win = int(message.split()[0])
+        except (IndexError, TypeError, ValueError):
             pass
+
+        if bingo_points_win >= 0:
+            bingo_points_win = min(bingo_points_win, self.settings['max_points'])
+        if bingo_points_win <= -1:
+            bingo_points_win = max(bingo_points_win, -self.settings['max_negative_points'])
 
         self.emotes_bttv = bot.emotes.get_global_bttv_emotes()
 
@@ -174,14 +210,21 @@ class BingoModule(BaseModule):
             bot.me('{0}, a bingo is already running OMGScoots'.format(source.username_raw))
             return False
 
+        bingo_points_win = 100
+
         try:
-            if message is not None:
+            if message is not None and self.settings['allow_negative_bingo'] is True:
                 bingo_points_win = int(message.split()[0])
-        except (IndexError, ValueError):
-            if message is not None:
-                bingo_points_win = 100
-        except TypeError:
+            if message is not None and self.settings['allow_negative_bingo'] is False:
+                if int(message.split()[0]) >= 0:
+                    bingo_points_win = int(message.split()[0])
+        except (IndexError, TypeError, ValueError):
             pass
+
+        if bingo_points_win >= 0:
+            bingo_points_win = min(bingo_points_win, self.settings['max_points'])
+        if bingo_points_win <= -1:
+            bingo_points_win = max(bingo_points_win, -self.settings['max_negative_points'])
 
         self.emotes = bot.emotes.get_global_emotes()
 
