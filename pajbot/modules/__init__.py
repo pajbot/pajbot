@@ -35,6 +35,7 @@ from pajbot.modules.pyramid import PyramidModule
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
 from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
+from pajbot.modules.quests.typememessage import TypeMeMessageQuestModule
 from pajbot.modules.quests.winduelpoints import WinDuelPointsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
@@ -86,6 +87,7 @@ available_modules = [
         TopModule,
         TriviaModule,
         TypeEmoteQuestModule,
+        TypeMeMessageQuestModule,
         VanishModule,
         WarningModule,
         WinDuelPointsQuestModule,
