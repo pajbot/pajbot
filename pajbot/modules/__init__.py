@@ -38,6 +38,7 @@ from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
 from pajbot.modules.quests.typememessage import TypeMeMessageQuestModule
 from pajbot.modules.quests.winduelpoints import WinDuelPointsQuestModule
 from pajbot.modules.quests.winduels import WinDuelsQuestModule
+from pajbot.modules.quests.winhsbetpoints import WinHsBetPointsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.roulette import RouletteModule
@@ -93,5 +94,6 @@ available_modules = [
         WarningModule,
         WinDuelPointsQuestModule,
         WinDuelsQuestModule,
+        WinHsBetPointsQuestModule,
         WinRaffleQuestModule,
         ]
