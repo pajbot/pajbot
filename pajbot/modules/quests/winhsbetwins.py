@@ -5,7 +5,6 @@ from pajbot.models.handler import HandlerManager
 from pajbot.modules import ModuleSetting
 from pajbot.modules import QuestModule
 from pajbot.modules.quests import BaseQuest
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
@@ -32,11 +31,6 @@ class WinHsBetWinsQuestModule(BaseQuest):
             ]
 
     REWARD = 5
-
-    def __init__(self):
-        super().__init__()
-        self.hsbet_wins_key = '{streamer}:current_quest_hsbet_wins'.format(streamer=StreamHelper.get_streamer())
-        self.progress = {}
 
     def get_limit(self):
         return self.settings['quest_limit']
@@ -72,7 +66,6 @@ class WinHsBetWinsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.reset_progress(redis=redis)
-        redis.delete(self.hsbet_wins_key)
 
     def get_objective(self):
         return 'Bet the right outcome on {} Hearthstone games.'.format(self.get_limit())

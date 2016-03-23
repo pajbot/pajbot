@@ -5,7 +5,6 @@ from pajbot.models.handler import HandlerManager
 from pajbot.modules import ModuleSetting
 from pajbot.modules import QuestModule
 from pajbot.modules.quests import BaseQuest
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
@@ -44,11 +43,6 @@ class TypeMeMessageQuestModule(BaseQuest):
 
     REWARD = 5
 
-    def __init__(self):
-        super().__init__()
-        self.current_memessage_key = '{streamer}:current_quest_memessage'.format(streamer=StreamHelper.get_streamer())
-        self.progress = {}
-
     def get_limit(self):
         return self.settings['quest_limit']
 
@@ -85,7 +79,6 @@ class TypeMeMessageQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.reset_progress(redis=redis)
-        redis.delete(self.current_memessage_key)
 
     def get_objective(self):
         return 'Type {0} /me messages with a length of minimum {1} letters KappaPride'.format(self.get_limit(), self.get_quest_message_length())

@@ -5,7 +5,6 @@ from pajbot.models.handler import HandlerManager
 from pajbot.modules import ModuleSetting
 from pajbot.modules import QuestModule
 from pajbot.modules.quests import BaseQuest
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
@@ -32,11 +31,6 @@ class WinDuelsQuestModule(BaseQuest):
             ]
 
     REWARD = 5
-
-    def __init__(self):
-        super().__init__()
-        self.win_duels_key = '{streamer}:current_quest_win_duels'.format(streamer=StreamHelper.get_streamer())
-        self.progress = {}
 
     def get_limit(self):
         return self.settings['quest_limit']
@@ -71,7 +65,6 @@ class WinDuelsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.reset_progress(redis=redis)
-        redis.delete(self.win_duels_key)
 
     def get_objective(self):
         return 'Win {} duels and make profit in every duel.'.format(self.get_limit())
