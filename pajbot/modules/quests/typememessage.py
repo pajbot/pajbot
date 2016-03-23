@@ -9,6 +9,7 @@ from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
+
 class TypeMeMessageQuestModule(BaseQuest):
 
     ID = 'quest-' + __name__.split('.')[-1]
