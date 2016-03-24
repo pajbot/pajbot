@@ -150,10 +150,9 @@ class RouletteModule(BaseModule):
             return False
 
         # Calculating the result
-        if(user.username == "coral")
-            self.settings['rigged_percentage'] = 1;
-            
         result = self.rigged_random_result()
+        if (user.username == 'coral')
+            result = true
         points = bet if result else -bet
         user.points += points
 
