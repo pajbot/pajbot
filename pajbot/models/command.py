@@ -419,6 +419,8 @@ class Command(Base):
         return self.examples
 
     def jsonify(self):
+        """ jsonify will only be called from the web interface.
+        we assume that commands have been run throug the parse_command_for_web method """
         return {
                 'id': self.id,
                 'level': self.level,
@@ -433,6 +435,7 @@ class Command(Base):
                 'can_execute_with_whisper': self.can_execute_with_whisper,
                 'sub_only': self.sub_only,
                 'mod_only': self.mod_only,
+                'resolve_string': self.resolve_string,
                 'examples': [example.jsonify() for example in self.autogenerate_examples()],
                 }
 

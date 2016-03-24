@@ -7,6 +7,23 @@ function handle_command(base_key, command)
 {
     $.each(command, function(key, value) {
         switch (key) {
+            case 'resolve_string':
+                var el = $('div.sticky.'+base_key+' a.detailed');
+
+                if (value == null || value == false) {
+                    el.hide();
+                } else {
+                    el.show();
+                    var str;
+                    if (command.id) {
+                        str = command.id + '-' + value;
+                    } else {
+                        str = value;
+                    }
+                    el.attr('href', '/commands/' + str);
+                }
+                break;
+
             case 'long_description':
                 var el = $('div.sticky.'+base_key+' div.long_description');
 
@@ -196,6 +213,7 @@ $(document).ready(function() {
         onSuccess: function(response, element, xhr) {
             var base_key = $(this).parent().parent().parent().parent().data('key');
             handle_command(base_key, response.command);
+            $('.ui.sticky.'+base_key).sticky('refresh');
         }
     });
 });
