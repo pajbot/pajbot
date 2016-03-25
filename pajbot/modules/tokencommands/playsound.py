@@ -167,23 +167,23 @@ class PlaySoundTokenCommandModule(BaseModule):
                     ],
                 )
         global_script =  """<script>
-                function playOrStopSound(elem, audio) {{
-                    if(elem.innerHTML=="Play") {{
-                        elem.innerHTML="Stop";
-                        audio.play();
-                    }} else {{
-                        elem.innerHTML="Play";
-                        audio.pause();
-                        audio.currentTime=0;
-                    }}
-                }}
-                </script>"""
-        local_script="""<script>
-                var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
-                var snd{0.command} = new Audio('{0.href}');
-                snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
-                elem{0.command}.addEventListener("click", function (){{ playOrStopSound(elem{0.command}, snd{0.command}); }});
+            function playOrStopSound(elem, audio) {
+                if(elem.innerHTML=="Play") {
+                    elem.innerHTML="Stop";
+                    audio.play();
+                } else {
+                    elem.innerHTML="Play";
+                    audio.pause();
+                    audio.currentTime=0;
+                }
+            }
             </script>"""
+        local_script="""<script>
+            var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
+            var snd{0.command} = new Audio('{0.href}');
+            snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
+            elem{0.command}.addEventListener("click", function(){{ playOrStopSound(elem{0.command}, snd{0.command}); }});
+        </script>"""
         html_valid_samples = global_script
         for sample in Samples.all_samples:
             parsed_sample = local_script.format(sample)
