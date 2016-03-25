@@ -13,7 +13,7 @@ from pajbot.managers import Base
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
 from pajbot.managers import RedisManager
-from pajbot.models.time import TimeManager
+from pajbot.managers import TimeManager
 from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger('pajbot')

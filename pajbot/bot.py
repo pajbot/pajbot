@@ -16,6 +16,7 @@ from pajbot.apiwrappers import TwitchAPI
 from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
+from pajbot.managers import TimeManager
 from pajbot.managers import WebSocketManager
 from pajbot.managers import WhisperConnectionManager
 from pajbot.managers.redis import RedisManager
@@ -32,7 +33,6 @@ from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
-from pajbot.models.time import TimeManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import UserManager
 from pajbot.streamhelper import StreamHelper
