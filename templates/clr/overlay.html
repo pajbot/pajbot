@@ -1,72 +1,47 @@
 <html>
     <head>
         <title>CLR Overlay</title>
+        <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300|Roboto:300,400,500,700|Noto+Sans:400,700' rel='stylesheet' type='text/css'>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.7.0/jquery.lettering.min.js"></script>
         <script src="//cdn.pajlada.se/jquery.textillate.js"></script>
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/clr.overlay.css" />
-        <style>
-* {
-    overflow: hidden !important;
-}
-body {
-    font-family: 'Arial', sans-serif;
-    color: #fff;
-}
-div.exploding {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-}
-img.absemote {
-    position: absolute;
-}
-
-div.notifications {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 1.25em;
-    font-weight: 600;
-}
-
-div.notifications div {
-    /*color: #0FB6FA;*/
-    color: white;
-    font-size: 1.25em;
-    font-weight: bold;
-    font-family: 'Comic Sans MS';
-    -webkit-text-stroke: 1px black;
-    text-shadow:
-        3px  3px 0 #000,
-        2px  2px 0 #000,
-       -2px  2px 0 #000,
-       -1px -1px 0 #000,
-        1px -1px 0 #000,
-       -1px  1px 0 #000,
-        1px  1px 0 #000
-        ;
-}
-
-div.notifications div span.word1 {
-    color: #dfffdf;
-}
-
-div.notifications div span.word4 {
-    color: #ffdfdf;
-}
-        </style>
-<script type="text/javascript">
+        {% assets 'clr_overlay_css' %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+        {% endassets %}
+        <script type="text/javascript">
 var ws_host = '{{ 'wss' if site.websocket.ssl else 'ws' }}://{{ site.websocket.host }}';
 var ws_port = {{ site.websocket.port }};
-</script>
-{% assets 'clr_overlay' %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+        </script>
+        {% assets 'clr_overlay_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
     </head>
     <body>
+        <div id="hsbet">
+            <div class="right">
+                <canvas class="chart" width="70" height="70"></canvas>
+            </div>
+            <div class="left">
+                <div class="f1">Betting active for <span class="time_left">20</span>s</div>
+                <table cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>!hsbet&nbsp;</td>
+                            <td><span class="win">win&nbsp;</span></td>
+                            <td>(points)</td>
+                        </tr>
+                        <tr>
+                            <td>!hsbet&nbsp;</td>
+                            <td><span class="lose">lose&nbsp;</span></td>
+                            <td>(points)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="notifications"></div>
     </body>
 </html>
-

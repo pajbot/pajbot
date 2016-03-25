@@ -34,13 +34,16 @@ def init(app):
 
     # CLR Overlay
     # Availabe under: clr_overlay, clr_donations, clr_shared
-    clr_overlay = Bundle('scripts/clr.overlay.js', filters='jsmin',
+    clr_overlay_js = Bundle('scripts/clr.overlay.js', filters='jsmin',
             output='scripts/clr.gen.overlay.%(version)s.js')
+    clr_overlay_css = Bundle('css/clr.overlay.css',
+            output='css/gen.clr.overlay.%(version)s.css')
     clr_donations = Bundle('scripts/clr.donations.js', filters='jsmin',
             output='scripts/clr.gen.donations.%(version)s.js')
     clr_shared = Bundle('scripts/clr.shared.js', filters='jsmin',
             output='scripts/clr.gen.shared.%(version)s.js')
-    assets.register('clr_overlay', clr_overlay)
+    assets.register('clr_overlay_js', clr_overlay_js)
+    assets.register('clr_overlay_css', clr_overlay_css)
     assets.register('clr_donations', clr_donations)
     assets.register('clr_shared', clr_shared)
 
