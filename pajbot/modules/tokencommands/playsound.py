@@ -107,8 +107,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 description='Play a sound on stream! Costs 3 tokens, sub only for now.',
                 can_execute_with_whisper=True,
                 )
-		btn_and_script =  
-		"""
+		btn_and_script = """
 			<td>
 			<button id='btnTogglePlay{0.commands}' onclick='playOrStopSound{0.commands}(elem)'>Play</button>
 			</td>
