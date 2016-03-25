@@ -166,28 +166,26 @@ class PlaySoundTokenCommandModule(BaseModule):
                         'bot>user:Successfully played your sample fuckyou').parse(),
                     ],
                 )
-        btn_and_script =  """<script>
-                var soundIsPlaying{0.command} = 0;
-                var snd{0.command} = new Audio("{0.href}");
-                var texts = new Array('Play', 'Stop');
-                function playOrStopSound{0.command}(iElem) {{
-                    if(soundIsPlaying{0.command}==0) {{
-                        iElem.innerHTML=texts[1];
-                        snd{0.command}.play();
-                        soundIsPlaying{0.command}=1;
+        global_script =  """<script>
+                function playOrStopSound(elem, audio) {{
+                    if(elem.innerHTML=="Play") {{
+                        elem.innerHTML="Stop";
+                        audio.play();
                     }} else {{
-                        iElem.innerHTML=texts[0];
-                        snd{0.command}.pause();
-                        snd{0.command}.currentTime=0;
-                        soundIsPlaying{0.command}=0;
+                        elem.innerHTML="Play";
+                        audio.pause();
+                        audio.currentTime=0;
                     }}
                 }}
-                var elem{0.command} = document.getElementById('btnTogglePlay{0.command}');
-                snd{0.command}.onended=function(){{soundIsPlaying{0.command}=0;elem{0.command}.innerHTML=texts[0];}};//When audio is done, it's playable again
-                elem{0.command}.addEventListener('click', function (){{ playOrStopSound{0.command}(elem{0.command}) }} );
-            </script> """
-        html_valid_samples = ""
+                </script>"""
+        local_script="""<script>
+                var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
+                var snd{0.command} = new Audio('{0.href}');
+                snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
+                elem{0.command}.addEventListener("click", function (){{ playOrStopSound(elem{0.command}, snd{0.command}); }});
+            </script>"""
+        html_valid_samples = global_script
         for sample in Samples.all_samples:
-            parsed_sample = btn_and_script.format(sample)
-            html_valid_samples += ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><button id="btnTogglePlay{0.command}">Play</button>{2}<td></tr>'.format(sample, ' new' if sample.new else '', parsed_sample)])
+            parsed_sample = local_script.format(sample)
+            html_valid_samples += ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><button id="btnTogglePlay{0.command}">Play</button>{2}</td></tr>'.format(sample, ' new' if sample.new else '', parsed_sample)])
         self.commands['#playsound'].long_description = '<h5 style="margin-top: 20px;">Valid samples</h5><table>{}</table>'.format(html_valid_samples)
