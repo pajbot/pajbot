@@ -167,7 +167,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                         'bot>user:Successfully played your sample fuckyou').parse(),
                     ],
                 )
-        global_script="""<script>
+        global_script = """<script>
             function playOrStopSound(elem, audio) {
                 if(elem.innerHTML=="Play") {
                     elem.innerHTML="Stop";
@@ -179,7 +179,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 }
             }
             </script>"""
-        local_script="""<script>
+        local_script = """<script>
             var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
             var snd{0.command} = new Audio('{0.href}');
             snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
