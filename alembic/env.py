@@ -14,6 +14,7 @@ from pajbot.tbutil import load_config
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import PredictModule
 from pajbot.models.roulette import Roulette
+from pajbot.models.filter import Filter
 import pajbot.models.hsbet
 
 tag = context.get_tag_argument()

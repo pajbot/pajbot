@@ -10,3 +10,4 @@ from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.managers.whisperconnection import WhisperConnectionManager
+from pajbot.managers.kvi import KVIManager

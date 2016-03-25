@@ -17,18 +17,18 @@ from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
 from pajbot.managers import FilterManager
 from pajbot.managers import HandlerManager
+from pajbot.managers import KVIManager
+from pajbot.managers import RedisManager
 from pajbot.managers import TimeManager
+from pajbot.managers import TwitterManager
 from pajbot.managers import WebSocketManager
 from pajbot.managers import WhisperConnectionManager
-from pajbot.managers.redis import RedisManager
-from pajbot.managers.twitter import TwitterManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
 from pajbot.models.deck import DeckManager
 from pajbot.models.duel import DuelManager
 from pajbot.models.emote import EmoteManager
-from pajbot.models.kvi import KVIManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
@@ -57,7 +57,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.6.6'
+    version = '2.7.0'
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
@@ -197,7 +197,7 @@ class Bot:
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
-        self.kvi = KVIManager().reload()
+        self.kvi = KVIManager()
         self.emotes = EmoteManager(self).reload()
         self.twitter_manager = TwitterManager(self)
         self.duel_manager = DuelManager(self)
@@ -207,7 +207,6 @@ class Bot:
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
-                'kvi': self.kvi,
                 'emotes': self.emotes,
                 'decks': self.decks,
                 }
@@ -216,7 +215,6 @@ class Bot:
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'kvi': self.kvi,
                 'emotes': self.emotes,
                 'decks': self.decks,
                 'users': self.users,
@@ -377,11 +375,7 @@ class Bot:
         self.reactor.process_forever()
 
     def get_kvi_value(self, key, extra={}):
-        if key in self.kvi.data:
-            # We check if the value exists first.
-            # We don't want to create a bunch of unneccesary KVIData's
-            return self.kvi[key].get()
-        return 0
+        return self.kvi[key].get()
 
     def get_last_tweet(self, key, extra={}):
         return self.twitter_manager.get_last_tweet(key)
