@@ -199,7 +199,7 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager().reload()
         self.emotes = EmoteManager(self).reload()
-        self.twitter_manager = TwitterManager(self).reload()
+        self.twitter_manager = TwitterManager(self)
         self.duel_manager = DuelManager(self)
 
         HandlerManager.trigger('on_managers_loaded')
@@ -209,7 +209,6 @@ class Bot:
                 'filters': self.filters,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
-                'twitter': self.twitter_manager,
                 'decks': self.decks,
                 }
 
@@ -219,7 +218,6 @@ class Bot:
                 'filters': self.filters,
                 'kvi': self.kvi,
                 'emotes': self.emotes,
-                'twitter': self.twitter_manager,
                 'decks': self.decks,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
