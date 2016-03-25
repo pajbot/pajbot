@@ -18,6 +18,7 @@ from pajbot.managers import DBManager
 from pajbot.managers import WebSocketManager
 from pajbot.managers import WhisperConnectionManager
 from pajbot.managers.redis import RedisManager
+from pajbot.managers.twitter import TwitterManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
@@ -33,7 +34,6 @@ from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.time import TimeManager
 from pajbot.models.timer import TimerManager
-from pajbot.models.twitter import TwitterManager
 from pajbot.models.user import UserManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method
