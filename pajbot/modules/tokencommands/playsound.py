@@ -1,18 +1,23 @@
 import logging
 
-from pajbot.modules import BaseModule
-from pajbot.modules import QuestModule
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.modules import QuestModule
 
 log = logging.getLogger(__name__)
 
+
 class Sample:
-    def __init__(self, command, href):
+    def __init__(self, command, href, new=False):
         self.command = command
         self.href = href
+        self.new = new
 
     def __lt__(self, other):
         return self.command < other.command
+
 
 class Samples:
     all_samples = [
@@ -66,15 +71,60 @@ class Samples:
             Sample('sorry', 'https://pajlada.se/files/clr/sorry.mp3'),
             Sample('relax', 'https://pajlada.se/files/clr/relax.mp3'),
             Sample('vibrate', 'https://pajlada.se/files/clr/vibrate.mp3'),
-            Sample('4head', 'https://pajlada.se/files/clr/4Head.mp3'),
+            Sample('4head', 'https://pajlada.se/files/clr/.mp3'),
+            Sample('akarin', 'https://pajlada.se/files/clr/akarin.mp3', new=True),
+            Sample('behindyou', 'https://pajlada.se/files/clr/behindyou.mp3', new=True),
+            Sample('bitch', 'https://pajlada.se/files/clr/bitch.mp3', new=True),
+            Sample('damnson', 'https://pajlada.se/files/clr/damnson.mp3', new=True),
+            Sample('desu', 'https://pajlada.se/files/clr/desu.mp3', new=True),
+            Sample('fatcock', 'https://pajlada.se/files/clr/fatcock.mp3', new=True),
+            Sample('gangingup', 'https://pajlada.se/files/clr/gangingup.mp3', new=True),
+            Sample('iseeyou1', 'https://pajlada.se/files/clr/iseeyou1.mp3', new=True),
+            Sample('iseeyou2', 'https://pajlada.se/files/clr/iseeyou2.mp3', new=True),
+            Sample('jeff', 'https://pajlada.se/files/clr/jeff.mp3', new=True),
+            Sample('mistake', 'https://pajlada.se/files/clr/mistake.mp3', new=True),
+            Sample('ohbabyatriple', 'https://pajlada.se/files/clr/ohbabyatriple.mp3', new=True),
+            Sample('rin', 'https://pajlada.se/files/clr/rin.mp3', new=True),
+            Sample('sheeeit', 'https://pajlada.se/files/clr/sheeeit.mp3', new=True),
+            Sample('spook', 'https://pajlada.se/files/clr/spook.mp3', new=True),
+            Sample('surprise', 'https://pajlada.se/files/clr/surprise.mp3', new=True),
+            Sample('tuckfrump', 'https://pajlada.se/files/clr/tuckfrump.mp3', new=True),
+            Sample('uguu', 'https://pajlada.se/files/clr/uguu.mp3', new=True),
+            Sample('weed', 'https://pajlada.se/files/clr/weed.mp3', new=True),
+            Sample('wrongdoor', 'https://pajlada.se/files/clr/wrongdoor.mp3', new=True),
     ]
+
 
 class PlaySoundTokenCommandModule(BaseModule):
 
     ID = 'tokencommand-' + __name__.split('.')[-1]
-    NAME = 'Token Command'
+    NAME = '!playsound'
     DESCRIPTION = 'Play a sound on stream'
     PARENT_MODULE = QuestModule
+    SETTINGS = [
+            ModuleSetting(
+                key='point_cost',
+                label='Point cost',
+                type='number',
+                required=True,
+                placeholder='Point cost',
+                default=0,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 999999,
+                    }),
+            ModuleSetting(
+                key='token_cost',
+                label='Token cost',
+                type='number',
+                required=True,
+                placeholder='Token cost',
+                default=3,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 15,
+                    }),
+            ]
 
     def __init__(self):
         super().__init__()
@@ -102,40 +152,42 @@ class PlaySoundTokenCommandModule(BaseModule):
     def load_commands(self, **options):
         self.commands['#playsound'] = Command.raw_command(
                 self.play_sound,
-                tokens_cost=3,
+                tokens_cost=self.settings['token_cost'],
+                cost=self.settings['point_cost'],
                 sub_only=True,
-                description='Play a sound on stream! Costs 3 tokens, sub only for now.',
+                description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
+                examples=[
+                    CommandExample(None, 'Play the "cumming" sample',
+                        chat='user:!#playsound cumming\n'
+                        'bot>user:Successfully played your sample cumming').parse(),
+                    CommandExample(None, 'Play the "fuckyou" sample',
+                        chat='user:!#playsound fuckyou\n'
+                        'bot>user:Successfully played your sample fuckyou').parse(),
+                    ],
                 )
-		btn_and_script = """
-			<td>
-			<button id='btnTogglePlay{0.commands}' onclick='playOrStopSound{0.commands}(elem)'>Play</button>
-			</td>
-			<script>
-				var soundIsPlaying{0.commands}=0;
-				var snd{0.command} = new Audio("{0.commands}");
-				var texts = new Array('Play', 'Stop');
-
-				function playOrStopSound{0.commands}(elem)
-				{{
-					if(soundIsPlaying{0.commands}==0)
-					{{
-						elem.innerHTML=texts[1];
-						snd{0.commands}.play();
-						soundIsPlaying{0.commands}=1;
-
-					}}
-					else 
-					{
-						elem.innerHTML=texts[0];
-						snd{0.commands}.pause();
-						snd{0.commands}.currentTime=0;
-						isPlaying{0.commands}=0;
-					}}
-				}}
-				var elem = document.getElementById('btnTogglePlay{0.commands}');
-				snd{0.commands}.onended=function(){{soundIsPlaying{0.commands}=0;elem.innerHTML=texts[0];}};//When audio is done, it's playable again
-			</script>
-		"""
-        html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td>' + btn_and_script + '</tr>'.format(sample) for sample in Samples.all_samples])
-        self.commands['#playsound'].long_description = '<h3>Valid samples</h3><table>{}</table>'.format(html_valid_samples)
+        btn_and_script =  """<script>
+                var soundIsPlaying{0.command} = 0;
+                var snd{0.command} = new Audio("{0.href}");
+                var texts = new Array('Play', 'Stop');
+                function playOrStopSound{0.command}(iElem) {{
+                    if(soundIsPlaying{0.command}==0) {{
+                        iElem.innerHTML=texts[1];
+                        snd{0.command}.play();
+                        soundIsPlaying{0.command}=1;
+                    }} else {{
+                        iElem.innerHTML=texts[0];
+                        snd{0.command}.pause();
+                        snd{0.command}.currentTime=0;
+                        soundIsPlaying{0.command}=0;
+                    }}
+                }}
+                var elem{0.command} = document.getElementById('btnTogglePlay{0.command}');
+                snd{0.command}.onended=function(){{soundIsPlaying{0.command}=0;elem{0.command}.innerHTML=texts[0];}};//When audio is done, it's playable again
+                elem{0.command}.addEventListener('click', function (){{ playOrStopSound{0.command}(elem{0.command}) }} );
+            </script> """
+        html_valid_samples = ""
+        for sample in Samples.all_samples:
+            parsed_sample = btn_and_script.format(sample)
+            html_valid_samples += ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><button id="btnTogglePlay{0.command}">Play</button>{2}<td></tr>'.format(sample, ' new' if sample.new else '', parsed_sample)])
+        self.commands['#playsound'].long_description = '<h5 style="margin-top: 20px;">Valid samples</h5><table>{}</table>'.format(html_valid_samples)
