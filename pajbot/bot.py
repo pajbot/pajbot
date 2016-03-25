@@ -15,6 +15,7 @@ from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
 from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
+from pajbot.managers import FilterManager
 from pajbot.managers import HandlerManager
 from pajbot.managers import TimeManager
 from pajbot.managers import WebSocketManager
@@ -27,7 +28,6 @@ from pajbot.models.command import CommandManager
 from pajbot.models.deck import DeckManager
 from pajbot.models.duel import DuelManager
 from pajbot.models.emote import EmoteManager
-from pajbot.models.filter import FilterManager
 from pajbot.models.kvi import KVIManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
