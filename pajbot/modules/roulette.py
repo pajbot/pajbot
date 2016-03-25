@@ -5,9 +5,9 @@ import math
 from numpy import random
 
 from pajbot.managers import DBManager
+from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.handler import HandlerManager
 from pajbot.models.roulette import Roulette
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting

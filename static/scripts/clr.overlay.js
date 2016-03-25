@@ -350,7 +350,7 @@ function hsbet_new_game(time_left, win, loss)
     console.log(time_left_el.text());
     time_left_el.text(time_left);
     console.log(time_left);
-    hsbet_el.find('.left').css({'visibility', 'visible', 'opacity': 1});
+    hsbet_el.find('.left').css({'visibility': 'visible', 'opacity': 1});
 
     hsbet_el.hide();
     tick_down = setInterval(function() {

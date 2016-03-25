@@ -2,9 +2,9 @@ import logging
 
 from pajbot.managers import AdminLogManager
 from pajbot.managers import DBManager
+from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
