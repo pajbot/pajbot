@@ -1,16 +1,18 @@
-import random
-from queue import Queue
-import threading
 import json
 import logging
+import random
+import threading
 import time
-
-from pajbot.models.connection import CustomServerConnection
-from pajbot.models.db import DBManager, Base
+from queue import Queue
 
 import requests
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import String
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.managers.connection import CustomServerConnection
 
 log = logging.getLogger('pajbot')
 
@@ -60,7 +62,7 @@ class WhisperConnectionManager:
         return connection in [c.conn for c in self.connlist]
 
     def start(self, accounts=[]):
-        log.debug("Starting connection manager")
+        log.debug('Starting connection manager')
         try:
             # Update available group servers.
             # This will also be run at an interval to make sure it's up to date
@@ -86,7 +88,7 @@ class WhisperConnectionManager:
 
             return True
         except:
-            log.exception("WhisperConnectionManager: Unhandled exception")
+            log.exception('WhisperConnectionManager: Unhandled exception')
             return False
 
     def start_connections(self, accounts):
@@ -103,8 +105,8 @@ class WhisperConnectionManager:
             connection.conn.quit('bye')
 
     def update_servers_list(self):
-        log.debug("Refreshing list of whisper servers")
-        servers_list = json.loads(requests.get("http://tmi.twitch.tv/servers?cluster=group").text)
+        log.debug('Refreshing list of whisper servers')
+        servers_list = json.loads(requests.get('http://tmi.twitch.tv/servers?cluster=group').text)
         self.servers_list = servers_list['servers']
 
     def whisper_sender(self):
@@ -148,13 +150,13 @@ class WhisperConnectionManager:
             if connection.conn.is_connected():
                 return connection.conn
 
-        log.error("No connection with is_connected() found in WhisperConnectionManager")
+        log.error('No connection with is_connected() found in WhisperConnectionManager')
 
     def make_new_connection(self, name, oauth, can_send_whispers=True):
         server = random.choice(self.servers_list)
         ip, port = server.split(':')
         port = int(port)
-        log.debug("Whispers: Connecting to server {0}".format(server))
+        log.debug('Whispers: Connecting to server {0}'.format(server))
 
         newconn = CustomServerConnection(self.reactor)
         with self.reactor.mutex:
@@ -172,6 +174,8 @@ class WhisperConnectionManager:
         log.debug('Whispers: Disconnected from server {} Reconnecting'.format(conn))
         conn.reconnect()
         conn.cap('REQ', 'twitch.tv/commands')
+        conn.cap('REQ', 'twitch.tv/tags')
+        conn.cap('REQ', 'twitch.tv/membership')
         return
 
     def whisper(self, target, message):

@@ -11,6 +11,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 from pajbot.bot import Bot
 from pajbot.tbutil import load_config
+from pajbot.models.webcontent import WebContent
+from pajbot.modules import PredictModule
+from pajbot.models.roulette import Roulette
+import pajbot.models.hsbet
 
 tag = context.get_tag_argument()
 
@@ -27,7 +31,7 @@ args, unknown = parser.parse_known_args(args=custom_args)
 print('Loading config from {0}'.format(args.config))
 tb_config = load_config(args.config)
 
-from pajbot.models.db import Base
+from pajbot.managers import Base
 # from pajbot.models.user import User
 # from pajbot.models.command import Command
 # from pajbot.models import *

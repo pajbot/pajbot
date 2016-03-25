@@ -9,7 +9,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.1.1",
     "gulp-watch": "^4.3.5",
-    "semantic-ui": "^2.1.6"
+    "semantic-ui": "^2.1.8"
   },
   "devDependencies": {},
   "scripts": {

@@ -17,6 +17,7 @@ logs/
 
 # Config folder
 configs/
+uwsgiconfigs/
 config.ini
 /*.ini
 

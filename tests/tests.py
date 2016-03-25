@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import os
+import sys
 
 import unittest2
-import sys
-import os
+
 sys.path.append(os.path.abspath('..'))
 os.chdir('..')
 
@@ -148,6 +149,12 @@ class ActionsTester(unittest2.TestCase):
                     'num_subs': 1,
                     'arguments': '',
                     'result': 'BEFORE NO AFTER',
+                }, {
+                    'message': 'BEFORE $(source:username|lower|upper) AFTER',
+                    'num_argument_subs': 0,
+                    'num_subs': 1,
+                    'arguments': '',
+                    'result': 'BEFORE OMGTHISUSERDOESNOTEXIST123 AFTER',
                 },
                 ]
 

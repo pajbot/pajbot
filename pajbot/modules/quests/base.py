@@ -1,10 +1,11 @@
 import logging
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.streamhelper import StreamHelper
 from pajbot.managers import RedisManager
+from pajbot.modules import BaseModule
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
+
 
 class BaseQuest(BaseModule):
     OBJECTIVE = 'No objective set.'
@@ -57,3 +58,12 @@ class BaseQuest(BaseModule):
 
     def get_objective(self):
         return self.OBJECTIVE
+
+    def get_limit(self):
+        """ Returns the quest limit specified in the module.
+        If no quest limit is set, return None. """
+
+        try:
+            return self.LIMIT
+        except:
+            return None

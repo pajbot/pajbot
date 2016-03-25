@@ -1,17 +1,22 @@
-import logging
 import datetime
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.db import DBManager, Base
-from pajbot.models.command import Command, CommandExample
+import logging
 
 import sqlalchemy
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload, backref
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.models.command import Command
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
 
 class PredictionRun(Base):
     __tablename__ = 'tb_prediction_run'
@@ -32,6 +37,7 @@ class PredictionRun(Base):
         self.winner_id = None
         self.started = datetime.datetime.now()
         self.ended = None
+
 
 class PredictionRunEntry(Base):
     __tablename__ = 'tb_prediction_run_entry'

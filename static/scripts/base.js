@@ -3,6 +3,7 @@ $.fn.api.settings.api = {
     'pleblist_add_song': '/api/v1/pleblist/add',
     'pleblist_validate': '/api/v1/pleblist/validate',
     'pleblist_next_song': '/api/v1/pleblist/next',
+    'pleblist_skip_future_song': '/api/v1/pleblist/skip/{id}',
     'get_pleblist_songs': '/api/v1/pleblist/list',
     'get_pleblist_songs_after': '/api/v1/pleblist/list/after/{id}',
     'edit_command': '/api/v1/command/update/{id}',
@@ -14,6 +15,8 @@ $.fn.api.settings.api = {
     'remove_banphrase': '/api/v1/banphrase/remove/{id}',
     'toggle_module': '/api/v1/module/toggle/{id}',
     'social_set': '/api/v1/social/{key}/set',
+    'clr_donation_save': '/api/v1/clr/donations/{widget_id}/save',
+    'commands': '/api/v1/commands/{raw_command_id}',
 };
 
 $(document).ready(function() {

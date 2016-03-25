@@ -1,49 +1,49 @@
-import time
 import argparse
-import sys
-import logging
-import subprocess
-import re
-
 import datetime
+import logging
+import re
+import subprocess
+import sys
+import time
 import urllib
 
-from .models.sock import SocketManager
-from .models.user import UserManager
-from .models.emote import EmoteManager
-from .models.connection import ConnectionManager
-from .models.whisperconnection import WhisperConnectionManager
-from .models.websocket import WebSocketManager
-from .models.twitter import TwitterManager
-from .models.db import DBManager
-from .models.filter import FilterManager
-from .models.command import CommandManager
-from .models.kvi import KVIManager
-from .models.deck import DeckManager
-from .models.stream import StreamManager
-from .models.webcontent import WebContent
-from .models.time import TimeManager
-from .models.action import ActionParser
-from .models.duel import UserDuelStats, DuelManager
-from .models.pleblist import PleblistSong, PleblistManager
-from .models.timer import TimerManager, Timer
-from pajbot.models.banphrase import BanphraseManager
-from pajbot.models.module import ModuleManager
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-from pajbot.modules import PredictModule
-from pajbot.streamhelper import StreamHelper
-from .apiwrappers import TwitchAPI
-from .tbutil import time_since
-from .tbutil import time_method
-from .actions import Action, ActionQueue
-
+import irc.client
 from numpy import random
 from pytz import timezone
-import irc.client
 
+from pajbot.actions import ActionQueue
+from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers import ConnectionManager
+from pajbot.managers import DBManager
+from pajbot.managers import WebSocketManager
+from pajbot.managers import WhisperConnectionManager
+from pajbot.managers.redis import RedisManager
+from pajbot.models.action import ActionParser
+from pajbot.models.banphrase import BanphraseManager
+from pajbot.models.command import CommandManager
+from pajbot.models.deck import DeckManager
+from pajbot.models.duel import DuelManager
+from pajbot.models.emote import EmoteManager
+from pajbot.models.filter import FilterManager
+from pajbot.models.handler import HandlerManager
+from pajbot.models.kvi import KVIManager
+from pajbot.models.module import ModuleManager
+from pajbot.models.pleblist import PleblistManager
+from pajbot.models.sock import SocketManager
+from pajbot.models.stream import StreamManager
+from pajbot.models.time import TimeManager
+from pajbot.models.timer import TimerManager
+from pajbot.models.twitter import TwitterManager
+from pajbot.models.user import UserManager
+from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import time_method
+from pajbot.tbutil import time_since
 
 log = logging.getLogger('pajbot')
+
+
+def do_nothing(c, e):
+    pass
 
 
 class TMI:
@@ -57,9 +57,8 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.6.0'
+    version = '2.6.5'
     date_fmt = '%H:%M'
-    update_chatters_interval = 5
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
 
@@ -271,6 +270,7 @@ class Bot:
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
+        self.data_cb['current_time'] = self.c_current_time
 
         self.silent = True if args.silent else self.silent
 
@@ -287,14 +287,6 @@ class Bot:
         self.execute_every(1, self.mainthread_queue.parse_action)
 
         self.websocket_manager = WebSocketManager(self)
-
-        """
-        Update chatters every `update_chatters_interval' minutes.
-        By default, this is set to run every 5 minutes.
-        """
-        self.execute_every(self.update_chatters_interval * 60,
-                           self.action_queue.add,
-                           (self.update_chatters_stage1, ))
 
         try:
             if self.config['twitchapi']['update_subscribers'] == '1':
@@ -377,34 +369,9 @@ class Bot:
 
         log.debug('end of stage 2 of update subs')
 
-    def update_chatters_stage1(self):
-        chatters = self.twitchapi.get_chatters(self.streamer)
-        if len(chatters) > 0:
-            self.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
-
-    def update_chatters_stage2(self, chatters):
-        points = 1 if self.is_online else 0
-
-        log.debug('Updating {0} chatters'.format(len(chatters)))
-
-        u_chatters = self.users.bulk_load(chatters)
-
-        for user in u_chatters:
-            if self.is_online:
-                user.minutes_in_chat_online += self.update_chatters_interval
-            else:
-                user.minutes_in_chat_offline += self.update_chatters_interval
-            num_points = points
-            if user.subscriber:
-                num_points *= 5
-            if self.streamer == 'forsenlol' and 'trump_sub' in user.tags:
-                num_points *= 0.5
-            user.touch(num_points)
-
     def _dispatcher(self, connection, event):
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
-            do_nothing = lambda c, e: None
-            method = getattr(self, "on_" + event.type, do_nothing)
+            method = getattr(self, 'on_' + event.type, do_nothing)
             method(connection, event)
 
     def start(self):
@@ -491,14 +458,33 @@ class Bot:
                 return val
         return None
 
+    def get_strictargs_value(self, key, extra={}):
+        ret = self.get_args_value(key, extra)
+
+        if len(ret) == 0:
+            return None
+        return ret
+
     def get_args_value(self, key, extra={}):
+        range = None
         try:
-            offset = int(key)
-        except (TypeError, ValueError):
-            offset = 0
+            msg_parts = extra['message'].split(' ')
+        except (KeyError, AttributeError):
+            msg_parts = ['']
 
         try:
-            return ' '.join(extra['message'].split(' ')[offset:])
+            if '-' in key:
+                range_str = key.split('-')
+                if len(range_str) == 2:
+                    range = (int(range_str[0]), int(range_str[1]))
+
+            if range is None:
+                range = (int(key), len(msg_parts))
+        except (TypeError, ValueError):
+            range = (0, len(msg_parts))
+
+        try:
+            return ' '.join(msg_parts[range[0]:range[1]])
         except AttributeError:
             return ''
         except:
@@ -541,6 +527,9 @@ class Bot:
     def c_uptime(self):
         return time_since(datetime.datetime.now().timestamp(), self.start_time.timestamp())
 
+    def c_current_time(self):
+        return datetime.datetime.now()
+
     @property
     def is_online(self):
         return self.stream_manager.online
@@ -570,6 +559,7 @@ class Bot:
         self.reactor.execute_every(period, function, arguments)
 
     def ban(self, username):
+        log.debug('Banning {}'.format(username))
         self._timeout(username, 30)
         self.execute_delayed(1, self._ban, (username, ))
 
@@ -585,6 +575,7 @@ class Bot:
         self.privmsg('.timeout {0} {1}'.format(username, duration), increase_message=False)
 
     def timeout(self, username, duration):
+        log.debug('Timing out {} for {} seconds'.format(username, duration))
         self._timeout(username, duration)
         self.execute_delayed(1, self._timeout, (username, duration))
 
@@ -673,33 +664,9 @@ class Bot:
         if chatconn in self.whisper_manager:
             log.debug('Whispers: Disconnecting from Whisper server')
             self.whisper_manager.on_disconnect(chatconn)
-
         else:
             log.debug('Disconnected from IRC server')
             self.connection_manager.on_disconnect(chatconn)
-
-    def check_msg_content(self, source, msg_raw, event):
-        msg_lower = msg_raw.lower()
-
-        res = self.banphrase_manager.check_message(msg_raw, source)
-        if res is not False:
-            self.banphrase_manager.punish(source, res)
-            return True
-
-        for f in self.filters:
-            if f.type == 'regex':
-                m = f.search(source, msg_lower)
-                if m:
-                    log.debug('Matched regex filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event, {'match': m})
-                    return True
-            elif f.type == 'banphrase':
-                if f.filter in msg_lower:
-                    log.debug('Matched banphrase filter \'{0}\''.format(f.name))
-                    f.run(self, source, msg_raw, event)
-                    return True
-
-        return False  # message was ok
 
     def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
@@ -755,6 +722,8 @@ class Bot:
                             tag_as = 'nostam_sub'
                         elif emote_code.startswith('reynad'):
                             tag_as = 'reynad_sub'
+                        elif emote_code.startswith('athene'):
+                            tag_as = 'athene_sub'
                         elif emote_id in [12760, 35600, 68498, 54065, 59411, 59412, 59413, 62683, 70183, 70181, 68499, 70429, 70432, 71432, 71433]:
                             tag_as = 'massan_sub'
 
@@ -796,19 +765,13 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
+        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
+
         res = HandlerManager.trigger('on_message',
-                source, msg_raw, message_emotes, whisper, urls,
+                source, msg_raw, message_emotes, whisper, urls, event,
                 stop_on_false=True)
         if res is False:
             return False
-
-        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
-
-        if not whisper:
-            if source.level < 500 and source.moderator is False:
-                if self.check_msg_content(source, msg_raw, event):
-                    # If we've matched a filter, we should not have to run a command.
-                    return
 
         source.last_seen = datetime.datetime.now()
         source.last_active = datetime.datetime.now()
@@ -832,7 +795,7 @@ class Bot:
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         source = self.users[event.source.user.lower()]
-        self.parse_message(event.arguments[0], source, event, whisper=True)
+        self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
         # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
@@ -925,7 +888,7 @@ class Bot:
 
     def apply_filter(self, resp, filter):
         available_filters = {
-                'strftime': lambda var, args: var.strftime(args[0]),
+                'strftime': _filter_strftime,
                 'lower': lambda var, args: var.lower(),
                 'upper': lambda var, args: var.upper(),
                 'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
@@ -933,6 +896,7 @@ class Bot:
                 'time_since_dt': _filter_time_since_dt,
                 'urlencode': lambda var, args: urllib.parse.urlencode(var),
                 'join': _filter_join,
+                'number_format': _filter_number_format,
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
@@ -942,15 +906,17 @@ class Bot:
         from pajbot.modules.linkchecker import find_unique_urls
         return find_unique_urls(self.url_regex, message)
 
+
 def _filter_time_since_dt(var, args):
     try:
         ts = time_since(datetime.datetime.now().timestamp(), var.timestamp())
         if len(ts) > 0:
             return ts
         else:
-            return 'never FeelsBadMan'
+            return '0 seconds'
     except:
         return 'never FeelsBadMan ?'
+
 
 def _filter_join(var, args):
     try:
@@ -959,3 +925,15 @@ def _filter_join(var, args):
         separator = ', '
 
     return separator.join(var.split(' '))
+
+
+def _filter_number_format(var, args):
+    try:
+        return '{0:,d}'.format(int(var))
+    except:
+        log.exception('asdasd')
+    return var
+
+
+def _filter_strftime(var, args):
+    return var.strftime(args[0])

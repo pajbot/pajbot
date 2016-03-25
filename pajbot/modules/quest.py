@@ -1,14 +1,15 @@
 import logging
 import random
 
-from pajbot.modules import BaseModule
+from pajbot.managers import RedisManager
 from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
-from pajbot.managers import RedisManager
-from pajbot.tbutil import find
+from pajbot.modules import BaseModule
 from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import find
 
 log = logging.getLogger(__name__)
+
 
 class QuestModule(BaseModule):
 
@@ -27,10 +28,7 @@ class QuestModule(BaseModule):
         source = options['source']
         if self.current_quest is not None:
             quest_progress = self.current_quest.get_user_progress(source.username)
-            try:
-                quest_limit = self.current_quest.LIMIT
-            except:
-                quest_limit = None
+            quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
                 bot.whisper(source.username, 'You have completed todays quest!'.format(quest_progress))

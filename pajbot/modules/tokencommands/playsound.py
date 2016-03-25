@@ -71,7 +71,8 @@ class Samples:
             Sample('sorry', 'https://pajlada.se/files/clr/sorry.mp3'),
             Sample('relax', 'https://pajlada.se/files/clr/relax.mp3'),
             Sample('vibrate', 'https://pajlada.se/files/clr/vibrate.mp3'),
-            Sample('4head', 'https://pajlada.se/files/clr/.mp3'),
+
+            Sample('4head', 'https://pajlada.se/files/clr/4Head.mp3'),
             Sample('akarin', 'https://pajlada.se/files/clr/akarin.mp3', new=True),
             Sample('behindyou', 'https://pajlada.se/files/clr/behindyou.mp3', new=True),
             Sample('bitch', 'https://pajlada.se/files/clr/bitch.mp3', new=True),

@@ -1,15 +1,19 @@
-import json
-import re
 import argparse
+import json
 import logging
+import re
 from collections import UserList
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser
-
-from sqlalchemy import orm
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import reconstructor
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.models.action import ActionParser
 
 log = logging.getLogger('pajbot')
 
@@ -60,7 +64,7 @@ class Filter(Base):
         if 'num_users' in options:
             self.num_uses = options['num_uses']
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.action_parsed_json = json.loads(self.action_json)
         self.action = ActionParser.parse(self.action_json)

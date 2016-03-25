@@ -1,17 +1,11 @@
 import logging
-import datetime
 
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
-from pajbot.models.db import DBManager, Base
-from pajbot.models.command import Command, CommandExample
-
-import sqlalchemy
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload, backref
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
-from sqlalchemy.dialects.mysql import TEXT
 
 log = logging.getLogger('pajbot')
+
 
 class DeckModule(BaseModule):
 

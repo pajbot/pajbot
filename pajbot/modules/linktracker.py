@@ -1,16 +1,19 @@
-import logging
 import datetime
+import logging
 from urllib.parse import urlsplit
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
-from pajbot.models.db import DBManager, Base
-from pajbot.models.handler import HandlerManager
-
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
 from sqlalchemy.dialects.mysql import TEXT
 
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+
 log = logging.getLogger(__name__)
+
 
 class LinkTrackerLink(Base):
     __tablename__ = 'tb_link_data'
@@ -32,6 +35,7 @@ class LinkTrackerLink(Base):
         self.times_linked += 1
         self.last_linked = datetime.datetime.now()
 
+
 class LinkTrackerModule(BaseModule):
 
     ID = __name__.split('.')[-1]
@@ -46,7 +50,7 @@ class LinkTrackerModule(BaseModule):
         self.db_session = None
         self.links = {}
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper is False:
             for url in urls:
                 self.add_url(url)
@@ -87,7 +91,7 @@ class LinkTrackerModule(BaseModule):
             self.db_session.commit()
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_message', self.on_message, priority=100)
+        HandlerManager.add_handler('on_message', self.on_message, priority=200)
         HandlerManager.add_handler('on_commit', self.on_commit)
 
         if self.db_session is not None:

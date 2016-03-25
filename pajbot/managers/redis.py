@@ -1,5 +1,6 @@
 import redis
 
+
 class RedisManager:
     """
     Responsible for making sure exactly one instance of Redis

@@ -1,13 +1,15 @@
-import logging
 import datetime
+import logging
 
-from pajbot.models.user import User
-from pajbot.models.db import DBManager, Base
-
-from sqlalchemy import Column, Integer, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import backref
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref
+from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
 
 log = logging.getLogger('pajbot')
 
@@ -54,6 +56,7 @@ class UserDuelStats(Base):
     @hybrid_property
     def profit(self):
         return self.points_won - self.points_lost
+
 
 class DuelManager:
     def __init__(self, bot):

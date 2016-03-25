@@ -1,11 +1,11 @@
 import logging
-import re
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
 
 class EmotesOnScreenModule(BaseModule):
 
@@ -23,7 +23,7 @@ class EmotesOnScreenModule(BaseModule):
                 default='')
                 ]
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if len(emotes) > 0:
             if len(self.settings['valid_emotes']) > 1 and emotes[0]['code'] not in self.settings['valid_emotes']:
                 # If the first emote isn't a valid emote, don't show it on screen.

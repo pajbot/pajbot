@@ -1,8 +1,9 @@
 import logging
 import re
 
-from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +80,9 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(' +')
 
     def on_pubmsg(self, source, message):
+        if source.username == 'twitchnotify':
+            return
+
         try:
             msg_parts = message.split(' ')
             if len(self.data) > 0:

@@ -1,9 +1,12 @@
 import logging
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
 
 class LastfmModule(BaseModule):
     ID = __name__.split('.')[-1]
@@ -63,7 +66,7 @@ class LastfmModule(BaseModule):
 
         try:
 
-            network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
+            network = pylast.LastFMNetwork(api_key=API_KEY, api_secret='', username=lastfmname, password_hash='')
             user = network.get_user(lastfmname)
             currentTrack = user.get_now_playing()
 

@@ -1,16 +1,21 @@
-import logging
 import datetime
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
+import logging
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from pajbot.managers import DBManager
+from pajbot.managers.redis import RedisManager
+from pajbot.models.command import Command
+from pajbot.models.handler import HandlerManager
+from pajbot.models.hsbet import HSBetBet
+from pajbot.models.hsbet import HSBetGame
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.streamhelper import StreamHelper
+
 log = logging.getLogger(__name__)
+
 
 class HSBetModule(BaseModule):
 
@@ -95,7 +100,7 @@ class HSBetModule(BaseModule):
         if self.is_betting_open():
             seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds()) - 1
             if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
-                self.bot.me('A bet for the outcome of the next hearthstone game is open for {} more seconds. Use !hsbet win/lose POINTS to bet on the outcome.'.format(seconds_until_bet_closes))
+                self.bot.me('The hearthstone betting closes in {} seconds'.format(seconds_until_bet_closes))
             elif seconds_until_bet_closes == 5:
                 self.bot.me('The hearthstone betting closes in 5 seconds...')
             elif seconds_until_bet_closes == 0:
@@ -126,6 +131,19 @@ class HSBetModule(BaseModule):
             losers = []
             total_winning_points = 0
             total_losing_points = 0
+            points_bet = {
+                    'win': 0,
+                    'loss': 0,
+                    }
+            bet_game_id = None
+            with DBManager.create_session_scope() as db_session:
+                bet_game = HSBetGame(latest_game['id'], latest_game['result'])
+                db_session.add(bet_game)
+                db_session.flush()
+                bet_game_id = bet_game.id
+
+            db_bets = {}
+
             for username in self.bets:
                 bet_for_win, points = self.bets[username]
                 """
@@ -138,45 +156,50 @@ class HSBetModule(BaseModule):
                 user = self.bot.users[username]
 
                 correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
+                points_bet['win' if bet_for_win else 'loss'] += points
+                db_bets[username] = HSBetBet(bet_game_id, user.id, 'win' if bet_for_win else 'loss', points, 0)
                 if correct_bet:
                     winners.append((user, points))
                     total_winning_points += points
+                    user.remove_debt(points)
                 else:
                     losers.append((user, points))
                     total_losing_points += points
+                    user.pay_debt(points)
+                    db_bets[username].profit = -points
                     self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
                         points))
 
             for obj in losers:
                 user, points = obj
-                user.pay_debt(points)
                 log.debug('{} lost {} points!'.format(user, points))
 
-            if total_losing_points > 0:
-                tax = 0.0  # 1.0 = 100% tax
-                total_losing_points_w_tax = int((total_losing_points - (total_losing_points * tax)))
-                if total_losing_points_w_tax > 0:
-                    for obj in winners:
-                        points_reward = 0
+            for obj in winners:
+                points_reward = 0
 
-                        user, points = obj
-                        user.remove_debt(points)
+                user, points = obj
 
-                        if points == 0:
-                            # If you didn't bet any points, you don't get a part of the cut.
-                            HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
-                            continue
+                if points == 0:
+                    # If you didn't bet any points, you don't get a part of the cut.
+                    HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                    continue
 
-                        pot_cut = points / total_winning_points
-                        points_reward = int(pot_cut * total_losing_points)
-                        user.points += points_reward
-                        HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
-                        self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
-                            points, points_reward, pot_cut * 100))
-                        """
-                        self.bot.me('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
-                            user.username_raw, points, points_reward))
-                            """
+                pot_cut = points / total_winning_points
+                points_reward = int(pot_cut * total_losing_points)
+                db_bets[user.username].profit = points_reward
+                user.points += points_reward
+                HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
+                    points, points_reward, pot_cut * 100))
+                """
+                self.bot.me('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
+                    user.username_raw, points, points_reward))
+                    """
+
+            with DBManager.create_session_scope() as db_session:
+                for username in db_bets:
+                    bet = db_bets[username]
+                    db_session.add(bet)
 
             self.bot.me('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
@@ -184,12 +207,12 @@ class HSBetModule(BaseModule):
             self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
 
             # stats about the game
-            ratio = 'infinity'
+            ratio = 0.0
             try:
-                ratio = total_winning_points / total_losing_points
+                ratio = (total_losing_points / total_winning_points) * 100.0
             except:
                 pass
-            self.bot.me('The game ended as a {3}. {0} points bet on win, {1} points bet on lose. {2}:1 win/lose ratio'.format(total_winning_points, total_losing_points, ratio, latest_game['result']))
+            self.bot.me('The game ended as a {result}. {points_bet[win]} points bet on win, {points_bet[loss]} points bet on loss. Winners can expect a {ratio:.2f}% return on their bet points.'.format(ratio=ratio, result=latest_game['result'], points_bet=points_bet))
 
             redis = RedisManager.get()
             redis.set('{streamer}:last_hsbet_game_id'.format(streamer=StreamHelper.get_streamer()), self.last_game_id)
@@ -225,7 +248,7 @@ class HSBetModule(BaseModule):
 
         if outcome in ('win', 'winner'):
             bet_for_win = True
-        elif outcome in ('lose', 'loss', 'loser'):
+        elif outcome in ('lose', 'loss', 'loser', 'loose'):
             bet_for_win = False
         else:
             bot.whisper(source.username, 'Invalid bet. Usage: !hsbet win/loss POINTS')
@@ -299,22 +322,28 @@ class HSBetModule(BaseModule):
                 fallback='bet',
                 delay_all=0,
                 delay_user=0,
+                can_execute_with_whisper=True,
                 commands={
                     'bet': Command.raw_command(
                         self.command_bet,
                         delay_all=0,
                         delay_user=10,
+                        can_execute_with_whisper=True,
                         ),
                     'open': Command.raw_command(
                         self.command_open,
                         level=500,
                         delay_all=0,
-                        delay_user=0),
+                        delay_user=0,
+                        can_execute_with_whisper=True,
+                        ),
                     'close': Command.raw_command(
                         self.command_close,
                         level=500,
                         delay_all=0,
-                        delay_user=0)
+                        delay_user=0,
+                        can_execute_with_whisper=True,
+                        ),
                     })
 
     def enable(self, bot):

@@ -9,13 +9,19 @@
 </div>
 {% endblock %}
 {% block footer %}
-<script src="https://streamtip.com/socket.io/socket.io.js" type="text/javascript"></script>
+<!--<script async src="https://streamtip.com/socket.io/socket.io.js" type="text/javascript"></script>-->
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script type="text/javascript">
 secret_password = null;
 streamtip_client_id = '{{ streamtip_data.client_id }}';
 function streamtip_auth()
 {
     window.location.href = 'https://streamtip.com/api/oauth2/authorize?response_type=code&client_id={{ streamtip_data.client_id }}&redirect_uri={{ streamtip_data.redirect_uri }}';
+}
+twitchalerts_client_id = '{{ twitchalerts_data.client_id }}';
+function twitchalerts_auth()
+{
+    window.location.href = 'https://www.twitchalerts.com/api/v1.0/authorize?client_id={{ twitchalerts_data.client_id }}&redirect_uri={{ twitchalerts_data.redirect_uri }}&response_type=code&scope=donations.read+donations.create';
 }
 </script>
 {% assets 'pleblist_shared' %}

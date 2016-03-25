@@ -1,13 +1,15 @@
-import logging
-from collections import UserDict
 import datetime
+import logging
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.time import TimeManager
-
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy import orm
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 
 log = logging.getLogger('pajbot')
 
@@ -51,6 +53,7 @@ class PleblistSong(Base):
     @property
     def link(self):
         return 'youtu.be/{}'.format(self.youtube_id)
+
 
 class PleblistSongInfo(Base):
     __tablename__ = 'tb_pleblist_song_info'

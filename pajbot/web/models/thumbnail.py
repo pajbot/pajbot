@@ -1,9 +1,7 @@
 import json
-import re
-import argparse
+import logging
 import random
 import urllib
-import logging
 
 import requests
 
@@ -13,6 +11,7 @@ USHER_API = 'http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitch
     '&token={token}&sig={sig}&$allow_audio_only=true&allow_source=true' + \
     '&type=any&p={random}'
 TOKEN_API = 'http://api.twitch.tv/api/channels/{channel}/access_token'
+
 
 class StreamThumbnailWriter:
     original_path = 'static/images/highlights/{streamer}_{id}.jpg'
@@ -63,7 +62,6 @@ class StreamThumbnailWriter:
                             f.write(chunk)
 
                 import av
-                from PIL import Image
                 container = av.open(self.ts_path)
                 video = next(s for s in container.streams if s.type == 'video')
 

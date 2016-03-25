@@ -1,6 +1,8 @@
 # Travis CI checks for pajbot
 
 language: python
+sudo: false
+cache: pip
 
 python:
   - 3.4
@@ -11,10 +13,11 @@ services:
 
 before_install:
   - mysql -e "create database IF NOT EXISTS test;" -uroot
+  - pip install pip flake8 flake8-quotes flake8-import-order --upgrade
+  - flake8
 
 install:
-  - pip install -r pip-requirements.txt --use-mirrors
-  - pip install pymysql
+  - pip install -U -r pip-requirements.txt
   - cp ./install/config.example.ini ./config.ini
 
 script:

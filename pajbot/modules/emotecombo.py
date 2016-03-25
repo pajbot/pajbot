@@ -1,11 +1,10 @@
 import logging
-import re
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)
+
 
 class EmoteComboModule(BaseModule):
 
@@ -32,13 +31,14 @@ class EmoteComboModule(BaseModule):
         self.emote_count = 0
         self.current_emote = None
 
-    def on_message(self, source, message, emotes, whisper, urls):
+    def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper is False:
             if len(emotes) == 0:
                 # Ignore messages without any emotes
                 return True
 
             prev_code = None
+            # Check if the message contains more than one unique emotes
             for emote in emotes:
                 if prev_code is not None:
                     if prev_code != emote['code']:
@@ -49,6 +49,11 @@ class EmoteComboModule(BaseModule):
                     prev_code = emote['code']
 
             emote = emotes[0]
+
+            # forsenGASM and gachiGASM are the same emotes, so they should count for the same combo
+            if emote['code'] == 'forsenGASM':
+                emote['code'] = 'gachiGASM'
+
             if self.current_emote is not None:
                 if not self.current_emote['code'] == emote['code']:
                     # The emote of this message is not the one we were previously counting, reset.

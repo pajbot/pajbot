@@ -1,13 +1,16 @@
-import logging
-import datetime
 import argparse
+import datetime
+import logging
 from collections import UserList
 
-from pajbot.tbutil import time_ago
-from pajbot.models.db import DBManager, Base
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
 
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy import desc
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.tbutil import time_ago
 
 log = logging.getLogger('pajbot')
 
@@ -131,7 +134,7 @@ class DeckManager(UserList):
 
     def reload(self):
         self.data = []
-        for deck in self.db_session.query(Deck).order_by(desc(Deck.last_used)):
+        for deck in self.db_session.query(Deck).order_by(Deck.last_used.desc()):
             if self.current_deck is None:
                 self.current_deck = deck
             self.data.append(deck)

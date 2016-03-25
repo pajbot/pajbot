@@ -1,4 +1,6 @@
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+
 
 class WarningModule(BaseModule):
 

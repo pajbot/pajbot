@@ -1,23 +1,21 @@
-import json
-import time
-import logging
-from collections import UserDict
 import argparse
-import datetime
-import re
-
-from pajbot.tbutil import find
-from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser, RawFuncAction, FuncAction
-from pajbot.managers.redis import RedisManager
+import logging
 
 import sqlalchemy
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String, Enum
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Enum
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
+
 
 class Banphrase(Base):
     __tablename__ = 'tb_banphrase'
@@ -117,13 +115,16 @@ class Banphrase(Base):
         else:
             return self.phrase.lower() == message.lower()
 
+
 @sqlalchemy.event.listens_for(Banphrase, 'load')
 def on_banphrase_load(target, context):
     target.refresh_operator()
 
+
 @sqlalchemy.event.listens_for(Banphrase, 'refresh')
 def on_banphrase_refresh(target, context, attrs):
     target.refresh_operator()
+
 
 class BanphraseData(Base):
     __tablename__ = 'tb_banphrase_data'
@@ -162,6 +163,7 @@ class BanphraseData(Base):
         self.num_uses = options.get('num_uses', self.num_uses)
         self.added_by = options.get('added_by', self.added_by)
         self.edited_by = options.get('edited_by', self.edited_by)
+
 
 class BanphraseManager:
     def __init__(self, bot):
@@ -286,7 +288,7 @@ class BanphraseManager:
             """ Finally, time out the user for whatever timeout length was required. """
             self.bot.timeout(user.username, timeout_length)
 
-        if banphrase.notify is True:
+        if banphrase.notify is True and user.minutes_in_chat_online > 60:
             """ Last but not least, notify the user why he has been timed out
                 if the banphrase wishes it. """
             notification_msg = 'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'.format(punishment=punishment, banphrase=banphrase)

@@ -1,28 +1,30 @@
 {% extends "layout.html" %}
 {% block menu %}
     <div class="ui top fixed menu inverted blue">
-        {% for href, id, caption in nav_bar_admin_header %}
-        {%- if id %}
-        <a class="inverted blue item{%- if id == active_page %} active{% endif -%}" href="{{ href }}">
-            {%- if id == 'home' %}
-            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
-            {% endif -%}
-            {{ caption }}</a>
-        {%- else %}
-        <div class="ui compact menu inverted blue">
-            <div class="ui simple dropdown item">{{ caption }}<i class="dropdown icon"></i>
-                <div class="menu">
-                    {%- for href, id, caption in href %}
-        <a class="inverted blue item{% if id == active_page %} active{% endif %}" href="{{ href }}">
-            {%- if id == 'home' %}
-            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
-            {% endif -%}
-            {{ caption }}</a>
-                    {% endfor -%}
+        <div class="right menu">
+        {% for menuitem in nav_bar_admin_header %}
+        {%- if not session.user or session.user.level > menuitem.level %}
+            {%- if menuitem.id %}
+            <a class="inverted blue item{%- if menuitem.id == active_page %} active{% endif -%}" href="{{ menuitem.href }}">
+                {%- if menuitem.id == 'home' %}
+                <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
+                {% endif -%}
+                {{ menuitem.caption }}</a>
+            {%- else %}
+            <div class="ui compact menu inverted blue">
+                <div class="ui simple dropdown item">{{ menuitem.caption }}<i class="dropdown icon"></i>
+                    <div class="menu">
+                        {%- for submenuitem in menuitem.href %}
+                            <a class="inverted blue item{% if submenuitem.id == active_page %} active{% endif %}" href="{{ submenuitem.href }}">
+                            {{ submenuitem.caption }}</a>
+                        {% endfor -%}
+                    </div>
                 </div>
             </div>
-        </div>
+            {% endif -%}
         {% endif -%}
         {% endfor %}
+        </div>
+        <div class="left menu"></div>
     </div>
 {% endblock %}

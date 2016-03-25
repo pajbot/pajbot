@@ -1,18 +1,24 @@
-import logging
 import datetime
-
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command, CommandExample
-from pajbot.models.handler import HandlerManager
+import logging
+import math
 
 from numpy import random
 
+from pajbot.managers import DBManager
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.models.handler import HandlerManager
+from pajbot.models.roulette import Roulette
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+
 log = logging.getLogger(__name__)
+
 
 class RouletteModule(BaseModule):
 
     ID = __name__.split('.')[-1]
-    NAME = 'Roulette (mini game)'
+    NAME = 'Roulette'
     DESCRIPTION = 'Lets players roulette with themselves for points'
     CATEGORY = 'Game'
     SETTINGS = [
@@ -60,7 +66,28 @@ class RouletteModule(BaseModule):
                     'min_value': 1,
                     'max_value': 3000,
                     }),
+            ModuleSetting(
+                key='only_roulette_after_sub',
+                label='Only allow roulettes after sub',
+                type='boolean',
+                required=True,
+                default=False),
+            ModuleSetting(
+                key='after_sub_roulette_time',
+                label='How long after a sub people can roulette (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=30,
+                constraints={
+                    'min_value': 5,
+                    'max_value': 3600,
+                    }),
                 ]
+
+    def __init__(self):
+        super().__init__()
+        self.last_sub = None
 
     def load_commands(self, **options):
         self.commands['roulette'] = Command.raw_command(self.roulette,
@@ -79,6 +106,12 @@ class RouletteModule(BaseModule):
         return random.randint(1, 100) > self.settings['rigged_percentage']
 
     def roulette(self, **options):
+        if self.settings['only_roulette_after_sub']:
+            if self.last_sub is None:
+                return False
+            if datetime.datetime.now() - self.last_sub > datetime.timedelta(seconds=self.settings['after_sub_roulette_time']):
+                return False
+
         message = options['message']
         user = options['source']
         bot = options['bot']
@@ -90,6 +123,17 @@ class RouletteModule(BaseModule):
         msg_split = message.split(' ')
         if msg_split[0].lower() in ('all', 'allin'):
             bet = user.points_available()
+        elif msg_split[0].endswith('%'):
+            try:
+                percentage = int(msg_split[0][:-1])
+                if percentage < 1 or percentage > 100:
+                    bot.whisper(user.username, 'To bet with percentages you need to specify a number between 1 and 100 (like !roulette 50%)')
+                    return False
+
+                bet = math.floor(user.points_available() * (percentage / 100))
+            except (ValueError, TypeError):
+                bot.whisper(user.username, 'Invalid percentage specified haHAA')
+                return False
         else:
             try:
                 bet = int(message.split(' ')[0])
@@ -110,9 +154,33 @@ class RouletteModule(BaseModule):
         points = bet if result else -bet
         user.points += points
 
+        with DBManager.create_session_scope() as db_session:
+            r = Roulette(user.id, points)
+            db_session.add(r)
+
         if points > 0:
             bot.me('{0} won {1} points in roulette and now has {2} points! FeelsGoodMan'.format(user.username_raw, bet, user.points_available()))
         else:
             bot.me('{0} lost {1} points in roulette and now has {2} points! FeelsBadMan'.format(user.username_raw, bet, user.points_available()))
 
         HandlerManager.trigger('on_roulette_finish', user, points)
+
+    def on_user_sub(self, user):
+        self.last_sub = datetime.datetime.now()
+        if self.settings['only_roulette_after_sub']:
+            self.bot.say('Rouletting is now allowed for {} seconds! PogChamp'.format(self.settings['after_sub_roulette_time']))
+
+    def on_user_resub(self, user, num_months):
+        self.last_sub = datetime.datetime.now()
+        if self.settings['only_roulette_after_sub']:
+            self.bot.say('Rouletting is now allowed for {} seconds! PogChamp'.format(self.settings['after_sub_roulette_time']))
+
+    def enable(self, bot):
+        self.bot = bot
+
+        HandlerManager.add_handler('on_user_sub', self.on_user_sub)
+        HandlerManager.add_handler('on_user_resub', self.on_user_resub)
+
+    def disable(self, bot):
+        HandlerManager.remove_handler('on_user_sub', self.on_user_sub)
+        HandlerManager.remove_handler('on_user_resub', self.on_user_resub)

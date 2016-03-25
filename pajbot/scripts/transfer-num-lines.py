@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
-import sys, os
 import configparser
+import os
+import sys
+
 import pymysql
+
+from kvidata import KVIData
+from models.user import User
+from models.user import UserManager
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__ + '/../')))
 os.chdir(os.path.dirname(os.path.realpath(__file__ + '/../')))
 
-from models.user import User, UserManager
-from kvidata import KVIData
 
 config = configparser.ConfigParser()
 

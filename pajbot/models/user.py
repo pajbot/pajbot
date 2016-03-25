@@ -1,15 +1,20 @@
+import datetime
 import logging
 from collections import UserDict
-import datetime
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.time import TimeManager
-from pajbot.models.handler import HandlerManager
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import reconstructor
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
 from pajbot.managers import RedisManager
+from pajbot.models.handler import HandlerManager
+from pajbot.models.time import TimeManager
 from pajbot.streamhelper import StreamHelper
-
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy import orm
 
 log = logging.getLogger('pajbot')
 
@@ -82,7 +87,7 @@ class User(Base):
     def last_active(self, value):
         self._last_active = value
 
-    @orm.reconstructor
+    @reconstructor
     def on_load(self):
         self.tags = []
         self.timed_out = False
@@ -123,7 +128,7 @@ class User(Base):
 
         return False
 
-    def award_tokens(self, tokens, redis=None):
+    def award_tokens(self, tokens, redis=None, force=False):
         """ Returns True if tokens were awarded properly.
         Returns False if not.
         Tokens can only be rewarded once per stream ID.
@@ -141,9 +146,13 @@ class User(Base):
         key = '{streamer}:{username}:tokens'.format(
                 streamer=streamer, username=self.username)
 
-        res = True if redis.hsetnx(key, stream_id, tokens) == 1 else False
-        if res is True:
-            HandlerManager.trigger('on_user_gain_tokens', self, tokens)
+        if force:
+            res = True
+            redis.hset(key, stream_id, tokens)
+        else:
+            res = True if redis.hsetnx(key, stream_id, tokens) == 1 else False
+            if res is True:
+                HandlerManager.trigger('on_user_gain_tokens', self, tokens)
         return res
 
     def get_tokens(self, redis=None):

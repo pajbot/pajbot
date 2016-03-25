@@ -1,46 +1,47 @@
-import datetime
 import base64
 import binascii
+import datetime
+import json
 import logging
 import socket
-import json
-import time
-
-from pajbot.web.utils import requires_level
-from pajbot.models.user import User
-from pajbot.models.command import Command, CommandData, CommandManager
-from pajbot.models.module import ModuleManager, Module
-from pajbot.models.timer import Timer
-from pajbot.models.banphrase import Banphrase
-from pajbot.models.pleblist import PleblistSong
-from pajbot.models.pleblist import PleblistSongInfo
-from pajbot.models.pleblist import PleblistManager
-from pajbot.models.stream import Stream
-from pajbot.models.db import DBManager
-from pajbot.models.sock import SocketClientManager
-from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
+from functools import update_wrapper
+from functools import wraps
 
 import requests
+from flask import abort
 from flask import Blueprint
 from flask import jsonify
 from flask import make_response
-from flask import request
 from flask import redirect
-from flask import abort
+from flask import request
 from flask.ext.scrypt import generate_password_hash
-from flask.ext.scrypt import check_password_hash
-from sqlalchemy import func
 from sqlalchemy import and_
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import noload
 
-from functools import wraps, update_wrapper
-
+from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
+from pajbot.managers.redis import RedisManager
+from pajbot.models.banphrase import Banphrase
+from pajbot.models.command import Command
+from pajbot.models.command import CommandData
+from pajbot.models.command import CommandManager
+from pajbot.models.module import Module
+from pajbot.models.module import ModuleManager
+from pajbot.models.pleblist import PleblistManager
+from pajbot.models.pleblist import PleblistSong
+from pajbot.models.pleblist import PleblistSongInfo
+from pajbot.models.sock import SocketClientManager
+from pajbot.models.stream import Stream
+from pajbot.models.timer import Timer
+from pajbot.models.user import User
+from pajbot.streamhelper import StreamHelper
+from pajbot.tbutil import find
+from pajbot.web.utils import requires_level
 
 page = Blueprint('api', __name__)
 config = None
-
-sqlconn = False
 
 log = logging.getLogger('pajbot')
 
@@ -104,6 +105,7 @@ def pleblist_list():
                 }
 
         return jsonify(payload)
+
 
 @page.route('/api/v1/pleblist/list/after/<song_id>')
 @nocache
@@ -295,7 +297,31 @@ def streamtip_oauth():
 
     r = requests.post('https://streamtip.com/api/oauth2/token', data=payload)
 
-    return redirect('/pleblist/host/#{}'.format(r.json()['access_token']), 303)
+    return redirect('/pleblist/host/#STREAMTIP{}'.format(r.json()['access_token']), 303)
+
+
+@page.route('/api/v1/twitchalerts/oauth')
+def twitchalerts_oauth():
+    if not request.method == 'GET':
+        return make_response(jsonify({'error': 'Invalid request method. (Expected GET)'}), 400)
+
+    if 'code' not in request.args:
+        return make_response(jsonify({'error': 'Missing `code` parameter.'}), 400)
+
+    if 'twitchalerts' not in config:
+        return make_response(jsonify({'error': 'Config not set up properly.'}), 400)
+
+    payload = {
+            'client_id': config['twitchalerts']['client_id'],
+            'client_secret': config['twitchalerts']['client_secret'],
+            'grant_type': 'authorization_code',
+            'redirect_uri': config['twitchalerts']['redirect_uri'],
+            'code': request.args['code'],
+            }
+
+    r = requests.post('https://www.twitchalerts.com/api/v1.0/token', data=payload)
+
+    return redirect('/pleblist/host/#TWITCHALERTS{}'.format(r.json()['access_token']), 303)
 
 
 @page.route('/api/v1/streamtip/validate', methods=['POST', 'GET'])
@@ -320,6 +346,17 @@ def streamtip_validate():
     else:
         return make_response(jsonify({'error': 'Invalid user ID'}), 400)
 
+
+@page.route('/api/v1/twitchalerts/validate', methods=['POST', 'GET'])
+@requires_level(1000)
+def twitchalerts_validate(**options):
+    salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+    password = base64.b64encode(salted_password)
+    resp = make_response(jsonify({'password': password.decode('utf8')}))
+    resp.set_cookie('password', password)
+    return resp
+
+
 @page.route('/api/v1/command/remove/<command_id>', methods=['GET'])
 @requires_level(500)
 def command_remove(command_id, **options):
@@ -329,6 +366,10 @@ def command_remove(command_id, **options):
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
         if command.level > options['user'].level:
             abort(403)
+        log_msg = 'The !{} command has been removed'.format(command.command.split('|')[0])
+        AdminLogManager.add_entry('Command removed',
+                options['user'],
+                log_msg)
         db_session.delete(command.data)
         db_session.delete(command)
 
@@ -348,9 +389,10 @@ def command_remove(command_id, **options):
         log.exception('???')
         return make_response(jsonify({'error': 'Could not push update'}))
 
+
 @page.route('/api/v1/command/update/<command_id>', methods=['POST', 'GET'])
 @requires_level(500)
-def command_update(command_id, **options):
+def command_update(command_id, **extra_args):
     if not request.method == 'POST':
         return make_response(jsonify({'error': 'Invalid request method. (Expected POST)'}), 400)
     if len(request.form) == 0:
@@ -375,11 +417,11 @@ def command_update(command_id, **options):
         command = db_session.query(Command).options(joinedload(Command.data).joinedload(CommandData.user)).filter_by(id=command_id).one_or_none()
         if command is None:
             return make_response(jsonify({'error': 'Invalid command ID'}), 404)
-        if command.level > options['user'].level:
+        if command.level > extra_args['user'].level:
             abort(403)
         parsed_action = json.loads(command.action_json)
         options = {
-            'edited_by': options['user'].id,
+            'edited_by': extra_args['user'].id,
         }
 
         for key in request.form:
@@ -416,13 +458,39 @@ def command_update(command_id, **options):
                             parsed_value = value
                         options[name] = parsed_value
 
+        aj = json.loads(command.action_json)
+        old_message = ''
+        new_message = ''
+        try:
+            old_message = command.action.response
+            new_message = aj['message']
+        except:
+            pass
+
         command.set(**options)
         command.data.set(**options)
+
+        if len(old_message) > 0 and old_message != new_message:
+            log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
+                    command.command.split('|')[0],
+                    old_message,
+                    new_message)
+        else:
+            log_msg = 'The !{} command has been updated'.format(command.command.split('|')[0])
+
+        AdminLogManager.add_entry('Command edited',
+                extra_args['user'],
+                log_msg,
+                data={
+                    'old_message': old_message,
+                    'new_message': new_message,
+                    })
 
     if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
         return make_response(jsonify({'success': 'good job'}))
     else:
         return make_response(jsonify({'error': 'Could not push update'}))
+
 
 @page.route('/api/v1/command/checkalias', methods=['POST'])
 @requires_level(500)
@@ -451,6 +519,7 @@ def command_checkalias(**options):
     else:
         return make_response(jsonify({'success': 'good job'}))
 
+
 @page.route('/api/v1/timer/remove/<timer_id>', methods=['GET'])
 @requires_level(500)
 def timer_remove(timer_id, **options):
@@ -462,6 +531,7 @@ def timer_remove(timer_id, **options):
         SocketClientManager.send('timer.remove', {'timer_id': timer.id})
         return make_response(jsonify({'success': 'good job'}))
 
+
 @page.route('/api/v1/banphrase/remove/<banphrase_id>', methods=['GET'])
 @requires_level(500)
 def banphrase_remove(banphrase_id, **options):
@@ -469,10 +539,12 @@ def banphrase_remove(banphrase_id, **options):
         banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
         if banphrase is None:
             return make_response(jsonify({'error': 'Invalid banphrase ID'}))
+        AdminLogManager.post('Banphrase removed', options['user'], banphrase.phrase)
         db_session.delete(banphrase)
         db_session.delete(banphrase.data)
         SocketClientManager.send('banphrase.remove', {'banphrase_id': banphrase.id})
         return make_response(jsonify({'success': 'good job'}))
+
 
 @page.route('/api/v1/<route_key>/toggle/<row_id>', methods=['POST'])
 @requires_level(500)
@@ -481,6 +553,18 @@ def generic_toggle(route_key, row_id, **options):
             'timer': Timer,
             'banphrase': Banphrase,
             'module': Module,
+            }
+
+    route_name = {
+            'timer': lambda x: x.name,
+            'banphrase': lambda x: x.phrase,
+            'module': lambda x: x.id,
+            }
+
+    route_title = {
+            'timer': 'Timer',
+            'banphrase': 'Banphrase',
+            'module': 'Module',
             }
 
     if route_key not in valid_routes:
@@ -499,10 +583,20 @@ def generic_toggle(route_key, row_id, **options):
         if row:
             row.enabled = True if new_state == 1 else False
             db_session.commit()
-            SocketClientManager.send('{}.update'.format(route_key), {'{}_id'.format(route_key): row.id})
+            payload = {
+                    '{}_id'.format(route_key): row.id,  # remove this
+                    'id': row.id,
+                    'new_state': row.enabled,
+                    }
+            AdminLogManager.post('{title} toggled'.format(title=route_title[route_key]),
+                    options['user'],
+                    'Enabled' if row.enabled else 'Disabled',
+                    route_name[route_key](row))
+            SocketClientManager.send('{}.update'.format(route_key), payload)
             return make_response(jsonify({'success': 'successful toggle', 'new_state': new_state}))
         else:
             return make_response(jsonify({'error': 'invalid {} id'.format(route_key)}))
+
 
 @page.route('/api/v1/social/<social_key>/set', methods=['POST'])
 @requires_level(500)
@@ -524,3 +618,214 @@ def social_set(social_key, **options):
         redis.hset('streamer_info', key, value)
 
     return make_response(jsonify({'message': 'success!'}))
+
+
+def init(app):
+    from flask_restful import Resource, Api, reqparse
+
+    api = Api(app)
+
+    class APIEmailTags(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.get_parser = reqparse.RequestParser()
+            self.get_parser.add_argument('email', trim=True, required=True, location='args')
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('email', trim=True, required=True)
+            self.post_parser.add_argument('tag', trim=True, required=True)
+
+            self.delete_parser = reqparse.RequestParser()
+            self.delete_parser.add_argument('email', trim=True, required=True)
+            self.delete_parser.add_argument('tag', trim=True, required=True)
+
+        # @requires_level(500)
+        def get(self, **options):
+            args = self.get_parser.parse_args()
+
+            email = args['email'].lower()
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            payload = {}
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            payload['tags'] = tags
+
+            return payload
+
+        # @requires_level(500)
+        def post(self, **options):
+            # Add a single tag to the email
+            args = self.post_parser.parse_args()
+
+            email = args['email'].lower()
+            new_tag = args['tag'].lower()
+            if len(new_tag) == 0:
+                return {
+                        'message': 'The tag must be at least 1 character long.'
+                        }, 400
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            # Is the tag already active?
+            if new_tag in tags:
+                return {
+                        'message': 'This tag is already set on the email.'
+                        }, 409
+
+            tags.append(new_tag)
+
+            redis.hset(key, email, json.dumps(tags))
+
+            return {
+                    'message': 'Successfully added the tag {} to {}'.format(new_tag, email)
+                    }
+
+        # @requires_level(500)
+        def delete(self, **options):
+            # Add a single tag to the email
+            args = self.delete_parser.parse_args()
+
+            email = args['email'].lower()
+            new_tag = args['tag'].lower()
+            streamer = StreamHelper.get_streamer()
+
+            key = '{streamer}:email_tags'.format(streamer=streamer)
+            redis = RedisManager.get()
+
+            tags_str = redis.hget(key, email)
+
+            if tags_str is None:
+                tags = []
+            else:
+                tags = json.loads(tags_str)
+
+            # Is the tag already active?
+            if new_tag not in tags:
+                return {
+                        'message': 'This tag is not set on the email.'
+                        }, 409
+
+            tags.remove(new_tag)
+
+            if len(tags) > 0:
+                redis.hset(key, email, json.dumps(tags))
+            else:
+                redis.hdel(key, email)
+
+            return {
+                    'message': 'Successfully removed the tag {} from {}'.format(new_tag, email)
+                    }
+
+    class APICLRDonationsSave(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('name', trim=True, required=True)
+            self.post_parser.add_argument('streamtip_client_id', trim=True, required=True)
+            self.post_parser.add_argument('streamtip_access_token', trim=True, required=True)
+            self.post_parser.add_argument('widget_type', trim=True, required=True)
+            self.post_parser.add_argument('sound_url', trim=True, required=True)
+            self.post_parser.add_argument('sound_delay', type=int, required=True)
+            self.post_parser.add_argument('sound_volume', type=float, required=True)
+            self.post_parser.add_argument('image_url', trim=True, required=True)
+            self.post_parser.add_argument('widget_width', type=int, required=True)
+            self.post_parser.add_argument('widget_height', type=int, required=True)
+            self.post_parser.add_argument('custom_css', trim=True, required=True)
+            self.post_parser.add_argument('tts', trim=True, required=True)
+
+        @requires_level(1500)
+        def post(self, widget_id, **options):
+            args = self.post_parser.parse_args()
+
+            # special case for boolean values
+            args['tts'] = args['tts'] == 'true'
+
+            streamer = StreamHelper.get_streamer()
+            key = '{streamer}:clr:donations'.format(streamer=streamer)
+            redis = RedisManager.get()
+            redis.hset(key, widget_id, json.dumps(args))
+
+            return {
+                    'message': 'GOT EM'
+                    }, 200
+
+    class APIPleblistSkip(Resource):
+        def __init__(self):
+            super().__init__()
+
+            self.post_parser = reqparse.RequestParser()
+            self.post_parser.add_argument('password', required=True, location='cookies')
+
+        def post(self, song_id, **options):
+            args = self.post_parser.parse_args()
+
+            salted_password = generate_password_hash(config['web']['pleblist_password'], config['web']['pleblist_password_salt'])
+            try:
+                user_password = base64.b64decode(args['password'])
+            except binascii.Error:
+                abort(400)
+
+            if not user_password == salted_password:
+                abort(401)
+
+            with DBManager.create_session_scope() as db_session:
+                song = db_session.query(PleblistSong).options(noload('*')).filter_by(id=song_id).one_or_none()
+                if song is None:
+                    abort(404)
+
+                db_session.delete(song)
+                db_session.flush()
+
+                return {
+                        'message': 'GOT EM'
+                        }, 200
+
+    class APICommands(Resource):
+        def get(self, raw_command_id):
+            command_string = raw_command_id
+            command_id = None
+
+            try:
+                command_id = int(command_string)
+            except (ValueError, TypeError):
+                pass
+
+            if command_id:
+                command = find(lambda c: c.id == command_id, app.bot_commands_list)
+            else:
+                command = find(lambda c: c.resolve_string == command_string, app.bot_commands_list)
+
+            if not command:
+                return {
+                    'message': 'A command with the given ID was not found.'
+                }, 404
+
+            return {
+                    'command': command.jsonify()
+                    }, 200
+
+    api.add_resource(APIEmailTags, '/api/v1/email/tags')
+    api.add_resource(APICLRDonationsSave, '/api/v1/clr/donations/<widget_id>/save')
+    api.add_resource(APIPleblistSkip, '/api/v1/pleblist/skip/<int:song_id>')
+    api.add_resource(APICommands, '/api/v1/commands/<raw_command_id>')

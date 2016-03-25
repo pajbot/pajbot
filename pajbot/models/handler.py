@@ -1,5 +1,7 @@
-import operator
 import logging
+import operator
+
+from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
@@ -14,7 +16,7 @@ class HandlerManager:
         # on_pubmsg(source, message)
         HandlerManager.create_handler('on_pubmsg')
 
-        # on_message(source, message, emotes, whisper, urls)
+        # on_message(source, message, emotes, whisper, urls, event)
         HandlerManager.create_handler('on_message')
 
         # on_commit()
@@ -53,6 +55,12 @@ class HandlerManager:
         # on_user_win_hs_bet(user, points_won)
         HandlerManager.create_handler('on_user_win_hs_bet')
 
+        # on_user_sub(user)
+        HandlerManager.create_handler('on_user_sub')
+
+        # on_user_resub(user, num_months)
+        HandlerManager.create_handler('on_user_resub')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []
@@ -65,9 +73,15 @@ class HandlerManager:
             # No handlers for this event found
             log.error('add_handler No handler for {} found.'.format(event))
 
+    def method_matches(h, method):
+        return h[0] == method
+
     def remove_handler(event, method):
+        handler = None
         try:
-            HandlerManager.handlers[event][:] = [h for h in HandlerManager.handlers[event] if h[0] is method]
+            handler = find(lambda h: HandlerManager.method_matches(h, method), HandlerManager.handlers[event])
+            if handler is not None:
+                HandlerManager.handlers[event].remove(handler)
         except KeyError:
             # No handlers for this event found
             log.error('remove_handler No handler for {} found.'.format(event))

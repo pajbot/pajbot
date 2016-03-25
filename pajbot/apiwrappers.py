@@ -1,9 +1,10 @@
-import urllib.parse
-import urllib.request
+import datetime
 import json
 import logging
+import urllib.parse
+import urllib.request
+
 import requests
-import datetime
 
 from pajbot.managers import RedisManager
 
@@ -274,9 +275,9 @@ class TwitchAPI(APIBase):
             chatters = ch['moderators'] + ch['staff'] + ch['admins'] + ch['global_mods'] + ch['viewers']
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting stream status.')
+                log.warning('Bad Gateway when getting chatters.')
             elif e.code == 503:
-                log.warning('Service Unavailable when getting stream status.')
+                log.warning('Service Unavailable when getting chatters.')
             else:
                 log.exception('Unhandled HTTP error code')
         except KeyError:

@@ -1,9 +1,9 @@
-import json
 import logging
 
 from pajbot.tbutil import find
 
 log = logging.getLogger(__name__)
+
 
 class ModuleSetting:
     """
@@ -72,6 +72,7 @@ class ModuleSetting:
         """ Validate a boolean value """
         return True, value == 'on'
 
+
 class BaseModule:
     """
     This class will include all the basics that a module needs
@@ -87,6 +88,7 @@ class BaseModule:
     ENABLED_DEFAULT = False
     PARENT_MODULE = None
     CATEGORY = 'Uncategorized'
+    HIDDEN = False
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """
@@ -106,6 +108,7 @@ class BaseModule:
 
         self.load_settings(options.get('settings', {}))
 
+        self.commands = {}
         self.load_commands(**options)
 
         return self

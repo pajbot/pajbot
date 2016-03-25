@@ -1,13 +1,14 @@
-import logging
-import re
 import datetime
+import logging
 import math
 
-from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
 
 class PaidTimeoutModule(BaseModule):
 
@@ -49,6 +50,17 @@ class PaidTimeoutModule(BaseModule):
                     'min_value': 1,
                     'max_value': 10000,
                     }),
+            ModuleSetting(
+                key='bypass_level',
+                label='Level to bypass module',
+                type='number',
+                required=True,
+                placeholder='',
+                default=500,
+                constraints={
+                    'min_value': 100,
+                    'max_value': 1000,
+                    }),
             ]
 
     def paid_timeout(self, **options):
@@ -77,8 +89,12 @@ class PaidTimeoutModule(BaseModule):
             return False
             """
 
-        if victim.level >= 500:
+        if victim.moderator is True:
             bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
+            return False
+
+        if victim.level >= self.settings['bypass_level']:
+            bot.whisper(source.username, 'This person\'s user level is too high, you can\'t timeout this person.')
             return False
 
         now = datetime.datetime.now()
@@ -108,6 +124,7 @@ class PaidTimeoutModule(BaseModule):
     def load_commands(self, **options):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.paid_timeout, cost=self.settings['cost'])
 
+
 class PaidTimeoutDiscountModule(BaseModule):
 
     ID = 'paidtimeoutdiscount'
@@ -125,6 +142,7 @@ class PaidTimeoutDiscountModule(BaseModule):
         discounts = {
                 'trump_sub': (0.5, 'Trump (50%)'),
                 'massan_sub': (0.45, 'Massan (55%)'),
+                'athene_sub': (0.45, 'Athene (55%)'),
                 'nostam_sub': (0.4, 'Nostam (60%)'),
                 'reynad_sub': (0.8, 'Reynad (20%)'),
                 'forsen_sub': (0.95, 'Forsen (5%)'),

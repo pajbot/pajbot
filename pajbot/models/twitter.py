@@ -1,13 +1,18 @@
 import logging
 from datetime import datetime
 
-from pajbot.tbutil import time_since, tweet_prettify_urls
-from pajbot.models.db import DBManager, Base
-
 import tweepy
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
 
-log = logging.getLogger('pajbot')
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.tbutil import time_since
+from pajbot.tbutil import tweet_prettify_urls
+
+log = logging.getLogger(__name__)
+
 
 class TwitterUser(Base):
     __tablename__ = 'tb_twitter_following'
@@ -17,6 +22,7 @@ class TwitterUser(Base):
 
     def __init__(self, username):
         self.username = username
+
 
 class TwitterManager:
     def __init__(self, bot):
@@ -91,7 +97,7 @@ class TwitterManager:
                     if tweet.user.screen_name.lower() in self.relevant_users:
                         if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
                             tw = tweet_prettify_urls(tweet)
-                            self.bot.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace("\n", " ")))
+                            self.bot.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace('\n', ' ')))
 
                 def on_error(self, status):
                     log.warning('Unhandled in twitter stream: {0}'.format(status))
@@ -131,7 +137,7 @@ class TwitterManager:
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
                         tw = tweet_prettify_urls(tweet)
-                        return '{0} ({1} ago)'.format(tw.replace("\n", " "), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
+                        return '{0} ({1} ago)'.format(tw.replace('\n', ' '), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
             except Exception:
                 log.exception('Exception caught while getting last tweet')
                 return 'FeelsBadMan'

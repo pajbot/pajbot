@@ -47,6 +47,8 @@
     display: flex
     min-height: 100vh
     flex-direction: column
+  &.header
+    z-index: 1001
   &.header, &.footer
     flex: none
   &.container
@@ -91,6 +93,15 @@ div
 #songlist .song-index
   float: left
   padding-right: 5px
+
+#songlist
+  a.skip
+    color: red
+    opacity: 0.5
+    transition: opacity .25s ease-in-out
+
+    &:hover
+      opacity: 1.0
 
 div#songhistory div.item div.description
   line-height: 1.5em
@@ -234,3 +245,35 @@ div.anchor
 
 .command-sample
   font-family: monospace
+  &.new
+    &:after
+      content: " NEW"
+      color: red
+
+td.label
+  font-weight: bold
+
+table.formtable .ui.input
+    display: block
+
+span.points
+  font-weight: bold
+
+  &.negative
+    color: red
+  &.positive
+    color: green
+    &::before
+      content: "+"
+
+span.winrate
+  font-weight: bold
+
+  &.negative
+    color: red
+  &.positive
+    color: green
+
+#commands
+  div.segment.tab
+    min-height: 1024px

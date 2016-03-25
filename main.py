@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-
-import os
-import sys
-import signal
 import logging
+import os
+import signal
+import sys
+
+from pajbot.bot import Bot
 
 try:
     basestring
 except NameError:
     basestring = str
 
+# XXX: What does this achieve exactly?
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 log = logging.getLogger('pajbot')
-
-from pajbot.bot import Bot
 
 
 def run(args):
@@ -53,7 +53,7 @@ def run(args):
 def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     from pajbot.tbutil import init_logging
 
     sys.excepthook = handle_exceptions

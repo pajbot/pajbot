@@ -1,19 +1,27 @@
-import json
-import time
-import logging
-from collections import UserDict
 import argparse
 import datetime
+import json
+import logging
 import re
+import time
+from collections import UserDict
 
-from pajbot.tbutil import find
-from pajbot.models.db import DBManager, Base
-from pajbot.models.action import ActionParser, RawFuncAction
-
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship, joinedload
-from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.models.action import ActionParser
+from pajbot.models.action import RawFuncAction
+from pajbot.tbutil import find
 
 log = logging.getLogger('pajbot')
 
@@ -125,7 +133,7 @@ class CommandExample(Base):
         self.description = description
         self.chat_messages = []
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.parse()
 
@@ -151,6 +159,15 @@ class CommandExample(Base):
                 self.add_chat_message('say', message, users)
         return self
 
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'command_id': self.command_id,
+                'title': self.title,
+                'description': self.description,
+                'messages': self.chat_messages,
+                }
+
 
 class Command(Base):
     __tablename__ = 'tb_command'
@@ -173,6 +190,7 @@ class Command(Base):
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
+    long_description = ''
 
     data = relationship(
         'CommandData',
@@ -248,7 +266,7 @@ class Command(Base):
         self.mod_only = options.get('mod_only', self.mod_only)
         self.examples = options.get('examples', self.examples)
 
-    @orm.reconstructor
+    @reconstructor
     def init_on_load(self):
         self.last_run = 0
         self.last_run_by_user = {}
@@ -325,7 +343,7 @@ class Command(Base):
             # This user cannot execute the command through a whisper
             return False
 
-        if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL:
+        if self.sub_only and source.subscriber is False and source.level < Command.BYPASS_SUB_ONLY_LEVEL and source.moderator is False:
             # User is not a sub or a moderator, and cannot use the command.
             return False
 
@@ -400,6 +418,24 @@ class Command(Base):
             return examples
         return self.examples
 
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'level': self.level,
+                'aliases': self.command.split('|'),
+                'description': self.description,
+                'long_description': self.long_description,
+                'cd_all': self.delay_all,
+                'cd_user': self.delay_user,
+                'enabled': self.enabled,
+                'cost': self.cost,
+                'tokens_cost': self.tokens_cost,
+                'can_execute_with_whisper': self.can_execute_with_whisper,
+                'sub_only': self.sub_only,
+                'mod_only': self.mod_only,
+                'examples': [example.jsonify() for example in self.autogenerate_examples()],
+                }
+
 
 class CommandManager(UserDict):
     """ This class is responsible for compiling commands from multiple sources
@@ -428,7 +464,9 @@ class CommandManager(UserDict):
             socket_manager.add_handler('command.remove', self.on_command_remove)
 
     def on_module_reload(self, data, conn):
+        log.debug('Rebuilding commands...')
         self.rebuild()
+        log.debug('Done rebuilding commands')
 
     def on_command_update(self, data, conn):
         try:
@@ -475,13 +513,6 @@ class CommandManager(UserDict):
     def load_internal_commands(self, **options):
         if len(self.internal_commands) > 0:
             return self.internal_commands
-
-        try:
-            level_trusted_mods = 100 if self.bot.trusted_mods else 500
-            mod_only_trusted_mods = True if self.bot.trusted_mods else False
-        except AttributeError:
-            level_trusted_mods = 500
-            mod_only_trusted_mods = False
 
         self.internal_commands = {}
 
@@ -580,31 +611,6 @@ class CommandManager(UserDict):
                                 'bot>user:Added your command (ID: 7)',
                                 description='This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command').parse(),
                             ]),
-                    'banphrase': Command.dispatch_command('add_banphrase',
-                        level=500,
-                        description='Add a banphrase!',
-                        examples=[
-                            CommandExample(None, 'Create a banphrase',
-                                chat='user:!add banphrase testman123\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            CommandExample(None, 'Create a banphrase that permabans people',
-                                chat='user:!add banphrase testman123 --perma\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            CommandExample(None, 'Create a banphrase that permabans people without a notification',
-                                chat='user:!add banphrase testman123 --perma --no-notify\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat').parse(),
-                            CommandExample(None, 'Change the default timeout length for a banphrase',
-                                chat='user:!add banphrase testman123 --time 123\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)',
-                                description='Changes the default timeout length to a custom time of 123 seconds').parse(),
-                            CommandExample(None, 'Make it so a banphrase cannot be triggered by subs',
-                                chat='user:!add banphrase testman123 --subimmunity\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (sub_immunity)',
-                                description='Changes a command so that the banphrase can only be triggered by people who are not subscribed to the channel.').parse(),
-                            ]),
                     'win': Command.dispatch_command('add_win',
                         level=500,
                         description='Add a win to something!'),
@@ -623,36 +629,6 @@ class CommandManager(UserDict):
                                 chat='user:!add alias test alsotest newtest test123\n'
                                 'bot>user:Successfully added the aliases alsotest, newtest, test123 to test',
                                 description='Adds the aliases !alsotest, !newtest, and !test123 to the existing command !test').parse(),
-                            ]),
-                    'highlight': Command.dispatch_command('add_highlight',
-                        level=100,
-                        mod_only=True,
-                        description='Creates a highlight at the current timestamp',
-                        examples=[
-                            CommandExample(None, 'Create a highlight',
-                                chat='user:!add highlight 1v5 Pentakill\n'
-                                'bot>user:Successfully created your highlight',
-                                description='Creates a highlight with the description 1v5 Pentakill').parse(),
-                            CommandExample(None, 'Create a highlight with a different offset',
-                                chat='user:!add highlight 1v5 Pentakill --offset 60\n'
-                                'bot>user:Successfully created your highlight',
-                                description='Creates a highlight with the description 1v5 Pentakill and an offset of 60 seconds.').parse(),
-                            CommandExample(None, 'Change the offset with the given ID.',
-                                chat='user:!add highlight --offset 180 --id 12\n'
-                                'bot>user:Successfully updated your highlight (offset)',
-                                description='Changes the offset to 180 seconds for the highlight ID 12').parse(),
-                            CommandExample(None, 'Change the description with the given ID.',
-                                chat='user:!add highlight 1v5 Pentakill PogChamp VAC --id 12\n'
-                                'bot>user:Successfully updated your highlight (description)',
-                                description='Changes the description to \'1v5 Pentakill PogChamp VAC\' for highlight ID 12.').parse(),
-                            CommandExample(None, 'Change the VOD link to a mirror link.',
-                                chat='user:!add highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n'  # TODO turn off autolink
-                                'bot>user:Successfully updated your highlight (override_link)',
-                                description='Changes the link for highlight ID 12 to http://www.twitch.tv/imaqtpie/v/27878606').parse(),
-                            CommandExample(None, 'Change the mirror link back to the VOD link.',
-                                chat='user:!add highlight --id 12 --no-link\n'
-                                'bot>user:Successfully updated your highlight (override_link)',
-                                description='Changes the link for highlight ID 12 back to the twitch VOD link.').parse(),
                             ]),
 
                     })
@@ -720,19 +696,6 @@ class CommandManager(UserDict):
                                 'bot>user:Successfully removed command with id 28',
                                 description='Removes a command with id 28').parse(),
                             ]),
-                    'banphrase': Command.dispatch_command('remove_banphrase',
-                        level=500,
-                        description='Remove a banphrase!',
-                        examples=[
-                            CommandExample(None, 'Remove a banphrase',
-                                chat='user:!remove banphrase KeepoKeepo\n'
-                                'bot>user:Successfully removed banphrase with id 33',
-                                description='Removes a banphrase with the trigger KeepoKeepo.').parse(),
-                            CommandExample(None, 'Remove a banphrase with the given ID.',
-                                chat='user:!remove banphrase 25\n'
-                                'bot>user:Successfully removed banphrase with id 25',
-                                description='Removes a banphrase with id 25').parse(),
-                            ]),
                     'win': Command.dispatch_command('remove_win',
                         level=500,
                         description='Remove a win to something!'),
@@ -744,16 +707,6 @@ class CommandManager(UserDict):
                                 chat='user:!remove alias KeepoKeepo Keepo2Keepo\n'
                                 'bot>user:Successfully removed 2 aliases.',
                                 description='Removes KeepoKeepo and Keepo2Keepo as aliases').parse(),
-                            ]),
-                    'highlight': Command.dispatch_command('remove_highlight',
-                        level=level_trusted_mods,
-                        mod_only=mod_only_trusted_mods,
-                        description='Removes a highlight with the given ID.',
-                        examples=[
-                            CommandExample(None, 'Remove a highlight',
-                                chat='user:!remove highlight 2\n'
-                                'bot>user:Successfully removed highlight with ID 2.',
-                                description='Removes the highlight ID 2').parse(),
                             ]),
                     })
         self.internal_commands['rem'] = self.internal_commands['remove']
@@ -931,6 +884,8 @@ class CommandManager(UserDict):
         parser.add_argument('--cost', type=int, dest='cost')
         parser.add_argument('--modonly', dest='mod_only', action='store_true')
         parser.add_argument('--no-modonly', dest='mod_only', action='store_false')
+        parser.add_argument('--subonly', dest='sub_only', action='store_true')
+        parser.add_argument('--no-subonly', dest='sub_only', action='store_false')
 
         try:
             args, unknown = parser.parse_known_args(message)

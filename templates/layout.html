@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name=viewport content="width=device-width, initial-scale=1">
 <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
 <meta charset="utf-8">
+<link rel="shortcut icon" href="/static/images/favicon_{{ streamer.full_name }}.ico" />
 <style>
 .pui.badge.subscriber {
     background-image: url('/static/images/badge_sub_{{ streamer.full_name }}.png');
@@ -23,14 +25,16 @@
 <header class="main header">
 {% block menu %}
     <div class="ui top fixed menu">
-        {% for href, id, caption in nav_bar_header %}
-        <a class="item{% if id == active_page %} active{% endif %}" href="{{ href }}">
-            {% if id == 'home' %}
+        <div class="right menu">
+        {% for menuitem in nav_bar_header %}
+        <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
+            {% if menuitem.id == 'home' %}
             <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
-            {{ caption }}</a>
+            {{ menuitem.caption }}</a>
         {% endfor %}
-        <div class="right menu">
+        </div>
+        <div class="left menu">
             <div class="item">
                 <div class="ui transparent icon input">
                     <form id="usersearch">
@@ -48,7 +52,9 @@
 {% endblock %}
 </header>
 <main class="main container">
+<div class="ui container">
     {% block body %}{% endblock %}
+</div>
 </main>
 <br />
 <footer class="main footer">
@@ -66,7 +72,7 @@
           <h4 class="ui inverted header">Network</h4>
           <div class="ui inverted link list">
            <a class="item" href="https://github.com/pajlada/pajbot/"><i class="github icon"></i> GitHub Repo</a>
-           <a class="item" href="http://pajbot.com/"><i class="star icon"></i> Other Bots</a>
+           <a class="item" href="http://pajbot.com/"><i class="sitemap icon"></i> Other Bots</a>
           </div>
         </div>
         <div class="four wide column">{% if session.user %}
@@ -75,10 +81,10 @@
            {% if not session.user.level or session.user.level >= 500 %}
              <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
            {% endif %}
-           <a class="item" href="/logout"><i class="sign out icon"></i> Log out</a>{% else %}
+           <a class="item" href="/logout?n={{ request.path }}"><i class="sign out icon"></i> Log out</a>{% else %}
           <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
           <div class="ui inverted link list">
-          <a href="/login" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
+          <a href="/login?n={{ request.path }}" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
           </div>
         </div>
       </div>
@@ -90,21 +96,38 @@
   </div>
 </div>
 </footer>
+<script>
+var bot_name = '{{ bot.name }}';
+</script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-{% assets 'semantic_js' %}
+{%- assets 'semantic_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-{% assets 'base_js' %}
+{% endassets -%}
+{%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+{% endassets -%}
 <script async src="//cdn.pajlada.se/emote.js"></script>
-<script src="/static/scripts/autolinker.min.js"></script>
+{%- assets 'autolinker' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets -%}
 <script src="//cdn.pajlada.se/js/pickadate/picker.js"></script>
 <script src="//cdn.pajlada.se/js/pickadate/picker.date.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/livestamp/1.1.2/livestamp.min.js"></script>
+{% if google_analytics %}
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '{{ google_analytics }}', 'auto');
+  ga('send', 'pageview');
+
+</script>
+{% endif %}
 {% block footer %}{% endblock %}
 </body>
 </html>

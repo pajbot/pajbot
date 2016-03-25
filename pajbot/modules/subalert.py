@@ -1,9 +1,9 @@
 import logging
 import re
 
-from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.models.command import Command
 from pajbot.models.handler import HandlerManager
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -12,13 +12,19 @@ class SubAlertModule(BaseModule):
 
     ID = __name__.split('.')[-1]
     NAME = 'Subscription Alert (text)'
-    DESCRIPTION = 'Prints a message in chat for someone who subscribed'
+    DESCRIPTION = 'Prints a message in chat or a whisper for someone who subscribed'
     CATEGORY = 'Feature'
     ENABLED_DEFAULT = True
     SETTINGS = [
             ModuleSetting(
+                key='chat_message',
+                label='Enable a chat message for someone who subscribed',
+                type='boolean',
+                required=True,
+                default=True),
+            ModuleSetting(
                 key='new_sub',
-                label='New sub',
+                label='New sub chat message | Available arguments: {username}',
                 type='text',
                 required=True,
                 placeholder='Sub hype! {username} just subscribed PogChamp',
@@ -29,11 +35,50 @@ class SubAlertModule(BaseModule):
                     }),
             ModuleSetting(
                 key='resub',
-                label='Resub',
+                label='Resub chat message | Available arguments: {username}, {num_months}',
                 type='text',
                 required=True,
-                placeholder='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
-                default='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
+                placeholder='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3',
+                default='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
+                key='whisper_message',
+                label='Enable a whisper message for someone who subscribed',
+                type='boolean',
+                required=True,
+                default=False),
+            ModuleSetting(
+                key='whisper_after',
+                label='Whisper the message after X seconds',
+                type='number',
+                required=True,
+                placeholder='',
+                default=5,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='new_sub_whisper',
+                label='Whisper message for new subs | Available arguments: {username}',
+                type='text',
+                required=True,
+                placeholder='Thank you for subscribing {username} <3',
+                default='Thank you for subscribing {username} <3',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
+                key='resub_whisper',
+                label='Whisper message for resubs | Available arguments: {username}, {num_months}',
+                type='text',
+                required=True,
+                placeholder='Thank you for subscribing for {num_months} months in a row {username} <3',
+                default='Thank you for subscribing for {num_months} months in a row {username} <3',
                 constraints={
                     'min_str_len': 10,
                     'max_str_len': 400,
@@ -44,6 +89,7 @@ class SubAlertModule(BaseModule):
         super().__init__()
         self.new_sub_regex = re.compile('^(\w+) just subscribed!')
         self.resub_regex = re.compile('^(\w+) subscribed for (\d+) months in a row!')
+        self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_new_sub(self, user):
         """
@@ -57,7 +103,11 @@ class SubAlertModule(BaseModule):
         payload = {'username': user.username_raw}
         self.bot.websocket_manager.emit('new_sub', payload)
 
-        self.bot.say(self.get_phrase('new_sub', **payload))
+        if self.settings['chat_message'] is True:
+            self.bot.say(self.get_phrase('new_sub', **payload))
+
+        if self.settings['whisper_message'] is True:
+            self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('new_sub_whisper', **payload)), )
 
     def on_resub(self, user, num_months):
         """
@@ -68,22 +118,30 @@ class SubAlertModule(BaseModule):
         payload = {'username': user.username_raw, 'num_months': num_months}
         self.bot.websocket_manager.emit('resub', payload)
 
-        self.bot.say(self.get_phrase('resub', **payload))
+        if self.settings['chat_message'] is True:
+            self.bot.say(self.get_phrase('resub', **payload))
 
-    def on_message(self, source, message, emotes, whisper, urls):
-        if whisper is False and source.username == 'twitchnotify':
+        if self.settings['whisper_message'] is True:
+            self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('resub_whisper', **payload)), )
+
+    def on_message(self, source, message, emotes, whisper, urls, event):
+        if whisper is False and source.username in self.valid_usernames:
             # Did twitchnotify tell us about a new sub?
             m = self.new_sub_regex.search(message)
             if m:
                 username = m.group(1)
-                self.on_new_sub(self.bot.users[username])
+                user = self.bot.users[username]
+                self.on_new_sub(user)
+                HandlerManager.trigger('on_user_sub', user)
             else:
                 # Did twitchnotify tell us about a resub?
                 m = self.resub_regex.search(message)
                 if m:
                     username = m.group(1)
-                    num_months = m.group(2)
-                    self.on_resub(self.bot.users[username], int(num_months))
+                    num_months = int(m.group(2))
+                    user = self.bot.users[username]
+                    self.on_resub(user, num_months)
+                    HandlerManager.trigger('on_user_resub', user, num_months)
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)

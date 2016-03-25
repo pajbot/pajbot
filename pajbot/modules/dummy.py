@@ -1,9 +1,11 @@
 import logging
 
-from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.models.command import Command
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
 
 class DummyModule(BaseModule):
 
@@ -11,6 +13,7 @@ class DummyModule(BaseModule):
     NAME = 'Dummy module'
     DESCRIPTION = 'This does not actually do anything'
     CATEGORY = 'Debugging'
+    HIDDEN = True
     SETTINGS = [
             ModuleSetting(
                 key='who',
@@ -28,7 +31,18 @@ class DummyModule(BaseModule):
                 label='boolean setting!',
                 type='boolean',
                 required=True,
-                default=False)
+                default=False),
+            ModuleSetting(
+                key='timeout_length',
+                label='Timeout length',
+                type='number',
+                required=True,
+                placeholder='Timeout length in seconds',
+                default=60,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 3600,
+                    }),
             ]
 
     def dummy_command(self, **options):

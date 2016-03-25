@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-{% for row in modules if row.PARENT_MODULE is none %}
+{% for row in modules if row.PARENT_MODULE is none and not row.HIDDEN %}
             <tr data-id="{{row.ID}}" data-enabled="{{1 if row.db_module.enabled else 0}}">
                 <td class="collapsing">{{ row.NAME }}</td>
                 <td class="collapsing">{{ row.CATEGORY }}</td>

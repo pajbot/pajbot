@@ -1,13 +1,14 @@
-import logging
-import threading
-import signal
-import math
-import sys
-import time
 import datetime
-
-from colorama import Fore, Style
+import logging
+import math
+import signal
+import sys
+import threading
+import time
 from contextlib import contextmanager
+
+from colorama import Fore
+from colorama import Style
 
 log = logging.getLogger('pajbot')
 
@@ -47,7 +48,7 @@ def init_logging(app='pajbot'):
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)
 
-    colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
+    colored_formatter = ColoredFormatter('[%(asctime)s] [%(levelname)-20s] %(message)s')
     log_filter = LogFilter(logging.WARNING)
 
     logger_stdout = logging.StreamHandler(sys.stdout)
@@ -96,7 +97,7 @@ class TimeoutException(Exception):
 @contextmanager
 def time_limit(seconds):
     def signal_handler(signum, frame):
-        raise TimeoutException("Timed out!")
+        raise TimeoutException('Timed out!')
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
     try:
@@ -187,6 +188,7 @@ def create_update_query(table, values, extra=''):
     values_formatted = ','.join(['`{}`=%s'.format(x) for x in values])
     return 'UPDATE `{table}` SET {values_formatted} {extra}'.format(table=table, values_formatted=values_formatted, extra=extra)
 
+
 def time_method(f):
     import inspect
 
@@ -211,6 +213,7 @@ def time_method(f):
         return ret
     return wrap
 
+
 def time_nonclass_method(f):
     def wrap(*args):
         time1 = time.time()
@@ -220,9 +223,11 @@ def time_nonclass_method(f):
         return ret
     return wrap
 
+
 def print_traceback():
     import traceback
     traceback.print_stack()
+
 
 def find(predicate, seq):
     """Method shamelessly taken from https://github.com/Rapptz/discord.py """

@@ -1,20 +1,13 @@
-import math
-import re
-import logging
 import collections
-import json
 import datetime
+import logging
+import re
 
-from pajbot.models.user import User
-from pajbot.models.filter import Filter
-from pajbot.models.db import DBManager
-from pajbot.models.handler import HandlerManager
-from pajbot.tbutil import time_limit, TimeoutException, time_since
-from pajbot.apiwrappers import APIBase
-
-from numpy import random
 from sqlalchemy import desc
 from sqlalchemy import func
+
+from pajbot.managers import AdminLogManager
+from pajbot.models.user import User
 
 log = logging.getLogger('pajbot')
 
@@ -120,37 +113,6 @@ class Dispatch:
         bot.silent = False
         bot.whisper(source.username, 'The bot is no longer in silent mode.')
 
-    def add_banphrase(bot, source, message, event, args):
-        """Dispatch method for creating and editing banphrases.
-        Usage: !add banphrase BANPHRASE [options]
-        Multiple options available:
-        --length LENGTH
-        --perma/--no-perma
-        --notify/--no-notify
-        """
-
-        if message:
-            options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
-
-            if options is False:
-                bot.whisper(source.username, 'Invalid banphrase')
-                return False
-
-            options['added_by'] = source.id
-            options['edited_by'] = source.id
-
-            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
-
-            if new_banphrase is True:
-                bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
-                return True
-
-            banphrase.set(**options)
-            banphrase.data.set(edited_by=options['edited_by'])
-            DBManager.session_add_expunge(banphrase)
-            bot.banphrase_manager.commit()
-            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
-
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()
@@ -204,6 +166,11 @@ class Dispatch:
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
                 bot.whisper(source.username, 'Added your command (ID: {command.id})'.format(command=command))
+
+                log_msg = 'The !{} command has been created'.format(command.command.split('|')[0])
+                AdminLogManager.add_entry('Command created',
+                        source,
+                        log_msg)
                 return True
 
             # At least one alias is already in use, notify the user to use !edit command instead
@@ -260,8 +227,13 @@ class Dispatch:
                 bot.whisper(source.username, 'No command found with the alias {}. Did you mean to create the command? If so, use !add command instead.'.format(alias))
                 return False
 
+            old_message = ''
+            new_message = ''
+
             if len(action['message']) > 0:
                 options['action'] = action
+                old_message = command.action.response
+                new_message = action['message']
             elif not type == command.action.subtype:
                 options['action'] = {
                     'type': type,
@@ -269,6 +241,22 @@ class Dispatch:
                 }
             bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
+
+            if len(new_message) > 0:
+                log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
+                        command.command.split('|')[0],
+                        old_message,
+                        new_message)
+            else:
+                log_msg = 'The !{} command has been updated'.format(command.command.split('|')[0])
+
+            AdminLogManager.add_entry('Command edited',
+                    source,
+                    log_msg,
+                    data={
+                        'old_message': old_message,
+                        'new_message': new_message,
+                        })
 
     def add_funccommand(bot, source, message, event, args):
         """Dispatch method for creating function commands.
@@ -354,26 +342,6 @@ class Dispatch:
             bot.commands.edit_command(command, **options)
             bot.whisper(source.username, 'Updated the command (ID: {command.id})'.format(command=command))
 
-    def remove_banphrase(bot, source, message, event, args):
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
-
-            banphrase = bot.banphrase_manager.find_match(message=message, id=id)
-
-            if banphrase is None:
-                bot.whisper(source.username, 'No banphrase with the given parameters found')
-                return False
-
-            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
-            bot.banphrase_manager.remove_banphrase(banphrase)
-        else:
-            bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
-            return False
-
     def remove_win(bot, source, message, event, args):
         # XXX: This is also ugly as fuck
         bot.kvi['br_wins'].dec()
@@ -386,11 +354,11 @@ class Dispatch:
         """
 
         if message:
-            message = message.replace('!', '')
+            message = message.replace('!', '').lower()
             # Make sure we got both an existing alias and at least one new alias
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(source.username, "Usage: !add alias existingalias newalias")
+                bot.whisper(source.username, 'Usage: !add alias existingalias newalias')
                 return False
 
             existing_alias = message_parts[0]
@@ -419,7 +387,7 @@ class Dispatch:
             if len(already_used_aliases) > 0:
                 bot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
         else:
-            bot.whisper(source.username, "Usage: !add alias existingalias newalias")
+            bot.whisper(source.username, 'Usage: !add alias existingalias newalias')
 
     def remove_alias(bot, source, message, event, args):
         """Dispatch method for removing aliases from a command.
@@ -428,7 +396,7 @@ class Dispatch:
             aliases = re.split('\|| ', message.lower())
             log.info(aliases)
             if len(aliases) < 1:
-                bot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
+                bot.whisper(source.username, 'Usage: !remove alias EXISTINGALIAS')
                 return False
 
             num_removed = 0
@@ -461,7 +429,7 @@ class Dispatch:
             if len(whisper_str) > 0:
                 bot.whisper(source.username, whisper_str)
         else:
-            bot.whisper(source.username, "Usage: !remove alias EXISTINGALIAS")
+            bot.whisper(source.username, 'Usage: !remove alias EXISTINGALIAS')
 
     def remove_command(bot, source, message, event, args):
         if message:
@@ -497,6 +465,10 @@ class Dispatch:
                     return False
 
             bot.whisper(source.username, 'Successfully removed command with id {0}'.format(command.id))
+            log_msg = 'The !{} command has been removed'.format(command.command.split('|')[0])
+            AdminLogManager.add_entry('Command removed',
+                    source,
+                    log_msg)
             bot.commands.remove_command(command)
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
@@ -577,9 +549,17 @@ class Dispatch:
                 # We create the user if the user didn't already exist in the database.
                 user = bot.users[username]
 
+                old_level = user.level
                 user.level = new_level
 
-                bot.whisper(source.username, '{0}\'s user level set to {1}'.format(username, new_level))
+                log_msg = '{}\'s user level changed from {} to {}'.format(
+                        user.username_raw,
+                        old_level,
+                        new_level)
+
+                bot.whisper(source.username, log_msg)
+
+                AdminLogManager.add_entry('Userlevel edited', source, log_msg)
 
                 return True
 
@@ -601,6 +581,7 @@ class Dispatch:
 
     def top3(bot, source, message, event, args):
         """Prints out the top 3 chatters"""
+        log.error('USE THE Top commands module instead of this')
         users = []
         for user in bot.users.db_session.query(User).order_by(desc(User.num_lines))[:3]:
             users.append('{user.username_raw} ({user.num_lines})'.format(user=user))
@@ -666,13 +647,19 @@ class Dispatch:
         # XXX: This should be a module
         if message:
             bot.twitchapi.set_game(bot.streamer, message)
-            bot.say('{0} updated the game to "{1}"'.format(source.username_raw, message))
+            log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
+            bot.say(log_msg)
+
+            AdminLogManager.add_entry('Game set', source, log_msg)
 
     def set_title(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
             bot.twitchapi.set_title(bot.streamer, message)
-            bot.say('{0} updated the title to "{1}"'.format(source.username_raw, message))
+            log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
+            bot.say(log_msg)
+
+            AdminLogManager.add_entry('Title set', source, log_msg)
 
     def ban_source(bot, source, message, event, args):
         if 'filter' in args and 'notify' in args:
@@ -741,12 +728,9 @@ class Dispatch:
 
     def permaban(bot, source, message, event, args):
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
-
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+            msg_args = message.split(' ')
+            username = msg_args[0].lower()
+            user = bot.users[username]
 
             if user.banned:
                 bot.whisper(source.username, 'User is already permabanned.')
@@ -754,7 +738,10 @@ class Dispatch:
 
             user.banned = True
             message = message.lower()
-            bot.whisper(source.username, '{0} has now been permabanned.'.format(user.username))
+            log_msg = '{} has been permabanned'.format(user.username_raw)
+            bot.whisper(source.username, log_msg)
+
+            AdminLogManager.add_entry('Permaban added', source, log_msg)
 
     def unpermaban(bot, source, message, event, args):
         if message:
@@ -771,7 +758,10 @@ class Dispatch:
 
             user.banned = False
             message = message.lower()
-            bot.whisper(source.username, '{0} is no longer permabanned'.format(user.username))
+            log_msg = '{} is no longer permabanned'.format(user.username_raw)
+            bot.whisper(source.username, log_msg)
+
+            AdminLogManager.add_entry('Permaban remove', source, log_msg)
 
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
@@ -912,68 +902,6 @@ class Dispatch:
             bot.commitable[message].commit()
         else:
             bot.commit_all()
-
-    def add_highlight(bot, source, message, event, args):
-        """Dispatch method for creating highlights
-        Usage: !add highlight [options] DESCRIPTION
-        Options available:
-        --offset SECONDS
-        """
-
-        # Failsafe in case the user does not send a message
-        message = message if message else ''
-
-        options, description = bot.stream_manager.parse_highlight_arguments(message)
-
-        if options is False:
-            bot.whisper(source.username, 'Invalid highlight arguments.')
-            return False
-
-        if len(description) > 0:
-            options['description'] = description
-
-        if 'id' in options:
-            id = options['id']
-            del options['id']
-            if len(options) > 0:
-                res = bot.stream_manager.update_highlight(id, **options)
-
-                if res is True:
-                    bot.whisper(source.username, 'Successfully updated your highlight ({0})'.format(', '.join([key for key in options])))
-                else:
-                    bot.whisper(source.username, 'A highlight with this ID does not exist.')
-            else:
-                bot.whisper(source.username, 'Nothing to update! Give me some arguments')
-        else:
-            res = bot.stream_manager.create_highlight(**options)
-
-            if res is True:
-                bot.whisper(source.username, 'Successfully created your highlight')
-            else:
-                bot.whisper(source.username, 'An error occured while adding your highlight: {0}'.format(res))
-
-            log.info('Create a highlight at the current timestamp!')
-
-    def remove_highlight(bot, source, message, event, args):
-        """Dispatch method for removing highlights
-        Usage: !remove highlight HIGHLIGHT_ID
-        """
-
-        if message is None:
-            bot.whisper(source.username, 'Usage: !remove highlight ID')
-            return False
-
-        try:
-            id = int(message.split()[0])
-        except ValueError:
-            bot.whisper(source.username, 'Usage: !remove highlight ID')
-            return False
-
-        res = bot.stream_manager.remove_highlight(id)
-        if res is True:
-            bot.whisper(source.username, 'Successfully removed highlight with ID {}.'.format(id))
-        else:
-            bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
     def get_bttv_emotes(bot, source, message, event, args):
         # XXX: This should be a module

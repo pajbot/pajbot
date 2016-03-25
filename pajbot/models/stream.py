@@ -1,20 +1,26 @@
-import logging
-import datetime
 import argparse
-import math
 import collections
+import datetime
+import json
+import logging
+import math
 import urllib
 
-from pajbot.models.db import DBManager, Base
-from pajbot.models.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
-
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
 from sqlalchemy.dialects.mysql import BIGINT
-from sqlalchemy import orm
-from sqlalchemy.orm import relationship
-from sqlalchemy import inspect
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+from pajbot.managers.redis import RedisManager
+from pajbot.models.handler import HandlerManager
 
 log = logging.getLogger('pajbot')
 
@@ -55,6 +61,7 @@ class Stream(Base):
         else:
             return self.stream_end - self.stream_start
 
+
 class StreamChunk(Base):
     __tablename__ = 'tb_stream_chunk'
 
@@ -84,17 +91,33 @@ class StreamChunk(Base):
 
         self.highlights = []
 
+
 class StreamChunkHighlight(Base):
     __tablename__ = 'tb_stream_chunk_highlight'
 
     id = Column(Integer, primary_key=True)
     stream_chunk_id = Column(Integer, ForeignKey('tb_stream_chunk.id'), nullable=False)
+    created_by = Column(Integer, nullable=True)
+    last_edited_by = Column(Integer, nullable=True)
     created_at = Column(DateTime, nullable=False)
     highlight_offset = Column(Integer, nullable=False)
     description = Column(String(128), nullable=True)
     override_link = Column(String(256), nullable=True)
     thumbnail = Column(Boolean, nullable=True, default=None)
     video_url = None
+
+    created_by_user = relationship('User',
+            lazy='noload',
+            primaryjoin='User.id==StreamChunkHighlight.created_by',
+            foreign_keys='StreamChunkHighlight.created_by',
+            cascade='save-update, merge, expunge',
+            uselist=False)
+    last_edited_by_user = relationship('User',
+            lazy='noload',
+            primaryjoin='User.id==StreamChunkHighlight.last_edited_by',
+            foreign_keys='StreamChunkHighlight.last_edited_by',
+            cascade='save-update, merge, expunge',
+            uselist=False)
 
     DEFAULT_OFFSET = 0
 
@@ -105,13 +128,15 @@ class StreamChunkHighlight(Base):
         self.description = options.get('description', None)
         self.override_link = options.get('override_link', None)
         self.thumbnail = None
+        self.created_by = options.get('created_by', None)
+        self.last_edited_by = options.get('last_edited_by', None)
 
         self.stream_chunk = stream_chunk
         self.refresh_video_url()
 
         stream_chunk.highlights.append(self)
 
-    @orm.reconstructor
+    @reconstructor
     def on_load(self):
         self.refresh_video_url()
 
@@ -141,6 +166,7 @@ class StreamChunkHighlight(Base):
             # i.e. a time format with minutes but _not_ seconds? try it out
             timestamp = ''.join(['{value:02d}{key}'.format(value=value, key=key) for key, value in timedata.items() if value > 0 or pretimedata[key] > 0])
             self.video_url = '{stream_chunk.video_url}?t={timestamp}'.format(stream_chunk=self.stream_chunk, timestamp=timestamp)
+
 
 class StreamManager:
     NUM_OFFLINES_REQUIRED = 10
@@ -179,6 +205,8 @@ class StreamManager:
         self.num_offlines = 0
         self.first_offline = None
 
+        self.num_viewers = 0
+
         self.bot.execute_every(self.STATUS_CHECK_INTERVAL, self.refresh_stream_status)
         self.bot.execute_every(self.VIDEO_URL_CHECK_INTERVAL, self.refresh_video_url)
 
@@ -193,6 +221,47 @@ class StreamManager:
                 self.current_stream_chunk = db_session.query(StreamChunk).filter_by(stream_id=self.current_stream.id).order_by(StreamChunk.chunk_start.desc()).first()
                 log.info('Set current stream chunk here to {0}'.format(self.current_stream_chunk))
             db_session.expunge_all()
+
+    def get_viewer_data(self, redis=None):
+        if self.offline:
+            return False
+
+        if not redis:
+            redis = RedisManager.get()
+
+        data = redis.hget(
+                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
+                self.current_stream.id)
+
+        if data is None:
+            data = {}
+        else:
+            data = json.loads(data)
+
+        return data
+
+    def update_chatters(self, chatters, minutes):
+        """
+        chatters is a list of usernames
+        """
+
+        if self.offline:
+            return False
+
+        redis = RedisManager.get()
+
+        data = self.get_viewer_data(redis=redis)
+
+        for chatter in chatters:
+            if chatter in data:
+                data[chatter] += minutes
+            else:
+                data[chatter] = minutes
+
+        redis.hset(
+                '{streamer}:viewer_data'.format(streamer=self.bot.streamer),
+                self.current_stream.id,
+                json.dumps(data, separators=(',', ':')))
 
     @property
     def online(self):
@@ -211,6 +280,8 @@ class StreamManager:
             self.current_stream_chunk.chunk_end = datetime.datetime.now()
             DBManager.session_add_expunge(self.current_stream_chunk)
 
+        stream_chunk = None
+
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
             if stream_chunk is None:
@@ -222,15 +293,17 @@ class StreamManager:
             else:
                 log.info('We already have a stream chunk!')
                 self.current_stream_chunk = stream_chunk
+                stream_chunk = None
             db_session.expunge_all()
-            db_session.close()
 
-        self.current_stream.stream_chunks.append(stream_chunk)
+        if stream_chunk:
+            self.current_stream.stream_chunks.append(stream_chunk)
 
     def create_stream(self, status):
         log.info('Attempting to create a stream!')
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status['broadcast_id']).one_or_none()
+            new_stream = False
             if stream_chunk is not None:
                 stream = stream_chunk.stream
             else:
@@ -293,6 +366,8 @@ class StreamManager:
                 '{streamer}:viewers'.format(streamer=self.bot.streamer): status['viewers'],
                 '{streamer}:game'.format(streamer=self.bot.streamer): status['game'],
                 })
+
+            self.num_viewers = status['viewers']
 
             if status['online']:
                 if self.current_stream is None:
@@ -421,8 +496,12 @@ class StreamManager:
         if 'offset' in options:
             options['highlight_offset'] = options.pop('offset')
 
-        with DBManager.create_session_scope() as db_session:
-            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).update(options)
+        num_rows = 0
+        try:
+            with DBManager.create_session_scope() as db_session:
+                num_rows = db_session.query(StreamChunkHighlight).filter_by(id=id).update(options)
+        except:
+            log.exception('AAAAAAAAAA FIXME')
 
         return (num_rows == 1)
 
