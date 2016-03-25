@@ -109,34 +109,34 @@ class PlaySoundTokenCommandModule(BaseModule):
                 )
 		btn_and_script =  
 		"""
-					<td>
-					<button id="btnTogglePlay{0.commands}" onclick="playOrStopSound{0.commands}(elem)">Play</button>
-					</td>
-					<script>
-						var soundIsPlaying{0.commands}=0;
-						var snd{0.command} = new Audio("{0.commands}");
-						var texts = new Array("Play", "Stop");
+			<td>
+			<button id='btnTogglePlay{0.commands}' onclick='playOrStopSound{0.commands}(elem)'>Play</button>
+			</td>
+			<script>
+				var soundIsPlaying{0.commands}=0;
+				var snd{0.command} = new Audio("{0.commands}");
+				var texts = new Array('Play', 'Stop');
 
-						function playOrStopSound{0.commands}(elem)
-						{{
-							if(soundIsPlaying{0.commands}==0)
-							{{
-								elem.innerHTML=texts[1];
-								snd{0.commands}.play();
-								soundIsPlaying{0.commands}=1;
+				function playOrStopSound{0.commands}(elem)
+				{{
+					if(soundIsPlaying{0.commands}==0)
+					{{
+						elem.innerHTML=texts[1];
+						snd{0.commands}.play();
+						soundIsPlaying{0.commands}=1;
 
-							}}
-							else 
-							{
-								elem.innerHTML=texts[0];
-								snd{0.commands}.pause();
-								snd{0.commands}.currentTime=0;
-								isPlaying{0.commands}=0;
-							}}
-						}}
-						var elem = document.getElementById('btnTogglePlay{0.commands}');
-						snd{0.commands}.onended=function(){{soundIsPlaying{0.commands}=0;elem.innerHTML=texts[0];}};
-					</script>
+					}}
+					else 
+					{
+						elem.innerHTML=texts[0];
+						snd{0.commands}.pause();
+						snd{0.commands}.currentTime=0;
+						isPlaying{0.commands}=0;
+					}}
+				}}
+				var elem = document.getElementById('btnTogglePlay{0.commands}');
+				snd{0.commands}.onended=function(){{soundIsPlaying{0.commands}=0;elem.innerHTML=texts[0];}};//When audio is done, it's playable again
+			</script>
 		"""
         html_valid_samples = ''.join(['<tr><td class="command-sample">!#playsound {0.command}</td>' + btn_and_script + '</tr>'.format(sample) for sample in Samples.all_samples])
         self.commands['#playsound'].long_description = '<h3>Valid samples</h3><table>{}</table>'.format(html_valid_samples)
