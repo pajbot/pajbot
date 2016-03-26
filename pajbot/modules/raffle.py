@@ -115,6 +115,16 @@ class RaffleModule(BaseModule):
                 type='boolean',
                 required=True,
                 default=False),
+            ModuleSetting(
+                key='default_raffle_type',
+                label='Default raffle (What raffle type !raffle should invoke)',
+                type='options',
+                required=True,
+                default='Single Raffle',
+                options=[
+                    'Single Raffle',
+                    'Multi Raffle',
+                    ]),
             ]
 
     def __init__(self):
@@ -126,7 +136,7 @@ class RaffleModule(BaseModule):
         self.raffle_length = 0
 
     def load_commands(self, **options):
-        self.commands['raffle'] = Command.raw_command(self.raffle,
+        self.commands['singleraffle'] = Command.raw_command(self.raffle,
                 delay_all=0,
                 delay_user=0,
                 level=500,
@@ -143,8 +153,7 @@ class RaffleModule(BaseModule):
                         description='Start a 30-second raffle for 69 points').parse(),
                     ],
                 )
-        self.commands['singleraffle'] = self.commands['raffle']
-        self.commands['sraffle'] = self.commands['raffle']
+        self.commands['sraffle'] = self.commands['singleraffle']
         self.commands['join'] = Command.raw_command(self.join,
                 delay_all=0,
                 delay_user=5,
@@ -174,6 +183,11 @@ class RaffleModule(BaseModule):
                         ],
                     )
             self.commands['mraffle'] = self.commands['multiraffle']
+
+        if self.settings['default_raffle_type'] == 'Multi Raffle' and self.settings['multi_enabled']:
+            self.commands['raffle'] = self.commands['multiraffle']
+        else:
+            self.commands['raffle'] = self.commands['singleraffle']
 
     def raffle(self, **options):
         bot = options['bot']
