@@ -181,7 +181,7 @@ class PlaySoundTokenCommandModule(BaseModule):
             </script>"""
         local_script = """<script>
             var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
-            var snd{0.command} = new Audio('{0.href}');
+            var snd{0.command} = new Audio("{0.href}");
             snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
             elem{0.command}.addEventListener("click", function(){{ playOrStopSound(elem{0.command}, snd{0.command}); }});
         </script>"""
