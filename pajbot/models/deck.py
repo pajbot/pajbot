@@ -53,8 +53,8 @@ class Deck(Base):
 class DeckManager(UserList):
     def __init__(self):
         UserList.__init__(self)
-        self.db_session = DBManager.create_session()
         self.current_deck = None
+        self.reload()
 
     def find(self, id=None, link=None):
         if id is not None:
@@ -81,30 +81,45 @@ class DeckManager(UserList):
 
     def remove_deck(self, deck):
         self.data.remove(deck)
-        self.db_session.delete(deck)
-        self.commit()
+        with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
+            db_session.delete(deck)
+            db_session.commit()
+
         if deck == self.current_deck:
             log.info('refreshing current deck')
             self.refresh_current_deck()
 
     def set_current_deck(self, deck_link):
+        # Loop through our already loaded decks
         for deck in self.data:
+            # Is this deck link already i use?
             if deck_link == deck.link:
                 self.current_deck = deck
-                deck.times_used += 1
-                deck.last_used = datetime.datetime.now()
+                self.update_deck(deck,
+                        times_used=deck.times_used + 1,
+                        last_used=datetime.datetime.now())
                 return deck, False
 
-        deck = Deck()
-        deck.set(link=deck_link,
-                times_used=1,
-                first_used=datetime.datetime.now(),
-                last_used=datetime.datetime.now())
-        self.current_deck = deck
-        self.db_session.add(deck)
-        self.data.append(deck)
-        self.commit()
+        # No old deck matched the link, create a new deck!
+        with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
+            deck = Deck()
+            deck.set(link=deck_link,
+                    times_used=1,
+                    first_used=datetime.datetime.now(),
+                    last_used=datetime.datetime.now())
+            self.current_deck = deck
+            self.data.append(deck)
+            db_session.add(deck)
+            db_session.commit()
+            db_session.expunge(deck)
         return deck, True
+
+    def update_deck(self, deck, **options):
+        with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
+            db_session.add(deck)
+            deck.set(**options)
+            db_session.commit()
+            db_session.expunge(deck)
 
     def parse_update_arguments(self, message):
         parser = argparse.ArgumentParser()
@@ -129,15 +144,13 @@ class DeckManager(UserList):
 
         return options, response
 
-    def commit(self):
-        self.db_session.commit()
-
     def reload(self):
         self.data = []
-        for deck in self.db_session.query(Deck).order_by(Deck.last_used.desc()):
-            if self.current_deck is None:
-                self.current_deck = deck
-            self.data.append(deck)
+        with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
+            for deck in db_session.query(Deck).order_by(Deck.last_used.desc()):
+                if self.current_deck is None:
+                    self.current_deck = deck
+                self.data.append(deck)
+                db_session.expunge(deck)
 
-        log.info('Loaded {0} decks'.format(len(self.data)))
-        return self
+            db_session.expunge_all()

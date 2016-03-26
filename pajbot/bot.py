@@ -188,7 +188,7 @@ class Bot:
         StreamHelper.init_bot(self, self.stream_manager)
 
         self.users = UserManager()
-        self.decks = DeckManager().reload()
+        self.decks = DeckManager()
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
                 socket_manager=self.socket_manager,
@@ -208,7 +208,6 @@ class Bot:
         self.reloadable = {
                 'filters': self.filters,
                 'emotes': self.emotes,
-                'decks': self.decks,
                 }
 
         # Commitable managers
@@ -216,7 +215,6 @@ class Bot:
                 'commands': self.commands,
                 'filters': self.filters,
                 'emotes': self.emotes,
-                'decks': self.decks,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
