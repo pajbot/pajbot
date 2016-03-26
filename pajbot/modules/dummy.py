@@ -43,6 +43,17 @@ class DummyModule(BaseModule):
                     'min_value': 1,
                     'max_value': 3600,
                     }),
+            ModuleSetting(
+                key='options_test',
+                label='Options test',
+                type='options',
+                required=True,
+                default='a',
+                options=[
+                    'a',
+                    'b',
+                    'c',
+                    ]),
             ]
 
     def dummy_command(self, **options):
