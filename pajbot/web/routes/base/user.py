@@ -79,6 +79,11 @@ def init(app):
                     if cw > biggest_winstreak:
                         biggest_winstreak = cw
 
+                if 'roulette' in app.module_manager:
+                    roulette_base_winrate = 1.0 - app.module_manager['roulette'].settings['rigged_percentage'] / 100
+                else:
+                    roulette_base_winrate = 0.45
+
                 roulette_stats = {
                         'profit': profit,
                         'total_points': total_points,
@@ -89,7 +94,7 @@ def init(app):
                         'biggest_losestreak': biggest_losestreak,
                         'winrate': winrate,
                         'winrate_str': '{:.2f}%'.format(winrate * 100),
-                        'roulette_base_winrate': 1.0 - app.module_manager['roulette'].settings['rigged_percentage'] / 100,
+                        'roulette_base_winrate': roulette_base_winrate,
                         }
 
             return render_template('user.html',
