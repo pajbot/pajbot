@@ -73,6 +73,7 @@ class Samples:
             Sample('sorry', 'https://pajlada.se/files/clr/sorry.mp3'),
             Sample('relax', 'https://pajlada.se/files/clr/relax.mp3'),
             Sample('vibrate', 'https://pajlada.se/files/clr/vibrate.mp3'),
+
             Sample('4head', 'https://pajlada.se/files/clr/4Head.mp3'),
             Sample('akarin', 'https://pajlada.se/files/clr/akarin.mp3', new=True),
             Sample('behindyou', 'https://pajlada.se/files/clr/behindyou.mp3', new=True),
@@ -172,5 +173,26 @@ class PlaySoundTokenCommandModule(BaseModule):
                         'bot>user:Successfully played your sample fuckyou').parse(),
                     ],
                 )
-        html_valid_samples = ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><script>var snd{0.command} = new Audio("{0.href}");</script><button onclick="snd{0.command}.play();" type="button">Play</button></td></tr>'.format(sample, ' new' if sample.new else '') for sample in Samples.all_samples])
+        global_script = """<script>
+            function playOrStopSound(elem, audio) {
+                if(elem.innerHTML=="Play") {
+                    elem.innerHTML="Stop";
+                    audio.play();
+                } else {
+                    elem.innerHTML="Play";
+                    audio.pause();
+                    audio.currentTime=0;
+                }
+            }
+            </script>"""
+        local_script = """<script>
+            var elem{0.command}=document.getElementById('btnTogglePlay{0.command}');
+            var snd{0.command} = new Audio("{0.href}");
+            snd{0.command}.onended=function(){{elem{0.command}.innerHTML='Play';}};
+            elem{0.command}.addEventListener("click", function(){{ playOrStopSound(elem{0.command}, snd{0.command}); }});
+        </script>"""
+        html_valid_samples = global_script
+        for sample in Samples.all_samples:
+            parsed_sample = local_script.format(sample)
+            html_valid_samples += ''.join(['<tr><td class="command-sample{1}">!#playsound {0.command}</td><td><button id="btnTogglePlay{0.command}">Play</button>{2}</td></tr>'.format(sample, ' new' if sample.new else '', parsed_sample)])
         self.commands['#playsound'].long_description = '<h5 style="margin-top: 20px;">Valid samples</h5><table>{}</table>'.format(html_valid_samples)
