@@ -1,5 +1,7 @@
 import logging
 
+from numpy import random
+
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -139,8 +141,14 @@ class PlaySoundTokenCommandModule(BaseModule):
 
         if message:
             sample = message.split(' ')[0].lower()
+            payload = False
+
+            if sample == 'random':
+                sample = random.choice(self.valid_samples)
+
+            payload = {'sample': sample}
+
             if sample in self.valid_samples:
-                payload = {'sample': sample}
                 bot.websocket_manager.emit('play_sound', payload)
                 bot.whisper(source.username, 'Successfully played your sample {}'.format(sample))
                 return True
