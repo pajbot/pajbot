@@ -19,6 +19,10 @@ class TwitterManager:
         self.twitter_stream = None
         self.listener = None
 
+        if self.bot:
+            self.bot.socket_manager.add_handler('twitter.follow', self.on_twitter_follow)
+            self.bot.socket_manager.add_handler('twitter.unfollow', self.on_twitter_unfollow)
+
         if 'twitter' in bot.config:
             self.use_twitter_stream = 'streaming' in bot.config['twitter'] and bot.config['twitter']['streaming'] == '1'
 
@@ -35,11 +39,20 @@ class TwitterManager:
                 log.exception('Twitter authentication failed.')
                 self.twitter_client = None
 
+    def on_twitter_follow(self, data, conn):
+        log.info('TWITTER FOLLOW')
+        self.reload()
+
+    def on_twitter_unfollow(self, data, conn):
+        log.info('TWITTER UNFOLLOW')
+        self.reload()
+
     def reload(self):
-        self.listener.relevant_users = []
-        with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(TwitterUser):
-                self.listener.relevant_users.append(user.username)
+        if self.listener:
+            self.listener.relevant_users = []
+            with DBManager.create_session_scope() as db_session:
+                for user in db_session.query(TwitterUser):
+                    self.listener.relevant_users.append(user.username)
 
     def follow_user(self, username):
         """Add `username` to our relevant_users list."""
@@ -59,7 +72,6 @@ class TwitterManager:
                 self.listener.relevant_users.remove(username)
 
                 with DBManager.create_session_scope() as db_session:
-                    db_session.add(TwitterUser(username))
                     user = db_session.query(TwitterUser).filter_by(username=username).one_or_none()
                     if user:
                         db_session.delete(user)

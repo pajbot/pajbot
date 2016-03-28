@@ -5,24 +5,64 @@
 <h2>Admin Zone</h2>
 Use the links in the menu to browse admin-only sites.
 
-<table class="ui table collapsing">
-    <thead>
-        <tr>
-            <th>Admin</th>
-            <th>Time</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for log in latest_logs %}
-        {% set user = log.user %}
-        <tr>
-            <td class="collapsing">{% include 'user/username_link_nobadge.html' %}</td>
-            <td class="collapsing">{{ log.created_at }}</td>
-            <td>{{ log.message|safe }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% include 'admin/twitter.html' %}
+{% include 'admin/logs.html' %}
 
+{% endblock %}
+{% block footer %}
+{%- assets 'paginate_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets -%}
+<script type="text/javascript">
+function on_success(response, key)
+{
+    console.log(response);
+
+    var rows = [];
+    for (var i in response.follows) {
+        (function() {
+            var follow = response.follows[i];
+            var $tr = $('<tr>');
+            $tr.append($('<td>').text(follow.username));
+            var $action_td = $('<td>');
+            var $unfollow_btn = $('<button>', {
+                class: 'ui button',
+            }).html('<i class="icon minus red"></i>Unfollow');
+            $unfollow_btn.api({
+                action: 'twitter_unfollow',
+                method: 'POST',
+                beforeSend: function(settings) {
+                    settings.data.username = follow.username;
+                    return settings;
+                },
+                onSuccess: function(response, element, xhr) {
+                    element.closest('tr').hide();
+                }
+            });
+            $action_td.append($unfollow_btn);
+            $tr.append($action_td);
+            rows.push($tr)
+        })();
+    }
+    paginate_add_rows(key, rows);
+}
+
+$(document).ready(function() {
+    paginate('.twitter_follows', 5, 'desc', 'get_twitter_follows', on_success);
+
+    $('.twitter-follow button').api({
+        action: 'twitter_follow',
+        method: 'POST',
+        beforeSend: function(settings) {
+            settings.data.username = $('.twitter-follow input[type="text"]').val();
+            return settings;
+        },
+        onSuccess: function(response, element, xhr) {
+            console.log(response);
+            $('.twitter-follow input[type="text"]').val('');
+            paginate_reload('.twitter_follows');
+        }
+    });
+});
+</script>
 {% endblock %}

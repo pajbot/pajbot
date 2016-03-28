@@ -1,0 +1,20 @@
+<h4>Admin Logs</h4>
+<table class="ui table collapsing">
+    <thead>
+        <tr>
+            <th>Admin</th>
+            <th>Time</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in latest_logs %}
+        {% set user = log.user %}
+        <tr>
+            <td class="collapsing">{% include 'user/username_link_nobadge.html' %}</td>
+            <td class="collapsing">{{ log.created_at }}</td>
+            <td>{{ log.message|safe }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

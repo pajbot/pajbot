@@ -82,3 +82,9 @@ def init(app):
     commands_js = Bundle('scripts/commands.js', filters='jsmin',
             output='scripts/gen.commands.%(version)s.js')
     assets.register('commands_js', commands_js)
+
+    # Pagination script
+    # Available under: paginate_js
+    paginate_js = Bundle('scripts/paginate.js',
+            output='scripts/gen.paginate.%(version)s.js')
+    assets.register('paginate_js', paginate_js)

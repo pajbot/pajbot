@@ -13,3 +13,9 @@ class TwitterUser(Base):
 
     def __init__(self, username):
         self.username = username
+
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'username': self.username
+                }
