@@ -145,6 +145,12 @@ function handle_command(base_key, command)
     var segment = $('div.sticky.'+base_key+' .supercool');
     segment.removeClass('loading');
 
+    refresh_sticky(base_key);
+}
+
+function refresh_sticky(base_key)
+{
+    $('.commandlist-container.'+base_key).css('min-height', $('div.sticky.'+base_key).height());
     $('.ui.sticky.'+base_key).sticky('refresh');
 }
 
@@ -155,18 +161,12 @@ $(document).ready(function() {
             context: $('#commands'),
         });
 
-    $('.ui.sticky.c1').sticky({
-        context: '.ui.table.c1',
-        offset: 67,
-    });
-    $('.ui.sticky.c2').sticky({
-        context: '.ui.table.c2',
-        offset: 67,
-    });
-    $('.ui.sticky.c3').sticky({
-        context: '.ui.table.c3',
-        offset: 67,
-    });
+    for (var i=1; i<=3; ++i) {
+        $('.ui.sticky.c'+i).sticky({
+            context: '.commandlist-container.c'+i,
+            offset: 67,
+        });
+    }
 
     function update_tab()
     {
@@ -208,12 +208,12 @@ $(document).ready(function() {
             $('table.'+base_key+' td.selectable').removeClass('active');
             $('table.'+base_key+' td.selectable a.commandlink[data-key="'+$(this).data('key')+'"]').parent().addClass('active');
             segment.removeClass('loading');
-            $('.ui.sticky.'+base_key).sticky('refresh');
+            refresh_sticky(base_key);
         },
         onSuccess: function(response, element, xhr) {
             var base_key = $(this).parent().parent().parent().parent().data('key');
             handle_command(base_key, response.command);
-            $('.ui.sticky.'+base_key).sticky('refresh');
+            refresh_sticky(base_key);
         }
     });
 });
