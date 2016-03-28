@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block menu %}
     <div class="ui top fixed menu inverted blue">
+        <div class="right menu">
         {% for menuitem in nav_bar_admin_header %}
         {%- if not session.user or session.user.level > menuitem.level %}
             {%- if menuitem.id %}
@@ -23,5 +24,7 @@
             {% endif -%}
         {% endif -%}
         {% endfor %}
+        </div>
+        <div class="left menu"></div>
     </div>
 {% endblock %}

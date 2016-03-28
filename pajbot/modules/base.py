@@ -18,10 +18,12 @@ class ModuleSetting:
           * min_value
           * max_value
       * boolean - A checkbox input
+      * options - A select/options list
     """
 
     def __init__(self, key, label, type, required=False,
-                 placeholder='', default=None, constraints={}):
+                 placeholder='', default=None, constraints={},
+                 options=[]):
         self.key = key
         self.label = label
         self.type = type
@@ -29,6 +31,7 @@ class ModuleSetting:
         self.placeholder = placeholder
         self.default = default
         self.constraints = constraints
+        self.options = options
 
     def validate(self, value):
         """ Validate the input for this module.
@@ -71,6 +74,10 @@ class ModuleSetting:
     def validate_boolean(self, value):
         """ Validate a boolean value """
         return True, value == 'on'
+
+    def validate_options(self, value):
+        """ Validate a options value """
+        return value in self.options, value
 
 
 class BaseModule:

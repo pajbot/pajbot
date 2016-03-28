@@ -14,9 +14,9 @@ from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import SafeBrowsingAPI
 from pajbot.managers import Base
 from pajbot.managers import DBManager
+from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -478,8 +478,8 @@ class LinkCheckerModule(BaseModule):
         if self.safeBrowsingAPI:
             if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
                 log.debug('Bad url because google api')
-                self.counteract_bad_url(url, action)
-                self.counteract_bad_url(redirected_url)
+                self.counteract_bad_url(url, action, want_to_blacklist=False)
+                self.counteract_bad_url(redirected_url, want_to_blacklist=False)
                 return
 
         if 'content-type' not in r.headers or not r.headers['content-type'].startswith('text/html'):

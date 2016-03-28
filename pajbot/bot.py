@@ -15,25 +15,25 @@ from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
 from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
+from pajbot.managers import DeckManager
+from pajbot.managers import FilterManager
+from pajbot.managers import HandlerManager
+from pajbot.managers import KVIManager
+from pajbot.managers import RedisManager
+from pajbot.managers import TimeManager
+from pajbot.managers import TwitterManager
 from pajbot.managers import WebSocketManager
 from pajbot.managers import WhisperConnectionManager
-from pajbot.managers.redis import RedisManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
-from pajbot.models.deck import DeckManager
 from pajbot.models.duel import DuelManager
 from pajbot.models.emote import EmoteManager
-from pajbot.models.filter import FilterManager
-from pajbot.models.handler import HandlerManager
-from pajbot.models.kvi import KVIManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
-from pajbot.models.time import TimeManager
 from pajbot.models.timer import TimerManager
-from pajbot.models.twitter import TwitterManager
 from pajbot.models.user import UserManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method
@@ -57,7 +57,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.6.5'
+    version = '2.7.0'
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
@@ -188,7 +188,7 @@ class Bot:
         StreamHelper.init_bot(self, self.stream_manager)
 
         self.users = UserManager()
-        self.decks = DeckManager().reload()
+        self.decks = DeckManager()
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
                 socket_manager=self.socket_manager,
@@ -197,9 +197,9 @@ class Bot:
         self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
-        self.kvi = KVIManager().reload()
+        self.kvi = KVIManager()
         self.emotes = EmoteManager(self).reload()
-        self.twitter_manager = TwitterManager(self).reload()
+        self.twitter_manager = TwitterManager(self)
         self.duel_manager = DuelManager(self)
 
         HandlerManager.trigger('on_managers_loaded')
@@ -207,20 +207,14 @@ class Bot:
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
-                'kvi': self.kvi,
                 'emotes': self.emotes,
-                'twitter': self.twitter_manager,
-                'decks': self.decks,
                 }
 
         # Commitable managers
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'kvi': self.kvi,
                 'emotes': self.emotes,
-                'twitter': self.twitter_manager,
-                'decks': self.decks,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
@@ -379,11 +373,7 @@ class Bot:
         self.reactor.process_forever()
 
     def get_kvi_value(self, key, extra={}):
-        if key in self.kvi.data:
-            # We check if the value exists first.
-            # We don't want to create a bunch of unneccesary KVIData's
-            return self.kvi[key].get()
-        return 0
+        return self.kvi[key].get()
 
     def get_last_tweet(self, key, extra={}):
         return self.twitter_manager.get_last_tweet(key)

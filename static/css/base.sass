@@ -47,6 +47,8 @@
     display: flex
     min-height: 100vh
     flex-direction: column
+  &.header
+    z-index: 1001
   &.header, &.footer
     flex: none
   &.container
@@ -271,3 +273,28 @@ span.winrate
     color: red
   &.positive
     color: green
+
+#commands
+  div.segment.tab
+    min-height: 1024px
+
+table
+  .paginate
+    div.pagination
+      visibility: hidden
+
+      a.page_btn.item
+        flex-grow: 1
+        flex-basis: auto
+        min-width: 4em
+        justify-content: center
+
+.twitter-follow
+  display: flex
+  align-items: center
+  button.ui.button
+    margin-left: 5px
+
+.twitter_follows
+  button.ui.button
+    white-space: nowrap

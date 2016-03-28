@@ -1,13 +1,9 @@
-import logging
-
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
 
 from pajbot.managers import Base
-
-log = logging.getLogger('pajbot')
 
 
 class WebContent(Base):

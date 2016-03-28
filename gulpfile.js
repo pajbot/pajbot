@@ -12,7 +12,7 @@ gulp.task('sass', function() {
 
 gulp.task('minify', function () {
     gulp.src('./static/css/base.css')
-        .pipe(nano())
+        .pipe(nano({zindex: false}))
         .pipe(rename('base.min.css'))
         .pipe(gulp.dest('./static/css/'))
 });

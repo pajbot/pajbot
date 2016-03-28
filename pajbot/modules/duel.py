@@ -3,9 +3,9 @@ import logging
 
 from numpy import random
 
+from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -255,7 +255,7 @@ class DuelModule(BaseModule):
                     'extra_points': winning_pot,
                     }
 
-            if source.duel_price > 0:
+            if source.duel_price >= 500:
                 message = self.get_phrase('message_won_points', **arguments)
                 bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
             else:

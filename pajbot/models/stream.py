@@ -19,8 +19,8 @@ from sqlalchemy.orm import relationship
 
 from pajbot.managers import Base
 from pajbot.managers import DBManager
-from pajbot.managers.redis import RedisManager
-from pajbot.models.handler import HandlerManager
+from pajbot.managers import HandlerManager
+from pajbot.managers import RedisManager
 
 log = logging.getLogger('pajbot')
 

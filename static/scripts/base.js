@@ -16,6 +16,10 @@ $.fn.api.settings.api = {
     'toggle_module': '/api/v1/module/toggle/{id}',
     'social_set': '/api/v1/social/{key}/set',
     'clr_donation_save': '/api/v1/clr/donations/{widget_id}/save',
+    'commands': '/api/v1/commands/{raw_command_id}',
+    'get_twitter_follows': '/api/v1/twitter/follows',
+    'twitter_unfollow': '/api/v1/twitter/unfollow',
+    'twitter_follow': '/api/v1/twitter/follow',
 };
 
 $(document).ready(function() {

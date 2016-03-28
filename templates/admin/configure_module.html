@@ -58,6 +58,12 @@
         />
         {% elif setting.type == 'boolean' %}
         <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} />
+        {% elif setting.type == 'options' %}
+        <select id="key_{{ setting.key }}" name="{{ setting.key }}">
+            {%- for option in setting.options %}
+            <option{{ ' selected' if option == module.settings[setting.key] else '' }}>{{ option }}</option>
+            {% endfor -%}
+        </select>
         {% else %}
         Unknown type: {{ setting.type }}
         {% endif %}

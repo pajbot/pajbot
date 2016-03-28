@@ -5,9 +5,9 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from pajbot.managers import DBManager
+from pajbot.managers import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.command import Command
-from pajbot.models.handler import HandlerManager
 from pajbot.models.hsbet import HSBetBet
 from pajbot.models.hsbet import HSBetGame
 from pajbot.modules import BaseModule
@@ -205,6 +205,12 @@ class HSBetModule(BaseModule):
             self.bets = {}
             self.last_game_id = latest_game['id']
             self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
+            payload = {
+                    'time_left': self.settings['time_until_bet_closes'],
+                    'win': 0,
+                    'loss': 0,
+                    }
+            self.bot.websocket_manager.emit('hsbet_new_game', data=payload)
 
             # stats about the game
             ratio = 0.0
@@ -281,6 +287,17 @@ class HSBetModule(BaseModule):
         self.bets[source.username] = (bet_for_win, points)
         bot.whisper(source.username, 'You have bet {} points on this game resulting in a {}.'.format(points, 'win' if bet_for_win else 'loss'))
 
+        if points > 0:
+            payload = {
+                    'win': 0,
+                    'loss': 0,
+                    }
+            if bet_for_win:
+                payload['win'] = points
+            else:
+                payload['loss'] = points
+            self.bot.websocket_manager.emit('hsbet_update_data', data=payload)
+
     def command_open(self, **options):
         bot = options['bot']
         message = options['message']
@@ -300,6 +317,22 @@ class HSBetModule(BaseModule):
                 pass
 
         self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=time_limit)
+        win_bets = 0
+        loss_bets = 0
+        for username in self.bets:
+            bet_for_win, points = self.bets[username]
+            if bet_for_win:
+                win_bets += points
+            else:
+                loss_bets += points
+        log.info('win bets: {}'.format(win_bets))
+        log.info('loss bets: {}'.format(loss_bets))
+        payload = {
+                'time_left': time_limit,
+                'win': win_bets,
+                'loss': loss_bets,
+                }
+        self.bot.websocket_manager.emit('hsbet_new_game', data=payload)
 
         bot.me('The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS'.format(time_limit))
 

@@ -104,7 +104,6 @@ class DeckModule(BaseModule):
                 bot.whisper(source.username, 'This deck is a new deck. Its ID is {deck.id}'.format(deck=deck))
             else:
                 bot.whisper(source.username, 'Updated an already-existing deck. Its ID is {deck.id}'.format(deck=deck))
-                bot.decks.commit()
 
             bot.say('Successfully updated the latest deck.')
             return True
@@ -144,8 +143,7 @@ class DeckModule(BaseModule):
                 bot.whisper(source.username, 'You have given me nothing to update with the deck!')
                 return False
 
-            deck.set(**options)
-            bot.decks.commit()
+            bot.decks.update_deck(deck, **options)
             bot.whisper(source.username, 'Updated deck with ID {deck.id}. Updated {list}'.format(deck=deck, list=', '.join([key for key in options])))
 
             return True
