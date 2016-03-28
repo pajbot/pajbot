@@ -85,6 +85,6 @@ def init(app):
 
     # Pagination script
     # Available under: paginate_js
-    paginate_js = Bundle('scripts/paginate.js',
+    paginate_js = Bundle('scripts/paginate.js', filters='jsmin',
             output='scripts/gen.paginate.%(version)s.js')
     assets.register('paginate_js', paginate_js)
