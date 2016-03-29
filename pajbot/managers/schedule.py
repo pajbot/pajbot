@@ -27,8 +27,23 @@ class ScheduleManager:
     base_scheduler = None
 
     def init():
-        ScheduleManager.base_scheduler = BackgroundScheduler()
-        ScheduleManager.base_scheduler.start()
+        if not ScheduleManager.base_scheduler:
+            ScheduleManager.base_scheduler = BackgroundScheduler()
+            ScheduleManager.base_scheduler.start()
+
+    def execute_now(method, args=[], kwargs={}, scheduler=None):
+        if scheduler is None:
+            scheduler = ScheduleManager.base_scheduler
+
+        if scheduler is None:
+            return ScheduledJob(None)
+
+        job = scheduler.add_job(method,
+                'date',
+                run_date=datetime.datetime.now(),
+                args=args,
+                kwargs=kwargs)
+        return ScheduledJob(job)
 
     def execute_delayed(delay, method, args=[], kwargs={}, scheduler=None):
         if scheduler is None:
