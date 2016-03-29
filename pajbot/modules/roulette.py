@@ -23,6 +23,28 @@ class RouletteModule(BaseModule):
     CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
+                key='message_won',
+                label='Won message | Available arguments: {bet}, {points}, {user}',
+                type='text',
+                required=True,
+                placeholder='{user} won {bet} points in roulette and now has {points} points! FeelsGoodMan',
+                default='{user} won {bet} points in roulette and now has {points} points! FeelsGoodMan',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
+                key='message_lost',
+                label='Lost message | Available arguments: {bet}, {points}, {user}',
+                type='text',
+                required=True,
+                placeholder='{user} lost {bet} points in roulette and now has {points} points! FeelsBadMan',
+                default='{user} lost {bet} points in roulette and now has {points} points! FeelsBadMan',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
                 key='rigged_percentage',
                 label='Rigged %, lower = more chance of winning. 50 = 50% of winning. 25 = 75% of winning',
                 type='number',
@@ -67,6 +89,34 @@ class RouletteModule(BaseModule):
                     'max_value': 3000,
                     }),
             ModuleSetting(
+                key='can_execute_with_whisper',
+                label='Allow users to roulette in whispers',
+                type='boolean',
+                required=True,
+                default=False),
+            ModuleSetting(
+                key='options_output',
+                label='Result output options',
+                type='options',
+                required=True,
+                default='1. Show results in chat',
+                options=[
+                    '1. Show results in chat',
+                    '2. Show results in whispers',
+                    '3. Show results in chat if it\'s over X points else it will be whispered.',
+                    ]),
+            ModuleSetting(
+                key='min_show_points',
+                label='Min points you need to win or lose (if options 3)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=100,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 150000,
+                    }),
+            ModuleSetting(
                 key='only_roulette_after_sub',
                 label='Only allow roulettes after sub',
                 type='boolean',
@@ -94,6 +144,7 @@ class RouletteModule(BaseModule):
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Roulette for points',
+                can_execute_with_whisper=self.settings['can_execute_with_whisper'],
                 examples=[
                     CommandExample(None, 'Roulette for 69 points',
                         chat='user:!roulette 69\n'
@@ -158,10 +209,32 @@ class RouletteModule(BaseModule):
             r = Roulette(user.id, points)
             db_session.add(r)
 
+        arguments = {
+            'bet': bet,
+            'user': user.username_raw,
+            'points': user.points_available()
+        }
+
         if points > 0:
-            bot.me('{0} won {1} points in roulette and now has {2} points! FeelsGoodMan'.format(user.username_raw, bet, user.points_available()))
+            if self.settings['options_output'] == '1. Show results in chat':
+                bot.me(self.get_phrase('message_won', **arguments))
+            if self.settings['options_output'] == '2. Show results in whispers':
+                bot.whisper(user.username, self.get_phrase('message_won', **arguments))
+            if self.settings['options_output'] == '3. Show results in chat if it\'s over X points else it will be whispered.':
+                if points >= self.settings['min_show_points']:
+                    bot.me(self.get_phrase('message_won', **arguments))
+                else:
+                    bot.whisper(user.username, self.get_phrase('message_won', **arguments))
         else:
-            bot.me('{0} lost {1} points in roulette and now has {2} points! FeelsBadMan'.format(user.username_raw, bet, user.points_available()))
+            if self.settings['options_output'] == '1. Show results in chat':
+                bot.me(self.get_phrase('message_lost', **arguments))
+            if self.settings['options_output'] == '2. Show results in whispers':
+                bot.whisper(user.username, self.get_phrase('message_lost', **arguments))
+            if self.settings['options_output'] == '3. Show results in chat if it\'s over X points else it will be whispered.':
+                if points <= -self.settings['min_show_points']:
+                    bot.me(self.get_phrase('message_lost', **arguments))
+                else:
+                    bot.whisper(user.username, self.get_phrase('message_lost', **arguments))
 
         HandlerManager.trigger('on_roulette_finish', user, points)
 
