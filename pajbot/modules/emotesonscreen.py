@@ -24,7 +24,7 @@ class EmotesOnScreenModule(BaseModule):
                 ]
 
     def on_message(self, source, message, emotes, whisper, urls, event):
-        if len(emotes) > 0:
+        if not whisper and len(emotes) > 0:
             if len(self.settings['valid_emotes']) > 1 and emotes[0]['code'] not in self.settings['valid_emotes']:
                 # If the first emote isn't a valid emote, don't show it on screen.
                 return
