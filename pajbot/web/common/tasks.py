@@ -28,7 +28,7 @@ def init(app):
         uwsgi.add_timer(26, 60 * 10)
 
         @thread
-        @timer(5)
+        @timer(60)
         def get_highlight_thumbnails(no_clue_what_this_does):
             from pajbot.web.models.thumbnail import StreamThumbnailWriter
             with DBManager.create_session_scope() as db_session:
