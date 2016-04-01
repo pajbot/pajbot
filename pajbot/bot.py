@@ -20,6 +20,7 @@ from pajbot.managers import FilterManager
 from pajbot.managers import HandlerManager
 from pajbot.managers import KVIManager
 from pajbot.managers import RedisManager
+from pajbot.managers import ScheduleManager
 from pajbot.managers import TimeManager
 from pajbot.managers import TwitterManager
 from pajbot.managers import WebSocketManager
@@ -186,6 +187,7 @@ class Bot:
         self.stream_manager = StreamManager(self)
 
         StreamHelper.init_bot(self, self.stream_manager)
+        ScheduleManager.init()
 
         self.users = UserManager()
         self.decks = DeckManager()

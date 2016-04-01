@@ -55,7 +55,7 @@ def init(app):
     def highlights():
         session = DBManager.create_session()
         dates_with_highlights = []
-        highlights = session.query(StreamChunkHighlight).options(joinedload('*')).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
+        highlights = session.query(StreamChunkHighlight).options(joinedload('*')).filter(StreamChunkHighlight.created_at >= (datetime.datetime.utcnow() - datetime.timedelta(days=60))).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
         for highlight in highlights:
             dates_with_highlights.append(datetime.datetime(
                 year=highlight.created_at.year,

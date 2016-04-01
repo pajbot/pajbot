@@ -78,7 +78,7 @@ class TriviaModule(BaseModule):
             self.question = r.json()[0]
             self.question['answer'] = self.question['answer'].replace('<i>', '').replace('</i>', '').replace('\\', '').replace('(', '').replace(')', '').strip('"').strip('.')
 
-            if len(self.question['answer']) == 0 or len(self.question['question']) <= 1:
+            if len(self.question['answer']) == 0 or len(self.question['question']) <= 1 or 'href=' in self.question['answer']:
                 self.question = None
                 return
 
