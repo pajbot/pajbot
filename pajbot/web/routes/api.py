@@ -746,14 +746,16 @@ def init(app):
             self.post_parser.add_argument('streamtip_client_id', trim=True, required=True)
             self.post_parser.add_argument('streamtip_access_token', trim=True, required=True)
             self.post_parser.add_argument('widget_type', trim=True, required=True)
-            self.post_parser.add_argument('sound_url', trim=True, required=True)
-            self.post_parser.add_argument('sound_delay', type=int, required=True)
-            self.post_parser.add_argument('sound_volume', type=float, required=True)
-            self.post_parser.add_argument('image_url', trim=True, required=True)
             self.post_parser.add_argument('widget_width', type=int, required=True)
             self.post_parser.add_argument('widget_height', type=int, required=True)
             self.post_parser.add_argument('custom_css', trim=True, required=True)
             self.post_parser.add_argument('tts', trim=True, required=True)
+
+            # Default styles
+            self.post_parser.add_argument('styles', trim=True, required=True)
+
+            # Conditions
+            self.post_parser.add_argument('conditions', trim=True, required=True)
 
         @requires_level(1500)
         def post(self, widget_id, **options):
@@ -761,6 +763,10 @@ def init(app):
 
             # special case for boolean values
             args['tts'] = args['tts'] == 'true'
+
+            # parse json from these string values
+            args['styles'] = json.loads(args['styles'])
+            args['conditions'] = json.loads(args['conditions'])
 
             streamer = StreamHelper.get_streamer()
             key = '{streamer}:clr:donations'.format(streamer=streamer)

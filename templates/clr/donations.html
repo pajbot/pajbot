@@ -13,14 +13,25 @@
 <script type="text/javascript" src="/static/scripts/clr.queue.js"></script>
     <style>
 #tip-alert {
-    background-image: url('{{ widget.image_url }}');
     width: {{ widget.widget_width }}px;
     height: {{ widget.widget_height }}px;
 }
 
+{%- for style in widget.styles %}
+#tip-alert.cdefault.s{{ style.index }} {
+    background-image: url('{{ style.image_url }}');
+}
+{% endfor -%}
+
+{%- for condition in widget.conditions %}
+    {%- for style in condition.styles %}
+    #tip-alert.c{{ condition.index }}.s{{ style.index }} {
+        background-image: url('{{ style.image_url }}');
+    }
+    {% endfor -%}
+{% endfor -%}
+
 {{ widget.custom_css|safe}}
-    /* TODO: Custom CSS from widget in database */
-    /* redis? */
     </style>
 {% set widget_type = widget.widget_type or 'split' %}
   </head>
@@ -37,6 +48,48 @@
 var emotes = {
     {%- for emote in emotes if emote.code[0] != ':' %}'{{ emote.code }}':{i:{{ emote.emote_id if emote.emote_id else 'null' }},h:{{ "'{}'".format(emote.emote_hash)|safe if emote.emote_hash else 'null' }}},{% endfor -%}
 };
+var conditions = [
+    {
+        index: 'default',
+        condition: true,
+        styles: {
+            {%- for style in widget.styles %}
+            '{{ style.index }}': {
+                index: '{{ style.index }}',
+                sound: {
+                    enabled: true,
+                    volume: {{ style.sound_volume or 1.0 }},
+                    delay: {{ style.sound_delay or 0 }},
+                    url: '{{ style.sound_url }}',
+                }
+            },
+            {% endfor -%}
+        }
+    },
+{%- for condition in widget.conditions %}
+    {
+        index: '{{ condition.index }}',
+        condition: {
+            operator: '{{ condition.operator|safe }}',
+            amount: {{ condition.amount }},
+        },
+        styles: {
+            {%- for style in condition.styles %}
+            '{{ style.index }}': {
+                index: '{{ style.index }}',
+                sound: {
+                    index: '{{ style.index }}',
+                    enabled: true,
+                    volume: {{ style.sound_volume or 1.0 }},
+                    delay: {{ style.sound_delay or 0 }},
+                    url: '{{ style.sound_url }}',
+                }
+            },
+            {% endfor -%}
+        }
+    },
+{% endfor -%}
+];
 var queue = new Queue();
 var queue_active = false;
 
@@ -81,70 +134,112 @@ function check_queue()
                 var donation = queue.dequeue();
                 var note = filter_words(donation['note']);
                 var username = filter_words(donation['username']);
-            show_tip(username, donation['amount'], donation['currencySymbol'], note, '{{ widget_type }}');
+                var current_condition = '???';
+                var current_style = '0';
+                var available_styles = [];
+
+                /* figure out what condition to use */
+                $.each(conditions, function(_, condition) {
+                    var match = false;
+                    if (condition.condition === true) {
+                        match = true;
+                    } else {
+                        var match_amount = parseFloat(condition.condition.amount);
+                        if (condition.condition.operator == '>=') {
+                            match = (donation['amount'] >= match_amount);
+                        } else if (condition.condition.operator == '>') {
+                            match = (donation['amount'] > match_amount);
+                        } else if (condition.condition.operator == '<=') {
+                            match = (donation['amount'] <= match_amount);
+                        } else if (condition.condition.operator == '<') {
+                            match = (donation['amount'] < match_amount);
+                        } else if (condition.condition.operator == '==') {
+                            match = (donation['amount'] == match_amount);
+                        }
+                    }
+
+                    if (match) {
+                        current_condition = condition.index;
+                        available_styles = condition.styles;
+                    }
+                });
+                var style_keys = Object.keys(available_styles);
+                var num_styles = style_keys.length;
+                if (num_styles > 0) {
+                    var random_style_id = style_keys[Math.floor(Math.random() * num_styles)];
+                    var style = available_styles[random_style_id];
+                    current_style = style.index;
+                }
+                show_tip(username,
+                        donation['amount'],
+                        donation['currencySymbol'],
+                        note,
+                        '{{ widget_type }}',
+                        current_condition,
+                        current_style);
             }
         }
         check_queue();
     }, 500);
 }
 
-var client_id = '{{ widget.streamtip_client_id }}';
-var access_token = '{{ widget.streamtip_access_token }}';
-{% if widget.sound_url|length > 0 %}
-sound = {
-    enabled: true,
-    volume: {{ widget.sound_volume or 1.0 }},
-    delay: {{ widget.sound_delay or 0 }},
-    url: '{{ widget.sound_url }}',
-};
-{% else %}
-sound = {
-    enabled: false,
-};
-{% endif %}
-
-if (sound.enabled) {
-    var param = getParameterByName('volume');
-    if (param.length > 0) {
-        var new_volume = sound.volume;
-        try {
-            new_volume = parseFloat(param);
-        } catch (err) {
-        }
-
-        if (new_volume > 1.0) {
-            new_volume = 1.0;
-        } else if (new_volume < 0.0) {
-            new_volume = 0.0;
-        }
-
-        sound.volume = new_volume;
+var global_volume = false;
+var param = getParameterByName('volume');
+if (param.length > 0) {
+    try {
+        global_volume = parseFloat(param);
+    } catch (err) {
     }
 
-    console.log('Loading audio from ' + sound.url);
-    sound.audio = new Audio(sound.url);
-    sound.audio.volume = sound.volume;
-    sound.audio.addEventListener('error', function(e) {
-        console.log('An error occured while loading the sound.');
-        switch (e.target.error.code) {
-            case e.target.error.MEDIA_ERR_ABORTED:
-                console.error('You aborted the video playback.');
-                break;
-            case e.target.error.MEDIA_ERR_NETWORK:
-                console.error('A network error caused the audio download to fail.');
-                break;
-            case e.target.error.MEDIA_ERR_DECODE:
-                console.error('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
-                break;
-            case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                console.error('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
-                break;
-            default:
-                console.error('An unknown error occurred.');
-                break;
+    if (global_volume > 1.0) {
+        global_volume = 1.0;
+    } else if (global_volume < 0.0) {
+        global_volume = 0.0;
+    }
+}
+
+var client_id = '{{ widget.streamtip_client_id }}';
+var access_token = '{{ widget.streamtip_access_token }}';
+/* Preload all sounds */
+for (var i in conditions) {
+    console.log(i);
+    for (var j in conditions[i].styles) {
+        console.log(conditions[i].styles[j].index);
+        if (conditions[i].styles[j].sound.url.length > 0) {
+            conditions[i].styles[j].sound.enabled = true;
+            if (global_volume !== false) {
+                conditions[i].styles[j].sound.volume = global_volume;
+            }
+            var sound = conditions[i].styles[j].sound;
+            console.log('Loading audio from ' + sound.url);
+            sound.audio = new Audio(sound.url);
+            sound.audio.volume = sound.volume;
+            sound.audio.addEventListener('error', function(e) {
+                console.log('An error occured while loading the sound.');
+                switch (e.target.error.code) {
+                    case e.target.error.MEDIA_ERR_ABORTED:
+                        console.error('You aborted the video playback.');
+                        break;
+                    case e.target.error.MEDIA_ERR_NETWORK:
+                        console.error('A network error caused the audio download to fail.');
+                        break;
+                    case e.target.error.MEDIA_ERR_DECODE:
+                        console.error('The audio playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+                        break;
+                    case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        console.error('The video audio not be loaded, either because the server or network failed or because the format is not supported.');
+                        break;
+                    default:
+                        console.error('An unknown error occurred.');
+                        break;
+                }
+                console.error(e);
+            });
+        } else {
+            conditions[i].styles[j].sound.enabled = false;
         }
-        console.error(e);
-    });
+        console.log(conditions[i].styles[j].sound);
+    }
 }
 tts_playing = false;
 streamer = '{{ streamer.full_name }}';
