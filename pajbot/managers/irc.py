@@ -58,8 +58,9 @@ class SingleIRCManager(IRCManager):
         super().__init__(bot)
 
         self.relay_host = bot.config['main'].get('relay_host')
+        self.relay_password = bot.config['main'].get('relay_password')
 
-        self.connection_manager = SingleConnectionManager(self.bot.reactor, self.relay_host, self.username, self.password)
+        self.connection_manager = SingleConnectionManager(self.bot.reactor, self.relay_host, self.relay_password, self.username, self.password)
 
     def whisper(self, username, message):
         return self.connection_manager.whisper(username, message)

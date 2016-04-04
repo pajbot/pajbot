@@ -49,11 +49,11 @@ class StaticInterval(ReconnectStrategy):
 
 
 class SingleConnectionManager:
-    def __init__(self, reactor, host, username, password):
+    def __init__(self, reactor, host, relay_password, username, password):
         self.reactor = reactor
         self.host = host
         self.username = username
-        self.password = 'penis123;' + password
+        self.password = '{};{}'.format(relay_password, password)
 
         # Try to reconnect every 3 seconds
         self.recon = StaticInterval(3)
