@@ -20,11 +20,31 @@ function escapeRegExp(str) {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
 
-function show_tip(user, amount, symbol, note, type)
+function show_tip(user, amount, symbol, note, type, condition, style)
 {
+    if (condition === undefined) {
+        condition = 'default';
+    }
+    if (style === undefined) {
+        style = '0';
+    }
+
     if (timer) {
         clearTimeout(timer);
     }
+
+    var condition_id = 0;
+    for (var i in conditions) {
+        if (condition == conditions[i].index) {
+            condition_id = i;
+            console.log('FOUND IT XD');
+            break;
+        }
+    }
+    console.log(conditions);
+    console.log('Condition: ' + condition);
+    console.log('Style: ' + style);
+    var sound = conditions[condition_id].styles[style].sound;
 
     if (sound.enabled) {
         setTimeout(function() {
@@ -34,6 +54,7 @@ function show_tip(user, amount, symbol, note, type)
     
     var original_note = note;
 
+    /* Strip donation message and username of HTML tags */
     note = $('<div/>').html(note).text();
     user = $('<div/>').html(user).text();
 
@@ -57,6 +78,8 @@ function show_tip(user, amount, symbol, note, type)
         $("#new-tip").text(symbol+amount+' from '+user);
         $("#new-tip-note").html(note);
     }
+    $('#tip-alert').removeClass();
+    $('#tip-alert').addClass(type + ' c' + condition + ' s' + style);
     $("#tip-alert").fadeIn("slow", function() {
         // do nothing
     });

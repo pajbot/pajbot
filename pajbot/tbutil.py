@@ -43,7 +43,7 @@ def init_logging(app='pajbot'):
 
     # Uncomment the line below if you want full debug messages from everything!
     # This includes all debug messages from the IRC libraries, which can be useful for debugging.
-    # logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG - 2)
 
     log = logging.getLogger(app)
     log.setLevel(logging.DEBUG)

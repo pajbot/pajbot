@@ -13,18 +13,18 @@ from pytz import timezone
 
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
-from pajbot.managers import ConnectionManager
 from pajbot.managers import DBManager
 from pajbot.managers import DeckManager
 from pajbot.managers import FilterManager
 from pajbot.managers import HandlerManager
 from pajbot.managers import KVIManager
+from pajbot.managers import MultiIRCManager
 from pajbot.managers import RedisManager
 from pajbot.managers import ScheduleManager
+from pajbot.managers import SingleIRCManager
 from pajbot.managers import TimeManager
 from pajbot.managers import TwitterManager
 from pajbot.managers import WebSocketManager
-from pajbot.managers import WhisperConnectionManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
@@ -43,10 +43,6 @@ from pajbot.tbutil import time_since
 log = logging.getLogger('pajbot')
 
 
-def do_nothing(c, e):
-    pass
-
-
 class TMI:
     message_limit = 90
     whispers_message_limit = 20
@@ -58,7 +54,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.7.0'
+    version = '2.7.2'
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
@@ -177,7 +173,7 @@ class Bot:
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
-        self.reactor = irc.client.Reactor()
+        self.reactor = irc.client.Reactor(self.on_connect)
         self.start_time = datetime.datetime.now()
         ActionParser.bot = self
 
@@ -222,7 +218,6 @@ class Bot:
                 }
 
         self.execute_every(10 * 60, self.commit_all)
-        self.execute_every(30, lambda: self.connection_manager.get_main_conn().ping('tmi.twitch.tv'))
 
         try:
             self.admin = self.config['main']['admin']
@@ -233,13 +228,13 @@ class Bot:
 
         self.parse_version()
 
-        self.connection_manager = ConnectionManager(self.reactor, self, TMI.message_limit, streamer=self.streamer)
-        chub = self.config['main'].get('control_hub', None)
-        if chub is not None:
-            self.control_hub = ConnectionManager(self.reactor, self, TMI.message_limit, streamer=chub, backup_conns=1)
-            log.info('start pls')
+        relay_host = self.config['main'].get('relay_host', None)
+        if relay_host is None:
+            self.irc = MultiIRCManager(self)
         else:
-            self.control_hub = None
+            self.irc = SingleIRCManager(self)
+
+        self.reactor.add_global_handler('all_events', self.irc._dispatcher, -10)
 
         twitch_client_id = None
         twitch_oauth = None
@@ -248,11 +243,6 @@ class Bot:
             twitch_oauth = self.config['twitchapi'].get('oauth', None)
 
         self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
-
-        self.reactor.add_global_handler('all_events', self._dispatcher, -10)
-
-        self.whisper_manager = WhisperConnectionManager(self.reactor, self, self.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
-        self.whisper_manager.start(accounts=[{'username': self.nickname, 'oauth': self.password, 'can_send_whispers': self.config.getboolean('main', 'add_self_as_whisper_account')}])
 
         self.ascii_timeout_duration = 120
         self.msg_length_timeout_duration = 120
@@ -294,6 +284,9 @@ class Bot:
 
         # XXX: TEMPORARY UGLY CODE
         HandlerManager.add_handler('on_user_gain_tokens', self.on_user_gain_tokens)
+
+    def on_connect(self, sock):
+        return self.irc.on_connect(sock)
 
     def on_user_gain_tokens(self, user, tokens_gained):
         self.whisper(user.username, 'You finished todays quest! You have been awarded with {} tokens.'.format(tokens_gained))
@@ -364,11 +357,6 @@ class Bot:
             user.subscriber = True
 
         log.debug('end of stage 2 of update subs')
-
-    def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
-            method = getattr(self, 'on_' + event.type, do_nothing)
-            method(connection, event)
 
     def start(self):
         """Start the IRC client."""
@@ -505,16 +493,10 @@ class Bot:
         return None
 
     def privmsg(self, message, channel=None, increase_message=True):
-        try:
-            if channel is None:
-                channel = self.channel
+        if channel is None:
+            channel = self.channel
 
-            if self.control_hub is not None and self.control_hub.channel == channel:
-                self.control_hub.privmsg(channel, message)
-            else:
-                self.connection_manager.privmsg(channel, message, increase_message=increase_message)
-        except Exception:
-            log.exception('Exception caught while sending privmsg')
+        return self.irc.privmsg(message, channel, increase_message=increase_message)
 
     def c_uptime(self):
         return time_since(datetime.datetime.now().timestamp(), self.start_time.timestamp())
@@ -592,10 +574,9 @@ class Bot:
         if len(messages) < 0:
             return False
 
-        if self.whisper_manager:
-            self.whisper_manager.whisper(username, separator.join(messages))
-        else:
-            log.debug('No whisper conn set up.')
+        message = separator.join(messages)
+
+        return self.irc.whisper(username, message)
 
     def say(self, *messages, channel=None, separator='. '):
         """
@@ -644,21 +625,13 @@ class Bot:
                 pass
 
     def on_welcome(self, chatconn, event):
-        if chatconn in self.whisper_manager:
-            log.debug('Connected to Whisper server.')
-        else:
-            log.debug('Connected to IRC server.')
+        return self.irc.on_welcome(chatconn, event)
 
     def connect(self):
-        return self.connection_manager.start()
+        return self.irc.start()
 
     def on_disconnect(self, chatconn, event):
-        if chatconn in self.whisper_manager:
-            log.debug('Whispers: Disconnecting from Whisper server')
-            self.whisper_manager.on_disconnect(chatconn)
-        else:
-            log.debug('Disconnected from IRC server')
-            self.connection_manager.on_disconnect(chatconn)
+        self.irc.on_disconnect(chatconn, event)
 
     def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
@@ -800,6 +773,7 @@ class Bot:
         self.last_pong = datetime.datetime.now()
 
     def on_pubnotice(self, chatconn, event):
+        return
         type = 'whisper' if chatconn in self.whisper_manager else 'normal'
         log.debug('NOTICE {}@{}: {}'.format(type, event.target, event.arguments))
 
@@ -872,9 +846,7 @@ class Bot:
 
         self.twitter_manager.quit()
         self.socket_manager.quit()
-
-        if self.whisper_manager:
-            self.whisper_manager.quit()
+        self.irc.quit()
 
         sys.exit(0)
 

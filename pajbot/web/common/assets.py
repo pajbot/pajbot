@@ -63,6 +63,11 @@ def init(app):
     assets.register('admin_create_row', admin_create_row)
     assets.register('admin_edit_command', admin_edit_command)
 
+    # Admin CLR
+    admin_clr_donations_edit_js = Bundle('scripts/admin/clr/donations/edit.js',
+            output='scripts/admin/clr/donations/gen.edit.%(version)s.js')
+    assets.register('admin_clr_donations_edit_js', admin_clr_donations_edit_js)
+
     notifications_base = Bundle('scripts/notifications/base.js', filters='jsmin',
             output='scripts/notifications/base.gen.%(version)s.js')
     assets.register('notifications_base', notifications_base)

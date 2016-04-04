@@ -12,9 +12,10 @@ log = logging.getLogger(__name__)
 
 
 class Sample:
-    def __init__(self, command, href, new=False):
+    def __init__(self, command, *links, new=False):
         self.command = command
-        self.href = href
+        self.links = links
+        self.href = links[0]
         self.new = new
 
     def __lt__(self, other):
