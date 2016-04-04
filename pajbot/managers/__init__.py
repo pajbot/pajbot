@@ -5,6 +5,8 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
 from pajbot.managers.filter import FilterManager
 from pajbot.managers.handler import HandlerManager
+from pajbot.managers.irc import MultiIRCManager
+from pajbot.managers.irc import SingleIRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
