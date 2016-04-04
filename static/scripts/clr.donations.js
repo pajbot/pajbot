@@ -76,7 +76,7 @@ function tts_message(message)
     var voice = 'en-US_LisaVoice';
     var voice = 'en-GB_KateVoice';
     var voice = 'en-US_AllisonVoice';
-    message = message.replace('#', 'hashtag');
+    message = message.replace(new RegExp('#', 'g'), 'hashtag');
     var tts_url = 'https://hosted.stylerdev.io/api/synthesize?voice=' + voice + '&text=' + encodeURI(message) + '&token=' + tts_authorization;
 
     tts_sound = new Audio();
