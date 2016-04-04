@@ -20,6 +20,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import noload
 
+import pajbot.modules
 from pajbot.managers import AdminLogManager
 from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
@@ -37,6 +38,7 @@ from pajbot.models.stream import Stream
 from pajbot.models.timer import Timer
 from pajbot.models.twitter import TwitterUser
 from pajbot.models.user import User
+from pajbot.modules.base import ModuleType
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import find
 from pajbot.web.utils import requires_level
@@ -547,6 +549,15 @@ def banphrase_remove(banphrase_id, **options):
         return make_response(jsonify({'success': 'good job'}))
 
 
+def validate_module(module_id):
+    module = find(lambda m: m.ID == module_id, pajbot.modules.available_modules)
+
+    if module is None:
+        return False
+
+    return module.MODULE_TYPE not in (ModuleType.TYPE_ALWAYS_ENABLED, )
+
+
 @page.route('/api/v1/<route_key>/toggle/<row_id>', methods=['POST'])
 @requires_level(500)
 def generic_toggle(route_key, row_id, **options):
@@ -568,6 +579,10 @@ def generic_toggle(route_key, row_id, **options):
             'module': 'Module',
             }
 
+    route_validator = {
+            'module': lambda x: validate_module(x.id)
+            }
+
     if route_key not in valid_routes:
         return make_response(jsonify({'error': 'Invalid route.'}), 400)
     if 'new_state' not in request.form:
@@ -582,6 +597,13 @@ def generic_toggle(route_key, row_id, **options):
     with DBManager.create_session_scope() as db_session:
         row = db_session.query(route_value).filter_by(id=row_id).one_or_none()
         if row:
+            validator = route_validator.get(route_key, None)
+
+            if validator is not None:
+                res = validator(row)
+                if not res:
+                    return make_response(jsonify({'error': 'cannot modify {}'.format(route_key)}), 400)
+
             row.enabled = True if new_state == 1 else False
             db_session.commit()
             payload = {

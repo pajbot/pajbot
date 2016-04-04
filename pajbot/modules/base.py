@@ -80,6 +80,11 @@ class ModuleSetting:
         return value in self.options, value
 
 
+class ModuleType:
+    TYPE_NORMAL = 1
+    TYPE_ALWAYS_ENABLED = 2
+
+
 class BaseModule:
     """
     This class will include all the basics that a module needs
@@ -96,6 +101,7 @@ class BaseModule:
     PARENT_MODULE = None
     CATEGORY = 'Uncategorized'
     HIDDEN = False
+    MODULE_TYPE = ModuleType.TYPE_NORMAL
 
     def __init__(self):
         """ Initialize any dictionaries the module might or might not use. """

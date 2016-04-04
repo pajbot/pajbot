@@ -715,19 +715,6 @@ class CommandManager(UserDict):
         self.internal_commands['rem'] = self.internal_commands['remove']
         self.internal_commands['del'] = self.internal_commands['remove']
         self.internal_commands['delete'] = self.internal_commands['remove']
-        self.internal_commands['debug'] = Command.multiaction_command(
-                level=250,
-                delay_all=0,
-                delay_user=0,
-                default=None,
-                commands={
-                    'command': Command.dispatch_command('debug_command',
-                        level=250,
-                        description='Debug a command'),
-                    'user': Command.dispatch_command('debug_user',
-                        level=250,
-                        description='Debug a user'),
-                    })
         self.internal_commands['level'] = Command.dispatch_command('level',
                 level=1000,
                 description='Set a users level')
