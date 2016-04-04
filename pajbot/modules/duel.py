@@ -255,9 +255,10 @@ class DuelModule(BaseModule):
                     'extra_points': winning_pot,
                     }
 
-            if source.duel_price >= 500:
+            if source.duel_price > 0:
                 message = self.get_phrase('message_won_points', **arguments)
-                bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
+                if source.duel_price >= 500:
+                    bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
             else:
                 message = self.get_phrase('message_won', **arguments)
             bot.say(message)
