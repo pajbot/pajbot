@@ -229,7 +229,8 @@ class Bot:
         self.parse_version()
 
         relay_host = self.config['main'].get('relay_host', None)
-        if relay_host is None:
+        relay_password = self.config['main'].get('relay_password', None)
+        if relay_host is None or relay_password is None:
             self.irc = MultiIRCManager(self)
         else:
             self.irc = SingleIRCManager(self)
