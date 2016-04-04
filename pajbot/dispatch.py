@@ -747,6 +747,7 @@ class Dispatch:
             bot.say('{0} was not found in the user database'.format(username))
 
     def last_seen(bot, source, message, event, args):
+        log.error('Dispatch::last_seen is DEPRECATED')
         if message:
             username = message.split(' ')[0].strip().lower()
 
@@ -755,22 +756,6 @@ class Dispatch:
                 bot.say('{0}, {1} was last seen {2}, last active {3}'.format(source.username_raw, user.username, user.last_seen, user.last_active))
             else:
                 bot.say('{0}, No user with that name found.'.format(source.username_raw))
-
-    def points(bot, source, message, event, args):
-        log.error('DEPRECATED: Use a normal message')
-        if message:
-            username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(username)
-        else:
-            user = source
-
-        if user:
-            if user == source:
-                bot.say('{0}, you have {1} points.'.format(source.username, user.points))
-            else:
-                bot.say('{0}, {1} has {2} points.'.format(source.username, user.username, user.points))
-        else:
-            return False
 
     def remindme(bot, source, message, event, args):
         if not message:
