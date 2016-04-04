@@ -216,25 +216,19 @@ class RouletteModule(BaseModule):
         }
 
         if points > 0:
-            if self.settings['options_output'] == '1. Show results in chat':
-                bot.me(self.get_phrase('message_won', **arguments))
-            if self.settings['options_output'] == '2. Show results in whispers':
-                bot.whisper(user.username, self.get_phrase('message_won', **arguments))
-            if self.settings['options_output'] == '3. Show results in chat if it\'s over X points else it will be whispered.':
-                if points >= self.settings['min_show_points']:
-                    bot.me(self.get_phrase('message_won', **arguments))
-                else:
-                    bot.whisper(user.username, self.get_phrase('message_won', **arguments))
+            out_message = self.get_phrase('message_won', **arguments)
         else:
-            if self.settings['options_output'] == '1. Show results in chat':
-                bot.me(self.get_phrase('message_lost', **arguments))
-            if self.settings['options_output'] == '2. Show results in whispers':
-                bot.whisper(user.username, self.get_phrase('message_lost', **arguments))
-            if self.settings['options_output'] == '3. Show results in chat if it\'s over X points else it will be whispered.':
-                if points <= -self.settings['min_show_points']:
-                    bot.me(self.get_phrase('message_lost', **arguments))
-                else:
-                    bot.whisper(user.username, self.get_phrase('message_lost', **arguments))
+            out_message = self.get_phrase('message_lost', **arguments)
+
+        if self.settings['options_output'] == '1. Show results in chat':
+            bot.me(out_message)
+        if self.settings['options_output'] == '2. Show results in whispers':
+            bot.whisper(user.username, out_message)
+        if self.settings['options_output'] == '3. Show results in chat if it\'s over X points else it will be whispered.':
+            if abs(points) >= self.settings['min_show_points']:
+                bot.me(out_message)
+            else:
+                bot.whisper(user.username, out_message)
 
         HandlerManager.trigger('on_roulette_finish', user, points)
 
