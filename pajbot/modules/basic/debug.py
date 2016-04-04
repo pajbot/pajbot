@@ -4,6 +4,7 @@ import logging
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
+from pajbot.modules.basic import BasicCommandsModule
 
 log = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ class DebugModule(BaseModule):
     CATEGORY = 'Feature'
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
+    PARENT_MODULE = BasicCommandsModule
 
     def debug_command(self, **options):
         message = options['message']

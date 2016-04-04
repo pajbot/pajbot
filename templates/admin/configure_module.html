@@ -31,10 +31,12 @@
                 <td class="collapsing">{{ row.NAME }}</td>
                 <td>{{ row.DESCRIPTION }}</td>
                 <td class="right aligned collapsing">
-                    <div class="ui toggle checkbox">
-                        <input type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.db_module.enabled else '' }}>
-                        <label></label>
-                    </div>
+                    {% if row.MODULE_TYPE != 2 %}
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.db_module.enabled else '' }}>
+                            <label></label>
+                        </div>
+                    {% endif %}
                 </td>
                 <td class="right aligned collapsing">
                 <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>

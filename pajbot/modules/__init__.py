@@ -4,6 +4,9 @@ from pajbot.modules.base import ModuleType
 
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
+from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules.basic.checkmod import CheckModModule
+from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
@@ -52,8 +55,6 @@ from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
-from pajbot.modules.basic import BasicCommandsModule
-from pajbot.modules.basic.debug import DebugModule
 
 available_modules = [
         AsciiProtectionModule,
@@ -61,6 +62,7 @@ available_modules = [
         BasicCommandsModule,
         BingoModule,
         ChattersModule,
+        CheckModModule,
         DebugModule,
         DeckModule,
         DuelModule,
