@@ -7,6 +7,8 @@ from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.modules.basic.checkmod import CheckModModule
 from pajbot.modules.basic.debug import DebugModule
+from pajbot.modules.basic.ignore import IgnoreModule
+from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
@@ -75,6 +77,7 @@ available_modules = [
         GivePointsModule,
         HSBetModule,
         HighlightModule,
+        IgnoreModule,
         LastfmModule,
         LeagueRankModule,
         LineFarmingModule,
@@ -85,6 +88,7 @@ available_modules = [
         PaidSubmodeModule,
         PaidTimeoutDiscountModule,
         PaidTimeoutModule,
+        PermabanModule,
         PersonalUptimeModule,
         PlaySoundTokenCommandModule,
         PointLotteryModule,

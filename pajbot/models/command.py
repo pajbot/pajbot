@@ -534,46 +534,6 @@ class CommandManager(UserDict):
 
         self.internal_commands['ceaseallactionscurrentlybeingacteduponwiththecodeandiapologizeforbeingawhitecisgenderedmaleinthepatriarchy'] = self.internal_commands['quit']
 
-        self.internal_commands['ignore'] = Command.dispatch_command('ignore',
-                level=1000,
-                description='Ignore a user, which means he can\'t run any commands',
-                examples=[
-                    CommandExample(None, 'Default usage',
-                        chat='user:!ignore Karl_Kons\n'
-                        'bot>user:Now ignoring Karl_Kons',
-                        description='Ignore user Karl_Kons').parse(),
-                    ])
-
-        self.internal_commands['unignore'] = Command.dispatch_command('unignore',
-                level=1000,
-                description='Unignore a user',
-                examples=[
-                    CommandExample(None, 'Default usage',
-                        chat='user:!unignore Karl_Kons\n'
-                        'bot>user:No longer ignoring Karl_Kons',
-                        description='Unignore user Karl_Kons').parse(),
-                    ])
-
-        self.internal_commands['permaban'] = Command.dispatch_command('permaban',
-                level=1000,
-                description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again',
-                examples=[
-                    CommandExample(None, 'Default usage',
-                        chat='user:!permaban Karl_Kons\n'
-                        'bot>user:Karl_Kons has now been permabanned',
-                        description='Permanently ban Karl_Kons from the chat').parse(),
-                    ])
-
-        self.internal_commands['unpermaban'] = Command.dispatch_command('unpermaban',
-                level=1000,
-                description='Remove a permanent ban from a user',
-                examples=[
-                    CommandExample(None, 'Default usage',
-                        chat='user:!unpermaban Karl_Kons\n'
-                        'bot>user:Karl_Kons is no longer permabanned',
-                        description='Remove permanent ban from Karl_Kons').parse(),
-                    ])
-
         self.internal_commands['twitterfollow'] = Command.dispatch_command('twitter_follow',
                 level=1000,
                 description='Start listening for tweets for the given user',
