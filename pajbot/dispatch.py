@@ -2,7 +2,6 @@ import datetime
 import logging
 import re
 
-from sqlalchemy import desc
 from sqlalchemy import func
 
 from pajbot.managers import AdminLogManager
@@ -101,16 +100,6 @@ class Dispatch:
                 return True
 
         return False
-
-    def silence(bot, source, message, event, args):
-        # XXX: This should be a module
-        bot.silent = True
-        bot.whisper(source.username, 'The bot is now in silent mode.')
-
-    def unsilence(bot, source, message, event, args):
-        # XXX: This should be a module
-        bot.silent = False
-        bot.whisper(source.username, 'The bot is no longer in silent mode.')
 
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
@@ -473,6 +462,7 @@ class Dispatch:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
     def level(bot, source, message, event, args):
+        # XXX: This should be a module
         if message:
             msg_args = message.split(' ')
             if len(msg_args) > 1:
@@ -514,15 +504,6 @@ class Dispatch:
                 username = msg_args[0]
                 rest = ' '.join(msg_args[1:])
                 bot.whisper(username, rest)
-
-    def top3(bot, source, message, event, args):
-        """Prints out the top 3 chatters"""
-        log.error('USE THE Top commands module instead of this')
-        users = []
-        for user in bot.users.db_session.query(User).order_by(desc(User.num_lines))[:3]:
-            users.append('{user.username_raw} ({user.num_lines})'.format(user=user))
-
-        bot.say('Top 3: {0}'.format(', '.join(users)))
 
     def ban(bot, source, message, event, args):
         if message:
