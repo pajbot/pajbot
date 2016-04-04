@@ -145,11 +145,11 @@ class RaffleModule(BaseModule):
                 examples=[
                     CommandExample(None, 'Start a raffle for 69 points',
                         chat='user:!raffle 69\n'
-                        'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in in 60 seconds.',
+                        'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.',
                         description='Start a 60-second raffle for 69 points').parse(),
                     CommandExample(None, 'Start a raffle with a different length',
                         chat='user:!raffle 69 30\n'
-                        'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in in 30 seconds.',
+                        'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.',
                         description='Start a 30-second raffle for 69 points').parse(),
                     ],
                 )
@@ -174,11 +174,11 @@ class RaffleModule(BaseModule):
                     examples=[
                         CommandExample(None, 'Start a multi-raffle for 69 points',
                             chat='user:!multiraffle 69\n'
-                            'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in in 60 seconds.',
+                            'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.',
                             description='Start a 60-second raffle for 69 points').parse(),
                         CommandExample(None, 'Start a multi-raffle with a different length',
                             chat='user:!multiraffle 69 30\n'
-                            'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in in 30 seconds.',
+                            'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.',
                             description='Start a 30-second multi-raffle for 69 points').parse(),
                         ],
                     )
