@@ -118,7 +118,6 @@ class MultiIRCManager(IRCManager):
             self.connection_manager.on_disconnect(chatconn)
 
     def _dispatcher(self, connection, event):
-        log.error('OMGScoots')
         if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
             method = getattr(self.bot, 'on_' + event.type, do_nothing)
             method(connection, event)
