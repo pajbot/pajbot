@@ -2,6 +2,7 @@ import collections
 import logging
 
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -82,8 +83,13 @@ class DebugModule(BaseModule):
             data['level'] = user.level
             data['num_lines'] = user.num_lines
             data['points'] = user.points
-            data['last_seen'] = user.last_seen
-            data['last_active'] = user.last_active
+            data['last_seen'] = user.last_seen.strftime('%Y-%m-%d %H:%M:%S %Z')
+            try:
+                data['last_active'] = user.last_active.strftime('%Y-%m-%d %H:%M:%S %Z')
+            except:
+                pass
+            data['ignored'] = user.ignored
+            data['banned'] = user.banned
             data['tokens'] = user.get_tokens()
 
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
@@ -99,8 +105,20 @@ class DebugModule(BaseModule):
                 commands={
                     'command': Command.raw_command(self.debug_command,
                         level=250,
-                        description='Debug a command'),
+                        description='Debug a command',
+                        examples=[
+                            CommandExample(None, 'Debug a command',
+                                chat='user:!debug command ping\n'
+                                'bot>user: id=210, level=100, type=message, cost=0, cd_all=10, cd_user=30, mod_only=False, response=Snusbot has been online for $(tb:bot_uptime)',
+                                description='').parse(),
+                            ]),
                     'user': Command.raw_command(self.debug_user,
                         level=250,
-                        description='Debug a user'),
+                        description='Debug a user',
+                        examples=[
+                            CommandExample(None, 'Debug a user',
+                                chat='user:!debug user snusbot\n'
+                                'bot>user: id=123, level=100, num_lines=45, points=225,  last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False, tokens=0',
+                                description='').parse(),
+                            ]),
                     })
