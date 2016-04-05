@@ -5,11 +5,12 @@ from pajbot.modules.base import ModuleType
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.basic.checkmod import CheckModModule
+from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
-from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
@@ -112,4 +113,5 @@ available_modules = [
         WinHsBetPointsQuestModule,
         WinHsBetWinsQuestModule,
         WinRaffleQuestModule,
+        DBManageModule,
         ]

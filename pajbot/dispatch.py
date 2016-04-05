@@ -706,15 +706,3 @@ class Dispatch:
                 bot.whisper(source.username, 'No longer following {}'.format(username))
             else:
                 bot.whisper(source.username, 'An error occured while attempting to unfollow {}, perhaps we are not following this person?'.format(username))
-
-    def reload(bot, source, message, event, args):
-        if message and message in bot.reloadable:
-            bot.reloadable[message].reload()
-        else:
-            bot.reload_all()
-
-    def commit(bot, source, message, event, args):
-        if message and message in bot.commitable:
-            bot.commitable[message].commit()
-        else:
-            bot.commit_all()

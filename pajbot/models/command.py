@@ -519,14 +519,6 @@ class CommandManager(UserDict):
 
         self.internal_commands = {}
 
-        self.internal_commands['reload'] = Command.dispatch_command('reload',
-                level=1000,
-                description='Reload a bunch of data from the database')
-
-        self.internal_commands['commit'] = Command.dispatch_command('commit',
-                level=1000,
-                description='Commit data from the bot to the database')
-
         self.internal_commands['quit'] = Command.pajbot_command(self.bot, 'quit',
                 level=1000,
                 command='quit',
