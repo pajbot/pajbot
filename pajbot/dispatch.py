@@ -718,10 +718,3 @@ class Dispatch:
             bot.commitable[message].commit()
         else:
             bot.commit_all()
-
-    def get_bttv_emotes(bot, source, message, event, args):
-        # XXX: This should be a module
-        if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:
-            bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
-        else:
-            bot.say('No BTTV Emotes active in this chat')
