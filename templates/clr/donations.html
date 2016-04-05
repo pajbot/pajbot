@@ -46,7 +46,7 @@
     </div>
     <script type="text/javascript">
 var emotes = {
-    {%- for emote in emotes if emote.code[0] != ':' %}'{{ emote.code }}':{i:{{ emote.emote_id if emote.emote_id else 'null' }},h:{{ "'{}'".format(emote.emote_hash)|safe if emote.emote_hash else 'null' }}},{% endfor -%}
+    {%- for emote in emotes if emote.code[0] != ':' and emote.code|length >= 3 %}'{{ emote.code }}':{i:{{ emote.emote_id if emote.emote_id else 'null' }},h:{{ "'{}'".format(emote.emote_hash)|safe if emote.emote_hash else 'null' }}},{% endfor -%}
 };
 var conditions = [
     {

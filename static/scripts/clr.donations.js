@@ -1,6 +1,10 @@
-function testtip()
+function testtip(message)
 {
-    show_tip('fake user', '5', '$', 'Hello, I hope this works Kappa. forsenW', widget_type);
+    if (message === undefined) {
+        message = 'Hello, I hope this works Kappa. forsenW';
+    }
+
+    show_tip('fake user', '5', '$', message, widget_type);
 }
 
 function testlong()
@@ -100,6 +104,7 @@ function tts_message(message)
     var voice = 'en-GB_KateVoice';
     var voice = 'en-US_AllisonVoice';
     message = message.replace(new RegExp('#', 'g'), 'hashtag');
+    message = message.replace(new RegExp('<3', 'g'), ' love ');
     var tts_url = 'https://hosted.stylerdev.io/api/synthesize?voice=' + voice + '&text=' + encodeURI(message) + '&token=' + tts_authorization;
 
     tts_sound = new Audio();
