@@ -5,6 +5,7 @@ from pajbot.modules.base import ModuleType
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules.basic.admincommands import AdminCommandsModule
 from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.basic.checkmod import CheckModModule
 from pajbot.modules.basic.dbmanage import DBManageModule
@@ -61,6 +62,7 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 
 available_modules = [
+        AdminCommandsModule,
         AsciiProtectionModule,
         BTTVEmotesModule,
         BanphraseModule,
@@ -68,6 +70,7 @@ available_modules = [
         BingoModule,
         ChattersModule,
         CheckModModule,
+        DBManageModule,
         DebugModule,
         DeckModule,
         DuelModule,
@@ -113,5 +116,4 @@ available_modules = [
         WinHsBetPointsQuestModule,
         WinHsBetWinsQuestModule,
         WinRaffleQuestModule,
-        DBManageModule,
         ]

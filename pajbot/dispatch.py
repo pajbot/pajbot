@@ -461,56 +461,6 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
-    def level(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            msg_args = message.split(' ')
-            if len(msg_args) > 1:
-                username = msg_args[0].lower()
-                new_level = int(msg_args[1])
-                if new_level >= source.level:
-                    bot.whisper(source.username, 'You cannot promote someone to the same or higher level as you ({0}).'.format(source.level))
-                    return False
-
-                # We create the user if the user didn't already exist in the database.
-                user = bot.users[username]
-
-                old_level = user.level
-                user.level = new_level
-
-                log_msg = '{}\'s user level changed from {} to {}'.format(
-                        user.username_raw,
-                        old_level,
-                        new_level)
-
-                bot.whisper(source.username, log_msg)
-
-                AdminLogManager.add_entry('Userlevel edited', source, log_msg)
-
-                return True
-
-        bot.whisper(source.username, 'Usage: !level USERNAME NEW_LEVEL')
-        return False
-
-    def say(bot, source, message, event, args):
-        # XXX: Remove this, just use !add command say --level 2000 $(args)
-        if message:
-            bot.say(message)
-
-    def whisper(bot, source, message, event, args):
-        if message:
-            msg_args = message.split(' ')
-            if len(msg_args) > 1:
-                username = msg_args[0]
-                rest = ' '.join(msg_args[1:])
-                bot.whisper(username, rest)
-
-    def ban(bot, source, message, event, args):
-        if message:
-            username = message.split(' ')[0]
-            log.debug('banning {0}'.format(username))
-            bot.ban(username)
-
     def paid_timeout(bot, source, message, event, args):
         if 'time' in args:
             _time = int(args['time'])
