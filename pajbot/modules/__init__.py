@@ -39,6 +39,7 @@ from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.personaluptime import PersonalUptimeModule
+from pajbot.modules.pleblist import PleblistModule
 from pajbot.modules.pointlottery import PointLotteryModule
 from pajbot.modules.predict import PredictModule
 from pajbot.modules.pyramid import PyramidModule
@@ -97,6 +98,7 @@ available_modules = [
         PermabanModule,
         PersonalUptimeModule,
         PlaySoundTokenCommandModule,
+        PleblistModule,
         PointLotteryModule,
         PredictModule,
         PyramidModule,

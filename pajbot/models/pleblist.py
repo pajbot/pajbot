@@ -19,6 +19,7 @@ class PleblistSong(Base):
 
     id = Column(Integer, primary_key=True)
     stream_id = Column(Integer, ForeignKey('tb_stream.id'), index=True, nullable=False)
+    user_id = Column(Integer, nullable=True)
     youtube_id = Column(String(64, collation='utf8mb4_bin'), index=True, nullable=False)
     date_added = Column(DateTime, nullable=False)
     date_played = Column(DateTime, nullable=True)
@@ -33,6 +34,7 @@ class PleblistSong(Base):
     def __init__(self, stream_id, youtube_id, **options):
         self.id = None
         self.stream_id = stream_id
+        self.user_id = options.get('user_id', None)
         self.youtube_id = youtube_id
         self.date_added = datetime.datetime.now()
         self.date_played = None

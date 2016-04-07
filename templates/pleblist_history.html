@@ -28,8 +28,13 @@
     <div class="content">
         <span class="header">{{ song.song_info.title if song.song_info else '???' }}</span>
         <div class="description">
-            Song link: <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br/>
-            Added: {{ song.date_added|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}<br />
+            Song link <a href="https://youtu.be/{{ song.youtube_id }}">youtu.be/{{ song.youtube_id }}</a><br/>
+            Added {{ song.date_added|localize|strftime('%Y-%m-%d %H:%M:%S %Z') }}
+            {% if song.user %}
+            {% set user = song.user %}
+            by {% include 'user/username_link_nobadge.html' %}
+            {% endif %}
+            <br />
             {% if song.date_played is not none %}
             {% if song.skip_after is none %}
             {% set song_duration = song.song_info.duration %}
