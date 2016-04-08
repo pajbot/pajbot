@@ -31,7 +31,7 @@ class DubtrackModule(BaseModule):
                     }),
             ModuleSetting(
                 key='phrase_current_song',
-                label='Current song message if no link is available | Available arguments: {song_name}, {song_link}',
+                label='Current song message | Available arguments: {song_name}, {song_link}',
                 type='text',
                 required=True,
                 placeholder='Current song: {song_name}, link: {song_link}',
@@ -42,7 +42,7 @@ class DubtrackModule(BaseModule):
                 }),
             ModuleSetting(
                 key='phrase_current_song_no_link',
-                label='Current song message if no link is available | Available arguments: {song_name}',
+                label='Current song message if no song link is available | Available arguments: {song_name}',
                 type='text',
                 required=True,
                 placeholder='Current song: {song_name}',
@@ -58,17 +58,6 @@ class DubtrackModule(BaseModule):
                 required=True,
                 placeholder='Request your songs at https://dubtrack.fm/join/{room_name}',
                 default='Request your songs at https://dubtrack.fm/join/{room_name}',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-            ModuleSetting(
-                key='room_link',
-                label='Room link | Available arguments: {room_link}',
-                type='text',
-                required=True,
-                placeholder='{user} won {bet} points in roulette and now has {points} points! FeelsGoodMan',
-                default='{user} won {bet} points in roulette and now has {points} points! FeelsGoodMan',
                 constraints={
                     'min_str_len': 10,
                     'max_str_len': 400,
