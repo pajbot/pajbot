@@ -3,6 +3,7 @@ import logging
 import re
 import requests
 
+
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 
@@ -88,7 +89,7 @@ class DubtrackModule(BaseModule):
         if self.song_link == '':
             bot.say('Current song: {0}'.format(self.song_name))
             return
-            
+
         bot.say('Current song: {0}, link: {1}'.format(self.song_name, self.song_link))
 
     def say_room(self, **options):
@@ -126,32 +127,32 @@ class DubtrackModule(BaseModule):
                 delay_all=5,
                 delay_user=15,
                 description='Get link to your dubtrack',
-            ),
+                ),
             'song': Command.raw_command(self.song,
                 level=100,
                 delay_all=5,
                 delay_user=15,
                 description='Get current song',
-            ),
+                ),
             'update': Command.raw_command(self.update,
                 level=500,
                 delay_all=0,
                 delay_user=0,
                 description='Force reloading the song and get current song',
-            ),
+                ),
             'room': Command.raw_command(self.say_room,
                 level=500,
                 delay_all=0,
                 delay_user=0,
                 description='Get dubtrack room',
-            ),
+                ),
             'changeroom': Command.raw_command(self.change_room,
                 level=500,
                 delay_all=0,
                 delay_user=0,
                 description='Change dubtrack room',
-            ),
-        }
+                ),
+            }
         commands['l'] = commands['link']
         commands['s'] = commands['song']
         commands['r'] = commands['room']
