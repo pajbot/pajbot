@@ -4,9 +4,7 @@ import re
 import requests
 
 from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
 
 
 log = logging.getLogger(__name__)
@@ -122,7 +120,7 @@ class DubtrackModule(BaseModule):
         self.song(bot=options['bot'])
 
     def load_commands(self, **options):
-        commands={
+        commands = {
             'link': Command.raw_command(self.link,
                 level=100,
                 delay_all=5,
@@ -161,7 +159,7 @@ class DubtrackModule(BaseModule):
         commands['c'] = commands['changeroom']
         commands['ch'] = commands['changeroom']
         commands['chr'] = commands['changeroom']
-        
+
         self.commands['dubtrack'] = Command.multiaction_command(
             level=100,
             default=commands['link'],
