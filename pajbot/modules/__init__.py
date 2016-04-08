@@ -70,7 +70,7 @@ available_modules = [
         CheckModModule,
         DebugModule,
         DeckModule,
-		DubtrackModule,
+        DubtrackModule,
         DuelModule,
         DummyModule,
         EightBallModule,
