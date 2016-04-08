@@ -3,6 +3,8 @@ from pajbot.managers.connection import ConnectionManager
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
+from pajbot.managers.emote import BTTVEmoteManager
+from pajbot.managers.emote import EmoteManager
 from pajbot.managers.filter import FilterManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import MultiIRCManager

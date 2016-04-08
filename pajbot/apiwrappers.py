@@ -6,9 +6,7 @@ import urllib.request
 
 import requests
 
-from pajbot.managers import RedisManager
-
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 class APIBase:
@@ -371,6 +369,9 @@ class TwitchAPI(APIBase):
 
         This value is cached in Redis for 2 minutes.
         """
+
+        # XXX TODO FIXME
+        from pajbot.managers.redis import RedisManager
 
         redis = RedisManager.get()
 
