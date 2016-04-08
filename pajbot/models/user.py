@@ -1,6 +1,7 @@
 import datetime
 import logging
 from collections import UserDict
+from contextlib import contextmanager
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -241,7 +242,22 @@ class User(Base):
     def can_afford(self, points_to_spend):
         return self.points_available() >= points_to_spend
 
+    @contextmanager
+    def spend_currency_context(self, points_to_spend, tokens_to_spend):
+        # TODO: After the token storage rewrite, use tokens here too
+        try:
+            self.spend_points(points_to_spend)
+            yield
+        except:
+            # An error occured, return the users points!
+            log.debug('Returning {} points to {}'.format(points_to_spend, self.username_raw))
+            self.points += points_to_spend
+
     def spend(self, points_to_spend):
+        # XXX: Remove all usages of spend() and use spend_points() instead
+        return self.spend_points(points_to_spend)
+
+    def spend_points(self, points_to_spend):
         if points_to_spend <= self.points:
             self.points -= points_to_spend
             return True

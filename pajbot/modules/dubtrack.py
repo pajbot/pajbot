@@ -169,6 +169,7 @@ class DubtrackModule(BaseModule):
                     delay_all=5,
                     delay_user=15,
                     description='Get current song',
+                    run_in_thread=True,
                     ),
                 'update': Command.raw_command(
                     self.update,

@@ -19,6 +19,7 @@ from sqlalchemy.orm import relationship
 
 from pajbot.managers import Base
 from pajbot.managers import DBManager
+from pajbot.managers import ScheduleManager
 from pajbot.models.action import ActionParser
 from pajbot.models.action import RawFuncAction
 from pajbot.tbutil import find
@@ -234,6 +235,7 @@ class Command(Base):
         self.last_run_by_user = {}
 
         self.data = None
+        self.run_in_thread = False
 
         self.set(**options)
 
@@ -265,6 +267,7 @@ class Command(Base):
         self.sub_only = options.get('sub_only', self.sub_only)
         self.mod_only = options.get('mod_only', self.mod_only)
         self.examples = options.get('examples', self.examples)
+        self.run_in_thread = options.get('run_in_thread', self.run_in_thread)
 
     @reconstructor
     def init_on_load(self):
@@ -272,6 +275,7 @@ class Command(Base):
         self.last_run_by_user = {}
         self.extra_args = {'command': self}
         self.action = ActionParser.parse(self.action_json)
+        self.run_in_thread = True
         if self.extra_extra_args:
             try:
                 self.extra_args.update(json.loads(self.extra_extra_args))
@@ -375,24 +379,31 @@ class Command(Base):
             return False
 
         args.update(self.extra_args)
-        ret = self.action.run(bot, source, message, event, args)
-        if ret is not False:
-            # Only spend points/tokens, and increment num_uses if the action succeded
-            if self.data is not None:
-                self.data.num_uses += 1
-                self.data.last_date_used = datetime.datetime.now()
-            if self.cost > 0:
-                if not source.spend(self.cost):
-                    # The user does not have enough points to spend!
-                    log.warning('{0} used points he does not have.'.format(source.username))
-                    return False
-            if self.tokens_cost > 0:
-                if not source.spend_tokens(self.tokens_cost):
-                    # The user does not have enough tokens to spend!
-                    log.warning('{0} used tokens he does not have.'.format(source.username))
-                    return False
-            self.last_run = cur_time
-            self.last_run_by_user[source.username] = cur_time
+        if self.run_in_thread:
+            ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
+        else:
+            self.run_action(bot, source, message, event, args)
+
+    def run_action(self, bot, source, message, event, args):
+        cur_time = time.time()
+        with source.spend_currency_context(self.cost, self.tokens_cost):
+            ret = self.action.run(bot, source, message, event, args)
+            if ret is False:
+                raise ValueError('return currency')
+            else:
+                # Only spend points/tokens, and increment num_uses if the action succeded
+                if self.data is not None:
+                    self.data.num_uses += 1
+                    self.data.last_date_used = datetime.datetime.now()
+                if self.tokens_cost > 0:
+                    if not source.spend_tokens(self.tokens_cost):
+                        # The user does not have enough tokens to spend!
+                        log.warning('{0} used tokens he does not have.'.format(source.username))
+                        return False
+
+                # TODO: Will this be an issue?
+                self.last_run = cur_time
+                self.last_run_by_user[source.username] = cur_time
 
     def autogenerate_examples(self):
         if len(self.examples) == 0 and self.id is not None and self.action.type == 'message':
