@@ -16,6 +16,7 @@ from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
 from pajbot.modules.deck import DeckModule
+from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
@@ -74,6 +75,7 @@ available_modules = [
         DBManageModule,
         DebugModule,
         DeckModule,
+        DubtrackModule,
         DuelModule,
         DummyModule,
         EightBallModule,
