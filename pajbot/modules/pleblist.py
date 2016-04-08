@@ -104,7 +104,7 @@ class PleblistModule(BaseModule):
                     PleblistManager.init(bot.config['youtube']['developer_key'])
                 except:
                     log.error('No youtube key set up.')
-                    bot.whisper('No youtube key set up')
+                    bot.whisper(source.username, 'No youtube key set up')
                     return False
 
                 song_info = PleblistManager.create_pleblist_song_info(youtube_id)
