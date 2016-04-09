@@ -27,9 +27,20 @@ class DubtrackModule(BaseModule):
                 placeholder='Dubtrack room (i.e. pajlada)',
                 default='pajlada',
                 constraints={
-                    'min_str_len': 2,
+                    'min_str_len': 1,
                     'max_str_len': 70,
                     }),
+            ModuleSetting(
+                key='phrase_room_link',
+                label='Room link message | Available arguments: {room_name}',
+                type='text',
+                required=True,
+                placeholder='Request your songs at https://dubtrack.fm/join/{room_name}',
+                default='Request your songs at https://dubtrack.fm/join/{room_name}',
+                constraints={
+                    'min_str_len': 1,
+                    'max_str_len': 400,
+                }),
             ModuleSetting(
                 key='phrase_current_song',
                 label='Current song message | Available arguments: {song_name}, {song_link}',
@@ -38,7 +49,7 @@ class DubtrackModule(BaseModule):
                 placeholder='Current song: {song_name}, link: {song_link}',
                 default='Current song: {song_name}, link: {song_link}',
                 constraints={
-                    'min_str_len': 10,
+                    'min_str_len': 1,
                     'max_str_len': 400,
                 }),
             ModuleSetting(
@@ -49,18 +60,7 @@ class DubtrackModule(BaseModule):
                 placeholder='Current song: {song_name}',
                 default='Current song: {song_name}',
                 constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-            ModuleSetting(
-                key='phrase_room_link',
-                label='Room link message | Available arguments: {room_name}',
-                type='text',
-                required=True,
-                placeholder='Request your songs at https://dubtrack.fm/join/{room_name}',
-                default='Request your songs at https://dubtrack.fm/join/{room_name}',
-                constraints={
-                    'min_str_len': 10,
+                    'min_str_len': 1,
                     'max_str_len': 400,
                 }),
             ModuleSetting(
@@ -71,9 +71,31 @@ class DubtrackModule(BaseModule):
                 placeholder='There\'s no song playing right now FeelsBadMan',
                 default='There\'s no song playing right now FeelsBadMan',
                 constraints={
-                    'min_str_len': 2,
+                    'min_str_len': 1,
                     'max_str_len': 400,
                 }),
+            ModuleSetting(
+                key='global_cd',
+                label='Global cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=5,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='user_cd',
+                label='Per-user cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=15,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 240,
+                    }),
                 ]
 
     def __init__(self, **options):
@@ -169,24 +191,25 @@ class DubtrackModule(BaseModule):
                 'link': Command.raw_command(
                     self.link,
                     level=100,
-                    delay_all=5,
-                    delay_user=15,
+                    delay_all=self.settings['global_cd'],
+                    delay_user=self.settings['user_cd'],
                     description='Get link to your dubtrack',
                 ),
                 'song': Command.raw_command(
                     self.song,
                     level=100,
-                    delay_all=5,
-                    delay_user=15,
+                    delay_all=self.settings['global_cd'],
+                    delay_user=self.settings['user_cd'],
                     description='Get current song',
                     run_in_thread=True,
                     ),
                 'update': Command.raw_command(
                     self.update,
                     level=500,
-                    delay_all=0,
-                    delay_user=0,
+                    delay_all=self.settings['global_cd'],
+                    delay_user=self.settings['user_cd'],
                     description='Force reloading the song and get current song',
+                    run_in_thread=True,
                     ),
                 }
         commands['l'] = commands['link']
