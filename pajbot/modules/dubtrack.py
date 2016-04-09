@@ -62,6 +62,17 @@ class DubtrackModule(BaseModule):
                     'min_str_len': 10,
                     'max_str_len': 400,
                 }),
+            ModuleSetting(
+                key='phrase_no_current_song',
+                label='Current song message when there\'s nothing playing',
+                type='text',
+                required=True,
+                placeholder='There\'s no song playing right now FeelsBadMan',
+                default='There\'s no song playing right now FeelsBadMan',
+                constraints={
+                    'min_str_len': 2,
+                    'max_str_len': 400,
+                }),
                 ]
 
     def __init__(self, **options):
@@ -122,7 +133,7 @@ class DubtrackModule(BaseModule):
 
     def say_song(self, bot):
         if self.song_name is None:
-            bot.say('There\'s no song playing right now FeelsBadMan')
+            bot.say(self.get_phrase('phrase_no_current_song'))
             return
 
         arguments = {
