@@ -1,3 +1,4 @@
+import html
 import json
 import logging
 import re
@@ -119,7 +120,8 @@ class DubtrackModule(BaseModule):
             # No need to update song
             return
 
-        self.song_name = data['name']
+        raw_song_name = data['name']
+        self.song_name = html.unescape(raw_song_name)
         self.song_id = data['songid']
 
         if data['type'] == 'youtube':
