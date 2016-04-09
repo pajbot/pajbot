@@ -99,18 +99,24 @@ class DubtrackModule(BaseModule):
 
         r = requests.get(url)
         if r.status_code != 200:
+            log.warning('Dubtrack api not responding')
+            self.clear()
             return
 
         text = json.loads(r.text)
         if text['code'] != 200:
+            log.warning('Dubtrack api invalid response')
+            self.clear()
             return
 
         data = text['data']['currentSong']
         if data is None:
+            # No song playing
             self.clear()
             return
 
         if self.song_id == data['songid']:
+            # No need to update song
             return
 
         self.song_name = data['name']
@@ -123,12 +129,14 @@ class DubtrackModule(BaseModule):
 
             r = requests.get(url, allow_redirects=False)
             if r.status_code != 301:
+                log.warning('Couldn\'t resolve soundcloud link')
                 self.song_link = None
                 return
 
             new_song_link = r.headers['Location']
             self.song_link = re.sub('^http', 'https', new_song_link)
         else:
+            log.warning('Unknown link type')
             self.song_link = None
 
     def say_song(self, bot):
