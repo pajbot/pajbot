@@ -6,6 +6,7 @@ import re
 import requests
 
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -151,10 +152,11 @@ class DubtrackModule(BaseModule):
         elif data['type'] == 'soundcloud':
             url = 'https://api.dubtrack.fm/song/' + data['songid'] + '/redirect'
 
+            self.song_link = None
+
             r = requests.get(url, allow_redirects=False)
             if r.status_code != 301:
                 log.warning('Couldn\'t resolve soundcloud link')
-                self.song_link = None
                 return
 
             new_song_link = r.headers['Location']
@@ -194,7 +196,14 @@ class DubtrackModule(BaseModule):
                     delay_all=self.settings['global_cd'],
                     delay_user=self.settings['user_cd'],
                     description='Get link to your dubtrack',
-                ),
+                    examples=[
+                        CommandExample(
+                            None,
+                            'Ask bot for dubtrack link',
+                            chat='user:!dubtrack link\n'
+                            'bot:Request your songs at https://dubtrack.fm/join/pajlada').parse(),
+                        ],
+                    ),
                 'song': Command.raw_command(
                     self.song,
                     level=100,
@@ -202,6 +211,23 @@ class DubtrackModule(BaseModule):
                     delay_user=self.settings['user_cd'],
                     description='Get current song',
                     run_in_thread=True,
+                    examples=[
+                        CommandExample(
+                            None,
+                            'Ask bot for current song (youtube)',
+                            chat='user:!dubtrack song\n'
+                            'bot:Current song: NOMA - Brain Power, link: https://youtu.be/9R8aSKwTEMg').parse(),
+                        CommandExample(
+                            None,
+                            'Ask bot for current song (soundcloud)',
+                            chat='user:!dubtrack song\n'
+                            'bot:Current song: This is Bondage, link: https://soundcloud.com/razq35/nightlife').parse(),
+                        CommandExample(
+                            None,
+                            'Ask bot for current song (nothing playing)',
+                            chat='user:!dubtrack song\n'
+                            'bot:There\'s no song playing right now FeelsBadMan').parse(),
+                        ],
                     ),
                 'update': Command.raw_command(
                     self.update,
