@@ -97,6 +97,27 @@ class DubtrackModule(BaseModule):
                     'min_value': 0,
                     'max_value': 240,
                     }),
+            ModuleSetting(
+                key='if_dt_alias',
+                label='Allow !dt as !dubtrack',
+                type='boolean',
+                required=True,
+                default=True,
+                    ),
+            ModuleSetting(
+                key='if_short_alias',
+                label='Allow !dubtrack [s, l, u] as !dubtrack [song, link, update]',
+                type='boolean',
+                required=True,
+                default=True,
+                    ),
+            ModuleSetting(
+                key='if_song_alias',
+                label='Allow !song as !dubtrack song',
+                type='boolean',
+                required=True,
+                default=True,
+                    ),
                 ]
 
     def __init__(self, **options):
@@ -238,9 +259,10 @@ class DubtrackModule(BaseModule):
                     run_in_thread=True,
                     ),
                 }
-        commands['l'] = commands['link']
-        commands['s'] = commands['song']
-        commands['u'] = commands['update']
+        if self.settings['if_short_alias']:
+            commands['l'] = commands['link']
+            commands['s'] = commands['song']
+            commands['u'] = commands['update']
 
         self.commands['dubtrack'] = Command.multiaction_command(
             level=100,
@@ -249,5 +271,9 @@ class DubtrackModule(BaseModule):
             command='dubtrack',
             commands=commands,
             )
-        self.commands['dt'] = self.commands['dubtrack']
-        self.commands['song'] = commands['song']
+
+        if self.settings['if_dt_alias']:
+            self.commands['dt'] = self.commands['dubtrack']
+
+        if self.settings['if_song_alias']:
+            self.commands['song'] = commands['song']
