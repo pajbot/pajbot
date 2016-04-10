@@ -40,7 +40,7 @@ from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method
 from pajbot.tbutil import time_since
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 class TMI:

@@ -18,7 +18,9 @@ class BTTVEmoteManager:
         from pajbot.apiwrappers import BTTVApi
         self.bttv_api = BTTVApi()
         self.global_emotes = []
-        self.channel_emotes = []
+        streamer = StreamHelper.get_streamer()
+        redis = RedisManager.get()
+        self.channel_emotes = redis.lrange('{streamer}:emotes:bttv_channel_emotes'.format(streamer=streamer), 0, -1)
         self.all_emotes = []
 
     def update_emotes(self):
@@ -28,6 +30,14 @@ class BTTVEmoteManager:
 
         self.global_emotes = [emote['code'] for emote in global_emotes]
         self.channel_emotes = [emote['code'] for emote in channel_emotes]
+
+        # Store channel emotes in redis
+        streamer = StreamHelper.get_streamer()
+        key = '{streamer}:emotes:bttv_channel_emotes'.format(streamer=streamer)
+        with RedisManager.pipeline_context() as pipeline:
+            pipeline.delete(key)
+            for emote in self.channel_emotes:
+                pipeline.rpush(key, emote)
 
         self.all_emotes = []
         with RedisManager.pipeline_context() as pipeline:
