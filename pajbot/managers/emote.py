@@ -60,6 +60,8 @@ class EmoteManager:
         self.bot = bot
         self.streamer = bot.streamer
         self.bttv_emote_manager = BTTVEmoteManager()
+        redis = RedisManager.get()
+        self.subemotes = redis.hgetall('global:emotes:twitch_subemotes')
 
         # Emote current EPM
         self.epm = {}
@@ -102,6 +104,7 @@ class EmoteManager:
                 ]
 
         twitch_emotes = {}
+        twitch_subemotes = {}
 
         for endpoint in endpoints:
             log.debug('Refreshing {0} emotes...'.format(endpoint))
@@ -124,12 +127,17 @@ class EmoteManager:
                     if len(prefix) > 1 and ''.join(filter(lambda c: c.isalpha(), prefix)).islower():
                         for emote in pending_emotes:
                             twitch_emotes[emote['code']] = emote['image_id']
+                            twitch_subemotes[emote['code']] = channel
             else:
                 for code, emote_data in data['emotes'].items():
                     twitch_emotes[code] = emote_data['image_id']
 
-        redis = RedisManager.get()
-        redis.hmset('global:emotes:twitch', twitch_emotes)
+        with RedisManager.pipeline_context() as pipeline:
+            pipeline.remove('global:emotes:twitch_subemotes')
+            pipeline.hmset('global:emotes:twitch', twitch_emotes)
+            pipeline.hmset('global:emotes:twitch_subemotes', twitch_subemotes)
+
+        self.subemotes = twitch_subemotes
 
     def get_global_emotes(self, force=False):
         if len(self.global_emotes) > 0 or force is True:
