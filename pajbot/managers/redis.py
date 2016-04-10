@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 import redis
 
 
@@ -19,3 +21,13 @@ class RedisManager:
 
     def get():
         return RedisManager.redis
+
+    @contextmanager
+    def pipeline_context():
+        try:
+            pipeline = RedisManager.get().pipeline()
+            yield pipeline
+        except:
+            pipeline.reset()
+        finally:
+            pipeline.execute()

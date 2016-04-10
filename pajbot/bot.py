@@ -196,7 +196,7 @@ class Bot:
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
-        self.emotes = EmoteManager(self).reload()
+        self.emotes = EmoteManager(self)
         self.twitter_manager = TwitterManager(self)
         self.duel_manager = DuelManager(self)
 
@@ -205,14 +205,12 @@ class Bot:
         # Reloadable managers
         self.reloadable = {
                 'filters': self.filters,
-                'emotes': self.emotes,
                 }
 
         # Commitable managers
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'emotes': self.emotes,
                 'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
@@ -370,22 +368,13 @@ class Bot:
         return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_tm(self, key, extra={}):
-        emote = self.emotes.find(key)
-        if emote:
-            return emote.tm
-        return None
+        return '{0:,d}'.format(self.emotes.get_emote_epm(key))
 
     def get_emote_count(self, key, extra={}):
-        emote = self.emotes.find(key)
-        if emote:
-            return '{0:,d}'.format(emote.count)
-        return None
+        return '{0:,d}'.format(self.emotes.get_emote_count(key))
 
     def get_emote_tm_record(self, key, extra={}):
-        emote = self.emotes.find(key)
-        if emote:
-            return '{0:,d}'.format(emote.tm_record)
-        return None
+        return '{0:,d}'.format(self.emotes.get_emote_epmrecord(key))
 
     def get_source_value(self, key, extra={}):
         try:
@@ -649,7 +638,7 @@ class Bot:
         if source.timed_out is True:
             source.timed_out = False
 
-        message_emotes = []
+        emote_tag = None
         for tag in tags:
             if tag['key'] == 'subscriber' and event.target == self.channel:
                 if source.subscriber and tag['value'] == '0':
@@ -657,57 +646,7 @@ class Bot:
                 elif not source.subscriber and tag['value'] == '1':
                     source.subscriber = True
             elif tag['key'] == 'emotes' and tag['value']:
-                emote_data = tag['value'].split('/')
-                for emote in emote_data:
-                    try:
-                        emote_id, emote_occurrence = emote.split(':')
-                        emote_indices = emote_occurrence.split(',')
-                        emote_count = len(emote_indices)
-                        emote = self.emotes[int(emote_id)]
-                        first_index, last_index = emote_indices[0].split('-')
-                        first_index = int(first_index)
-                        last_index = int(last_index)
-                        emote_code = msg_raw[first_index:last_index + 1]
-                        if emote_code[0] == ':':
-                            emote_code = emote_code.upper()
-                        message_emotes.append({
-                            'code': emote_code,
-                            'twitch_id': emote_id,
-                            'start': first_index,
-                            'end': last_index,
-                            })
-
-                        tag_as = None
-                        if emote_code.startswith('trump'):
-                            tag_as = 'trump_sub'
-                        elif emote_code.startswith('eloise'):
-                            tag_as = 'eloise_sub'
-                        elif emote_code.startswith('forsen'):
-                            tag_as = 'forsen_sub'
-                        elif emote_code.startswith('nostam'):
-                            tag_as = 'nostam_sub'
-                        elif emote_code.startswith('reynad'):
-                            tag_as = 'reynad_sub'
-                        elif emote_code.startswith('athene'):
-                            tag_as = 'athene_sub'
-                        elif emote_id in [12760, 35600, 68498, 54065, 59411, 59412, 59413, 62683, 70183, 70181, 68499, 70429, 70432, 71432, 71433]:
-                            tag_as = 'massan_sub'
-
-                        if tag_as is not None:
-                            if source.tag_as(tag_as) is True:
-                                self.execute_delayed(60 * 60 * 24, source.remove_tag, (tag_as, ))
-
-                        if emote.id is None and emote.code is None:
-                            # The emote we just detected is new, set its code.
-                            emote.code = emote_code
-                            if emote.code not in self.emotes:
-                                self.emotes[emote.code] = emote
-
-                        emote.add(emote_count, self.reactor)
-                    except:
-                        log.exception('Exception caught while splitting emote data')
-                        log.error('Emote data: {}'.format(emote_data))
-                        log.error('msg_raw: {}'.format(msg_raw))
+                emote_tag = tag['value']
             elif tag['key'] == 'display-name' and tag['value']:
                 try:
                     source.update_username(tag['value'])
@@ -716,18 +655,8 @@ class Bot:
             elif tag['key'] == 'user-type':
                 source.moderator = tag['value'] == 'mod' or source.username == self.streamer
 
-        for emote in self.emotes.custom_data:
-            num = 0
-            for match in emote.regex.finditer(msg_raw):
-                num += 1
-                message_emotes.append({
-                    'code': emote.code,
-                    'bttv_hash': emote.emote_hash,
-                    'start': match.span()[0],
-                    'end': match.span()[1] - 1,  # don't ask me
-                    })
-            if num > 0:
-                emote.add(num, self.reactor)
+        # Parse emotes in the message
+        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag)
 
         urls = self.find_unique_urls(msg_raw)
 

@@ -5,10 +5,7 @@ from flask import abort
 from flask import Blueprint
 from flask import render_template
 
-from pajbot.managers import DBManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.emote import Emote
-from pajbot.models.emote import EmoteStats
 from pajbot.streamhelper import StreamHelper
 from pajbot.web.utils import nocache
 
@@ -68,10 +65,22 @@ def donations(widget_id, **options):
     if 'extra' in config:
         tts_authentication = config['extra'].get('tts_authentication', '')
 
-    with DBManager.create_session_scope() as db_session:
-        emotes = db_session.query(Emote).join(EmoteStats).all()
-        emotes.sort(key=lambda emote: len(emote.code), reverse=True)
-        return render_template('clr/donations.html',
-                widget=widget,
-                emotes=emotes,
-                tts_authentication=tts_authentication)
+    redis = RedisManager.get()
+    twitch_emotes = redis.hgetall('global:emotes:twitch')
+    bttv_emotes = redis.hgetall('global:emotes:bttv')
+    emotes = []
+    for emote in twitch_emotes:
+        emotes.append({
+            'code': emote,
+            'emote_id': twitch_emotes[emote],
+            })
+    for emote in bttv_emotes:
+        emotes.append({
+            'code': emote,
+            'emote_hash': bttv_emotes[emote],
+            })
+    emotes.sort(key=lambda emote: len(emote['code']), reverse=True)
+    return render_template('clr/donations.html',
+            widget=widget,
+            emotes=emotes,
+            tts_authentication=tts_authentication)
