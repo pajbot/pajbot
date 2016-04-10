@@ -54,7 +54,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.7.3'
+    version = '2.7.4'
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
@@ -368,13 +368,22 @@ class Bot:
         return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_tm(self, key, extra={}):
-        return '{0:,d}'.format(self.emotes.get_emote_epm(key))
+        val = self.emotes.get_emote_epm(key)
+        if not val:
+            return None
+        return '{0:,d}'.format(val)
 
     def get_emote_count(self, key, extra={}):
-        return '{0:,d}'.format(self.emotes.get_emote_count(key))
+        val = self.emotes.get_emote_count(key)
+        if not val:
+            return None
+        return '{0:,d}'.format(val)
 
     def get_emote_tm_record(self, key, extra={}):
-        return '{0:,d}'.format(self.emotes.get_emote_epmrecord(key))
+        val = self.emotes.get_emote_epmrecord(key)
+        if not val:
+            return None
+        return '{0:,d}'.format(val)
 
     def get_source_value(self, key, extra={}):
         try:

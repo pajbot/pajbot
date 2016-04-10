@@ -34,9 +34,6 @@ class User(Base):
     _last_active = Column('last_active', DateTime)
     minutes_in_chat_online = Column(Integer, nullable=False, default=0)
     minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
-    twitch_access_token = Column(String(128), nullable=True)
-    twitch_refresh_token = Column(String(128), nullable=True)
-    discord_user_id = Column(String(32), nullable=True)
     ignored = Column(Boolean, nullable=False, default=False)
     banned = Column(Boolean, nullable=False, default=False)
     ban_immune = False
@@ -56,9 +53,6 @@ class User(Base):
         self._last_active = None
         self.minutes_in_chat_online = 0
         self.minutes_in_chat_offline = 0
-        self.twitch_access_token = None
-        self.twitch_refresh_token = None
-        self.discord_user_id = None
         self.ignored = False
         self.banned = False
         self.moderator = False
