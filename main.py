@@ -14,7 +14,7 @@ except NameError:
 # XXX: What does this achieve exactly?
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 def run(args):

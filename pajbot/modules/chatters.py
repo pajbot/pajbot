@@ -42,7 +42,7 @@ class ChattersModule(BaseModule):
             num_points = points
             if user.subscriber:
                 num_points *= 5
-            if self.bot.streamer == 'forsenlol' and 'trump_sub' in user.tags:
+            if self.bot.streamer == 'forsenlol' and 'trump_sub' in user.get_tags():
                 num_points *= 0.5
             user.touch(num_points)
 

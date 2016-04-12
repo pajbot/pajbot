@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 from collections import UserDict
 from contextlib import contextmanager
@@ -58,11 +59,24 @@ class User(Base):
         self.moderator = False
 
         self.ban_immune = False
-        self.tags = []
         self.quest_progress = {}
         self.debts = []
 
         self.timed_out = False
+
+    def get_tags(self, redis=None):
+        if redis is None:
+            redis = RedisManager.get()
+        val = redis.hget('global:usertags', self.username)
+        if val:
+            return json.loads(val)
+        else:
+            return {}
+
+    def set_tags(self, value, redis=None):
+        if redis is None:
+            redis = RedisManager.get()
+        return redis.hset('global:usertags', self.username, json.dumps(value, separators=(',', ':')))
 
     @property
     def last_seen(self):
@@ -84,7 +98,6 @@ class User(Base):
 
     @reconstructor
     def on_load(self):
-        self.tags = []
         self.timed_out = False
         self.moderator = False
         self.quest_progress = {}
@@ -166,21 +179,6 @@ class User(Base):
                 log.warn('Invalid value for tokens, user {}'.format(self.username))
 
         return num_tokens
-
-    def tag_as(self, tag):
-        if tag not in self.tags:
-            log.debug('{0} has been tagged as a {1}'.format(self.username, tag))
-            self.tags.append(tag)
-            return True
-
-        return False
-
-    def remove_tag(self, tag):
-        try:
-            self.tags.remove(tag)
-            log.debug('{0} has been un-tagged as a {1}'.format(self.username, tag))
-        except ValueError:
-            pass
 
     def remove_ban_immunity(self):
         self.ban_immune = False

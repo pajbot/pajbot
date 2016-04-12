@@ -86,7 +86,6 @@ class ModuleManager:
                     except ValueError:
                         log.warn('Invalid JSON in the settings for module {}'.format(module.ID))
 
-            log.debug('Enabling {module.NAME}'.format(module=module))
             module.load(**options)
 
     def disable_module(self, module_id, reload_commands=False):

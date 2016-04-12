@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class ActionParser:
     bot = None
 
-    def parse(raw_data=None, data=None):
+    def parse(raw_data=None, data=None, command=''):
         try:
             from pajbot.userdispatch import UserDispatch
             Dispatch = UserDispatch
@@ -39,7 +39,7 @@ class ActionParser:
             try:
                 action = FuncAction(getattr(Dispatch, data['cb']))
             except AttributeError as e:
-                log.error('AttributeError caught when parsing action: {0}'.format(e))
+                log.error('AttributeError caught when parsing action for action "{}": {}'.format(command, e))
                 return None
         elif data['type'] == 'multi':
             action = MultiAction(data['args'], data['default'])

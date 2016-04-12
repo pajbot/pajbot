@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -166,6 +167,7 @@ class EmoteManager:
 
     def parse_message_twitch_emotes(self, source, message, tag):
         message_emotes = []
+        new_user_tags = []
 
         # Twitch Emotes
         if tag:
@@ -191,6 +193,10 @@ class EmoteManager:
                         'end': last_index,
                         'count': emote_count,
                         })
+
+                    sub = self.subemotes.get(emote_code, None)
+                    if sub:
+                        new_user_tags.append('{sub}_sub'.format(sub=sub))
                 except:
                     log.exception('Exception caught while splitting emote data')
                     log.error('Emote data: {}'.format(emote_data))
@@ -215,12 +221,18 @@ class EmoteManager:
                     'count': num,
                     })
 
-        if len(message_emotes) > 0:
+        if len(message_emotes) > 0 or len(new_user_tags) > 0:
             streamer = StreamHelper.get_streamer()
             with RedisManager.pipeline_context() as pipeline:
                 for emote in message_emotes:
                     pipeline.zincrby('{streamer}:emotes:count'.format(streamer=streamer), emote['code'], emote['count'])
                     self.epm_incr(emote['code'], emote['count'])
+
+                user_tags = source.get_tags()
+
+                for tag in new_user_tags:
+                    user_tags[tag] = (datetime.datetime.now() + datetime.timedelta(days=15)).timestamp()
+                source.set_tags(user_tags, redis=pipeline)
 
         return message_emotes
 

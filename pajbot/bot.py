@@ -137,7 +137,6 @@ class Bot:
 
         redis_options = {}
         if 'redis' in config:
-            log.info(config._sections['redis'])
             redis_options = config._sections['redis']
 
         RedisManager.init(**redis_options)

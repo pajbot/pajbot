@@ -1,4 +1,5 @@
 import collections
+import datetime
 import logging
 
 from pajbot.models.command import Command
@@ -64,6 +65,7 @@ class DebugModule(BaseModule):
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:
             bot.whisper(source.username, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
+            return False
 
     def debug_user(self, **options):
         message = options['message']
@@ -95,10 +97,38 @@ class DebugModule(BaseModule):
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:
             bot.whisper(source.username, 'Usage: !debug user USERNAME')
+            return False
+
+    def debug_tags(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message and len(message) > 0:
+            username = message.split(' ')[0].strip().lower()
+            user = bot.users.find(username)
+
+            if user is None:
+                bot.whisper(source.username, 'No user with this username found.')
+                return False
+
+            data = collections.OrderedDict()
+            user_tags = source.get_tags()
+
+            if len(user_tags) == 0:
+                bot.whisper(source.username, 'This user does not have any tags')
+            else:
+                for tag in user_tags:
+                    data[tag] = datetime.datetime.fromtimestamp(user_tags[tag]).strftime('%Y-%m-%d')
+
+                bot.whisper(source.username, '{} have the following tags: '.format(user.username_raw) + ', '.join(['%s until %s' % (key, value) for (key, value) in data.items()]))
+        else:
+            bot.whisper(source.username, 'Usage: !debug user USERNAME')
+            return False
 
     def load_commands(self, **options):
         self.commands['debug'] = Command.multiaction_command(
-                level=250,
+                level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
@@ -121,4 +151,9 @@ class DebugModule(BaseModule):
                                 'bot>user: id=123, level=100, num_lines=45, points=225,  last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False, tokens=0',
                                 description='').parse(),
                             ]),
+                    'tags': Command.raw_command(self.debug_tags,
+                        level=100,
+                        delay_all=0,
+                        delay_user=5,
+                        description='Debug tags for a user'),
                     })

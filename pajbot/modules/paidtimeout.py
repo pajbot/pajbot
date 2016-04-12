@@ -144,19 +144,19 @@ class PaidTimeoutDiscountModule(BaseModule):
         log.info('PAID TIMEOUT OCCURED')
         # Discounts here!
         discounts = {
-                'trump_sub': (0.5, 'Trump (50%)'),
-                'massan_sub': (0.45, 'Massan (55%)'),
-                'athene_sub': (0.45, 'Athene (55%)'),
-                'nostam_sub': (0.4, 'Nostam (60%)'),
-                'reynad_sub': (0.8, 'Reynad (20%)'),
-                'forsen_sub': (0.95, 'Forsen (5%)'),
+                'athenelive_sub': (0.1, 'Athene (90%)'),
+                'lolnostam_sub': (0.4, 'Nostam (60%)'),
+                'massansc_sub': (0.0, 'Massan (100%)'),
+                'p4wnyhof_sub': (0.4, 'P4wnyhof (60%)'),
+                'reynad27_sub': (0.8, 'Reynad (20%)'),
+                'trumpsc_sub': (0.5, 'Trump (50%)'),
                 }
 
         added_discount = 1.0
         whisper_msg = []
         for tag, data in discounts.items():
             discount, text = data
-            if tag in victim.tags:
+            if tag in victim.get_tags():
                 whisper_msg.append(text)
                 added_discount *= discount
 

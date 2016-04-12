@@ -93,7 +93,6 @@ class MultiIRCManager(IRCManager):
         chub = self.bot.config['main'].get('control_hub', None)
         if chub is not None:
             self.control_hub = ConnectionManager(self.bot.reactor, self.bot, TMI.message_limit, streamer=chub, backup_conns=1)
-            log.info('start pls')
         else:
             self.control_hub = None
 
@@ -132,9 +131,7 @@ class MultiIRCManager(IRCManager):
             log.exception('Exception caught while sending privmsg')
 
     def start(self):
-        log.info('STARTING :)')
         self.connection_manager.start()
-        log.info('ok')
 
     def quit(self):
         if self.whisper_manager:

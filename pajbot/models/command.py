@@ -243,7 +243,7 @@ class Command(Base):
         self.level = options.get('level', self.level)
         if 'action' in options:
             self.action_json = json.dumps(options['action'])
-            self.action = ActionParser.parse(self.action_json)
+            self.action = ActionParser.parse(self.action_json, command=self.command)
         if 'extra_args' in options:
             self.extra_args = {'command': self}
             self.extra_args.update(options['extra_args'])
@@ -274,7 +274,7 @@ class Command(Base):
         self.last_run = 0
         self.last_run_by_user = {}
         self.extra_args = {'command': self}
-        self.action = ActionParser.parse(self.action_json)
+        self.action = ActionParser.parse(self.action_json, command=self.command)
         self.run_in_thread = True
         if self.extra_extra_args:
             try:
@@ -287,13 +287,13 @@ class Command(Base):
         cmd = cls()
         if 'level' in json:
             cmd.level = json['level']
-        cmd.action = ActionParser.parse(data=json['action'])
+        cmd.action = ActionParser.parse(data=json['action'], command=cmd.command)
         return cmd
 
     @classmethod
     def dispatch_command(cls, cb, **options):
         cmd = cls(**options)
-        cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}')
+        cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}', command=cmd.command)
         return cmd
 
     @classmethod

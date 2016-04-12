@@ -17,11 +17,12 @@ class WebSocketServer:
 
         class MyServerProtocol(WebSocketServerProtocol):
             def onConnect(self, request):
-                log.info(self.factory)
+                # log.info(self.factory)
                 # log.info('Client connecting: {0}'.format(request.peer))
+                pass
 
             def onOpen(self):
-                log.info('WebSocket connection open. {0}'.format(self))
+                log.info('WebSocket connection open')
                 WebSocketServer.clients.append(self)
 
             def onMessage(self, payload, isBinary):
@@ -41,9 +42,6 @@ class WebSocketServer:
         factory.protocol = MyServerProtocol
 
         def reactor_run(reactor, factory, port, context_factory=None):
-            log.info(reactor)
-            log.info(factory)
-            log.info(port)
             if context_factory:
                 log.info('wss secure')
                 reactor.listenSSL(port, factory, context_factory)
@@ -112,4 +110,5 @@ class WebSocketManager:
         if isError:
             log.error(message['message'])
         else:
-            log.debug(message['message'])
+            pass
+            # log.debug('on_log_message({})'.format(message['message']))

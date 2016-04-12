@@ -61,7 +61,6 @@ class SingleConnectionManager:
         self.relay_connection = None
 
     def start(self):
-        log.info(self.reactor)
         self.relay_connection = CustomServerConnection(self.reactor)
         with self.reactor.mutex:
             self.reactor.connections.append(self.relay_connection)

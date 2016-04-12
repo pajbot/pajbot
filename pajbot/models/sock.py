@@ -59,7 +59,6 @@ class SocketManager:
         return True
 
     def add_handler(self, handler, method):
-        log.debug('Added a handler to the SocketManager')
         if handler not in self.handlers:
             self.handlers[handler] = [method]
         else:
