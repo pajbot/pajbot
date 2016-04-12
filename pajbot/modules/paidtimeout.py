@@ -51,8 +51,47 @@ class PaidTimeoutModule(BaseModule):
                     'max_value': 10000,
                     }),
             ModuleSetting(
+                key='second_command',
+                label='Enable a second timeout command',
+                type='boolean',
+                required=True,
+                default=False),
+            ModuleSetting(
+                key='command_name2',
+                label='Command name (i.e. $timeout5)',
+                type='text',
+                required=True,
+                placeholder='Command name (no !)',
+                default='timeout5',
+                constraints={
+                    'min_str_len': 2,
+                    'max_str_len': 15,
+                    }),
+            ModuleSetting(
+                key='timeout_length2',
+                label='Timeout length for the second timeout command',
+                type='number',
+                required=True,
+                placeholder='Timeout length in seconds',
+                default=60,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 3600,
+                    }),
+            ModuleSetting(
+                key='cost2',
+                label='Point cost for the second timeout command',
+                type='number',
+                required=True,
+                placeholder='Point cost',
+                default=400,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 10000,
+                    }),
+            ModuleSetting(
                 key='bypass_level',
-                label='Level to bypass module',
+                label='Level to bypass module (people with this level or above are immune to paid timeouts)',
                 type='number',
                 required=True,
                 placeholder='',
@@ -63,14 +102,7 @@ class PaidTimeoutModule(BaseModule):
                     }),
             ]
 
-    def paid_timeout(self, **options):
-        message = options['message']
-        bot = options['bot']
-        source = options['source']
-
-        _time = self.settings['timeout_length']
-        _cost = self.settings['cost']
-
+    def base_paid_timeout(self, bot, source, message, _time, _cost):
         if message is None or len(message) == 0:
             return False
 
@@ -125,8 +157,30 @@ class PaidTimeoutModule(BaseModule):
                 source, victim, _cost,
                 stop_on_false=False)
 
+    def paid_timeout(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        _time = self.settings['timeout_length']
+        _cost = self.settings['cost']
+
+        return self.base_paid_timeout(bot, source, message, _time, _cost)
+
+    def paid_timeout2(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        _time = self.settings['timeout_length2']
+        _cost = self.settings['cost2']
+
+        return self.base_paid_timeout(bot, source, message, _time, _cost)
+
     def load_commands(self, **options):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.paid_timeout, cost=self.settings['cost'])
+        if self.settings['second_command']:
+            self.commands[self.settings['command_name2'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.paid_timeout2, cost=self.settings['cost2'])
 
 
 class PaidTimeoutDiscountModule(BaseModule):
