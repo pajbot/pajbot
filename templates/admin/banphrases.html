@@ -4,12 +4,11 @@
 {% block body %}
 <button class="ui button create-banphrase green"><i class="icon add"></i> <strong>Create Banphrase</strong></button>
 <h2>Banphrases</h2>
-<table class="ui table basic">
+<table class="ui selectable table basic">
     <thead>
         <tr>
             <th class="collapsing">ID</th>
             <th class="collapsing">Name</th>
-            <th class="collapsing">Action</th>
             <th>Phrase</th>
             <th class="collapsing"></th>
             <th class="collapsing">#&nbsp;uses</th>
@@ -23,8 +22,12 @@
         <tr data-id="{{row.id}}" data-enabled="{{1 if row.enabled else 0}}">
             <td class="collapsing">{{ row.id }}</td>
             <td class="collapsing">{{ row.name }}</td>
-            <td class="collapsing">{{ 'Permaban' if row.permanent else 'Timeout ({})'.format(row.length|time_ago_timespan_seconds) }}</td>
-            <td>{{ row.phrase }}</td>
+            <td colspan="6" style="word-break: break-all;">{{ row.phrase }}</td>
+        </tr>
+        <tr data-id="{{row.id}}" data-enabled="{{1 if row.enabled else 0}}">
+            <td class="collapsing">{{ row.id }}</td>
+            <td class="collapsing"></td>
+            <td>{{ 'Permaban' if row.permanent else 'Timeout ({})'.format(row.length|time_ago_timespan_seconds) }}</td>
             <td class="right aligned collapsing">
             {%- set user = row.data.user -%}
             {%- if user.id == row.data.added_by != row.data.edited_by %}Created by {% include 'user/username_link_nobadge.html' %}{% if row.data.added_by != row.data.edited_by != None %}<br/>{% endif %}{% endif -%}

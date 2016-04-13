@@ -1,3 +1,4 @@
+import argparse
 import logging
 import time
 import urllib.parse
@@ -12,6 +13,7 @@ from sqlalchemy.dialects.mysql import TEXT
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import SafeBrowsingAPI
+from pajbot.managers import AdminLogManager
 from pajbot.managers import Base
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
@@ -260,7 +262,7 @@ class LinkCheckerModule(BaseModule):
         self.cache[url] = safe
         self.run_later(20, self.delete_from_cache, (url, ))
 
-    def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=True):
+    def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug('LinkChecker: BAD URL FOUND {0}'.format(url.url))
         if action:
             action.run()
@@ -268,41 +270,9 @@ class LinkCheckerModule(BaseModule):
             self.cache_url(url.url, False)
         if want_to_blacklist:
             self.blacklist_url(url.url, url.parsed)
+            return True
 
-    def unlist_url(self, url, list_type, parsed_url=None):
-        """ list_type is either 'blacklist' or 'whitelist' """
-        if not (url.startswith('http://') or url.startswith('https://')):
-            url = 'http://' + url
-
-        if parsed_url is None:
-            parsed_url = urllib.parse.urlparse(url)
-
-        domain = parsed_url.netloc
-        path = parsed_url.path
-
-        if domain.startswith('www.'):
-            domain = domain[4:]
-        if path.endswith('/'):
-            path = path[:-1]
-        if path == '':
-            path = '/'
-
-        if list_type == 'blacklist':
-            link = self.db_session.query(BlacklistedLink).filter_by(domain=domain, path=path).one_or_none()
-            if link:
-                self.blacklisted_links.remove(link)
-                self.db_session.delete(link)
-            else:
-                log.warning('Unable to unlist {0}{1}'.format(domain, path))
-        elif list_type == 'whitelist':
-            link = self.db_session.query(WhitelistedLink).filter_by(domain=domain, path=path).one_or_none()
-            if link:
-                self.whitelisted_links.remove(link)
-                self.db_session.delete(link)
-            else:
-                log.warning('Unable to unlist {0}{1}'.format(domain, path))
-
-    def blacklist_url(self, url, parsed_url=None, level=1):
+    def blacklist_url(self, url, parsed_url=None, level=0):
         if not (url.lower().startswith('http://') or url.lower().startswith('https://')):
             url = 'http://' + url
 
@@ -325,7 +295,7 @@ class LinkCheckerModule(BaseModule):
         link = BlacklistedLink(domain, path, level)
         self.db_session.add(link)
         self.blacklisted_links.append(link)
-        return True
+        self.db_session.commit()
 
     def whitelist_url(self, url, parsed_url=None):
         if not (url.lower().startswith('http://') or url.lower().startswith('https://')):
@@ -348,6 +318,7 @@ class LinkCheckerModule(BaseModule):
         link = WhitelistedLink(domain, path)
         self.db_session.add(link)
         self.whitelisted_links.append(link)
+        self.db_session.commit()
 
     def is_blacklisted(self, url, parsed_url=None, sublink=False):
         if parsed_url is None:
@@ -602,19 +573,23 @@ class LinkCheckerModule(BaseModule):
                         commands={
                             'blacklist': Command.raw_command(self.add_link_blacklist,
                                 level=500,
+                                delay_all=0,
+                                delay_user=0,
                                 description='Blacklist a link',
                                 examples=[
-                                    CommandExample(None, 'Add a link to the blacklist for shallow search',
-                                        chat='user:!add link blacklist 0 scamlink.lonk/\n'
+                                    CommandExample(None, 'Add a link to the blacklist for a shallow search',
+                                        chat='user:!add link blacklist --shallow scamlink.lonk/\n'
                                         'bot>user:Successfully added your links',
                                         description='Added the link scamlink.lonk/ to the blacklist for a shallow search').parse(),
-                                    CommandExample(None, 'Add a link to the blacklist for deep search',
-                                        chat='user:!add link blacklist 1 scamlink.lonk/\n'
+                                    CommandExample(None, 'Add a link to the blacklist for a deep search',
+                                        chat='user:!add link blacklist --deep scamlink.lonk/\n'
                                         'bot>user:Successfully added your links',
                                         description='Added the link scamlink.lonk/ to the blacklist for a deep search').parse(),
                                     ]),
                             'whitelist': Command.raw_command(self.add_link_whitelist,
                                 level=500,
+                                delay_all=0,
+                                delay_user=0,
                                 description='Whitelist a link',
                                 examples=[
                                     CommandExample(None, 'Add a link to the whitelist',
@@ -642,21 +617,25 @@ class LinkCheckerModule(BaseModule):
                         commands={
                             'blacklist': Command.raw_command(self.remove_link_blacklist,
                                 level=500,
-                                description='Unblacklist a link',
+                                delay_all=0,
+                                delay_user=0,
+                                description='Remove a link from the blacklist.',
                                 examples=[
-                                    CommandExample(None, 'Remove a blacklist link',
-                                        chat='user:!remove link blacklist scamtwitch.scam\n'
-                                        'bot>user:Successfully removed your links',
-                                        description='Removes scamtwitch.scam as a blacklisted link').parse(),
+                                    CommandExample(None, 'Remove a link from the blacklist.',
+                                        chat='user:!remove link blacklist 20\n'
+                                        'bot>user:Successfully removed blacklisted link with id 20',
+                                        description='Remove a link from the blacklist with an ID').parse(),
                                     ]),
                             'whitelist': Command.raw_command(self.remove_link_whitelist,
                                 level=500,
-                                description='Unwhitelist a link',
+                                delay_all=0,
+                                delay_user=0,
+                                description='Remove a link from the whitelist.',
                                 examples=[
-                                    CommandExample(None, 'Remove a whitelist link',
-                                        chat='user:!remove link whitelist twitch.safe\n'
-                                        'bot>user:Successfully removed your links',
-                                        description='Removes twitch.safe as a whitelisted link').parse(),
+                                    CommandExample(None, 'Remove a link from the whitelist.',
+                                        chat='user:!remove link whitelist 12\n'
+                                        'bot>user:Successfully removed blacklisted link with id 12',
+                                        description='Remove a link from the whitelist with an ID').parse(),
                                     ]),
                             }
                         ),
@@ -668,20 +647,24 @@ class LinkCheckerModule(BaseModule):
         message = options['message']
         source = options['source']
 
-        parts = message.split(' ')
-        try:
-            if not parts[0].isnumeric():
-                for link in parts:
-                    self.blacklist_url(link)
-            else:
-                for link in parts[1:]:
-                    self.blacklist_url(link, level=int(parts[0]))
-        except:
-            log.exception('Unhandled exception in add_link')
-            bot.whisper(source.username, 'Some error occurred white adding your links')
-            return False
+        options, new_links = self.parse_link_blacklist_arguments(message)
 
-        bot.whisper(source.username, 'Successfully added your links')
+        if new_links:
+            parts = new_links.split(' ')
+            try:
+                for link in parts:
+                    if len(link) > 1:
+                        self.blacklist_url(link, **options)
+                        AdminLogManager.post('Blacklist link added', source, link)
+                bot.whisper(source.username, 'Successfully added your links')
+                return True
+            except:
+                log.exception('Unhandled exception in add_link_blacklist')
+                bot.whisper(source.username, 'Some error occurred while adding your links')
+                return False
+        else:
+            bot.whisper(source.username, 'Usage: !add link blacklist LINK')
+            return False
 
     def add_link_whitelist(self, **options):
         bot = options['bot']
@@ -692,6 +675,7 @@ class LinkCheckerModule(BaseModule):
         try:
             for link in parts:
                 self.whitelist_url(link)
+                AdminLogManager.post('Whitelist link added', source, link)
         except:
             log.exception('Unhandled exception in add_link')
             bot.whisper(source.username, 'Some error occurred white adding your links')
@@ -700,33 +684,77 @@ class LinkCheckerModule(BaseModule):
         bot.whisper(source.username, 'Successfully added your links')
 
     def remove_link_blacklist(self, **options):
-        bot = options['bot']
         message = options['message']
+        bot = options['bot']
         source = options['source']
 
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                self.unlist_url(link, 'blacklist')
-        except:
-            log.exception('Unhandled exception in add_link')
-            bot.whisper(source.username, 'Some error occurred white adding your links')
-            return False
+        if message:
+            id = None
+            try:
+                id = int(message)
+            except ValueError:
+                pass
 
-        bot.whisper(source.username, 'Successfully removed your links')
+            link = self.db_session.query(BlacklistedLink).filter_by(id=id).one_or_none()
+
+            if link:
+                self.blacklisted_links.remove(link)
+                self.db_session.delete(link)
+                self.db_session.commit()
+            else:
+                bot.whisper(source.username, 'No link with the given id found')
+                return False
+
+            AdminLogManager.post('Blacklist link removed', source, link.domain)
+            bot.whisper(source.username, 'Successfully removed blacklisted link with id {0}'.format(link.id))
+        else:
+            bot.whisper(source.username, 'Usage: !remove link blacklist ID')
+            return False
 
     def remove_link_whitelist(self, **options):
-        bot = options['bot']
         message = options['message']
+        bot = options['bot']
         source = options['source']
 
-        parts = message.split(' ')
-        try:
-            for link in parts:
-                self.unlist_url(link, 'whitelist')
-        except:
-            log.exception('Unhandled exception in add_link')
-            bot.whisper(source.username, 'Some error occurred white adding your links')
+        if message:
+            id = None
+            try:
+                id = int(message)
+            except ValueError:
+                pass
+
+            link = self.db_session.query(WhitelistedLink).filter_by(id=id).one_or_none()
+
+            if link:
+                self.whitelisted_links.remove(link)
+                self.db_session.delete(link)
+                self.db_session.commit()
+            else:
+                bot.whisper(source.username, 'No link with the given id found')
+                return False
+
+            AdminLogManager.post('Whitelist link removed', source, link.domain)
+            bot.whisper(source.username, 'Successfully removed whitelisted link with id {0}'.format(link.id))
+        else:
+            bot.whisper(source.username, 'Usage: !remove link whitelist ID')
             return False
 
-        bot.whisper(source.username, 'Successfully removed your links')
+    def parse_link_blacklist_arguments(self, message):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--deep', dest='level', action='store_true')
+        parser.add_argument('--shallow', dest='level', action='store_false')
+        parser.set_defaults(level=False)
+
+        try:
+            args, unknown = parser.parse_known_args(message.split())
+        except SystemExit:
+            return False, False
+        except:
+            log.exception('Unhandled exception in add_link_blacklist')
+            return False, False
+
+        # Strip options of any values that are set as None
+        options = {k: v for k, v in vars(args).items() if v is not None}
+        response = ' '.join(unknown)
+
+        return options, response

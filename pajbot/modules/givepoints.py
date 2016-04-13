@@ -1,6 +1,7 @@
 import logging
 
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -109,4 +110,9 @@ class GivePointsModule(BaseModule):
                 delay_all=0,
                 delay_user=0,
                 can_execute_with_whisper=True,
-                )
+                examples=[
+                    CommandExample(None, 'Show an emote on stream.',
+                        chat='user:!{0} pajapaja 4444\n'
+                        'bot>user: Successfully gave away 4444 points to pajapaja'.format(self.command_name),
+                        description='').parse(),
+                    ])

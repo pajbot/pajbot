@@ -1,6 +1,7 @@
 import logging
 
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import QuestModule
 
@@ -35,4 +36,9 @@ class ShowEmoteTokenCommandModule(BaseModule):
                 tokens_cost=1,
                 description='Show an emote on stream! Costs 1 token.',
                 can_execute_with_whisper=True,
-                )
+                examples=[
+                    CommandExample(None, 'Show an emote on stream.',
+                        chat='user:!#showemote Keepo\n'
+                        'bot>user: Successfully sent the emote Keepo to the stream!',
+                        description='').parse(),
+                    ])

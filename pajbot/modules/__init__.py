@@ -5,6 +5,7 @@ from pajbot.modules.base import ModuleType
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules.basic.ab import AbCommandModule
 from pajbot.modules.basic.admincommands import AdminCommandsModule
 from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.basic.checkmod import CheckModModule
@@ -12,6 +13,7 @@ from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
+from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
@@ -39,6 +41,7 @@ from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
+from pajbot.modules.paiduntimeout import PaidUntimeoutModule
 from pajbot.modules.personaluptime import PersonalUptimeModule
 from pajbot.modules.pleblist import PleblistModule
 from pajbot.modules.pointlottery import PointLotteryModule
@@ -64,6 +67,7 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 
 available_modules = [
+        AbCommandModule,
         AdminCommandsModule,
         AsciiProtectionModule,
         BTTVEmotesModule,
@@ -97,11 +101,13 @@ available_modules = [
         PaidSubmodeModule,
         PaidTimeoutDiscountModule,
         PaidTimeoutModule,
+        PaidUntimeoutModule,
         PermabanModule,
         PersonalUptimeModule,
         PlaySoundTokenCommandModule,
         PleblistModule,
         PointLotteryModule,
+        PointsResetModule,
         PredictModule,
         PyramidModule,
         QuestModule,

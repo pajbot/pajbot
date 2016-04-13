@@ -113,7 +113,7 @@ class DebugModule(BaseModule):
                 return False
 
             data = collections.OrderedDict()
-            user_tags = source.get_tags()
+            user_tags = user.get_tags()
 
             if len(user_tags) == 0:
                 bot.whisper(source.username, 'This user does not have any tags')
@@ -155,5 +155,11 @@ class DebugModule(BaseModule):
                         level=100,
                         delay_all=0,
                         delay_user=5,
-                        description='Debug tags for a user'),
+                        description='Debug tags for a user',
+                        examples=[
+                            CommandExample(None, 'Debug tags for a user',
+                                chat='user:!debug tags pajbot\n'
+                                'bot>user: pajbot have the following tags: pajlada_sub until 2016-04-28',
+                                description='').parse(),
+                            ])
                     })

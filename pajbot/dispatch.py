@@ -86,21 +86,6 @@ class Dispatch:
         except Exception as e:
             log.error('caught exception: {0}'.format(e))
 
-    def ab(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-
-            msg_parts = message.split(' ')
-            if len(msg_parts) >= 2:
-                outer_str = msg_parts[0]
-                inner_str = ' {} '.format(outer_str).join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
-
-                bot.say('{0}, {1} {2} {1}'.format(source.username, outer_str, inner_str))
-
-                return True
-
-        return False
-
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()
@@ -372,6 +357,10 @@ class Dispatch:
                 bot.commands.edit_command(command, command=new_aliases)
 
                 bot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(added_aliases), existing_alias))
+                log_msg = 'The aliases {0} has been added to {1}'.format(', '.join(added_aliases), existing_alias)
+                AdminLogManager.add_entry('Alias added',
+                        source,
+                        log_msg)
             if len(already_used_aliases) > 0:
                 bot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
         else:
@@ -408,6 +397,10 @@ class Dispatch:
 
                 num_removed += 1
                 del bot.commands[alias]
+                log_msg = 'The alias {0} has been removed from {1}'.format(alias, new_aliases.split('|')[0])
+                AdminLogManager.add_entry('Alias removed',
+                        source,
+                        log_msg)
 
             whisper_str = ''
             if num_removed > 0:
@@ -462,6 +455,7 @@ class Dispatch:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
     def paid_timeout(bot, source, message, event, args):
+        log.warn('Use the paidtimeout module')
         if 'time' in args:
             _time = int(args['time'])
         else:
@@ -627,12 +621,14 @@ class Dispatch:
             return False
 
     def unban_source(bot, source, message, event, args):
+        log.warn('Use the paiduntimeout module')
         """Unban the user who ran the command."""
         bot.privmsg('.unban {0}'.format(source.username))
         bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def untimeout_source(bot, source, message, event, args):
+        log.warn('Use the paiduntimeout module')
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         bot.privmsg('.timeout {0} 1'.format(source.username))

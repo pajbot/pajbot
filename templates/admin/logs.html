@@ -13,7 +13,7 @@
         <tr>
             <td class="collapsing">{% include 'user/username_link_nobadge.html' %}</td>
             <td class="collapsing">{{ log.created_at }}</td>
-            <td>{{ log.message|safe }}</td>
+            <td style="word-break: break-all;">{{ log.message|safe }}</td>
         </tr>
         {% endfor %}
     </tbody>

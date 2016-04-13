@@ -530,6 +530,7 @@ def timer_remove(timer_id, **options):
         timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
         if timer is None:
             return make_response(jsonify({'error': 'Invalid timer ID'}))
+        AdminLogManager.post('Timer removed', options['user'], timer.name)
         db_session.delete(timer)
         SocketClientManager.send('timer.remove', {'timer_id': timer.id})
         return make_response(jsonify({'success': 'good job'}))
