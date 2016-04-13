@@ -13,6 +13,7 @@ from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
+from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.chatters import ChattersModule
@@ -104,6 +105,7 @@ available_modules = [
         PlaySoundTokenCommandModule,
         PleblistModule,
         PointLotteryModule,
+        PointsResetModule,
         PredictModule,
         PyramidModule,
         QuestModule,
