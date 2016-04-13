@@ -41,6 +41,7 @@ from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
+from pajbot.modules.paiduntimeout import PaidUntimeoutModule
 from pajbot.modules.personaluptime import PersonalUptimeModule
 from pajbot.modules.pleblist import PleblistModule
 from pajbot.modules.pointlottery import PointLotteryModule
@@ -100,6 +101,7 @@ available_modules = [
         PaidSubmodeModule,
         PaidTimeoutDiscountModule,
         PaidTimeoutModule,
+        PaidUntimeoutModule,
         PermabanModule,
         PersonalUptimeModule,
         PlaySoundTokenCommandModule,

@@ -447,6 +447,7 @@ class Dispatch:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
     def paid_timeout(bot, source, message, event, args):
+        log.warn('Use the paidtimeout module')
         if 'time' in args:
             _time = int(args['time'])
         else:
@@ -612,12 +613,14 @@ class Dispatch:
             return False
 
     def unban_source(bot, source, message, event, args):
+        log.warn('Use the paiduntimeout module')
         """Unban the user who ran the command."""
         bot.privmsg('.unban {0}'.format(source.username))
         bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
     def untimeout_source(bot, source, message, event, args):
+        log.warn('Use the paiduntimeout module')
         """Untimeout the user who ran the command.
         This is like unban except it will only remove timeouts, not permanent bans."""
         bot.privmsg('.timeout {0} 1'.format(source.username))
