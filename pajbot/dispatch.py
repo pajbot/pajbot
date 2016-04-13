@@ -86,21 +86,6 @@ class Dispatch:
         except Exception as e:
             log.error('caught exception: {0}'.format(e))
 
-    def ab(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-
-            msg_parts = message.split(' ')
-            if len(msg_parts) >= 2:
-                outer_str = msg_parts[0]
-                inner_str = ' {} '.format(outer_str).join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
-
-                bot.say('{0}, {1} {2} {1}'.format(source.username, outer_str, inner_str))
-
-                return True
-
-        return False
-
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi['br_wins'].inc()

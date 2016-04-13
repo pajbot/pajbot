@@ -5,6 +5,7 @@ from pajbot.modules.base import ModuleType
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules.basic.ab import AbCommandModule
 from pajbot.modules.basic.admincommands import AdminCommandsModule
 from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.basic.checkmod import CheckModModule
@@ -64,6 +65,7 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 
 available_modules = [
+        AbCommandModule,
         AdminCommandsModule,
         AsciiProtectionModule,
         BTTVEmotesModule,
