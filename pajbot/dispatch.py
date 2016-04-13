@@ -357,6 +357,10 @@ class Dispatch:
                 bot.commands.edit_command(command, command=new_aliases)
 
                 bot.whisper(source.username, 'Successfully added the aliases {0} to {1}'.format(', '.join(added_aliases), existing_alias))
+                log_msg = 'The aliases {0} has been added to {1}'.format(', '.join(added_aliases), existing_alias)
+                AdminLogManager.add_entry('Alias added',
+                        source,
+                        log_msg)
             if len(already_used_aliases) > 0:
                 bot.whisper(source.username, 'The following aliases were already in use: {0}'.format(', '.join(already_used_aliases)))
         else:
@@ -393,6 +397,10 @@ class Dispatch:
 
                 num_removed += 1
                 del bot.commands[alias]
+                log_msg = 'The alias {0} has been removed from {1}'.format(alias, new_aliases.split('|')[0])
+                AdminLogManager.add_entry('Alias removed',
+                        source,
+                        log_msg)
 
             whisper_str = ''
             if num_removed > 0:
