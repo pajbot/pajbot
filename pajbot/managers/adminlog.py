@@ -23,11 +23,15 @@ class AdminLogManager:
             'Banphrase edited': LogEntryTemplate('Edited banphrase from "{}"'),
             'Banphrase removed': LogEntryTemplate('Removed banphrase "{}"'),
             'Banphrase toggled': LogEntryTemplate('{} banphrase "{}"'),
+            'Blacklist link added': LogEntryTemplate('Added blacklist link "{}"'),
+            'Blacklist link removed': LogEntryTemplate('Removed blacklisted link "{}"'),
             'Module edited': LogEntryTemplate('Edited module "{}"'),
             'Module toggled': LogEntryTemplate('{} module "{}"'),
             'Timer added': LogEntryTemplate('Added timer "{}"'),
             'Timer removed': LogEntryTemplate('Removed timer "{}"'),
             'Timer toggled': LogEntryTemplate('{} timer "{}"'),
+            'Whitelist link added': LogEntryTemplate('Added whitelist link "{}"'),
+            'Whitelist link removed': LogEntryTemplate('Removed whitelisted link "{}"'),
             }
 
     def get_key():
