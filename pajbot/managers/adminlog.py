@@ -19,12 +19,14 @@ class LogEntryTemplate:
 class AdminLogManager:
     KEY = None
     TEMPLATES = {
-            'Banphrase removed': LogEntryTemplate('Removed banphrase "{}"'),
             'Banphrase added': LogEntryTemplate('Added banphrase "{}"'),
             'Banphrase edited': LogEntryTemplate('Edited banphrase from "{}"'),
+            'Banphrase removed': LogEntryTemplate('Removed banphrase "{}"'),
             'Banphrase toggled': LogEntryTemplate('{} banphrase "{}"'),
-            'Module toggled': LogEntryTemplate('{} module "{}"'),
             'Module edited': LogEntryTemplate('Edited module "{}"'),
+            'Module toggled': LogEntryTemplate('{} module "{}"'),
+            'Timer added': LogEntryTemplate('Added timer "{}"'),
+            'Timer removed': LogEntryTemplate('Removed timer "{}"'),
             'Timer toggled': LogEntryTemplate('{} timer "{}"'),
             }
 
@@ -41,7 +43,7 @@ class AdminLogManager:
                 'type': type,
                 'user_id': source.id,
                 'message': message,
-                'created_at': str(datetime.datetime.now()),
+                'created_at': str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')),
                 'data': data,
                 }
 

@@ -6,6 +6,7 @@ from flask import render_template
 from flask import request
 from flask import session
 
+from pajbot.managers import AdminLogManager
 from pajbot.managers import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.timer import Timer
@@ -63,6 +64,11 @@ def init(page):
             if len(message) == 0:
                 abort(403)
 
+            user = options.get('user', None)
+
+            if user is None:
+                abort(403)
+
             options = {
                     'name': name,
                     'interval_online': interval_online,
@@ -83,9 +89,35 @@ def init(page):
                     timer = db_session.query(Timer).filter_by(id=id).one_or_none()
                     if timer is None:
                         return redirect('/admin/timers/', 303)
+
+                    old_message = ''
+                    new_message = ''
+                    try:
+                        old_message = timer.action.response
+                        new_message = action['message']
+                    except:
+                        pass
+
                     timer.set(**options)
+
+                    if len(old_message) > 0 and old_message != new_message:
+                        log_msg = 'Timer "{0}" has been updated from "{1}" to "{2}"'.format(
+                                timer.name,
+                                old_message,
+                                new_message)
+                    else:
+                        log_msg = 'Timer "{0}" has been updated'.format(timer.name)
+
+                    AdminLogManager.add_entry('Timer edited',
+                            user,
+                            log_msg,
+                            data={
+                                'old_message': old_message,
+                                'new_message': new_message,
+                                })
                 else:
                     db_session.add(timer)
+                    AdminLogManager.post('Timer added', user, timer.name)
 
             SocketClientManager.send('timer.update', {'timer_id': timer.id})
             if id is None:
