@@ -11,6 +11,7 @@ import irc.client
 from numpy import random
 from pytz import timezone
 
+import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
 from pajbot.managers import DBManager
@@ -58,6 +59,9 @@ class Bot:
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
+
+    last_ping = datetime.datetime.now()
+    last_pong = datetime.datetime.now()
 
     def parse_args():
         parser = argparse.ArgumentParser()
@@ -142,28 +146,17 @@ class Bot:
         RedisManager.init(**redis_options)
 
     def __init__(self, config, args=None):
+        # Load various configuration variables from the given config object
+        # The config object that should be passed through should
+        # come from pajbot.tbutil.load_config
         self.load_config(config)
-        self.last_ping = datetime.datetime.now()
-        self.last_pong = datetime.datetime.now()
 
         self.load_default_phrases()
 
-        try:
-            subprocess.check_call(['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))])
-        except subprocess.CalledProcessError:
-            log.exception('aaaa')
-            log.error('Unable to call `alembic upgrade head`, this means the database could be out of date. Quitting.')
-            sys.exit(1)
-        except PermissionError:
-            log.error('No permission to run `alembic upgrade head`. This means your user probably doesn\'t have execution rights on the `alembic` binary.')
-            log.error('The error can also occur if it can\'t find `alembic` in your PATH, and instead tries to execute the alembic folder.')
-            sys.exit(1)
-        except FileNotFoundError:
-            log.error('Could not found an installation of alembic. Please install alembic to continue.')
-            sys.exit(1)
-        except:
-            log.exception('Unhandled exception when calling db update')
-            sys.exit(1)
+        # Update the database scheme if necessary using alembic
+        # In case of errors, i.e. if the database is out of sync or the alembic
+        # binary can't be called, we will shut down the bot.
+        pajbot.utils.alembic_upgrade()
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
