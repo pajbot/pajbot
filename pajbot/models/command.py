@@ -269,6 +269,9 @@ class Command(Base):
         self.examples = options.get('examples', self.examples)
         self.run_in_thread = options.get('run_in_thread', self.run_in_thread)
 
+    def __str__(self):
+        return 'Command(!{})'.format(self.command)
+
     @reconstructor
     def init_on_load(self):
         self.last_run = 0
@@ -380,6 +383,7 @@ class Command(Base):
 
         args.update(self.extra_args)
         if self.run_in_thread:
+            log.debug('Running {} in a thread'.format(self))
             ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
         else:
             self.run_action(bot, source, message, event, args)
