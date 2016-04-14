@@ -148,8 +148,6 @@ class Bot:
 
         self.load_default_phrases()
 
-        self.db_session = DBManager.create_session()
-
         try:
             subprocess.check_call(['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))])
         except subprocess.CalledProcessError:
