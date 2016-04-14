@@ -77,32 +77,6 @@ class Bot:
 
         return parser.parse_args()
 
-    def load_default_phrases(self):
-        default_phrases = {
-                'welcome': False,
-                'quit': False,
-                'nl': '{username} has typed {num_lines} messages in this channel!',
-                'nl_0': '{username} has not typed any messages in this channel BibleThump',
-                'nl_pos': '{username} is rank {nl_pos} line-farmer in this channel!',
-                'new_sub': 'Sub hype! {username} just subscribed PogChamp',
-                'resub': 'Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3 PogChamp',
-                'point_pos': '{username_w_verb} rank {point_pos} point-hoarder in this channel with {points} points.',
-                }
-        if 'phrases' in self.config:
-            self.phrases = {}
-
-            for phrase_key, phrase_value in self.config['phrases'].items():
-                if len(phrase_value.strip()) <= 0:
-                    self.phrases[phrase_key] = False
-                else:
-                    self.phrases[phrase_key] = phrase_value
-
-            for phrase_key, phrase_value in default_phrases.items():
-                if phrase_key not in self.phrases:
-                    self.phrases[phrase_key] = phrase_value
-        else:
-            self.phrases = default_phrases
-
     def load_config(self, config):
         self.config = config
 
@@ -150,8 +124,6 @@ class Bot:
         # The config object that should be passed through should
         # come from pajbot.tbutil.load_config
         self.load_config(config)
-
-        self.load_default_phrases()
 
         # Update the database scheme if necessary using alembic
         # In case of errors, i.e. if the database is out of sync or the alembic
@@ -762,16 +734,16 @@ class Bot:
 
     def quit_bot(self, **options):
         self.commit_all()
-        if self.phrases['quit']:
-            phrase_data = {
-                    'nickname': self.nickname,
-                    'version': self.version,
-                    }
+        quit = '{nickname} {version} shutting down...'
+        phrase_data = {
+                'nickname': self.nickname,
+                'version': self.version,
+                }
 
-            try:
-                self.say(self.phrases['quit'].format(**phrase_data))
-            except Exception:
-                log.exception('Exception caught while trying to say quit phrase')
+        try:
+            self.say(quit.format(**phrase_data))
+        except Exception:
+            log.exception('Exception caught while trying to say quit phrase')
 
         self.twitter_manager.quit()
         self.socket_manager.quit()

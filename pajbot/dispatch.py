@@ -16,7 +16,11 @@ class Dispatch:
     """
 
     def point_pos(bot, source, message, event, args):
+        # XXX: This should be a module
         user = None
+
+        # This phrase should be a module setting
+        point_pos = '{username_w_verb} rank {point_pos} point-hoarder in this channel with {points} points.'
 
         if message:
             tmp_username = message.split(' ')[0].strip().lower()
@@ -37,9 +41,15 @@ class Dispatch:
         if user.points > 0:
             query_data = bot.users.db_session.query(func.count(User.id)).filter(User.points > user.points).one()
             phrase_data['point_pos'] = int(query_data[0]) + 1
-            bot.whisper(source.username, bot.phrases['point_pos'].format(**phrase_data))
+            bot.whisper(source.username, point_pos.format(**phrase_data))
 
     def nl_pos(bot, source, message, event, args):
+        # XXX: This should be a module
+
+        # These phrases should be module settings
+        nl_0 = '{username} has not typed any messages in this channel BibleThump'
+        nl_pos = '{username} is rank {nl_pos} line-farmer in this channel!'
+
         if message:
             tmp_username = message.split(' ')[0].strip().lower()
             user = bot.users.find(tmp_username)
@@ -59,11 +69,11 @@ class Dispatch:
                 }
 
         if num_lines <= 0:
-            bot.say(bot.phrases['nl_0'].format(**phrase_data))
+            bot.say(nl_0.format(**phrase_data))
         else:
             query_data = bot.users.db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
             phrase_data['nl_pos'] = int(query_data[0]) + 1
-            bot.say(bot.phrases['nl_pos'].format(**phrase_data))
+            bot.say(nl_pos.format(**phrase_data))
 
     def query(bot, source, message, event, args):
         # XXX: This should be a module. Only when we've moved server though.

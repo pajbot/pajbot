@@ -54,6 +54,8 @@ class IRCManager:
 
 
 class SingleIRCManager(IRCManager):
+    first_welcome = True
+
     def __init__(self, bot):
         super().__init__(bot)
 
@@ -74,6 +76,17 @@ class SingleIRCManager(IRCManager):
 
     def start(self):
         return self.connection_manager.start()
+
+    def on_welcome(self, chatconn, event):
+        if self.first_welcome:
+            self.first_welcome = False
+            welcome = '{nickname} {version} running!'
+            phrase_data = {
+                'nickname': self.bot.nickname,
+                'version': self.bot.version,
+                 }
+
+            self.bot.say(welcome.format(**phrase_data))
 
     def on_connect(self, sock):
         self.connection_manager.relay_connection.join(self.channel)
