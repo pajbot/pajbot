@@ -278,7 +278,7 @@ class Command(Base):
         self.last_run_by_user = {}
         self.extra_args = {'command': self}
         self.action = ActionParser.parse(self.action_json, command=self.command)
-        self.run_in_thread = True
+        self.run_in_thread = False
         if self.extra_extra_args:
             try:
                 self.extra_args.update(json.loads(self.extra_extra_args))
