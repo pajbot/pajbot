@@ -10,6 +10,8 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
+
 
 from pajbot.managers import Base
 from pajbot.managers import DBManager
@@ -17,6 +19,8 @@ from pajbot.managers import HandlerManager
 from pajbot.managers import RedisManager
 from pajbot.managers import TimeManager
 from pajbot.streamhelper import StreamHelper
+
+from pajbot.models.apitoken import APIToken
 
 log = logging.getLogger('pajbot')
 
@@ -39,6 +43,8 @@ class User(Base):
     banned = Column(Boolean, nullable=False, default=False)
     ban_immune = False
     moderator = False
+    # Define tokens relationship (One to Many)
+    tokens = relationship("APIToken")
 
     WARNING_SYNTAX = '{prefix}_{username}_warning_{id}'
 
