@@ -19,8 +19,6 @@ from pajbot.managers import HandlerManager
 from pajbot.managers import RedisManager
 from pajbot.managers import TimeManager
 
-from pajbot.models.apitoken import APIToken  # NOQA
-
 from pajbot.streamhelper import StreamHelper
 
 
@@ -46,7 +44,7 @@ class User(Base):
     ban_immune = False
     moderator = False
     # Define tokens relationship (One to Many)
-    tokens = relationship('APIToken')
+    tokens = relationship('APIToken', back_populates='user')
 
     WARNING_SYNTAX = '{prefix}_{username}_warning_{id}'
 
