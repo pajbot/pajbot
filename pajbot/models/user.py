@@ -12,7 +12,6 @@ from sqlalchemy import String
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
-
 from pajbot.managers import Base
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
