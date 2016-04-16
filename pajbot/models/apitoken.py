@@ -34,7 +34,7 @@ class APIToken(Base):
     def __init__(self, user, scopes):
         self.id = None
         self.user_id = user.id
-        self.salt = self.generate_random_salt()
+        self.salt = self.__generate_random_salt()
         self.scopes = scopes
 
         s = URLSafeSerializer(secret_key, salt=self.salt)
@@ -51,8 +51,7 @@ class APIToken(Base):
         self.decoded = self.unlock_token(self.token)
         self.scopes = self.decoded.get('scopes', [])
 
-    @staticmethod
-    def generate_random_salt(length=32):
+    def __generate_random_salt(self, length=32):
         return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(length)])
 
     def unlock_token(self, token):
