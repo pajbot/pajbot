@@ -2,7 +2,6 @@ import datetime
 import random
 import string
 import calendar
-from collections import UserDict
 from sqlalchemy import Table
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -95,6 +94,7 @@ class APITokenManager:
             return None
 
         token = APIToken(user, scopes)
+
         self.db_session.add(token)
         self.db_session.commit()
         self.db_session.flush()
@@ -109,9 +109,4 @@ class APITokenManager:
         if not user:
             return None
 
-        token = APIToken(user, scopes)
-        self.db_session.add(token)
-        self.db_session.commit()
-        self.db_session.flush()
-
-        return token
+        return self.generate_token_for_user(user, scopes)
