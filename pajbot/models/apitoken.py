@@ -13,8 +13,8 @@ from itsdangerous import URLSafeSerializer
 from pajbot.managers import Base
 from pajbot.managers import DBManager
 
-# Todo: Move this to the config! IMPORTANT!
-secret_key = "some-random-secret-damn-key"
+# Initialized in app.py
+secret_key = None
 
 
 class APIToken(Base):
