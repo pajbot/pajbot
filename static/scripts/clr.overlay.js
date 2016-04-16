@@ -61,7 +61,7 @@ samples = {
     'relax': { 'url': 'https://pajlada.se/files/clr/relax.mp3' },
     'vibrate': { 'url': 'https://pajlada.se/files/clr/vibrate.mp3' },
     '4head': { 'url': 'https://pajlada.se/files/clr/4Head.mp3' },
-    'akarin': { 'url': 'https://pajlada.se/files/clr/akarin.mp3' },
+    'akarin': { 'url': ['https://pajlada.se/files/clr/akarin.mp3', 'https://pajlada.se/files/clr/akarin-02.mp3'] },
     'behindyou': { 'url': 'https://pajlada.se/files/clr/behindyou.mp3' },
     'bitch': { 'url': 'https://pajlada.se/files/clr/bitch.mp3' },
     'damnson': { 'url': 'https://pajlada.se/files/clr/damnson.mp3' },
