@@ -54,6 +54,12 @@ class APIToken(Base):
     def __generate_random_salt(self, length=32):
         return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(length)])
 
+    def has_scope(self, scope):
+        if scope == '':
+            return False
+
+        return scope in self.scopes
+
     def unlock_token(self, token):
         s = URLSafeSerializer(secret_key, salt=self.salt)
         sig_okay, payload = s.loads_unsafe(token)
