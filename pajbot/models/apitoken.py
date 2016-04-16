@@ -4,14 +4,18 @@ import random
 import string
 
 from itsdangerous import URLSafeSerializer
-from pajbot.managers import Base
-from pajbot.managers import DBManager
+
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
+
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
+
+from pajbot.managers import Base
+from pajbot.managers import DBManager
+
 
 # Initialized in app.py
 secret_key = None

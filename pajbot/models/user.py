@@ -41,7 +41,7 @@ class User(Base):
     ban_immune = False
     moderator = False
     # Define tokens relationship (One to Many)
-    tokens = relationship("APIToken")
+    tokens = relationship('APIToken')
 
     WARNING_SYNTAX = '{prefix}_{username}_warning_{id}'
 

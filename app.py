@@ -12,9 +12,9 @@ from flask import request
 from flask import session
 from flask.ext.scrypt import generate_random_salt
 
+import pajbot.models.apitoken
 import pajbot.web.common
 import pajbot.web.routes
-import pajbot.models.apitoken
 from pajbot.bot import Bot
 from pajbot.managers import DBManager
 from pajbot.managers import RedisManager
