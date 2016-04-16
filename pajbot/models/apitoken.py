@@ -2,14 +2,17 @@ import datetime
 import random
 import string
 import calendar
+from collections import UserDict
 from sqlalchemy import Table
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import reconstructor
 from itsdangerous import URLSafeSerializer
 from pajbot.managers import Base
+from pajbot.managers import DBManager
 
 # Todo: Move this to the config! IMPORTANT!
 secret_key = "some-random-secret-damn-key"
@@ -27,6 +30,7 @@ class APIToken(Base):
     user = relationship("User", back_populates="tokens")
 
     scopes = []
+    decoded = {}
 
     def __init__(self, user, scopes):
         self.id = None
@@ -36,16 +40,78 @@ class APIToken(Base):
 
         s = URLSafeSerializer(secret_key, salt=self.salt)
 
-        self.token = s.dumps({
+        self.decoded = {
             'issued_to': user.id,
             'issued_at': calendar.timegm(datetime.datetime.now().timetuple()),
             'scopes': scopes
-        })
+        }
+        self.token = s.dumps(self.decoded)
+
+    @reconstructor
+    def init_on_load(self):
+        self.decoded = self.unlock_token(self.token)
+        self.scopes = self.decoded.get('scopes', [])
 
     @staticmethod
     def generate_random_salt(length=32):
         return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(length)])
 
-    def unlock_token(self, token=self.token):
+    def unlock_token(self, token):
         s = URLSafeSerializer(secret_key, salt=self.salt)
-        return s.loads(token)
+        sig_okay, payload = s.loads_unsafe(token)
+        if not sig_okay:
+            raise InvalidToken(token)
+        return payload
+
+    def serialize(self):
+        return self.decoded
+
+
+class InvalidToken(Exception):
+    def __init__(self, token):
+        self.token = token
+
+    def __str__(self):
+        return "Invalid token provided."
+
+
+class APITokenManager:
+    def __init__(self):
+        self.db_session = DBManager.create_session()
+
+    def find(self, token):
+        if token == '':
+            raise InvalidToken(token)
+
+        api_token = self.db_session.query(APIToken).filter_by(token=token).one_or_none()
+
+        if not api_token:
+            raise InvalidToken(token)
+
+        return api_token
+
+    def generate_token_for_user(self, user, scopes):
+        if not user:
+            return None
+
+        token = APIToken(user, scopes)
+        self.db_session.add(token)
+        self.db_session.commit()
+        self.db_session.flush()
+
+        return token
+
+    def generate_token_for_username(self, username, scopes):
+        from pajbot.models.user import UserManager
+        user_manager = UserManager()
+        user = user_manager.find(username)
+
+        if not user:
+            return None
+
+        token = APIToken(user, scopes)
+        self.db_session.add(token)
+        self.db_session.commit()
+        self.db_session.flush()
+
+        return token
