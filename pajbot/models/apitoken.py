@@ -16,13 +16,12 @@ from sqlalchemy.orm import relationship
 from pajbot.managers import Base
 from pajbot.managers import DBManager
 
-
 # Initialized in app.py
 secret_key = None
 
 
 class APIToken(Base):
-    __tablename__ = 'tb_api_tokens'
+    __tablename__ = 'tb_api_token'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('tb_user.id'))
@@ -84,29 +83,24 @@ class InvalidToken(Exception):
 
 
 class APITokenManager:
-    def __init__(self):
-        self.db_session = DBManager.create_session()
-
     def find(self, token):
         if token == '':
             raise InvalidToken(token)
 
-        api_token = self.db_session.query(APIToken).filter_by(token=token).one_or_none()
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            api_token = db_session.query(APIToken).filter_by(token=token).one_or_none()
 
-        if not api_token:
-            raise InvalidToken(token)
+            if not api_token:
+                raise InvalidToken(token)
 
-        return api_token
+            return api_token
 
     def generate_token_for_user(self, user, scopes):
         if not user:
             return None
 
         token = APIToken(user, scopes)
-
-        self.db_session.add(token)
-        self.db_session.commit()
-        self.db_session.flush()
+        DBManager.session_add_expunge(token)
 
         return token
 

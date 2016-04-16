@@ -53,8 +53,8 @@ if 'web' not in config:
     sys.exit(1)
 
 if 'api' not in config:
-    log.error('Missing [api] section in config.ini')
-    sys.exit(1)
+    log.error('Missing [api] section in config.ini, adding it now!')
+    config.add_section('api')
 
 if 'pleblist_password_salt' not in config['web']:
     salt = generate_random_salt()
