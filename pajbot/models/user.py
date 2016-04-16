@@ -19,8 +19,6 @@ from pajbot.managers import RedisManager
 from pajbot.managers import TimeManager
 from pajbot.streamhelper import StreamHelper
 
-from pajbot.models.apitoken import APIToken
-
 log = logging.getLogger('pajbot')
 
 

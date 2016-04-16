@@ -1,17 +1,17 @@
+import calendar
 import datetime
 import random
 import string
-import calendar
-from sqlalchemy import Table
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import reconstructor
+
 from itsdangerous import URLSafeSerializer
 from pajbot.managers import Base
 from pajbot.managers import DBManager
+from sqlalchemy import Column
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import reconstructor
+from sqlalchemy.orm import relationship
 
 # Initialized in app.py
 secret_key = None
@@ -26,7 +26,7 @@ class APIToken(Base):
     salt = Column(String(32))
 
     # Define user relationship
-    user = relationship("User", back_populates="tokens")
+    user = relationship('User', back_populates='tokens')
 
     scopes = []
     decoded = {}
@@ -76,7 +76,7 @@ class InvalidToken(Exception):
         self.token = token
 
     def __str__(self):
-        return "Invalid token provided."
+        return 'Invalid token provided.'
 
 
 class APITokenManager:
