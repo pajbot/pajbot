@@ -26,6 +26,7 @@ from pajbot.tbutil import init_logging
 from pajbot.tbutil import load_config
 from pajbot.web.models import errors
 from pajbot.web.utils import download_logo
+
 init_logging('pajbot')
 log = logging.getLogger('pajbot')
 
