@@ -12,6 +12,7 @@ from flask import request
 from flask import session
 from flask.ext.scrypt import generate_random_salt
 
+import pajbot.models.apitoken
 import pajbot.web.common
 import pajbot.web.routes
 from pajbot.bot import Bot
@@ -51,6 +52,10 @@ if 'web' not in config:
     log.error('Missing [web] section in config.ini')
     sys.exit(1)
 
+if 'api' not in config:
+    log.error('Missing [api] section in config.ini, adding it now!')
+    config.add_section('api')
+
 if 'pleblist_password_salt' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'pleblist_password_salt', salt.decode('utf-8'))
@@ -58,6 +63,10 @@ if 'pleblist_password_salt' not in config['web']:
 if 'secret_key' not in config['web']:
     salt = generate_random_salt()
     config.set('web', 'secret_key', salt.decode('utf-8'))
+
+if 'token_secret' not in config['api']:
+    salt = generate_random_salt()
+    config.set('api', 'token_secret', salt.decode('utf-8'))
 
 if 'logo' not in config['web']:
     res = download_logo(config['main']['streamer'])
@@ -90,6 +99,7 @@ TimeManager.init_timezone(config['main'].get('timezone', 'UTC'))
 
 app.module_manager = ModuleManager(None).load()
 
+pajbot.models.apitoken.secret_key = config['api']['token_secret']
 
 pajbot.web.routes.admin.init(app)
 pajbot.web.routes.api.init(app)

@@ -62,3 +62,7 @@ python-Levenshtein
 
 # Required for generating thumbnails for the logo
 # -r requirements/thumbnail.txt
+
+
+# Required for generating signed tokens
+itsdangerous
