@@ -627,7 +627,7 @@ class Bot:
                 source.moderator = tag['value'] == 'mod' or source.username == self.streamer
 
         # Parse emotes in the message
-        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag)
+        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag, whisper)
 
         urls = self.find_unique_urls(msg_raw)
 
