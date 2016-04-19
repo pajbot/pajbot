@@ -445,19 +445,22 @@ class SayAction(MessageAction):
 
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message, args))
-        if resp:
-            if self.num_urlfetch_subs == 0:
-                bot.say(resp)
-            else:
-                ScheduleManager.execute_now(urlfetch_msg,
-                        args=[],
-                        kwargs={
-                            'args': [],
-                            'kwargs': {},
-                            'method': bot.say,
-                            'message': resp,
-                            'num_urlfetch_subs': self.num_urlfetch_subs,
-                            })
+
+        if not resp:
+            return False
+
+        if self.num_urlfetch_subs == 0:
+            return bot.say(resp)
+        else:
+            return ScheduleManager.execute_now(urlfetch_msg,
+                    args=[],
+                    kwargs={
+                        'args': [],
+                        'kwargs': {},
+                        'method': bot.say,
+                        'message': resp,
+                        'num_urlfetch_subs': self.num_urlfetch_subs,
+                        })
 
 
 class MeAction(MessageAction):
@@ -465,19 +468,22 @@ class MeAction(MessageAction):
 
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message, args))
-        if resp:
-            if self.num_urlfetch_subs == 0:
-                bot.me(resp)
-            else:
-                ScheduleManager.execute_now(urlfetch_msg,
-                        args=[],
-                        kwargs={
-                            'args': [],
-                            'kwargs': {},
-                            'method': bot.me,
-                            'message': resp,
-                            'num_urlfetch_subs': self.num_urlfetch_subs,
-                            })
+
+        if not resp:
+            return False
+
+        if self.num_urlfetch_subs == 0:
+            return bot.me(resp)
+        else:
+            return ScheduleManager.execute_now(urlfetch_msg,
+                    args=[],
+                    kwargs={
+                        'args': [],
+                        'kwargs': {},
+                        'method': bot.me,
+                        'message': resp,
+                        'num_urlfetch_subs': self.num_urlfetch_subs,
+                        })
 
 
 class WhisperAction(MessageAction):
@@ -485,11 +491,53 @@ class WhisperAction(MessageAction):
 
     def run(self, bot, source, message, event={}, args={}):
         resp = self.get_response(bot, self.get_extra_data(source, message, args))
-        if resp:
+
+        if not resp:
+            return False
+
+        if self.num_urlfetch_subs == 0:
+            return bot.whisper(source.username, resp)
+        else:
+            return ScheduleManager.execute_now(urlfetch_msg,
+                    args=[],
+                    kwargs={
+                        'args': [source.username],
+                        'kwargs': {},
+                        'method': bot.whisper,
+                        'message': resp,
+                        'num_urlfetch_subs': self.num_urlfetch_subs,
+                        })
+
+
+class ReplyAction(MessageAction):
+    subtype = 'reply'
+
+    def run(self, bot, source, message, event={}, args={}):
+        resp = self.get_response(bot, self.get_extra_data(source, message, args))
+
+        if not resp:
+            return False
+
+        if irc.client.is_channel(event.target):
             if self.num_urlfetch_subs == 0:
-                bot.whisper(source.username, resp)
+                return bot.say(resp, channel=event.target)
             else:
-                ScheduleManager.execute_now(urlfetch_msg,
+                return ScheduleManager.execute_now(urlfetch_msg,
+                        args=[],
+                        kwargs={
+                            'args': [],
+                            'kwargs': {
+                                'channel': event.target
+                                },
+                            'method': bot.say,
+                            'message': resp,
+                            'num_urlfetch_subs': self.num_urlfetch_subs,
+                            })
+        else:
+            if self.num_urlfetch_subs == 0:
+                return bot.whisper(source.username, resp)
+            else:
+                return ScheduleManager.execute_now(urlfetch_msg,
                         args=[],
                         kwargs={
                             'args': [source.username],
@@ -498,39 +546,3 @@ class WhisperAction(MessageAction):
                             'message': resp,
                             'num_urlfetch_subs': self.num_urlfetch_subs,
                             })
-
-
-class ReplyAction(MessageAction):
-    subtype = 'reply'
-
-    def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message, args))
-        if resp:
-            if irc.client.is_channel(event.target):
-                if self.num_urlfetch_subs == 0:
-                    bot.say(resp, channel=event.target)
-                else:
-                    ScheduleManager.execute_now(urlfetch_msg,
-                            args=[],
-                            kwargs={
-                                'args': [],
-                                'kwargs': {
-                                    'channel': event.target
-                                    },
-                                'method': bot.say,
-                                'message': resp,
-                                'num_urlfetch_subs': self.num_urlfetch_subs,
-                                })
-            else:
-                if self.num_urlfetch_subs == 0:
-                    bot.whisper(source.username, resp)
-                else:
-                    ScheduleManager.execute_now(urlfetch_msg,
-                            args=[],
-                            kwargs={
-                                'args': [source.username],
-                                'kwargs': {},
-                                'method': bot.whisper,
-                                'message': resp,
-                                'num_urlfetch_subs': self.num_urlfetch_subs,
-                                })
