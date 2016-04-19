@@ -27,7 +27,7 @@ samples = {
     'lashofthespanking': { 'url': 'http://soundboard.ass-we-can.com/static/music/BillyH/Lash%20of%20the%20spanking.mp3' },
     'nyanpass': { 'url': 'https://pajlada.se/files/clr/nyanpass.mp3' },
     'scamazishere': { 'url': 'https://pajlada.se/files/clr/scamaz_is_here.mp3' },
-    'lul': { 'url': 'https://pajlada.se/files/clr/LUL.mp3' },
+    'lul': { 'url': ['https://pajlada.se/files/clr/LUL.mp3', 'https://pajlada.se/files/clr/LUL-02.mp3'] },
     'ohmyshoulder': { 'url': 'https://pajlada.se/files/clr/ohmyshoulder.mp3' },
     'tuturu': { 'url': 'https://pajlada.se/files/clr/tuturu.mp3' },
     'attention': { 'url': 'https://pajlada.se/files/clr/attention.mp3' },
