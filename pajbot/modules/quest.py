@@ -5,6 +5,7 @@ from pajbot.managers import HandlerManager
 from pajbot.managers import RedisManager
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import find
 
@@ -17,7 +18,32 @@ class QuestModule(BaseModule):
     NAME = 'Quest system'
     DESCRIPTION = 'Give users a single quest at the start of each day'
     CATEGORY = 'Game'
-    SETTINGS = []
+    SETTINGS = [
+            ModuleSetting(
+                key='action_currentquest',
+                label='MessageAction for !currentquest',
+                type='options',
+                required=True,
+                default='say',
+                options=[
+                    'say',
+                    'whisper',
+                    'me',
+                    'reply',
+                    ]),
+            ModuleSetting(
+                key='action_tokens',
+                label='MessageAction for !tokens',
+                type='options',
+                required=True,
+                default='whisper',
+                options=[
+                    'say',
+                    'whisper',
+                    'me',
+                    'reply',
+                    ]),
+            ]
 
     def __init__(self):
         super().__init__()
@@ -40,20 +66,45 @@ class QuestModule(BaseModule):
             bot.say('{}, There is no quest active right now.'.format(source.username_raw))
 
     def get_current_quest(self, **options):
-        # TODO: This should be a messageaction
         bot = options['bot']
+        event = options['event']
         source = options['source']
+
         if self.current_quest is not None:
-            bot.say('{0}, the current quest active is {1}'.format(source.username_raw, self.current_quest.get_objective()))
+            message_quest = '{0}, the current quest active is {1}.'.format(source.username_raw, self.current_quest.get_objective())
         else:
-            bot.say('{0}, there is no quest active right now.'.format(source.username_raw))
+            message_quest = '{0}, there is no quest active right now.'.format(source.username_raw)
+
+        if self.settings['action_currentquest'] == 'say':
+            bot.say(message_quest)
+        elif self.settings['action_currentquest'] == 'whisper':
+            bot.whisper(source.username, message_quest)
+        elif self.settings['action_currentquest'] == 'me':
+            bot.me(message_quest)
+        elif self.settings['action_currentquest'] == 'reply':
+            if event.type in ['action', 'pubmsg']:
+                bot.say(message_quest)
+            elif event.type == 'whisper':
+                bot.whisper(source.username, message_quest)
 
     def get_user_tokens(self, **options):
-        # TODO: This should be a MessageAction
         bot = options['bot']
+        event = options['event']
         source = options['source']
 
-        bot.whisper(source.username, 'You have {} tokens'.format(source.get_tokens()))
+        message_tokens = '{0}, you have {1} tokens.'.format(source.username_raw, source.get_tokens())
+
+        if self.settings['action_tokens'] == 'say':
+            bot.say(message_tokens)
+        elif self.settings['action_tokens'] == 'whisper':
+            bot.whisper(source.username, message_tokens)
+        elif self.settings['action_tokens'] == 'me':
+            bot.me(message_tokens)
+        elif self.settings['action_tokens'] == 'reply':
+            if event.type in ['action', 'pubmsg']:
+                bot.say(message_tokens)
+            elif event.type == 'whisper':
+                bot.whisper(source.username, message_tokens)
 
     def load_commands(self, **options):
         self.commands['myprogress'] = Command.raw_command(
