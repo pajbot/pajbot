@@ -165,7 +165,7 @@ class EmoteManager:
 
         return list(set(emotes_full_list) - set(emotes_remove_list))
 
-    def parse_message_twitch_emotes(self, source, message, tag):
+    def parse_message_twitch_emotes(self, source, message, tag, whisper):
         message_emotes = []
         new_user_tags = []
 
@@ -224,9 +224,10 @@ class EmoteManager:
         if len(message_emotes) > 0 or len(new_user_tags) > 0:
             streamer = StreamHelper.get_streamer()
             with RedisManager.pipeline_context() as pipeline:
-                for emote in message_emotes:
-                    pipeline.zincrby('{streamer}:emotes:count'.format(streamer=streamer), emote['code'], emote['count'])
-                    self.epm_incr(emote['code'], emote['count'])
+                if not whisper:
+                    for emote in message_emotes:
+                        pipeline.zincrby('{streamer}:emotes:count'.format(streamer=streamer), emote['code'], emote['count'])
+                        self.epm_incr(emote['code'], emote['count'])
 
                 user_tags = source.get_tags()
 

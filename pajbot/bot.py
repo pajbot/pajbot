@@ -603,7 +603,7 @@ class Bot:
             source.timed_out = False
 
         # Parse emotes in the message
-        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag)
+        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag, whisper)
 
         urls = self.find_unique_urls(msg_raw)
 

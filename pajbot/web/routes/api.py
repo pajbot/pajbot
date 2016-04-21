@@ -171,6 +171,7 @@ def pleblist_add():
             except ValueError:
                 skip_after = None
 
+        log.info('Request song youtube ID: {}'.format(youtube_id))
         song_requested = PleblistSong(current_stream.id, youtube_id, skip_after=skip_after)
         session.add(song_requested)
         song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
@@ -227,7 +228,7 @@ def pleblist_validate():
 
     with DBManager.create_session_scope() as session:
         youtube_id = request.form['youtube_id']
-        print(youtube_id)
+        log.info('Validating youtube ID {}'.format(youtube_id))
         song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
         if song_info is not None:
             return jsonify({

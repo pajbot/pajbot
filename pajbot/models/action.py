@@ -115,7 +115,7 @@ class IfSubstitution:
 
 class Substitution:
     argument_substitution_regex = re.compile(r'\$\((\d+)\)')
-    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)')
+    substitution_regex = re.compile(r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)')
     urlfetch_substitution_regex = re.compile(r'\$\(urlfetch ([\w-:/&=.,/? ()]+)\)')
     urlfetch_substitution_regex_all = re.compile(r'\$\(urlfetch (.+?)\)')
 

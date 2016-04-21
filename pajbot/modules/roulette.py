@@ -187,6 +187,9 @@ class RouletteModule(BaseModule):
                 return False
         else:
             try:
+                message = message.lower()
+                message = message.replace('k', '000')
+                message = message.replace('m', '000000')
                 bet = int(message.split(' ')[0])
             except (ValueError, TypeError):
                 bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')

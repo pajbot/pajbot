@@ -101,7 +101,7 @@ class PleblistManager:
                     part='snippet,contentDetails'
                     ).execute()
         except HttpError as e:
-            log.exception('???')
+            log.exception('Youtube HTTPError')
             log.info(e.content)
             log.info(e.resp)
             log.info(e.uri)
