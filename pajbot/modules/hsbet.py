@@ -127,6 +127,8 @@ class HSBetModule(BaseModule):
         latest_game = game_data['history'][0]
 
         if latest_game['id'] != self.last_game_id:
+            # A new game has been detected
+            # Reset all variables
             winners = []
             losers = []
             total_winning_points = 0
@@ -136,70 +138,75 @@ class HSBetModule(BaseModule):
                     'loss': 0,
                     }
             bet_game_id = None
+
+            # Mark down the last game's results
             with DBManager.create_session_scope() as db_session:
                 bet_game = HSBetGame(latest_game['id'], latest_game['result'])
                 db_session.add(bet_game)
                 db_session.flush()
                 bet_game_id = bet_game.id
 
-            db_bets = {}
+                db_bets = {}
 
-            for username in self.bets:
-                bet_for_win, points = self.bets[username]
-                """
-                self.bot.me('{} bet {} points on the last game to end up as a {}'.format(
-                    username,
-                    points,
-                    'win' if bet_for_win else 'loss'))
+                for username in self.bets:
+                    bet_for_win, points = self.bets[username]
                     """
+                    self.bot.me('{} bet {} points on the last game to end up as a {}'.format(
+                        username,
+                        points,
+                        'win' if bet_for_win else 'loss'))
+                        """
 
-                user = self.bot.users[username]
+                    with self.bot.users.find_context(username, db_session=db_session) as user:
+                        if user is None:
+                            continue
 
-                correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
-                points_bet['win' if bet_for_win else 'loss'] += points
-                db_bets[username] = HSBetBet(bet_game_id, user.id, 'win' if bet_for_win else 'loss', points, 0)
-                if correct_bet:
-                    winners.append((user, points))
-                    total_winning_points += points
-                    user.remove_debt(points)
-                else:
-                    losers.append((user, points))
-                    total_losing_points += points
-                    user.pay_debt(points)
-                    db_bets[username].profit = -points
-                    self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
-                        points))
+                        correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
+                        points_bet['win' if bet_for_win else 'loss'] += points
+                        db_bets[username] = HSBetBet(bet_game_id, user.id, 'win' if bet_for_win else 'loss', points, 0)
+                        if correct_bet:
+                            winners.append((user, points))
+                            total_winning_points += points
+                            user.remove_debt(points)
+                        else:
+                            losers.append((user, points))
+                            total_losing_points += points
+                            user.pay_debt(points)
+                            db_bets[username].profit = -points
+                            self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
+                                points))
 
-            for obj in losers:
-                user, points = obj
-                log.debug('{} lost {} points!'.format(user, points))
+                for obj in losers:
+                    user, points = obj
+                    log.debug('{} lost {} points!'.format(user, points))
 
-            for obj in winners:
-                points_reward = 0
+                for obj in winners:
+                    points_reward = 0
 
-                user, points = obj
+                    user, points = obj
 
-                if points == 0:
-                    # If you didn't bet any points, you don't get a part of the cut.
+                    if points == 0:
+                        # If you didn't bet any points, you don't get a part of the cut.
+                        HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
+                        continue
+
+                    pot_cut = points / total_winning_points
+                    points_reward = int(pot_cut * total_losing_points)
+                    db_bets[user.username].profit = points_reward
+                    user.points += points_reward
+                    user.save()
                     HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
-                    continue
-
-                pot_cut = points / total_winning_points
-                points_reward = int(pot_cut * total_losing_points)
-                db_bets[user.username].profit = points_reward
-                user.points += points_reward
-                HandlerManager.trigger('on_user_win_hs_bet', user, points_reward)
-                self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
-                    points, points_reward, pot_cut * 100))
-                """
-                self.bot.me('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
-                    user.username_raw, points, points_reward))
+                    self.bot.whisper(user.username, 'You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)'.format(
+                        points, points_reward, pot_cut * 100))
                     """
+                    self.bot.me('{} bet {} points, and made a profit of {} points by correctly betting on the HS game!'.format(
+                        user.username_raw, points, points_reward))
+                        """
 
-            with DBManager.create_session_scope() as db_session:
-                for username in db_bets:
-                    bet = db_bets[username]
-                    db_session.add(bet)
+                with DBManager.create_session_scope() as db_session:
+                    for username in db_bets:
+                        bet = db_bets[username]
+                        db_session.add(bet)
 
             self.bot.me('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}

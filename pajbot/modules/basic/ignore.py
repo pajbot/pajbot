@@ -25,20 +25,19 @@ class IgnoreModule(BaseModule):
         source = options['source']
 
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
+            username = message.split(' ')[0].strip().lower()
+            with bot.users.find_context(username) as user:
+                if not user:
+                    bot.whisper(source.username, 'No user with that name found.')
+                    return False
 
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+                if user.ignored:
+                    bot.whisper(source.username, 'User is already ignored.')
+                    return False
 
-            if user.ignored:
-                bot.whisper(source.username, 'User is already ignored.')
-                return False
-
-            user.ignored = True
-            message = message.lower()
-            bot.whisper(source.username, 'Now ignoring {0}'.format(user.username))
+                user.ignored = True
+                message = message.lower()
+                bot.whisper(source.username, 'Now ignoring {0}'.format(user.username))
 
     def unignore_command(self, **options):
         message = options['message']
@@ -46,20 +45,19 @@ class IgnoreModule(BaseModule):
         source = options['source']
 
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
+            username = message.split(' ')[0].strip().lower()
+            with bot.users.find_context(username) as user:
+                if not user:
+                    bot.whisper(source.username, 'No user with that name found.')
+                    return False
 
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+                if user.ignored is False:
+                    bot.whisper(source.username, 'User is not ignored.')
+                    return False
 
-            if user.ignored is False:
-                bot.whisper(source.username, 'User is not ignored.')
-                return False
-
-            user.ignored = False
-            message = message.lower()
-            bot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
+                user.ignored = False
+                message = message.lower()
+                bot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
 
     def load_commands(self, **options):
         self.commands['ignore'] = Command.raw_command(self.ignore_command,

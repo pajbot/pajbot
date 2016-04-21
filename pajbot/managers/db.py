@@ -92,6 +92,18 @@ class DBManager:
             session.close()
 
     @contextmanager
+    def create_session_scope_ea(**options):
+        session = DBManager.create_session(**options)
+        try:
+            yield session
+            session.expunge_all()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    @contextmanager
     def create_scoped_session_scope(**options):
         session = DBManager.create_scoped_session(**options)
         try:

@@ -41,7 +41,6 @@ if tag is not None:
     custom_args = tag.replace('"', '').split()
 args, unknown = parser.parse_known_args(args=custom_args)
 
-print('Loading config from {0}'.format(args.config))
 pb_config = load_config(args.config)
 
 redis_options = {}
@@ -50,8 +49,6 @@ if 'redis' in pb_config:
     redis_options = pb_config._sections['redis']
 
 RedisManager.init(**redis_options)
-
-print(pb_config['main']['streamer'])
 
 
 class Emote(Base):
@@ -89,6 +86,8 @@ def upgrade():
 
     op.drop_table('tb_emote_stats')
     op.drop_table('tb_emote')
+
+    session.commit()
 
 
 def downgrade():

@@ -1,6 +1,5 @@
 import logging
 
-from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -49,21 +48,6 @@ class HighlightModule(BaseModule):
 
     def enable(self, bot):
         self.bot = bot
-        HandlerManager.add_handler('on_message', self.on_message, priority=50)
-
-    def disable(self, bot):
-        HandlerManager.remove_handler('on_message', self.on_message)
-
-    def on_message(self, source, message, emotes, whisper, urls, event):
-        if whisper:
-            return
-        if source.level >= 500 or source.moderator:
-            return
-
-        if self.is_message_bad(source, message, event):
-            # we matched a filter.
-            # return False so no more code is run for this message
-            return False
 
     def add_highlight(self, **options):
         """Method for creating highlights

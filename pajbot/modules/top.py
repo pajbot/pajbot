@@ -1,9 +1,12 @@
 import logging
 
+from pajbot.managers import DBManager
+from pajbot.managers import RedisManager
 from pajbot.models.command import Command
 from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_since
 
 log = logging.getLogger(__name__)
@@ -54,11 +57,21 @@ class TopModule(BaseModule):
             ]
 
     def top_chatters(self, **options):
+        """ TODO: use username_raw somehow """
         bot = options['bot']
 
         data = []
-        for user in bot.users.db_session.query(User).order_by(User.num_lines.desc())[:self.settings['num_top']]:
-            data.append('{user.username_raw} ({user.num_lines})'.format(user=user))
+        redis = RedisManager.get()
+
+        for user in redis.zrevrangebyscore(
+                '{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()),
+                '+inf',
+                '-inf',
+                start=0,
+                num=self.settings['num_top'],
+                withscores=True,
+                score_cast_func=int):
+            data.append('{} ({})'.format(user[0], user[1]))
 
         bot.say('Top {num_top} chatters: {data}'.format(
             num_top=self.settings['num_top'],
@@ -68,10 +81,11 @@ class TopModule(BaseModule):
         bot = options['bot']
 
         data = []
-        for user in bot.users.db_session.query(User).order_by(User.minutes_in_chat_online.desc())[:self.settings['num_top']]:
-            data.append('{user.username_raw} ({time_spent})'.format(
-                user=user,
-                time_spent=time_since(user.minutes_in_chat_online * 60, 0, format='short')))
+        with DBManager.create_session_scope() as db_session:
+            for user in db_session.query(User).order_by(User.minutes_in_chat_online.desc())[:self.settings['num_top']]:
+                data.append('{user.username_raw} ({time_spent})'.format(
+                    user=user,
+                    time_spent=time_since(user.minutes_in_chat_online * 60, 0, format='short')))
 
         bot.say('Top {num_top} watchers: {data}'.format(
             num_top=self.settings['num_top'],
@@ -81,10 +95,11 @@ class TopModule(BaseModule):
         bot = options['bot']
 
         data = []
-        for user in bot.users.db_session.query(User).order_by(User.minutes_in_chat_offline.desc())[:self.settings['num_top']]:
-            data.append('{user.username_raw} ({time_spent})'.format(
-                user=user,
-                time_spent=time_since(user.minutes_in_chat_offline * 60, 0, format='short')))
+        with DBManager.create_session_scope() as db_session:
+            for user in db_session.query(User).order_by(User.minutes_in_chat_offline.desc())[:self.settings['num_top']]:
+                data.append('{user.username_raw} ({time_spent})'.format(
+                    user=user,
+                    time_spent=time_since(user.minutes_in_chat_offline * 60, 0, format='short')))
 
         bot.say('Top {num_top} offliners: {data}'.format(
             num_top=self.settings['num_top'],
@@ -94,8 +109,9 @@ class TopModule(BaseModule):
         bot = options['bot']
 
         data = []
-        for user in bot.users.db_session.query(User).order_by(User.points.desc())[:self.settings['num_top']]:
-            data.append('{user.username_raw} ({user.points})'.format(user=user))
+        with DBManager.create_session_scope() as db_session:
+            for user in db_session.query(User).order_by(User.points.desc())[:self.settings['num_top']]:
+                data.append('{user.username_raw} ({user.points})'.format(user=user))
 
         bot.say('Top {num_top} banks: {data}'.format(
             num_top=self.settings['num_top'],

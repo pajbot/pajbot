@@ -26,20 +26,18 @@ class PermabanModule(BaseModule):
         source = options['source']
 
         if message:
-            msg_args = message.split(' ')
-            username = msg_args[0].lower()
-            user = bot.users[username]
+            username = message.split(' ')[0].strip().lower()
+            with bot.users.get_user_context(username) as user:
+                if user.banned:
+                    bot.whisper(source.username, 'User is already permabanned.')
+                    return False
 
-            if user.banned:
-                bot.whisper(source.username, 'User is already permabanned.')
-                return False
+                user.banned = True
+                message = message.lower()
+                log_msg = '{} has been permabanned'.format(user.username_raw)
+                bot.whisper(source.username, log_msg)
 
-            user.banned = True
-            message = message.lower()
-            log_msg = '{} has been permabanned'.format(user.username_raw)
-            bot.whisper(source.username, log_msg)
-
-            AdminLogManager.add_entry('Permaban added', source, log_msg)
+                AdminLogManager.add_entry('Permaban added', source, log_msg)
 
     def unpermaban_command(self, **options):
         message = options['message']
@@ -47,23 +45,22 @@ class PermabanModule(BaseModule):
         source = options['source']
 
         if message:
-            tmp_username = message.split(' ')[0].strip().lower()
-            user = bot.users.find(tmp_username)
+            username = message.split(' ')[0].strip().lower()
+            with bot.users.find_context(username) as user:
+                if not user:
+                    bot.whisper(source.username, 'No user with that name found.')
+                    return False
 
-            if not user:
-                bot.whisper(source.username, 'No user with that name found.')
-                return False
+                if user.banned is False:
+                    bot.whisper(source.username, 'User is not permabanned.')
+                    return False
 
-            if user.banned is False:
-                bot.whisper(source.username, 'User is not permabanned.')
-                return False
+                user.banned = False
+                message = message.lower()
+                log_msg = '{} is no longer permabanned'.format(user.username_raw)
+                bot.whisper(source.username, log_msg)
 
-            user.banned = False
-            message = message.lower()
-            log_msg = '{} is no longer permabanned'.format(user.username_raw)
-            bot.whisper(source.username, log_msg)
-
-            AdminLogManager.add_entry('Permaban remove', source, log_msg)
+                AdminLogManager.add_entry('Permaban remove', source, log_msg)
 
     def load_commands(self, **options):
         self.commands['permaban'] = Command.raw_command(self.permaban_command,

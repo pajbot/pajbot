@@ -44,21 +44,20 @@ class AdminCommandsModule(BaseModule):
                     return False
 
                 # We create the user if the user didn't already exist in the database.
-                user = bot.users[username]
+                with bot.users.get_user_context(username) as user:
+                    old_level = user.level
+                    user.level = new_level
 
-                old_level = user.level
-                user.level = new_level
+                    log_msg = '{}\'s user level changed from {} to {}'.format(
+                            user.username_raw,
+                            old_level,
+                            new_level)
 
-                log_msg = '{}\'s user level changed from {} to {}'.format(
-                        user.username_raw,
-                        old_level,
-                        new_level)
+                    bot.whisper(source.username, log_msg)
 
-                bot.whisper(source.username, log_msg)
+                    AdminLogManager.add_entry('Userlevel edited', source, log_msg)
 
-                AdminLogManager.add_entry('Userlevel edited', source, log_msg)
-
-                return True
+                    return True
 
         bot.whisper(source.username, 'Usage: !level USERNAME NEW_LEVEL')
         return False

@@ -17,6 +17,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
+from pajbot.exc import FailedCommand
 from pajbot.managers import Base
 from pajbot.managers import DBManager
 from pajbot.managers import ScheduleManager
@@ -24,7 +25,7 @@ from pajbot.models.action import ActionParser
 from pajbot.models.action import RawFuncAction
 from pajbot.tbutil import find
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 def parse_command_for_web(alias, command, list):
@@ -393,7 +394,7 @@ class Command(Base):
         with source.spend_currency_context(self.cost, self.tokens_cost):
             ret = self.action.run(bot, source, message, event, args)
             if ret is False:
-                raise ValueError('return currency')
+                raise FailedCommand('return currency')
             else:
                 # Only spend points/tokens, and increment num_uses if the action succeded
                 if self.data is not None:

@@ -111,52 +111,52 @@ class PaidTimeoutModule(BaseModule):
         if len(username) < 2:
             return False
 
-        victim = bot.users.find(username)
-        if victim is None:
-            bot.whisper(source.username, 'This user does not exist FailFish')
-            return False
+        with bot.users.find_context(username) as victim:
+            if victim is None:
+                bot.whisper(source.username, 'This user does not exist FailFish')
+                return False
 
-        if victim.last_active is None or (datetime.datetime.now() - victim._last_active).total_seconds() > 10 * 60:
-            bot.whisper(source.username, 'This user has not been active in chat within the last 10 minutes.')
-            return False
+            if victim.last_active is None or (datetime.datetime.now() - victim._last_active).total_seconds() > 10 * 60:
+                bot.whisper(source.username, 'This user has not been active in chat within the last 10 minutes.')
+                return False
 
-        """
-        if victim == source:
-            bot.whisper(source.username, 'You can\'t timeout yourself FailFish')
-            return False
             """
+            if victim == source:
+                bot.whisper(source.username, 'You can\'t timeout yourself FailFish')
+                return False
+                """
 
-        if victim.moderator is True:
-            bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
-            return False
+            if victim.moderator is True:
+                bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
+                return False
 
-        if victim.level >= self.settings['bypass_level']:
-            bot.whisper(source.username, 'This person\'s user level is too high, you can\'t timeout this person.')
-            return False
+            if victim.level >= self.settings['bypass_level']:
+                bot.whisper(source.username, 'This person\'s user level is too high, you can\'t timeout this person.')
+                return False
 
-        now = datetime.datetime.now()
-        if victim.timed_out is True and victim.timeout_end > now:
-            victim.timeout_end += datetime.timedelta(seconds=_time)
-            bot.whisper(victim.username, '{victim.username}, you were timed out for an additional {time} seconds by {source.username}'.format(
-                victim=victim,
-                source=source,
-                time=_time))
-            bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(_cost, username, _time))
-            num_seconds = int((victim.timeout_end - now).total_seconds())
-            bot._timeout(username, num_seconds)
-        else:
-            bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(_cost, username, _time))
-            bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
-            bot._timeout(username, _time)
-            victim.timed_out = True
-            victim.timeout_start = now
-            victim.timeout_end = now + datetime.timedelta(seconds=_time)
+            now = datetime.datetime.now()
+            if victim.timed_out is True and victim.timeout_end > now:
+                victim.timeout_end += datetime.timedelta(seconds=_time)
+                bot.whisper(victim.username, '{victim.username}, you were timed out for an additional {time} seconds by {source.username}'.format(
+                    victim=victim,
+                    source=source,
+                    time=_time))
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(_cost, username, _time))
+                num_seconds = int((victim.timeout_end - now).total_seconds())
+                bot._timeout(username, num_seconds)
+            else:
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(_cost, username, _time))
+                bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
+                bot._timeout(username, _time)
+                victim.timed_out = True
+                victim.timeout_start = now
+                victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
-        payload = {'user': source.username, 'victim': victim.username}
-        bot.websocket_manager.emit('timeout', payload)
-        HandlerManager.trigger('on_paid_timeout',
-                source, victim, _cost,
-                stop_on_false=False)
+            payload = {'user': source.username, 'victim': victim.username}
+            bot.websocket_manager.emit('timeout', payload)
+            HandlerManager.trigger('on_paid_timeout',
+                    source, victim, _cost,
+                    stop_on_false=False)
 
     def paid_timeout(self, **options):
         message = options['message']

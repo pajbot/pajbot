@@ -26,17 +26,16 @@ from pajbot.managers import ScheduleManager
 from pajbot.managers import SingleIRCManager
 from pajbot.managers import TimeManager
 from pajbot.managers import TwitterManager
+from pajbot.managers import UserManager
 from pajbot.managers import WebSocketManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.command import CommandManager
-from pajbot.models.duel import DuelManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
-from pajbot.models.user import UserManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method
 from pajbot.tbutil import time_since
@@ -55,7 +54,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = '2.7.4'
+    version = '2.8.0'
     date_fmt = '%H:%M'
     admin = None
     url_regex_str = r'\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?'
@@ -160,7 +159,6 @@ class Bot:
         self.kvi = KVIManager()
         self.emotes = EmoteManager(self)
         self.twitter_manager = TwitterManager(self)
-        self.duel_manager = DuelManager(self)
 
         HandlerManager.trigger('on_managers_loaded')
 
@@ -173,7 +171,6 @@ class Bot:
         self.commitable = {
                 'commands': self.commands,
                 'filters': self.filters,
-                'users': self.users,
                 'banphrases': self.banphrase_manager,
                 }
 
@@ -184,7 +181,8 @@ class Bot:
         except KeyError:
             log.warning('No admin user specified. See the [main] section in config.example.ini for its usage.')
         if self.admin:
-            self.users[self.admin].level = 2000
+            with self.users.get_user_context(self.admin) as user:
+                user.level = 2000
 
         self.parse_version()
 
@@ -298,26 +296,11 @@ class Bot:
             log.info('Pushed them now.')
 
     def update_subscribers_stage2(self, subscribers):
-        log.debug('begiunning stage 2 of update subs')
         self.kvi['active_subs'].set(len(subscribers) - 1)
 
-        log.debug('Bulk loading subs...')
-        loaded_subscribers = self.users.bulk_load(subscribers)
-        log.debug('ok!')
-
-        log.debug('settings all loaded users as non-subs')
         self.users.reset_subs()
-        """
-        for username, user in self.users.items():
-            if user.subscriber:
-                user.subscriber = False
-                """
 
-        log.debug('ok!, setting loaded subs as subs')
-        for user in loaded_subscribers:
-            user.subscriber = True
-
-        log.debug('end of stage 2 of update subs')
+        self.users.update_subs(subscribers)
 
     def start(self):
         """Start the IRC client."""
@@ -499,9 +482,8 @@ class Bot:
         self.execute_delayed(1, self._ban, (username, ))
 
     def ban_user(self, user):
-        if not user.ban_immune:
-            self._timeout(user.username, 30)
-            self.execute_delayed(1, self._ban, (user.username, ))
+        self._timeout(user.username, 30)
+        self.execute_delayed(1, self._ban, (user.username, ))
 
     def unban(self, username):
         self.privmsg('.unban {0}'.format(username), increase_message=False)
@@ -516,15 +498,12 @@ class Bot:
 
     def timeout_warn(self, user, duration):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager['warning'])
-        if not user.ban_immune:
-            self.timeout(user.username, duration)
-            return (duration, punishment)
-        return (0, punishment)
+        self.timeout(user.username, duration)
+        return (duration, punishment)
 
     def timeout_user(self, user, duration):
-        if not user.ban_immune:
-            self._timeout(user.username, duration)
-            self.execute_delayed(1, self._timeout, (user.username, duration))
+        self._timeout(user.username, duration)
+        self.execute_delayed(1, self._timeout, (user.username, duration))
 
     def whisper(self, username, *messages, separator='. '):
         """
@@ -597,6 +576,20 @@ class Bot:
     def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
         msg_lower = msg_raw.lower()
 
+        emote_tag = None
+
+        for tag in tags:
+            if tag['key'] == 'subscriber' and event.target == self.channel:
+                source.subscriber = tag['value'] == '1'
+            elif tag['key'] == 'emotes' and tag['value']:
+                emote_tag = tag['value']
+            elif tag['key'] == 'display-name' and tag['value']:
+                source.username_raw = tag['value']
+            elif tag['key'] == 'user-type':
+                source.moderator = tag['value'] == 'mod' or source.username == self.streamer
+
+        # source.num_lines += 1
+
         if source is None:
             log.error('No valid user passed to parse_message')
             return False
@@ -609,29 +602,12 @@ class Bot:
         if source.timed_out is True:
             source.timed_out = False
 
-        emote_tag = None
-        for tag in tags:
-            if tag['key'] == 'subscriber' and event.target == self.channel:
-                if source.subscriber and tag['value'] == '0':
-                    source.subscriber = False
-                elif not source.subscriber and tag['value'] == '1':
-                    source.subscriber = True
-            elif tag['key'] == 'emotes' and tag['value']:
-                emote_tag = tag['value']
-            elif tag['key'] == 'display-name' and tag['value']:
-                try:
-                    source.update_username(tag['value'])
-                except:
-                    log.exception('Exception caught while updating a users username')
-            elif tag['key'] == 'user-type':
-                source.moderator = tag['value'] == 'mod' or source.username == self.streamer
-
         # Parse emotes in the message
         message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag)
 
         urls = self.find_unique_urls(msg_raw)
 
-        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
+        # log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
         res = HandlerManager.trigger('on_message',
                 source, msg_raw, message_emotes, whisper, urls, event,
@@ -658,10 +634,37 @@ class Bot:
                         }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
+    @time_method
+    def redis_test(self, username):
+        try:
+            pipeline = RedisManager.get().pipeline()
+            pipeline.hget('pajlada:users:points', username)
+            pipeline.hget('pajlada:users:ignored', username)
+            pipeline.hget('pajlada:users:banned', username)
+            pipeline.hget('pajlada:users:last_active', username)
+        except:
+            pipeline.reset()
+        finally:
+            b = pipeline.execute()
+            log.info(b)
+
+    @time_method
+    def redis_test2(self, username):
+        redis = RedisManager.get()
+        values = [
+                redis.hget('pajlada:users:points', username),
+                redis.hget('pajlada:users:ignored', username),
+                redis.hget('pajlada:users:banned', username),
+                redis.hget('pajlada:users:last_active', username),
+                ]
+        return values
+
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        source = self.users[event.source.user.lower()]
-        self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
+        username = event.source.user.lower()
+
+        with self.users.get_user_context(username) as source:
+            self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
         # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
@@ -685,16 +688,17 @@ class Bot:
         if event.source.user == self.nickname:
             return False
 
+        username = event.source.user.lower()
+
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        source = self.users[event.source.user.lower()]
+        with self.users.get_user_context(username) as source:
+            res = HandlerManager.trigger('on_pubmsg',
+                    source, event.arguments[0],
+                    stop_on_false=True)
+            if res is False:
+                return False
 
-        res = HandlerManager.trigger('on_pubmsg',
-                source, event.arguments[0],
-                stop_on_false=True)
-        if res is False:
-            return False
-
-        self.parse_message(event.arguments[0], source, event, tags=event.tags)
+            self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     @time_method
     def reload_all(self):

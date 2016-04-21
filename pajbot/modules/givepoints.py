@@ -80,27 +80,27 @@ class GivePointsModule(BaseModule):
             bot.whisper(source.username, 'You cannot give away more points than you have. You have {} points.'.format(source.points))
             return False
 
-        target = bot.users.find(username)
-        if target is None:
-            # The user tried donating points to someone who doesn't exist in our database
-            bot.whisper(source.username, 'This user does not exist FailFish')
-            return False
+        with bot.users.find_context(username) as target:
+            if target is None:
+                # The user tried donating points to someone who doesn't exist in our database
+                bot.whisper(source.username, 'This user does not exist FailFish')
+                return False
 
-        if target == source:
-            # The user tried giving points to themselves
-            bot.whisper(source.username, 'You can\'t give points to yourself OMGScoots')
-            return True
+            if target == source:
+                # The user tried giving points to themselves
+                bot.whisper(source.username, 'You can\'t give points to yourself OMGScoots')
+                return True
 
-        if self.settings['target_requires_sub'] is True and target.subscriber is False:
-            # Settings indicate that the target must be a subscriber, which he isn't
-            bot.whisper(source.username, 'Your target must be a subscriber.')
-            return False
+            if self.settings['target_requires_sub'] is True and target.subscriber is False:
+                # Settings indicate that the target must be a subscriber, which he isn't
+                bot.whisper(source.username, 'Your target must be a subscriber.')
+                return False
 
-        source.points -= num_points
-        target.points += num_points
+            source.points -= num_points
+            target.points += num_points
 
-        bot.whisper(source.username, 'Successfully gave away {num_points} points to {target.username_raw}'.format(num_points=num_points, target=target))
-        bot.whisper(target.username, '{source.username_raw} just gave you {num_points} points! You should probably thank them ;-)'.format(num_points=num_points, source=source))
+            bot.whisper(source.username, 'Successfully gave away {num_points} points to {target.username_raw}'.format(num_points=num_points, target=target))
+            bot.whisper(target.username, '{source.username_raw} just gave you {num_points} points! You should probably thank them ;-)'.format(num_points=num_points, source=source))
 
     def load_commands(self, **options):
         self.command_name = self.settings['command_name'].lower().replace('!', '').replace(' ', '')

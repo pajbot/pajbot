@@ -1,6 +1,9 @@
+import logging
 from contextlib import contextmanager
 
 import redis
+
+log = logging.getLogger(__name__)
 
 
 class RedisManager:
@@ -28,6 +31,7 @@ class RedisManager:
             pipeline = RedisManager.get().pipeline()
             yield pipeline
         except:
+            log.exception('Exception caught during RedisManager::pipeline_context')
             pipeline.reset()
         finally:
             pipeline.execute()

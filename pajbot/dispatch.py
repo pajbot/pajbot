@@ -1,4 +1,3 @@
-import datetime
 import logging
 import re
 
@@ -464,56 +463,6 @@ class Dispatch:
         else:
             bot.whisper(source.username, 'Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)')
 
-    def paid_timeout(bot, source, message, event, args):
-        log.warn('Use the paidtimeout module')
-        if 'time' in args:
-            _time = int(args['time'])
-        else:
-            _time = 600
-
-        if message:
-            username = message.split(' ')[0]
-            if len(username) < 2:
-                return False
-
-            victim = bot.users.find(username)
-            if victim is None:
-                bot.whisper(source.username, 'This user does not exist FailFish')
-                return False
-
-            """
-            if victim == source:
-                bot.whisper(source.username, 'You can\'t timeout yourself FailFish')
-                return False
-                """
-
-            if victim.level >= 500:
-                bot.whisper(source.username, 'This person has mod privileges, timeouting this person is not worth it.')
-                return False
-
-            now = datetime.datetime.now()
-            if victim.timed_out is True and victim.timeout_end > now:
-                victim.timeout_end += datetime.timedelta(seconds=_time)
-                bot.whisper(victim.username, '{victim.username}, you were timed out for an additional {time} seconds by {source.username}'.format(
-                    victim=victim,
-                    source=source,
-                    time=_time))
-                bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(args['command'].cost, username, _time))
-                num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot._timeout(username, num_seconds)
-            else:
-                bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(args['command'].cost, username, _time))
-                bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
-                bot._timeout(username, _time)
-                victim.timed_out = True
-                victim.timeout_start = now
-                victim.timeout_end = now + datetime.timedelta(seconds=_time)
-            payload = {'user': source.username, 'victim': victim.username}
-            bot.websocket_manager.emit('timeout', payload)
-            return True
-
-        return False
-
     def set_game(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
@@ -595,17 +544,6 @@ class Dispatch:
         else:
             bot.say('{0} was not found in the user database'.format(username))
 
-    def last_seen(bot, source, message, event, args):
-        log.error('Dispatch::last_seen is DEPRECATED')
-        if message:
-            username = message.split(' ')[0].strip().lower()
-
-            user = bot.users.find(username)
-            if user:
-                bot.say('{0}, {1} was last seen {2}, last active {3}'.format(source.username_raw, user.username, user.last_seen, user.last_active))
-            else:
-                bot.say('{0}, No user with that name found.'.format(source.username_raw))
-
     def remindme(bot, source, message, event, args):
         if not message:
             return False
@@ -629,21 +567,6 @@ class Dispatch:
             bot.say(str(ord_code))
         except:
             return False
-
-    def unban_source(bot, source, message, event, args):
-        log.warn('Use the paiduntimeout module')
-        """Unban the user who ran the command."""
-        bot.privmsg('.unban {0}'.format(source.username))
-        bot.whisper(source.username, 'You have been unbanned.')
-        source.timed_out = False
-
-    def untimeout_source(bot, source, message, event, args):
-        log.warn('Use the paiduntimeout module')
-        """Untimeout the user who ran the command.
-        This is like unban except it will only remove timeouts, not permanent bans."""
-        bot.privmsg('.timeout {0} 1'.format(source.username))
-        bot.whisper(source.username, 'You have been unbanned.')
-        source.timed_out = False
 
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module

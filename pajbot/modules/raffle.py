@@ -381,6 +381,8 @@ class RaffleModule(BaseModule):
                 self.bot.me('{} won {} points each!'.format(winners_str, points_per_user))
                 winners_arr = []
 
+            winner.save()
+
         if len(winners_arr) > 0:
             winners_str = generate_winner_list(winners_arr)
             self.bot.me('{} won {} points each!'.format(winners_str, points_per_user))

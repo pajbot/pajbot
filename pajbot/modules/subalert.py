@@ -2,6 +2,7 @@ import logging
 import re
 
 from pajbot.managers import HandlerManager
+from pajbot.managers import UserManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -130,18 +131,18 @@ class SubAlertModule(BaseModule):
             m = self.new_sub_regex.search(message)
             if m:
                 username = m.group(1)
-                user = self.bot.users[username]
-                self.on_new_sub(user)
-                HandlerManager.trigger('on_user_sub', user)
+                with UserManager.get().get_user_context(username) as user:
+                    self.on_new_sub(user)
+                    HandlerManager.trigger('on_user_sub', user)
             else:
                 # Did twitchnotify tell us about a resub?
                 m = self.resub_regex.search(message)
                 if m:
                     username = m.group(1)
                     num_months = int(m.group(2))
-                    user = self.bot.users[username]
-                    self.on_resub(user, num_months)
-                    HandlerManager.trigger('on_user_resub', user, num_months)
+                    with UserManager.get().get_user_context(username) as user:
+                        self.on_resub(user, num_months)
+                        HandlerManager.trigger('on_user_resub', user, num_months)
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)

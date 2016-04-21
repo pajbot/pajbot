@@ -223,8 +223,9 @@ class PredictModule(BaseModule):
 
         if source.id is None:
             log.warn('Source ID is NONE, attempting to salvage by commiting users to the database.')
-            bot.users.commit()
             log.info('New ID is: {}'.format(source.id))
+            bot.whisper(source.username, 'uuh, please try the command again :D')
+            return False
 
         prediction_number = None
 

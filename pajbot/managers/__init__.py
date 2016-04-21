@@ -14,5 +14,6 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
+from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.managers.whisperconnection import WhisperConnectionManager
