@@ -4,6 +4,7 @@ import re
 from sqlalchemy import func
 
 from pajbot.managers import AdminLogManager
+from pajbot.managers import DBManager
 from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
@@ -38,9 +39,10 @@ class Dispatch:
             phrase_data['username_w_verb'] = '{0} is'.format(user.username_raw)
 
         if user.points > 0:
-            query_data = bot.users.db_session.query(func.count(User.id)).filter(User.points > user.points).one()
-            phrase_data['point_pos'] = int(query_data[0]) + 1
-            bot.whisper(source.username, point_pos.format(**phrase_data))
+            with DBManager.create_session_scope() as db_session:
+                query_data = db_session.query(func.count(User.id)).filter(User.points > user.points).one()
+                phrase_data['point_pos'] = int(query_data[0]) + 1
+                bot.whisper(source.username, point_pos.format(**phrase_data))
 
     def nl_pos(bot, source, message, event, args):
         # XXX: This should be a module
@@ -70,9 +72,10 @@ class Dispatch:
         if num_lines <= 0:
             bot.say(nl_0.format(**phrase_data))
         else:
-            query_data = bot.users.db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
-            phrase_data['nl_pos'] = int(query_data[0]) + 1
-            bot.say(nl_pos.format(**phrase_data))
+            with DBManager.create_session_scope() as db_session:
+                query_data = db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
+                phrase_data['nl_pos'] = int(query_data[0]) + 1
+                bot.say(nl_pos.format(**phrase_data))
 
     def query(bot, source, message, event, args):
         # XXX: This should be a module. Only when we've moved server though.
