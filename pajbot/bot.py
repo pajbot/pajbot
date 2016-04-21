@@ -79,6 +79,8 @@ class Bot:
     def load_config(self, config):
         self.config = config
 
+        self.domain = config['web'].get('domain', 'localhost')
+
         self.nickname = config['main'].get('nickname', 'pajbot')
         self.password = config['main'].get('password', 'abcdef')
 

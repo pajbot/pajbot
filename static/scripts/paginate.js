@@ -5,7 +5,7 @@ function paginate_refresh_buttons(key)
     var data = paginate_data[key];
 
     var num_pages = Math.ceil(data.total / data.limit);
-    var current_page = ((data.offset / data.total) * (data.total / data.limit)) + 1;
+    var current_page = Math.round(((data.offset / data.total) * (data.total / data.limit))) + 1;
 
     if (current_page == 1) {
         data['left_btn'].addClass('disabled');

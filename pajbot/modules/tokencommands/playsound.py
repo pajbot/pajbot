@@ -128,15 +128,26 @@ class PlaySoundTokenCommandModule(BaseModule):
                     'min_value': 0,
                     'max_value': 15,
                     }),
+            ModuleSetting(
+                key='sample_cd',
+                label='Cooldown for the same sample (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=20,
+                constraints={
+                    'min_value': 5,
+                    'max_value': 120,
+                    }),
             ]
 
     def __init__(self):
         super().__init__()
         Samples.all_samples.sort()
         self.valid_samples = [sample.command for sample in Samples.all_samples]
+        self.sample_cache = []
 
     def play_sound(self, **options):
-        log.info('Play sound!')
         bot = options['bot']
         message = options['message']
         source = options['source']
@@ -144,17 +155,22 @@ class PlaySoundTokenCommandModule(BaseModule):
         if message:
             sample = message.split(' ')[0].lower()
 
+            if sample in self.sample_cache:
+                return False
+
             if sample == 'random':
                 sample = random.choice(self.valid_samples)
 
             if sample in self.valid_samples:
+                log.debug('Played sound: {0}'.format(sample))
                 payload = {'sample': sample}
                 bot.websocket_manager.emit('play_sound', payload)
-                bot.whisper(source.username, 'Successfully played your sample {}'.format(sample))
+                bot.whisper(source.username, 'Successfully played your sample {0}'.format(sample))
+                self.sample_cache.append(sample)
+                bot.execute_delayed(self.settings['sample_cd'], self.sample_cache.remove, ('{0}'.format(sample), ))
                 return True
 
-        log.info(', '.join(self.valid_samples))
-        bot.whisper(source.username, 'Your sample is not valid. Check out all the valid samples here: https://forsen.tv/commands/playsound')
+        bot.whisper(source.username, 'Your sample is not valid. Check out all the valid samples here: {0}/commands/playsound'.format(bot.domain))
         return False
 
     def load_commands(self, **options):
