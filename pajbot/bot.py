@@ -724,7 +724,7 @@ class Bot:
 
     def quit(self, message, event, **options):
         quit_chub = self.config['main'].get('control_hub', None)
-        quit_delay = 1
+        quit_delay = 0
 
         if quit_chub is not None and event.target == ('#{}'.format(quit_chub)):
             quit_delay_random = 300
