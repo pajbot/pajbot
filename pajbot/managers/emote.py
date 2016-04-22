@@ -134,7 +134,7 @@ class EmoteManager:
                     twitch_emotes[code] = emote_data['image_id']
 
         with RedisManager.pipeline_context() as pipeline:
-            pipeline.remove('global:emotes:twitch_subemotes')
+            pipeline.delete('global:emotes:twitch_subemotes')
             pipeline.hmset('global:emotes:twitch', twitch_emotes)
             pipeline.hmset('global:emotes:twitch_subemotes', twitch_subemotes)
 
