@@ -29,6 +29,7 @@ class ChattersModule(BaseModule):
         self.initialized = False
 
     def update_chatters_stage1(self):
+        return
         chatters = self.bot.twitchapi.get_chatters(self.bot.streamer)
         if len(chatters) > 0:
             self.bot.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
