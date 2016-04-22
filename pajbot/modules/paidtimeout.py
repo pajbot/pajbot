@@ -101,6 +101,12 @@ class PaidTimeoutModule(BaseModule):
                     'min_value': 100,
                     'max_value': 1000,
                     }),
+            ModuleSetting(
+                key='show_on_clr',
+                label='Show timeouts on the clr overlay',
+                type='boolean',
+                required=True,
+                default=True),
             ]
 
     def base_paid_timeout(self, bot, source, message, _time, _cost):
@@ -152,8 +158,10 @@ class PaidTimeoutModule(BaseModule):
                 victim.timeout_start = now
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
-            payload = {'user': source.username, 'victim': victim.username}
-            bot.websocket_manager.emit('timeout', payload)
+            if self.settings['show_on_clr']:
+                payload = {'user': source.username, 'victim': victim.username}
+                bot.websocket_manager.emit('timeout', payload)
+
             HandlerManager.trigger('on_paid_timeout',
                     source, victim, _cost,
                     stop_on_false=False)

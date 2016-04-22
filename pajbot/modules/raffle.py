@@ -26,6 +26,50 @@ class RaffleModule(BaseModule):
     CATEGORY = 'Game'
     SETTINGS = [
             ModuleSetting(
+                key='message_start',
+                label='Start message | Available arguments: {length}, {points}',
+                type='text',
+                required=True,
+                placeholder='.me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds',
+                default='.me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
+                key='message_running',
+                label='Running message | Available arguments: {length}, {points}',
+                type='text',
+                required=True,
+                placeholder='.me The raffle for {points} points ends in {length} seconds! Type !join to join the raffle!',
+                default='.me The raffle for {points} points ends in {length} seconds! Type !join to join the raffle!',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
+                key='message_start_multi',
+                label='Start message (multi) | Available arguments: {length}, {points}',
+                type='text',
+                required=True,
+                placeholder='.me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds',
+                default='.me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
+                key='message_running_multi',
+                label='Running message (multi) | Available arguments: {length}, {points}',
+                type='text',
+                required=True,
+                placeholder='.me The multi-raffle for {points} points ends in {length} seconds! Type !join to join the raffle!',
+                default='.me The multi-raffle for {points} points ends in {length} seconds! Type !join to join the raffle!',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                }),
+            ModuleSetting(
                 key='single_max_points',
                 label='Max points for a single raffle',
                 type='number',
@@ -125,6 +169,12 @@ class RaffleModule(BaseModule):
                     'Single Raffle',
                     'Multi Raffle',
                     ]),
+            ModuleSetting(
+                key='show_on_clr',
+                label='Show raffles on the clr overlay',
+                type='boolean',
+                required=True,
+                default=True),
             ]
 
     def __init__(self):
@@ -226,13 +276,18 @@ class RaffleModule(BaseModule):
 
         self.raffle_length = min(self.raffle_length, self.settings['max_length'])
 
-        bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
-        bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
+        if self.settings['show_on_clr']:
+            bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
+            bot.execute_delayed(0.75, bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
-        bot.me('A raffle has begun for {} points. type !join to join the raffle! The raffle will end in {} seconds'.format(self.raffle_points, self.raffle_length))
-        bot.execute_delayed(self.raffle_length * 0.25, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.75)), ))
-        bot.execute_delayed(self.raffle_length * 0.50, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.50)), ))
-        bot.execute_delayed(self.raffle_length * 0.75, bot.me, ('The raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.25)), ))
+        arguments = {'length': self.raffle_length, 'points': self.raffle_points}
+        bot.say(self.get_phrase('message_start', **arguments))
+        arguments = {'length': round(self.raffle_length * 0.75), 'points': self.raffle_points}
+        bot.execute_delayed(self.raffle_length * 0.25, bot.say, (self.get_phrase('message_running', **arguments), ))
+        arguments = {'length': round(self.raffle_length * 0.50), 'points': self.raffle_points}
+        bot.execute_delayed(self.raffle_length * 0.50, bot.say, (self.get_phrase('message_running', **arguments), ))
+        arguments = {'length': round(self.raffle_length * 0.25), 'points': self.raffle_points}
+        bot.execute_delayed(self.raffle_length * 0.75, bot.say, (self.get_phrase('message_running', **arguments), ))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
@@ -262,8 +317,9 @@ class RaffleModule(BaseModule):
 
         self.raffle_users = []
 
-        self.bot.websocket_manager.emit('notification', {'message': '{} won {} points in the raffle!'.format(winner.username_raw, self.raffle_points)})
-        self.bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, self.raffle_points))
+        if self.settings['show_on_clr']:
+            self.bot.websocket_manager.emit('notification', {'message': '{} won {} points in the raffle!'.format(winner.username_raw, self.raffle_points)})
+            self.bot.me('The raffle has finished! {0} won {1} points! PogChamp'.format(winner.username_raw, self.raffle_points))
 
         winner.points += self.raffle_points
 
@@ -285,13 +341,18 @@ class RaffleModule(BaseModule):
 
         self.raffle_length = min(self.raffle_length, self.settings['multi_max_length'])
 
-        self.bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
-        self.bot.execute_delayed(0.75, self.bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
+        if self.settings['show_on_clr']:
+            self.bot.websocket_manager.emit('notification', {'message': 'A raffle has been started!'})
+            self.bot.execute_delayed(0.75, self.bot.websocket_manager.emit, ('notification', {'message': 'Type !join to enter!'}))
 
-        self.bot.me('A multi-raffle has begun, {} points will be split among the winners. type !join to join the raffle! The raffle will end in {} seconds'.format(self.raffle_points, self.raffle_length))
-        self.bot.execute_delayed(self.raffle_length * 0.25, self.bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.75)), ))
-        self.bot.execute_delayed(self.raffle_length * 0.50, self.bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.50)), ))
-        self.bot.execute_delayed(self.raffle_length * 0.75, self.bot.me, ('The multi-raffle for {} points ends in {} seconds! Type !join to join the raffle!'.format(self.raffle_points, round(self.raffle_length * 0.25)), ))
+        arguments = {'length': self.raffle_length, 'points': self.raffle_points}
+        self.bot.say(self.get_phrase('message_start_multi', **arguments))
+        arguments = {'length': round(self.raffle_length * 0.75), 'points': self.raffle_points}
+        self.bot.execute_delayed(self.raffle_length * 0.25, self.bot.say, (self.get_phrase('message_running_multi', **arguments), ))
+        arguments = {'length': round(self.raffle_length * 0.50), 'points': self.raffle_points}
+        self.bot.execute_delayed(self.raffle_length * 0.50, self.bot.say, (self.get_phrase('message_running_multi', **arguments), ))
+        arguments = {'length': round(self.raffle_length * 0.25), 'points': self.raffle_points}
+        self.bot.execute_delayed(self.raffle_length * 0.75, self.bot.say, (self.get_phrase('message_running_multi', **arguments), ))
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 

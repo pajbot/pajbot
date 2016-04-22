@@ -76,6 +76,12 @@ class DuelModule(BaseModule):
                     'min_value': 0,
                     'max_value': 240,
                     }),
+            ModuleSetting(
+                key='show_on_clr',
+                label='Show duels on the clr overlay',
+                type='boolean',
+                required=True,
+                default=True),
                 ]
 
     def load_commands(self, **options):
@@ -265,7 +271,7 @@ class DuelModule(BaseModule):
 
         if duel_price > 0:
             message = self.get_phrase('message_won_points', **arguments)
-            if duel_price >= 500:
+            if duel_price >= 500 and self.settings['show_on_clr']:
                 bot.websocket_manager.emit('notification', {'message': '{} won the duel vs {}'.format(winner.username_raw, loser.username_raw)})
         else:
             message = self.get_phrase('message_won', **arguments)

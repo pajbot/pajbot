@@ -107,7 +107,7 @@ class CommandData(Base):
         self.num_uses = 0
         self.added_by = None
         self.edited_by = None
-        self.last_date_used = 0
+        self.last_date_used = None
 
         self.set(**options)
 
