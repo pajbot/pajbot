@@ -159,6 +159,8 @@ class PointLotteryModule(BaseModule):
 
         winner.points += self.lottery_points
 
+        winner.save()
+
         self.lottery_users = []
 
     def process_status(self, **options):
