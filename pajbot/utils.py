@@ -2,6 +2,7 @@ import logging
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +59,14 @@ def time_nonclass_method(f):
         log.debug('{0.__name__} function took {1:.3f} ms'.format(f, (time2 - time1) * 1000.0))
         return ret
     return wrap
+
+
+@contextmanager
+def profile_timer(name):
+    time1 = time.time()
+    yield
+    time2 = time.time()
+    log.debug('"{0}" task took {1:.3f} ms'.format(name, (time2 - time1) * 1000.0))
 
 
 def find(predicate, seq):
