@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 - Greatly optimized the update_chatters method
+- Trimmed the size of username/username_raw in the user table
+- Added an index to points in the user table
 
 ## [2.8.0] - 2016-04-22
 ### Removed

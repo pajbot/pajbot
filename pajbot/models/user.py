@@ -25,10 +25,10 @@ class User(Base):
     __tablename__ = 'tb_user'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(128), nullable=False, index=True, unique=True)
-    username_raw = Column(String(128))
+    username = Column(String(32), nullable=False, index=True, unique=True)
+    username_raw = Column(String(32))
     level = Column(Integer, nullable=False, default=100)
-    points = Column(Integer, nullable=False, default=0)
+    points = Column(Integer, nullable=False, default=0, index=True)
     subscriber = Column(Boolean, nullable=False, default=False)
     minutes_in_chat_online = Column(Integer, nullable=False, default=0)
     minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
