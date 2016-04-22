@@ -157,27 +157,28 @@ class HSBetModule(BaseModule):
                         'win' if bet_for_win else 'loss'))
                         """
 
-                    with self.bot.users.find_context(username, db_session=db_session) as user:
-                        if user is None:
-                            continue
+                    user = self.bot.users.find(username, db_session=db_session)
+                    if user is None:
+                        continue
 
-                        correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
-                        points_bet['win' if bet_for_win else 'loss'] += points
-                        db_bets[username] = HSBetBet(bet_game_id, user.id, 'win' if bet_for_win else 'loss', points, 0)
-                        if correct_bet:
-                            winners.append((user, points))
-                            total_winning_points += points
-                            user.remove_debt(points)
-                        else:
-                            losers.append((user, points))
-                            total_losing_points += points
-                            user.pay_debt(points)
-                            db_bets[username].profit = -points
-                            self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
-                                points))
+                    correct_bet = (latest_game['result'] == 'win' and bet_for_win is True) or (latest_game['result'] == 'loss' and bet_for_win is False)
+                    points_bet['win' if bet_for_win else 'loss'] += points
+                    db_bets[username] = HSBetBet(bet_game_id, user.id, 'win' if bet_for_win else 'loss', points, 0)
+                    if correct_bet:
+                        winners.append((user, points))
+                        total_winning_points += points
+                        user.remove_debt(points)
+                    else:
+                        losers.append((user, points))
+                        total_losing_points += points
+                        user.pay_debt(points)
+                        db_bets[username].profit = -points
+                        self.bot.whisper(user.username, 'You bet {} points on the wrong outcome, so you lost it all. :('.format(
+                            points))
 
                 for obj in losers:
                     user, points = obj
+                    user.save()
                     log.debug('{} lost {} points!'.format(user, points))
 
                 for obj in winners:
@@ -203,10 +204,9 @@ class HSBetModule(BaseModule):
                         user.username_raw, points, points_reward))
                         """
 
-                with DBManager.create_session_scope() as db_session:
-                    for username in db_bets:
-                        bet = db_bets[username]
-                        db_session.add(bet)
+                for username in db_bets:
+                    bet = db_bets[username]
+                    db_session.add(bet)
 
             self.bot.me('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
