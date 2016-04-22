@@ -8,7 +8,6 @@ from pajbot.models.user import User
 from pajbot.models.user import UserRedis
 from pajbot.modules import BaseModule
 from pajbot.tbutil import time_method
-from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +28,6 @@ class ChattersModule(BaseModule):
         self.initialized = False
 
     def update_chatters_stage1(self):
-        return
         chatters = self.bot.twitchapi.get_chatters(self.bot.streamer)
         if len(chatters) > 0:
             self.bot.mainthread_queue.add(self.update_chatters_stage2, args=[chatters])
@@ -47,8 +45,8 @@ class ChattersModule(BaseModule):
                 user_models = UserManager.get().bulk_load_user_models(chatters, db_session)
                 users = []
                 for username in chatters:
-                    user_model = find(lambda u: u.username == username, user_models)
-                    user = UserManager.get().get_user(username, db_session, user_model=user_model)
+                    user_model = user_models.get(username, None)
+                    user = UserManager.get().get_user(username, db_session=db_session, user_model=user_model, redis=pipeline)
                     user.queue_up_redis_calls(pipeline)
                     users.append(user)
 
@@ -63,17 +61,19 @@ class ChattersModule(BaseModule):
                     more_update_data['minutes_in_chat_offline'] = self.update_chatters_interval
 
                 points_to_give_out = {}
+                dt_now = datetime.datetime.now().timestamp()
                 for user in users:
                     l = len(UserRedis.FULL_KEYS)
                     inline_data = data[i:i + l]
                     user.load_redis_data(inline_data)
                     i += l
 
-                    user.last_seen = datetime.datetime.now()
+                    user._set_last_seen(dt_now)
 
                     num_points = points
                     if user.subscriber:
                         num_points *= 5
+                    # TODO: Load user tags during the pipeline redis data fetch
                     if self.bot.streamer == 'forsenlol' and 'trumpsc_sub' in user.get_tags():
                         num_points *= 0.5
 

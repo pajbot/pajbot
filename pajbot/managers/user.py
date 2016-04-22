@@ -26,9 +26,9 @@ class UserManager:
         This means cached data (like his debts) and SQL """
         self.data[user.username] = user.save()
 
-    def get_user(self, username, db_session=None, user_model=None):
+    def get_user(self, username, db_session=None, user_model=None, redis=None):
         """ Return to call UserManager.save(user.username) an the user object manually when done with if. """
-        user = UserCombined(username, db_session=db_session, user_model=user_model)
+        user = UserCombined(username, db_session=db_session, user_model=user_model, redis=redis)
         user.load(**self.data.get(username, {}))
         return user
 
@@ -121,4 +121,5 @@ class UserManager:
                 db_session.add(user)
 
     def bulk_load_user_models(self, usernames, db_session):
-        return db_session.query(User).filter(User.username.in_(usernames)).all()
+        users = db_session.query(User).filter(User.username.in_(usernames))
+        return {user.username: user for user in users}

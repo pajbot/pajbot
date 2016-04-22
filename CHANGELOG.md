@@ -1,6 +1,7 @@
 # Change Log
 
 ## [Unreleased]
+- Greatly optimized the update_chatters method
 
 ## [2.8.0] - 2016-04-22
 ### Removed

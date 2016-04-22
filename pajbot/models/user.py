@@ -255,10 +255,14 @@ class UserRedis:
             'last_active': None,
             }
 
-    def __init__(self, username):
+    def __init__(self, username, redis=None):
         self.username = username
         self.redis_loaded = False
         self.values = {}
+        if redis:
+            self.redis = redis
+        else:
+            self.redis = RedisManager.get()
 
     def queue_up_redis_calls(self, pipeline):
         streamer = StreamHelper.get_streamer()
@@ -327,9 +331,9 @@ class UserRedis:
 
         # Set redis value
         if value != 0:
-            RedisManager.get().zadd('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+            self.redis.zadd('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username, value)
         else:
-            RedisManager.get().zrem('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username)
+            self.redis.zrem('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username)
 
     @property
     def _last_seen(self):
@@ -346,7 +350,21 @@ class UserRedis:
         self.values['last_seen'] = value
 
         # Set redis value
-        RedisManager.get().hset('{streamer}:users:last_seen'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+        self.redis.hset('{streamer}:users:last_seen'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+
+    def set_last_seen(self, value):
+        # Set cached value
+        value = value.timestamp()
+        self.values['last_seen'] = value
+
+        # Set redis value
+        self.redis.hset('{streamer}:users:last_seen'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+
+    def _set_last_seen(self, value):
+        # Set cached value
+        self.values['last_seen'] = value
+
+        self.redis.hset('{streamer}:users:last_seen'.format(streamer=StreamHelper.get_streamer()), self.username, value)
 
     @property
     def _last_active(self):
@@ -363,7 +381,7 @@ class UserRedis:
         self.values['last_active'] = value
 
         # Set redis value
-        RedisManager.get().hset('{streamer}:users:last_active'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+        self.redis.hset('{streamer}:users:last_active'.format(streamer=StreamHelper.get_streamer()), self.username, value)
 
     @property
     def username_raw(self):
@@ -377,9 +395,9 @@ class UserRedis:
 
         # Set redis value
         if value != self.username:
-            RedisManager.get().hset('{streamer}:users:username_raw'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+            self.redis.hset('{streamer}:users:username_raw'.format(streamer=StreamHelper.get_streamer()), self.username, value)
         else:
-            RedisManager.get().hdel('{streamer}:users:username_raw'.format(streamer=StreamHelper.get_streamer()), self.username)
+            self.redis.hdel('{streamer}:users:username_raw'.format(streamer=StreamHelper.get_streamer()), self.username)
 
     @property
     def ignored(self):
@@ -393,9 +411,9 @@ class UserRedis:
 
         if value is True:
             # Set redis value
-            RedisManager.get().hset('{streamer}:users:ignored'.format(streamer=StreamHelper.get_streamer()), self.username, 1)
+            self.redis.hset('{streamer}:users:ignored'.format(streamer=StreamHelper.get_streamer()), self.username, 1)
         else:
-            RedisManager.get().hdel('{streamer}:users:ignored'.format(streamer=StreamHelper.get_streamer()), self.username)
+            self.redis.hdel('{streamer}:users:ignored'.format(streamer=StreamHelper.get_streamer()), self.username)
 
     @property
     def banned(self):
@@ -409,9 +427,9 @@ class UserRedis:
 
         if value is True:
             # Set redis value
-            RedisManager.get().hset('{streamer}:users:banned'.format(streamer=StreamHelper.get_streamer()), self.username, 1)
+            self.redis.hset('{streamer}:users:banned'.format(streamer=StreamHelper.get_streamer()), self.username, 1)
         else:
-            RedisManager.get().hdel('{streamer}:users:banned'.format(streamer=StreamHelper.get_streamer()), self.username)
+            self.redis.hdel('{streamer}:users:banned'.format(streamer=StreamHelper.get_streamer()), self.username)
 
 
 class UserCombined(UserRedis, UserSQL):
@@ -421,8 +439,8 @@ class UserCombined(UserRedis, UserSQL):
 
     WARNING_SYNTAX = '{prefix}_{username}_warning_{id}'
 
-    def __init__(self, username, db_session=None, user_model=None):
-        UserRedis.__init__(self, username)
+    def __init__(self, username, db_session=None, user_model=None, redis=None):
+        UserRedis.__init__(self, username, redis=redis)
         UserSQL.__init__(self, username, db_session, user_model=user_model)
         self.username_raw = username
 
@@ -459,7 +477,7 @@ class UserCombined(UserRedis, UserSQL):
 
     @last_seen.setter
     def last_seen(self, value):
-        self._last_seen = value
+        self.set_last_seen(value)
 
     @property
     def last_active(self):
