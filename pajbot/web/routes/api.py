@@ -16,13 +16,14 @@ from flask import redirect
 from flask import request
 from flask.ext.scrypt import generate_password_hash
 from sqlalchemy import and_
-from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import noload
 
 import pajbot.modules
+import pajbot.utils
 from pajbot.managers import AdminLogManager
 from pajbot.managers import DBManager
+from pajbot.managers import UserManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.banphrase import Banphrase
 from pajbot.models.command import Command
@@ -37,7 +38,6 @@ from pajbot.models.sock import SocketClientManager
 from pajbot.models.stream import Stream
 from pajbot.models.timer import Timer
 from pajbot.models.twitter import TwitterUser
-from pajbot.models.user import User
 from pajbot.modules.base import ModuleType
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import find
@@ -60,38 +60,6 @@ def nocache(view):
         return response
 
     return update_wrapper(no_cache, view)
-
-
-@page.route('/api/v1/user/<username>')
-def get_user(username):
-    session = DBManager.create_session()
-    user = session.query(User).filter_by(username=username).one_or_none()
-    if user is None:
-        return make_response(jsonify({'error': 'Not found'}), 404)
-
-    rank = session.query(func.Count(User.id)).filter(User.points > user.points).one()
-    rank = rank[0] + 1
-    session.close()
-    if user:
-        accessible_data = {
-                'id': user.id,
-                'username': user.username,
-                'username_raw': user.username_raw,
-                'points': user.points,
-                'rank': rank,
-                'level': user.level,
-                'last_seen': user.last_seen,
-                'last_active': user.last_active,
-                'subscriber': user.subscriber,
-                'num_lines': user.num_lines,
-                'minutes_in_chat_online': user.minutes_in_chat_online,
-                'minutes_in_chat_offline': user.minutes_in_chat_offline,
-                'banned': user.banned,
-                'ignored': user.ignored,
-                }
-        return jsonify(accessible_data)
-
-    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @page.route('/api/v1/pleblist/list')
@@ -650,6 +618,8 @@ def init(app):
 
     api = Api(app)
 
+    pajbot.utils.init_json_serializer(api)
+
     class APIEmailTags(Resource):
         def __init__(self):
             super().__init__()
@@ -934,6 +904,24 @@ def init(app):
                         'message': 'Successfully followed {}'.format(args['username']),
                         }, 200
 
+    class APIUser(Resource):
+        def get(self, username):
+            user = UserManager.find_static(username)
+            if not user:
+                return {
+                        'error': 'Not found'
+                        }, 404
+
+            redis = RedisManager.get()
+            key = '{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer())
+            rank = redis.zrevrank(key, user.username)
+            if rank is None:
+                rank = redis.zcard(key)
+            else:
+                rank = rank + 1
+
+            return user.jsonify()
+
     api.add_resource(APIEmailTags, '/api/v1/email/tags')
     api.add_resource(APICLRDonationsSave, '/api/v1/clr/donations/<widget_id>/save')
     api.add_resource(APIPleblistSkip, '/api/v1/pleblist/skip/<int:song_id>')
@@ -941,3 +929,4 @@ def init(app):
     api.add_resource(APITwitterFollows, '/api/v1/twitter/follows')
     api.add_resource(APITwitterUnfollow, '/api/v1/twitter/unfollow')
     api.add_resource(APITwitterFollow, '/api/v1/twitter/follow')
+    api.add_resource(APIUser, '/api/v1/user/<username>')

@@ -1,10 +1,17 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
 - Greatly optimized the update_chatters method
 - Trimmed the size of username/username_raw in the user table
 - Added an index to points in the user table
 - BTTV Channel emotes are now stored as a hash with the emote_hash instead of a list.
+- /api/v1/user/<username> now returns points_rank instead of rank for the points rank.
+
+### Fixed
+- The User check on /points no longer 500's
+- The /stats page no longer 500's
+- Fixed a mysterious bug where username_raw was being HDEL'd all the time :sunglasses:
 
 ## [2.8.0] - 2016-04-22
 ### Removed

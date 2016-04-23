@@ -3,6 +3,7 @@ import json
 import logging
 from contextlib import contextmanager
 
+import sqlalchemy
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -222,6 +223,17 @@ class UserSQL:
         self.user_model.points = value
 
     @property
+    def points_rank(self):
+        if self.shared_db_session:
+            query_data = self.shared_db_session.query(sqlalchemy.func.count(User.id)).filter(User.points > self.points).one()
+        else:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                query_data = db_session.query(sqlalchemy.func.count(User.id)).filter(User.points > self.points).one()
+
+        rank = int(query_data[0]) + 1
+        return rank
+
+    @property
     def duel_stats(self):
         self.sql_load()
         return self.user_model.duel_stats
@@ -258,6 +270,7 @@ class UserRedis:
     def __init__(self, username, redis=None):
         self.username = username
         self.redis_loaded = False
+        self.save_to_redis = True
         self.values = {}
         if redis:
             self.redis = redis
@@ -321,19 +334,32 @@ class UserRedis:
 
     @property
     def num_lines(self):
-        self.redis_load()
-        return self.values['num_lines']
+        if self.save_to_redis:
+            self.redis_load()
+            return self.values['num_lines']
+        else:
+            return self.values.get('num_lines', 0)
 
     @num_lines.setter
     def num_lines(self, value):
         # Set cached value
         self.values['num_lines'] = value
 
-        # Set redis value
-        if value != 0:
-            self.redis.zadd('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+        if self.save_to_redis:
+            # Set redis value
+            if value != 0:
+                self.redis.zadd('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username, value)
+            else:
+                self.redis.zrem('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username)
+
+    @property
+    def num_lines_rank(self):
+        key = '{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer())
+        rank = self.redis.zrevrank(key, self.username)
+        if rank is None:
+            return self.redis.zcard(key)
         else:
-            self.redis.zrem('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username)
+            return rank + 1
 
     @property
     def _last_seen(self):
@@ -458,6 +484,25 @@ class UserCombined(UserRedis, UserSQL):
                 'moderator': self.moderator,
                 'timed_out': self.timed_out,
                 'timeout_end': self.timeout_end,
+                }
+
+    def jsonify(self):
+        return {
+                'id': self.id,
+                'username': self.username,
+                'username_raw': self.username_raw,
+                'points': self.points,
+                'nl_rank': self.num_lines_rank,
+                'points_rank': self.points_rank,
+                'level': self.level,
+                'last_seen': self.last_seen,
+                'last_active': self.last_active,
+                'subscriber': self.subscriber,
+                'num_lines': self.num_lines,
+                'minutes_in_chat_online': self.minutes_in_chat_online,
+                'minutes_in_chat_offline': self.minutes_in_chat_offline,
+                'banned': self.banned,
+                'ignored': self.ignored,
                 }
 
     def get_tags(self, redis=None):

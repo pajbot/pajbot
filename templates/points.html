@@ -60,7 +60,7 @@ $('#check_points .submit.button')
         var el = $('#check_points .response');
         el.addClass('message green');
         el.removeClass('red');
-        el.html('User <a href="/user/' + response.username + '"><strong class="username">' + response.username + '</strong></a> has <strong class="points">' + response.points + '</strong> points and is ranked <strong class="rank">' + response.rank + '</strong>.');
+        el.html('User <a href="/user/' + response.username + '"><strong class="username">' + response.username + '</strong></a> has <strong class="points">' + response.points + '</strong> points and is ranked <strong class="rank">' + response.points_rank + '</strong>.');
         if (el.hasClass('hidden')) {
             el.transition({
                 animation: 'slide down',

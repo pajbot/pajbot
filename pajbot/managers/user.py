@@ -26,6 +26,9 @@ class UserManager:
         This means cached data (like his debts) and SQL """
         self.data[user.username] = user.save()
 
+    def get_static(username, db_session=None, user_model=None, redis=None):
+        return UserCombined(username, db_session=db_session, user_model=user_model, redis=redis)
+
     def get_user(self, username, db_session=None, user_model=None, redis=None):
         """ Return to call UserManager.save(user.username) an the user object manually when done with if. """
         user = UserCombined(username, db_session=db_session, user_model=user_model, redis=redis)
@@ -57,6 +60,38 @@ class UserManager:
         finally:
             if user:
                 self.save(user)
+
+    def find_static(username, db_session=None):
+        """
+        Attempts to find the user with the given username.
+
+        Arguments:
+        username - Username of the user we're trying to find. Case-insensitive.
+
+        Returns a user object if the user already existed, otherwise return None
+        """
+
+        # from pajbot.tbutil import print_traceback
+        # print_traceback()
+
+        # log.debug('UserManager::find({})'.format(username))
+
+        # Return None if the username is an empty string!
+        if username == '':
+            return None
+
+        # Replace any occurances of @ in the username
+        # This helps non-bttv-users who tab-complete usernames
+        username = username.replace('@', '')
+
+        # This will be used when we access the cache dictionary
+        username_lower = username.lower()
+
+        # Check for the username in the database
+        user = UserManager.get_static(username_lower, db_session=db_session)
+        if user.new:
+            return None
+        return user
 
     def find(self, username, db_session=None):
         """
