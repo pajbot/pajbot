@@ -20,9 +20,27 @@ class BTTVEmoteManager:
         self.bttv_api = BTTVApi()
         self.global_emotes = []
         streamer = StreamHelper.get_streamer()
-        redis = RedisManager.get()
-        self.channel_emotes = redis.lrange('{streamer}:emotes:bttv_channel_emotes'.format(streamer=streamer), 0, -1)
+        _global_emotes = RedisManager.get().hgetall('global:emotes:bttv')
+        try:
+            _channel_emotes = RedisManager.get().hgetall('{streamer}:emotes:bttv_channel_emotes'.format(streamer=streamer))
+        except:
+            _channel_emotes = {}
+
+        self.channel_emotes = list(_channel_emotes.keys())
+
+        _all_emotes = _global_emotes.copy()
+        _all_emotes.update(_channel_emotes)
+
         self.all_emotes = []
+        for emote_code, emote_hash in _all_emotes.items():
+            self.all_emotes.append(self.build_emote(emote_code, emote_hash))
+
+    def build_emote(self, emote_code, emote_hash):
+        return {
+                'code': emote_code,
+                'emote_hash': emote_hash,
+                'regex': re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(emote_code))),
+                }
 
     def update_emotes(self):
         log.debug('Updating BTTV Emotes...')
@@ -37,19 +55,15 @@ class BTTVEmoteManager:
         key = '{streamer}:emotes:bttv_channel_emotes'.format(streamer=streamer)
         with RedisManager.pipeline_context() as pipeline:
             pipeline.delete(key)
-            for emote in self.channel_emotes:
-                pipeline.rpush(key, emote)
+            for emote in channel_emotes:
+                pipeline.hset(key, emote['code'], emote['emote_hash'])
 
         self.all_emotes = []
         with RedisManager.pipeline_context() as pipeline:
             for emote in global_emotes + channel_emotes:
                 # Store all possible emotes, with their regex in an easily
                 # accessible list.
-                self.all_emotes.append({
-                    'code': emote['code'],
-                    'emote_hash': emote['emote_hash'],
-                    'regex': re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(emote['code']))),
-                    })
+                self.all_emotes.append(self.build_emote(emote['code'], emote['emote_hash']))
 
                 # Make sure all available emotes are available in redis
                 pipeline.hset('global:emotes:bttv', emote['code'], emote['emote_hash'])

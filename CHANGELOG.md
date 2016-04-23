@@ -4,6 +4,7 @@
 - Greatly optimized the update_chatters method
 - Trimmed the size of username/username_raw in the user table
 - Added an index to points in the user table
+- BTTV Channel emotes are now stored as a hash with the emote_hash instead of a list.
 
 ## [2.8.0] - 2016-04-22
 ### Removed
