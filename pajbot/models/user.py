@@ -440,9 +440,8 @@ class UserCombined(UserRedis, UserSQL):
     WARNING_SYNTAX = '{prefix}_{username}_warning_{id}'
 
     def __init__(self, username, db_session=None, user_model=None, redis=None):
-        UserRedis.__init__(self, username, redis=redis)
         UserSQL.__init__(self, username, db_session, user_model=user_model)
-        self.username_raw = username
+        UserRedis.__init__(self, username, redis=redis)
 
         self.debts = []
         self.moderator = False

@@ -5,7 +5,6 @@ from pajbot.managers import DBManager
 from pajbot.managers import RedisManager
 from pajbot.managers import UserManager
 from pajbot.models.user import User
-from pajbot.models.user import UserRedis
 from pajbot.modules import BaseModule
 from pajbot.tbutil import time_method
 
@@ -47,12 +46,7 @@ class ChattersModule(BaseModule):
                 for username in chatters:
                     user_model = user_models.get(username, None)
                     user = UserManager.get().get_user(username, db_session=db_session, user_model=user_model, redis=pipeline)
-                    user.queue_up_redis_calls(pipeline)
                     users.append(user)
-
-                data = pipeline.execute()
-
-                i = 0
 
                 more_update_data = {}
                 if self.bot.is_online:
@@ -63,11 +57,6 @@ class ChattersModule(BaseModule):
                 points_to_give_out = {}
                 dt_now = datetime.datetime.now().timestamp()
                 for user in users:
-                    l = len(UserRedis.FULL_KEYS)
-                    inline_data = data[i:i + l]
-                    user.load_redis_data(inline_data)
-                    i += l
-
                     user._set_last_seen(dt_now)
 
                     num_points = points
