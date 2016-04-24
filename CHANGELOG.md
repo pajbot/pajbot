@@ -7,6 +7,8 @@
 - Added an index to points in the user table
 - BTTV Channel emotes are now stored as a hash with the emote_hash instead of a list.
 - /api/v1/user/<username> now returns points_rank instead of rank for the points rank.
+- Refactored all the API code to be better structured
+- Reorganized how the web app is started, cleaning up app.py a lot
 
 ### Fixed
 - The User check on /points no longer 500's

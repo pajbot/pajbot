@@ -4,3 +4,7 @@ class FailedCommand(Exception):
 
 class UserNotFound(Exception):
     pass
+
+
+class InvalidLogin(Exception):
+    pass

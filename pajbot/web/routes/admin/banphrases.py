@@ -105,7 +105,7 @@ def init(page):
                     log.info('Added a new banphrase by user ID {}'.format(options['added_by']))
                     AdminLogManager.post('Banphrase added', user, banphrase.phrase)
 
-            SocketClientManager.send('banphrase.update', {'banphrase_id': banphrase.id})
+            SocketClientManager.send('banphrase.update', {'id': banphrase.id})
             if id is None:
                 session['banphrase_created_id'] = banphrase.id
             else:

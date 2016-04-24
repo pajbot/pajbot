@@ -1,4 +1,3 @@
-import datetime
 import logging
 import subprocess
 import sys
@@ -79,24 +78,5 @@ def find(predicate, seq):
     return None
 
 
-def json_serial(obj):
-    if isinstance(obj, datetime.datetime):
-        serial = obj.isoformat()
-        return serial
-    try:
-        return obj.jsonify()
-    except:
-        log.exception('Unable to serialize object with `jsonify`')
-        raise
-    raise TypeError('Type {} is not serializable'.format(type(obj)))
-
-
-def init_json_serializer(api):
-    import json
-    from flask import make_response
-
-    @api.representation('application/json')
-    def output_json(data, code, headers=None):
-        resp = make_response(json.dumps(data, default=json_serial), code)
-        resp.headers.extend(headers or {})
-        return resp
+def remove_none_values(d):
+    return {k: v for k, v in d.items() if v is not None}

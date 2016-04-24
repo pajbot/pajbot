@@ -119,7 +119,7 @@ def init(page):
                     db_session.add(timer)
                     AdminLogManager.post('Timer added', user, timer.name)
 
-            SocketClientManager.send('timer.update', {'timer_id': timer.id})
+            SocketClientManager.send('timer.update', {'id': timer.id})
             if id is None:
                 session['timer_created_id'] = timer.id
             else:

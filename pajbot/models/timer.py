@@ -78,7 +78,7 @@ class TimerManager:
 
     def on_timer_update(self, data, conn):
         try:
-            timer_id = int(data['timer_id'])
+            timer_id = int(data['id'])
         except (KeyError, ValueError):
             log.warn('No timer ID found in on_timer_update')
             return False
@@ -115,7 +115,7 @@ class TimerManager:
 
     def on_timer_remove(self, data, conn):
         try:
-            timer_id = int(data['timer_id'])
+            timer_id = int(data['id'])
         except (KeyError, ValueError):
             log.warn('No timer ID found in on_timer_update')
             return False

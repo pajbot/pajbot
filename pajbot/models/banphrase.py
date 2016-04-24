@@ -178,7 +178,7 @@ class BanphraseManager:
 
     def on_banphrase_update(self, data, conn):
         try:
-            banphrase_id = int(data['banphrase_id'])
+            banphrase_id = int(data['id'])
         except (KeyError, ValueError):
             log.warn('No banphrase ID found in on_banphrase_update')
             return False
@@ -208,7 +208,7 @@ class BanphraseManager:
 
     def on_banphrase_remove(self, data, conn):
         try:
-            banphrase_id = int(data['banphrase_id'])
+            banphrase_id = int(data['id'])
         except (KeyError, ValueError):
             log.warn('No banphrase ID found in on_banphrase_remove')
             return False
