@@ -85,7 +85,7 @@ class AbCommandModule(BaseModule):
                         'bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo',
                         description='').parse(),
                     CommandExample(None, 'Inject emote inbetween each word in message',
-                        chat='user:!ab Kreygasm NOW THATS WHAT I CALL MUSICO\n'
+                        chat='user:!ab Kreygasm NOW THATS WHAT I CALL MUSIC\n'
                         'bot:pajlada, Kreygasm NOW Kreygasm THATS Kreygasm WHAT Kreygasm I Kreygasm CALL Kreygasm MUSIC Kreygasm',
                         description='').parse(),
                     ])
