@@ -87,6 +87,9 @@ class PleblistManager:
             from apiclient.discovery import build
             PleblistManager.youtube = build('youtube', 'v3', developerKey=developer_key)
 
+    def get_song_info(youtube_id, db_session):
+        return db_session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).one_or_none()
+
     def create_pleblist_song_info(youtube_id):
         import isodate
         from apiclient.errors import HttpError

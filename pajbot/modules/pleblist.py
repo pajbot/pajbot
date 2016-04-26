@@ -8,7 +8,6 @@ from pajbot.managers import ScheduleManager
 from pajbot.models.command import Command
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.pleblist import PleblistSong
-from pajbot.models.pleblist import PleblistSongInfo
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.streamhelper import StreamHelper
@@ -97,7 +96,7 @@ class PleblistModule(BaseModule):
         source = options['source']
 
         with DBManager.create_session_scope() as db_session:
-            song_info = db_session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
+            song_info = PleblistManager.get_song_info(youtube_id, db_session)
             if song_info is None:
                 try:
                     # XXX: Should this be a setting in the module? idk
@@ -112,7 +111,7 @@ class PleblistModule(BaseModule):
                     bot.whisper(source.username, 'Invalid song given (or the YouTube API is down)')
                     return False
 
-                db_session.add(song_info)
+                db_session.merge(song_info)
                 db_session.commit()
 
             # See if the user has already submitted X songs
