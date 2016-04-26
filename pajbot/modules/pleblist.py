@@ -91,13 +91,13 @@ class PleblistModule(BaseModule):
                     }),
             ]
 
-    def bg_pleblist_add_song(self, stream_id, youtube_id, **options):
+    def bg_pleblist_add_song(self, stream_id, youtube_id, force, **options):
         bot = options['bot']
         source = options['source']
 
         with DBManager.create_session_scope() as db_session:
             song_info = PleblistManager.get_song_info(youtube_id, db_session)
-            if song_info is None:
+            if song_info is None or force:
                 try:
                     # XXX: Should this be a setting in the module? idk
                     PleblistManager.init(bot.config['youtube']['developer_key'])
@@ -144,6 +144,14 @@ class PleblistModule(BaseModule):
             msg_split = message.split(' ')
             youtube_id = find_youtube_id_in_string(msg_split[0])
 
+            force = False
+
+            try:
+                if msg_split[1] == 'force' and source.level >= 500:
+                    force = True
+            except:
+                pass
+
             if youtube_id is False:
                 bot.whisper(source.username, 'Could not find a valid youtube ID in your argument.')
                 return False
@@ -154,7 +162,7 @@ class PleblistModule(BaseModule):
                 bot.whisper(source.username, 'You cannot request songs while the stream is offline.')
                 return False
 
-            ScheduleManager.execute_now(self.bg_pleblist_add_song, args=[stream_id, youtube_id], kwargs=options)
+            ScheduleManager.execute_now(self.bg_pleblist_add_song, args=[stream_id, youtube_id, force], kwargs=options)
 
     def load_commands(self, **options):
         if self.settings['songrequest_command']:
