@@ -84,8 +84,15 @@ class PleblistManager:
 
     def init(developer_key):
         if PleblistManager.youtube is None:
+            import apiclient
             from apiclient.discovery import build
-            PleblistManager.youtube = build('youtube', 'v3', developerKey=developer_key)
+
+            def build_request(http, *args, **kwargs):
+                import httplib2
+                new_http = httplib2.Http()
+                return apiclient.http.HttpRequest(new_http, *args, **kwargs)
+
+            PleblistManager.youtube = build('youtube', 'v3', developerKey=developer_key, requestBuilder=build_request)
 
     def get_song_info(youtube_id, db_session):
         return db_session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).one_or_none()
@@ -108,6 +115,10 @@ class PleblistManager:
             log.info(e.content)
             log.info(e.resp)
             log.info(e.uri)
+            return False
+        except:
+            log.exception('uncaught exception in videos().list()')
+            return False
 
         if len(video_response.get('items', [])) == 0:
             log.warning('Got no valid responses for {}'.format(youtube_id))
