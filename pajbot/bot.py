@@ -747,6 +747,11 @@ class Bot:
                 }
 
         try:
+            ScheduleManager.base_scheduler.shutdown(wait=False)
+        except:
+            log.exception('Error while shutting down the apscheduler')
+
+        try:
             self.say(quit.format(**phrase_data))
         except Exception:
             log.exception('Exception caught while trying to say quit phrase')

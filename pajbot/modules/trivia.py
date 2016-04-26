@@ -4,9 +4,9 @@ import math
 
 import Levenshtein
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from pajbot.managers import HandlerManager
+from pajbot.managers import ScheduleManager
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -58,9 +58,7 @@ class TriviaModule(BaseModule):
     def __init__(self):
         super().__init__()
 
-        self.scheduler = BackgroundScheduler()
-        self.scheduler.start()
-        self.job = self.scheduler.add_job(self.poll_trivia, 'interval', seconds=1)
+        self.job = ScheduleManager.execute_every(1, self.poll_trivia)
         self.job.pause()
 
         self.trivia_running = False

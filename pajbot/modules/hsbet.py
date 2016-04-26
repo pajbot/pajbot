@@ -2,10 +2,10 @@ import datetime
 import logging
 
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
+from pajbot.managers import ScheduleManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.command import Command
 from pajbot.models.hsbet import HSBetBet
@@ -89,11 +89,9 @@ class HSBetModule(BaseModule):
         except (TypeError, ValueError):
             pass
 
-        self.scheduler = BackgroundScheduler()
-        self.scheduler.start()
-        self.job = self.scheduler.add_job(self.poll_trackobot, 'interval', seconds=15)
+        self.job = ScheduleManager.execute_every(15, self.poll_trackobot)
         self.job.pause()
-        self.reminder_job = self.scheduler.add_job(self.reminder_bet, 'interval', seconds=1)
+        self.reminder_job = ScheduleManager.execute_every(1, self.reminder_bet)
         self.reminder_job.pause()
 
     def reminder_bet(self):
