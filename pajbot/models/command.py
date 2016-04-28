@@ -411,7 +411,7 @@ class Command(Base):
                 self.last_run_by_user[source.username] = cur_time
 
     def autogenerate_examples(self):
-        if len(self.examples) == 0 and self.id is not None and self.action.type == 'message':
+        if len(self.examples) == 0 and self.id is not None and self.action and self.action.type == 'message':
             examples = []
             if self.can_execute_with_whisper is True:
                 example = CommandExample(self.id, 'Default usage through whisper')
