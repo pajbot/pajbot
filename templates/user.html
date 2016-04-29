@@ -35,7 +35,7 @@
                 </tr>
                 <tr>
                     <td><strong>Points</strong></td>
-                    <td>{{ user.points }} (Rank {{ user.rank }})</td>
+                    <td>{{ user.points }} (Rank {{ user.points_rank }})</td>
                 </tr>
                 <tr>
                     <td><strong>Messages sent</strong></td>
@@ -77,55 +77,55 @@
             </tbody>
         </table>
 
-        {% if user_duel_stats %}
+        {% if user.duel_stats %}
         <h3>Duel stats</h3>
         <table class="ui very basic table celled">
             <tbody>
                 <tr>
                     <td><strong>Duels Total</strong></td>
-                    <td>{{ user_duel_stats.duels_total }}</td>
+                    <td>{{ user.duel_stats.duels_total }}</td>
                 </tr>
                 <tr>
                     <td><strong>Duels Won</strong></td>
-                    <td>{{ user_duel_stats.duels_won }}</td>
+                    <td>{{ user.duel_stats.duels_won }}</td>
                 </tr>
                 <tr>
                     <td><strong>Duels Lost</strong></td>
-                    <td>{{ user_duel_stats.duels_lost }}</td>
+                    <td>{{ user.duel_stats.duels_lost }}</td>
                 </tr>
                 <tr>
                     <td><strong>Winrate</strong></td>
-                    <td>{{ user_duel_stats.winrate|round(2) }}%</td>
+                    <td>{{ user.duel_stats.winrate|round(2) }}%</td>
                 </tr>
                 <tr>
                     <td><strong>Profit from duels</strong></td>
-                    <td>{{ user_duel_stats.profit }} points</td>
+                    <td>{{ user.duel_stats.profit }} points</td>
                 </tr>
                 <tr>
                     <td><strong>Last duel</strong></td>
-                    <td>{{ user_duel_stats.last_duel|localize|strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ user.duel_stats.last_duel|localize|strftime('%Y-%m-%d %H:%M:%S') }}</td>
                 </tr>
-                {% if user_duel_stats.longest_winstreak > 1 %}
+                {% if user.duel_stats.longest_winstreak > 1 %}
                 <tr>
                     <td><strong>Longest Win Streak</strong></td>
-                    <td>{{ user_duel_stats.longest_winstreak }}</td>
+                    <td>{{ user.duel_stats.longest_winstreak }}</td>
                 </tr>
                 {% endif %}
-                {% if user_duel_stats.longest_losestreak > 1 %}
+                {% if user.duel_stats.longest_losestreak > 1 %}
                 <tr>
                     <td><strong>Longest Lose Streak</strong></td>
-                    <td>{{ user_duel_stats.longest_losestreak }}</td>
+                    <td>{{ user.duel_stats.longest_losestreak }}</td>
                 </tr>
                 {% endif %}
-                {% if user_duel_stats.current_streak > 1 %}
+                {% if user.duel_stats.current_streak > 1 %}
                 <tr>
                     <td><strong>Current Win Streak</strong></td>
-                    <td>{{ user_duel_stats.current_streak }}</td>
+                    <td>{{ user.duel_stats.current_streak }}</td>
                 </tr>
-                {% elif user_duel_stats.current_streak < -1 %}
+                {% elif user.duel_stats.current_streak < -1 %}
                 <tr>
                     <td><strong>Current Lose Streak</strong></td>
-                    <td>{{ user_duel_stats.current_streak|abs }}</td>
+                    <td>{{ user.duel_stats.current_streak|abs }}</td>
                 </tr>
                 {% endif %}
             </tbody>

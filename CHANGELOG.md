@@ -17,6 +17,7 @@
 - The User check on /points no longer 500's
 - The /stats page no longer 500's
 - Fixed a mysterious bug where username_raw was being HDEL'd all the time :sunglasses:
+- The /user profile page now shows messages in chat properly
 
 ## [2.8.0] - 2016-04-22
 ### Removed
