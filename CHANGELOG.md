@@ -10,6 +10,9 @@
 - Refactored all the API code to be better structured
 - Reorganized how the web app is started, cleaning up app.py a lot
 
+### Added
+- New broadcaster command: !editpoints - creates or removes points to a user
+
 ### Fixed
 - The User check on /points no longer 500's
 - The /stats page no longer 500's

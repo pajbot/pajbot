@@ -2,6 +2,7 @@ import logging
 
 from pajbot.managers import AdminLogManager
 from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -28,6 +29,42 @@ class AdminCommandsModule(BaseModule):
                 username = msg_args[0]
                 rest = ' '.join(msg_args[1:])
                 bot.whisper(username, rest)
+
+    def edit_points(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message:
+            msg_split = message.split(' ')
+            if len(msg_split) < 2:
+                # The user did not supply enough arguments
+                bot.whisper(source.username, 'Usage: !editpoints USERNAME POINTS')
+                return False
+
+            username = msg_split[0]
+            if len(username) < 2:
+                # The username specified was too short. ;-)
+                return False
+
+            try:
+                num_points = int(msg_split[1])
+            except (ValueError, TypeError):
+                # The user did not specify a valid integer for points
+                bot.whisper(source.username, 'Invalid amount of points. Usage: !{command_name} USERNAME POINTS'.format(command_name=self.command_name))
+                return False
+
+            with bot.users.find_context(username) as user:
+                if not user:
+                    bot.whisper(source.username, 'This user does not exist FailFish')
+                    return False
+
+                user.points += num_points
+
+                if num_points >= 0:
+                    bot.whisper(source.username, 'Successfully gave {} {} points.'.format(user.username_raw, num_points))
+                else:
+                    bot.whisper(source.username, 'Successfully removed {} points from {}.'.format(abs(num_points), user.username_raw))
 
     def level(self, **options):
         message = options['message']
@@ -66,6 +103,19 @@ class AdminCommandsModule(BaseModule):
         self.commands['w'] = Command.raw_command(self.whisper,
                 level=2000,
                 description='Send a whisper from the bot')
+        self.commands['editpoints'] = Command.raw_command(self.edit_points,
+                level=1500,
+                description='Modifies a users points',
+                examples=[
+                    CommandExample(None, 'Give a user points',
+                        chat='user:!edituser pajlada 500\n'
+                        'bot>user:Successfully gave pajlada 500 points.',
+                        description='This creates 500 points and gives them to pajlada').parse(),
+                    CommandExample(None, 'Remove points from a user',
+                        chat='user:!edituser pajlada -500\n'
+                        'bot>user:Successfully removed 500 points from pajlada.',
+                        description='This removes 500 points from pajlada. Users can go into negative points with this.').parse(),
+                    ])
         self.commands['level'] = Command.raw_command(self.level,
                 level=1000,
                 description='Set a users level')
