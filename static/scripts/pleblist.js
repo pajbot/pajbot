@@ -87,14 +87,17 @@ function start_pleblist()
 
 function start_getting_new_songs()
 {
-    setInterval(function() {
+    setTimeout(function() {
         $.ajax({
             dataType: 'json',
+            timeout: 10 * 1000,
             'url': '/api/v1/pleblist/list/after/' + latest_song_id,
             success: function(response) {
+                start_getting_new_songs();
                 process_songs(response.songs);
             },
             error: function(response) {
+                start_getting_new_songs();
                 console.log(response);
             }
         });

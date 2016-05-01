@@ -10,10 +10,15 @@
 - Refactored all the API code to be better structured
 - Reorganized how the web app is started, cleaning up app.py a lot
 
+### Added
+- New broadcaster command: !editpoints - creates or removes points to a user
+- New HSbet command: !hsbet stats - whispers you the current win/lose points that are bet on the game.
+
 ### Fixed
 - The User check on /points no longer 500's
 - The /stats page no longer 500's
 - Fixed a mysterious bug where username_raw was being HDEL'd all the time :sunglasses:
+- The /user profile page now shows messages in chat properly
 
 ## [2.8.0] - 2016-04-22
 ### Removed

@@ -353,6 +353,22 @@ class HSBetModule(BaseModule):
             bot.whisper(username, 'Your HS bet of {} points has been refunded because the bet has been cancelled.'.format(points))
         self.bets = {}
 
+    def command_stats(self, **options):
+        bot = options['bot']
+        source = options['source']
+
+        win_points = 0
+        lose_points = 0
+
+        for username in self.bets:
+            bet_for_win, points = self.bets[username]
+            if bet_for_win:
+                win_points += points
+            else:
+                lose_points += points
+
+        bot.whisper(source.username, 'Current win/lose points: {}/{}'.format(win_points, lose_points))
+
     def load_commands(self, **options):
         self.commands['hsbet'] = Command.multiaction_command(
                 level=100,
@@ -380,6 +396,13 @@ class HSBetModule(BaseModule):
                         level=500,
                         delay_all=0,
                         delay_user=0,
+                        can_execute_with_whisper=True,
+                        ),
+                    'stats': Command.raw_command(
+                        self.command_stats,
+                        level=100,
+                        delay_all=0,
+                        delay_user=10,
                         can_execute_with_whisper=True,
                         ),
                     })
