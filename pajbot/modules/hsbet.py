@@ -98,11 +98,21 @@ class HSBetModule(BaseModule):
         if self.is_betting_open():
             seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds()) - 1
             if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
-                self.bot.me('The hearthstone betting closes in {} seconds'.format(seconds_until_bet_closes))
+                win_points, lose_points = self.get_stats()
+                self.bot.me('The hearthstone betting closes in {} seconds. Current win/lose points: {}/{}'.format(
+                    seconds_until_bet_closes,
+                    win_points,
+                    lose_points))
             elif seconds_until_bet_closes == 5:
-                self.bot.me('The hearthstone betting closes in 5 seconds...')
+                win_points, lose_points = self.get_stats()
+                self.bot.me('The hearthstone betting closes in 5 seconds... Current win/lose points: {}/{}'.format(
+                    win_points,
+                    lose_points))
             elif seconds_until_bet_closes == 0:
-                self.bot.me('The hearthstone betting has been closed! No longer accepting bets.')
+                win_points, lose_points = self.get_stats()
+                self.bot.me('The hearthstone betting has been closed! No longer accepting bets. Closing with win/lose points: {}/{}'.format(
+                    win_points,
+                    lose_points))
 
     def poll_trackobot(self):
         url = 'https://trackobot.com/profile/history.json?username={username}&token={api_key}'.format(
@@ -353,9 +363,9 @@ class HSBetModule(BaseModule):
             bot.whisper(username, 'Your HS bet of {} points has been refunded because the bet has been cancelled.'.format(points))
         self.bets = {}
 
-    def command_stats(self, **options):
-        bot = options['bot']
-        source = options['source']
+    def get_stats(self):
+        """ Returns how many points are bet on win and how many points
+        are bet on lose """
 
         win_points = 0
         lose_points = 0
@@ -366,6 +376,14 @@ class HSBetModule(BaseModule):
                 win_points += points
             else:
                 lose_points += points
+
+        return win_points, lose_points
+
+    def command_stats(self, **options):
+        bot = options['bot']
+        source = options['source']
+
+        win_points, lose_points = self.get_stats()
 
         bot.whisper(source.username, 'Current win/lose points: {}/{}'.format(win_points, lose_points))
 

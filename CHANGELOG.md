@@ -9,6 +9,8 @@
 - /api/v1/user/<username> now returns points_rank instead of rank for the points rank.
 - Refactored all the API code to be better structured
 - Reorganized how the web app is started, cleaning up app.py a lot
+- The HSbet reminders now print stats about how many points are bet on win and how many points are
+  bet on lose.
 
 ### Added
 - New broadcaster command: !editpoints - creates or removes points to a user
