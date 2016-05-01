@@ -12,6 +12,7 @@
 
 ### Added
 - New broadcaster command: !editpoints - creates or removes points to a user
+- New HSbet command: !hsbet stats - whispers you the current win/lose points that are bet on the game.
 
 ### Fixed
 - The User check on /points no longer 500's
