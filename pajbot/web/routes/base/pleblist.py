@@ -35,12 +35,15 @@ def init(app):
 
             return render_template('pleblist_history_no_stream.html'), 404
 
-    @app.route('/pleblist/history/<stream_id>/')
+    @app.route('/pleblist/history/<int:stream_id>/')
     def pleblist_history_stream(stream_id):
         with DBManager.create_session_scope() as session:
             stream = session.query(Stream).filter_by(id=stream_id).one_or_none()
             if stream is None:
                 return render_template('pleblist_history_404.html'), 404
+
+            previous_stream = session.query(Stream).filter_by(id=stream_id - 1).one_or_none()
+            next_stream = session.query(Stream).filter_by(id=stream_id + 1).one_or_none()
 
             q = session.query(PleblistSong, User).outerjoin(User, PleblistSong.user_id == User.id).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.id.asc(), PleblistSong.id.asc())
             songs = []
@@ -55,6 +58,8 @@ def init(app):
 
             return render_template('pleblist_history.html',
                     stream=stream,
+                    previous_stream=previous_stream,
+                    next_stream=next_stream,
                     songs=songs,
                     total_length_left=total_length_left,
                     first_unplayed_song=first_unplayed_song,

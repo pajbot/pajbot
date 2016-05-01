@@ -2,6 +2,19 @@
 {% set active_page = 'pleblist' %}
 {% block title %}Pleblist History{% endblock %}
 {% block body %}
+<div class="navigation">
+{% if previous_stream %}
+<span style="float: left;">
+<a href="/pleblist/history/{{ previous_stream.id }}/"><i class="chevron left icon"></i> {{ previous_stream.title }}</a>
+</span>
+{% endif %}
+{% if next_stream %}
+<span style="float: right;">
+<a href="/pleblist/history/{{ next_stream.id }}/">{{ next_stream.title }} <i class="chevron right icon"></i></a>
+</span>
+{% endif %}
+</div>
+<div style="clear: both;"></div>
 <h2 class="pemote">Pleblist History - {{ stream.title }}</h2>
 <div class="ui vertical">Stream started: {{ stream.stream_start|localize|strftime('%A, %B %d %Y %H:%M:%S %Z') }}</div>
 {% if stream.stream_end is none %}

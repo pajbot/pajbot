@@ -11,6 +11,7 @@
 - Reorganized how the web app is started, cleaning up app.py a lot
 - The HSbet reminders now print stats about how many points are bet on win and how many points are
   bet on lose.
+- Added navigation links on the /pleblist/history page
 
 ### Added
 - New broadcaster command: !editpoints - creates or removes points to a user
