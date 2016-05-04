@@ -187,7 +187,7 @@ class RouletteModule(BaseModule):
                 return False
         elif msg_split[0].startswith('0x'):
             try:
-                bet = int(msg_split[0][2:],16)
+                bet = int(msg_split[0][2:], 16)
             except (ValueError):
                 bot.whisper(user.username, 'Invalid hexadecimal value, you nerd DansGame')
                 return False
