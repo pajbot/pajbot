@@ -609,7 +609,7 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
-        # log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
+        log.debug('{2}{0}: {1}'.format(source.username, msg_raw, '<w>' if whisper else ''))
 
         res = HandlerManager.trigger('on_message',
                 source, msg_raw, message_emotes, whisper, urls, event,
