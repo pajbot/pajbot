@@ -5,38 +5,38 @@
             <th style="width: 50%"></th>
         </tr>
     </thead>
-    <tbody>{% if command.id == None %}{% else %}
+    <tbody>{% if command['id'] == None %}{% else %}
         <tr>
             <td><div class="content">ID</div></td>
-            <td>{{ command.id }}</td>
+            <td>{{ command['id'] }}</td>
         </tr>{% endif %}
         <tr>
             <td><div class="content">Level</div></td>
-            <td>{{ command.level }}</td>
+            <td>{{ command['level'] }}</td>
         </tr>
         <tr>
             <td><div class="content">Cost</div></td>
-            <td>{{ command.cost }} points</td>
+            <td>{{ command['cost'] }} points</td>
         </tr>
         <tr>
             <td><div class="content">Global Cooldown</div></td>
-            <td>{{ command.delay_all|time_ago_timespan_seconds }}</td>
+            <td>{{ command['cd_all']|time_ago_timespan_seconds }}</td>
         </tr>
         <tr>
             <td><div class="content">User-specific Cooldown</div></td>
-            <td>{{ command.delay_user|time_ago_timespan_seconds }}</td>
+            <td>{{ command['cd_user']|time_ago_timespan_seconds }}</td>
         </tr>
         <tr>
             <td><div class="content">Mod Only</div></td>
-            <td>{% if command.mod_only == false %}No{% else %}Yes{% endif %}</td>
+            <td>{% if command['mod_only'] == false %}No{% else %}Yes{% endif %}</td>
         </tr>
         <tr>
             <td><div class="content">Sub Only</div></td>
-            <td>{% if command.sub_only == false %}No{% else %}Yes{% endif %}</td>
+            <td>{% if command['sub_only'] == false %}No{% else %}Yes{% endif %}</td>
         </tr>
         <tr>
             <td><div class="content">Whisperable</div></td>
-            <td>{% if command.can_execute_with_whisper == false and command.level < 420 %}No{% else %}Yes{% endif %}</td>
+            <td>{% if command['can_execute_with_whisper'] == false and command['level'] < 420 %}No{% else %}Yes{% endif %}</td>
         </tr>
     </tbody>
 </table>

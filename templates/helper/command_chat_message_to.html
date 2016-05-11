@@ -1,1 +1,1 @@
-<span class="to {{ chat_message.source.to }}">{{ bot.name if chat_message.source.to == 'bot' else 'pajlada' }}</span>
+<span class="to {{ chat_message['source']['to'] }}">{{ bot.name if chat_message['source']['to'] == 'bot' else 'pajlada' }}</span>

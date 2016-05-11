@@ -1,13 +1,13 @@
 <div class="chat border">
-    <div class="chat-message {{ chat_message.source.type }} from-{{ chat_message.source.from }}">
+    <div class="chat-message {{ chat_message['source']['type'] }} from-{{ chat_message['source']['from'] }}">
         <span class="timestamp"><small>13:37</small></span>
-        {% if chat_message.source.type in ['say', 'me'] -%}
+        {% if chat_message['source']['type'] in ['say', 'me'] -%}
             {%- include 'helper/command_chat_message_from_badge.html' -%}
             {%- include 'helper/command_chat_message_from.html' -%}
-        {% elif chat_message.source.type == 'whisper' %}
+        {% elif chat_message['source']['type'] == 'whisper' %}
             {%- include 'helper/command_chat_message_from.html' -%}
             <svg class="svg"><polyline points="6 2, 10 6, 6 10, 6 2"></polyline></svg>
             {%- include 'helper/command_chat_message_to.html' -%}
-        {%- endif %}<span class="separator">:</span> <span class="message pemote">{{ chat_message.message }}</span>
+        {%- endif %}<span class="separator">:</span> <span class="message pemote">{{ chat_message['message'] }}</span>
     </div>
 </div>

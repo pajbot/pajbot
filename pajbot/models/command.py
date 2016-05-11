@@ -117,6 +117,14 @@ class CommandData(Base):
         self.edited_by = options.get('edited_by', self.edited_by)
         self.last_date_used = options.get('last_date_used', self.last_date_used)
 
+    def jsonify(self):
+        return {
+                'num_uses': self.num_uses,
+                'added_by': self.added_by,
+                'edited_by': self.edited_by,
+                'last_date_used': self.last_date_used.isoformat() if self.last_date_used else None,
+                }
+
 
 class CommandExample(Base):
     __tablename__ = 'tb_command_example'
@@ -437,9 +445,10 @@ class Command(Base):
     def jsonify(self):
         """ jsonify will only be called from the web interface.
         we assume that commands have been run throug the parse_command_for_web method """
-        return {
+        payload = {
                 'id': self.id,
                 'level': self.level,
+                'main_alias': self.main_alias,
                 'aliases': self.command.split('|'),
                 'description': self.description,
                 'long_description': self.long_description,
@@ -454,6 +463,13 @@ class Command(Base):
                 'resolve_string': self.resolve_string,
                 'examples': [example.jsonify() for example in self.autogenerate_examples()],
                 }
+
+        if self.data:
+            payload['data'] = self.data.jsonify()
+        else:
+            payload['data'] = None
+
+        return payload
 
 
 class CommandManager(UserDict):

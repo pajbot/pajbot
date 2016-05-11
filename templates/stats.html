@@ -19,8 +19,8 @@
         <tbody>
             {% for command in top_5_commands %}
                 <tr>
-                    <td>{{ command.main_alias }}</td>
-                    <td>{{ command.data.num_uses|number_format }}</td>
+                    <td>{{ command['main_alias'] }}</td>
+                    <td>{{ command['data']['num_uses']|number_format }}</td>
                 </tr>
             {% endfor %}
     </table>
