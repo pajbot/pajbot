@@ -433,11 +433,9 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        self.fetch_video_url_stage2(data)
-
         log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
         stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
-        video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url(stream_chunk)
+        video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
         if video_url is not None:
             log.info('Successfully fetched a video url: {0}'.format(video_url))
             if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
