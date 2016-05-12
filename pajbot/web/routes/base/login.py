@@ -52,6 +52,9 @@ def init(app):
             log.exception('An exception was caught while authorizing')
             next_url = get_next_url(request, 'state')
             return redirect(next_url)
+        except:
+            log.exception('Unhandled exception while authorizing')
+            return render_template('login_error.html')
 
         print(resp)
         if resp is None:
