@@ -305,6 +305,8 @@ class TwitchAPI(APIBase):
                 }
         data = None
 
+        log.debug('Getting status...')
+
         try:
             data = self.get(['streams', streamer], base=self.kraken_url)
             stream_status['error'] = False
@@ -329,12 +331,15 @@ class TwitchAPI(APIBase):
             else:
                 log.exception('Unhandled HTTP error code')
         except TypeError:
+            log.warning(data)
             log.warning('Somehow, the get request returned None')
             log.exception('Something went seriously wrong during the get-request')
         except KeyError:
             log.exception('Some key in get_status does not exist. FIX!')
         except:
             log.exception('Unhandled exception in TwitchAPI.get_status')
+
+        log.debug('Got status')
 
         return stream_status
 

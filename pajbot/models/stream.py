@@ -173,10 +173,25 @@ class StreamManager:
     STATUS_CHECK_INTERVAL = 20  # seconds
     VIDEO_URL_CHECK_INTERVAL = 60 * 5  # seconds
 
-    def fetch_video_url(self, stream_chunk):
+    def fetch_video_url_stage1(self):
+        if self.online is False:
+            return
+
         try:
             data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'}, base='https://api.twitch.tv/kraken/')
 
+            self.bot.mainthread_queue.add(self.refresh_video_url_stage2,
+                    args=[data])
+        except urllib.error.HTTPError as e:
+            raw_data = e.read().decode('utf-8')
+            log.exception('OMGScoots')
+            log.info(raw_data)
+        except:
+            log.exception('Uncaught exception in fetch_video_url')
+
+    def fetch_video_url_stage2(self, data):
+        stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
+        try:
             for video in data['videos']:
                 if video['broadcast_type'] == 'archive':
                     recorded_at = parse_twitch_datetime(video['recorded_at'])
@@ -207,8 +222,12 @@ class StreamManager:
 
         self.num_viewers = 0
 
-        self.bot.execute_every(self.STATUS_CHECK_INTERVAL, self.refresh_stream_status)
-        self.bot.execute_every(self.VIDEO_URL_CHECK_INTERVAL, self.refresh_video_url)
+        self.bot.execute_every(self.STATUS_CHECK_INTERVAL,
+                self.bot.action_queue.add,
+                (self.refresh_stream_status_stage1, ))
+        self.bot.execute_every(self.VIDEO_URL_CHECK_INTERVAL,
+                self.bot.action_queue.add,
+                (self.refresh_video_url_stage1, ))
 
         """
         This will load the latest stream so we can post an accurate
@@ -352,13 +371,20 @@ class StreamManager:
 
         HandlerManager.trigger('on_stream_stop', stop_on_false=False)
 
-    def refresh_stream_status(self):
+    def refresh_stream_status_stage1(self):
         try:
             status = self.bot.twitchapi.get_status(self.bot.streamer)
             if status['error'] is True:
                 log.error('An error occured while fetching stream status')
                 return
 
+            self.bot.mainthread_queue.add(self.refresh_stream_status_stage2,
+                    args=[status])
+        except:
+            log.exception('Uncaught exception while refreshing stream status (Stage 1)')
+
+    def refresh_stream_status_stage2(self, status):
+        try:
             redis = RedisManager.get()
 
             redis.hmset('stream_data', {
@@ -395,14 +421,19 @@ class StreamManager:
                         self.go_offline()
                     self.num_offlines += 1
         except:
-            log.exception('Uncaught exception while refreshing stream status')
+            log.exception('Uncaught exception while refreshing stream status (Stage 2)')
 
-    def refresh_video_url(self):
+    def refresh_video_url_stage1(self):
+        self.fetch_video_url_stage1()
+
+    def refresh_video_url_stage2(self, data):
         if self.online is False:
             return
 
         if self.current_stream_chunk is None or self.current_stream is None:
             return
+
+        self.fetch_video_url_stage2(data)
 
         log.info('Attempting to fetch video url for broadcast {0}'.format(self.current_stream_chunk.broadcast_id))
         stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None

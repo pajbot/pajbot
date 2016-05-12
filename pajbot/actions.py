@@ -1,5 +1,8 @@
+import logging
 import queue
 import threading
+
+log = logging.getLogger(__name__)
 
 
 class Action:
@@ -42,7 +45,9 @@ class ActionQueue:
     def parse_action(self):
         if not self.queue.empty():
             action = self.queue.get()
+            log.debug('Running action on {}'.format(self.id))
             action.run()
+            log.debug('DONE RUNNING ACTION ON {}'.format(self.id))
 
     def add(self, f, args=[], kwargs={}):
         action = Action()
