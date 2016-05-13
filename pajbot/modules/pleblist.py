@@ -116,7 +116,7 @@ class PleblistModule(BaseModule):
 
             # See if the user has already submitted X songs
             num_unplayed_songs_requested = int(db_session.query(func.count(PleblistSong.id)).filter_by(stream_id=stream_id, user_id=source.id, date_played=None).one()[0])
-            if num_unplayed_songs_requested >= self.settings['max_songs_per_user']:
+            if num_unplayed_songs_requested >= self.settings['max_songs_per_user'] and not force:
                 bot.whisper(source.username, 'You can only request {} songs at the same time!'.format(num_unplayed_songs_requested))
                 return False
 
