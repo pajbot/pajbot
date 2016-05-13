@@ -222,6 +222,8 @@ class Command(Base):
     DEFAULT_CD_USER = 15
     DEFAULT_LEVEL = 100
 
+    notify_on_error = False
+
     def __init__(self, **options):
         self.id = options.get('id', None)
 
@@ -245,6 +247,7 @@ class Command(Base):
 
         self.data = None
         self.run_in_thread = False
+        self.notify_on_error = False
 
         self.set(**options)
 
@@ -277,6 +280,7 @@ class Command(Base):
         self.mod_only = options.get('mod_only', self.mod_only)
         self.examples = options.get('examples', self.examples)
         self.run_in_thread = options.get('run_in_thread', self.run_in_thread)
+        self.notify_on_error = options.get('notify_on_error', self.notify_on_error)
 
     def __str__(self):
         return 'Command(!{})'.format(self.command)
@@ -383,10 +387,14 @@ class Command(Base):
             return False
 
         if self.cost > 0 and not source.can_afford(self.cost):
+            if self.notify_on_error:
+                bot.whisper(source.username, 'You do not have the required {} points to execute this command. (You have {} points)'.format(self.cost, source.points_available()))
             # User does not have enough points to use the command
             return False
 
         if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
+            if self.notify_on_error:
+                bot.whisper(source.username, 'You do not have the required {} tokens to execute this command. (You have {} tokens)'.format(self.tokens_cost, source.get_tokens()))
             # User does not have enough tokens to use the command
             return False
 
