@@ -108,11 +108,11 @@ class AdminCommandsModule(BaseModule):
                 description='Modifies a users points',
                 examples=[
                     CommandExample(None, 'Give a user points',
-                        chat='user:!edituser pajlada 500\n'
+                        chat='user:!editpoints pajlada 500\n'
                         'bot>user:Successfully gave pajlada 500 points.',
                         description='This creates 500 points and gives them to pajlada').parse(),
                     CommandExample(None, 'Remove points from a user',
-                        chat='user:!edituser pajlada -500\n'
+                        chat='user:!editpoints pajlada -500\n'
                         'bot>user:Successfully removed 500 points from pajlada.',
                         description='This removes 500 points from pajlada. Users can go into negative points with this.').parse(),
                     ])
