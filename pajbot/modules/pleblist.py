@@ -64,7 +64,7 @@ class PleblistModule(BaseModule):
                 type='number',
                 required=True,
                 placeholder='Max song length (in seconds)',
-                default=600,
+                default=360,
                 constraints={
                     'min_value': 1,
                     'max_value': 3600,
@@ -169,4 +169,5 @@ class PleblistModule(BaseModule):
             self.commands['songrequest'] = Command.raw_command(self.pleblist_add_song,
                     delay_all=0,
                     delay_user=3,
+                    notify_on_error=True,
                     cost=self.settings['point_cost'])
