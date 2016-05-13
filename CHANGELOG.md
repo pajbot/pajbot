@@ -41,4 +41,4 @@
 
 [Unreleased]: https://github.com/pajlada/pajbot/compare/2.8.0...HEAD
 [2.8.0]: https://github.com/pajlada/pajbot/compare/2.7.4...2.8.0
-[2.8.0]: https://github.com/pajlada/pajbot/compare/2.8.0...2.8.1
+[2.8.1]: https://github.com/pajlada/pajbot/compare/2.8.0...2.8.1
