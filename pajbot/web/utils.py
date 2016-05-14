@@ -167,9 +167,6 @@ def jsonify_list(key, query, base_url=None, default_limit=None, max_limit=None):
             key: [v.jsonify() for v in query],
             }
 
-    log.info(request.args)
-    log.info(request.__dict__)
-
     if base_url:
         payload['_links'] = {}
 
