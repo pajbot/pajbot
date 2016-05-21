@@ -6,6 +6,7 @@ from flask import url_for
 from flask_restful import reqparse
 from flask_restful import Resource
 from sqlalchemy import and_
+from sqlalchemy import func
 from sqlalchemy.orm import noload
 
 import pajbot.web.utils
@@ -246,6 +247,40 @@ class APIPleblistBlacklist(Resource):
             # return jsonify({'success': True})
 
 
+def jsonify_query(query):
+    return [PleblistSongTop(v[0], v[1]).jsonify() for v in query]
+
+
+class PleblistSongTop:
+    def __init__(self, song, count):
+        self.song = song
+        self.count = count
+
+    def jsonify(self):
+        payload = self.song.jsonify()
+        payload['count'] = self.count
+        return payload
+
+
+class APIPleblistTop(Resource):
+    def get(self):
+        with DBManager.create_session_scope() as session:
+            # songs = session.query(PleblistSong, func.count(PleblistSong.song_info).label('total')).group_by(PleblistSong.youtube_id).order_by('total DESC')
+            songs = session.query(PleblistSong, func.count(PleblistSong.youtube_id).label('total')).group_by(PleblistSong.youtube_id).order_by('total DESC')
+
+            log.info(songs)
+            log.info(songs.all())
+
+            return pajbot.web.utils.jsonify_list(
+                    'songs',
+                    songs,
+                    default_limit=50,
+                    max_limit=500,
+                    base_url=url_for(self.endpoint, _external=True),
+                    jsonify_method=jsonify_query,
+                    )
+
+
 def init(api):
     api.add_resource(APIPleblistSkip, '/pleblist/skip/<int:song_id>')
     api.add_resource(APIPleblistListCurrent, '/pleblist/list')
@@ -255,3 +290,4 @@ def init(api):
     api.add_resource(APIPleblistNext, '/pleblist/next')
     api.add_resource(APIPleblistValidate, '/pleblist/validate')
     api.add_resource(APIPleblistBlacklist, '/pleblist/blacklist')
+    api.add_resource(APIPleblistTop, '/pleblist/top')

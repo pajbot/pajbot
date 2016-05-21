@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- New API endpoint: /api/v1/pleblist/top - lists the top pleblist songs
 
 ## [2.8.1] - 2016-05-13
 ### Changed

@@ -133,7 +133,13 @@ def init_json_serializer(api):
         return resp
 
 
-def jsonify_list(key, query, base_url=None, default_limit=None, max_limit=None):
+def jsonify_query(query):
+    return [v.jsonify() for v in query]
+
+
+def jsonify_list(key, query, base_url=None,
+        default_limit=None, max_limit=None,
+        jsonify_method=jsonify_query):
     """ Must be called in the context of a request """
     _total = query.count()
 
@@ -164,7 +170,7 @@ def jsonify_list(key, query, base_url=None, default_limit=None, max_limit=None):
 
     payload = {
             '_total': _total,
-            key: [v.jsonify() for v in query],
+            key: jsonify_method(query),
             }
 
     if base_url:
