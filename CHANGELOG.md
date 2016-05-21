@@ -4,6 +4,9 @@
 ### Added
 - New API endpoint: /api/v1/pleblist/top - lists the top pleblist songs
 
+### Fixed
+- @-replacements now work properly in Paid Timeouts
+
 ## [2.8.1] - 2016-05-13
 ### Changed
 - Greatly optimized the update_chatters method

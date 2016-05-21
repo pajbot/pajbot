@@ -113,11 +113,11 @@ class PaidTimeoutModule(BaseModule):
         if message is None or len(message) == 0:
             return False
 
-        username = message.split(' ')[0]
-        if len(username) < 2:
+        target = message.split(' ')[0]
+        if len(target) < 2:
             return False
 
-        with bot.users.find_context(username) as victim:
+        with bot.users.find_context(target) as victim:
             if victim is None:
                 bot.whisper(source.username, 'This user does not exist FailFish')
                 return False
@@ -147,13 +147,14 @@ class PaidTimeoutModule(BaseModule):
                     victim=victim,
                     source=source,
                     time=_time))
-                bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(_cost, username, _time))
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(_cost, victim.username, _time))
                 num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot._timeout(username, num_seconds)
+                bot._timeout(victim.username, num_seconds)
+            # songs = session.query(PleblistSong, func.count(PleblistSong.song_info).label('total')).group_by(PleblistSong.youtube_id).order_by('total DESC')
             else:
-                bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(_cost, username, _time))
-                bot.whisper(username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
-                bot._timeout(username, _time)
+                bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(_cost, victim.username, _time))
+                bot.whisper(victim.username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
+                bot._timeout(victim.username, _time)
                 victim.timed_out = True
                 victim.timeout_start = now
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
