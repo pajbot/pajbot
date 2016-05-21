@@ -185,6 +185,12 @@ class RouletteModule(BaseModule):
             except (ValueError, TypeError):
                 bot.whisper(user.username, 'Invalid percentage specified haHAA')
                 return False
+        elif msg_split[0].startswith('0x'):
+            try:
+                bet = int(msg_split[0][2:], 16)
+            except (ValueError):
+                bot.whisper(user.username, 'Invalid hexadecimal value, you nerd DansGame')
+                return False
         else:
             try:
                 message = message.lower()
