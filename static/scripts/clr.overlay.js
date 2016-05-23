@@ -99,7 +99,6 @@ var isopen = false;
 
 function add_random_box(color)
 {
-    var numRand = Math.floor(Math.random() * 501);
     var divsize = 50;
     var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
     var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
@@ -135,7 +134,6 @@ function add_emote(emote)
             url = 'https://cdn.pajlada.se/emoticons/XD.gif';
         }
     }
-    var numRand = Math.floor(Math.random() * 501);
     var divsize = 120;
     var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
     var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
@@ -144,6 +142,44 @@ function add_emote(emote)
         'top': posy + 'px',
         'opacity': 0
     });
+    $newdiv.appendTo('body');
+    $newdiv.animate({
+        opacity: 1
+    }, 500);
+    setTimeout(function() {
+        $newdiv.animate({
+            opacity: 0,
+        }, 1000);
+        setTimeout(function() {
+            $newdiv.remove();
+        }, 1000);
+    }, 5000);
+}
+
+function show_custom_image(data)
+{
+    var url = data.url;
+    var divsize = 120;
+    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+    var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+    var css_data = {
+        'left': posx + 'px',
+        'top': posy + 'px',
+        'opacity': 0
+    }
+    if (data.width !== undefined) {
+        css_data.width = data.width;
+    }
+    if (data.height !== undefined) {
+        css_data.height = data.height;
+    }
+    if (data.x !== undefined) {
+        posx = data.x;
+    }
+    if (data.y !== undefined) {
+        posy = data.y;
+    }
+    var $newdiv = $('<img class="absemote" src="' + url + '">').css(css_data);
     $newdiv.appendTo('body');
     $newdiv.animate({
         opacity: 1
@@ -453,6 +489,13 @@ function connect_to_ws()
                         break;
                     case 'hsbet_update_data':
                         hsbet_update_data(json_data['data']['win'], json_data['data']['loss']);
+                        break;
+                    case 'show_custom_image':
+                        show_custom_image(json_data['data']);
+                        break;
+                    case 'refresh':
+                    case 'reload':
+                        location.reload(true);
                         break;
                 }
             }

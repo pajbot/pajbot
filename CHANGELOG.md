@@ -4,6 +4,8 @@
 ### Added
 - New API endpoint: /api/v1/pleblist/top - lists the top pleblist songs
 - Reasons to most timeouts
+- New websocket event: refresh/reload - refreshes the clr page
+- New websocket event: show_custom_image - shows a custom image URL on screen
 
 ### Fixed
 - @-replacements now work properly in Paid Timeouts
