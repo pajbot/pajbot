@@ -406,11 +406,7 @@ class StreamManager:
 
                 self.num_offlines = 0
                 self.first_offline = None
-                self.bot.ascii_timeout_duration = 120
-                self.bot.msg_length_timeout_duration = 120
             else:
-                self.bot.ascii_timeout_duration = 10
-                self.bot.msg_length_timeout_duration = 10
                 if self.online is True:
                     log.info('Offline. {0}'.format(self.num_offlines))
                     if self.first_offline is None:

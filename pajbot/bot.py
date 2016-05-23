@@ -205,9 +205,6 @@ class Bot:
 
         self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
 
-        self.ascii_timeout_duration = 120
-        self.msg_length_timeout_duration = 120
-
         self.data = {}
         self.data_cb = {}
         self.url_regex = re.compile(self.url_regex_str, re.IGNORECASE)
@@ -223,8 +220,6 @@ class Bot:
 
         if self.silent:
             log.info('Silent mode enabled')
-
-        self.reconnection_interval = 5
 
         """
         For actions that need to access the main thread,
