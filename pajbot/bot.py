@@ -43,12 +43,6 @@ from pajbot.tbutil import time_since
 log = logging.getLogger(__name__)
 
 
-class TMI:
-    message_limit = 90
-    whispers_message_limit = 20
-    whispers_limit_interval = 5  # in seconds
-
-
 class Bot:
     """
     Main class for the twitch bot
