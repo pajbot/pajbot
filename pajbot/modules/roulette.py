@@ -1,9 +1,10 @@
 import datetime
 import logging
-import math
 
 from numpy import random
 
+import pajbot.exc
+import pajbot.utils
 from pajbot.managers import DBManager
 from pajbot.managers import HandlerManager
 from pajbot.models.command import Command
@@ -11,6 +12,7 @@ from pajbot.models.command import CommandExample
 from pajbot.models.roulette import Roulette
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+
 
 log = logging.getLogger(__name__)
 
@@ -172,28 +174,11 @@ class RouletteModule(BaseModule):
             return False
 
         msg_split = message.split(' ')
-        if msg_split[0].lower() in ('all', 'allin'):
-            bet = user.points_available()
-        elif msg_split[0].endswith('%'):
-            try:
-                percentage = int(msg_split[0][:-1])
-                if percentage < 1 or percentage > 100:
-                    bot.whisper(user.username, 'To bet with percentages you need to specify a number between 1 and 100 (like !roulette 50%)')
-                    return False
-
-                bet = math.floor(user.points_available() * (percentage / 100))
-            except (ValueError, TypeError):
-                bot.whisper(user.username, 'Invalid percentage specified haHAA')
-                return False
-        else:
-            try:
-                message = message.lower()
-                message = message.replace('k', '000')
-                message = message.replace('m', '000000')
-                bet = int(message.split(' ')[0])
-            except (ValueError, TypeError):
-                bot.whisper(user.username, 'I didn\'t recognize your bet! Usage: !roulette 150 to bet 150 points')
-                return False
+        try:
+            bet = pajbot.utils.parse_points_amount(user, msg_split[0])
+        except pajbot.exc.InvalidPointAmount as e:
+            bot.whisper(user.username, str(e))
+            return False
 
         if not user.can_afford(bet):
             bot.whisper(user.username, 'You don\'t have enough points to do a roulette for {} points :('.format(bet))

@@ -8,3 +8,7 @@ class UserNotFound(Exception):
 
 class InvalidLogin(Exception):
     pass
+
+
+class InvalidPointAmount(Exception):
+    pass
