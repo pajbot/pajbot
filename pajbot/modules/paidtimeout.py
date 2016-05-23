@@ -149,12 +149,12 @@ class PaidTimeoutModule(BaseModule):
                     time=_time))
                 bot.whisper(source.username, 'You just used {0} points to time out {1} for an additional {2} seconds.'.format(_cost, victim.username, _time))
                 num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot._timeout(victim.username, num_seconds)
+                bot._timeout(victim.username, num_seconds, reason='Timed out by {}'.format(source.username_raw))
             # songs = session.query(PleblistSong, func.count(PleblistSong.song_info).label('total')).group_by(PleblistSong.youtube_id).order_by('total DESC')
             else:
                 bot.whisper(source.username, 'You just used {0} points to time out {1} for {2} seconds.'.format(_cost, victim.username, _time))
                 bot.whisper(victim.username, '{0} just timed you out for {1} seconds. /w {2} !$unbanme to unban yourself for points forsenMoney'.format(source.username, _time, bot.nickname))
-                bot._timeout(victim.username, _time)
+                bot._timeout(victim.username, _time, reason='Timed out by {}'.format(source.username_raw))
                 victim.timed_out = True
                 victim.timeout_start = now
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)

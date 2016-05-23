@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - New API endpoint: /api/v1/pleblist/top - lists the top pleblist songs
+- Reasons to most timeouts
 
 ### Fixed
 - @-replacements now work properly in Paid Timeouts

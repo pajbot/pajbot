@@ -232,14 +232,14 @@ class LinkCheckerModule(BaseModule):
                             whitelisted = True
                             break
                     if whitelisted is False:
-                        self.bot.timeout(source.username, 30)
+                        self.bot.timeout(source.username, 30, reason='Non-subs cannot post links')
                         if source.minutes_in_chat_online > 60:
                             self.bot.whisper(source.username, 'You cannot post non-verified links in chat if you\'re not a subscriber.')
                         return False
 
             for url in urls:
                 # Action which will be taken when a bad link is found
-                action = Action(self.bot.timeout, args=[source.username, 20])
+                action = Action(self.bot.timeout, args=[source.username, 20], kwargs={'reason': 'Banned link'})
                 # First we perform a basic check
                 if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
                     # If the basic check returns no relevant data, we queue up a proper check on the URL

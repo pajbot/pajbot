@@ -505,7 +505,7 @@ class Dispatch:
         log.debug(args)
 
         log.debug('timeouting {0}'.format(source.username))
-        bot.timeout(source.username, _time)
+        bot.timeout(source.username, _time, reason='Matched bad filter')
 
     def single_timeout_source(bot, source, message, event, args):
         if 'time' in args:
