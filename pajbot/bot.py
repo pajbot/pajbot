@@ -466,9 +466,6 @@ class Bot:
             else:
                 return 'No recorded stream FeelsBadMan '
 
-    def _ban(self, username):
-        self.privmsg('.ban {0}'.format(username), increase_message=False)
-
     def execute_at(self, at, function, arguments=()):
         self.reactor.execute_at(at, function, arguments)
 
@@ -478,29 +475,32 @@ class Bot:
     def execute_every(self, period, function, arguments=()):
         self.reactor.execute_every(period, function, arguments)
 
-    def ban(self, username):
-        log.debug('Banning {}'.format(username))
-        self._timeout(username, 30)
-        self.execute_delayed(1, self._ban, (username, ))
+    def _ban(self, username, reason=''):
+        self.privmsg('.ban {0} {1}'.format(username, reason), increase_message=False)
 
-    def ban_user(self, user):
-        self._timeout(user.username, 30)
-        self.execute_delayed(1, self._ban, (user.username, ))
+    def ban(self, username, reason=''):
+        log.debug('Banning {}'.format(username))
+        self._timeout(username, 30, reason)
+        self.execute_delayed(1, self._ban, (username, reason))
+
+    def ban_user(self, user, reason=''):
+        self._timeout(user.username, 30, reason)
+        self.execute_delayed(1, self._ban, (user.username, reason))
 
     def unban(self, username):
         self.privmsg('.unban {0}'.format(username), increase_message=False)
 
-    def _timeout(self, username, duration):
-        self.privmsg('.timeout {0} {1}'.format(username, duration), increase_message=False)
+    def _timeout(self, username, duration, reason=''):
+        self.privmsg('.timeout {0} {1} {2}'.format(username, duration, reason), increase_message=False)
 
-    def timeout(self, username, duration):
+    def timeout(self, username, duration, reason=''):
         log.debug('Timing out {} for {} seconds'.format(username, duration))
-        self._timeout(username, duration)
-        self.execute_delayed(1, self._timeout, (username, duration))
+        self._timeout(username, duration, reason)
+        self.execute_delayed(1, self._timeout, (username, duration, reason))
 
-    def timeout_warn(self, user, duration):
+    def timeout_warn(self, user, duration, reason=''):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager['warning'])
-        self.timeout(user.username, duration)
+        self.timeout(user.username, duration, reason)
         return (duration, punishment)
 
     def timeout_user(self, user, duration):
