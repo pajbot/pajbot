@@ -14,6 +14,7 @@ from pytz import timezone
 import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers import CommandManager
 from pajbot.managers import DBManager
 from pajbot.managers import DeckManager
 from pajbot.managers import EmoteManager
@@ -30,7 +31,6 @@ from pajbot.managers import UserManager
 from pajbot.managers import WebSocketManager
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
-from pajbot.models.command import CommandManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager

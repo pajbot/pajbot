@@ -1,4 +1,5 @@
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.command import CommandManager
 from pajbot.managers.connection import ConnectionManager
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
