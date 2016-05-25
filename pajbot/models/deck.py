@@ -5,7 +5,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from pajbot.managers import Base
+from pajbot.managers.db import Base
 from pajbot.tbutil import time_ago
 
 log = logging.getLogger(__name__)

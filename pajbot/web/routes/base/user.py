@@ -1,7 +1,7 @@
 from flask import render_template
 
-from pajbot.managers import DBManager
-from pajbot.managers import UserManager
+from pajbot.managers.db import DBManager
+from pajbot.managers.user import UserManager
 from pajbot.models.roulette import Roulette
 
 

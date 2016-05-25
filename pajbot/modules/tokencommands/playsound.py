@@ -2,8 +2,7 @@ import logging
 
 from numpy import random
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules import QuestModule
@@ -174,7 +173,7 @@ class PlaySoundTokenCommandModule(BaseModule):
         return False
 
     def load_commands(self, **options):
-        self.commands['#playsound'] = Command.raw_command(
+        self.commands['#playsound'] = pajbot.models.command.Command.raw_command(
                 self.play_sound,
                 tokens_cost=self.settings['token_cost'],
                 cost=self.settings['point_cost'],
@@ -182,10 +181,10 @@ class PlaySoundTokenCommandModule(BaseModule):
                 description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
                 examples=[
-                    CommandExample(None, 'Play the "cumming" sample',
+                    pajbot.models.command.CommandExample(None, 'Play the "cumming" sample',
                         chat='user:!#playsound cumming\n'
                         'bot>user:Successfully played your sample cumming').parse(),
-                    CommandExample(None, 'Play the "fuckyou" sample',
+                    pajbot.models.command.CommandExample(None, 'Play the "fuckyou" sample',
                         chat='user:!#playsound fuckyou\n'
                         'bot>user:Successfully played your sample fuckyou').parse(),
                     ],

@@ -1,7 +1,7 @@
 from flask_restful import Resource
 
-from pajbot.managers import RedisManager
-from pajbot.managers import UserManager
+from pajbot.managers.redis import RedisManager
+from pajbot.managers.user import UserManager
 from pajbot.streamhelper import StreamHelper
 
 

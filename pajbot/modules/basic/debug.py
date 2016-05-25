@@ -2,8 +2,7 @@ import collections
 import datetime
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -127,37 +126,37 @@ class DebugModule(BaseModule):
             return False
 
     def load_commands(self, **options):
-        self.commands['debug'] = Command.multiaction_command(
+        self.commands['debug'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 commands={
-                    'command': Command.raw_command(self.debug_command,
+                    'command': pajbot.models.command.Command.raw_command(self.debug_command,
                         level=250,
                         description='Debug a command',
                         examples=[
-                            CommandExample(None, 'Debug a command',
+                            pajbot.models.command.CommandExample(None, 'Debug a command',
                                 chat='user:!debug command ping\n'
                                 'bot>user: id=210, level=100, type=message, cost=0, cd_all=10, cd_user=30, mod_only=False, response=Snusbot has been online for $(tb:bot_uptime)',
                                 description='').parse(),
                             ]),
-                    'user': Command.raw_command(self.debug_user,
+                    'user': pajbot.models.command.Command.raw_command(self.debug_user,
                         level=250,
                         description='Debug a user',
                         examples=[
-                            CommandExample(None, 'Debug a user',
+                            pajbot.models.command.CommandExample(None, 'Debug a user',
                                 chat='user:!debug user snusbot\n'
                                 'bot>user: id=123, level=100, num_lines=45, points=225,  last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False, tokens=0',
                                 description='').parse(),
                             ]),
-                    'tags': Command.raw_command(self.debug_tags,
+                    'tags': pajbot.models.command.Command.raw_command(self.debug_tags,
                         level=100,
                         delay_all=0,
                         delay_user=5,
                         description='Debug tags for a user',
                         examples=[
-                            CommandExample(None, 'Debug tags for a user',
+                            pajbot.models.command.CommandExample(None, 'Debug tags for a user',
                                 chat='user:!debug tags pajbot\n'
                                 'bot>user: pajbot have the following tags: pajlada_sub until 2016-04-28',
                                 description='').parse(),

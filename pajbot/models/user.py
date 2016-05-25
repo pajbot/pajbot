@@ -10,12 +10,12 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 
 from pajbot.exc import FailedCommand
-from pajbot.managers import Base
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
-from pajbot.managers import RedisManager
-from pajbot.managers import ScheduleManager
-from pajbot.managers import TimeManager
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
+from pajbot.managers.redis import RedisManager
+from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.time import TimeManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tbutil import time_method  # NOQA
 

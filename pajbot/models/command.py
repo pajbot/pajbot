@@ -195,6 +195,7 @@ class Command(Base):
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
+    run_through_banphrases = Column(Boolean, nullable=False, default=False, server_default='0')
     long_description = ''
 
     data = relationship(
@@ -235,6 +236,7 @@ class Command(Base):
         self.can_execute_with_whisper = False
         self.sub_only = False
         self.mod_only = False
+        self.run_through_banphrases = False
         self.command = None
 
         self.last_run = 0
@@ -273,6 +275,7 @@ class Command(Base):
         self.can_execute_with_whisper = options.get('can_execute_with_whisper', self.can_execute_with_whisper)
         self.sub_only = options.get('sub_only', self.sub_only)
         self.mod_only = options.get('mod_only', self.mod_only)
+        self.run_through_banphrases = options.get('run_through_banphrases', self.run_through_banphrases)
         self.examples = options.get('examples', self.examples)
         self.run_in_thread = options.get('run_in_thread', self.run_in_thread)
         self.notify_on_error = options.get('notify_on_error', self.notify_on_error)

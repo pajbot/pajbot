@@ -3,9 +3,9 @@ import urllib
 
 from sqlalchemy import func
 
-from pajbot.managers import DBManager
-from pajbot.managers import ScheduleManager
-from pajbot.models.command import Command
+import pajbot.models
+from pajbot.managers.db import DBManager
+from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.modules import BaseModule
@@ -166,7 +166,7 @@ class PleblistModule(BaseModule):
 
     def load_commands(self, **options):
         if self.settings['songrequest_command']:
-            self.commands['songrequest'] = Command.raw_command(self.pleblist_add_song,
+            self.commands['songrequest'] = pajbot.models.command.Command.raw_command(self.pleblist_add_song,
                     delay_all=0,
                     delay_user=3,
                     notify_on_error=True,

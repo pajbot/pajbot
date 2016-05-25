@@ -4,7 +4,7 @@ import logging
 
 from numpy import random
 
-from pajbot.models.command import Command
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -174,7 +174,7 @@ class BlackjackModule(BaseModule):
         self.bets = {}
 
     def load_commands(self, **options):
-        self.commands['blackjack'] = Command.multiaction_command(
+        self.commands['blackjack'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 default='bet',
                 fallback='bet',
@@ -182,20 +182,20 @@ class BlackjackModule(BaseModule):
                 delay_user=0,
                 can_execute_with_whisper=True,
                 commands={
-                    'start': Command.raw_command(
+                    'start': pajbot.models.command.Command.raw_command(
                         self.command_bet,
                         delay_all=0,
                         delay_user=10,
                         can_execute_with_whisper=True,
                         ),
-                    'open': Command.raw_command(
+                    'open': pajbot.models.command.Command.raw_command(
                         self.command_open,
                         level=500,
                         delay_all=0,
                         delay_user=0,
                         can_execute_with_whisper=True,
                         ),
-                    'close': Command.raw_command(
+                    'close': pajbot.models.command.Command.raw_command(
                         self.command_close,
                         level=500,
                         delay_all=0,

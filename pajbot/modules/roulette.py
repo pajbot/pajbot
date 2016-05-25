@@ -4,15 +4,13 @@ import logging
 from numpy import random
 
 import pajbot.exc
+import pajbot.models
 import pajbot.utils
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.models.roulette import Roulette
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
-
 
 log = logging.getLogger(__name__)
 
@@ -142,13 +140,13 @@ class RouletteModule(BaseModule):
         self.last_sub = None
 
     def load_commands(self, **options):
-        self.commands['roulette'] = Command.raw_command(self.roulette,
+        self.commands['roulette'] = pajbot.models.command.Command.raw_command(self.roulette,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Roulette for points',
                 can_execute_with_whisper=self.settings['can_execute_with_whisper'],
                 examples=[
-                    CommandExample(None, 'Roulette for 69 points',
+                    pajbot.models.command.CommandExample(None, 'Roulette for 69 points',
                         chat='user:!roulette 69\n'
                         'bot:pajlada won 69 points in roulette! FeelsGoodMan',
                         description='Do a roulette for 69 points').parse(),

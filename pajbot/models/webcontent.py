@@ -3,7 +3,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
 
-from pajbot.managers import Base
+from pajbot.managers.db import Base
 
 
 class WebContent(Base):

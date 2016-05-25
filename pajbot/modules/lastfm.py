@@ -1,7 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -33,12 +32,12 @@ class LastfmModule(BaseModule):
     def load_commands(self, **options):
         # TODO: Aliases should be set in settings?
         #       This way, it can be run alongside other modules
-        self.commands['song'] = Command.raw_command(self.song,
+        self.commands['song'] = pajbot.models.command.Command.raw_command(self.song,
                 delay_all=12,
                 delay_user=25,
                 description='Check what that is playing on the stream',
                 examples=[
-                    CommandExample(None, 'Check the current song',
+                    pajbot.models.command.CommandExample(None, 'Check the current song',
                         chat='user:!song\n'
                         'bot: Current Song is \u2669\u266a\u266b Adele - Hello \u266c\u266b\u2669',
                         description='Bot mentions the name of the song and the artist currently playing on stream').parse(),

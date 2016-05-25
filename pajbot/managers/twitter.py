@@ -3,7 +3,7 @@ from datetime import datetime
 
 import tweepy
 
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.models.twitter import TwitterUser
 from pajbot.tbutil import time_since
 from pajbot.tbutil import tweet_prettify_urls

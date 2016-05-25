@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.tbutil import time_since
 
@@ -34,7 +34,7 @@ class PersonalUptimeModule(BaseModule):
             bot.say('{}, You have been watching the stream for ~{}'.format(source.username_raw, time_since(minutes_watched, 0)))
 
     def load_commands(self, **options):
-        self.commands['myuptime'] = Command.raw_command(
+        self.commands['myuptime'] = pajbot.models.command.Command.raw_command(
                 self.cmd_puptime,
                 delay_all=3,
                 delay_user=60,

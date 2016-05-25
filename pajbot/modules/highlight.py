@@ -1,7 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -164,14 +163,14 @@ class HighlightModule(BaseModule):
         else:
             add_highlight_level = level_trusted_mods
 
-        self.commands['add'] = Command.multiaction_command(
+        self.commands['add'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 command='add',
                 commands={
-                    'highlight': Command.raw_command(self.add_highlight,
+                    'highlight': pajbot.models.command.Command.raw_command(self.add_highlight,
                         level=add_highlight_level,
                         delay_all=30 if self.settings['allow_subs'] else 0,
                         delay_user=60 if self.settings['allow_subs'] else 4,
@@ -179,11 +178,11 @@ class HighlightModule(BaseModule):
                         sub_only=self.settings['allow_subs'],
                         description='Creates a highlight at the current timestamp',
                         examples=[
-                            CommandExample(None, 'Create a highlight',
+                            pajbot.models.command.CommandExample(None, 'Create a highlight',
                                 chat='user:!add highlight 1v5 Pentakill\n'
                                 'bot>user:Successfully created your highlight',
                                 description='Creates a highlight with the description 1v5 Pentakill').parse(),
-                            CommandExample(None, 'Create a highlight with a different offset',
+                            pajbot.models.command.CommandExample(None, 'Create a highlight with a different offset',
                                 chat='user:!add highlight 1v5 Pentakill --offset 60\n'
                                 'bot>user:Successfully created your highlight',
                                 description='Creates a highlight with the description 1v5 Pentakill and an offset of 60 seconds.').parse(),
@@ -191,31 +190,31 @@ class HighlightModule(BaseModule):
                         }
                 )
 
-        self.commands['edit'] = Command.multiaction_command(
+        self.commands['edit'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 command='edit',
                 commands={
-                    'highlight': Command.raw_command(self.edit_highlight,
+                    'highlight': pajbot.models.command.Command.raw_command(self.edit_highlight,
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
                         description='Edit the highlight with the given ID',
                         examples=[
-                            CommandExample(None, 'Change the offset with the given ID.',
+                            pajbot.models.command.CommandExample(None, 'Change the offset with the given ID.',
                                 chat='user:!edit highlight --offset 180 --id 12\n'
                                 'bot>user:Successfully updated your highlight (offset)',
                                 description='Changes the offset to 180 seconds for the highlight ID 12').parse(),
-                            CommandExample(None, 'Change the description with the given ID.',
+                            pajbot.models.command.CommandExample(None, 'Change the description with the given ID.',
                                 chat='user:!edit highlight 1v5 Pentakill PogChamp VAC --id 12\n'
                                 'bot>user:Successfully updated your highlight (description)',
                                 description='Changes the description to \'1v5 Pentakill PogChamp VAC\' for highlight ID 12.').parse(),
-                            CommandExample(None, 'Change the VOD link to a mirror link.',
+                            pajbot.models.command.CommandExample(None, 'Change the VOD link to a mirror link.',
                                 chat='user:!edit highlight --id 12 --link http://www.twitch.tv/imaqtpie/v/27878606\n'  # TODO turn off autolink
                                 'bot>user:Successfully updated your highlight (override_link)',
                                 description='Changes the link for highlight ID 12 to http://www.twitch.tv/imaqtpie/v/27878606').parse(),
-                            CommandExample(None, 'Change the mirror link back to the VOD link.',
+                            pajbot.models.command.CommandExample(None, 'Change the mirror link back to the VOD link.',
                                 chat='user:!edit highlight --id 12 --no-link\n'
                                 'bot>user:Successfully updated your highlight (override_link)',
                                 description='Changes the link for highlight ID 12 back to the twitch VOD link.').parse(),
@@ -223,19 +222,19 @@ class HighlightModule(BaseModule):
                     }
                 )
 
-        self.commands['remove'] = Command.multiaction_command(
+        self.commands['remove'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 command='remove',
                 commands={
-                    'highlight': Command.raw_command(self.remove_highlight,
+                    'highlight': pajbot.models.command.Command.raw_command(self.remove_highlight,
                         level=level_trusted_mods,
                         mod_only=mod_only_trusted_mods,
                         description='Removes a highlight with the given ID.',
                         examples=[
-                            CommandExample(None, 'Remove a highlight',
+                            pajbot.models.command.CommandExample(None, 'Remove a highlight',
                                 chat='user:!remove highlight 2\n'
                                 'bot>user:Successfully removed highlight with ID 2.',
                                 description='Removes the highlight ID 2').parse(),

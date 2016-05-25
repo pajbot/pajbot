@@ -1,8 +1,7 @@
 import logging
 
-from pajbot.managers import AdminLogManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
+from pajbot.managers.adminlog import AdminLogManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -100,22 +99,22 @@ class AdminCommandsModule(BaseModule):
         return False
 
     def load_commands(self, **options):
-        self.commands['w'] = Command.raw_command(self.whisper,
+        self.commands['w'] = pajbot.models.command.Command.raw_command(self.whisper,
                 level=2000,
                 description='Send a whisper from the bot')
-        self.commands['editpoints'] = Command.raw_command(self.edit_points,
+        self.commands['editpoints'] = pajbot.models.command.Command.raw_command(self.edit_points,
                 level=1500,
                 description='Modifies a users points',
                 examples=[
-                    CommandExample(None, 'Give a user points',
+                    pajbot.models.command.CommandExample(None, 'Give a user points',
                         chat='user:!editpoints pajlada 500\n'
                         'bot>user:Successfully gave pajlada 500 points.',
                         description='This creates 500 points and gives them to pajlada').parse(),
-                    CommandExample(None, 'Remove points from a user',
+                    pajbot.models.command.CommandExample(None, 'Remove points from a user',
                         chat='user:!editpoints pajlada -500\n'
                         'bot>user:Successfully removed 500 points from pajlada.',
                         description='This removes 500 points from pajlada. Users can go into negative points with this.').parse(),
                     ])
-        self.commands['level'] = Command.raw_command(self.level,
+        self.commands['level'] = pajbot.models.command.Command.raw_command(self.level,
                 level=1000,
                 description='Set a users level')

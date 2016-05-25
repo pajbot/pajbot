@@ -2,8 +2,7 @@ import logging
 
 from numpy import random
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules.base import BaseModule
 
 log = logging.getLogger(__name__)
@@ -24,34 +23,38 @@ class PointLotteryModule(BaseModule):
         self.lottery_points = 0
 
     def load_commands(self, **options):
-        self.commands['pointlottery'] = Command.raw_command(
+        self.commands['pointlottery'] = pajbot.models.command.Command.raw_command(
                 self.lottery,
                 delay_all=0,
                 delay_user=5,
                 description='Lottery for points',
                 examples=[
-                    CommandExample(None,
-                                   'Lottery start',
-                                   chat='user:!pointlottery start\n'
-                                        'bot:A Lottery has begun. Type !pointlottery join {points} to join the lottery!',
-                                   description='Start lottery',
-                                   ).parse(),
-                    CommandExample(None,
-                                   'Lottery join',
-                                   chat='user:!pointlottery join {}',
-                                   description='You don\'t get confirmation whether you joined the lottery or not.',
-                                   ).parse(),
-                    CommandExample(None,
-                                   'Lottery stop',
-                                   chat='user:!pointlottery stop\n'
-                                        'bot:The lottery has finished! {} won {} points',
-                                   description='Finish lottery',
-                                   ).parse(),
-                    CommandExample(None,
-                                   'Lottery join',
-                                   chat='user:!pointlottery {}',
-                                   description='You don\'t get confirmation whether you joined the lottery or not.',
-                                   ).parse(),
+                    pajbot.models.command.CommandExample(
+                        None,
+                        'Lottery start',
+                        chat='user:!pointlottery start\n'
+                        'bot:A Lottery has begun. Type !pointlottery join {points} to join the lottery!',
+                        description='Start lottery',
+                        ).parse(),
+                    pajbot.models.command.CommandExample(
+                        None,
+                        'Lottery join',
+                        chat='user:!pointlottery join {}',
+                        description='You don\'t get confirmation whether you joined the lottery or not.',
+                        ).parse(),
+                    pajbot.models.command.CommandExample(
+                        None,
+                        'Lottery stop',
+                        chat='user:!pointlottery stop\n'
+                        'bot:The lottery has finished! {} won {} points',
+                        description='Finish lottery',
+                        ).parse(),
+                    pajbot.models.command.CommandExample(
+                        None,
+                        'Lottery join',
+                        chat='user:!pointlottery {}',
+                        description='You don\'t get confirmation whether you joined the lottery or not.',
+                        ).parse(),
                 ],
         )
 

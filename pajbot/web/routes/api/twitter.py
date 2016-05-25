@@ -1,7 +1,7 @@
 from flask_restful import reqparse
 from flask_restful import Resource
 
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.twitter import TwitterUser
 from pajbot.web.utils import requires_level

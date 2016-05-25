@@ -1,6 +1,6 @@
 import datetime
 
-from pajbot.managers import TimeManager
+from pajbot.managers.time import TimeManager
 from pajbot.tbutil import time_since
 
 

@@ -12,3 +12,7 @@ class InvalidLogin(Exception):
 
 class InvalidPointAmount(Exception):
     pass
+
+
+class TimeoutException(Exception):
+    pass

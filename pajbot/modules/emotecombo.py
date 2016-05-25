@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.managers import HandlerManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)

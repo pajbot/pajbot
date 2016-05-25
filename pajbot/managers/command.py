@@ -399,6 +399,8 @@ class CommandManager(UserDict):
         parser.add_argument('--no-modonly', dest='mod_only', action='store_false')
         parser.add_argument('--subonly', dest='sub_only', action='store_true')
         parser.add_argument('--no-subonly', dest='sub_only', action='store_false')
+        parser.add_argument('--checkmsg', dest='run_through_banphrases', action='store_true')
+        parser.add_argument('--no-checkmsg', dest='run_through_banphrases', action='store_false')
 
         try:
             args, unknown = parser.parse_known_args(message)

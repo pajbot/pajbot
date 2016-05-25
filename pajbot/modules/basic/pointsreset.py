@@ -1,7 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule
 
@@ -43,7 +42,7 @@ class PointsResetModule(BaseModule):
                 bot.whisper(source.username, 'You changed the points for {0} from {1} to {2} points'.format(victim.username_raw, old_points, victim.points))
 
     def load_commands(self, **options):
-        self.commands['pointsreset'] = Command.raw_command(
+        self.commands['pointsreset'] = pajbot.models.command.Command.raw_command(
                 self.points_reset,
                 delay_all=0,
                 delay_user=5,
@@ -52,7 +51,7 @@ class PointsResetModule(BaseModule):
                 can_execute_with_whisper=1,
                 command='pointsreset',
                 examples=[
-                    CommandExample(None, 'Reset points from a user with negative points.',
+                    pajbot.models.command.CommandExample(None, 'Reset points from a user with negative points.',
                         chat='user:!pointsreset pajtest\n'
                         'bot>user:You changed the points for pajtest from -10000 to 0 points',
                         description='').parse(),

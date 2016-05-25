@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.managers import HandlerManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -53,11 +53,18 @@ class AsciiProtectionModule(BaseModule):
         super().__init__()
         self.bot = None
 
+    def check_message(message):
+        non_alnum = sum(not c.isalnum() for c in message)
+        ratio = non_alnum / len(message)
+        log.debug(message)
+        log.debug(ratio)
+        if (len(message) > 240 and ratio > 0.8) or ratio > 0.93:
+            return True
+        return False
+
     def on_pubmsg(self, source, message):
         if len(message) > self.settings['min_msg_length'] and source.level < self.settings['bypass_level'] and source.moderator is False:
-            non_alnum = sum(not c.isalnum() for c in message)
-            ratio = non_alnum / len(message)
-            if (len(message) > 240 and ratio > 0.8) or ratio > 0.93:
+            if AsciiProtectionModule.check_message(message) is not False:
                 duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Too many ASCII characters')
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """

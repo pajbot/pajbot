@@ -1,7 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -60,21 +59,21 @@ class IgnoreModule(BaseModule):
                 bot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
 
     def load_commands(self, **options):
-        self.commands['ignore'] = Command.raw_command(self.ignore_command,
+        self.commands['ignore'] = pajbot.models.command.Command.raw_command(self.ignore_command,
                 level=1000,
                 description='Ignore a user, which means he can\'t run any commands',
                 examples=[
-                    CommandExample(None, 'Default usage',
+                    pajbot.models.command.CommandExample(None, 'Default usage',
                         chat='user:!ignore Karl_Kons\n'
                         'bot>user:Now ignoring Karl_Kons',
                         description='Ignore user Karl_Kons').parse(),
                     ])
 
-        self.commands['unignore'] = Command.raw_command(self.unignore_command,
+        self.commands['unignore'] = pajbot.models.command.Command.raw_command(self.unignore_command,
                 level=1000,
                 description='Unignore a user',
                 examples=[
-                    CommandExample(None, 'Default usage',
+                    pajbot.models.command.CommandExample(None, 'Default usage',
                         chat='user:!unignore Karl_Kons\n'
                         'bot>user:No longer ignoring Karl_Kons',
                         description='Unignore user Karl_Kons').parse(),

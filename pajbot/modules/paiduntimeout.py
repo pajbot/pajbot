@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import Command, CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -90,28 +90,28 @@ class PaidUntimeoutModule(BaseModule):
 
     def load_commands(self, **options):
         if self.settings['untimeout_enable']:
-            self.commands[self.settings['untimeout_command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.untimeout_source,
+            self.commands[self.settings['untimeout_command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.untimeout_source,
                 cost=self.settings['untimeout_cost'],
                 delay_all=0,
                 delay_user=15,
                 can_execute_with_whisper=True,
                 description='Timed out for no apparent reason? Untimeout yourself using points!',
                 examples=[
-                    CommandExample(None,
+                    pajbot.models.command.CommandExample(None,
                         'Untimeout yourself for {0} points'.format(self.settings['untimeout_cost']),
                         chat='user>bot:!{0}\n'
                         'bot>user: You have been unbanned.'.format(self.settings['untimeout_command_name']),
                         description='').parse(),
                 ])
         if self.settings['unban_enable']:
-            self.commands[self.settings['unban_command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.unban_source,
+            self.commands[self.settings['unban_command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.unban_source,
                 cost=self.settings['unban_cost'],
                 delay_all=0,
                 delay_user=15,
                 can_execute_with_whisper=True,
                 description='Banned for no apparent reason? Unban yourself using points!',
                 examples=[
-                    CommandExample(None,
+                    pajbot.models.command.CommandExample(None,
                         'Unban yourself for {0} points'.format(self.settings['unban_cost']),
                         chat='user>bot:!{0}\n'
                         'bot>user: You have been unbanned.'.format(self.settings['unban_command_name']),

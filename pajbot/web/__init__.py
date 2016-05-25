@@ -23,9 +23,9 @@ def init(args):
     import pajbot.web.common
     import pajbot.web.routes
     from pajbot.bot import Bot
-    from pajbot.managers import DBManager
-    from pajbot.managers import RedisManager
-    from pajbot.managers import TimeManager
+    from pajbot.managers.db import DBManager
+    from pajbot.managers.redis import RedisManager
+    from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper

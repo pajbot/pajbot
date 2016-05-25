@@ -2,7 +2,7 @@ import argparse
 import logging
 from collections import UserList
 
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.models.filter import Filter
 
 log = logging.getLogger(__name__)

@@ -2,9 +2,8 @@ import logging
 
 from numpy import random
 
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -57,85 +56,85 @@ class BingoModule(BaseModule):
         self.bingo_bttv_twitch_running = False
 
     def load_commands(self, **options):
-        self.commands['bingo'] = Command.multiaction_command(
+        self.commands['bingo'] = pajbot.models.command.Command.multiaction_command(
                 level=500,
                 default=None,
                 command='bingo',
                 commands={
-                    'emotes': Command.raw_command(self.bingo_emotes,
+                    'emotes': pajbot.models.command.Command.raw_command(self.bingo_emotes,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='Start an emote bingo with BTTV and TWITCH global emotes',
                         examples=[
-                            CommandExample(None, 'Emote bingo for 100 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 100 points',
                                 chat='user:!bingo emotes\n'
                                 'bot: A bingo has started! Guess the right target to win 100 points! Only one target per message! ',
                                 description='').parse(),
-                            CommandExample(None, 'Emote bingo for 222 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 222 points',
                                 chat='user:!bingo emotes 222\n'
                                 'bot: A bingo has started! Guess the right target to win 222 points! Only one target per message! ',
                                 description='').parse(),
                             ]),
-                    'bttv': Command.raw_command(self.bingo_bttv,
+                    'bttv': pajbot.models.command.Command.raw_command(self.bingo_bttv,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='Start an emote bingo with BTTV global emotes',
                         examples=[
-                            CommandExample(None, 'Emote bingo for 100 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 100 points',
                                 chat='user:!bingo bttv\n'
                                 'bot: A bingo has started! Guess the right target to win 100 points! Only one target per message! Use BTTV global emotes. ',
                                 description='').parse(),
-                            CommandExample(None, 'Emote bingo for 222 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 222 points',
                                 chat='user:!bingo bttv 222\n'
                                 'bot: A bingo has started! Guess the right target to win 222 points! Only one target per message! Use BTTV global emotes. ',
                                 description='').parse(),
                             ]),
-                    'twitch': Command.raw_command(self.bingo_twitch,
+                    'twitch': pajbot.models.command.Command.raw_command(self.bingo_twitch,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='Start an emote bingo with TWITCH global emotes',
                         examples=[
-                            CommandExample(None, 'Emote bingo for 100 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 100 points',
                                 chat='user:!bingo twitch\n'
                                 'bot: A bingo has started! Guess the right target to win 100 points! Only one target per message! Use TWITCH global emotes. ',
                                 description='').parse(),
-                            CommandExample(None, 'Emote bingo for 222 points',
+                            pajbot.models.command.CommandExample(None, 'Emote bingo for 222 points',
                                 chat='user:!bingo twitch 222\n'
                                 'bot: A bingo has started! Guess the right target to win 222 points! Only one target per message! Use TWITCH global emotes. ',
                                 description='').parse(),
                             ]),
-                    'cancel': Command.raw_command(self.bingo_cancel,
+                    'cancel': pajbot.models.command.Command.raw_command(self.bingo_cancel,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='Cancel a running bingo',
                         examples=[
-                            CommandExample(None, 'Cancel a bingo',
+                            pajbot.models.command.CommandExample(None, 'Cancel a bingo',
                                 chat='user:!bingo cancel\n'
                                 'bot: Bingo cancelled by pajlada FeelsBadMan',
                                 description='').parse(),
                             ]),
-                    'help': Command.raw_command(self.bingo_help_random,
+                    'help': pajbot.models.command.Command.raw_command(self.bingo_help_random,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='The bot will help the chat with a random letter from the bingo target',
                         examples=[
-                            CommandExample(None, 'Get a random letter from the bingo target',
+                            pajbot.models.command.CommandExample(None, 'Get a random letter from the bingo target',
                                 chat='user:!bingo help\n'
                                 'bot: A bingo for 100 points is still running. You should maybe use a a a a a for the target',
                                 description='').parse(),
                             ]),
-                    'cheat': Command.raw_command(self.bingo_help_first,
+                    'cheat': pajbot.models.command.Command.raw_command(self.bingo_help_first,
                         level=500,
                         delay_all=15,
                         delay_user=15,
                         description='The bot will help the chat with the first letter from the bingo target',
                         examples=[
-                            CommandExample(None, 'Get the first letter from the bingo target',
+                            pajbot.models.command.CommandExample(None, 'Get the first letter from the bingo target',
                                 chat='user:!bingo cheat\n'
                                 'bot: A bingo for 100 points is still running. You should use W W W W W as the first letter for the target',
                                 description='').parse(),

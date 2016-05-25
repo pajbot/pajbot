@@ -1,9 +1,9 @@
 from flask import render_template
 
 import pajbot.web.utils
-from pajbot.managers import DBManager
-from pajbot.managers import RedisManager
-from pajbot.managers import UserManager
+from pajbot.managers.db import DBManager
+from pajbot.managers.redis import RedisManager
+from pajbot.managers.user import UserManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.streamhelper import StreamHelper
 

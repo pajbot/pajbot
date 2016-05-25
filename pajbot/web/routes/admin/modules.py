@@ -3,8 +3,8 @@ import json
 from flask import render_template
 from flask import request
 
-from pajbot.managers import AdminLogManager
-from pajbot.managers import DBManager
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager

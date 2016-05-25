@@ -3,10 +3,9 @@ import logging
 
 from numpy import random
 
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
+from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.models.duel import DuelManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -85,45 +84,45 @@ class DuelModule(BaseModule):
                 ]
 
     def load_commands(self, **options):
-        self.commands['duel'] = Command.raw_command(self.initiate_duel,
+        self.commands['duel'] = pajbot.models.command.Command.raw_command(self.initiate_duel,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Initiate a duel with a user',
                 examples=[
-                    CommandExample(None, '0-point duel',
+                    pajbot.models.command.CommandExample(None, '0-point duel',
                         chat='user:!duel Karl_Kons\n'
                         'bot>user:You have challenged Karl_Kons for 0 points',
                         description='Duel Karl_Kons for 0 points').parse(),
-                    CommandExample(None, '69-point duel',
+                    pajbot.models.command.CommandExample(None, '69-point duel',
                         chat='user:!duel Karl_Kons 69\n'
                         'bot>user:You have challenged Karl_Kons for 69 points',
                         description='Duel Karl_Kons for 69 points').parse(),
                     ],
                 )
-        self.commands['cancelduel'] = Command.raw_command(
+        self.commands['cancelduel'] = pajbot.models.command.Command.raw_command(
                 self.cancel_duel,
                 delay_all=0,
                 delay_user=10,
                 description='Cancel your duel request'
                 )
-        self.commands['accept'] = Command.raw_command(
+        self.commands['accept'] = pajbot.models.command.Command.raw_command(
                 self.accept_duel,
                 delay_all=0,
                 delay_user=0,
                 description='Accept a duel request'
                 )
-        self.commands['decline'] = Command.raw_command(
+        self.commands['decline'] = pajbot.models.command.Command.raw_command(
                 self.decline_duel,
                 delay_all=0,
                 delay_user=0,
                 description='Decline a duel request'
                 )
         self.commands['deny'] = self.commands['decline']
-        self.commands['duelstatus'] = Command.raw_command(self.status_duel,
+        self.commands['duelstatus'] = pajbot.models.command.Command.raw_command(self.status_duel,
                 delay_all=0,
                 delay_user=5,
                 description='Current duel request info')
-        self.commands['duelstats'] = Command.raw_command(self.get_duel_stats,
+        self.commands['duelstats'] = pajbot.models.command.Command.raw_command(self.get_duel_stats,
                 delay_all=0,
                 delay_user=120,
                 description='Get your duel statistics')

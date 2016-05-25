@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -69,7 +69,7 @@ class VanishModule(BaseModule):
         bot.execute_delayed(0.5, bot._timeout, (source.username, 1))
 
     def load_commands(self, **options):
-        self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(self.vanish_command,
+        self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.vanish_command,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Time yourself out for a second!',

@@ -2,9 +2,8 @@ import datetime
 import logging
 import math
 
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -188,21 +187,21 @@ class PaidTimeoutModule(BaseModule):
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
     def load_commands(self, **options):
-        self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(
+        self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(
             self.paid_timeout,
             cost=self.settings['cost'],
             examples=[
-                    CommandExample(None, 'Timeout someone for {0} seconds'.format(self.settings['timeout_length']),
+                    pajbot.models.command.CommandExample(None, 'Timeout someone for {0} seconds'.format(self.settings['timeout_length']),
                         chat='user:!{0} paja\n'
                         'bot>user: You just used {1} points to time out paja for an additional {2} seconds.'.format(self.settings['command_name'], self.settings['cost'], self.settings['timeout_length']),
                         description='').parse(),
                     ])
         if self.settings['second_command']:
-            self.commands[self.settings['command_name2'].lower().replace('!', '').replace(' ', '')] = Command.raw_command(
+            self.commands[self.settings['command_name2'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(
                 self.paid_timeout2,
                 cost=self.settings['cost2'],
                 examples=[
-                    CommandExample(None, 'Timeout someone for {0} seconds'.format(self.settings['timeout_length2']),
+                    pajbot.models.command.CommandExample(None, 'Timeout someone for {0} seconds'.format(self.settings['timeout_length2']),
                         chat='user:!{0} paja\n'
                         'bot>user: You just used {1} points to time out paja for an additional {2} seconds.'.format(self.settings['command_name2'], self.settings['cost2'], self.settings['timeout_length2']),
                         description='').parse(),

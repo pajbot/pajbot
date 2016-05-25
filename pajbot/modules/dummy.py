@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -64,4 +64,4 @@ class DummyModule(BaseModule):
             bot.say('we did it {}!'.format(self.settings['who']))
 
     def load_commands(self, **options):
-        self.commands['dummy'] = Command.raw_command(self.dummy_command)
+        self.commands['dummy'] = pajbot.models.command.Command.raw_command(self.dummy_command)

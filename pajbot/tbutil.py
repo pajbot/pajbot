@@ -10,6 +10,8 @@ from contextlib import contextmanager
 from colorama import Fore
 from colorama import Style
 
+import pajbot.exc
+
 log = logging.getLogger('pajbot')
 
 COLORS = {
@@ -90,14 +92,10 @@ class LogThread(threading.Thread):
             self.on_exception(e)
 
 
-class TimeoutException(Exception):
-    pass
-
-
 @contextmanager
 def time_limit(seconds):
     def signal_handler(signum, frame):
-        raise TimeoutException('Timed out!')
+        raise pajbot.exc.TimeoutException('Timed out!')
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
     try:

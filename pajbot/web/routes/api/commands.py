@@ -8,8 +8,8 @@ from sqlalchemy.orm import joinedload
 import pajbot.modules
 import pajbot.utils
 import pajbot.web.utils
-from pajbot.managers import AdminLogManager
-from pajbot.managers import DBManager
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.command import CommandManager

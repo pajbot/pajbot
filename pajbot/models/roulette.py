@@ -5,7 +5,7 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
 
-from pajbot.managers import Base
+from pajbot.managers.db import Base
 
 log = logging.getLogger(__name__)
 

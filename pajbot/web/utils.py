@@ -15,8 +15,8 @@ from flask.ext.scrypt import generate_password_hash
 from flask_restful import reqparse
 
 import pajbot.exc
-from pajbot.managers import DBManager
-from pajbot.managers import RedisManager
+from pajbot.managers.db import DBManager
+from pajbot.managers.redis import RedisManager
 from pajbot.models.command import CommandManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.user import User

@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.managers import RedisManager
+from pajbot.managers.redis import RedisManager
 from pajbot.modules import BaseModule
 from pajbot.streamhelper import StreamHelper
 

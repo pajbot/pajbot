@@ -23,7 +23,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 
 from pajbot.tbutil import load_config
-from pajbot.managers import RedisManager
+from pajbot.managers.redis import RedisManager
 
 Session = sessionmaker()
 

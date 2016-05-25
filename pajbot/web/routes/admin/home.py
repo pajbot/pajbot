@@ -1,7 +1,7 @@
 from flask import render_template
 
-from pajbot.managers import AdminLogManager
-from pajbot.managers import DBManager
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.user import User
 from pajbot.web.utils import requires_level
 

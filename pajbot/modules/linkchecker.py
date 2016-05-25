@@ -10,15 +10,14 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.dialects.mysql import TEXT
 
+import pajbot.managers
+import pajbot.models
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import SafeBrowsingAPI
-from pajbot.managers import AdminLogManager
-from pajbot.managers import Base
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -174,8 +173,8 @@ class LinkCheckerModule(BaseModule):
 
     def enable(self, bot):
         self.bot = bot
-        HandlerManager.add_handler('on_message', self.on_message, priority=100)
-        HandlerManager.add_handler('on_commit', self.on_commit)
+        pajbot.managers.handler.HandlerManager.add_handler('on_message', self.on_message, priority=100)
+        pajbot.managers.handler.HandlerManager.add_handler('on_commit', self.on_commit)
         if bot:
             self.run_later = bot.execute_delayed
 
@@ -201,8 +200,8 @@ class LinkCheckerModule(BaseModule):
             self.whitelisted_links.append(link)
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_message', self.on_message)
-        HandlerManager.remove_handler('on_commit', self.on_commit)
+        pajbot.managers.handler.HandlerManager.remove_handler('on_message', self.on_message)
+        pajbot.managers.handler.HandlerManager.remove_handler('on_commit', self.on_commit)
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -558,41 +557,41 @@ class LinkCheckerModule(BaseModule):
         return
 
     def load_commands(self, **options):
-        self.commands['add'] = Command.multiaction_command(
+        self.commands['add'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 command='add',
                 commands={
-                    'link': Command.multiaction_command(
+                    'link': pajbot.models.command.Command.multiaction_command(
                         level=500,
                         delay_all=0,
                         delay_user=0,
                         default=None,
                         commands={
-                            'blacklist': Command.raw_command(self.add_link_blacklist,
+                            'blacklist': pajbot.models.command.Command.raw_command(self.add_link_blacklist,
                                 level=500,
                                 delay_all=0,
                                 delay_user=0,
                                 description='Blacklist a link',
                                 examples=[
-                                    CommandExample(None, 'Add a link to the blacklist for a shallow search',
+                                    pajbot.models.command.CommandExample(None, 'Add a link to the blacklist for a shallow search',
                                         chat='user:!add link blacklist --shallow scamlink.lonk/\n'
                                         'bot>user:Successfully added your links',
                                         description='Added the link scamlink.lonk/ to the blacklist for a shallow search').parse(),
-                                    CommandExample(None, 'Add a link to the blacklist for a deep search',
+                                    pajbot.models.command.CommandExample(None, 'Add a link to the blacklist for a deep search',
                                         chat='user:!add link blacklist --deep scamlink.lonk/\n'
                                         'bot>user:Successfully added your links',
                                         description='Added the link scamlink.lonk/ to the blacklist for a deep search').parse(),
                                     ]),
-                            'whitelist': Command.raw_command(self.add_link_whitelist,
+                            'whitelist': pajbot.models.command.Command.raw_command(self.add_link_whitelist,
                                 level=500,
                                 delay_all=0,
                                 delay_user=0,
                                 description='Whitelist a link',
                                 examples=[
-                                    CommandExample(None, 'Add a link to the whitelist',
+                                    pajbot.models.command.CommandExample(None, 'Add a link to the whitelist',
                                         chat='user:!add link whitelink safelink.lonk/\n'
                                         'bot>user:Successfully added your links',
                                         description='Added the link safelink.lonk/ to the whitelist').parse(),
@@ -602,37 +601,37 @@ class LinkCheckerModule(BaseModule):
                     }
                 )
 
-        self.commands['remove'] = Command.multiaction_command(
+        self.commands['remove'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,
                 delay_user=0,
                 default=None,
                 command='remove',
                 commands={
-                    'link': Command.multiaction_command(
+                    'link': pajbot.models.command.Command.multiaction_command(
                         level=500,
                         delay_all=0,
                         delay_user=0,
                         default=None,
                         commands={
-                            'blacklist': Command.raw_command(self.remove_link_blacklist,
+                            'blacklist': pajbot.models.command.Command.raw_command(self.remove_link_blacklist,
                                 level=500,
                                 delay_all=0,
                                 delay_user=0,
                                 description='Remove a link from the blacklist.',
                                 examples=[
-                                    CommandExample(None, 'Remove a link from the blacklist.',
+                                    pajbot.models.command.CommandExample(None, 'Remove a link from the blacklist.',
                                         chat='user:!remove link blacklist 20\n'
                                         'bot>user:Successfully removed blacklisted link with id 20',
                                         description='Remove a link from the blacklist with an ID').parse(),
                                     ]),
-                            'whitelist': Command.raw_command(self.remove_link_whitelist,
+                            'whitelist': pajbot.models.command.Command.raw_command(self.remove_link_whitelist,
                                 level=500,
                                 delay_all=0,
                                 delay_user=0,
                                 description='Remove a link from the whitelist.',
                                 examples=[
-                                    CommandExample(None, 'Remove a link from the whitelist.',
+                                    pajbot.models.command.CommandExample(None, 'Remove a link from the whitelist.',
                                         chat='user:!remove link whitelist 12\n'
                                         'bot>user:Successfully removed blacklisted link with id 12',
                                         description='Remove a link from the whitelist with an ID').parse(),

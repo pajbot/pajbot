@@ -7,6 +7,7 @@ import regex as re
 import requests
 
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.modules.ascii import AsciiProtectionModule
 
 log = logging.getLogger(__name__)
 
@@ -405,6 +406,20 @@ class MessageAction(BaseAction):
             resp = resp.replace(needle, value)
             log.debug('Replacing {0} with {1}'.format(needle, value))
 
+        if 'command' in extra and 'source' in extra:
+            if extra['command'].run_through_banphrases is True:
+                checks = {
+                        'banphrase': (bot.banphrase_manager.check_message, [resp, extra['source']]),
+                        'ascii': (AsciiProtectionModule.check_message, [resp]),
+                        }
+                # Check banphrases
+                for check in checks:
+                    # Make sure the module is enabled
+                    if check in bot.module_manager:
+                        res = checks[check][0](*checks[check][1])
+                        if res is not False:
+                            return None
+
         return resp
 
     def get_extra_data(self, source, message, args):
@@ -420,7 +435,7 @@ class MessageAction(BaseAction):
         raise NotImplementedError('Please implement the run method.')
 
 
-def urlfetch_msg(method, message, num_urlfetch_subs, args=[], kwargs={}):
+def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwargs={}):
 
     urlfetch_subs = get_urlfetch_substitutions(message)
 
@@ -435,6 +450,20 @@ def urlfetch_msg(method, message, num_urlfetch_subs, args=[], kwargs={}):
             return False
         message = message.replace(needle, value)
 
+    if 'command' in extra and 'source' in extra:
+        if extra['command'].run_through_banphrases is True:
+            checks = {
+                    'banphrase': (bot.banphrase_manager.check_message, [message, extra['source']]),
+                    'ascii': (AsciiProtectionModule.check_message, [message]),
+                    }
+            # Check banphrases
+            for check in checks:
+                # Make sure the module is enabled
+                if check in bot.module_manager:
+                    res = checks[check][0](*checks[check][1])
+                    if res is not False:
+                        return None
+
     args.append(message)
 
     method(*args, **kwargs)
@@ -444,7 +473,8 @@ class SayAction(MessageAction):
     subtype = 'say'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message, args))
+        extra = self.get_extra_data(source, message, args)
+        resp = self.get_response(bot, extra)
 
         if not resp:
             return False
@@ -458,6 +488,8 @@ class SayAction(MessageAction):
                         'args': [],
                         'kwargs': {},
                         'method': bot.say,
+                        'bot': bot,
+                        'extra': extra,
                         'message': resp,
                         'num_urlfetch_subs': self.num_urlfetch_subs,
                         })
@@ -467,7 +499,8 @@ class MeAction(MessageAction):
     subtype = 'me'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message, args))
+        extra = self.get_extra_data(source, message, args)
+        resp = self.get_response(bot, extra)
 
         if not resp:
             return False
@@ -481,6 +514,8 @@ class MeAction(MessageAction):
                         'args': [],
                         'kwargs': {},
                         'method': bot.me,
+                        'bot': bot,
+                        'extra': extra,
                         'message': resp,
                         'num_urlfetch_subs': self.num_urlfetch_subs,
                         })
@@ -490,7 +525,8 @@ class WhisperAction(MessageAction):
     subtype = 'whisper'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message, args))
+        extra = self.get_extra_data(source, message, args)
+        resp = self.get_response(bot, extra)
 
         if not resp:
             return False
@@ -504,6 +540,8 @@ class WhisperAction(MessageAction):
                         'args': [source.username],
                         'kwargs': {},
                         'method': bot.whisper,
+                        'bot': bot,
+                        'extra': extra,
                         'message': resp,
                         'num_urlfetch_subs': self.num_urlfetch_subs,
                         })
@@ -513,7 +551,8 @@ class ReplyAction(MessageAction):
     subtype = 'reply'
 
     def run(self, bot, source, message, event={}, args={}):
-        resp = self.get_response(bot, self.get_extra_data(source, message, args))
+        extra = self.get_extra_data(source, message, args)
+        resp = self.get_response(bot, extra)
 
         if not resp:
             return False
@@ -530,6 +569,8 @@ class ReplyAction(MessageAction):
                                 'channel': event.target
                                 },
                             'method': bot.say,
+                            'bot': bot,
+                            'extra': extra,
                             'message': resp,
                             'num_urlfetch_subs': self.num_urlfetch_subs,
                             })
@@ -543,6 +584,8 @@ class ReplyAction(MessageAction):
                             'args': [source.username],
                             'kwargs': {},
                             'method': bot.whisper,
+                            'bot': bot,
+                            'extra': extra,
                             'message': resp,
                             'num_urlfetch_subs': self.num_urlfetch_subs,
                             })

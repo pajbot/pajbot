@@ -3,14 +3,14 @@ import logging
 import math
 import operator as op
 
+import pajbot.exc
+import pajbot.models
 from pajbot.actions import ActionQueue
-from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.tbutil import time_limit
-from pajbot.tbutil import TimeoutException
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger(__name__)
 
 
 class PBMath:
@@ -82,7 +82,7 @@ class MathModule(BaseModule):
         self.action_queue.start()
 
     def load_commands(self, **options):
-        self.commands['math'] = Command.raw_command(self.math,
+        self.commands['math'] = pajbot.models.command.Command.raw_command(self.math,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Calculate some simple math',
@@ -107,7 +107,7 @@ class MathModule(BaseModule):
             except SyntaxError:
                 # Something invalid was passed through message
                 pass
-            except TimeoutException:
+            except pajbot.exc.TimeoutException:
                 # took longer than 1 second
                 pass
             except:

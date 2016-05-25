@@ -17,10 +17,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
-from pajbot.managers import Base
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
-from pajbot.managers import RedisManager
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
+from pajbot.managers.redis import RedisManager
 
 log = logging.getLogger('pajbot')
 

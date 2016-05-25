@@ -10,7 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import noload
 
 import pajbot.web.utils
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.pleblist import PleblistSongInfo

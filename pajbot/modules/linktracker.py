@@ -7,9 +7,9 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy.dialects.mysql import TEXT
 
-from pajbot.managers import Base
-from pajbot.managers import DBManager
-from pajbot.managers import HandlerManager
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 
 log = logging.getLogger(__name__)

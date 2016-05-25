@@ -2,7 +2,7 @@ from flask import abort
 from flask import render_template
 from sqlalchemy.orm import joinedload
 
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.modules.predict import PredictionRun
 from pajbot.modules.predict import PredictionRunEntry
 from pajbot.web.utils import requires_level

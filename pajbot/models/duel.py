@@ -9,8 +9,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
-from pajbot.managers import Base
-from pajbot.managers import DBManager
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
 
 log = logging.getLogger(__name__)
 

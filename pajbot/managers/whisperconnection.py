@@ -10,9 +10,9 @@ from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import String
 
-from pajbot.managers import Base
-from pajbot.managers import DBManager
 from pajbot.managers.connection import CustomServerConnection
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
 
 log = logging.getLogger('pajbot')
 

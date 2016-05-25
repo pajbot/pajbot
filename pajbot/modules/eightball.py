@@ -2,8 +2,7 @@ import logging
 
 from numpy import random
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -124,12 +123,12 @@ class EightBallModule(BaseModule):
             return False
 
     def load_commands(self, **options):
-        self.commands['8ball'] = Command.raw_command(self.eightball_command,
+        self.commands['8ball'] = pajbot.models.command.Command.raw_command(self.eightball_command,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Need help with a decision? Use the !8ball command!',
                 examples=[
-                    CommandExample(None, '!8ball',
+                    pajbot.models.command.CommandExample(None, '!8ball',
                         chat='user:!8ball Should I listen to gachimuchi?\n'
                         'bot:pajlada, the 8-ball says... Of course you should!',
                         description='Ask the 8ball an important question').parse(),

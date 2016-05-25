@@ -3,9 +3,8 @@ import math
 
 from numpy import random
 
-from pajbot.managers import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+import pajbot.models
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.streamhelper import StreamHelper
@@ -186,47 +185,47 @@ class RaffleModule(BaseModule):
         self.raffle_length = 0
 
     def load_commands(self, **options):
-        self.commands['singleraffle'] = Command.raw_command(self.raffle,
+        self.commands['singleraffle'] = pajbot.models.command.Command.raw_command(self.raffle,
                 delay_all=0,
                 delay_user=0,
                 level=500,
                 description='Start a raffle for points',
                 command='raffle',
                 examples=[
-                    CommandExample(None, 'Start a raffle for 69 points',
+                    pajbot.models.command.CommandExample(None, 'Start a raffle for 69 points',
                         chat='user:!raffle 69\n'
                         'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.',
                         description='Start a 60-second raffle for 69 points').parse(),
-                    CommandExample(None, 'Start a raffle with a different length',
+                    pajbot.models.command.CommandExample(None, 'Start a raffle with a different length',
                         chat='user:!raffle 69 30\n'
                         'bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.',
                         description='Start a 30-second raffle for 69 points').parse(),
                     ],
                 )
         self.commands['sraffle'] = self.commands['singleraffle']
-        self.commands['join'] = Command.raw_command(self.join,
+        self.commands['join'] = pajbot.models.command.Command.raw_command(self.join,
                 delay_all=0,
                 delay_user=5,
                 description='Join a running raffle',
                 examples=[
-                    CommandExample(None, 'Join a running raffle',
+                    pajbot.models.command.CommandExample(None, 'Join a running raffle',
                         chat='user:!join',
                         description='You don\'t get confirmation whether you joined the raffle or not.').parse(),
                     ],
                 )
         if self.settings['multi_enabled']:
-            self.commands['multiraffle'] = Command.raw_command(self.multi_raffle,
+            self.commands['multiraffle'] = pajbot.models.command.Command.raw_command(self.multi_raffle,
                     delay_all=0,
                     delay_user=0,
                     level=500,
                     description='Start a multi-raffle for points',
                     command='multiraffle',
                     examples=[
-                        CommandExample(None, 'Start a multi-raffle for 69 points',
+                        pajbot.models.command.CommandExample(None, 'Start a multi-raffle for 69 points',
                             chat='user:!multiraffle 69\n'
                             'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.',
                             description='Start a 60-second raffle for 69 points').parse(),
-                        CommandExample(None, 'Start a multi-raffle with a different length',
+                        pajbot.models.command.CommandExample(None, 'Start a multi-raffle with a different length',
                             chat='user:!multiraffle 69 30\n'
                             'bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.',
                             description='Start a 30-second multi-raffle for 69 points').parse(),

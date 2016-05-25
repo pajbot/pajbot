@@ -6,8 +6,8 @@ from flask_restful import Resource
 import pajbot.modules
 import pajbot.utils
 import pajbot.web.utils
-from pajbot.managers import AdminLogManager
-from pajbot.managers import DBManager
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.timer import Timer
 

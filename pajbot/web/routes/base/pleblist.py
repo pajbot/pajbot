@@ -3,7 +3,7 @@ import logging
 from flask import redirect
 from flask import render_template
 
-from pajbot.managers import DBManager
+from pajbot.managers.db import DBManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.stream import Stream
 from pajbot.models.stream import StreamChunk

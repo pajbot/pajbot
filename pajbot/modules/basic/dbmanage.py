@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import Command
+import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -43,10 +43,10 @@ class DBManageModule(BaseModule):
             bot.commit_all()
 
     def load_commands(self, **options):
-        self.commands['reload'] = Command.raw_command(self.reload,
+        self.commands['reload'] = pajbot.models.command.Command.raw_command(self.reload,
                 level=1000,
                 description='Reload a bunch of data from the database')
 
-        self.commands['commit'] = Command.raw_command(self.commit,
+        self.commands['commit'] = pajbot.models.command.Command.raw_command(self.commit,
                 level=1000,
                 description='Commit data from the bot to the database')

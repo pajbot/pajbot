@@ -3,7 +3,7 @@ import logging
 
 from flask import render_template
 
-from pajbot.managers import RedisManager
+from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)

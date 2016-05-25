@@ -9,9 +9,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
 
-from pajbot.managers import Base
-from pajbot.managers import DBManager
-from pajbot.models.command import Command
+import pajbot.models
+from pajbot.managers.db import Base
+from pajbot.managers.db import DBManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -108,30 +108,30 @@ class PredictModule(BaseModule):
             ]
 
     def load_commands(self, **options):
-        self.commands['predict'] = Command.multiaction_command(
+        self.commands['predict'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 default='vote',
                 fallback='vote',
                 delay_all=0,
                 delay_user=0,
                 commands={
-                    'vote': Command.raw_command(self.predict,
+                    'vote': pajbot.models.command.Command.raw_command(self.predict,
                         delay_all=0,
                         delay_user=10,
                         sub_only=self.settings['sub_only'],
                         can_execute_with_whisper=True,
                         description='Predict how many wins will occur in the ' + self.settings['challenge_name'] + ' challenge'),
-                    'new': Command.raw_command(self.new_predict,
+                    'new': pajbot.models.command.Command.raw_command(self.new_predict,
                         delay_all=10,
                         delay_user=10,
                         description='Starts a new ' + self.settings['challenge_name'] + ' run',
                         level=750),
-                    'end': Command.raw_command(self.end_predict,
+                    'end': pajbot.models.command.Command.raw_command(self.end_predict,
                         delay_all=10,
                         delay_user=10,
                         description='Ends a ' + self.settings['challenge_name'] + ' run',
                         level=750),
-                    'close': Command.raw_command(self.close_predict,
+                    'close': pajbot.models.command.Command.raw_command(self.close_predict,
                         delay_all=10,
                         delay_user=10,
                         description='Close submissions to the latest ' + self.settings['challenge_name'] + ' run',
@@ -140,17 +140,17 @@ class PredictModule(BaseModule):
                 )
 
         # XXX: DEPRECATED, WILL BE REMOVED
-        self.commands['newpredict'] = Command.raw_command(self.new_predict_depr,
+        self.commands['newpredict'] = pajbot.models.command.Command.raw_command(self.new_predict_depr,
                 delay_all=10,
                 delay_user=10,
                 description='Starts a new ' + self.settings['challenge_name'] + ' run',
                 level=750)
-        self.commands['endpredict'] = Command.raw_command(self.end_predict_depr,
+        self.commands['endpredict'] = pajbot.models.command.Command.raw_command(self.end_predict_depr,
                 delay_all=10,
                 delay_user=10,
                 description='Ends a ' + self.settings['challenge_name'] + ' run',
                 level=750)
-        self.commands['closepredict'] = Command.raw_command(self.close_predict_depr,
+        self.commands['closepredict'] = pajbot.models.command.Command.raw_command(self.close_predict_depr,
                 delay_all=10,
                 delay_user=10,
                 description='Close submissions to the latest ' + self.settings['challenge_name'] + ' run',
@@ -158,30 +158,30 @@ class PredictModule(BaseModule):
 
         mini_command = self.settings['mini_command'].lower().replace('!', '').replace(' ', '')
         if len(mini_command) > 0:
-            self.commands[mini_command] = Command.multiaction_command(
+            self.commands[mini_command] = pajbot.models.command.Command.multiaction_command(
                     level=100,
                     default='vote',
                     fallback='vote',
                     delay_all=0,
                     delay_user=0,
                     commands={
-                        'vote': Command.raw_command(self.mini_predict,
+                        'vote': pajbot.models.command.Command.raw_command(self.mini_predict,
                             delay_all=0,
                             delay_user=10,
                             sub_only=self.settings['sub_only'],
                             can_execute_with_whisper=True,
                             description='Predict how many wins will occur in the ' + self.settings['challenge_name'] + ' challenge'),
-                        'new': Command.raw_command(self.mini_new_predict,
+                        'new': pajbot.models.command.Command.raw_command(self.mini_new_predict,
                             delay_all=10,
                             delay_user=10,
                             description='Starts a new ' + self.settings['challenge_name'] + ' run',
                             level=750),
-                        'end': Command.raw_command(self.mini_end_predict,
+                        'end': pajbot.models.command.Command.raw_command(self.mini_end_predict,
                             delay_all=10,
                             delay_user=10,
                             description='Ends a ' + self.settings['challenge_name'] + ' run',
                             level=750),
-                        'close': Command.raw_command(self.mini_close_predict,
+                        'close': pajbot.models.command.Command.raw_command(self.mini_close_predict,
                             delay_all=10,
                             delay_user=10,
                             description='Close submissions to the latest ' + self.settings['challenge_name'] + ' run',
