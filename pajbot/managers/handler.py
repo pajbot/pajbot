@@ -61,6 +61,9 @@ class HandlerManager:
         # on_user_resub(user, num_months)
         HandlerManager.create_handler('on_user_resub')
 
+        # send_whisper(user, message)
+        HandlerManager.create_handler('send_whisper')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []

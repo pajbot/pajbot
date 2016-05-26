@@ -6,6 +6,7 @@
 - Reasons to most timeouts
 - New websocket event: refresh/reload - refreshes the clr page
 - New websocket event: show_custom_image - shows a custom image URL on screen
+- New Handler: send_whisper(user, message)
 
 ### Fixed
 - @-replacements now work properly in Paid Timeouts

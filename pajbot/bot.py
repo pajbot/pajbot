@@ -234,6 +234,7 @@ class Bot:
 
         # XXX: TEMPORARY UGLY CODE
         HandlerManager.add_handler('on_user_gain_tokens', self.on_user_gain_tokens)
+        HandlerManager.add_handler('send_whisper', self.whisper)
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
