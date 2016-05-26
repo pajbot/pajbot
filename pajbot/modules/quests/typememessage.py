@@ -41,8 +41,6 @@ class TypeMeMessageQuestModule(BaseQuest):
                     }),
             ]
 
-    REWARD = 5
-
     def get_limit(self):
         return self.settings['quest_limit']
 
@@ -62,7 +60,7 @@ class TypeMeMessageQuestModule(BaseQuest):
                 redis = RedisManager.get()
 
                 if user_progress == self.get_limit():
-                    source.award_tokens(self.REWARD, redis=redis)
+                    self.finish_quest(redis, source)
 
                 self.set_user_progress(source.username, user_progress, redis=redis)
 

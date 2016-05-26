@@ -12,7 +12,6 @@ from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
-from pajbot.models.command import CommandManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.tbutil import find
@@ -198,7 +197,7 @@ class APICommandCheckAlias(Resource):
 
         request_alias = args['alias'].lower()
 
-        command_manager = CommandManager(
+        command_manager = pajbot.managers.command.CommandManager(
                 socket_manager=None,
                 module_manager=ModuleManager(None).load(),
                 bot=None).load(enabled=None)

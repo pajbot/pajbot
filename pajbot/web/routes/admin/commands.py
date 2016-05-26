@@ -7,11 +7,11 @@ from flask import request
 from flask import session
 from sqlalchemy.orm import joinedload
 
+import pajbot.managers
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandData
-from pajbot.models.command import CommandManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.web.utils import requires_level
@@ -23,9 +23,8 @@ def init(page):
     @page.route('/commands/')
     @requires_level(500)
     def commands(**options):
-        from pajbot.models.command import CommandManager
         from pajbot.models.module import ModuleManager
-        bot_commands = CommandManager(
+        bot_commands = pajbot.managers.command.CommandManager(
             socket_manager=None,
             module_manager=ModuleManager(None).load(),
             bot=None).load(enabled=None)
@@ -132,7 +131,7 @@ def init(page):
             options['action'] = action
 
             command_manager = (
-                CommandManager(
+                pajbot.managers.command.CommandManager(
                     socket_manager=None,
                     module_manager=ModuleManager(None).load(),
                     bot=None).load(enabled=None))

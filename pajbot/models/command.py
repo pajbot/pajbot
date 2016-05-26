@@ -392,7 +392,7 @@ class Command(Base):
 
         if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
             if self.notify_on_error:
-                bot.whisper(source.username, 'You do not have the required {} tokens to execute this command. (You have {} tokens)'.format(self.tokens_cost, source.get_tokens()))
+                bot.whisper(source.username, 'You do not have the required {} tokens to execute this command. (You have {} tokens)'.format(self.tokens_cost, source.tokens))
             # User does not have enough tokens to use the command
             return False
 
@@ -414,11 +414,6 @@ class Command(Base):
                 if self.data is not None:
                     self.data.num_uses += 1
                     self.data.last_date_used = datetime.datetime.now()
-                if self.tokens_cost > 0:
-                    if not source.spend_tokens(self.tokens_cost):
-                        # The user does not have enough tokens to spend!
-                        log.warning('{0} used tokens he does not have.'.format(source.username))
-                        return False
 
                 # TODO: Will this be an issue?
                 self.last_run = cur_time

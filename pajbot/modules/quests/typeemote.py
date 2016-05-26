@@ -32,8 +32,6 @@ class TypeEmoteQuestModule(BaseQuest):
                     }),
             ]
 
-    REWARD = 5
-
     def __init__(self):
         super().__init__()
         self.current_emote_key = '{streamer}:current_quest_emote'.format(streamer=StreamHelper.get_streamer())
@@ -56,7 +54,7 @@ class TypeEmoteQuestModule(BaseQuest):
                 redis = RedisManager.get()
 
                 if user_progress == self.get_limit():
-                    source.award_tokens(self.REWARD, redis=redis)
+                    self.finish_quest(redis, source)
 
                 self.set_user_progress(source.username, user_progress, redis=redis)
                 return

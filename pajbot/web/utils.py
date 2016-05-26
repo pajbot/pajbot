@@ -15,9 +15,9 @@ from flask.ext.scrypt import generate_password_hash
 from flask_restful import reqparse
 
 import pajbot.exc
+import pajbot.managers
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.command import CommandManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
@@ -98,7 +98,7 @@ def get_cached_commands():
     commands = redis.get(commands_key)
     if commands is None:
         log.debug('Updating commands...')
-        bot_commands = CommandManager(
+        bot_commands = pajbot.managers.command.CommandManager(
                 socket_manager=None,
                 module_manager=ModuleManager(None).load(),
                 bot=None).load(load_examples=True)

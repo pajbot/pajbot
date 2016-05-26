@@ -44,7 +44,6 @@ class WinDuelPointsQuestModule(BaseQuest):
                 ]
 
     LIMIT = 1
-    REWARD = 5
 
     def __init__(self):
         super().__init__()
@@ -74,7 +73,7 @@ class WinDuelPointsQuestModule(BaseQuest):
 
         if total_points_won >= self.points_required:
             # Reward the user with some tokens
-            winner.award_tokens(self.REWARD, redis=redis)
+            self.finish_quest(redis, winner)
 
         # Save the users "points won" progress
         self.set_user_progress(winner.username, total_points_won, redis=redis)

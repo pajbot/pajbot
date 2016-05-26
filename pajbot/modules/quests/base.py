@@ -1,5 +1,7 @@
+import json
 import logging
 
+import pajbot.managers
 from pajbot.managers.redis import RedisManager
 from pajbot.modules import BaseModule
 from pajbot.streamhelper import StreamHelper
@@ -14,6 +16,44 @@ class BaseQuest(BaseModule):
         super().__init__()
         self.progress = {}
         self.progress_key = '{streamer}:current_quest_progress'.format(streamer=StreamHelper.get_streamer())
+        self.quest_finished_key = '{streamer}:quests:finished'.format(streamer=StreamHelper.get_streamer())
+
+    def finish_quest(self, redis, user):
+        stream_id = StreamHelper.get_current_stream_id()
+
+        # Load user's finished quest status
+        val = redis.hget(self.quest_finished_key, user.username)
+        if val:
+            quests_finished = json.loads(val)
+        else:
+            quests_finished = []
+
+        if stream_id in quests_finished:
+            # User has already completed this quest
+            return
+
+        # Mark the current stream ID has finished
+        quests_finished.append(stream_id)
+        redis.hset(self.quest_finished_key, user.username, json.dumps(quests_finished, separators=(',', ':')))
+
+        # Award the user appropriately
+        reward_type = self.quest_module.settings['reward_type']
+        reward_amount = self.quest_module.settings['reward_amount']
+        if reward_type == 'tokens':
+            user.tokens += reward_amount
+        else:
+            user.points += reward_amount
+
+        # Make sure the user doesn't have more tokens than allowed
+        if user.tokens > self.quest_module.settings['max_tokens']:
+            user.tokens = self.quest_module.settings['max_tokens']
+
+        # Notify the user that they've finished today's quest
+        message = 'You finished todays quest! You have been awarded with {} {}.'.format(reward_amount, reward_type)
+        pajbot.managers.handler.HandlerManager.trigger('send_whisper', user.username, message)
+
+        # XXX: this can safely be removed once points are moved to redis
+        user.save()
 
     def start_quest(self):
         """ This method is triggered by either the stream starting, or the bot loading up

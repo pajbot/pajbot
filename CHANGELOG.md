@@ -1,6 +1,10 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Quests can now reward points and any variable amount of tokens.
+- Tokens no longer expire after 3 streams. You instead have a maximum amount of tokens.
+
 ### Added
 - New API endpoint: /api/v1/pleblist/top - lists the top pleblist songs
 - Reasons to most timeouts

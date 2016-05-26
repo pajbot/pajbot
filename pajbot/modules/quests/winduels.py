@@ -30,8 +30,6 @@ class WinDuelsQuestModule(BaseQuest):
                     })
             ]
 
-    REWARD = 5
-
     def get_limit(self):
         return self.settings['quest_limit']
 
@@ -48,7 +46,7 @@ class WinDuelsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         if user_progress == self.get_limit():
-            winner.award_tokens(self.REWARD, redis=redis)
+            self.finish_quest(redis, winner)
 
         self.set_user_progress(winner.username, user_progress, redis=redis)
 

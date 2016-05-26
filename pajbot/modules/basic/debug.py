@@ -91,7 +91,7 @@ class DebugModule(BaseModule):
                 pass
             data['ignored'] = user.ignored
             data['banned'] = user.banned
-            data['tokens'] = user.get_tokens()
+            data['tokens'] = user.tokens
 
             bot.whisper(source.username, ', '.join(['%s=%s' % (key, value) for (key, value) in data.items()]))
         else:
