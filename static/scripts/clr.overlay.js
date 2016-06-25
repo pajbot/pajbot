@@ -81,6 +81,7 @@ samples = {
     'uguu': { 'url': 'https://pajlada.se/files/clr/uguu.mp3' },
     'weed': { 'url': 'https://pajlada.se/files/clr/weed.mp3' },
     'wrongdoor': { 'url': 'https://pajlada.se/files/clr/wrongdoor.mp3' },
+    'ryuu': { 'url': 'https://pajlada.se/files/clr/hanzo.mp3' },
 };
 $(document).ready(function() {
     connect_to_ws();
