@@ -445,7 +445,9 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
 
     for needle, url in urlfetch_subs.items():
         try:
-            value = requests.get(url).text.strip().replace('\n', '').replace('\r', '')[:400]
+            r = requests.get(url)
+            r.raise_for_status()
+            value = r.text.strip().replace('\n', '').replace('\r', '')[:400]
         except:
             return False
         message = message.replace(needle, value)
