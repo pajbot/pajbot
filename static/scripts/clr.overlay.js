@@ -175,10 +175,10 @@ function show_custom_image(data)
         css_data.height = data.height;
     }
     if (data.x !== undefined) {
-        posx = data.x;
+        css_data.left = data.x + 'px';
     }
     if (data.y !== undefined) {
-        posy = data.y;
+        css_data.top = data.y + 'px';
     }
     var $newdiv = $('<img class="absemote" src="' + url + '">').css(css_data);
     $newdiv.appendTo('body');
