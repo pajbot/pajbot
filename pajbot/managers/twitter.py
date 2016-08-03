@@ -63,6 +63,10 @@ class TwitterManager:
                 self.listener.relevant_users.append(username)
                 log.info('Now following {0}'.format(username))
                 return True
+            else:
+                log.warn('Already following {0}'.format(username))
+        else:
+            log.error('No twitter listener set up')
         return False
 
     def unfollow_user(self, username):
@@ -79,7 +83,10 @@ class TwitterManager:
                         return True
                     else:
                         log.warning('Trying to unfollow someone we are not following')
-                        return False
+            else:
+                log.warn('Trying to unfollow someone we are not following (2) {0}'.format(username))
+        else:
+            log.error('No twitter listener set up')
 
             return False
 
@@ -95,7 +102,7 @@ class TwitterManager:
                     if tweet.user.screen_name.lower() in self.relevant_users:
                         if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
                             tw = tweet_prettify_urls(tweet)
-                            self.bot.say('Volcania New tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace('\n', ' ')))
+                            self.bot.say('B) New cool tweet from {0}: {1}'.format(tweet.user.screen_name, tw.replace('\n', ' ')))
 
                 def on_error(self, status):
                     log.warning('Unhandled in twitter stream: {0}'.format(status))
