@@ -140,6 +140,12 @@ class PlaySoundTokenCommandModule(BaseModule):
                     'min_value': 5,
                     'max_value': 120,
                     }),
+            ModuleSetting(
+                key='sub_only',
+                label='Subscribers only',
+                type='boolean',
+                required=True,
+                default=True),
             ]
 
     def __init__(self):
@@ -179,7 +185,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 self.play_sound,
                 tokens_cost=self.settings['token_cost'],
                 cost=self.settings['point_cost'],
-                sub_only=True,
+                sub_only=self.settings['sub_only'],
                 description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
                 examples=[
