@@ -760,7 +760,7 @@ class Bot:
                 'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
                 'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
                 'time_since_dt': _filter_time_since_dt,
-                'urlencode': lambda var, args: urllib.parse.urlencode(var),
+                'urlencode': _filter_urlencode,
                 'join': _filter_join,
                 'number_format': _filter_number_format,
                 }
@@ -803,3 +803,6 @@ def _filter_number_format(var, args):
 
 def _filter_strftime(var, args):
     return var.strftime(args[0])
+
+def _filter_urlencode(var, args):
+    return urllib.parse.urlencode({'x': var})[2:]
