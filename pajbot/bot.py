@@ -804,5 +804,6 @@ def _filter_number_format(var, args):
 def _filter_strftime(var, args):
     return var.strftime(args[0])
 
+
 def _filter_urlencode(var, args):
     return urllib.parse.urlencode({'x': var})[2:]
