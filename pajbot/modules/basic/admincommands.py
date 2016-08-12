@@ -98,6 +98,26 @@ class AdminCommandsModule(BaseModule):
         bot.whisper(source.username, 'Usage: !level USERNAME NEW_LEVEL')
         return False
 
+    def cmd_silence(self, **options):
+        bot = options['bot']
+        source = options['source']
+
+        if bot.silent:
+            bot.whisper(source.username, 'The bot is already silent')
+        else:
+            bot.silent = True
+            bot.whisper(source.username, 'The bot is now silent. Use !unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts')
+
+    def cmd_unsilence(self, **options):
+        bot = options['bot']
+        source = options['source']
+
+        if not bot.silent:
+            bot.whisper(source.username, 'The bot can already talk')
+        else:
+            bot.silent = False
+            bot.whisper(source.username, 'The bot can now talk again')
+
     def load_commands(self, **options):
         self.commands['w'] = pajbot.models.command.Command.raw_command(self.whisper,
                 level=2000,
@@ -118,3 +138,13 @@ class AdminCommandsModule(BaseModule):
         self.commands['level'] = pajbot.models.command.Command.raw_command(self.level,
                 level=1000,
                 description='Set a users level')
+
+        self.commands['silence'] = pajbot.models.command.Command.raw_command(self.cmd_silence,
+                level=500,
+                description='Silence the bot')
+        self.commands['mute'] = self.commands['silence']
+
+        self.commands['unsilence'] = pajbot.models.command.Command.raw_command(self.cmd_unsilence,
+                level=500,
+                description='Unsilence the bot')
+        self.commands['unmute'] = self.commands['unsilence']
