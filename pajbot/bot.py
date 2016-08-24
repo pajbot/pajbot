@@ -673,6 +673,10 @@ class Bot:
         type = 'whisper' if chatconn in self.whisper_manager else 'normal'
         log.debug('NOTICE {}@{}: {}'.format(type, event.target, event.arguments))
 
+    def on_usernotice(self, chatconn, event):
+        type = 'xD'
+        log.debug('USERNOTICE {}@{}: {}'.format(type, event.target, event.arguments))
+
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
