@@ -39,7 +39,7 @@ class PaidUntimeoutModule(BaseModule):
                 placeholder='Point cost',
                 default=400,
                 constraints={
-                    'min_value': 1,
+                    'min_value': 0,
                     'max_value': 10000,
                     }),
             ModuleSetting(
@@ -67,7 +67,7 @@ class PaidUntimeoutModule(BaseModule):
                 placeholder='Point cost',
                 default=1000,
                 constraints={
-                    'min_value': 1,
+                    'min_value': 0,
                     'max_value': 10000,
                     }),
             ]
