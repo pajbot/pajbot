@@ -675,7 +675,7 @@ class Bot:
 
     def on_usernotice(self, chatconn, event):
         type = 'xD'
-        log.debug('USERNOTICE {}@{}: {}'.format(type, event.target, event.arguments))
+        log.debug('USERNOTICE {}@{}: {}. tags: {}'.format(type, event.target, event.arguments, event.tags))
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
