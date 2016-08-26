@@ -134,11 +134,7 @@ class SubAlertModule(BaseModule):
                     self.on_new_sub(user)
                     HandlerManager.trigger('on_user_sub', user)
 
-    def on_usernotice(self, source, message, event):
-        tags = {}
-        for d in event.tags:
-            tags[d['key']] = d['value']
-
+    def on_usernotice(self, source, message, tags):
         if 'msg-id' not in tags or 'msg-param-months' not in tags:
             return
 

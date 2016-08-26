@@ -675,14 +675,21 @@ class Bot:
 
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        username = event.source.user.lower()
+        tags = {}
+        for d in event.tags:
+            tags[d['key']] = d['value']
+
+        if 'login' not in tags:
+            return
+
+        username = tags['login']
 
         with self.users.get_user_context(username) as source:
             msg = ''
             if len(event.arguments) > 0:
                 msg = event.arguments[0]
             HandlerManager.trigger('on_usernotice',
-                    source, msg, event)
+                    source, msg, tags)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
