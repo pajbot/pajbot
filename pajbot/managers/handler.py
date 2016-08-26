@@ -19,6 +19,9 @@ class HandlerManager:
         # on_message(source, message, emotes, whisper, urls, event)
         HandlerManager.create_handler('on_message')
 
+        # on_usernotice(source, message, event)
+        HandlerManager.create_handler('on_usernotice')
+
         # on_commit()
         HandlerManager.create_handler('on_commit')
 

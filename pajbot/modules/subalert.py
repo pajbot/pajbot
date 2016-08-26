@@ -89,7 +89,6 @@ class SubAlertModule(BaseModule):
     def __init__(self):
         super().__init__()
         self.new_sub_regex = re.compile('^(\w+) just subscribed!')
-        self.resub_regex = re.compile('^(\w+) subscribed for (\d+) months in a row!')
         self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_new_sub(self, user):
@@ -134,19 +133,25 @@ class SubAlertModule(BaseModule):
                 with UserManager.get().get_user_context(username) as user:
                     self.on_new_sub(user)
                     HandlerManager.trigger('on_user_sub', user)
-            else:
-                # Did twitchnotify tell us about a resub?
-                m = self.resub_regex.search(message)
-                if m:
-                    username = m.group(1)
-                    num_months = int(m.group(2))
-                    with UserManager.get().get_user_context(username) as user:
-                        self.on_resub(user, num_months)
-                        HandlerManager.trigger('on_user_resub', user, num_months)
+
+    def on_usernotice(self, source, message, event):
+        tags = {}
+        for d in event.tags:
+            tags[d['key']] = d['value']
+
+        if 'msg-id' not in tags or 'msg-param-months' not in tags:
+            return
+
+        if tags['msg-id'] == 'resub':
+            num_months = int(tags['msg-param-months'])
+            self.on_resub(source, num_months)
+            HandlerManager.trigger('on_user_resub', source, num_months)
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
+        HandlerManager.add_handler('on_usernotice', self.on_usernotice)
         self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler('on_usernotice', self.on_usernotice)
