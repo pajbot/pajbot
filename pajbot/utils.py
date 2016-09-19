@@ -12,7 +12,12 @@ log = logging.getLogger(__name__)
 
 def alembic_upgrade():
     try:
-        subprocess.check_call(['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))])
+        command_list = ['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))]
+        p = subprocess.Popen(command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        for l in p.stdout.read().splitlines():
+            log.info(l.decode('utf8'))
+        for l in p.stderr.read().splitlines():
+            log.info(l.decode('utf8'))
     except subprocess.CalledProcessError:
         log.exception('aaaa')
         log.error('Unable to call `alembic upgrade head`, this means the database could be out of date. Quitting.')
