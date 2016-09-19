@@ -375,7 +375,8 @@ class StreamManager:
         try:
             status = self.bot.twitchapi.get_status(self.bot.streamer)
             if status['error'] is True:
-                log.error('An error occured while fetching stream status')
+                # log.error('An error occured while fetching stream status')
+                # I'll comment this out since all errors are posted live anyway
                 return
 
             self.bot.mainthread_queue.add(self.refresh_stream_status_stage2,
