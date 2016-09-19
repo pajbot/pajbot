@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 

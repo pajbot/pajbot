@@ -60,7 +60,7 @@ class TestURLMethods(unittest2.TestCase):
 class ActionsTester(unittest2.TestCase):
     def setUp(self):
         from pajbot.bot import Bot
-        from pajbot.tbutil import load_config
+        from pajbot.utils import load_config
         import datetime
 
         config = load_config('config.ini')

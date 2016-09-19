@@ -10,7 +10,7 @@ from logging.config import fileConfig
 sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 from pajbot.bot import Bot
-from pajbot.tbutil import load_config
+from pajbot.utils import load_config
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import PredictModule
 from pajbot.models.roulette import Roulette
@@ -37,7 +37,7 @@ from pajbot.managers.db import Base
 # from pajbot.models.command import Command
 # from pajbot.models import *
 
-# from pajbot.tbutil import load_config
+# from pajbot.utils import load_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

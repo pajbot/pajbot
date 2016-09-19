@@ -8,7 +8,7 @@ from pajbot.models.pleblist import PleblistSong
 from pajbot.models.stream import Stream
 from pajbot.models.stream import StreamChunk
 from pajbot.models.user import User
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 

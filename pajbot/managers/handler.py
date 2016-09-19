@@ -1,7 +1,7 @@
 import logging
 import operator
 
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger('pajbot')
 

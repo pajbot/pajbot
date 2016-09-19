@@ -22,7 +22,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 
-from pajbot.tbutil import load_config
+from pajbot.utils import load_config
 from pajbot.managers.redis import RedisManager
 
 Session = sessionmaker()

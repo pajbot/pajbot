@@ -1,7 +1,7 @@
 from flask import render_template
 
 import pajbot.web.utils
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 
 def init(app):

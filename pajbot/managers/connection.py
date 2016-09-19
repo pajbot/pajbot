@@ -8,7 +8,7 @@ from irc.client import InvalidCharacters
 from irc.client import MessageTooLong
 from irc.client import ServerNotConnectedError
 
-import pajbot.tbutil
+from pajbot.utils import find
 
 log = logging.getLogger('pajbot')
 
@@ -190,9 +190,9 @@ class ConnectionManager:
 
     def privmsg(self, channel, message, increase_message=True):
         if increase_message:
-            conn = pajbot.tbutil.find(lambda c: c.conn.is_connected() and c.num_msgs_sent < self.message_limit, self.connlist)
+            conn = find(lambda c: c.conn.is_connected() and c.num_msgs_sent < self.message_limit, self.connlist)
         else:
-            conn = pajbot.tbutil.find(lambda c: c.conn.is_connected(), self.connlist)
+            conn = find(lambda c: c.conn.is_connected(), self.connlist)
 
         if conn is None:
             log.error('No available connections to send messages from. Delaying message a few seconds.')

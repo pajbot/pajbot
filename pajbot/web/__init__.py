@@ -29,7 +29,7 @@ def init(args):
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper
-    from pajbot.tbutil import load_config
+    from pajbot.utils import load_config
     from pajbot.web.models import errors
     from pajbot.web.utils import download_logo
 

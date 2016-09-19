@@ -9,7 +9,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.command import CommandExample
 from pajbot.models.command import parse_command_for_web
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 

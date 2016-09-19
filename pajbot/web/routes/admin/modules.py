@@ -8,7 +8,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.tbutil import find
+from pajbot.utils import find
 from pajbot.web.utils import requires_level
 
 

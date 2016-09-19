@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger('pajbot')
 

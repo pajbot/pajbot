@@ -60,7 +60,7 @@ def refresh_emotes(cursor):
 if __name__ == "__main__":
     import sys
     sys.path.append('../')
-    from tbutil import load_config, init_logging
+    from utils import load_config, init_logging
     init_logging('pajbot')
     from apiwrappers import APIBase
     import argparse

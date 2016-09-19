@@ -14,7 +14,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandData
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.tbutil import find
+from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 

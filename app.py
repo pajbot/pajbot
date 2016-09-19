@@ -2,7 +2,7 @@
 import argparse
 
 import pajbot.web
-from pajbot.tbutil import init_logging
+from pajbot.utils import init_logging
 from pajbot.web import app
 
 

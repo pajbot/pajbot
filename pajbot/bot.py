@@ -37,8 +37,8 @@ from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
-from pajbot.tbutil import time_method
-from pajbot.tbutil import time_since
+from pajbot.utils import time_method
+from pajbot.utils import time_since
 
 log = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class Bot:
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
         # The config object that should be passed through should
-        # come from pajbot.tbutil.load_config
+        # come from pajbot.utils.load_config
         self.load_config(config)
 
         # Update the database scheme if necessary using alembic

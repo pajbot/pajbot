@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def run(args):
-    from pajbot.tbutil import load_config
+    from pajbot.utils import load_config
     config = load_config(args.config)
 
     if 'main' not in config:
@@ -54,7 +54,7 @@ def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
 if __name__ == '__main__':
-    from pajbot.tbutil import init_logging
+    from pajbot.utils import init_logging
 
     sys.excepthook = handle_exceptions
 

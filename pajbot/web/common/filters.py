@@ -1,7 +1,7 @@
 import datetime
 
 from pajbot.managers.time import TimeManager
-from pajbot.tbutil import time_since
+from pajbot.utils import time_since
 
 
 def init(app):

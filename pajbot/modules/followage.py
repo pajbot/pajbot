@@ -4,7 +4,7 @@ import logging
 import pajbot.models
 from pajbot.actions import ActionQueue
 from pajbot.modules import BaseModule
-from pajbot.tbutil import time_since
+from pajbot.utils import time_since
 
 log = logging.getLogger('pajbot')
 

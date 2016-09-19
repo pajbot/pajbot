@@ -27,7 +27,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
 
-from pajbot.tbutil import load_config
+from pajbot.utils import load_config
 from pajbot.managers.redis import RedisManager
 
 Session = sessionmaker()
