@@ -305,8 +305,6 @@ class TwitchAPI(APIBase):
                 }
         data = None
 
-        log.debug('Getting status...')
-
         try:
             data = self.get(['streams', streamer], base=self.kraken_url)
             stream_status['error'] = False
@@ -328,6 +326,9 @@ class TwitchAPI(APIBase):
                 log.warning('Bad Gateway when getting stream status.')
             elif e.code == 503:
                 log.warning('Service Unavailable when getting stream status.')
+            elif e.code == 422:
+                # User is banned
+                pass
             else:
                 log.exception('Unhandled HTTP error code')
         except TypeError:
@@ -338,8 +339,6 @@ class TwitchAPI(APIBase):
             log.exception('Some key in get_status does not exist. FIX!')
         except:
             log.exception('Unhandled exception in TwitchAPI.get_status')
-
-        log.debug('Got status')
 
         return stream_status
 
