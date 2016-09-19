@@ -35,8 +35,6 @@ def init(args):
 
     log = logging.getLogger(__name__)
 
-    log.info('XD')
-
     config = configparser.ConfigParser()
 
     config = load_config(args.config)
@@ -49,6 +47,10 @@ def init(args):
     if 'pleblist_password_salt' not in config['web']:
         salt = generate_random_salt()
         config.set('web', 'pleblist_password_salt', salt.decode('utf-8'))
+
+    if 'pleblist_password' not in config['web']:
+        salt = generate_random_salt()
+        config.set('web', 'pleblist_password', salt.decode('utf-8'))
 
     if 'secret_key' not in config['web']:
         salt = generate_random_salt()
