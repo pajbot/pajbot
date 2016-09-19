@@ -133,11 +133,15 @@ class UserSQL:
         if not self.model_loaded:
             return
 
-        if save_to_db and not self.shared_db_session:
-            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                db_session.add(self.user_model)
+        try:
+            if save_to_db and not self.shared_db_session:
+                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                    # log.debug('Calling db_session.add on {}'.format(self.user_model))
+                    db_session.add(self.user_model)
 
-        UserSQLCache.save(self.user_model)
+            UserSQLCache.save(self.user_model)
+        except:
+            log.exception('Caught exception in sql_save while saving {}'.format(self.user_model))
 
     @property
     def id(self):
