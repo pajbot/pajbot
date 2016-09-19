@@ -55,7 +55,7 @@ def init(args):
         config.set('web', 'secret_key', salt.decode('utf-8'))
 
     if 'logo' not in config['web']:
-        res = download_logo(config['main']['streamer'])
+        res = download_logo(config['webtwitchapi']['client_id'], config['main']['streamer'])
         if res:
             config.set('web', 'logo', 'set')
 

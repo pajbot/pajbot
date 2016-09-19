@@ -61,11 +61,11 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(streamer):
+def download_logo(client_id, streamer):
     import urllib
     from pajbot.apiwrappers import TwitchAPI
 
-    twitchapi = TwitchAPI()
+    twitchapi = TwitchAPI(client_id)
     try:
         data = twitchapi.get(['users', streamer], base='https://api.twitch.tv/kraken/')
         log.info(data)
