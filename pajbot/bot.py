@@ -197,6 +197,10 @@ class Bot:
             twitch_client_id = self.config['twitchapi'].get('client_id', None)
             twitch_oauth = self.config['twitchapi'].get('oauth', None)
 
+        # A client ID is required for the bot to work properly now, give an error for now
+        if twitch_client_id is None:
+            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
+
         self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
 
         self.data = {}
