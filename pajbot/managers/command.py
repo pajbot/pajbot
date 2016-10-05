@@ -98,6 +98,7 @@ class CommandManager(UserDict):
                 command='quit',
                 description='Shut down the bot, this will most definitely restart it if set up properly')
 
+        self.internal_commands['1quit'] = self.internal_commands['quit']
         self.internal_commands['ceaseallactionscurrentlybeingacteduponwiththecodeandiapologizeforbeingawhitecisgenderedmaleinthepatriarchy'] = self.internal_commands['quit']
 
         self.internal_commands['twitterfollow'] = Command.dispatch_command('twitter_follow',
