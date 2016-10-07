@@ -88,7 +88,7 @@ class SubAlertModule(BaseModule):
 
     def __init__(self):
         super().__init__()
-        self.new_sub_regex = re.compile('^(\w+) just subscribed!')
+        self.new_sub_regex = re.compile('^(\w+) just subscribed')
         self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_new_sub(self, user):
