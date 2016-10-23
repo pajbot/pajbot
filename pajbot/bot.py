@@ -344,6 +344,14 @@ class Bot:
 
         return None
 
+    def get_command_value(self, key, extra={}):
+        try:
+            return getattr(extra['command'].data, key)
+        except:
+            log.exception('Caught exception in get_source_value')
+
+        return None
+
     def get_usersource_value(self, key, extra={}):
         try:
             user = self.users.find(extra['argument'])
