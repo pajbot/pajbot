@@ -228,11 +228,14 @@ class LinkCheckerModule(BaseModule):
             if len(urls) > 0:
                 do_timeout = False
                 ban_reason = 'You are not allowed to post links in chat'
+                whisper_reason = '??? KKona'
 
                 if self.settings['ban_pleb_links'] is True and source.subscriber is False:
                     do_timeout = True
+                    whisper_reason = 'You cannot post non-verified links in chat if you\'re not a subscriber.'
                 elif self.settings['ban_sub_links'] is True and source.subscriber is True:
                     do_timeout = True
+                    whisper_reason = 'You cannot post non-verified links in chat.'
 
                 if do_timeout is True:
                     # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
@@ -248,7 +251,7 @@ class LinkCheckerModule(BaseModule):
                         if whitelisted is False:
                             self.bot.timeout(source.username, 30, reason=ban_reason)
                             if source.minutes_in_chat_online > 60:
-                                self.bot.whisper(source.username, 'You cannot post non-verified links in chat if you\'re not a subscriber.')
+                                self.bot.whisper(source.username, whisper_reason)
                             return False
 
             for url in urls:
