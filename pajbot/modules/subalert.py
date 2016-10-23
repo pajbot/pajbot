@@ -128,7 +128,7 @@ class SubAlertModule(BaseModule):
         if whisper is False and source.username in self.valid_usernames:
             # Did twitchnotify tell us about a new sub?
             m = self.new_sub_regex.search(message)
-            if m:
+            if m and 'subscribed to ' not in message:
                 username = m.group(1)
                 with UserManager.get().get_user_context(username) as user:
                     self.on_new_sub(user)
@@ -139,6 +139,7 @@ class SubAlertModule(BaseModule):
             return
 
         if tags['msg-id'] == 'resub':
+            # TODO: Should we check room id with streamer ID here? Maybe that's for pajbot2 instead
             num_months = int(tags['msg-param-months'])
             self.on_resub(source, num_months)
             HandlerManager.trigger('on_user_resub', source, num_months)
