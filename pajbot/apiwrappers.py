@@ -233,7 +233,8 @@ class TwitchAPI(APIBase):
     def parse_datetime(datetime_str):
         """Parses date strings in the format of 2015-09-11T23:01:11+00:00
         to a naive datetime object."""
-        return datetime.datetime.strptime(datetime_str[:-6], '%Y-%m-%dT%H:%M:%S')
+        trimmed_str = datetime_str[:19]
+        return datetime.datetime.strptime(trimmed_str, '%Y-%m-%dT%H:%M:%S')
 
     def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
@@ -388,6 +389,8 @@ class TwitchAPI(APIBase):
                 created_at = data['created_at']
                 redis.setex(fr_key, time=120, value=created_at)
                 return TwitchAPI.parse_datetime(created_at)
+            except ValueError:
+                raise
             except urllib.error.HTTPError:
                 redis.setex(fr_key, time=120, value='-1')
                 return False
