@@ -96,7 +96,9 @@ class Samples:
             Sample('weed', 'https://pajlada.se/files/clr/weed.mp3'),
             Sample('wrongdoor', 'https://pajlada.se/files/clr/wrongdoor.mp3'),
 
-            Sample('ryuu', 'https://pajlada.se/files/clr/hanzo.mp3', new=True),
+            Sample('ryuu', 'https://pajlada.se/files/clr/hanzo.mp3'),
+
+            Sample('yeehaw', 'https://pajlada.se/files/clr/yeehaw.mp3', new=True),
     ]
 
 
