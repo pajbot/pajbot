@@ -211,6 +211,7 @@ class QuestModule(BaseModule):
                 if quest is not None:
                     log.info('Resumed quest {}'.format(quest.get_objective()))
                     self.current_quest = quest
+                    self.current_quest.quest_module = self
                     self.current_quest.start_quest()
                 else:
                     log.info('No quest with id {} found in submodules ({})'.format(current_quest_id, self.submodules))
