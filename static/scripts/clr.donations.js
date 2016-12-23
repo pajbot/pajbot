@@ -139,6 +139,7 @@ cool_socket = null;
 
 function connect_to_cool_socket_io_thing()
 {
+    return;
     cool_socket = io('wss://pajlada.se:2351/clr');
 
     cool_socket.on('skip', function() {
