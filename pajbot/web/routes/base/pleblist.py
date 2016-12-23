@@ -48,6 +48,8 @@ def init(app):
             q = session.query(PleblistSong, User).outerjoin(User, PleblistSong.user_id == User.id).filter(PleblistSong.stream_id == stream.id).order_by(PleblistSong.id.asc(), PleblistSong.id.asc())
             songs = []
             for song, user in q:
+                if song.song_info is None:
+                    continue
                 song.user = user
                 songs.append(song)
 

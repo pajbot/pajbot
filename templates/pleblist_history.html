@@ -50,7 +50,11 @@
             <br />
             {% if song.date_played is not none %}
             {% if song.skip_after is none %}
+            {% if song.song_info is none %}
+            {% set song_duration = 5 %}
+            {% else %}
             {% set song_duration = song.song_info.duration %}
+            {% endif %}
             {% elif song.skip_after is not none %}
             {% set song_duration = song.skip_after %}
             {% else %}
