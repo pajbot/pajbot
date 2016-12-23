@@ -84,6 +84,17 @@ class SubAlertModule(BaseModule):
                     'min_str_len': 10,
                     'max_str_len': 400,
                     }),
+            ModuleSetting(
+                key='grant_points_on_sub',
+                label='Give points to user when they subscribe/resubscribe. 0 = off',
+                type='number',
+                required=True,
+                placeholder='',
+                default=0,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 50000,
+                    }),
                 ]
 
     def __init__(self):
@@ -91,12 +102,21 @@ class SubAlertModule(BaseModule):
         self.new_sub_regex = re.compile('^(\w+) just subscribed')
         self.valid_usernames = ('twitchnotify', 'pajlada')
 
+    def on_sub_shared(self, user):
+        if self.settings['grant_points_on_sub'] <= 0:
+            return
+
+        user.points += self.settings['grant_points_on_sub']
+        self.bot.say('{} was given {} points for subscribing! FeelsAmazingMan'.format(user.username_raw, self.settings['grant_points_on_sub']))
+
     def on_new_sub(self, user):
         """
         A new user just subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
         Also increase the number of active subscribers in the database by one.
         """
+
+        self.on_sub_shared(user)
 
         self.bot.kvi['active_subs'].inc()
 
@@ -114,6 +134,8 @@ class SubAlertModule(BaseModule):
         A user just re-subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
         """
+
+        self.on_sub_shared(user)
 
         payload = {'username': user.username_raw, 'num_months': num_months}
         self.bot.websocket_manager.emit('resub', payload)
