@@ -100,12 +100,15 @@ var tts_sound = null;
 
 function tts_message(message)
 {
+    if (tts_endpoint == '') {
+        return;
+    }
     var voice = 'en-US_LisaVoice';
     var voice = 'en-GB_KateVoice';
     var voice = 'en-US_AllisonVoice';
     message = message.replace(new RegExp('#', 'g'), 'hashtag');
     message = message.replace(new RegExp('<3', 'g'), ' love ');
-    var tts_url = 'https://hosted.stylerdev.io/api/synthesize?voice=' + voice + '&text=' + encodeURI(message) + '&token=' + tts_authorization;
+    var tts_url = tts_endpoint + '?voice=' + voice + '&text=' + encodeURI(message) + '&token=' + tts_authorization;
 
     tts_sound = new Audio();
     tts_sound.addEventListener('playing', function() {

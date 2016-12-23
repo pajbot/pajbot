@@ -62,8 +62,10 @@ def donations(widget_id, **options):
     widget['conditions'].sort(key=lambda c: (operator_order[c['operator']], c['amount']))
 
     tts_authentication = ''
+    tts_endpoint = ''
     if 'extra' in config:
         tts_authentication = config['extra'].get('tts_authentication', '')
+        tts_endpoint = config['extra'].get('tts_endpoint', '')
 
     redis = RedisManager.get()
     twitch_emotes = redis.hgetall('global:emotes:twitch')
@@ -83,4 +85,5 @@ def donations(widget_id, **options):
     return render_template('clr/donations.html',
             widget=widget,
             emotes=emotes,
-            tts_authentication=tts_authentication)
+            tts_authentication=tts_authentication,
+            tts_endpoint=tts_endpoint)
