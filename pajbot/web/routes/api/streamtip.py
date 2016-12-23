@@ -27,17 +27,25 @@ class APIStreamtipOAuth(Resource):
                     'error': 'Config not set up properly.'
                     }, 500
 
-        payload = {
-                'client_id': app.bot_config['streamtip']['client_id'],
-                'client_secret': app.bot_config['streamtip']['client_secret'],
-                'grant_type': 'authorization_code',
-                'redirect_uri': app.bot_config['streamtip']['redirect_uri'],
-                'code': args['code'],
-                }
+        try:
+            payload = {
+                    'client_id': app.bot_config['streamtip']['client_id'],
+                    'client_secret': app.bot_config['streamtip']['client_secret'],
+                    'grant_type': 'authorization_code',
+                    'redirect_uri': app.bot_config['streamtip']['redirect_uri'],
+                    'code': args['code'],
+                    }
 
-        r = requests.post('https://streamtip.com/api/oauth2/token', data=payload)
+            r = requests.post('https://streamtip.com/api/oauth2/token', data=payload)
 
-        return redirect('/pleblist/host/#STREAMTIP{}'.format(r.json()['access_token']), 303)
+            jsonData = r.json()
+            log.debug(jsonData)
+
+            return redirect('/pleblist/host/#STREAMTIP{}'.format(jsonData['access_token']), 303)
+        except:
+            log.exception('exception in pleblist oauth streamtip')
+
+        return redirect('/', 303)
 
 
 class APIStreamtipValidate(Resource):
