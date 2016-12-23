@@ -53,6 +53,7 @@ def run(args):
 def handle_exceptions(exctype, value, tb):
     log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
 
+
 if __name__ == '__main__':
     from pajbot.utils import init_logging
 

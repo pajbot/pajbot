@@ -167,5 +167,6 @@ class ActionsTester(unittest2.TestCase):
             self.assertEqual(response, data['result'], 'Got output "{}", expected "{}"'.format(response, data['result']))
             """
 
+
 if __name__ == '__main__':
     unittest2.main()

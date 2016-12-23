@@ -189,6 +189,7 @@ def jsonify_list(key, query, base_url=None,
 
     return payload
 
+
 paginate_parser = reqparse.RequestParser()
 paginate_parser.add_argument('limit', type=int, required=False)
 paginate_parser.add_argument('offset', type=int, required=False)
