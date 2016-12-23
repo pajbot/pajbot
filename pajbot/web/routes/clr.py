@@ -23,6 +23,22 @@ def overlay(widget_id, **options):
             widget={})
 
 
+@page.route('/fatoverlay/<widget_id>')
+@page.route('/fatoverlay/<widget_id>/<random_shit>')
+@nocache
+def fatoverlay(widget_id, **options):
+    return render_template('clr/fatoverlay.html',
+            widget={})
+
+
+@page.route('/crazyoverlay/<widget_id>')
+@page.route('/crazyoverlay/<widget_id>/<random_shit>')
+@nocache
+def crazyoverlay(widget_id, **options):
+    return render_template('clr/crazyoverlay.html',
+            widget={})
+
+
 @page.route('/donations/<widget_id>')
 @page.route('/donations/<widget_id>/<random_shit>')
 @nocache

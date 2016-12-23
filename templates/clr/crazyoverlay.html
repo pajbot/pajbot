@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>CLR Overlay</title>
+        <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300|Roboto:300,400,500,700|Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.7.0/jquery.lettering.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css" />
+        <link rel="stylesheet" type="text/css" href="/static/css/clr.overlay.css" />
+        {% assets 'clr_overlay_css' %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+        {% endassets %}
+        <style>
+        body {
+            background-color: rgba(0,0,0,255);
+            margin: 0px auto;
+            overflow: hidden;
+        }
+
+        .notifications {
+            display: none;
+        }
+        </style>
+        <script type="text/javascript">
+var ws_host = 'wss://paj.pajlada.se';
+var ws_port = 2320;
+        </script>
+        {% assets 'clr_overlay_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+    </head>
+    <body>
+        <div id="hsbet">
+            <div class="right">
+                <canvas class="chart" width="70" height="70"></canvas>
+            </div>
+            <div class="left">
+                <div class="f1">Betting active for <span class="time_left">20</span>s</div>
+                <table cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>!hsbet&nbsp;</td>
+                            <td><span class="win">win&nbsp;</span></td>
+                            <td>(points)</td>
+                        </tr>
+                        <tr>
+                            <td>!hsbet&nbsp;</td>
+                            <td><span class="lose">lose&nbsp;</span></td>
+                            <td>(points)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="notifications"></div>
+    </body>
+</html>
