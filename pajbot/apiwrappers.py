@@ -207,6 +207,64 @@ class BTTVApi(APIBase):
         return emotes
 
 
+class FFZApi(APIBase):
+    def __init__(self, strict=True):
+        APIBase.__init__(self, strict)
+
+        self.base_url = 'https://api.frankerfacez.com/v1/'
+        self.headers = {}
+
+    def get_global_emotes(self):
+        """Returns a list of global FFZ emotes in the standard Emote format."""
+
+        emotes = []
+        try:
+            data = self.get(['set', 'global'])
+
+            for emote_set in data['sets']:
+                for emote in data['sets'][emote_set]['emoticons']:
+                    emotes.append({'emote_hash': emote['id'], 'code': emote['name']})
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting global emotes.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting global emotes.')
+            else:
+                log.exception('Unhandled HTTP error code')
+        except KeyError:
+            log.exception('Caught exception while trying to get global FFZ emotes')
+        except:
+            log.exception('Uncaught exception in FFZApi.get_global_emotes')
+
+        return emotes
+
+    def get_channel_emotes(self, channel):
+        """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
+
+        emotes = []
+        try:
+            data = self.get(['room', channel])
+
+            for emote_set in data['sets']:
+                for emote in data['sets'][emote_set]['emoticons']:
+                    emotes.append({'emote_hash': emote['id'], 'code': emote['name']})
+        except urllib.error.HTTPError as e:
+            if e.code == 502:
+                log.warning('Bad Gateway when getting channel emotes.')
+            elif e.code == 503:
+                log.warning('Service Unavailable when getting channel emotes.')
+            elif e.code == 404:
+                log.info('There are no FFZ Emotes for this channel.')
+            else:
+                log.exception('Unhandled HTTP error code')
+        except KeyError:
+            log.exception('Caught exception while trying to get channel-specific FFZ emotes')
+        except:
+            log.exception('Uncaught exception in FFZApi.get_channel_emotes')
+
+        return emotes
+
+
 class TwitchAPI(APIBase):
     def __init__(self, client_id=None, oauth=None, strict=True):
         """

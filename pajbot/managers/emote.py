@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 class BTTVEmoteManager:
     def __init__(self):
         from pajbot.apiwrappers import BTTVApi
-        self.bttv_api = BTTVApi()
+        self.api = BTTVApi()
         self.global_emotes = []
         streamer = StreamHelper.get_streamer()
         _global_emotes = RedisManager.get().hgetall('global:emotes:bttv')
@@ -38,14 +38,15 @@ class BTTVEmoteManager:
     def build_emote(self, emote_code, emote_hash):
         return {
                 'code': emote_code,
+                'type': 'bttv',
                 'emote_hash': emote_hash,
                 'regex': re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(emote_code))),
                 }
 
     def update_emotes(self):
         log.debug('Updating BTTV Emotes...')
-        global_emotes = self.bttv_api.get_global_emotes()
-        channel_emotes = self.bttv_api.get_channel_emotes(StreamHelper.get_streamer())
+        global_emotes = self.api.get_global_emotes()
+        channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer())
 
         self.global_emotes = [emote['code'] for emote in global_emotes]
         self.channel_emotes = [emote['code'] for emote in channel_emotes]
@@ -69,12 +70,71 @@ class BTTVEmoteManager:
                 pipeline.hset('global:emotes:bttv', emote['code'], emote['emote_hash'])
 
 
+class FFZEmoteManager:
+    def __init__(self):
+        from pajbot.apiwrappers import FFZApi
+        self.api = FFZApi()
+        self.global_emotes = []
+        streamer = StreamHelper.get_streamer()
+
+        # Try to get the list of global emotes from redis
+        _global_emotes = RedisManager.get().hgetall('global:emotes:ffz')
+        try:
+            _channel_emotes = RedisManager.get().hgetall('{streamer}:emotes:ffz_channel_emotes'.format(streamer=streamer))
+        except:
+            _channel_emotes = {}
+
+        self.channel_emotes = list(_channel_emotes.keys())
+
+        _all_emotes = _global_emotes.copy()
+        _all_emotes.update(_channel_emotes)
+
+        self.all_emotes = []
+        for emote_code, emote_hash in _all_emotes.items():
+            self.all_emotes.append(self.build_emote(emote_code, emote_hash))
+
+    def build_emote(self, emote_code, emote_hash):
+        return {
+                'code': emote_code,
+                'type': 'ffz',
+                'emote_id': emote_hash,
+                'regex': re.compile('(?<![^ ]){0}(?![^ ])'.format(re.escape(emote_code))),
+                }
+
+    def update_emotes(self):
+        log.debug('Updating FFZ Emotes...')
+        global_emotes = self.api.get_global_emotes()
+        channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer())
+
+        self.global_emotes = [emote['code'] for emote in global_emotes]
+        self.channel_emotes = [emote['code'] for emote in channel_emotes]
+
+        # Store channel emotes in redis
+        streamer = StreamHelper.get_streamer()
+        key = '{streamer}:emotes:ffz_channel_emotes'.format(streamer=streamer)
+        with RedisManager.pipeline_context() as pipeline:
+            pipeline.delete(key)
+            for emote in channel_emotes:
+                pipeline.hset(key, emote['code'], emote['emote_hash'])
+
+        self.all_emotes = []
+        with RedisManager.pipeline_context() as pipeline:
+            for emote in global_emotes + channel_emotes:
+                # Store all possible emotes, with their regex in an easily
+                # accessible list.
+                self.all_emotes.append(self.build_emote(emote['code'], emote['emote_hash']))
+
+                # Make sure all available emotes are available in redis
+                pipeline.hset('global:emotes:ffz', emote['code'], emote['emote_hash'])
+
+
 class EmoteManager:
     def __init__(self, bot):
         # this should probably not even be a dictionary
         self.bot = bot
         self.streamer = bot.streamer
         self.bttv_emote_manager = BTTVEmoteManager()
+        self.ffz_emote_manager = FFZEmoteManager()
         redis = RedisManager.get()
         self.subemotes = redis.hgetall('global:emotes:twitch_subemotes')
 
@@ -230,6 +290,25 @@ class EmoteManager:
                 message_emotes.append({
                     'code': emote['code'],
                     'bttv_hash': emote['emote_hash'],
+                    'start': start,
+                    'end': end,
+                    'count': num,
+                    })
+
+        # FFZ Emotes
+        for emote in self.ffz_emote_manager.all_emotes:
+            num = 0
+            start = -1
+            end = -1
+            for match in emote['regex'].finditer(message):
+                num += 1
+                if num == 1:
+                    start = match.span()[0]
+                    end = match.span()[1] - 1  # don't ask me
+            if num > 0:
+                message_emotes.append({
+                    'code': emote['code'],
+                    'ffz_id': emote['emote_id'],
                     'start': start,
                     'end': end,
                     'count': num,

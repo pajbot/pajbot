@@ -129,6 +129,8 @@ function add_emote(emote)
     var url = '';
     if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
         url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
+    } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
+        url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
     } else if ('twitch_id' in emote) {
         url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
     } else {
@@ -253,11 +255,17 @@ function refresh_combo_count(count)
 
 function refresh_combo_emote(emote)
 {
-    console.log(emote);
+    var url = '';
     if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
-        var url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/2x';
+        url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
+    } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
+        url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
+    } else if ('twitch_id' in emote) {
+        url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
     } else {
-        var url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/2.0';
+        if (emote['code'] == 'xD') {
+            url = 'https://cdn.pajlada.se/emoticons/XD.gif';
+        }
     }
     $('#emote_combo img').attr('src', url);
 }

@@ -65,7 +65,8 @@ class EmoteComboModule(BaseModule):
                 self.current_emote = {
                         'code': emote['code'],
                         'twitch_id': emote.get('twitch_id', None),
-                        'bttv_hash': emote.get('bttv_hash', None)
+                        'bttv_hash': emote.get('bttv_hash', None),
+                        'ffz_id': emote.get('ffz_id', None),
                         }
 
             self.inc_emote_count()
