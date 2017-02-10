@@ -23,7 +23,7 @@
     <div class="ui vertical">Stream uptime: {{ stream.stream_start|time_ago }}</div>
     <div class="ui vertical">Time left on pleblist: {{ total_length_left|time_ago_timespan_seconds }}</div>
     {% if first_unplayed_song %}
-        <div class="ui vertical"><h5><a href="#current"><i class="icon linkify black"></i></a>Current song: <strong>{{ first_unplayed_song.song_info.title }}</strong> (<a href="https://youtu.be/{{ first_unplayed_song.youtube_id}}">LINK</a>)</h4></div>
+        <div class="ui vertical"><h5><a href="#current"><i class="icon linkify black"></i></a>Current song: <strong>{{ first_unplayed_song[1].song_info.title }}</strong> (<a href="https://youtu.be/{{ first_unplayed_song[1].youtube_id}}">LINK</a>)</h4></div>
     {% endif %}
 {% else %}
     <div class="ui vertical">Stream ended: {{ stream.stream_end|localize|strftime('%A, %B %d %Y %H:%M:%S %Z') }}</div>
