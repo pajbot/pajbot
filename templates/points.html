@@ -27,16 +27,8 @@
             </tr>
         </thead>
         <tbody>
-            {% set rank = 1 %}
-            {% set index = 1 %}
-            {% set last_points = -1337 %}
-            {% for user in top_30_users %}
-                {% if not user.points == last_points %}
-                    {% set rank = index %}
-                {% endif %}
-                {% set last_points = user.points %}
+            {% for rank, user in top_30_users %}
                 {% include 'list/user.html' %}
-                {% set index = index + 1 %}
             {% endfor %}
         </tbody>
     </table>
