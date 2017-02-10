@@ -66,3 +66,5 @@ python-Levenshtein
 flake8
 flake8-quotes
 flake8-import-order
+
+pyscss
