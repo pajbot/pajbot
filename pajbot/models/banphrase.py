@@ -94,6 +94,12 @@ class Banphrase(Base):
         else:
             return message.lower().endswith(self.phrase.lower())
 
+    def predicate_exact(self, message):
+        if self.case_sensitive:
+            return message.strip() == self.phrase
+        else:
+            return message.lower().strip() == self.phrase.lower()
+
     def match(self, message, user):
         """
         Returns True if message matches our banphrase.
