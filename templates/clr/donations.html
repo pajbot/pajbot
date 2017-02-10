@@ -5,11 +5,13 @@
     <title>CLR Donation Alert - {{ streamer.name }}</title>
     <link href='https://fonts.googleapis.com/css?family=Tenor+Sans|Comfortaa:400,700,300|Roboto:300,400,500,700|Noto+Sans:400,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Hind:400,500,600,700' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="/static/css/clr.donations.css">
+    {% assets 'clr_donations_css' %}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
-{%- assets 'clr_donations' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
-{%- assets 'clr_shared' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
+{%- assets 'clr_donations_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
+{%- assets 'clr_shared_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets -%}
 <script type="text/javascript" src="/static/scripts/clr.queue.js"></script>
     <style>
 #tip-alert {

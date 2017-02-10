@@ -24,10 +24,5 @@ config.ini
 # User created code
 userdispatch.py
 
-node_modules
-
-# This is created when the user installs semantic.json
-semantic.json
-
 # Ignore virtual environment folder
 myvenv/

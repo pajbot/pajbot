@@ -1,4 +1,5 @@
 dist/
+gen/
 package.json
 semantic
 .webassets-cache/

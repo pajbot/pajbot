@@ -11,9 +11,7 @@
     background-size: 100%;
 }
 </style>
-{% assets "semantic_css" %}
-<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
-{% endassets %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.css">
 {% assets "base_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
@@ -102,9 +100,7 @@ var bot_name = '{{ bot.name }}';
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-{%- assets 'semantic_js' %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets -%}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.js"></script>
 {%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}

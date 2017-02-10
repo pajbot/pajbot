@@ -1,5 +1,5 @@
 [flake8]
-exclude = alembic/*,configs/*,install/*,myvenv/*,node_modules/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
+exclude = alembic/*,configs/*,install/*,myvenv/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
 ignore = E123,E126,E127,E128,E501,E131
 application-import-names = pajbot
 import-order-style = smarkets
