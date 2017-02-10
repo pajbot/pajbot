@@ -281,6 +281,24 @@ class APIPleblistTop(Resource):
                     )
 
 
+class APIPleblistCheck(Resource):
+    def __init__(self):
+        super().__init__()
+
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument('password', required=True, location='cookies')
+
+    def get(self):
+        args = self.post_parser.parse_args()
+
+        try:
+            pajbot.web.utils.pleblist_login(args['password'], app.bot_config)
+        except pajbot.exc.InvalidLogin as e:
+            return {'error': str(e)}, 401
+
+        return {'success': True}
+
+
 def init(api):
     api.add_resource(APIPleblistSkip, '/pleblist/skip/<int:song_id>')
     api.add_resource(APIPleblistListCurrent, '/pleblist/list')
@@ -291,3 +309,4 @@ def init(api):
     api.add_resource(APIPleblistValidate, '/pleblist/validate')
     api.add_resource(APIPleblistBlacklist, '/pleblist/blacklist')
     api.add_resource(APIPleblistTop, '/pleblist/top')
+    api.add_resource(APIPleblistCheck, '/pleblist/check')

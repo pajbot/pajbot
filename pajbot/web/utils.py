@@ -11,7 +11,7 @@ from flask import abort
 from flask import make_response
 from flask import request
 from flask import session
-from flask.ext.scrypt import generate_password_hash
+from flask_scrypt import generate_password_hash
 from flask_restful import reqparse
 
 import pajbot.exc

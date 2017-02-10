@@ -12,6 +12,19 @@ from pajbot.web import app
 log = logging.getLogger(__name__)
 
 
+def has_twitchalerts():
+    if 'twitchalerts' not in app.bot_config:
+        return False
+
+    if 'client_id' not in app.bot_config['twitchalerts']:
+        return False
+
+    if 'client_secret' not in app.bot_config['twitchalerts']:
+        return False
+
+    return True
+
+
 class APITwitchAlertsOAuth(Resource):
     def __init__(self):
         super().__init__()
@@ -57,5 +70,4 @@ class APITwitchAlertsValidate(Resource):
 
 
 def init(api):
-    api.add_resource(APITwitchAlertsOAuth, '/twitchalerts/oauth')
-    api.add_resource(APITwitchAlertsValidate, '/twitchalerts/validate')
+    pass

@@ -1,5 +1,9 @@
-from flask.ext.assets import Bundle
-from flask.ext.assets import Environment
+import logging
+
+from flask_assets import Bundle
+from flask_assets import Environment
+
+log = logging.getLogger(__name__)
 
 
 def init(app):
@@ -93,3 +97,5 @@ def init(app):
     paginate_js = Bundle('scripts/paginate.js', filters='jsmin',
             output='scripts/gen.paginate.%(version)s.js')
     assets.register('paginate_js', paginate_js)
+
+    assets.init_app(app)

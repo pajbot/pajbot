@@ -55,7 +55,6 @@ function add_tip(username, avatar, cents, note)
                     if (match.getUrl().indexOf('youtu.be/') !== -1 || match.getUrl().indexOf('youtube.com/watch?') !== -1) {
                         var tag = autolinker.getTagBuilder().build(match);
                         tag.addClass('youtube-link');
-                        console.log('got youtube link');
                         return tag;
                     } else if (parsed_uri.host.endsWith('imgur.com') === true) {
                         var tag = autolinker.getTagBuilder().build(match);
@@ -202,7 +201,6 @@ function add_tip(username, avatar, cents, note)
                                 });
                                 $(el).append($skip_after_10);
                             }
-                            console.log('asd');
                             var $data = $('<div>').text('Song title: ' + song_info.title);
                             $(el).append($data);
                             var $data = $('<div>').text('Song length: ' + moment.duration(song_info.duration, 'seconds').format('h:mm:ss'));
@@ -240,24 +238,18 @@ function add_tip(username, avatar, cents, note)
 
 function streamtip_connect(access_token)
 {
-    $.post('/api/v1/streamtip/validate', { 'access_token': access_token }).done(function(data) {
-        $('#notification').text('Successfully validated with streamtip');
-        secret_password = data.password;
-
-        get_donations(streamtip_client_id, access_token, function(donations, raw_json) {
-            donations.reverse();
-            for (tip_id in donations) {
-                var tip = donations[tip_id];
-                if (tip.user === undefined) {
-                    // for manually added tips
-                    continue;
-                }
-                add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
+    get_donations(streamtip_client_id, access_token, function(donations, raw_json) {
+        donations.reverse();
+        for (tip_id in donations) {
+            var tip = donations[tip_id];
+            if (tip.user === undefined) {
+                // for manually added tips
+                continue;
             }
-        }, 10, 0);
-    }).fail(function(data) {
-        $('#notification').text('Unable to validate with this streamtip. Contact pajlada if you believe this is wrong.');
-    });
+            add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
+        }
+    }, 10, 0);
+
     var socket = io.connect('https://streamtip.com', {
             query: 'access_token='+encodeURIComponent(access_token)
             });
@@ -272,6 +264,47 @@ function streamtip_connect(access_token)
         } else if (code == '400') {
             console.log('bad request');
         }
+    });
+
+    socket.on('newTip', function(data) {
+        add_tip(data.username, data.user.avatar, data.cents, data.note);
+    });
+}
+
+function streamelements_connect(access_token)
+{
+    /*
+    get_donations(streamtip_client_id, access_token, function(donations, raw_json) {
+        donations.reverse();
+        for (tip_id in donations) {
+            var tip = donations[tip_id];
+            if (tip.user === undefined) {
+                // for manually added tips
+                continue;
+            }
+            add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
+        }
+    }, 10, 0);
+    */
+
+    var socket = io.connect('wss://api.streamelements.com/socket', {
+            query: 'access_token='+encodeURIComponent(access_token)
+            });
+
+    socket.on('error', function(err) {
+        var code = err.split('::')[0];
+
+        if (code === '401') {
+            console.log('Authentication failed');
+        } else if (code == '429') {
+            console.log('rate limited');
+        } else if (code == '400') {
+            console.log('bad request');
+        }
+    });
+
+    socket.on('connect', function() {
+        log.debug('xd');
     });
 
     socket.on('newTip', function(data) {
@@ -373,35 +406,28 @@ secret_password = undefined;
 
 $(document).ready(function() {
     secret_password = $.cookie('password');
-    function use_access_token_from_hash()
+
+    function successful_login(res)
     {
-        var hash = window.location.hash.substring(1);
-
-        window.location.hash = '';
-
-        if (hash.length > 2) {
-            if (hash.substr(0, 9) == 'STREAMTIP') {
-                hash = hash.substr(9);
-                streamtip_connect(hash);
-                return 'streamtip'
-            } else if (hash.substr(0, 12) == 'TWITCHALERTS') {
-                hash = hash.substr(12);
-                twitchalerts_connect(hash);
-                return 'twitchalerts';
-            }
-        }
-        return false;
+        var $btn = $('#button_div button.' + res.toLowerCase());
+        $btn.addClass('green');
+        $btn.text('Logged in with ' + res);
     }
 
-    var res = use_access_token_from_hash();
-    if (res !== false) {
-        var $p = $('<p>').text('Logged in with ' + res + '!');
-        $('#button_div').append($p);
-    } else {
-        var $streamtip_button = $('<button>', {'class': 'ui button', 'onclick': 'streamtip_auth()'}).text('Log in with Streamtip');
-        var $twitchalerts_button = $('<button>', {'class': 'ui button', 'onclick': 'twitchalerts_auth()'}).text('Log in with TwitchAlerts');
-        $('#button_div').append($streamtip_button);
-        $('#button_div').append($twitchalerts_button);
+    if ($.cookie('streamtip_access_token')) {
+        streamtip_connect($.cookie('streamtip_access_token'));
+        $.removeCookie('streamtip_access_token', { path: '/' });
+        successful_login('Streamtip');
+    }
+
+    if ($.cookie('streamelements_access_token')) {
+        streamelements_connect($.cookie('streamelements_access_token'));
+        successful_login('StreamElements');
+    }
+
+    if ($.cookie('streamlabs_access_token')) {
+        streamlabs_connect($.cookie('streamlabs_access_token'));
+        successful_login('StreamLabs');
     }
 });
 

@@ -18,7 +18,7 @@ def init(args):
 
     from flask import request
     from flask import session
-    from flask.ext.scrypt import generate_random_salt
+    from flask_scrypt import generate_random_salt
 
     import pajbot.web.common
     import pajbot.web.routes

@@ -11,16 +11,17 @@
     background-size: 100%;
 }
 </style>
-{% assets 'semantic_css' %}
+{% assets "semantic_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
-{% assets 'base_css' %}
+{% assets "base_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.css">
 <link rel="stylesheet" type="text/css" href="//cdn.pajlada.se/css/pickadate/default.date.css">
 </head>
 <body class="main body">
+    <!--<h3>fixing website atm <img src="https://pbs.twimg.com/profile_images/612293854511919104/__arQ929.jpg"/></h3>-->
 {% set active_page = active_page|default('home') %}
 <header class="main header">
 {% block menu %}
