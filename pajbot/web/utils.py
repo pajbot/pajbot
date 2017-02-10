@@ -212,6 +212,7 @@ def create_pleblist_login(bot_config):
     salted_password = generate_password_hash(bot_config['web']['pleblist_password'], bot_config['web']['pleblist_password_salt'])
     return base64.b64encode(salted_password).decode('utf8')
 
+
 def seconds_to_vodtime(t):
     s = int(t)
     h = s / 3600

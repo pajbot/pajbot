@@ -7,7 +7,6 @@ from pajbot.managers.db import DBManager
 from pajbot.models.pleblist import PleblistSong
 from pajbot.models.stream import Stream
 from pajbot.models.stream import StreamChunk
-from pajbot.models.user import User
 from pajbot.utils import find
 from pajbot.web.utils import seconds_to_vodtime
 from pajbot.web.routes.api.streamelements import has_streamelements
@@ -24,7 +23,8 @@ def init(app):
 
     @app.route('/pleblist/host/')
     def pleblist_host():
-        return render_template('pleblist_host.html',
+        return render_template(
+                'pleblist_host.html',
                 has_streamtip=has_streamtip(),
                 has_streamlabs=has_streamlabs(),
                 has_streamelements=has_streamelements(),
