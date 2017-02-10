@@ -3,9 +3,6 @@ __pycache__
 *.py[cod]
 *$py.class
 
-# Folder created by pip
-src/
-
 # system files
 .DS_Store
 
