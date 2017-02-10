@@ -64,5 +64,5 @@ python-Levenshtein
 # -r requirements/thumbnail.txt
 
 flake8
-flake8-quites
+flake8-quotes
 flake8-import-order
