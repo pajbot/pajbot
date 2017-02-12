@@ -39,6 +39,39 @@ function get_donations(client_id, access_token, on_finished, limit, offset, date
     });
 }
 
+function streamelements_get_donations(access_token, on_finished, limit, offset, date_from)
+{
+    var donations = [];
+    var api_url = 'https://api.streamelements.com/kappa/v1/tips';
+    if (typeof date_from !== 'undefined') {
+        api_url = api_url + '?date_from='+date_from;
+    }
+    request_arguments = {
+        'limit': limit,
+        'offset': offset,
+    };
+    $.ajax({
+        url: api_url,
+        timeout: 1500,
+        cache: false,
+        data: request_arguments,
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Authorization', 'OAuth ' + access_token);
+        },
+        success: function(data) {
+            var donations = [];
+
+            for (var i=0; i<data.total; ++i) {
+                donations.push(data.docs[i].donation);
+            }
+
+            on_finished(donations);
+
+            console.log(data);
+        },
+    });
+}
+
 function add_tip(username, avatar, cents, note)
 {
     cents = String(cents);
@@ -114,7 +147,7 @@ function add_tip(username, avatar, cents, note)
                         $(el).find('.youtube-link').html(youtube_url+'&emsp;').attr('href', 'https://'+youtube_url);
                         song_info = response.song_info;
                         if (song_info !== null) {
-                            var $button = $('<button>', {'class': 'ui small button playfull', 'style': 'padding: 5px;'}).text('Add to pleblist');
+                            var $button = $('<button>', {'class': 'ui small button playfull', 'style': 'padding: 5px;'}).text('Add to pleblist');;
                             $button.api({
                                 action: 'pleblist_add_song',
                                 method: 'post',
@@ -271,25 +304,32 @@ function streamtip_connect(access_token)
     });
 }
 
+var streamelements_socket;
+
 function streamelements_connect(access_token)
 {
-    /*
-    get_donations(streamtip_client_id, access_token, function(donations, raw_json) {
+    streamelements_get_donations(access_token, function(donations, raw_json) {
         donations.reverse();
         for (tip_id in donations) {
             var tip = donations[tip_id];
+            /*
             if (tip.user === undefined) {
                 // for manually added tips
                 continue;
             }
-            add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
+            */
+            if (tip.user.avatar === undefined) {
+                tip.user.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
+            }
+            add_tip(tip.user.username, tip.user.avatar, tip.amount * 100, tip.message);
         }
     }, 10, 0);
-    */
 
-    var socket = io.connect('wss://api.streamelements.com/socket', {
-            query: 'access_token='+encodeURIComponent(access_token)
-            });
+    var socket = io.connect('https://api.streamelements.com', {
+        path: '/socket'
+    });
+
+    streamelements_socket = socket;
 
     socket.on('error', function(err) {
         var code = err.split('::')[0];
@@ -304,12 +344,34 @@ function streamelements_connect(access_token)
     });
 
     socket.on('connect', function() {
-        log.debug('xd');
+        socket.emit('authenticate:oauth', { token: access_token });
+    });
+
+    socket.on('authenticated', function() {
+        console.log('we are now authenticated');
     });
 
     socket.on('newTip', function(data) {
-        add_tip(data.username, data.user.avatar, data.cents, data.note);
     });
+
+    socket.on('event', events);
+    socket.on('event:test', events);
+
+    function events(payload) {
+        var data = payload;
+        if (payload.test !== undefined) {
+            data = payload.event;
+        }
+
+        if (data.type == 'tip') {
+            if (data.avatar === undefined) {
+                data.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
+            }
+            add_tip(data.name, data.avatar, data.amount * 100, data.message);
+        }
+        console.log(data);
+        console.log('new event of type ', data.type);
+    }
 }
 
 var latest_donation_id = -1;

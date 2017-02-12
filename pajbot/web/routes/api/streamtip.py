@@ -94,11 +94,8 @@ def init(api):
                 log.warn(resp.data)
                 log.warn(resp.type)
                 return 'error 3'
-            log.debug(resp)
-            access_token = resp['access_token']
-            log.debug(resp['access_token'])
-            log.debug(access_token)
 
+            access_token = resp['access_token']
             session['streamtip_token'] = (access_token, )
 
             log.debug(resp)
@@ -106,7 +103,7 @@ def init(api):
             me = streamtip.get('me')
 
             if me.data['user']['provider'] == 'twitch':
-                if me.data['user']['name'] in ('pajlada', 'forsenlol'):
+                if me.data['user']['name'] in ('pajlada', app.bot_config['main']['streamer']):
                     password = pajbot.web.utils.create_pleblist_login(app.bot_config)
                     resp = flask.make_response(redirect('/pleblist/host'))
                     resp.set_cookie('password', password)

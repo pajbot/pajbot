@@ -105,7 +105,7 @@ def init(api):
             log.info(me.data['twitch'])
             log.info(me.data['twitch']['name'])
 
-            if me.data['twitch']['name'] in ('pajlada', 'forsenlol'):
+            if me.data['twitch']['name'] in ('pajlada', app.bot_config['main']['streamer']):
                 password = pajbot.web.utils.create_pleblist_login(app.bot_config)
                 resp = flask.make_response(flask.jsonify({'password': password}))
                 resp.set_cookie('password', password)

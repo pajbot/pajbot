@@ -87,14 +87,16 @@ def init(api):
                 log.warn(resp.type)
                 return 'error 3'
 
-            session['streamelements_token'] = (resp['access_token'], )
+            access_token = resp['access_token']
+            session['streamelements_token'] = (access_token, )
 
             me = streamelements.get('kappa/v1/users/me')
 
-            if me.data['username'] in ('pajlada', 'forsenlol'):
+            if me.data['username'] in ('pajlada', app.bot_config['main']['streamer']):
                 password = pajbot.web.utils.create_pleblist_login(app.bot_config)
-                resp = flask.make_response(flask.jsonify({'password': password}))
+                resp = flask.make_response(redirect('/pleblist/host'))
                 resp.set_cookie('password', password)
+                resp.set_cookie('streamelements_access_token', access_token)
                 return resp
 
             return 'you can\'t use this pleblist'
