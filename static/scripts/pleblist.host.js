@@ -1,83 +1,34 @@
-function get_donations(client_id, access_token, on_finished, limit, offset, date_from)
-{
-    var donations = [];
-    var streamtip_url = 'https://streamtip.com/api/tips';
-    if (typeof date_from !== 'undefined') {
-        streamtip_url = streamtip_url + '?date_from='+date_from;
-    }
-    $.ajax({
-        url: streamtip_url,
-        timeout: 1500,
-        cache: false,
-        dataType: 'jsonp',
-        data: {
-            'client_id': client_id,
-            'access_token': access_token,
-            'limit': limit,
-            'offset': offset,
-        },
-    })
-    .done(function(json) {
-        var donations = [];
+var secret_password = undefined;
+var currency_symbols = {
+    'USD': '$', // US Dollar
+    'EUR': '€', // Euro
+    'CRC': '₡', // Costa Rican Colón
+    'GBP': '£', // British Pound Sterling
+    'ILS': '₪', // Israeli New Sheqel
+    'INR': '₹', // Indian Rupee
+    'JPY': '¥', // Japanese Yen
+    'KRW': '₩', // South Korean Won
+    'NGN': '₦', // Nigerian Naira
+    'PHP': '₱', // Philippine Peso
+    'PLN': 'zł', // Polish Zloty
+    'PYG': '₲', // Paraguayan Guarani
+    'THB': '฿', // Thai Baht
+    'UAH': '₴', // Ukrainian Hryvnia
+    'VND': '₫', // Vietnamese Dong
+};
 
-        if (json['tips'].length >= 1) {
-            for (var i=0; i<json['tips'].length; ++i) {
-                donations.push(json['tips'][i]);
-            }
+function add_tip(username, avatar, amount, cents, note, currency_symbol)
+{
+    if (currency_symbol == null) {
+        currency_symbol = '$';
+    }
+
+    if (amount == null) {
+        cents = String(cents);
+        amount = cents.substring(0, cents.length - 2);
+        if (cents.substring(cents.length - 2) !== '00') {
+            amount = amount + '.' + cents.substring(cents.length - 2);
         }
-
-        on_finished(donations, json);
-    })
-    .fail(function(xhrObj, textStatus) {
-        console.log('Fail!' + textStatus);
-
-        console.log('Retrying in 5 seconds...');
-        setTimeout(function() {
-            console.log('Retrying!');
-            get_donations(client_id, access_token, on_finished, limit, offset, date_from);
-        }, 5000);
-    });
-}
-
-function streamelements_get_donations(access_token, on_finished, limit, offset, date_from)
-{
-    var donations = [];
-    var api_url = 'https://api.streamelements.com/kappa/v1/tips';
-    if (typeof date_from !== 'undefined') {
-        api_url = api_url + '?date_from='+date_from;
-    }
-    request_arguments = {
-        'limit': limit,
-        'offset': offset,
-    };
-    $.ajax({
-        url: api_url,
-        timeout: 1500,
-        cache: false,
-        data: request_arguments,
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'OAuth ' + access_token);
-        },
-        success: function(data) {
-            var donations = [];
-
-            for (var i=0; i<data.total; ++i) {
-                donations.push(data.docs[i].donation);
-            }
-
-            on_finished(donations);
-
-            console.log(data);
-        },
-    });
-}
-
-function add_tip(username, avatar, cents, note)
-{
-    cents = String(cents);
-    var amount = '$' + cents.substring(0, cents.length - 2);
-    if (cents.substring(cents.length - 2) !== '00') {
-        amount = amount + '.' + cents.substring(cents.length - 2);
     }
 
     var linked_note = Autolinker.link(note, {
@@ -108,7 +59,7 @@ function add_tip(username, avatar, cents, note)
     $image_div.append($img);
     $content_div = $('<div>', {'class': 'content'});
     $div.append($content_div);
-    $header_div = $('<div>', {'class': 'header'}).text(username + ' (' + amount + ')');
+    $header_div = $('<div>', {'class': 'header'}).text(username + ' (' + currency_symbol + amount + ')');
     $content_div.append($header_div);
     /*
     $meta_div = $('<div>', {'class': 'meta'}).text(';)'); // XXX: Fix this
@@ -269,203 +220,6 @@ function add_tip(username, avatar, cents, note)
     });
 }
 
-function streamtip_connect(access_token)
-{
-    get_donations(streamtip_client_id, access_token, function(donations, raw_json) {
-        donations.reverse();
-        for (tip_id in donations) {
-            var tip = donations[tip_id];
-            if (tip.user === undefined) {
-                // for manually added tips
-                continue;
-            }
-            add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
-        }
-    }, 10, 0);
-
-    var socket = io.connect('https://streamtip.com', {
-            query: 'access_token='+encodeURIComponent(access_token)
-            });
-
-    socket.on('error', function(err) {
-        var code = err.split('::')[0];
-
-        if (code === '401') {
-            console.log('Authentication failed');
-        } else if (code == '429') {
-            console.log('rate limited');
-        } else if (code == '400') {
-            console.log('bad request');
-        }
-    });
-
-    socket.on('newTip', function(data) {
-        add_tip(data.username, data.user.avatar, data.cents, data.note);
-    });
-}
-
-var streamelements_socket;
-
-function streamelements_connect(access_token)
-{
-    streamelements_get_donations(access_token, function(donations, raw_json) {
-        donations.reverse();
-        for (tip_id in donations) {
-            var tip = donations[tip_id];
-            /*
-            if (tip.user === undefined) {
-                // for manually added tips
-                continue;
-            }
-            */
-            if (tip.user.avatar === undefined) {
-                tip.user.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
-            }
-            add_tip(tip.user.username, tip.user.avatar, tip.amount * 100, tip.message);
-        }
-    }, 10, 0);
-
-    var socket = io.connect('https://api.streamelements.com', {
-        path: '/socket'
-    });
-
-    streamelements_socket = socket;
-
-    socket.on('error', function(err) {
-        var code = err.split('::')[0];
-
-        if (code === '401') {
-            console.log('Authentication failed');
-        } else if (code == '429') {
-            console.log('rate limited');
-        } else if (code == '400') {
-            console.log('bad request');
-        }
-    });
-
-    socket.on('connect', function() {
-        socket.emit('authenticate:oauth', { token: access_token });
-    });
-
-    socket.on('authenticated', function() {
-        console.log('we are now authenticated');
-    });
-
-    socket.on('newTip', function(data) {
-    });
-
-    socket.on('event', events);
-    socket.on('event:test', events);
-
-    function events(payload) {
-        var data = payload;
-        if (payload.test !== undefined) {
-            data = payload.event;
-        }
-
-        if (data.type == 'tip') {
-            if (data.avatar === undefined) {
-                data.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
-            }
-            add_tip(data.name, data.avatar, data.amount * 100, data.message);
-        }
-        console.log(data);
-        console.log('new event of type ', data.type);
-    }
-}
-
-var latest_donation_id = -1;
-
-function get_twitchalerts_donations(access_token)
-{
-    $.ajax({
-    url: 'https://www.twitchalerts.com/api/v1.0/donations?access_token=' + access_token + '&after=' + latest_donation_id,
-        cache: false,
-    }).done(function(result, b, c) {
-        for (var i=result.data.length-1; i>=0; --i) {
-            var donation = result.data[i];
-            add_tip(donation.name, null, parseFloat(donation.amount) * 100, donation.message);
-            latest_donation_id = parseInt(donation.donation_id);
-        }
-    });
-}
-
-function twitchalerts_connect(access_token)
-{
-    console.log('TWITCHALERTS CONNECT');
-    $.post('/api/v1/twitchalerts/validate').done(function(data) {
-        $('#notification').text('Successfully validated with TwitchAlerts');
-        secret_password = data.password;
-    }).fail(function(data) {
-        $('#notification').text('Unable to validate with this TwitchAlerts. Contact pajlada if you believe this is wrong.');
-    });
-
-    get_twitchalerts_donations(access_token);
-
-    setInterval(function() {
-        get_twitchalerts_donations(access_token);
-    }, 10 * 1000);
-}
-
-function add_tip2(message)
-{
-    add_tip('Karl_Kons', null, 200, message);
-}
-
-function add_tests()
-{
-    var tip = {
-                "cents" : 10000,
-                "user" : {
-                    "_id" : "5456997a68db94ce04a5f4c3",
-                    "avatar" : "https://static-cdn.jtvnw.net/jtv_user_pictures/2o3a-profile_image-208599ad8e074285-300x300.png",
-                    "displayName" : "Test",
-                    "name" : "test",
-                    "provider" : "twitch",
-                    "providerId" : 10101
-                },
-                "note" : "For the pleblist google.com ab c also https://www.youtube.com/watch?v=g4mHPeMGTJM d e youtu.be/LcySqK5FP6U?omg g f d e www.youtube.com/watch?v=KBVY-uB-wTA",
-                "processor" : "PayPal",
-                "transactionId" : "4K2N0D835234BWKC",
-                "username" : "2o3a"
-            };
-    add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
-    tip = {
-                "cents" : 6969,
-                "user" : {
-                    "_id" : "5456997a68db94ce04a5f4c3",
-                    "avatar" : "https://static-cdn.jtvnw.net/jtv_user_pictures/zombernatural-profile_image-b0d75dded4d8f23a-300x300.png",
-                    "displayName" : "Test",
-                    "name" : "test",
-                    "provider" : "twitch",
-                    "providerId" : 10101
-                },
-                "note" : "youtube.com 4Head youtu.be/abcdefghijkKappa",
-                "processor" : "PayPal",
-                "transactionId" : "4K2N0D835234BWKC",
-                "username" : "Zombernatural"
-            };
-    add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
-    tip = {
-                "cents" : 350,
-                "user" : {
-                    "_id" : "5456997a68db94ce04a5f4c3",
-                    "avatar" : "https://static-cdn.jtvnw.net/jtv_user_pictures/zombernatural-profile_image-b0d75dded4d8f23a-300x300.png",
-                    "displayName" : "Test",
-                    "name" : "test",
-                    "provider" : "twitch",
-                    "providerId" : 10101
-                },
-                "note" : "youtube.com 4Head for the pleblist xD https://youtu.be/uXFQPfQVT4QKappa",
-                "processor" : "PayPal",
-                "transactionId" : "4K2N0D835234BWKC",
-                "username" : "Zombernatural"
-            };
-    add_tip(tip.username, tip.user.avatar, tip.cents, tip.note);
-}
-
-secret_password = undefined;
-
 $(document).ready(function() {
     secret_password = $.cookie('password');
 
@@ -478,7 +232,7 @@ $(document).ready(function() {
 
     if ($.cookie('streamtip_access_token')) {
         streamtip_connect($.cookie('streamtip_access_token'));
-        $.removeCookie('streamtip_access_token', { path: '/' });
+        //$.removeCookie('streamtip_access_token', { path: '/' });
         successful_login('Streamtip');
     }
 

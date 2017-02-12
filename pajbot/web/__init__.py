@@ -137,28 +137,6 @@ def init(args):
             'google_analytics': config['web'].get('google_analytics', None),
             }
 
-    if 'streamtip' in config:
-        default_variables['streamtip_data'] = {
-                'client_id': config['streamtip']['client_id'],
-                'redirect_uri': config['streamtip']['redirect_uri'],
-                }
-    else:
-        default_variables['streamtip_data'] = {
-                'client_id': 'MISSING',
-                'redirect_uri': 'MISSING',
-                }
-
-    if 'twitchalerts' in config:
-        default_variables['twitchalerts_data'] = {
-                'client_id': config['twitchalerts']['client_id'],
-                'redirect_uri': config['twitchalerts']['redirect_uri'],
-                }
-    else:
-        default_variables['twitchalerts_data'] = {
-                'client_id': 'MISSING',
-                'redirect_uri': 'MISSING',
-                }
-
     @app.context_processor
     def current_time():
         current_time = {}

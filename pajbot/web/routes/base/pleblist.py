@@ -26,7 +26,9 @@ def init(app):
         return render_template(
                 'pleblist_host.html',
                 has_streamtip=has_streamtip(),
+                streamtip_client_id=app.bot_config['streamtip']['client_id'] if has_streamtip() else '',
                 has_streamlabs=has_streamlabs(),
+                streamlabs_client_id=app.bot_config['streamlabs']['client_id'] if has_streamlabs() else '',
                 has_streamelements=has_streamelements(),
                 )
 

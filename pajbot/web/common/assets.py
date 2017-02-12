@@ -24,7 +24,12 @@ def init(app):
             output='gen/scripts/pleblist.%(version)s.js')
     pleblist_shared = Bundle('scripts/pleblist.shared.js', filters='jsmin',
             output='gen/scripts/pleblist.shared.%(version)s.js')
-    pleblist_host = Bundle('scripts/pleblist.host.js', filters='jsmin',
+    pleblist_host = Bundle(
+            'scripts/pleblist.host.js',
+            'scripts/pleblist.host.streamtip.js',
+            'scripts/pleblist.host.streamelements.js',
+            'scripts/pleblist.host.streamlabs.js',
+            filters='jsmin',
             output='gen/scripts/pleblist.host.%(version)s.js')
     assets.register('pleblist_shared', pleblist_shared)
     assets.register('pleblist_client', pleblist_client)
