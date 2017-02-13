@@ -1,5 +1,24 @@
 var streamelements_socket;
 
+function streamelements_replay_activity(access_token, activity_id)
+{
+    $.ajax({
+        url: 'https://api.streamelements.com/kappa/v1/activities/' + activity_id + '/replay',
+        method: 'post',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: '{"_id":"' + activity_id + '","_username":"pajlada","type":"tip","data":{"username":"styler","amount":100,"currency":"DKK","message":"Keepo XDDDDD 4Head"},"createdAt":"2017-01-25T19:07:13.237Z"}',
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Authorization', 'OAuth ' + access_token);
+        },
+        success: function(data) {
+            console.log('successfully replayed');
+            console.log(data);
+        },
+    });
+
+}
+
 function streamelements_get_donations(access_token, on_finished, limit, offset, date_from)
 {
     var donations = [];
@@ -7,7 +26,7 @@ function streamelements_get_donations(access_token, on_finished, limit, offset, 
     if (typeof date_from !== 'undefined') {
         api_url = api_url + '?date_from='+date_from;
     }
-    request_arguments = {
+    var request_arguments = {
         'limit': limit,
         'offset': offset,
     };
@@ -27,8 +46,6 @@ function streamelements_get_donations(access_token, on_finished, limit, offset, 
             }
 
             on_finished(donations);
-
-            console.log(data);
         },
     });
 }
@@ -40,8 +57,6 @@ function streamelements_add_tip(tip)
     }
 
     console.log(tip);
-    console.log(tip.currency);
-    console.log('xd');
 
     var currencySymbol = '$';
 
@@ -81,32 +96,35 @@ function streamelements_connect(access_token)
     streamelements_socket = socket;
 
     socket.on('error', function(err) {
-        var code = err.split('::')[0];
-
-        if (code === '401') {
-            console.log('Authentication failed');
-        } else if (code == '429') {
-            console.log('rate limited');
-        } else if (code == '400') {
-            console.log('bad request');
-        }
+        console.error('[StreamElements] Error connecting to websocket', err);
     });
 
     socket.on('connect', function() {
+        console.log('[StreamElements] Connected via WebSocket, authenticating...');
         socket.emit('authenticate:oauth', { token: access_token });
     });
 
     socket.on('authenticated', function() {
-        console.log('we are now authenticated');
-    });
+        console.log('[StreamElements] Authenticated via WebSocket');
 
-    socket.on('newTip', function(data) {
+        streamelements_replay_activity(access_token, '58a0b82f5c8663231e1f0b26');
     });
 
     socket.on('event', events);
+    socket.on('tip', function(xD) {
+        console.log(xD);
+    });
+    socket.on('tip-latest', function(xD) {
+        console.log(xD);
+    });
     socket.on('event:test', events);
+    socket.on('event:update', function(xD) {
+        console.log(xD);
+    });
 
     function events(payload) {
+        console.log('aaaaaa');
+        console.log(payload);
         var data = payload;
         if (payload.test !== undefined) {
             data = payload.event;

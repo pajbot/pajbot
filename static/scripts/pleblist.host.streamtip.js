@@ -1,3 +1,5 @@
+var streamtip_socket;
+
 function streamtip_get_donations(client_id, access_token, on_finished, limit, offset, date_from)
 {
     var donations = [];
@@ -16,26 +18,26 @@ function streamtip_get_donations(client_id, access_token, on_finished, limit, of
             'limit': limit,
             'offset': offset,
         },
-    })
-    .done(function(json) {
-        var donations = [];
+        success: function(json) {
+            var donations = [];
 
-        if (json['tips'].length >= 1) {
-            for (var i=0; i<json['tips'].length; ++i) {
-                donations.push(json['tips'][i]);
+            if (json['tips'].length >= 1) {
+                for (var i=0; i<json['tips'].length; ++i) {
+                    donations.push(json['tips'][i]);
+                }
             }
+
+            on_finished(donations, json);
+        },
+        error: function(xhrObj, textStatus) {
+            console.log('[Streamtip] Fail fetching recent donations!' + textStatus);
+            console.log('[Streamtip] Retrying in 5 seconds...');
+
+            setTimeout(function() {
+                console.log('[Streamtip] Retrying now...');
+                streamtip_get_donations(client_id, access_token, on_finished, limit, offset, date_from);
+            }, 5000);
         }
-
-        on_finished(donations, json);
-    })
-    .fail(function(xhrObj, textStatus) {
-        console.log('Fail!' + textStatus);
-
-        console.log('Retrying in 5 seconds...');
-        setTimeout(function() {
-            console.log('Retrying!');
-            streamtip_get_donations(client_id, access_token, on_finished, limit, offset, date_from);
-        }, 5000);
     });
 }
 
@@ -62,17 +64,18 @@ function streamtip_connect(access_token)
         query: 'access_token='+encodeURIComponent(access_token)
     });
 
-    socket.on('error', function(err) {
-        console.log(err);
-        var code = err.split('::')[0];
+    streamtip_socket = socket;
 
-        if (code === '401') {
-            console.log('Authentication failed');
-        } else if (code == '429') {
-            console.log('rate limited');
-        } else if (code == '400') {
-            console.log('bad request');
-        }
+    socket.on('connect', function() {
+        console.log('[Streamtip] Connected via Websocket');
+    });
+
+    socket.on('disconnect', function() {
+        console.log('[Streamtip] Websocket disconnected');
+    });
+
+    socket.on('error', function(err) {
+        console.error('[Streamtip] Error connecting to websocket', err);
     });
 
     socket.on('newTip', function(tip) {

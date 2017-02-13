@@ -43,7 +43,6 @@ function add_tip(username, avatar, amount, cents, note, currency_symbol)
                     } else if (parsed_uri.host.endsWith('imgur.com') === true) {
                         var tag = autolinker.getTagBuilder().build(match);
                         tag.addClass('imgur-link');
-                        console.log('got imgur link');
                         return tag;
                     }
                     return true;
@@ -78,7 +77,7 @@ function add_tip(username, avatar, amount, cents, note, currency_symbol)
             var parsed_uri = parseUri(link.href);
             var youtube_id = parse_youtube_id_from_url(link.href);
             var song_info = null;
-            console.log('Checking ' + link.href);
+            console.log('[Pleblist Host] Checking ' + link.href);
             if (youtube_id !== false) {
                 $.api({
                     action: 'pleblist_validate',
