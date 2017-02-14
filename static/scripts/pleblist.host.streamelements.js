@@ -1,24 +1,5 @@
 var streamelements_socket;
 
-function streamelements_replay_activity(access_token, activity_id)
-{
-    $.ajax({
-        url: 'https://api.streamelements.com/kappa/v1/activities/' + activity_id + '/replay',
-        method: 'post',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: '{"_id":"' + activity_id + '","_username":"pajlada","type":"tip","data":{"username":"styler","amount":100,"currency":"DKK","message":"Keepo XDDDDD 4Head"},"createdAt":"2017-01-25T19:07:13.237Z"}',
-        beforeSend: function(xhr) {
-            xhr.setRequestHeader('Authorization', 'OAuth ' + access_token);
-        },
-        success: function(data) {
-            console.log('successfully replayed');
-            console.log(data);
-        },
-    });
-
-}
-
 function streamelements_get_donations(access_token, on_finished, limit, offset, date_from)
 {
     var donations = [];
@@ -55,8 +36,6 @@ function streamelements_add_tip(tip)
     if (tip.user.avatar === undefined) {
         tip.user.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
     }
-
-    console.log(tip);
 
     var currencySymbol = '$';
 
@@ -106,37 +85,19 @@ function streamelements_connect(access_token)
 
     socket.on('authenticated', function() {
         console.log('[StreamElements] Authenticated via WebSocket');
-
-        streamelements_replay_activity(access_token, '58a0b82f5c8663231e1f0b26');
     });
 
-    socket.on('event', events);
-    socket.on('tip', function(xD) {
-        console.log(xD);
-    });
-    socket.on('tip-latest', function(xD) {
-        console.log(xD);
-    });
-    socket.on('event:test', events);
-    socket.on('event:update', function(xD) {
-        console.log(xD);
-    });
+    socket.on('tip-latest', tipHandler);
+    socket.on('event:test', testEventHandler);
 
-    function events(payload) {
-        console.log('aaaaaa');
-        console.log(payload);
-        var data = payload;
-        if (payload.test !== undefined) {
-            data = payload.event;
+    function testEventHandler(payload) {
+        if (payload.listener === 'tip-latest') {
+            tipHandler(payload.event);
         }
+    }
 
-        if (data.type == 'tip') {
-            if (data.avatar === undefined) {
-                data.avatar = 'https://cdn.pajlada.se/images/profile-placeholder.png';
-            }
-            streamelements_add_tip_ws(data);
-        }
-        console.log(data);
-        console.log('new event of type ', data.type);
+    function tipHandler(payload) {
+        console.log('[StreamElements] Got new tip:', payload);
+        streamelements_add_tip_ws(payload);
     }
 }

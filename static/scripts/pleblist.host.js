@@ -229,20 +229,27 @@ $(document).ready(function() {
         $btn.text('Logged in with ' + res);
     }
 
-    if ($.cookie('streamtip_access_token')) {
-        streamtip_connect($.cookie('streamtip_access_token'));
-        //$.removeCookie('streamtip_access_token', { path: '/' });
-        successful_login('Streamtip');
-    }
+    var services = {
+        'Streamtip': {
+            cookie: 'streamtip_access_token',
+            connect_method: streamtip_connect,
+        },
+        'StreamElements': {
+            cookie: 'streamelements_access_token',
+            connect_method: streamelements_connect,
+        },
+        'Streamlabs': {
+            cookie: 'streamlabs_access_token',
+            connect_method: streamlabs_connect,
+        },
+    };
 
-    if ($.cookie('streamelements_access_token')) {
-        streamelements_connect($.cookie('streamelements_access_token'));
-        successful_login('StreamElements');
-    }
-
-    if ($.cookie('streamlabs_access_token')) {
-        streamlabs_connect($.cookie('streamlabs_access_token'));
-        successful_login('StreamLabs');
-    }
+    $.each(services, function(name, data) {
+        if ($.cookie(data.cookie)) {
+            data.connect_method($.cookie(data.cookie));
+            $.removeCookie(data.cookie, { path: '/' });
+            successful_login(name);
+        }
+    });
 });
 
