@@ -22,7 +22,7 @@ function streamelements_get_donations(access_token, on_finished, limit, offset, 
         success: function(data) {
             var donations = [];
 
-            for (var i=0; i<data.total; ++i) {
+            for (var i=0; i<data.docs.length; ++i) {
                 donations.push(data.docs[i].donation);
             }
 
