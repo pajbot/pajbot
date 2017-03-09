@@ -66,7 +66,7 @@ function streamelements_connect(access_token)
         for (tip_id in donations) {
             streamelements_add_tip(donations[tip_id]);
         }
-    }, 10, 0);
+    }, 50, 0);
 
     var socket = io.connect('https://api.streamelements.com', {
         path: '/socket'
@@ -89,10 +89,17 @@ function streamelements_connect(access_token)
 
     socket.on('tip-latest', tipHandler);
     socket.on('event:test', testEventHandler);
+    socket.on('event:update', realEventHandler);
 
     function testEventHandler(payload) {
         if (payload.listener === 'tip-latest') {
             tipHandler(payload.event);
+        }
+    }
+
+    function realEventHandler(payload) {
+        if (payload.name === 'tip-latest') {
+            tipHandler(payload.data);
         }
     }
 
