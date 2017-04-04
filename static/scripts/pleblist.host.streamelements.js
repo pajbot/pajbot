@@ -68,7 +68,7 @@ function streamelements_connect(access_token)
         }
     }, 50, 0);
 
-    var socket = io.connect('https://api.streamelements.com', {
+    var socket = io.connect('https://realtime.streamelements.com', {
         path: '/socket'
     });
 
