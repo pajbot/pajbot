@@ -32,6 +32,7 @@
                 <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'contains' else '' }}value="contains">Contains</option>
                 <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'startswith' else '' }}value="startswith">Starts with</option>
                 <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'endswith' else '' }}value="endswith">Ends with</option>
+                <option {{ 'selected="selected" ' if banphrase and banphrase.operator == 'exact' else '' }}value="exact">Exact</option>
             </select>
         </div>
     </div>

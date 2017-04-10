@@ -33,7 +33,7 @@ class Banphrase(Base):
             nullable=False,
             default=False,
             server_default=sqlalchemy.sql.expression.false())
-    operator = Column(Enum('contains', 'startswith', 'endswith'),
+    operator = Column(Enum('contains', 'startswith', 'endswith', 'exact'),
             nullable=False,
             default='contains',
             server_default='contains')
