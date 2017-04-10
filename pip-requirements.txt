@@ -68,3 +68,5 @@ flake8-quotes
 flake8-import-order
 
 pyscss
+
+unidecode

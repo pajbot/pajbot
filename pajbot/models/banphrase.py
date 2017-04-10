@@ -9,6 +9,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
+from unidecode import unidecode
 
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
@@ -28,6 +29,7 @@ class Banphrase(Base):
     warning = Column(Boolean, nullable=False, default=True)
     notify = Column(Boolean, nullable=False, default=True)
     case_sensitive = Column(Boolean, nullable=False, default=False)
+    remove_accents = Column(Boolean, nullable=False, default=False)
     enabled = Column(Boolean, nullable=False, default=True)
     sub_immunity = Column(Boolean,
             nullable=False,
@@ -56,6 +58,7 @@ class Banphrase(Base):
         self.case_sensitive = False
         self.enabled = True
         self.operator = 'contains'
+        self.remove_accents = False
 
         self.set(**options)
 
@@ -70,35 +73,37 @@ class Banphrase(Base):
         self.sub_immunity = options.get('sub_immunity', self.sub_immunity)
         self.enabled = options.get('enabled', self.enabled)
         self.operator = options.get('operator', self.operator)
+        self.remove_accents = options.get('remove_accents', self.remove_accents)
 
         self.refresh_operator()
+
+    def format_message(self, message):
+        if self.case_sensitive is False:
+            message = message.lower()
+        if self.remove_accents:
+            message = unidecode(message)
+
+        return message
+
+    def get_phrase(self):
+        if self.case_sensitive is False:
+            return self.phrase.lower()
+        return self.phrase
 
     def refresh_operator(self):
         self.predicate = getattr(self, 'predicate_{}'.format(self.operator), None)
 
     def predicate_contains(self, message):
-        if self.case_sensitive:
-            return self.phrase in message
-        else:
-            return self.phrase.lower() in message.lower()
+        return self.get_phrase() in self.format_message(message)
 
     def predicate_startswith(self, message):
-        if self.case_sensitive:
-            return message.startswith(self.phrase)
-        else:
-            return message.lower().startswith(self.phrase.lower())
+        return self.format_message(message).startswith(self.get_phrase())
 
     def predicate_endswith(self, message):
-        if self.case_sensitive:
-            return message.endswith(self.phrase)
-        else:
-            return message.lower().endswith(self.phrase.lower())
+        return self.format_message(message).endswith(self.get_phrase())
 
     def predicate_exact(self, message):
-        if self.case_sensitive:
-            return message.strip() == self.phrase
-        else:
-            return message.lower().strip() == self.phrase.lower()
+        return self.format_message(message) == self.get_phrase()
 
     def match(self, message, user):
         """
@@ -329,13 +334,16 @@ class BanphraseManager:
         parser.add_argument('--no-warning', dest='warning', action='store_false')
         parser.add_argument('--subimmunity', dest='sub_immunity', action='store_true')
         parser.add_argument('--no-subimmunity', dest='sub_immunity', action='store_false')
+        parser.add_argument('--removeaccents', dest='remove_accents', action='store_true')
+        parser.add_argument('--no-removeaccents', dest='remove_accents', action='store_false')
         parser.add_argument('--name', nargs='+', dest='name')
         parser.set_defaults(length=None,
                 notify=None,
                 permanent=None,
                 case_sensitive=None,
                 warning=None,
-                sub_immunity=None)
+                sub_immunity=None,
+                remove_accents=None)
 
         try:
             args, unknown = parser.parse_known_args(message.split())

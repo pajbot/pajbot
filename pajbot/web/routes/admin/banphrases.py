@@ -42,8 +42,9 @@ def init(page):
                 notify = request.form.get('notify', 'off')
                 case_sensitive = request.form.get('case_sensitive', 'off')
                 sub_immunity = request.form.get('sub_immunity', 'off')
+                remove_accents = request.form.get('remove_accents', 'off')
                 length = int(request.form['length'])
-                phrase = request.form['phrase'].strip()
+                phrase = request.form['phrase']
                 operator = request.form['operator'].strip().lower()
             except (KeyError, ValueError):
                 abort(403)
@@ -53,6 +54,7 @@ def init(page):
             notify = True if notify == 'on' else False
             case_sensitive = True if case_sensitive == 'on' else False
             sub_immunity = True if sub_immunity == 'on' else False
+            remove_accents = True if remove_accents == 'on' else False
 
             if len(name) == 0:
                 abort(403)
@@ -80,6 +82,7 @@ def init(page):
                     'notify': notify,
                     'case_sensitive': case_sensitive,
                     'sub_immunity': sub_immunity,
+                    'remove_accents': remove_accents,
                     'length': length,
                     'added_by': user.id,
                     'edited_by': user.id,
