@@ -87,8 +87,7 @@ class SingleConnectionManager:
             pass
 
     def whisper(self, username, message):
-        # forsenE
-        return self.relay_connection.privmsg('#pajlada', '/w {0} {1}'.format(username, message))
+        return self.relay_connection.privmsg('#jtv', '/w {0} {1}'.format(username, message))
 
     def on_disconnect(self):
         self.recon.run(self)
