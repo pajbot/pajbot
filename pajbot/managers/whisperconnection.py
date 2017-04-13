@@ -125,7 +125,8 @@ class WhisperConnectionManager:
                         time.sleep(0.1)
 
                 log.debug('Sending whisper to {0} from {2}: {1}'.format(username, message, valid_connection.name))
-                valid_connection.conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
+                # forsenE
+                valid_connection.conn.privmsg('#pajlada', '/w {0} {1}'.format(username, message))
                 valid_connection.num_msgs_sent += 1
                 valid_connection.conn.execute_delayed(self.time_interval, valid_connection.reduce_msgs_sent)
             except:
