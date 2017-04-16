@@ -70,3 +70,6 @@ flake8-import-order
 pyscss
 
 unidecode
+
+# For slack error notifications on excetions
+slackweb

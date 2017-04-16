@@ -96,7 +96,7 @@ def init(args):
 
     app.register_blueprint(pajbot.web.routes.clr.page)
 
-    errors.init(app)
+    errors.init(app, config)
     pajbot.web.routes.clr.config = config
 
     version = Bot.version
