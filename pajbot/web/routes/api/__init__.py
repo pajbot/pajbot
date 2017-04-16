@@ -19,7 +19,7 @@ import pajbot.web.routes.api.users
 def init(app):
     # Initialize the v1 api
     # /api/v1
-    api = Api(app, prefix='/api/v1', catch_all_404s=True)
+    api = Api(app, prefix='/api/v1', catch_all_404s=False)
 
     # Initialize any common settings and routes
     pajbot.web.routes.api.common.init(api)
