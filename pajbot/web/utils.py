@@ -219,3 +219,15 @@ def seconds_to_vodtime(t):
     m = s % 3600 / 60
     s = s % 60
     return '%dh%02dm%02ds' % (h, m, s)
+
+
+def format_tb(tb, limit=None):
+    import traceback
+
+    stacktrace = traceback.extract_tb(tb)
+
+    ret = ''
+    for stack in stacktrace:
+        ret += '*{}*:{} ({}): {}\n'.format(stack[0], stack[1], stack[2], stack[3])
+
+    return ret
