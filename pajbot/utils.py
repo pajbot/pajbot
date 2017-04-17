@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 def alembic_upgrade():
     try:
-        command_list = ['alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))]
+        command_list = ['/usr/bin/env', 'alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))]
         p = subprocess.Popen(command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         for l in p.stdout.read().splitlines():
             log.info(l.decode('utf8'))
