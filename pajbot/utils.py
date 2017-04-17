@@ -2,7 +2,6 @@ import datetime
 import logging
 import math
 import signal
-import subprocess
 import sys
 import time
 from contextlib import contextmanager
@@ -16,26 +15,19 @@ log = logging.getLogger(__name__)
 
 
 def alembic_upgrade():
+    import alembic.config
+
+    alembic_args = [
+            '--raiseerr',
+            'upgrade',
+            'head',
+            '--tag="{0}"'.format(' '.join(sys.argv[1:])),
+            ]
+
     try:
-        command_list = ['/usr/bin/env', 'alembic', 'upgrade', 'head'] + ['--tag="{0}"'.format(' '.join(sys.argv[1:]))]
-        p = subprocess.Popen(command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        for l in p.stdout.read().splitlines():
-            log.info(l.decode('utf8'))
-        for l in p.stderr.read().splitlines():
-            log.info(l.decode('utf8'))
-    except subprocess.CalledProcessError:
-        log.exception('aaaa')
-        log.error('Unable to call `alembic upgrade head`, this means the database could be out of date. Quitting.')
-        sys.exit(1)
-    except PermissionError:
-        log.error('No permission to run `alembic upgrade head`. This means your user probably doesn\'t have execution rights on the `alembic` binary.')
-        log.error('The error can also occur if it can\'t find `alembic` in your PATH, and instead tries to execute the alembic folder.')
-        sys.exit(1)
-    except FileNotFoundError:
-        log.error('Could not found an installation of alembic. Please install alembic to continue.')
-        sys.exit(1)
+        alembic.config.main(argv=alembic_args)
     except:
-        log.exception('Unhandled exception when calling db update')
+        log.exception('xd')
         sys.exit(1)
 
 

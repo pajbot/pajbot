@@ -1,21 +1,23 @@
 from __future__ import with_statement
-import sys
-import os
+
 import argparse
-from alembic import context
-from sqlalchemy import engine_from_config, pool
+import os
+import sys
 from logging.config import fileConfig
 
+from alembic import context
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
+import pajbot.models.hsbet
 from pajbot.bot import Bot
-from pajbot.utils import load_config
+from pajbot.models.filter import Filter
+from pajbot.models.roulette import Roulette
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import PredictModule
-from pajbot.models.roulette import Roulette
-from pajbot.models.filter import Filter
-import pajbot.models.hsbet
+from pajbot.utils import load_config
 
 tag = context.get_tag_argument()
 
@@ -29,7 +31,6 @@ if tag is not None:
     custom_args = tag.replace('"', '').split()
 args, unknown = parser.parse_known_args(args=custom_args)
 
-print('Loading config from {0}'.format(args.config))
 tb_config = load_config(args.config)
 
 from pajbot.managers.db import Base
@@ -47,7 +48,7 @@ config.set_main_option('sqlalchemy.url', tb_config['main']['db'])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+# fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
