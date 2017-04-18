@@ -153,8 +153,22 @@ class RouletteModule(BaseModule):
                     ],
                 )
 
-    def rigged_random_result(self):
-        return random.randint(1, 100) > self.settings['rigged_percentage']
+    def rigged_random_result(user):
+        rigged_subs = {
+            'trump_sub': 80,
+            'massan_sub': 99,
+            'nostam_sub': 70,
+            'reynad_sub': 75,
+        }
+        
+        rigged_value = self.settings['rigged_percentage']
+        
+        for tag, data in rigged_subs.items():
+            if tag in user.tags:
+                if(rigged_value < data):
+                    rigged_value = data
+                
+        return random.randint(1, 100) > rigged_value
 
     def roulette(self, **options):
         if self.settings['only_roulette_after_sub']:
@@ -187,7 +201,7 @@ class RouletteModule(BaseModule):
             return False
 
         # Calculating the result
-        result = self.rigged_random_result()
+        result = self.rigged_random_result(user)
         points = bet if result else -bet
         user.points += points
 
