@@ -98,7 +98,36 @@ class Samples:
 
             Sample('ryuu', 'https://pajlada.se/files/clr/hanzo.mp3'),
 
-            Sample('yeehaw', 'https://pajlada.se/files/clr/yeehaw.mp3', new=True),
+            Sample('yeehaw', 'https://pajlada.se/files/clr/yeehaw.mp3'),
+
+            Sample('4header', 'https://pajlada.se/files/clr/4header.ogg', new=True),
+            Sample('athene', 'https://pajlada.se/files/clr/athene.ogg', new=True),
+            Sample('beatme123', 'https://pajlada.se/files/clr/beatme123.ogg', new=True),
+            Sample('bondagegaywebsite', 'https://pajlada.se/files/clr/bondagegaywebsite.ogg', new=True),
+            Sample('bubble', 'https://pajlada.se/files/clr/bubble.ogg', new=True),
+            Sample('celebrate', 'https://pajlada.se/files/clr/celebrate.ogg', new=True),
+            Sample('comeonletsgo', 'https://pajlada.se/files/clr/comeonletsgo.ogg', new=True),
+            Sample('gamba', 'https://pajlada.se/files/clr/gamba.ogg', new=True),
+            Sample('goodvibes', 'https://pajlada.se/files/clr/goodvibes.ogg', new=True),
+            Sample('heftobemad', 'https://pajlada.se/files/clr/heftobemad.ogg', new=True),
+            Sample('heyguyshowsitgoinkripparrianhere', 'https://pajlada.se/files/clr/heyguyshowsitgoinkripparrianhere.ogg', new=True),
+            Sample('jabroni', 'https://pajlada.se/files/clr/jabroni.ogg', new=True),
+            Sample('legendary', 'https://pajlada.se/files/clr/legendary.ogg', new=True),
+            Sample('mysummercmonman', 'https://pajlada.se/files/clr/mysummercmonman.ogg', new=True),
+            Sample('no', 'https://pajlada.se/files/clr/no.ogg', new=True),
+            Sample('nothinghere', 'https://pajlada.se/files/clr/nothinghere.ogg', new=True),
+            Sample('ohmancmonman', 'https://pajlada.se/files/clr/ohmancmonman.ogg', new=True),
+            Sample('oooooh', 'https://pajlada.se/files/clr/oooooh.ogg', new=True),
+            Sample('pain1', 'https://pajlada.se/files/clr/pain1.ogg', new=True),
+            Sample('pullupourpants', 'https://pajlada.se/files/clr/pants.ogg', new=True),
+            Sample('pleaseno', 'https://pajlada.se/files/clr/pleaseno.ogg', new=True),
+            Sample('powerfuck', 'https://pajlada.se/files/clr/powerfuck.ogg', new=True),
+            Sample('puke', 'https://pajlada.se/files/clr/puke.ogg', new=True),
+            Sample('reynad', 'https://pajlada.se/files/clr/reynad.ogg', new=True),
+            Sample('righthappy', 'https://pajlada.se/files/clr/righthappy.ogg', new=True),
+            Sample('smartass', 'https://pajlada.se/files/clr/smartass.ogg', new=True),
+            Sample('ultralul', 'https://pajlada.se/files/clr/ultralul.ogg', new=True),
+            Sample('yaranaika', 'https://pajlada.se/files/clr/yaranaika.ogg', new=True),
     ]
 
 
