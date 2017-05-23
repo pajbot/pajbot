@@ -58,6 +58,7 @@ from pajbot.modules.quests.winhsbetpoints import WinHsBetPointsQuestModule
 from pajbot.modules.quests.winhsbetwins import WinHsBetWinsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
+from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
@@ -114,6 +115,7 @@ available_modules = [
         PyramidModule,
         QuestModule,
         RaffleModule,
+        RepspamModule,
         RouletteModule,
         ShowEmoteTokenCommandModule,
         SubAlertModule,
