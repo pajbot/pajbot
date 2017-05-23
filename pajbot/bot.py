@@ -622,6 +622,22 @@ class Bot:
         source.last_seen = datetime.datetime.now()
         source.last_active = datetime.datetime.now()
 
+        """
+        if self.streamer == 'forsenlol' and whisper is False:
+            follow_time = self.twitchapi.get_follow_relationship2(source.username, self.streamer)
+
+            if follow_time is False:
+                self._timeout(source.username, 600, '2 years follow mode (or api is down?)')
+                return
+
+            follow_age = datetime.datetime.now() - follow_time
+            log.debug(follow_age)
+
+            if follow_age.days < 730:
+                log.debug('followed less than 730 days LUL')
+                self._timeout(source.username, 600, '2 years follow mode')
+                """
+
         if source.ignored:
             return False
 
