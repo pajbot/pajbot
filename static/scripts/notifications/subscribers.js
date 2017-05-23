@@ -31,7 +31,6 @@ function connect_to_ws()
     socket.onmessage = function(e) {
         if (typeof e.data == "string") {
             var json_data = JSON.parse(e.data);
-            console.log(json_data);
             if (json_data['event'] !== undefined) {
                 switch (json_data['event']) {
                     case 'new_sub':
