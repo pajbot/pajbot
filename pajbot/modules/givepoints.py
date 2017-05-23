@@ -107,10 +107,10 @@ class GivePointsModule(BaseModule):
                 self.give_points,
                 sub_only=self.settings['source_requires_sub'],
                 delay_all=0,
-                delay_user=0,
+                delay_user=60,
                 can_execute_with_whisper=True,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Show an emote on stream.',
+                    pajbot.models.command.CommandExample(None, 'Give points to a user.',
                         chat='user:!{0} pajapaja 4444\n'
                         'bot>user: Successfully gave away 4444 points to pajapaja'.format(self.command_name),
                         description='').parse(),
