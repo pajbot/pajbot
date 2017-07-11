@@ -17,9 +17,11 @@ log = logging.getLogger('pajbot')
 
 @event.listens_for(Pool, 'checkout')
 def check_connection(dbapi_con, con_record, con_proxy):
-    '''Listener for Pool checkout events that pings every connection before using.
+    """
+    Listener for Pool checkout events that pings every connection before using.
     Implements pessimistic disconnect handling strategy. See also:
-    http://docs.sqlalchemy.org/en/rel_0_8/core/pooling.html#disconnect-handling-pessimistic'''
+    http://docs.sqlalchemy.org/en/rel_0_8/core/pooling.html#disconnect-handling-pessimistic
+    """
 
     cursor = dbapi_con.cursor()
     try:
