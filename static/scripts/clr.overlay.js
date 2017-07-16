@@ -111,6 +111,7 @@ samples = {
     'smartass': { 'url': 'https://pajlada.se/files/clr/smartass.ogg' },
     'ultralul': { 'url': 'https://pajlada.se/files/clr/ultralul.ogg' },
     'yaranaika': { 'url': 'https://pajlada.se/files/clr/yaranaika.ogg' },
+    'woah': { 'url': 'https://pajlada.se/files/clr/woah.ogg' },
 };
 $(document).ready(function() {
     connect_to_ws();
