@@ -298,7 +298,32 @@ class RepspamModule(BaseModule):
         if xd is not None:
             log.debug('xd: {} ({})'.format(xd[0], xd[1]))
 
-        words = message.split(' ')
-        if len(words) <= 1:
+        word_freq = []
+        word_list = message.split(' ')
+        if len(word_list) <= 1:
             # Not enough words to see if it's repetitive this way
             return
+
+        if len(message) < 50:
+            # Message too short
+            return
+
+        for w in word_list:
+            word_freq.append(word_list.count(w))
+
+        word_dict = dict(zip(word_list, word_freq))
+
+        word_freq = [(word_dict[key], key) for key in word_dict]
+        word_freq.sort()
+        word_freq.reverse()
+
+        if len(word_freq) < 3:
+            # There needs to be at least 3 unique words
+            return
+
+        if word_freq[0][0] == word_freq[1][0]:
+            if word_freq[0][0] > 4:
+                log.info('Time out {}'.format(message))
+                self.bot._timeout(source.username, 10, reason='No repetitive messages OMGScoods')
+
+        log.debug('Word pairs: {}'.format(str(word_freq)))
