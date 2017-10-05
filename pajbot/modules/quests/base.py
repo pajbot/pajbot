@@ -32,21 +32,23 @@ class BaseQuest(BaseModule):
             # User has already completed this quest
             return
 
+        reward_type = self.quest_module.settings['reward_type']
+        reward_amount = self.quest_module.settings['reward_amount']
+
+        if reward_type == 'tokens' and user.tokens > self.quest_module.settings['max_tokens']:
+            message = 'You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!'
+            pajbot.managers.handler.HandlerManager.trigger('send_whisper', user.username, message)
+            return
+
         # Mark the current stream ID has finished
         quests_finished.append(stream_id)
         redis.hset(self.quest_finished_key, user.username, json.dumps(quests_finished, separators=(',', ':')))
 
         # Award the user appropriately
-        reward_type = self.quest_module.settings['reward_type']
-        reward_amount = self.quest_module.settings['reward_amount']
         if reward_type == 'tokens':
             user.tokens += reward_amount
         else:
             user.points += reward_amount
-
-        # Make sure the user doesn't have more tokens than allowed
-        if user.tokens > self.quest_module.settings['max_tokens']:
-            user.tokens = self.quest_module.settings['max_tokens']
 
         # Notify the user that they've finished today's quest
         message = 'You finished todays quest! You have been awarded with {} {}.'.format(reward_amount, reward_type)
