@@ -180,7 +180,7 @@ class DubtrackModule(BaseModule):
                 return
 
             new_song_link = r.headers['Location']
-            self.song_link = re.sub('^http', 'https', new_song_link)
+            self.song_link = re.sub('^http:', 'https:', new_song_link)
         else:
             log.warning('Unknown link type')
             self.song_link = None
