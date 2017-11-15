@@ -288,16 +288,6 @@ class RepspamModule(BaseModule):
 
         suffix_tree.append_string(message)
 
-        lr = suffix_tree.find_longest_common_substrings()
-        for s in lr:
-            log.debug(lr)
-
-        log.debug('Longest repeating substring: {} - Message: {}'.format(lr, message))
-
-        xd = longest_repeated_substring(message)
-        if xd is not None:
-            log.debug('xd: {} ({})'.format(xd[0], xd[1]))
-
         word_freq = []
         word_list = message.split(' ')
         if len(word_list) <= 1:
