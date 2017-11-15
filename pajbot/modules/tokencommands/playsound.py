@@ -129,7 +129,13 @@ class Samples:
             Sample('ultralul', 'https://pajlada.se/files/clr/ultralul.ogg'),
             Sample('yaranaika', 'https://pajlada.se/files/clr/yaranaika.ogg'),
 
-            Sample('woah', 'https://pajlada.se/files/clr/woah.ogg', new=True),
+            Sample('woah', 'https://pajlada.se/files/clr/woah.ogg'),
+            Sample('realtrapshit', 'https://pajlada.se/files/clr/real-trap-shit.ogg'),
+
+            Sample('actioniscoming', 'https://pajlada.se/files/clr/action-is-coming.ogg', new=True),
+            Sample('ting1', 'https://pajlada.se/files/clr/ting-1.ogg', new=True),
+            Sample('ting2', 'https://pajlada.se/files/clr/ting-2.ogg', new=True),
+            Sample('ting3', 'https://pajlada.se/files/clr/ting-3.ogg', new=True),
     ]
 
 
