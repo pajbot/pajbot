@@ -16,7 +16,18 @@ class MaxMsgLengthModule(BaseModule):
     SETTINGS = [
             ModuleSetting(
                 key='max_msg_length',
-                label='Max message length',
+                label='Max message length (Online chat)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=400,
+                constraints={
+                    'min_value': 40,
+                    'max_value': 1000,
+                    }),
+            ModuleSetting(
+                key='max_msg_length_offline',
+                label='Max message length (Offline chat)',
                 type='number',
                 required=True,
                 placeholder='',
@@ -54,13 +65,22 @@ class MaxMsgLengthModule(BaseModule):
         self.bot = None
 
     def on_pubmsg(self, source, message):
-        if len(message) > self.settings['max_msg_length'] and source.level < self.settings['bypass_level'] and source.moderator is False:
-            duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Message too long')
-            """ We only send a notification to the user if he has spent more than
-            one hour watching the stream. """
-            if duration > 0 and source.minutes_in_chat_online > 60:
-                self.bot.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
-            return False
+        if self.bot.is_online:
+            if len(message) > self.settings['max_msg_length'] and source.level < self.settings['bypass_level'] and source.moderator is False:
+                duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Message too long')
+                """ We only send a notification to the user if he has spent more than
+                one hour watching the stream. """
+                if duration > 0 and source.minutes_in_chat_online > 60:
+                    self.bot.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
+                return False
+        else:
+            if len(message) > self.settings['max_msg_length_offline'] and source.level < self.settings['bypass_level'] and source.moderator is False:
+                duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Message too long')
+                """ We only send a notification to the user if he has spent more than
+                one hour watching the stream. """
+                if duration > 0 and source.minutes_in_chat_online > 60:
+                    self.bot.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
+                return False
 
     def enable(self, bot):
         HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
