@@ -111,7 +111,7 @@ class Banphrase(Base):
         Otherwise it returns False
         Respects case-sensitiveness option
         """
-        if self.sub_immunity is True and user.subscriber is True:
+        if user and self.sub_immunity is True and user.subscriber is True:
             return False
         return self.predicate(message)
 
