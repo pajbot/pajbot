@@ -112,6 +112,12 @@ samples = {
     'ultralul': { 'url': 'https://pajlada.se/files/clr/ultralul.ogg' },
     'yaranaika': { 'url': 'https://pajlada.se/files/clr/yaranaika.ogg' },
     'woah': { 'url': 'https://pajlada.se/files/clr/woah.ogg' },
+    'realtrapshit': { 'url': 'https://pajlada.se/files/clr/real-trap-shit.ogg' },
+
+    'actioniscoming': { 'url': 'https://pajlada.se/files/clr/action-is-coming.ogg' },
+    'ting1': { 'url': 'https://pajlada.se/files/clr/ting-1.ogg' },
+    'ting2': { 'url': 'https://pajlada.se/files/clr/ting-2.ogg' },
+    'ting3': { 'url': 'https://pajlada.se/files/clr/ting-3.ogg' },
 };
 $(document).ready(function() {
     connect_to_ws();
