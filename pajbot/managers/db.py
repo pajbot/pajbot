@@ -38,7 +38,7 @@ def check_connection(dbapi_con, con_record, con_proxy):
 
 class DBManager:
     def init(url):
-        DBManager.engine = create_engine(url)
+        DBManager.engine = create_engine(url, pool_pre_ping=True)
         DBManager.Session = sessionmaker(bind=DBManager.engine, autoflush=False)
         DBManager.ScopedSession = scoped_session(sessionmaker(bind=DBManager.engine))
 
