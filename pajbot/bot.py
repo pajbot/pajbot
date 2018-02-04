@@ -522,6 +522,14 @@ class Bot:
 
         return self.irc.whisper(username, message)
 
+    def send_message_to_user(self, user, message, separator='. ', method='say'):
+        if method == 'say':
+            self.say(user.username + ', ' + lowercase_first_letter(message), separator=separator)
+        elif method == 'whisper':
+            self.whisper(user.username, message, separator=separator)
+        else:
+            log.warning('Unknown send_message method: {}'.format(method))
+
     def say(self, *messages, channel=None, separator='. '):
         """
         Takes a sequence of strings and concatenates them with separator.
@@ -853,3 +861,7 @@ def _filter_strftime(var, args):
 
 def _filter_urlencode(var, args):
     return urllib.parse.urlencode({'x': var})[2:]
+
+
+def lowercase_first_letter(s):
+    return s[:1].lower() + s[1:] if s else ''
