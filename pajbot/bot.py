@@ -505,9 +505,9 @@ class Bot:
         self.timeout(user.username, duration, reason)
         return (duration, punishment)
 
-    def timeout_user(self, user, duration):
-        self._timeout(user.username, duration)
-        self.execute_delayed(1, self._timeout, (user.username, duration))
+    def timeout_user(self, user, duration, reason=''):
+        self._timeout(user.username, duration, reason)
+        self.execute_delayed(1, self._timeout, (user.username, duration, reason))
 
     def whisper(self, username, *messages, separator='. '):
         """
