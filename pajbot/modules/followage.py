@@ -4,6 +4,7 @@ import logging
 import pajbot.models
 from pajbot.actions import ActionQueue
 from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 from pajbot.utils import time_since
 
 log = logging.getLogger('pajbot')
@@ -15,6 +16,28 @@ class FollowAgeModule(BaseModule):
     NAME = 'Follow age'
     DESCRIPTION = 'Makes two commands available: !followage and !followsince'
     CATEGORY = 'Feature'
+    SETTINGS = [
+            ModuleSetting(
+                key='action_followage',
+                label='MessageAction for !followage',
+                type='options',
+                required=True,
+                default='say',
+                options=[
+                    'say',
+                    'whisper',
+                    ]),
+            ModuleSetting(
+                key='action_followsince',
+                label='MessageAction for !followsince',
+                type='options',
+                required=True,
+                default='say',
+                options=[
+                    'say',
+                    'whisper',
+                    ]),
+            ]
 
     def __init__(self):
         super().__init__()
@@ -28,6 +51,7 @@ class FollowAgeModule(BaseModule):
                 delay_all=4,
                 delay_user=8,
                 description='Check your or someone elses follow age for a channel',
+                can_execute_with_whisper=True,
                 examples=[
                     pajbot.models.command.CommandExample(None, 'Check your own follow age',
                         chat='user:!followage\n'
@@ -52,6 +76,7 @@ class FollowAgeModule(BaseModule):
                 delay_all=4,
                 delay_user=8,
                 description='Check from when you or someone else first followed a channel',
+                can_execute_with_whisper=True,
                 examples=[
                     pajbot.models.command.CommandExample(None, 'Check your own follow since',
                         chat='user:!followsince\n'
@@ -75,41 +100,44 @@ class FollowAgeModule(BaseModule):
     def check_follow_age(self, bot, source, username, streamer):
         streamer = bot.streamer if streamer is None else streamer.lower()
         age = bot.twitchapi.get_follow_relationship(username, streamer)
-        if source.username == username:
-            if age is False:
-                bot.say('{}, you are not following {}'.format(source.username_raw, streamer))
+        is_self = source.username == username
+
+        if age:
+            # Following
+            human_age = time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)
+            suffix = 'been following {} for {}'.format(streamer, human_age)
+            if is_self:
+                bot.send_message_to_user(source, 'You have ' + suffix, method=self.settings['action_followage'])
             else:
-                bot.say('{}, you have been following {} for {}'.format(source.username_raw, streamer, time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+                bot.send_message_to_user(source, username + ' has ' + suffix, method=self.settings['action_followage'])
         else:
-            if age is False:
-                bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
+            # Not following
+            suffix = 'not following {}'.format(streamer)
+            if is_self:
+                bot.send_message_to_user(source, 'You are ' + suffix, method=self.settings['action_followage'])
             else:
-                bot.say('{}, {} has been following {} for {}'.format(
-                    source.username_raw,
-                    username,
-                    streamer,
-                    time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)))
+                bot.send_message_to_user(source, username + ' is ' + suffix, method=self.settings['action_followage'])
 
     def check_follow_since(self, bot, source, username, streamer):
         streamer = bot.streamer if streamer is None else streamer.lower()
         follow_since = bot.twitchapi.get_follow_relationship(username, streamer)
-        if source.username == username:
-            if follow_since is False:
-                bot.say('{}, you are not following {}'.format(source.username_raw, streamer))
+        is_self = source.username == username
+
+        if follow_since:
+            # Following
+            human_age = follow_since.strftime('%d %B %Y, %X')
+            suffix = 'been following {} since {} UTC'.format(streamer, human_age)
+            if is_self:
+                bot.send_message_to_user(source, 'You have ' + suffix, method=self.settings['action_followsince'])
             else:
-                bot.say('{}, you have been following {} since {} UTC'.format(
-                    source.username_raw,
-                    streamer,
-                    follow_since.strftime('%d %B %Y, %X')))
+                bot.send_message_to_user(source, username + ' has ' + suffix, method=self.settings['action_followsince'])
         else:
-            if follow_since is False:
-                bot.say('{}, {} is not following {}'.format(source.username_raw, username, streamer))
+            # Not following
+            suffix = 'not following {}'.format(streamer)
+            if is_self:
+                bot.send_message_to_user(source, 'You are ' + suffix, method=self.settings['action_followsince'])
             else:
-                bot.say('{}, {} has been following {} since {} UTC'.format(
-                    source.username_raw,
-                    username,
-                    streamer,
-                    follow_since.strftime('%d %B %Y, %X')))
+                bot.send_message_to_user(source, username + ' is ' + suffix, method=self.settings['action_followsince'])
 
     def follow_age(self, **options):
         source = options['source']
