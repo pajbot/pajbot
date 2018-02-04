@@ -126,6 +126,14 @@ class Banphrase(Base):
         else:
             return self.phrase.lower() == message.lower()
 
+    def jsonify(self):
+        return {
+                'name': self.name,
+                'phrase': self.phrase,
+                'length': self.length,
+                'permanent': self.permanent,
+                }
+
 
 @sqlalchemy.event.listens_for(Banphrase, 'load')
 def on_banphrase_load(target, context):
