@@ -39,6 +39,7 @@ from pajbot.modules.linktracker import LinkTrackerLink
 from pajbot.modules.linktracker import LinkTrackerModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
+from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
@@ -101,6 +102,7 @@ available_modules = [
         LinkTrackerModule,
         MathModule,
         MaxMsgLengthModule,
+        CaseCheckerModule,
         PaidSubmodeModule,
         PaidTimeoutDiscountModule,
         PaidTimeoutModule,
