@@ -1,14 +1,14 @@
 # The library we use for all DB Transactions
-sqlalchemy
+sqlalchemy ~= 1.2.6
 
 # The library we use for handling DB Revisions
 alembic
 
 # My version of tweepy, which allows us to start the twitter thread as a daemon.
-git+git://github.com/pajlada/tweepy.git
+tweepy
 
 # The IRC Library we use to connect to the chat servers
-irc
+irc == 16.2.1
 
 colorama
 pytz
@@ -73,3 +73,5 @@ unidecode
 
 # For slack error notifications on excetions
 slackweb
+
+tempora ~= 1.11
