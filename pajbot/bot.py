@@ -469,13 +469,13 @@ class Bot:
                 return 'No recorded stream FeelsBadMan '
 
     def execute_at(self, at, function, arguments=()):
-        self.reactor.execute_at(at, function, arguments)
+        self.reactor.scheduler.execute_at(at, lambda: function(*arguments))
 
     def execute_delayed(self, delay, function, arguments=()):
-        self.reactor.execute_delayed(delay, function, arguments)
+        self.reactor.scheduler.execute_after(delay, lambda: function(*arguments))
 
     def execute_every(self, period, function, arguments=()):
-        self.reactor.execute_every(period, function, arguments)
+        self.reactor.scheduler.execute_every(period, lambda: function(*arguments))
 
     def _ban(self, username, reason=''):
         self.privmsg('.ban {0} {1}'.format(username, reason), increase_message=False)

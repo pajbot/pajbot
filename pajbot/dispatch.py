@@ -571,6 +571,17 @@ class Dispatch:
         except:
             return False
 
+    def do_hex(bot, source, message, event, args):
+        print('a')
+        if not message:
+            return False
+
+        try:
+            hex_code = hex(ord(message[0]))
+            bot.say(hex_code)
+        except:
+            return False
+
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module
         if message:

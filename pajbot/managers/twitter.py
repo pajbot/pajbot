@@ -112,7 +112,7 @@ class TwitterManager:
 
     def initialize_twitter_stream(self):
         if self.twitter_stream is None:
-            self.twitter_stream = tweepy.Stream(self.twitter_auth, self.listener, retry_420=3 * 60, daemonize_thread=True)
+            self.twitter_stream = tweepy.Stream(self.twitter_auth, self.listener, retry_420=3 * 60)
 
     def connect_to_twitter_stream(self):
         """Connect to the twitter stream.
