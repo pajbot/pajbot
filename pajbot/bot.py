@@ -794,6 +794,7 @@ class Bot:
                 }
 
         try:
+            ScheduleManager.base_scheduler.print_jobs()
             ScheduleManager.base_scheduler.shutdown(wait=False)
         except:
             log.exception('Error while shutting down the apscheduler')

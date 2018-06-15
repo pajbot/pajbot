@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from threading import Thread
 
 import tweepy
 
@@ -122,9 +123,16 @@ class TwitterManager:
             self.initialize_listener()
             self.initialize_twitter_stream()
 
-            self.twitter_stream.userstream(_with='followings', replies='all', async=True)
+            self._thread = Thread(target=self._run, daemon=True)
+            self._thread.start()
         except:
             log.exception('Exception caught while trying to connect to the twitter stream')
+
+    def _run(self):
+        try:
+            self.twitter_stream.userstream(_with='followings', replies='all')
+        except:
+            log.exception('Exception caught in twitter stream _run')
 
     def check_twitter_connection(self):
         """Check if the twitter stream is running.
@@ -155,3 +163,4 @@ class TwitterManager:
     def quit(self):
         if self.twitter_stream:
             self.twitter_stream.disconnect()
+            self._thread.join(1.0)

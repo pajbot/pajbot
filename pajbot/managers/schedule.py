@@ -28,7 +28,7 @@ class ScheduleManager:
 
     def init():
         if not ScheduleManager.base_scheduler:
-            ScheduleManager.base_scheduler = BackgroundScheduler()
+            ScheduleManager.base_scheduler = BackgroundScheduler(daemon=True)
             ScheduleManager.base_scheduler.start()
 
     def execute_now(method, args=[], kwargs={}, scheduler=None):
