@@ -75,3 +75,6 @@ unidecode
 slackweb
 
 tempora ~= 1.11
+
+# for cachet stuff
+python-cachetclient
