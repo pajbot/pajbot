@@ -20,6 +20,7 @@ class ActionParser:
             from pajbot.userdispatch import UserDispatch
             Dispatch = UserDispatch
         except ImportError:
+            log.exception('Unable to import UserDispatch')
             from pajbot.dispatch import Dispatch
         except:
             from pajbot.dispatch import Dispatch
