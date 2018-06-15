@@ -227,6 +227,8 @@ class UserSQL:
 
     @property
     def points_rank(self):
+        return 420
+        """
         if self.shared_db_session:
             query_data = self.shared_db_session.query(sqlalchemy.func.count(User.id)).filter(User.points > self.points).one()
         else:
@@ -235,6 +237,7 @@ class UserSQL:
 
         rank = int(query_data[0]) + 1
         return rank
+        """
 
     @property
     def duel_stats(self):
