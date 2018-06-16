@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def init(app):
-    @app.route('/points/')
+    @app.route('/points')
     def points():
         with DBManager.create_session_scope() as db_session:
             custom_web_content = db_session.query(WebContent).filter_by(page='points').first()

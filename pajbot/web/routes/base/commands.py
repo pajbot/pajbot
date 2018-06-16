@@ -8,7 +8,7 @@ def init(app):
     def get_commands_list():
         return pajbot.web.utils.get_cached_commands()
 
-    @app.route('/commands/')
+    @app.route('/commands')
     def commands():
         custom_commands = []
         point_commands = []
