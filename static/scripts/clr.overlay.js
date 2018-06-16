@@ -49,7 +49,7 @@ samples = {
     'eshrug': { 'url':'https://pajlada.se/files/clr/2018-05-28/eshrug.ogg'},
     'face': { 'url':'https://pajlada.se/files/clr/me_go_face.mp3'},
     'fatcock': { 'url':'https://pajlada.se/files/clr/fatcock.mp3'},
-    'forsenSWA': { 'url':'https://pajlada.se/files/clr/2018-05-28/forsenSWA.ogg'},
+    'forsenswa': { 'url':'https://pajlada.se/files/clr/2018-05-28/forsenSWA.ogg'},
     'fuckyou': { 'url':'http://soundboard.ass-we-can.com/static/music/VanD/FUCKYOU.mp3'},
     'gamba': { 'url':'https://pajlada.se/files/clr/gamba.ogg'},
     'gangingup': { 'url':'https://pajlada.se/files/clr/gangingup.mp3'},
