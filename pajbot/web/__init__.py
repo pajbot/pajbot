@@ -8,6 +8,8 @@ app = Flask(
         template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + '/../..')), 'templates'),
         )
 
+app.url_map.strict_slashes = False
+
 
 def init(args):
     import configparser
