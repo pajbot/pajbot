@@ -117,7 +117,7 @@ class CommandData(Base):
                 'num_uses': self.num_uses,
                 'added_by': self.added_by,
                 'edited_by': self.edited_by,
-                'last_date_used': self.last_date_used.isoformat() if self.last_date_used else None,
+                'last_date_used': self.last_date_used.isoformat() if type(self.last_date_used) is datetime.datetime else None,
                 }
 
 
