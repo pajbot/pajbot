@@ -222,6 +222,9 @@ class StreamManager:
 
         self.num_viewers = 0
 
+        self.game = 'Loading...'
+        self.title = 'Loading...'
+
         self.bot.execute_every(self.STATUS_CHECK_INTERVAL,
                 self.bot.action_queue.add,
                 (self.refresh_stream_status_stage1, ))
@@ -395,6 +398,11 @@ class StreamManager:
                 })
 
             self.num_viewers = status['viewers']
+            log.debug('Loading stream data...')
+            self.game = status['game']
+            self.title = status['title']
+
+            log.debug('Game is now {} and title is now {}'.format(self.game, self.title))
 
             if status['online']:
                 if self.current_stream is None:
@@ -540,6 +548,9 @@ class StreamManager:
             num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
 
         return (num_rows == 1)
+
+    def get_stream_value(self, key, extra={}):
+        return getattr(self, key, None)
 
     def get_current_stream_value(self, key, extra={}):
         if self.current_stream is not None:
