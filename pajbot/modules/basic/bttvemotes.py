@@ -28,7 +28,22 @@ class BTTVEmotesModule(BaseModule):
         bot = options['bot']
 
         if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:
-            bot.say('Active BTTV Emotes in chat: {}'.format(' '.join(bot.emotes.bttv_emote_manager.channel_emotes)))
+            base_msg = 'BTTV Emotes:'
+            base_len = len(base_msg)
+            messages = []
+            tmp_message = base_msg
+            for emote in bot.emotes.bttv_emote_manager.channel_emotes:
+                if len(tmp_message) + len(emote) < 500:
+                    tmp_message += ' ' + emote
+                else:
+                    messages.append(tmp_message)
+                    tmp_message = base_msg + ' ' + emote
+
+            if len(tmp_message) > base_len:
+                messages.append(tmp_message)
+
+            for msg in messages:
+                bot.say(msg)
         else:
             bot.say('No BTTV Emotes active in this chat')
 

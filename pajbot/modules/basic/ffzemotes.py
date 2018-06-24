@@ -28,19 +28,22 @@ class FFZEmotesModule(BaseModule):
         bot = options['bot']
 
         if len(bot.emotes.ffz_emote_manager.channel_emotes) > 0:
-            emotes_string = ' '.join(bot.emotes.ffz_emote_manager.channel_emotes)
-            if len(emotes_string) > 400:
-                cool_emote_string = ''
-                for emote in bot.emotes.ffz_emote_manager.channel_emotes:
-                    cool_emote_string += ' ' + emote
-                    if len(cool_emote_string) > 400:
-                        bot.say('Active FFZ Emotes in chat: {}'.format(cool_emote_string))
-                        cool_emote_string = ''
+            base_msg = 'FFZ Emotes:'
+            base_len = len(base_msg)
+            messages = []
+            tmp_message = base_msg
+            for emote in bot.emotes.ffz_emote_manager.channel_emotes:
+                if len(tmp_message) + len(emote) < 500:
+                    tmp_message += ' ' + emote
+                else:
+                    messages.append(tmp_message)
+                    tmp_message = base_msg + ' ' + emote
 
-                if len(cool_emote_string) > 0:
-                    bot.say('and {}'.format(cool_emote_string))
-            else:
-                bot.say('Active FFZ Emotes in chat: {}'.format(emotes_string))
+            if len(tmp_message) > base_len:
+                messages.append(tmp_message)
+
+            for msg in messages:
+                bot.say(msg)
         else:
             bot.say('No FFZ Emotes active in this chat')
 
