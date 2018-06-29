@@ -24,24 +24,24 @@ class CachetManager:
             self.metric_message_processing_time = bot.config['cachet']['metric_message_processing_time']
             self.metric_messages_processed = bot.config['cachet']['metric_messages_processed']
 
-            ping = cachet.Ping(endpoint=self.endpoint)
-            print(ping.get())
-
     def _post_metrics(self):
         log.debug('Posting metrics')
-        points = cachet.Points(endpoint=self.endpoint, api_token=self.api_token)
+        try:
+            points = cachet.Points(endpoint=self.endpoint, api_token=self.api_token)
 
-        if len(self.messages_processed) > 0:
-            if self.metric_message_processing_time:
-                avg_mpt = sum(self.messages_processed)/len(self.messages_processed)
-                xd = points.post(id=self.metric_message_processing_time, value=avg_mpt)
-                log.debug(json.loads(xd))
+            if len(self.messages_processed) > 0:
+                if self.metric_message_processing_time:
+                    avg_mpt = sum(self.messages_processed)/len(self.messages_processed)
+                    xd = points.post(id=self.metric_message_processing_time, value=avg_mpt)
+                    log.debug(json.loads(xd))
 
-            if self.metric_messages_processed:
-                xd = points.post(id=self.metric_messages_processed, value=len(self.messages_processed))
-                log.debug(json.loads(xd))
+                if self.metric_messages_processed:
+                    xd = points.post(id=self.metric_messages_processed, value=len(self.messages_processed))
+                    log.debug(json.loads(xd))
 
-            self.messages_processed = []
+                self.messages_processed = []
+        except:
+            log.exception('Error posting cache metrics')
 
     def add_message_processing_time(self, process_time):
         self.messages_processed.append(process_time)
