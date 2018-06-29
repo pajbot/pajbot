@@ -58,7 +58,8 @@ def init(app):
 
         print(resp)
         if resp is None:
-            log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
+            if 'error' in request.args and 'error_description' in request.args:
+                log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
             next_url = get_next_url(request, 'state')
             return redirect(next_url)
         elif type(resp) is OAuthException:
