@@ -1,6 +1,7 @@
 import logging
 import time
 import json
+import threading
 
 import cachetclient.cachet as cachet
 
@@ -26,6 +27,10 @@ class CachetManager:
 
     def _post_metrics(self):
         log.debug('Posting metrics')
+        thread = threading.Thread(target=self._actually_post_metrics, daemon=True)
+        thread.start()
+
+    def _actually_post_metrics(self):
         try:
             points = cachet.Points(endpoint=self.endpoint, api_token=self.api_token)
 
