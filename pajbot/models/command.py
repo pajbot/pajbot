@@ -79,7 +79,7 @@ class CommandData(Base):
 
     added_by = Column(Integer, nullable=True)
     edited_by = Column(Integer, nullable=True)
-    last_date_used = Column(DateTime, nullable=True)
+    _last_date_used = Column('last_date_used', DateTime, nullable=True, default='0')
 
     user = relationship(
         'User',
@@ -102,7 +102,7 @@ class CommandData(Base):
         self.num_uses = 0
         self.added_by = None
         self.edited_by = None
-        self.last_date_used = None
+        self._last_date_used = None
 
         self.set(**options)
 
@@ -110,14 +110,25 @@ class CommandData(Base):
         self.num_uses = options.get('num_uses', self.num_uses)
         self.added_by = options.get('added_by', self.added_by)
         self.edited_by = options.get('edited_by', self.edited_by)
-        self.last_date_used = options.get('last_date_used', self.last_date_used)
+        self._last_date_used = options.get('last_date_used', self._last_date_used)
+
+    @property
+    def last_date_used(self):
+        if type(self._last_date_used) is datetime.datetime:
+            return self._last_date_used
+
+        return None
+
+    @last_date_used.setter
+    def last_date_used(self, value):
+        self._last_date_used = value
 
     def jsonify(self):
         return {
                 'num_uses': self.num_uses,
                 'added_by': self.added_by,
                 'edited_by': self.edited_by,
-                'last_date_used': self.last_date_used.isoformat() if type(self.last_date_used) is datetime.datetime else None,
+                'last_date_used': self.last_date_used.isoformat() if self.last_date_used else None,
                 }
 
 
