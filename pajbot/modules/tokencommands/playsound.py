@@ -187,6 +187,17 @@ class PlaySoundTokenCommandModule(BaseModule):
                 type='boolean',
                 required=True,
                 default=True),
+            ModuleSetting(
+                key='global_cd',
+                label='Global playsound cooldown (seconds)',
+                type='number',
+                required=True,
+                placeholder='',
+                default=2,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 600,
+                    }),
             ]
 
     def __init__(self):
@@ -227,6 +238,7 @@ class PlaySoundTokenCommandModule(BaseModule):
                 tokens_cost=self.settings['token_cost'],
                 cost=self.settings['point_cost'],
                 sub_only=self.settings['sub_only'],
+                delay_all=self.settings['global_cd'],
                 description='Play a sound on stream! Costs {} tokens, sub only for now.'.format(self.settings['token_cost']),
                 can_execute_with_whisper=True,
                 examples=[
