@@ -46,7 +46,7 @@
         </tr>
         <tr data-id="{{command.id}}">
             <td class="collapsing"></td>
-            <td colspan="3">{% if command.data.last_date_used != None %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data.{% endif %} {% include 'admin/helper/command_user.html' %}</td>
+            <td colspan="3">{% if command.data.last_date_used != None and command.data.last_date_used != '' %}Last time used <strong>{{ command.data.last_date_used|time_ago }}</strong> ago.{% else %}No Data.{% endif %} {% include 'admin/helper/command_user.html' %}</td>
         </tr>
         {% endfor %}
         </tbody>
