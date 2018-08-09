@@ -81,6 +81,10 @@ class AdminCommandsModule(BaseModule):
 
                 # We create the user if the user didn't already exist in the database.
                 with bot.users.get_user_context(username) as user:
+                    if user.level >= source.level:
+                        bot.whisper(source.username, 'You cannot change the level of someone who is the same or higher level than you. You are level {}, and {} is level {}'.format(source.level, username, user.level))
+                        return False
+
                     old_level = user.level
                     user.level = new_level
 
