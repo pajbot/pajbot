@@ -1,6 +1,7 @@
 import collections
 import json
 import logging
+import sys
 
 import irc
 import regex as re
@@ -20,11 +21,10 @@ class ActionParser:
             from pajbot.userdispatch import UserDispatch
             Dispatch = UserDispatch
         except ImportError:
-            log.exception('Unable to import UserDispatch')
             from pajbot.dispatch import Dispatch
         except:
-            from pajbot.dispatch import Dispatch
-            log.exception('Something went wrong while attemting to import UserDispatch')
+            log.exception('Something went wrong while attemting to import Dispatch, this should never happen')
+            sys.exit(1)
 
         if not data:
             data = json.loads(raw_data)
