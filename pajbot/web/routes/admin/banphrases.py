@@ -65,7 +65,7 @@ def init(page):
             if length < 0 or length > 1209600:
                 abort(403)
 
-            valid_operators = ['contains', 'startswith', 'endswith', 'exact']
+            valid_operators = ['contains', 'startswith', 'endswith', 'exact', 'regex']
             if operator not in valid_operators:
                 abort(403)
 

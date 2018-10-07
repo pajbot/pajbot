@@ -1,10 +1,10 @@
 import argparse
 import logging
+import re
 
 import sqlalchemy
 from sqlalchemy import Boolean
 from sqlalchemy import Column
-from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -35,7 +35,7 @@ class Banphrase(Base):
             nullable=False,
             default=False,
             server_default=sqlalchemy.sql.expression.false())
-    operator = Column(Enum('contains', 'startswith', 'endswith', 'exact'),
+    operator = Column(String(32),
             nullable=False,
             default='contains',
             server_default='contains')
@@ -59,6 +59,7 @@ class Banphrase(Base):
         self.enabled = True
         self.operator = 'contains'
         self.remove_accents = False
+        self.compiled_regex = None
 
         self.set(**options)
 
@@ -74,6 +75,7 @@ class Banphrase(Base):
         self.enabled = options.get('enabled', self.enabled)
         self.operator = options.get('operator', self.operator)
         self.remove_accents = options.get('remove_accents', self.remove_accents)
+        self.compiled_regex = None
 
         self.refresh_operator()
 
@@ -93,6 +95,13 @@ class Banphrase(Base):
     def refresh_operator(self):
         self.predicate = getattr(self, 'predicate_{}'.format(self.operator), None)
 
+        self.compiled_regex = None
+        if self.operator == 'regex':
+            try:
+                self.compiled_regex = re.compile(self.phrase)
+            except Exception:
+                log.exception('Unable to compile regex: {}'.format(self.phrase))
+
     def predicate_contains(self, message):
         return self.get_phrase() in self.format_message(message)
 
@@ -104,6 +113,12 @@ class Banphrase(Base):
 
     def predicate_exact(self, message):
         return self.format_message(message) == self.get_phrase()
+
+    def predicate_regex(self, message):
+        if not self.compiled_regex:
+            return False
+
+        return self.compiled_regex.match(self.format_message(message))
 
     def match(self, message, user):
         """
