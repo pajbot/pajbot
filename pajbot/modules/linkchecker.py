@@ -161,7 +161,18 @@ class LinkCheckerModule(BaseModule):
                 label='Disallow links from subscribers',
                 type='boolean',
                 required=True,
-                default=False)
+                default=False),
+            ModuleSetting(
+                key='timeout_length',
+                label='Timeout length',
+                type='number',
+                required=True,
+                placeholder='Timeout length in seconds',
+                default=60,
+                constraints={
+                    'min_value': 1,
+                    'max_value': 3600,
+                    }),
             ]
 
     def __init__(self):
@@ -256,7 +267,7 @@ class LinkCheckerModule(BaseModule):
 
             for url in urls:
                 # Action which will be taken when a bad link is found
-                action = Action(self.bot.timeout, args=[source.username, 20], kwargs={'reason': 'Banned link'})
+                action = Action(self.bot.timeout, args=[source.username, self.settings['timeout_length']], kwargs={'reason': 'Banned link'})
                 # First we perform a basic check
                 if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
                     # If the basic check returns no relevant data, we queue up a proper check on the URL
