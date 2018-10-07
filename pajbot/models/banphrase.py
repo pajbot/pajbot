@@ -115,6 +115,21 @@ class Banphrase(Base):
             return False
         return self.predicate(message)
 
+    def greater_than(self, other):
+        if other.permanent:
+            if self.permanent:
+                return False
+
+            return False
+
+        if self.permanent:
+            return True
+
+        if self.length > other.length:
+            return True
+
+        return False
+
     def exact_match(self, message):
         """
         Returns True if message exactly matches our banphrase.
@@ -314,8 +329,19 @@ class BanphraseManager:
             self.bot.whisper(user.username, notification_msg)
 
     def check_message(self, message, user):
-        match = find(lambda banphrase: banphrase.match(message, user), self.enabled_banphrases)
-        return match or False
+        matched_banphrase = None
+        for banphrase in self.enabled_banphrases:
+            if banphrase.match(message, user):
+                if matched_banphrase:
+                    if banphrase.greater_than(matched_banphrase):
+                        matched_banphrase = banphrase
+                        continue
+
+                matched_banphrase = banphrase
+
+        # match = find(lambda banphrase: banphrase.match(message, user), self.enabled_banphrases)
+
+        return matched_banphrase or False
 
     def find_match(self, message, id=None):
         match = None
