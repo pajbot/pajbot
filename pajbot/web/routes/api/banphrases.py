@@ -100,6 +100,15 @@ class APIBanphraseTest(Resource):
 
         return ret
 
+class APIBanphraseDump(Resource):
+    def __init__(self):
+        super().__init__()
+
+    def get(self, **options):
+        banphrase_manager = BanphraseManager(None).load()
+
+        return banphrase_manager.enabled_banphrases
+
 
 def init(api):
     api.add_resource(APIBanphraseRemove, '/banphrases/remove/<int:banphrase_id>')
@@ -107,3 +116,6 @@ def init(api):
 
     # Test a message against banphrases
     api.add_resource(APIBanphraseTest, '/banphrases/test')
+
+    # Dump
+    # api.add_resource(APIBanphraseDump, '/banphrases/dump')
