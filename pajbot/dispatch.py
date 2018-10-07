@@ -582,6 +582,15 @@ class Dispatch:
         except:
             return False
 
+    def hex_to_chr(bot, source, message, event, args):
+        if not message:
+            return False
+
+        try:
+            bot.say(str(chr(int(message))))
+        except:
+            return False
+
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
