@@ -1,7 +1,7 @@
-import logging
-import time
 import json
+import logging
 import threading
+import time
 
 import cachetclient.cachet as cachet
 
@@ -51,6 +51,7 @@ class CachetManager:
     def add_message_processing_time(self, process_time):
         self.messages_processed.append(process_time)
 
+
 class MPTMetric:
     def __init__(self, cm):
         self.cm = cm
@@ -62,4 +63,4 @@ class MPTMetric:
     def __exit__(self, type, value, traceback):
         self._t2 = time.time()
 
-        self.cm.add_message_processing_time(self._t2-self._t1)
+        self.cm.add_message_processing_time(self._t2 - self._t1)

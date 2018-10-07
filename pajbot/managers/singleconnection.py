@@ -38,7 +38,7 @@ class StaticInterval(ReconnectStrategy):
 
         log.info('Attempting to reconnect...')
 
-        self.bot.relay_connection.execute_delayed(self.interval, self.check)
+        self.bot.execute_delayed(self.interval, self.check)
         self._check_scheduled = True
 
     def check(self):
