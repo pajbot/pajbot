@@ -18,6 +18,13 @@ from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 
+class APICommands(Resource):
+    def get(self):
+        commands = pajbot.web.utils.get_cached_commands()
+
+        return {
+                'commands': commands
+                }, 200
 
 class APICommand(Resource):
     def get(self, raw_command_id):
@@ -218,6 +225,7 @@ class APICommandCheckAlias(Resource):
 
 
 def init(api):
+    api.add_resource(APICommands, '/commands')
     api.add_resource(APICommand, '/commands/<raw_command_id>')
     api.add_resource(APICommandRemove, '/commands/remove/<int:command_id>')
     api.add_resource(APICommandUpdate, '/commands/update/<int:command_id>')
