@@ -79,7 +79,7 @@ class CommandData(Base):
 
     added_by = Column(Integer, nullable=True)
     edited_by = Column(Integer, nullable=True)
-    _last_date_used = Column('last_date_used', DateTime, nullable=True, default='0')
+    _last_date_used = Column('last_date_used', DateTime, nullable=True, default=None)
 
     user = relationship(
         'User',
