@@ -211,6 +211,7 @@ class Bot:
 
         self.data['broadcaster'] = self.streamer
         self.data['version'] = self.version
+        self.data['bot_name'] = self.nickname
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
