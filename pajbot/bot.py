@@ -211,6 +211,7 @@ class Bot:
 
         self.data['broadcaster'] = self.streamer
         self.data['version'] = self.version
+        self.data['version_brief'] = self.version_brief
         self.data['bot_name'] = self.nickname
         self.data_cb['status_length'] = self.c_status_length
         self.data_cb['stream_status'] = self.c_stream_status
@@ -569,6 +570,7 @@ class Bot:
 
     def parse_version(self):
         self.version = self.version
+        self.version_brief = self.version
 
         if self.dev:
             try:
