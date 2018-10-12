@@ -14,6 +14,8 @@ from pytz import timezone
 import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers.cachet import CachetManager
+from pajbot.managers.cachet import MPTMetric
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -27,7 +29,6 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
-from pajbot.managers.cachet import CachetManager, MPTMetric
 from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.models.action import ActionParser
