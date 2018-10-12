@@ -68,8 +68,19 @@ class SubAlertModule(BaseModule):
                     'max_str_len': 400,
                     }),
             ModuleSetting(
+                key='resub_prime',
+                label='Resub chat message (Prime sub) | Available arguments: {username}, {num_months}',
+                type='text',
+                required=True,
+                placeholder='Thank you for smashing it {num_months} in a row {username}',
+                default='Thank you for smashing it {num_months} in a row {username}',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
                 key='resub_gift',
-                label='Resub chat message | Available arguments: {username}, {num_months}, {gifted_by}',
+                label='Resub chat message (Gift sub) | Available arguments: {username}, {num_months}, {gifted_by}',
                 type='text',
                 required=True,
                 placeholder='{username} got gifted a resub by {gifted_by}, that\'s {num_months} months in a row PogChamp',
@@ -168,7 +179,7 @@ class SubAlertModule(BaseModule):
         if self.settings['whisper_message'] is True:
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('new_sub_whisper', **payload)), )
 
-    def on_resub(self, user, num_months, gifted_by=None):
+    def on_resub(self, user, num_months, sub_type, gifted_by=None):
         """
         A user just re-subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -180,10 +191,13 @@ class SubAlertModule(BaseModule):
         self.bot.websocket_manager.emit('resub', payload)
 
         if self.settings['chat_message'] is True:
-            if gifted_by:
-                self.bot.say(self.get_phrase('resub_gift', **payload))
+            if sub_type == 'Prime':
+                self.bot.say(self.get_phrase('resub_prime', **payload))
             else:
-                self.bot.say(self.get_phrase('resub', **payload))
+                if gifted_by:
+                    self.bot.say(self.get_phrase('resub_gift', **payload))
+                else:
+                    self.bot.say(self.get_phrase('resub', **payload))
 
         if self.settings['whisper_message'] is True:
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('resub_whisper', **payload)), )
@@ -206,10 +220,15 @@ class SubAlertModule(BaseModule):
             if 'msg-param-months' not in tags:
                 log.debug('subalert msg-id is resub, but missing msg-param-months: {}'.format(tags))
                 return
+            if 'msg-param-sub-plan' not in tags:
+                log.debug('subalert msg-id is resub, but missing msg-param-sub-plan: {}'.format(tags))
+                return
+
+            # log.debug('msg-id resub tags: {}'.format(tags))
 
             # TODO: Should we check room id with streamer ID here? Maybe that's for pajbot2 instead
             num_months = int(tags['msg-param-months'])
-            self.on_resub(source, num_months)
+            self.on_resub(source, num_months, tags['msg-param-sub-plan'])
             HandlerManager.trigger('on_user_resub', source, num_months)
         elif tags['msg-id'] == 'subgift':
             if 'msg-param-months' not in tags:
@@ -220,14 +239,16 @@ class SubAlertModule(BaseModule):
                 return
 
             num_months = int(tags['msg-param-months'])
-            if num_months > 1:
-                # Resub
-                self.on_resub(source, num_months, tags['display-name'])
-                HandlerManager.trigger('on_user_resub', source, num_months)
-            else:
-                # New sub
-                self.on_new_sub(source, tags['msg-param-sub-plan'], tags['display-name'])
-                HandlerManager.trigger('on_user_sub', source)
+
+            with self.users.get_user_context(tags['msg-param-recipient-user-name']) as receiver:
+                if num_months > 1:
+                    # Resub
+                    self.on_resub(receiver, num_months, tags['msg-param-sub-plan'], tags['display-name'])
+                    HandlerManager.trigger('on_user_resub', receiver, num_months)
+                else:
+                    # New sub
+                    self.on_new_sub(receiver, tags['msg-param-sub-plan'], tags['display-name'])
+                    HandlerManager.trigger('on_user_sub', receiver)
         elif tags['msg-id'] == 'sub':
             if 'msg-param-sub-plan' not in tags:
                 log.debug('subalert msg-id is sub, but missing msg-param-sub-plan: {}'.format(tags))
