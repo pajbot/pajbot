@@ -240,7 +240,7 @@ class SubAlertModule(BaseModule):
 
             num_months = int(tags['msg-param-months'])
 
-            with self.users.get_user_context(tags['msg-param-recipient-user-name']) as receiver:
+            with self.bot.users.get_user_context(tags['msg-param-recipient-user-name']) as receiver:
                 if num_months > 1:
                     # Resub
                     self.on_resub(receiver, num_months, tags['msg-param-sub-plan'], tags['display-name'])
