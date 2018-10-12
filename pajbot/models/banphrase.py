@@ -118,7 +118,7 @@ class Banphrase(Base):
         if not self.compiled_regex:
             return False
 
-        return self.compiled_regex.match(self.format_message(message))
+        return self.compiled_regex.search(self.format_message(message))
 
     def match(self, message, user):
         """
