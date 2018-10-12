@@ -1,4 +1,3 @@
-import json
 import logging
 import threading
 import time
@@ -26,7 +25,6 @@ class CachetManager:
             self.metric_messages_processed = bot.config['cachet']['metric_messages_processed']
 
     def _post_metrics(self):
-        log.debug('Posting metrics')
         thread = threading.Thread(target=self._actually_post_metrics, daemon=True)
         thread.start()
 
@@ -36,13 +34,11 @@ class CachetManager:
 
             if len(self.messages_processed) > 0:
                 if self.metric_message_processing_time:
-                    avg_mpt = sum(self.messages_processed)/len(self.messages_processed)
-                    xd = points.post(id=self.metric_message_processing_time, value=avg_mpt)
-                    log.debug(json.loads(xd))
+                    avg_mpt = sum(self.messages_processed) / len(self.messages_processed)
+                    points.post(id=self.metric_message_processing_time, value=avg_mpt)
 
                 if self.metric_messages_processed:
-                    xd = points.post(id=self.metric_messages_processed, value=len(self.messages_processed))
-                    log.debug(json.loads(xd))
+                    points.post(id=self.metric_messages_processed, value=len(self.messages_processed))
 
                 self.messages_processed = []
         except:
