@@ -35,12 +35,45 @@ class SubAlertModule(BaseModule):
                     'max_str_len': 400,
                     }),
             ModuleSetting(
+                key='new_prime_sub',
+                label='New prime sub chat message | Available arguments: {username}',
+                type='text',
+                required=True,
+                placeholder='Thank you for smashing that prime button! {username} PogChamp',
+                default='Thank you for smashing that prime button! {username} PogChamp',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
+                key='new_gift_sub',
+                label='New gift sub chat message | Available arguments: {username}, {gifted_by}',
+                type='text',
+                required=True,
+                placeholder='{gifted_by} gifted a fresh sub to {username}! PogChamp',
+                default='{gifted_by} gifted a fresh sub to {username}! PogChamp',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
                 key='resub',
                 label='Resub chat message | Available arguments: {username}, {num_months}',
                 type='text',
                 required=True,
                 placeholder='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3',
                 default='Resub hype! {username} just subscribed, {num_months} months in a row PogChamp <3',
+                constraints={
+                    'min_str_len': 10,
+                    'max_str_len': 400,
+                    }),
+            ModuleSetting(
+                key='resub_gift',
+                label='Resub chat message | Available arguments: {username}, {num_months}, {gifted_by}',
+                type='text',
+                required=True,
+                placeholder='{username} got gifted a resub by {gifted_by}, that\'s {num_months} months in a row PogChamp',
+                default='{username} got gifted a resub by {gifted_by}, that\'s {num_months} months in a row PogChamp',
                 constraints={
                     'min_str_len': 10,
                     'max_str_len': 400,
@@ -109,7 +142,7 @@ class SubAlertModule(BaseModule):
         user.points += self.settings['grant_points_on_sub']
         self.bot.say('{} was given {} points for subscribing! FeelsAmazingMan'.format(user.username_raw, self.settings['grant_points_on_sub']))
 
-    def on_new_sub(self, user):
+    def on_new_sub(self, user, sub_type, gifted_by=None):
         """
         A new user just subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -120,16 +153,22 @@ class SubAlertModule(BaseModule):
 
         self.bot.kvi['active_subs'].inc()
 
-        payload = {'username': user.username_raw}
+        payload = {'username': user.username_raw, 'gifted_by': gifted_by}
         self.bot.websocket_manager.emit('new_sub', payload)
 
         if self.settings['chat_message'] is True:
-            self.bot.say(self.get_phrase('new_sub', **payload))
+            if sub_type == 'Prime':
+                self.bot.say(self.get_phrase('new_prime_sub', **payload))
+            else:
+                if gifted_by:
+                    self.bot.say(self.get_phrase('new_gift_sub', **payload))
+                else:
+                    self.bot.say(self.get_phrase('new_sub', **payload))
 
         if self.settings['whisper_message'] is True:
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('new_sub_whisper', **payload)), )
 
-    def on_resub(self, user, num_months):
+    def on_resub(self, user, num_months, gifted_by=None):
         """
         A user just re-subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -137,11 +176,14 @@ class SubAlertModule(BaseModule):
 
         self.on_sub_shared(user)
 
-        payload = {'username': user.username_raw, 'num_months': num_months}
+        payload = {'username': user.username_raw, 'num_months': num_months, 'gifted_by': gifted_by}
         self.bot.websocket_manager.emit('resub', payload)
 
         if self.settings['chat_message'] is True:
-            self.bot.say(self.get_phrase('resub', **payload))
+            if gifted_by:
+                self.bot.say(self.get_phrase('resub_gift', **payload))
+            else:
+                self.bot.say(self.get_phrase('resub', **payload))
 
         if self.settings['whisper_message'] is True:
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('resub_whisper', **payload)), )
@@ -157,14 +199,44 @@ class SubAlertModule(BaseModule):
                     HandlerManager.trigger('on_user_sub', user)
 
     def on_usernotice(self, source, message, tags):
-        if 'msg-id' not in tags or 'msg-param-months' not in tags:
+        if 'msg-id' not in tags:
             return
 
         if tags['msg-id'] == 'resub':
+            if 'msg-param-months' not in tags:
+                log.debug('subalert msg-id is resub, but missing msg-param-months: {}'.format(tags))
+                return
+
             # TODO: Should we check room id with streamer ID here? Maybe that's for pajbot2 instead
             num_months = int(tags['msg-param-months'])
             self.on_resub(source, num_months)
             HandlerManager.trigger('on_user_resub', source, num_months)
+        elif tags['msg-id'] == 'subgift':
+            if 'msg-param-months' not in tags:
+                log.debug('subalert msg-id is subgift, but missing msg-param-months: {}'.format(tags))
+                return
+            if 'display-name' not in tags:
+                log.debug('subalert msg-id is subgift, but missing display-name: {}'.format(tags))
+                return
+
+            num_months = int(tags['msg-param-months'])
+            if num_months > 1:
+                # Resub
+                self.on_resub(source, num_months, tags['display-name'])
+                HandlerManager.trigger('on_user_resub', source, num_months)
+            else:
+                # New sub
+                self.on_new_sub(source, tags['msg-param-sub-plan'], tags['display-name'])
+                HandlerManager.trigger('on_user_sub', source)
+        elif tags['msg-id'] == 'sub':
+            if 'msg-param-sub-plan' not in tags:
+                log.debug('subalert msg-id is sub, but missing msg-param-sub-plan: {}'.format(tags))
+                return
+
+            self.on_new_sub(source, tags['msg-param-sub-plan'])
+            HandlerManager.trigger('on_user_sub', source)
+        else:
+            log.debug('Unhandled msg-id: {}'.format(tags['msg-id']))
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
