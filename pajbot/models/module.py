@@ -135,7 +135,6 @@ class ModuleManager:
         # TODO: Make disable/enable better, so we don't need to disable modules
         # that we're just going to enable again further down below.
         for module in self.modules:
-            log.debug('Disabling {module.NAME}'.format(module=module))
             module.disable(self.bot)
 
         self.modules = []
@@ -152,7 +151,6 @@ class ModuleManager:
                             log.warn('Invalid JSON')
 
                     self.modules.append(module.load(**options))
-                    log.debug('Enabling {module.NAME}'.format(module=module))
                     module.enable(self.bot)
 
         to_be_removed = []
@@ -166,12 +164,11 @@ class ModuleManager:
                     parent.submodules.append(module)
                     module.parent_module = parent
                 else:
-                    log.warn('Missing parent for module {}, disabling it.'.format(module.NAME))
+                    # log.warn('Missing parent for module {}, disabling it.'.format(module.NAME))
                     module.parent_module = None
                     to_be_removed.append(module)
 
         for module in to_be_removed:
-            log.debug('Disabling (2) {module.NAME}'.format(module=module))
             module.disable(self.bot)
             self.modules.remove(module)
 

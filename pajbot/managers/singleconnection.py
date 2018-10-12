@@ -72,9 +72,7 @@ class SingleConnectionManager:
         port = int(port)
         log.debug('Connecting to relay {}:{}'.format(ip, port))
         try:
-            log.debug('1')
             self.relay_connection.connect(ip, port, self.username, self.password, self.username)
-            log.debug('2')
         except irc.client.ServerConnectionError:
             log.error('Error connecting to {}:{}'.format(ip, port))
             self.recon.run(self)

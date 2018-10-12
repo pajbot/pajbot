@@ -398,11 +398,8 @@ class StreamManager:
                 })
 
             self.num_viewers = status['viewers']
-            log.debug('Loading stream data...')
             self.game = status['game']
             self.title = status['title']
-
-            log.debug('Game is now {} and title is now {}'.format(self.game, self.title))
 
             if status['online']:
                 if self.current_stream is None:

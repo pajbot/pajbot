@@ -3,7 +3,6 @@ import json
 import logging
 from contextlib import contextmanager
 
-import sqlalchemy
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -116,7 +115,7 @@ class UserSQL:
 
         self.model_loaded = True
 
-        log.debug('[UserSQL] Loading user model for {}'.format(self.username))
+        # log.debug('[UserSQL] Loading user model for {}'.format(self.username))
         # from pajbot.utils import print_traceback
         # print_traceback()
 
