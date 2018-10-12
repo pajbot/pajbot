@@ -35,29 +35,32 @@ class Module(Base):
 
 class ModuleManager:
     def __init__(self, socket_manager, bot=None):
+        # List of all enabled modules
         self.modules = []
+
+        # List of all available modules, both enabled and disabled
         self.all_modules = []
+
         self.bot = bot
 
         if socket_manager:
             socket_manager.add_handler('module.update', self.on_module_update)
 
+    def get_module(self, module_id):
+        return find(lambda m: m.ID == module_id, self.all_modules)
+
     def on_module_update(self, data, conn):
-        log.info('ModuleManager: module.update begin ({})'.format(data))
-        # self.reload()
         new_state = data.get('new_state', None)
         if new_state is True:
             self.enable_module(data['id'])
         elif new_state is False:
             self.disable_module(data['id'])
         else:
-            module = find(lambda m: m.ID == data['id'], self.all_modules)
+            module = self.get_module(data['id'])
             self.load_module(module)
-        log.info('ModuleManager: module.update done')
 
     def enable_module(self, module_id):
-        log.debug('Enabling module {}'.format(module_id))
-        module = find(lambda m: m.ID == module_id, self.all_modules)
+        module = self.get_module(module_id)
         if module is None:
             log.error('No module with the ID {} found.'.format(module_id))
             return False
@@ -71,6 +74,8 @@ class ModuleManager:
         self.modules.append(module)
 
         self.load_module(module)
+
+        return True
 
     def load_module(self, module):
         if module is None:
@@ -89,8 +94,8 @@ class ModuleManager:
             module.load(**options)
 
     def disable_module(self, module_id, reload_commands=False):
-        module = find(lambda m: m.ID == module_id, self.all_modules)
-        if module is None:
+        module = self.get_module(module_id)
+        if not module:
             log.error('No module with the ID {} found.'.format(module_id))
             return False
 
@@ -101,6 +106,8 @@ class ModuleManager:
             return False
 
         self.modules.remove(module)
+
+        return True
 
     def load(self, do_reload=True):
         """ Load module classes """
@@ -135,7 +142,7 @@ class ModuleManager:
 
         with DBManager.create_session_scope() as db_session:
             for enabled_module in db_session.query(Module).filter_by(enabled=True):
-                module = find(lambda m: m.ID == enabled_module.id, self.all_modules)
+                module = self.get_module(enabled_module.id)
                 if module is not None:
                     options = {}
                     if enabled_module.settings is not None:
