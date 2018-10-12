@@ -112,7 +112,7 @@ class MultiIRCManager(IRCManager):
         # XXX
         self.bot.execute_every(30, lambda: self.connection_manager.get_main_conn().ping('tmi.twitch.tv'))
 
-        self.whisper_manager = WhisperConnectionManager(self.bot.reactor, self, self.bot.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
+        self.whisper_manager = WhisperConnectionManager(self.bot.reactor, self.bot, self.bot.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
         self.whisper_manager.start(accounts=[{'username': self.username, 'oauth': self.password, 'can_send_whispers': self.bot.config.getboolean('main', 'add_self_as_whisper_account')}])
 
     def whisper(self, username, message):
