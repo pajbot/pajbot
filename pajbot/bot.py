@@ -14,8 +14,6 @@ from pytz import timezone
 import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
-from pajbot.managers.cachet import CachetManager
-from pajbot.managers.cachet import MPTMetric
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -157,7 +155,6 @@ class Bot:
         self.kvi = KVIManager()
         self.emotes = EmoteManager(self)
         self.twitter_manager = TwitterManager(self)
-        self.cachet_manager = CachetManager(self)
 
         HandlerManager.trigger('on_managers_loaded')
 
@@ -740,18 +737,18 @@ class Bot:
         if event.source.user == self.nickname:
             return False
 
-        with MPTMetric(self.cachet_manager):
-            username = event.source.user.lower()
+        username = event.source.user.lower()
 
-            # We use .lower() in case twitch ever starts sending non-lowercased usernames
-            with self.users.get_user_context(username) as source:
-                res = HandlerManager.trigger('on_pubmsg',
-                        source, event.arguments[0],
-                        stop_on_false=True)
-                if res is False:
-                    return False
 
-                self.parse_message(event.arguments[0], source, event, tags=event.tags)
+        # We use .lower() in case twitch ever starts sending non-lowercased usernames
+        with self.users.get_user_context(username) as source:
+            res = HandlerManager.trigger('on_pubmsg',
+                    source, event.arguments[0],
+                    stop_on_false=True)
+            if res is False:
+                return False
+
+            self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     @time_method
     def reload_all(self):
