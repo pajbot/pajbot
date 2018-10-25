@@ -8,6 +8,7 @@ import time
 import urllib
 
 import irc.client
+import requests
 from numpy import random
 from pytz import timezone
 
@@ -441,6 +442,27 @@ class Bot:
 
         log.warning('Unknown key passed to get_value: {0}'.format(key))
         return None
+
+    def privmsg_arr(self, arr):
+        for msg in arr:
+            self.privmsg(msg)
+
+    def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30):
+        try:
+            r = requests.get(url)
+            lines = r.text.split('\n')
+            i = 0
+            while len(lines) > 0:
+                if i == 0:
+                    self.privmsg_arr(lines[:per_chunk])
+                else:
+                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk],))
+
+                del lines[:per_chunk]
+
+                i = i + 1
+        except:
+            log.exception('error in privmsg_from_file')
 
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
