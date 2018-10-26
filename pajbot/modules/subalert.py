@@ -257,7 +257,7 @@ class SubAlertModule(BaseModule):
             self.on_new_sub(source, tags['msg-param-sub-plan'])
             HandlerManager.trigger('on_user_sub', source)
         else:
-            log.debug('Unhandled msg-id: {}'.format(tags['msg-id']))
+            log.debug('Unhandled msg-id: {} - tags: {}'.format(tags['msg-id'], tags))
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
