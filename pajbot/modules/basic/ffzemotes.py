@@ -50,8 +50,8 @@ class FFZEmotesModule(BaseModule):
     def load_commands(self, **options):
         get_cmd = pajbot.models.command.Command.raw_command(self.get_ffz_emotes,
                 level=100,
-                delay_all=3,
-                delay_user=6,
+                delay_all=15,
+                delay_user=60,
                 examples=[
                     pajbot.models.command.CommandExample(None, 'Show all active ffz emotes for this channel.',
                         chat='user: !ffzemotes\n'
