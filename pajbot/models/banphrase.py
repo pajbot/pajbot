@@ -335,7 +335,7 @@ class BanphraseManager:
                     use_warnings=banphrase.warning)
 
             """ Finally, time out the user for whatever timeout length was required. """
-            self.bot.timeout(user.username, timeout_length, reason='Banned phrase')
+            self.bot.timeout(user.username, timeout_length, reason='Banned phrase {}'.format(banphrase.id))
 
         if banphrase.notify is True and user.minutes_in_chat_online > 60:
             """ Last but not least, notify the user why he has been timed out
