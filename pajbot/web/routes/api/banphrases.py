@@ -7,9 +7,9 @@ import pajbot.modules
 import pajbot.utils
 import pajbot.web.utils
 from pajbot.managers.adminlog import AdminLogManager
-from pajbot.models.banphrase import BanphraseManager
 from pajbot.managers.db import DBManager
 from pajbot.models.banphrase import Banphrase
+from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.sock import SocketClientManager
 
 log = logging.getLogger(__name__)
@@ -99,6 +99,7 @@ class APIBanphraseTest(Resource):
             ret['banphrase_data'] = res
 
         return ret
+
 
 class APIBanphraseDump(Resource):
     def __init__(self):
