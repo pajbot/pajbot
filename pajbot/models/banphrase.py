@@ -98,7 +98,10 @@ class Banphrase(Base):
         self.compiled_regex = None
         if self.operator == 'regex':
             try:
-                self.compiled_regex = re.compile(self.phrase)
+                if self.case_sensitive:
+                    self.compiled_regex = re.compile(self.phrase)
+                else:
+                    self.compiled_regex = re.compile(self.phrase, flags=re.IGNORECASE)
             except Exception:
                 log.exception('Unable to compile regex: {}'.format(self.phrase))
 
