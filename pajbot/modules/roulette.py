@@ -239,8 +239,8 @@ class RouletteModule(BaseModule):
 
     def flush_output_buffer(self):
         msg = self.output_buffer
-        self.output_buffer = ''
         self.bot.me(msg)
+        self.output_buffer = ''
         self.output_buffer_args = []
 
     def add_message(self, bot, arguments):
@@ -249,7 +249,7 @@ class RouletteModule(BaseModule):
         for arg in self.output_buffer_args:
             parts.append('{} {} {}{}'.format('PogChamp' if arg['win'] else 'PepeHands', arg['user'], '+' if arg['win'] else '-', arg['bet']))
 
-            parts.append('{} {} {}{}'.format('PogChamp' if arguments['win'] else 'PepeHands', arguments['user'], '+' if arguments['win'] else '-', arguments['bet']))
+        parts.append('{} {} {}{}'.format('PogChamp' if arguments['win'] else 'PepeHands', arguments['user'], '+' if arguments['win'] else '-', arguments['bet']))
 
         log.debug(parts)
         new_buffer = new_buffer+ ', '.join(parts)
