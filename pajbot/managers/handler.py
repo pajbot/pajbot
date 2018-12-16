@@ -67,6 +67,9 @@ class HandlerManager:
         # send_whisper(user, message)
         HandlerManager.create_handler('send_whisper')
 
+        # on_tick()
+        HandlerManager.create_handler('on_tick')
+
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []

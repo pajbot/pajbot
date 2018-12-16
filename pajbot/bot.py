@@ -172,6 +172,7 @@ class Bot:
                 }
 
         self.execute_every(10 * 60, self.commit_all)
+        self.execute_every(1, self.do_tick)
 
         try:
             self.admin = self.config['main']['admin']
@@ -791,6 +792,9 @@ class Bot:
         log.info('ok!')
 
         HandlerManager.trigger('on_commit', stop_on_false=False)
+
+    def do_tick(self):
+        HandlerManager.trigger('on_tick')
 
     def quit(self, message, event, **options):
         quit_chub = self.config['main'].get('control_hub', None)
