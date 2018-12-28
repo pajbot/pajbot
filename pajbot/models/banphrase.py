@@ -161,10 +161,13 @@ class Banphrase(Base):
 
     def jsonify(self):
         return {
+                'id': self.id,
                 'name': self.name,
                 'phrase': self.phrase,
                 'length': self.length,
                 'permanent': self.permanent,
+                'operator': self.operator,
+                'case_sensitive': self.case_sensitive,
                 }
 
 
