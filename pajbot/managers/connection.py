@@ -140,30 +140,26 @@ class ConnectionManager:
         self.run_maintenance()
         return self.get_main_conn()
 
+    """
+    This method returns a random IRC server from a list of valid twitch IRC servers.
+    The returned servers accept unencrypted IRC traffic. (they are not SSL servers)
+    """
     def get_chat_server(self, streamer):
-        data = None
-        try:
-            data = self.bot.twitchapi.get(['channels', streamer, 'chat_properties'])
-        except urllib.error.HTTPError:
-            log.error('An unhandled HTTP Error occured when trying to create a new connection.')
+        servers = [
+            { "host": "irc.chat.twitch.tv", "port": 6667 },
+            { "host": "irc.chat.twitch.tv", "port": 80 },
+        ]
 
-        if data is None:
-            # return this default shit in case the data is bad
-            # TODO: We should be able to specify in the config if the fallback IP should be
-            #       an IP on the event server or not.
-            return 'irc.twitch.tv', 6667
-
-        server = random.choice(data['chat_servers'])
-        ip, port = server.split(':')
-        return ip, int(port)
+        server = random.choice(servers)
+        return server["host"], server["port"]
 
     def make_new_connection(self):
         log.debug('Creating a new IRC connection...')
-        log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
+        log.debug('Selecting random IRC server... ({0})'.format(self.streamer))
 
         ip, port = self.get_chat_server(self.streamer)
 
-        log.debug('Fetched {0}:{1}'.format(ip, port))
+        log.debug('Selected {0}:{1}'.format(ip, port))
 
         try:
             newconn = CustomServerConnection(self.reactor)
