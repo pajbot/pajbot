@@ -196,13 +196,13 @@ class ConnectionManager:
 
         if conn is None:
             log.error('No available connections to send messages from. Delaying message a few seconds.')
-            self.reactor.execute_delayed(2, self.privmsg, (channel, message, increase_message))
+            self.bot.execute_delayed(2, self.privmsg, (channel, message, increase_message))
             return False
 
         conn.conn.privmsg(channel, message)
         if increase_message:
             conn.num_msgs_sent += 1
-            self.reactor.execute_delayed(31, conn.reduce_msgs_sent)
+            self.bot.execute_delayed(31, conn.reduce_msgs_sent)
 
             if conn.num_msgs_sent >= self.message_limit:
                 self.run_maintenance()
