@@ -144,7 +144,7 @@ class ConnectionManager:
     This method returns a random IRC server from a list of valid twitch IRC servers.
     The returned servers accept unencrypted IRC traffic. (they are not SSL servers)
     """
-    def get_chat_server(self, streamer):
+    def get_chat_server(self):
         servers = [
             { "host": "irc.chat.twitch.tv", "port": 6667 },
             { "host": "irc.chat.twitch.tv", "port": 80 },
@@ -157,7 +157,7 @@ class ConnectionManager:
         log.debug('Creating a new IRC connection...')
         log.debug('Selecting random IRC server... ({0})'.format(self.streamer))
 
-        ip, port = self.get_chat_server(self.streamer)
+        ip, port = self.get_chat_server()
 
         log.debug('Selected {0}:{1}'.format(ip, port))
 
