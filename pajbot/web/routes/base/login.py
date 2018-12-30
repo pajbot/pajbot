@@ -24,11 +24,11 @@ def init(app):
             request_token_params={
                 'scope': 'user_read',
                 },
-            base_url='https://api.twitch.tv/kraken/',
+            base_url='https://id.twitch.tv/',
             request_token_url=None,
             access_token_method='POST',
-            access_token_url='https://api.twitch.tv/kraken/oauth2/token',
-            authorize_url='https://api.twitch.tv/kraken/oauth2/authorize',
+            access_token_url='https://id.twitch.tv/oauth2/token',
+            authorize_url='https://id.twitch.tv/oauth2/authorize',
             )
 
     @app.route('/login')
