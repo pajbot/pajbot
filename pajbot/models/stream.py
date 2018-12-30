@@ -178,7 +178,7 @@ class StreamManager:
             return
 
         try:
-            data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'}, base='https://api.twitch.tv/kraken/')
+            data = self.bot.twitchapi.get(['channels', self.bot.streamer, 'videos'], parameters={'broadcasts': 'true'}, base='http://127.0.0.1:7221/kraken/')
 
             self.bot.mainthread_queue.add(self.refresh_video_url_stage2,
                     args=[data])
