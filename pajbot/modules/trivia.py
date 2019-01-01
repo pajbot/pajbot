@@ -53,6 +53,17 @@ class TriviaModule(BaseModule):
                     'min_value': 0,
                     'max_value': 50,
                     }),
+            ModuleSetting(
+                key='question_delay',
+                label='Delay between questions in seconds.',
+                type='number',
+                required=True,
+                placeholder='',
+                default=0,
+                constraints={
+                    'min_value': 0,
+                    'max_value': 600,
+                }),
             ]
 
     def __init__(self):
@@ -84,7 +95,8 @@ class TriviaModule(BaseModule):
             self.last_step = None
 
         # Is it time for the next step?
-        if self.last_step is None or datetime.datetime.now() - self.last_step >= datetime.timedelta(seconds=self.settings['step_delay']):
+        condition = self.last_question is None or datetime.datetime.now() - self.last_question >= datetime.timedelta(seconds=self.settings['question_delay'])
+        if (self.last_step is None and condition) or (self.last_step is not None and datetime.datetime.now() - self.last_step >= datetime.timedelta(seconds=self.settings['step_delay'])):
             self.last_step = datetime.datetime.now()
             self.step += 1
 

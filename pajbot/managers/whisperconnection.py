@@ -67,11 +67,11 @@ class WhisperConnectionManager:
             # Update available group servers.
             # This will also be run at an interval to make sure it's up to date
             self.update_servers_list()
-            self.reactor.execute_every(3600, self.update_servers_list)
+            self.bot.execute_every(3600, self.update_servers_list)
 
             # Run the maintenance function every 4 seconds.
             # The maintenance function is responsible for reconnecting lost connections.
-            self.reactor.execute_every(4, self.run_maintenance)
+            self.bot.execute_every(4, self.run_maintenance)
 
             # Fetch additional whisper accounts from the database
             for account in self.db_session.query(WhisperAccount).filter_by(enabled=True):
@@ -127,7 +127,7 @@ class WhisperConnectionManager:
                 log.debug('Sending whisper to {0} from {2}: {1}'.format(username, message, valid_connection.name))
                 valid_connection.conn.privmsg('#jtv', '/w {0} {1}'.format(username, message))
                 valid_connection.num_msgs_sent += 1
-                valid_connection.conn.execute_delayed(self.time_interval, valid_connection.reduce_msgs_sent)
+                self.bot.execute_delayed(self.time_interval, valid_connection.reduce_msgs_sent)
             except:
                 log.exception('Caught an exception in the whisper_sender function')
 

@@ -140,30 +140,26 @@ class ConnectionManager:
         self.run_maintenance()
         return self.get_main_conn()
 
-    def get_chat_server(self, streamer):
-        data = None
-        try:
-            data = self.bot.twitchapi.get(['channels', streamer, 'chat_properties'])
-        except urllib.error.HTTPError:
-            log.error('An unhandled HTTP Error occured when trying to create a new connection.')
+    """
+    This method returns a random IRC server from a list of valid twitch IRC servers.
+    The returned servers accept unencrypted IRC traffic. (they are not SSL servers)
+    """
+    def get_chat_server(self):
+        servers = [
+            { "host": "irc.chat.twitch.tv", "port": 6667 },
+            { "host": "irc.chat.twitch.tv", "port": 80 },
+        ]
 
-        if data is None:
-            # return this default shit in case the data is bad
-            # TODO: We should be able to specify in the config if the fallback IP should be
-            #       an IP on the event server or not.
-            return 'irc.twitch.tv', 6667
-
-        server = random.choice(data['chat_servers'])
-        ip, port = server.split(':')
-        return ip, int(port)
+        server = random.choice(servers)
+        return server["host"], server["port"]
 
     def make_new_connection(self):
         log.debug('Creating a new IRC connection...')
-        log.debug('Fetching random IRC server... ({0})'.format(self.streamer))
+        log.debug('Selecting random IRC server... ({0})'.format(self.streamer))
 
-        ip, port = self.get_chat_server(self.streamer)
+        ip, port = self.get_chat_server()
 
-        log.debug('Fetched {0}:{1}'.format(ip, port))
+        log.debug('Selected {0}:{1}'.format(ip, port))
 
         try:
             newconn = CustomServerConnection(self.reactor)
@@ -196,13 +192,13 @@ class ConnectionManager:
 
         if conn is None:
             log.error('No available connections to send messages from. Delaying message a few seconds.')
-            self.reactor.execute_delayed(2, self.privmsg, (channel, message, increase_message))
+            self.bot.execute_delayed(2, self.privmsg, (channel, message, increase_message))
             return False
 
         conn.conn.privmsg(channel, message)
         if increase_message:
             conn.num_msgs_sent += 1
-            self.reactor.execute_delayed(31, conn.reduce_msgs_sent)
+            self.bot.execute_delayed(31, conn.reduce_msgs_sent)
 
             if conn.num_msgs_sent >= self.message_limit:
                 self.run_maintenance()

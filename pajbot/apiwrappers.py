@@ -276,7 +276,7 @@ class TwitchAPI(APIBase):
         APIBase.__init__(self, strict)
 
         self.base_url = 'https://api.twitch.tv/api/'
-        self.kraken_url = 'https://api.twitch.tv/kraken/'
+        self.kraken_url = 'http://127.0.0.1:7221/kraken/'
         self.tmi_url = 'https://tmi.twitch.tv/'
 
         self.headers = {

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from flask import redirect
 from flask import render_template
@@ -17,6 +18,9 @@ log = logging.getLogger(__name__)
 def init(app):
     oauth = OAuth(app)
 
+    # enables the usage of 127.0.0.1:7221 over http for OAuth purposes.
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
     twitch = oauth.remote_app(
             'twitch',
             consumer_key=app.bot_config['webtwitchapi']['client_id'],
@@ -24,11 +28,11 @@ def init(app):
             request_token_params={
                 'scope': 'user_read',
                 },
-            base_url='https://api.twitch.tv/kraken/',
+            base_url='http://127.0.0.1:7221/kraken/',
             request_token_url=None,
             access_token_method='POST',
-            access_token_url='https://api.twitch.tv/kraken/oauth2/token',
-            authorize_url='https://api.twitch.tv/kraken/oauth2/authorize',
+            access_token_url='https://id.twitch.tv/oauth2/token',
+            authorize_url='https://id.twitch.tv/oauth2/authorize',
             )
 
     @app.route('/login')

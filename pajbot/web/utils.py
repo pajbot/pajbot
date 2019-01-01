@@ -67,7 +67,7 @@ def download_logo(client_id, streamer):
 
     twitchapi = TwitchAPI(client_id)
     try:
-        data = twitchapi.get(['users', streamer], base='https://api.twitch.tv/kraken/')
+        data = twitchapi.get(['users', streamer], base='http://127.0.0.1:7221/kraken/')
         log.info(data)
         if data:
             logo_raw = 'static/images/logo_{}.png'.format(streamer)
