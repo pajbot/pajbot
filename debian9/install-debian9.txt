@@ -55,6 +55,10 @@ sudo apt install git
 #
 # Set up twitch-api-v3-proxy
 # This is required because pajbot1 uses the deprecated Twitch v3 API.
+# Note that you can also build this project on a different machine
+# and only install openjdk-8-jre-headless, if you prefer.
+# The build artifacts of the project are compatible with all platforms
+# and can be moved between machines without any issues.
 #
 # change into home directory to clone source code and build, we will move
 # only the build artifact to the /opt directory later.
