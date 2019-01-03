@@ -1,0 +1,15 @@
+[Unit]
+Description=pajbot-web for %i
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/pajbot
+ExecStart=/usr/bin/uwsgi --ini uwsgi_shared.ini --ini uwsgi_cache.ini --socket /srv/pajbot-web/.%i.sock --pyargv "--config configs/%i.ini" --virtualenv venv
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

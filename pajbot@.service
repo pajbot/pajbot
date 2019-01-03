@@ -1,0 +1,16 @@
+[Unit]
+Description=pajbot for %i
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/pajbot
+Environment=VIRTUAL_ENV=/opt/pajbot/venv
+ExecStart=/bin/bash -c "PATH=$VIRTUAL_ENV/bin:$PATH /opt/pajbot/venv/bin/python3 main.py --config configs/%i.ini"
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
