@@ -51,9 +51,6 @@ sudo apt install git
 # The second application is specific to this pajbot1 instance, which is local to one broadcaster
 # and one bot account (KKonaTestBroadcaster/KKonaTestBot)
 #
-# In this example, the client-id of the first application is:
-# 
-#
 
 #
 # Set up twitch-api-v3-proxy
