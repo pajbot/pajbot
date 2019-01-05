@@ -17,6 +17,8 @@ configs/
 uwsgiconfigs/
 config.ini
 /*.ini
+!uwsgi_cache.ini
+!uwsgi_shared.ini
 
 # User created code
 userdispatch.py
