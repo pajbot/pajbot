@@ -554,13 +554,29 @@ class Bot:
 
         return self.irc.whisper(username, message)
 
-    def send_message_to_user(self, user, message, separator='. ', method='say'):
+    def send_message_to_user(self, user, message, event, separator='. ', method='say'):
         if method == 'say':
             self.say(user.username + ', ' + lowercase_first_letter(message), separator=separator)
         elif method == 'whisper':
             self.whisper(user.username, message, separator=separator)
+        elif method == 'me':
+            self.me(message, separator=separator)
+        elif method == 'reply':
+            if event.type in ['action', 'pubmsg']:
+                self.say(message, separator=separator)
+            elif event.type == 'whisper':
+                self.whisper(user.username, message, separator=separator)
         else:
             log.warning('Unknown send_message method: {}'.format(method))
+
+    def safe_privmsg(self, message, channel=None, increase_message=True):
+        # Check for banphrases
+        res = self.banphrase_manager.check_message(message, None)
+        if res is not False:
+            self.privmsg('filtered message ({})'.format(res.id), channel, increase_message)
+            return
+
+        self.privmsg(message, channel, increase_message)
 
     def say(self, *messages, channel=None, separator='. '):
         """
@@ -582,6 +598,13 @@ class Bot:
                 log.info('Sending message: {0}'.format(message))
 
                 self.privmsg(message[:510], channel)
+
+    def is_bad_message(self, message):
+        return self.banphrase_manager.check_message(message, None) is not False
+
+    def safe_me(self, message, channel=None):
+        if not self.is_bad_message(message):
+            self.me(message, channel)
 
     def me(self, message, channel=None):
         if not self.silent:
@@ -607,6 +630,7 @@ class Bot:
                 commit_number = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count']).decode('utf8').strip()
                 self.version = '{0} DEV ({1}, {2}, commit {3})'.format(self.version, current_branch, latest_commit, commit_number)
             except:
+                log.exception('hmm')
                 pass
 
     def on_welcome(self, chatconn, event):
@@ -769,6 +793,73 @@ class Bot:
 
         username = event.source.user.lower()
 
+        if self.streamer == 'forsen':
+            if 'zonothene' in username:
+                self._ban(username)
+                return True
+
+            raw_m = event.arguments[0].lower()
+            if raw_m.startswith('!lastseen forsen'):
+                if len(raw_m) > len('!lastseen forsen2'):
+                    if raw_m[16] == ' ':
+                        return True
+                else:
+                    return True
+
+            if raw_m.startswith('!lastseen @forsen'):
+                if len(raw_m) > len('!lastseen @forsen2'):
+                    if raw_m[17] == ' ':
+                        return True
+                else:
+                    return True
+
+        if self.streamer == 'nymn':
+            if 'hades_k' in username:
+                self._timeout(username, 3600)
+                return True
+
+            if 'hades_b' in username:
+                self._timeout(username, 3600)
+                return True
+
+            raw_m = event.arguments[0]
+            m = ''.join(sorted(set(raw_m), key=raw_m.index))
+            m = ''.join(ch for ch in m if ch.isalnum())
+            if 'niqers' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'niqe3rs' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'niq3ers' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'niqurs' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'nigurs' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'nige3rs' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'nig3ers' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'nig3ers' in m:
+                self.timeout(username, 600)
+                return True
+
+            if 'nigger' in m:
+                self.timeout(username, 600)
+                return True
 
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         with self.users.get_user_context(username) as source:

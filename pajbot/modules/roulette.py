@@ -212,7 +212,10 @@ class RouletteModule(BaseModule):
             out_message = self.get_phrase('message_lost', **arguments)
 
         if self.settings['options_output'] == '4. Combine output in chat':
-            self.add_message(bot, arguments)
+            if bot.is_online:
+                self.add_message(bot, arguments)
+            else:
+                bot.me(out_message)
         if self.settings['options_output'] == '1. Show results in chat':
             bot.me(out_message)
         if self.settings['options_output'] == '2. Show results in whispers':
@@ -246,10 +249,12 @@ class RouletteModule(BaseModule):
     def add_message(self, bot, arguments):
         parts = []
         new_buffer = 'Roulette: '
+        win_emote = 'forsenPls'
+        lose_emote = 'forsenSWA'
         for arg in self.output_buffer_args:
-            parts.append('{} {} {}{}'.format('PogChamp' if arg['win'] else 'PepeHands', arg['user'], '+' if arg['win'] else '-', arg['bet']))
+            parts.append('{} {} {}{}'.format(win_emote if arg['win'] else lose_emote, arg['user'], '+' if arg['win'] else '-', arg['bet']))
 
-        parts.append('{} {} {}{}'.format('PogChamp' if arguments['win'] else 'PepeHands', arguments['user'], '+' if arguments['win'] else '-', arguments['bet']))
+        parts.append('{} {} {}{}'.format(win_emote if arguments['win'] else lose_emote, arguments['user'], '+' if arguments['win'] else '-', arguments['bet']))
 
         log.debug(parts)
         new_buffer = new_buffer+ ', '.join(parts)

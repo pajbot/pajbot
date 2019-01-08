@@ -424,44 +424,6 @@ class TwitchAPI(APIBase):
         """
         self.put(endpoints=['channels', streamer], data={'channel[status]': title}, base=self.kraken_url)
 
-    def get_follow_relationship2(self, username, streamer):
-        """Returns the follow relationship between the user and a streamer.
-
-        Returns False if `username` is not following `streamer`.
-        Otherwise, return a datetime object.
-
-        This value is cached in Redis FOREVER
-        """
-
-        # XXX TODO FIXME
-        from pajbot.managers.redis import RedisManager
-
-        redis = RedisManager.get()
-
-        fr_key = 'fr_GLOBAL_{username}_{streamer}'.format(username=username, streamer=streamer)
-        follow_relationship = redis.get(fr_key)
-
-        if follow_relationship is None:
-            try:
-                log.debug('fr2 api request')
-                data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base=self.kraken_url)
-                created_at = data['created_at']
-                redis.set(fr_key, value=created_at)
-                return TwitchAPI.parse_datetime(created_at)
-            except ValueError:
-                raise
-            except urllib.error.HTTPError:
-                redis.setex(fr_key, time=120, value='-1')
-                return False
-            except:
-                log.exception('Unhandled exception in get_follow_relationship')
-                return False
-        else:
-            if follow_relationship == '-1':
-                return False
-            else:
-                return TwitchAPI.parse_datetime(follow_relationship)
-
     def get_follow_relationship(self, username, streamer):
         """Returns the follow relationship between the user and a streamer.
 
@@ -486,8 +448,11 @@ class TwitchAPI(APIBase):
                 redis.setex(fr_key, time=120, value=created_at)
                 return TwitchAPI.parse_datetime(created_at)
             except ValueError:
+                log.exception('value error xd')
                 raise
-            except urllib.error.HTTPError:
+            except urllib.error.HTTPError as e:
+                log.exception('http error xd')
+                log.debug('e: {}'.format(e))
                 redis.setex(fr_key, time=120, value='-1')
                 return False
             except:
@@ -495,6 +460,7 @@ class TwitchAPI(APIBase):
                 return False
         else:
             if follow_relationship == '-1':
+                log.debug('follow relationship = -1')
                 return False
             else:
                 return TwitchAPI.parse_datetime(follow_relationship)

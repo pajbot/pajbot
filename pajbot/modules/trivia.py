@@ -109,7 +109,7 @@ class TriviaModule(BaseModule):
 
     def step_announce(self):
         try:
-            self.bot.me('OMGScoots A new question has begun! In the category "{0[category][title]}", the question/hint/clue is "{0[question]}" OMGScoots'.format(self.question))
+            self.bot.safe_me('KKona A new question has begun! In the category "{0[category][title]}", the question/hint/clue is "{0[question]}" KKona'.format(self.question))
         except:
             self.step = 0
             self.question = None
@@ -132,11 +132,11 @@ class TriviaModule(BaseModule):
             index += 1
         hint_str = ''.join(hint_arr)
 
-        self.bot.me('OpieOP Here\'s a hint, "{hint_str}" OpieOP'.format(hint_str=hint_str))
+        self.bot.safe_me('OpieOP Here\'s a hint, "{hint_str}" OpieOP'.format(hint_str=hint_str))
 
     def step_end(self):
         if self.question is not None:
-            self.bot.me('MingLee No one could answer the trivia! The answer was "{}" MingLee'.format(self.question['answer']))
+            self.bot.safe_me('MingLee No one could answer the trivia! The answer was "{}" MingLee'.format(self.question['answer']))
             self.question = None
             self.step = 0
             self.last_question = datetime.datetime.now()
@@ -147,7 +147,7 @@ class TriviaModule(BaseModule):
         message = options['message']
 
         if self.trivia_running:
-            bot.me('{}, a trivia is already running'.format(source.username_raw))
+            bot.safe_me('{}, a trivia is already running'.format(source.username_raw))
             return
 
         self.trivia_running = True
@@ -163,9 +163,9 @@ class TriviaModule(BaseModule):
             self.point_bounty = self.settings['default_point_bounty']
 
         if self.point_bounty > 0:
-            bot.me('The trivia has started! {} points for each right answer!'.format(self.point_bounty))
+            bot.safe_me('The trivia has started! {} points for each right answer!'.format(self.point_bounty))
         else:
-            bot.me('The trivia has started!')
+            bot.safe_me('The trivia has started!')
 
         HandlerManager.add_handler('on_message', self.on_message)
 
@@ -174,14 +174,14 @@ class TriviaModule(BaseModule):
         source = options['source']
 
         if not self.trivia_running:
-            bot.me('{}, no trivia is active right now'.format(source.username_raw))
+            bot.safe_me('{}, no trivia is active right now'.format(source.username_raw))
             return
 
         self.job.pause()
         self.trivia_running = False
         self.step_end()
 
-        bot.me('The trivia has been stopped.')
+        bot.safe_me('The trivia has been stopped.')
 
         HandlerManager.remove_handler('on_message', self.on_message)
 
@@ -200,10 +200,10 @@ class TriviaModule(BaseModule):
 
             if correct:
                 if self.point_bounty > 0:
-                    self.bot.me('{} got the answer right! The answer was {} FeelsGoodMan They get {} points! PogChamp'.format(source.username_raw, self.question['answer'], self.point_bounty))
+                    self.bot.safe_me('{} got the answer right! The answer was {} FeelsGoodMan They get {} points! PogChamp'.format(source.username_raw, self.question['answer'], self.point_bounty))
                     source.points += self.point_bounty
                 else:
-                    self.bot.me('{} got the answer right! The answer was {} FeelsGoodMan'.format(source.username_raw, self.question['answer']))
+                    self.bot.safe_me('{} got the answer right! The answer was {} FeelsGoodMan'.format(source.username_raw, self.question['answer']))
 
                 self.question = None
                 self.step = 0

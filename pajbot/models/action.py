@@ -457,7 +457,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
         message = message.replace(needle, value)
 
     if 'command' in extra and 'source' in extra:
-        if extra['command'].run_through_banphrases is True:
+        if extra['command'].run_through_banphrases is True or True:
             checks = {
                     'banphrase': (bot.banphrase_manager.check_message, [message, extra['source']]),
                     'ascii': (AsciiProtectionModule.check_message, [message]),
@@ -466,6 +466,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             for check in checks:
                 # Make sure the module is enabled
                 if check in bot.module_manager:
+                    log.debug('Checking result for {}'.format(check))
                     res = checks[check][0](*checks[check][1])
                     if res is not False:
                         return None

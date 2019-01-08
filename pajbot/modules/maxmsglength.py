@@ -64,9 +64,14 @@ class MaxMsgLengthModule(BaseModule):
         super().__init__()
         self.bot = None
 
-    def on_pubmsg(self, source, message):
+    def on_message(self, source, message, emotes, whisper, urls, event):
+        if whisper:
+            return
+        if source.level >= self.settings['bypass_level'] or source.moderator:
+            return
+
         if self.bot.is_online:
-            if len(message) > self.settings['max_msg_length'] and source.level < self.settings['bypass_level'] and source.moderator is False:
+            if len(message) > self.settings['max_msg_length']:
                 duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Message too long')
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
@@ -74,7 +79,7 @@ class MaxMsgLengthModule(BaseModule):
                     self.bot.whisper(source.username, 'You have been {punishment} because your message was too long.'.format(punishment=punishment))
                 return False
         else:
-            if len(message) > self.settings['max_msg_length_offline'] and source.level < self.settings['bypass_level'] and source.moderator is False:
+            if len(message) > self.settings['max_msg_length_offline']:
                 duration, punishment = self.bot.timeout_warn(source, self.settings['timeout_length'], reason='Message too long')
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
@@ -83,8 +88,8 @@ class MaxMsgLengthModule(BaseModule):
                 return False
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.add_handler('on_message', self.on_message, priority=100)
         self.bot = bot
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.remove_handler('on_message', self.on_message)

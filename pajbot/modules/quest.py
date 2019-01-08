@@ -102,17 +102,7 @@ class QuestModule(BaseModule):
         else:
             message_quest = '{0}, there is no quest active right now.'.format(source.username_raw)
 
-        if self.settings['action_currentquest'] == 'say':
-            bot.say(message_quest)
-        elif self.settings['action_currentquest'] == 'whisper':
-            bot.whisper(source.username, message_quest)
-        elif self.settings['action_currentquest'] == 'me':
-            bot.me(message_quest)
-        elif self.settings['action_currentquest'] == 'reply':
-            if event.type in ['action', 'pubmsg']:
-                bot.say(message_quest)
-            elif event.type == 'whisper':
-                bot.whisper(source.username, message_quest)
+        bot.send_message_to_user(source, message_quest, event, method=self.settings['action_currentquest'])
 
     def get_user_tokens(self, **options):
         bot = options['bot']
