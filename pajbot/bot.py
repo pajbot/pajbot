@@ -217,6 +217,7 @@ class Bot:
         self.data_cb['stream_status'] = self.c_stream_status
         self.data_cb['bot_uptime'] = self.c_uptime
         self.data_cb['current_time'] = self.c_current_time
+        self.data_cb['molly_age_in_years'] = self.c_molly_age_in_years
 
         self.silent = True if args.silent else self.silent
 
@@ -476,6 +477,12 @@ class Bot:
 
     def c_current_time(self):
         return datetime.datetime.now()
+
+    def c_molly_age_in_years(self):
+        molly_birth = datetime.datetime(2018, 10, 29)
+        now = datetime.datetime.now()
+        diff = now-molly_birth
+        return diff.total_seconds()/3600/24/365
 
     @property
     def is_online(self):
