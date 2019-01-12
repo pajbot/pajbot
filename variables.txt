@@ -1,0 +1,196 @@
+Pajbot: Available Variable Syntax
+
+
+General command syntax:
+
+
+$(1), $(2), etc -> return the input arguments as-is. Does not accept transforms like $(1|upper)
+
+
+$(user;1:key|strftime(%Y)|upper)
+  ^ path
+       ^ argument (number)
+         ^ key
+             ^ filter
+                      ^ filter arguments
+                          ^ filter
+
+Examples for valid substitutions:
+$(user;1:points) - get the user with the login name in argument 1 (after the command trigger), and get their points
+$(args:0-1|urlencode) - urlencode the first parameter
+
+Available filters:
+        available_filters = {
+                'strftime': _filter_strftime,
+                'lower': lambda var, args: var.lower(),
+                'upper': lambda var, args: var.upper(),
+                'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
+                'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
+                'time_since_dt': _filter_time_since_dt,
+                'urlencode': _filter_urlencode,
+                'join': _filter_join,
+                'number_format': _filter_number_format,
+        }
+
+
+available paths:
+
+kvi - Key Value Integer
+=======================
+kvi:active_subs - int - Number of subscribers to the broadcaster.
+
+
+tb - Info about the bot instance
+================================
+Data from `extra`:
+tb:trigger - String - Command trigger (e.g. "logs" for "!logs")
+tb:user - String - Sender login name
+tb:emotes - Array - Emotes, e.g. [{'twitch_id': '521050', 'count': 1, 'start': 8, 'code': 'forsenE', 'end': 14}]
+(not sure you can use this with substitutions...)
+tb:source - pajbot.models.user.UserCombined - (Command sender)
+ -> see user: for all fields on user objects
+tb:command - pajbot.models.command.Command
+tb:message - String - message after the command
+
+Data from `self.data`:
+tb:version_brief - String - '1.30'
+tb:bot_name - String - 'BotFactory'
+tb:broadcaster - String - 'infinitegachi'
+tb:version - String - '1.30 DEV (master, 8ceb7235, commit 1629)'
+
+Data from `self.data_cb`:
+tb:bot_uptime - refers to pajbot.bot.Bot.c_uptime (returns String) - '4 minutes and 24.6 seconds'
+tb:curent_time - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'
+ -- since this returns an object you can format it with strftime
+ e.g. $(tb:current_time|strftime(%A %Y-%m-%d %H:%M:%S))
+tb:stream_status - refers to pajbot.bot.Bot.c_stream_status (returns String) - 'offline'/'online'
+tb:status_length - refers to pajbot.bot.Bot.c_status_length (returns String) - '4 hours and 12 minutes'
+
+tb:molly_age_in_years - String - '0.1971333233018455' (age of pajlada's puppy molly in years)
+
+lasttweet - last tweet
+======================
+lasttweet:<TWITTERUSER> - String - "<tweet text> (5h44m ago)"
+
+etm - Emotes per minute
+=======================
+etm:<emote> - String - "68" (how often the emote was used in the last 60 seconds)
+
+ecount - Total cumulative emote count
+=====================================
+ecount:<emote> - String - "10482" (how often the emote was used, over all time)
+
+etmrecord - All-time highest value of "etm" (emote per minute)
+==============================================================
+etmrecord:<emote> - String - "103232" (highest ever etm value)
+
+source
+======
+source:<thing> - pajbot.models.user.UserCombined - same as tb:source
+source:id - int - Internal ID (not twitch user ID!)
+source:username - String - login name
+source:username_raw - String - display name
+source:level - int - 100 (pajbot level)
+source:points - int - 0 (pajbot points)
+source:subscriber - boolean - True if channel subscriber, False otherwise
+source:minutes_in_chat_online - int
+source:minutes_in_chat_offline - int
+source:num_lines - int
+source:_last_seen - datetime.datetime
+source:_last_active - datetime.datetime
+source:last_seen - String - "4 minutes and 2 seconds"
+source:last_active - String - "4 minutes and 2 seconds"
+source:ignored - boolean - True if the bot ignores commands by this user
+source:banned - boolean - True if permabanned on the bot
+source:tokens - int
+source:moderator - boolean
+source:timed_out - boolean - True if currently on paid timeout, False otherwise
+source:timeout_end - datetime.datetime? - End of paid timeout, if exists
+
+user
+====
+user;argId:<attribute> - pajbot.models.user.UserCombined - (find user with the name from the argument and get user attribute <attribute>)
+
+usersource
+==========
+usersource;argId:<attribute> - pajbot.models.user.UserCombined - (find user with the name from the argument OR if that returns nothing get the user object for the sender, and get user attribute <attribute>)
+
+time
+====
+time:<timezone> - String - '18:47' (timezone is e.g. 'Europe/Berlin')
+
+curdeck
+=======
+curdeck:id - int - '237'
+curdeck:name - String - 'Freeze Mage'
+curdeck:link - String - 'Freeze Mage'
+curdeck:deck_class - String - 'Freeze Mage'
+curdeck:first_used - datetime.datetime
+curdeck:last_used - datetime.datetime
+curdeck:times_used - int - 'Freeze Mage'
+curdeck:last_used_ago - String - '8 months and 25 days'
+curdeck:first_used_ago - String - '8 months and 25 days'
+
+stream
+======
+stream:offline - bool
+stream:online - bool
+stream:num_viewers - int
+stream:game - String
+stream:title - String
+
+current_stream:id - int
+current_stream:title - string
+current_stream:stream_start - datetime.datetime
+current_stream:stream_end - datetime.datetime
+current_stream:ended - bool - if that stream has ended (False)
+current_stream:uptime - datetime.timedelta - how long the stream is live
+
+last_stream:id - int
+last_stream:title - string
+last_stream:stream_start - datetime.datetime
+last_stream:stream_end - datetime.datetime
+last_stream:ended - bool - if that stream has ended (True)
+last_stream:uptime - datetime.timedelta - how long the stream was live
+
+current_song
+============
+(only works when online!)
+current_song:id - int
+current_song:stream_id - int
+current_song:user_id - int
+current_song:youtube_id - String
+current_song:link - String - 'youtu.be/<id>'
+current_song:date_added - datetime.datetime
+current_song:date_played - datetime.datetime
+current_song:skip_after - int
+current_song:song_info - pajbot.models.pleblist.PleblistSongInfo
+ -> pleblist_song_youtube_id - String
+ -> title - String
+ -> duration - int
+ -> default_thumbnail - String
+
+args
+====
+Note: argument IDs are 0-based!
+args:2-5 - String - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')
+args:3 - String - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
+
+
+strictargs
+==========
+Same as args, but if this substitution would return an empty string, the command is not executed.
+
+notify
+======
+notify:
+idk what you can do with this
+
+command
+=======
+Data about this command
+command:command_id
+command:num_uses
+command:added_by
+command:edited_by
+command:last_date_used
