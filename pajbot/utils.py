@@ -91,7 +91,21 @@ ALLIN_PHRASES = ('all', 'allin')
 
 
 def parse_points_amount(user, input):
-    if input.endswith('%'):
+    if input.startswith('0b'):
+        try:
+            bet = int(input, 2)
+
+            return bet
+        except (ValueError, TypeError):
+            raise pajbot.exc.InvalidPointAmount('Invalid binary format (example: 0b101)')
+    elif input.startswith('0x'):
+        try:
+            bet = int(input, 16)
+
+            return bet
+        except (ValueError, TypeError):
+            raise pajbot.exc.InvalidPointAmount('Invalid hex format (example: 0xFF)')
+    elif input.endswith('%'):
         try:
             percentage = float(input[:-1])
             if percentage <= 0 or percentage > 100:
