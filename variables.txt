@@ -169,6 +169,7 @@ current_song:song_info - pajbot.models.pleblist.PleblistSongInfo
  -> title - String
  -> duration - int
  -> default_thumbnail - String
+Use these sub-variables like this: $(current_song:song_info.title)
 
 args
 ====
