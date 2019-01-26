@@ -70,8 +70,15 @@ class WebSocketManager:
         self.clients = []
         self.server = None
         self.bot = bot
+
+        if 'websocket' not in bot.config:
+            log.debug('WebSocket support not set up, check out https://github.com/pajlada/pajbot/wiki/Config-File#websocket')
+            return
+
+        cfg = bot.config['websocket']
+
         try:
-            if 'websocket' in bot.config and bot.config['websocket']['enabled'] == '1':
+            if cfg['enabled'] == '1':
                 # Initialize twisted logging
                 try:
                     from twisted.python import log as twisted_log
@@ -83,17 +90,17 @@ class WebSocketManager:
                     log.exception('Uncaught exception')
                     return
 
-                port = int(bot.config['websocket']['port'])
-                secure = False
-                key_path = None
-                crt_path = None
-                if 'ssl' in bot.config['websocket'] and bot.config['websocket']['ssl'] == '1':
-                    secure = True
-                    if 'key_path' in bot.config['websocket']:
-                        key_path = bot.config['websocket']['key_path']
-                    if 'crt_path' in bot.config['websocket']:
-                        crt_path = bot.config['websocket']['crt_path']
-                self.server = WebSocketServer(self, port, secure, key_path, crt_path)
+                ssl = bool(cfg.get('ssl', '0') == '1')
+                port = int(cfg.get('port', '443' if ssl else '80'))
+                key_path = cfg.get('key_path', '')
+                crt_path = cfg.get('crt_path', '')
+
+                if ssl:
+                    if key_path == '' or crt_path == '':
+                        log.error('SSL enabled in config, but missing key_path or crt_path')
+                        return
+
+                self.server = WebSocketServer(self, port, ssl, key_path, crt_path)
         except:
             log.exception('Uncaught exception in WebSocketManager')
 

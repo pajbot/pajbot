@@ -22,8 +22,7 @@
         }
         </style>
         <script type="text/javascript">
-var ws_host = 'wss://paj.pajlada.se';
-var ws_port = 2320;
+var ws_host = '{{ site.websocket.host }}';
         </script>
         {% assets 'clr_overlay_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>

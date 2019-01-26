@@ -19,9 +19,7 @@ function connect_to_ws()
         return;
     }
     console.log('Connecting to websocket....');
-    var host = ws_host;
-    var port = ws_port;
-    socket = new WebSocket(host + ':' + port);
+    socket = new WebSocket(ws_host);
     socket.binaryType = "arraybuffer";
     socket.onopen = function() {
         console.log('Connected!');

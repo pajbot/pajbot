@@ -22,8 +22,7 @@
         }
         </style>
         <script type="text/javascript">
-var ws_host = '{{ 'wss' if site.websocket.ssl else 'ws' }}://{{ site.websocket.host }}';
-var ws_port = {{ site.websocket.port }};
+var ws_host = '{{ site.websocket.host }}';
         </script>
         {% assets 'clr_overlay_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>

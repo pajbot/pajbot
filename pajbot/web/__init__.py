@@ -125,8 +125,6 @@ def init(args):
                 'deck_tab_images': config.getboolean('web', 'deck_tab_images'),
                 'websocket': {
                     'host': config['websocket'].get('host', config['web']['domain']),
-                    'port': config['websocket']['port'],
-                    'ssl': config.getboolean('websocket', 'ssl')
                     }
                 },
             'streamer': {
