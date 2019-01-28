@@ -946,6 +946,7 @@ class Bot:
                 'urlencode': _filter_urlencode,
                 'join': _filter_join,
                 'number_format': _filter_number_format,
+                'add': _filter_add,
                 }
         if filter.name in available_filters:
             return available_filters[filter.name](resp, filter.arguments)
@@ -994,3 +995,10 @@ def _filter_urlencode(var, args):
 
 def lowercase_first_letter(s):
     return s[:1].lower() + s[1:] if s else ''
+
+
+def _filter_add(var, args):
+    try:
+        return str(int(var)+int(args[0]))
+    except:
+        return ''
