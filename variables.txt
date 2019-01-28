@@ -30,7 +30,8 @@ Available filters:
                 'urlencode': _filter_urlencode,
                 'join': _filter_join,
                 'number_format': _filter_number_format,
-        }
+                'add': _filter_add,
+}
 
 
 available paths:
