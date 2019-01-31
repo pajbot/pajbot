@@ -62,36 +62,26 @@ sudo apt install git
 #
 # change into home directory to clone source code and build, we will move
 # only the build artifact to the /opt directory later.
+
+sudo apt install openjdk-8-jre-headless
 cd
-git clone https://github.com/zwb3/twitch-api-v3-proxy.git
-sudo apt install openjdk-8-jdk-headless
-cd twitch-api-v3-proxy
-./gradlew build
 sudo mkdir /opt/twitch-api-v3-proxy
-sudo tar xvf ./build/distributions/twitch-api-v3-proxy-boot.tar -C /opt/twitch-api-v3-proxy --strip-components=1
-sudo cp ./application.properties /opt/twitch-api-v3-proxy/
+wget https://github.com/zwb3/twitch-api-v3-proxy/releases/download/release/twitch-api-v3-proxy-boot.tar | \
+  tar xvf - -C /opt/twitch-api-v3-proxy --strip-components=1
+
 # Edit the applications.properties with your own Client-Id that you got when registering your application with twitch:
 # (Use the token thats supposed to be shared across all instances)
 # In this example, one would use: 0bb4b8517c0b20e0a72ddbfd88aa69
 sudo nano /opt/twitch-api-v3-proxy/application.properties
-cd /opt/twitch-api-v3-proxy
-# Verify it starts correctly
-sudo -u www-data ./bin/twitch-api-v3-proxy
-# If the service loaded correctly, you will see a few log lines scroll by
-# about routes being loaded, and then finally a line like this:
-# > Started ApiProxy in 13.257 seconds (JVM running for 15.932)
 
-#
-# Set up the service file for twitch-api-v3-proxy
-#
-sudo cp ~/twitch-api-v3-proxy/twitch-api-v3-proxy.service /etc/systemd/system/
-# If you adjusted any of the paths previously used in the tutorial,
-# you will need to adjust this file: sudo nano /etc/systemd/system/twitch-api-v3-proxy.service
+# Install Service
+sudo wget "https://raw.githubusercontent.com/zwb3/twitch-api-v3-proxy/release/twitch-api-v3-proxy.service" \
+  -O "/etc/systemd/system/twitch-api-v3-proxy.service"
 sudo systemctl daemon-reload
-sudo systemctl enable twitch-api-v3-proxy.service
-sudo systemctl start twitch-api-v3-proxy.service
-sudo systemctl status twitch-api-v3-proxy.service
-# watch the service's logs: sudo journalctl -efu twitch-api-v3-proxy.service
+sudo systemctl enable twitch-api-v3-proxy
+sudo systemctl start twitch-api-v3-proxy
+# check the status
+sudo systemctl status twitch-api-v3-proxy
 
 #
 # Install python3 and dependencies for pip packages
