@@ -83,6 +83,18 @@ class Bot:
 
         self.trusted_mods = config.getboolean('main', 'trusted_mods')
 
+        self.phrases = {
+                'welcome': '{nickname} {version} running!',
+                'quit': '{nickname} {version} shutting down...',
+                }
+
+        if 'phrases' in config:
+            phrases = config['phrases']
+            if 'welcome' in phrases:
+                self.phrases['welcome'] = phrases['welcome']
+            if 'quit' in phrases:
+                self.phrases['quit'] = phrases['quit']
+
         TimeManager.init_timezone(self.timezone)
 
         if 'streamer' in config['main']:
@@ -912,7 +924,6 @@ class Bot:
 
     def quit_bot(self, **options):
         self.commit_all()
-        quit = '{nickname} {version} shutting down...'
         phrase_data = {
                 'nickname': self.nickname,
                 'version': self.version,
@@ -925,7 +936,7 @@ class Bot:
             log.exception('Error while shutting down the apscheduler')
 
         try:
-            self.say(quit.format(**phrase_data))
+            self.privmsg(self.phrases['quit'].format(**phrase_data))
         except Exception:
             log.exception('Exception caught while trying to say quit phrase')
 
