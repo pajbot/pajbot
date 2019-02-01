@@ -81,13 +81,13 @@ class ConnectionManager:
 
             self.get_main_conn()
 
-            welcome = '{nickname} {version} running!'
             phrase_data = {
                 'nickname': self.bot.nickname,
                 'version': self.bot.version,
                  }
 
-            self.bot.say(welcome.format(**phrase_data))
+            for p in self.bot.phrases['welcome']:
+                self.bot.privmsg(p.format(**phrase_data))
 
             self.reactor.execute_every(4, self.run_maintenance)
             return True
