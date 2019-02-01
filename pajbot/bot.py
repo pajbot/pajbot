@@ -84,16 +84,16 @@ class Bot:
         self.trusted_mods = config.getboolean('main', 'trusted_mods')
 
         self.phrases = {
-                'welcome': '{nickname} {version} running!',
-                'quit': '{nickname} {version} shutting down...',
+                'welcome': ['{nickname} {version} running!'],
+                'quit': ['{nickname} {version} shutting down...'],
                 }
 
         if 'phrases' in config:
             phrases = config['phrases']
             if 'welcome' in phrases:
-                self.phrases['welcome'] = phrases['welcome']
+                self.phrases['welcome'] = phrases['welcome'].split('\n')
             if 'quit' in phrases:
-                self.phrases['quit'] = phrases['quit']
+                self.phrases['quit'] = phrases['quit'].split('\n')
 
         TimeManager.init_timezone(self.timezone)
 
@@ -936,7 +936,8 @@ class Bot:
             log.exception('Error while shutting down the apscheduler')
 
         try:
-            self.privmsg(self.phrases['quit'].format(**phrase_data))
+            for p in self.phrases['quit']:
+                self.privmsg(p.format(**phrase_data))
         except Exception:
             log.exception('Exception caught while trying to say quit phrase')
 

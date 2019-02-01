@@ -85,7 +85,8 @@ class SingleIRCManager(IRCManager):
                 'version': self.bot.version,
                  }
 
-            self.bot.privmsg(self.bot.phrases['welcome'].format(**phrase_data))
+            for p in self.bot.phrases['welcome']:
+                self.bot.privmsg(p.format(**phrase_data))
 
     def on_connect(self, sock):
         self.connection_manager.relay_connection.join(self.channel)
