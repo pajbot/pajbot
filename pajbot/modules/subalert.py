@@ -200,7 +200,8 @@ class SubAlertModule(BaseModule):
 
         payload = {'username': user.username_raw, 'num_months': num_months, 'gifted_by': gifted_by}
         if substreak_count and substreak_count > 0:
-            payload['substreak_string'] = self.get_phrase('substreak_string', {'username': user.username_raw, 'num_months': substreak_count, 'gifted_by': gifted_by})
+            xd = {'username': user.username_raw, 'num_months': substreak_count, 'gifted_by': gifted_by}
+            payload['substreak_string'] = self.get_phrase('substreak_string', **xd)
         else:
             payload['substreak_string'] = ''
         self.bot.websocket_manager.emit('resub', payload)
