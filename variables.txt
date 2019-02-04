@@ -128,7 +128,7 @@ curdeck:link - String - 'Freeze Mage'
 curdeck:deck_class - String - 'Freeze Mage'
 curdeck:first_used - datetime.datetime
 curdeck:last_used - datetime.datetime
-curdeck:times_used - int - 'Freeze Mage'
+curdeck:times_used - int
 curdeck:last_used_ago - String - '8 months and 25 days'
 curdeck:first_used_ago - String - '8 months and 25 days'
 
