@@ -191,8 +191,8 @@ idk what you can do with this
 command
 =======
 Data about this command
-command:command_id
-command:num_uses
-command:added_by
-command:edited_by
-command:last_date_used
+command:command_id - int
+command:num_uses - int
+command:added_by - int - pajbot user ID of the user that added that command.
+command:edited_by - int - pajbot user ID of the user that edited that command last.
+command:last_date_used - datetime.datetime
