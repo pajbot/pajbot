@@ -34,6 +34,27 @@ Available filters:
 }
 
 
+special substitutions:
+======================
+$(urlfetch <url>) - HTTP GET the given URL, and returns the body of the request.
+Some useful "customapi" resources are:
+
+$(urlfetch https://braize.pajlada.com/pajbot/subemotes/<twitchChannelID>/) where you put
+the twitch user ID of the broadcaster into the URL. Returns a space-separated list of all
+sub emotes in the given channel.
+
+All resources from https://customapi.aidenwallis.co.uk/
+
+All resources from https://docs.decapi.me/#toc
+
+Customapis are generally a very powerful way of allowing pajbot to do more
+things without expanding the python code itself.
+
+!rq command with justlog:
+$(usersource;1:username): $(urlfetch https://api.gempir.com/channel/pajlada/user/$(usersource;1:username)/random)
+
+
+
 available paths:
 
 kvi - Key Value Integer
