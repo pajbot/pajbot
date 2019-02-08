@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
-Group=www-data
+User=pajbot
+Group=pajbot
 WorkingDirectory=/opt/pajbot
 ExecStart=/usr/bin/uwsgi --ini uwsgi_shared.ini --ini uwsgi_cache.ini --socket /srv/pajbot-web/.%i.sock --pyargv "--config configs/%i.ini" --virtualenv venv
 RestartSec=2
