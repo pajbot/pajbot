@@ -1,5 +1,7 @@
 import logging
 import re
+import requests
+import sys
 
 from sqlalchemy import func
 
