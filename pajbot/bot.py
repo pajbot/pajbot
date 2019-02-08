@@ -553,6 +553,9 @@ class Bot:
         self._timeout(user.username, duration, reason)
         self.execute_delayed(1, self._timeout, (user.username, duration, reason))
 
+    def _timeout_user(self, user, duration, reason=''):
+        self._timeout(user.username, duration, reason)
+
     def whisper(self, username, *messages, separator='. '):
         """
         Takes a sequence of strings and concatenates them with separator.
