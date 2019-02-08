@@ -93,6 +93,7 @@ sudo apt install libssl-dev python3 python3-pip python3-venv
 #
 cd
 git clone https://github.com/pajlada/pajbot.git
+cd pajbot
 # create virtual environment "venv"
 python3 -m venv venv
 source ./venv/bin/activate
