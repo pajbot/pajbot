@@ -23,6 +23,7 @@ from pajbot.managers.filter import FilterManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import MultiIRCManager
 from pajbot.managers.irc import SingleIRCManager
+from pajbot.tmi import TMI
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -80,6 +81,9 @@ class Bot:
         self.password = config['main'].get('password', 'abcdef')
 
         self.timezone = config['main'].get('timezone', 'UTC')
+
+        if config['main'].getboolean('verified', False):
+            TMI.promote_to_verified()
 
         self.trusted_mods = config.getboolean('main', 'trusted_mods')
 
