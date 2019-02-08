@@ -95,6 +95,5 @@ urllib3==1.23
 uwsgidecorators==1.1.0
 webassets==0.12.1
 Werkzeug==0.14.1
-wolframalpha==3.0.1
 xmltodict==0.11.0
 zope.interface==4.5.0
