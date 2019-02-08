@@ -108,14 +108,6 @@ class Bot:
             self.channel = config['main']['target']
             self.streamer = self.channel[1:]
 
-        self.wolfram = None
-        if 'wolfram' in config['main']:
-            try:
-                import wolframalpha
-                self.wolfram = wolframalpha.Client(config['main']['wolfram'])
-            except ImportError:
-                pass
-
         self.silent = False
         self.dev = False
 
