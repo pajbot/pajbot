@@ -35,31 +35,63 @@ class CaseCheckerModule(BaseModule):
                 constraints={
                     'min_value': 100,
                     'max_value': 1000,
-                    })
+                    }),
+            ModuleSetting(
+                key='timeout_duration',
+                label='Timeout duration',
+                type='number',
+                required=True,
+                placeholder='',
+                default=3,
+                constraints={
+                    'min_value': 3,
+                    'max_value': 120,
+                    }),
+            ModuleSetting(
+                key='online_chat_only',
+                label='Only enabled in online chat',
+                type='boolean',
+                required=True,
+                default=True),
+            ModuleSetting(
+                key='allow_all_emotes',
+                label='Allow all emotes',
+                type='boolean',
+                required=True,
+                default=False),
                 ]
 
     def __init__(self):
         super().__init__()
         self.bot = None
 
-    def on_pubmsg(self, source, message):
-        if source.level > self.settings['bypass_level'] or source.moderator is True:
+    def on_message(self, source, message, emotes, whisper, urls, event):
+        if source.level >= self.settings['bypass_level'] or source.moderator is True:
             return True
 
-        if self.bot.is_online:
-            if self.settings['timeout_uppercase'] and any(c.isupper() for c in message):
-                self.bot.timeout_user(source, 3, reason='no uppercase characters allowed')
-                return False
+        if self.settings['allow_all_emotes']:
+            offset = 0
+            original_message = message
+            for emote in emotes:
+                message = message[0:emote['start']] + message[emote['end']+1:]
+                offset = len(original_message) - len(message)
 
-            if self.settings['timeout_lowercase'] and any(c.islower() for c in message):
-                self.bot.timeout_user(source, 3, reason='NO LOWERCASE CHARACTERS ALLOWED')
-                return False
+        if self.settings['online_chat_only'] and not self.bot.is_online:
+            return True
+
+        if self.settings['timeout_uppercase'] and any(c.isupper() for c in message):
+            self.bot._timeout_user(source, self.settings['timeout_duration'], reason='no uppercase characters allowed')
+            return False
+
+        if self.settings['timeout_lowercase'] and any(c.islower() for c in message):
+            self.bot._timeout_user(source, self.settings['timeout_duration'], reason='NO LOWERCASE CHARACTERS ALLOWED')
+            return False
 
         return True
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.add_handler('on_message', self.on_message)
         self.bot = bot
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.remove_handler('on_message', self.on_message)
