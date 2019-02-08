@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class ShowEmoteTokenCommandModule(BaseModule):
 
     ID = 'tokencommand-' + __name__.split('.')[-1]
-    NAME = 'Token Command'
+    NAME = '!#showemote'
     DESCRIPTION = 'Show a single emote on screen for a few seconds'
     PARENT_MODULE = QuestModule
     SETTINGS = [
