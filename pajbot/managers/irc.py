@@ -2,7 +2,6 @@ import logging
 
 from pajbot.managers.connection import ConnectionManager
 from pajbot.managers.singleconnection import SingleConnectionManager
-from pajbot.managers.whisperconnection import WhisperConnectionManager
 
 log = logging.getLogger(__name__)
 
@@ -112,25 +111,19 @@ class MultiIRCManager(IRCManager):
         # XXX
         self.bot.execute_every(30, lambda: self.connection_manager.get_main_conn().ping('tmi.twitch.tv'))
 
-        self.whisper_manager = WhisperConnectionManager(self.bot.reactor, self.bot, self.bot.streamer, TMI.whispers_message_limit, TMI.whispers_limit_interval)
-        self.whisper_manager.start(accounts=[{'username': self.username, 'oauth': self.password, 'can_send_whispers': self.bot.config.getboolean('main', 'add_self_as_whisper_account')}])
-
     def whisper(self, username, message):
-        if self.whisper_manager:
-            self.whisper_manager.whisper(username, message)
-        else:
-            log.debug('No whisper conn set up.')
+        self.connection_manager.privmsg('#jtv', '/w {} {}'.format(username, message))
 
     def on_disconnect(self, chatconn, event):
-        if chatconn in self.whisper_manager:
-            log.debug('Whispers: Disconnecting from Whisper server')
-            self.whisper_manager.on_disconnect(chatconn)
-        else:
-            log.debug('Disconnected from IRC server')
-            self.connection_manager.on_disconnect(chatconn)
+        log.debug('Disconnected from IRC server')
+        self.connection_manager.on_disconnect(chatconn)
 
     def _dispatcher(self, connection, event):
-        if connection == self.connection_manager.get_main_conn() or connection in self.whisper_manager or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
+        if event.type == 'whisper':
+            if connection != self.connection_manager.get_main_conn():
+                return
+
+        if connection == self.connection_manager.get_main_conn() or (self.control_hub is not None and connection == self.control_hub.get_main_conn()):
             method = getattr(self.bot, 'on_' + event.type, do_nothing)
             method(connection, event)
 
@@ -145,7 +138,3 @@ class MultiIRCManager(IRCManager):
 
     def start(self):
         self.connection_manager.start()
-
-    def quit(self):
-        if self.whisper_manager:
-            self.whisper_manager.quit()
