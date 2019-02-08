@@ -67,7 +67,7 @@ sudo apt install openjdk-8-jre-headless
 cd
 sudo mkdir /opt/twitch-api-v3-proxy
 wget -O - https://github.com/zwb3/twitch-api-v3-proxy/releases/download/release/twitch-api-v3-proxy-boot.tar | \
-  tar xvf - -C /opt/twitch-api-v3-proxy --strip-components=1
+  sudo tar xvf - -C /opt/twitch-api-v3-proxy --strip-components=1
 
 # Edit the applications.properties with your own Client-Id that you got when registering your application with twitch:
 # (Use the token thats supposed to be shared across all instances)
@@ -101,12 +101,19 @@ python3 -m pip install wheel
 python3 -m pip install -r requirements.txt
 
 #
+# create pajbot system user
+#
+sudo adduser --system --group pajbot
+
+#
 # install redis and mysql for pajbot1
 #
 sudo apt install mysql-server redis-server
 sudo mysql
 # > CREATE DATABASE pajbot_kkonatestbroadcaster CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-# > GRANT ALL PRIVILEGES ON pajbot_kkonatestbroadcaster.* TO 'pajbot_kkonatestbroadcaster'@'localhost' IDENTIFIED BY 'pajbot_kkonatestbroadcaster';
+# this line only needs to be done once (for the first pajbot install):
+# > CREATE USER pajbot@localhost IDENTIFIED VIA unix_socket;
+# > GRANT ALL PRIVILEGES ON pajbot_kkonatestbroadcaster.* TO pajbot@localhost;
 
 #
 # create your domain
@@ -192,8 +199,8 @@ rm -r ~/pajbot
 #
 sudo apt install uwsgi uwsgi-plugin-python3
 sudo mkdir /srv/pajbot /srv/pajbot-web
-sudo chown www-data:www-data /srv/pajbot /srv/pajbot-web
-sudo chown -R www-data:www-data /opt/pajbot
+sudo chown pajbot:pajbot /srv/pajbot /srv/pajbot-web
+sudo chown -R pajbot:pajbot /opt/pajbot
 sudo nano /etc/systemd/system/pajbot@.service # copy provided file into there
 sudo nano /etc/systemd/system/pajbot-web@.service # copy provided file into there
 sudo systemctl daemon-reload
