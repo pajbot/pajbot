@@ -59,7 +59,7 @@ class Connection:
 
 
 class ConnectionManager:
-    def __init__(self, reactor, bot, message_limit, streamer, backup_conns=2):
+    def __init__(self, reactor, bot, message_limit, streamer, backup_conns=0):
         self.backup_conns_number = backup_conns
         self.streamer = streamer
         self.channel = '#' + self.streamer
