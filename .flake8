@@ -1,6 +1,6 @@
 [flake8]
 exclude = alembic/*,configs/*,install/*,myvenv/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
-ignore = E123,E126,E127,E128,E501,E131
+ignore = E123,E126,E127,E128,E501,E131,E722
 application-import-names = pajbot
 import-order-style = smarkets
 
@@ -9,6 +9,7 @@ import-order-style = smarkets
 # E127 = continuation line over-indented for visual indent
 # E128 = continuation line under-indented for visual indent
 # E501 = line too long (82 > 79 characters)
+# E722 = don't use bare except (lol)
 
 # Unused
 # E302 = expected 2 blank lines, found 0
