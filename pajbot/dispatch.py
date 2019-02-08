@@ -78,25 +78,106 @@ class Dispatch:
                 bot.say(nl_pos.format(**phrase_data))
 
     def query(bot, source, message, event, args):
-        # XXX: This should be a module. Only when we've moved server though.
-        if bot.wolfram is None:
+
+        appid = bot.config["main"].get("wolfram", None)
+        location = bot.config["main"].get("wolfram_location", None)
+
+        if appid is None:
             return False
 
         try:
-            log.debug('Querying wolfram "{0}"'.format(message))
-            res = bot.wolfram.query(message)
+            log.debug('Querying wolfram for input "{0}"'.format(message))
 
-            x = 0
-            for pod in res.pods:
-                if x == 1:
-                    res = '{0}'.format(' '.join(pod.text.splitlines()).strip())
-                    log.debug('Answering with {0}'.format(res))
-                    bot.say(res)
-                    break
+            query_parameters = {
+                'appid': appid,
+                'input': message,
+                'output': 'json',
+                'format': 'plaintext'
+            }
 
-                x = x + 1
-        except Exception as e:
-            log.error('caught exception: {0}'.format(e))
+            # location-specific results, such as "current time", etc.
+            if location is not None:
+                query_parameters['location'] = location
+
+            res = requests.get('http://api.wolframalpha.com/v2/query', params = query_parameters)
+            answer = res.json()["queryresult"]
+
+            base_reply = "{0}, ".format(source.username_raw)
+
+            is_error = answer["error"]
+            is_success = answer["success"]
+            log.debug("Result status: error: {0}, success: {1}".format(is_error, is_success))
+
+            if is_error:
+                reply = base_reply + "your query errored FeelsBadMan"
+                bot.send_message_to_user(source, reply, event, method='reply')
+                return False
+
+            if not is_success:
+                log.debug(answer)
+                reply = base_reply + "Wolfram|Alpha didn't understand your query FeelsBadMan"
+                didyoumeans = answer.get("didyoumeans", None)
+                if didyoumeans is not None and len(didyoumeans) > 0:
+                    reply += " Did you mean: "
+
+                    if isinstance(didyoumeans, dict):
+                        # When there is only one "didyoumean", Wolfram|Alpha returns
+                        # a single object under the "didyoumeans" key, so we convert it
+                        # into a single-element list.
+                        didyoumeans = [ didyoumeans ]
+                    reply += " | ".join(list(map(lambda x: x.get("val", None), didyoumeans)))
+                log.debug(reply)
+                bot.send_message_to_user(source, reply, event, method='reply')
+                return False
+
+            # pods and subpods explanation: https://products.wolframalpha.com/api/documentation/#subpod-states
+            def stringify_subpod(subpod):
+                lines = subpod["plaintext"].splitlines()
+                lines = map(str.strip, lines) # strip all lines
+                return "; ".join(lines)
+
+            def stringify_pod(pod):
+                subpods = pod["subpods"]
+                stringified_subpods = map(stringify_subpod, subpods)
+                all_subpods = ' / '.join(stringified_subpods)
+                return '{0}: {1}'.format(pod["title"], all_subpods)
+
+            # find the right pods to print to chat.
+            # if there is an "Input" and "Result" pod, choose those two.
+
+            # If there are no "Input" and "Result" pods,
+            # (no direct result to the query - general knowledge was
+            # requested) - we concat all pods until we reach the 500 characters
+            # char limit.
+
+            # The "Input" pod is only included if its title is exactly "Input".
+            # (so we print the "Input Interpretation", but dont echo the "Input"
+            # as-is if it was understood by WolframAlpha as-is.
+
+            pods = answer["pods"]
+
+            input_pod = next((pod for pod in pods if pod["id"].lower() == "input"), None)
+            result_pod = next((pod for pod in pods if pod["id"].lower() == "result"), None)
+            is_direct_input_pod = input_pod is not None and input_pod["title"].lower() == "input"
+
+            if input_pod is not None and result_pod is not None:
+                selected_pods = [ input_pod, result_pod ]
+            else:
+                selected_pods = pods.copy()
+
+            if is_direct_input_pod:
+                selected_pods.remove(input_pod)
+
+            stringified_pods = map(stringify_pod, selected_pods)
+            complete_answer = ' // '.join(stringified_pods)
+            reply = base_reply + complete_answer
+
+            reply = (reply[:499] + "…") if len(reply) > 500 else reply
+
+            bot.send_message_to_user(source, reply, event, method='reply')
+
+        except:
+            log.exception('wolfram query errored')
 
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
