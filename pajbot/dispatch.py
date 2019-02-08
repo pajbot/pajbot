@@ -633,13 +633,15 @@ class Dispatch:
             return False
 
         parts = message.split(' ')
-        if len(parts) < 2:
+        if len(parts) < 1:
             # Not enough arguments
             return False
 
         delay = int(parts[0])
-        extra_message = '{0} {1}'.format(source.username, ' '.join(parts[1:]).strip())
+        reminder_text = ' '.join(parts[1:]).strip()
+        extra_message = '{0}, your reminder from {1} seconds ago is over: {2}'.format(source.username_raw, delay, reminder_text)
 
+        bot.say('{0}, I will remind you of \'{2}\' in {1} seconds. SeemsGood'.format(source.username_raw, delay, reminder_text))
         bot.execute_delayed(delay, bot.say, (extra_message, ))
 
     def ord(bot, source, message, event, args):
