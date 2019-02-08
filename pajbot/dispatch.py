@@ -80,7 +80,6 @@ class Dispatch:
                 bot.say(nl_pos.format(**phrase_data))
 
     def query(bot, source, message, event, args):
-
         appid = bot.config["main"].get("wolfram", None)
         location = bot.config["main"].get("wolfram_location", None)
 
