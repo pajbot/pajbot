@@ -44,6 +44,20 @@ from pajbot.utils import time_since
 
 log = logging.getLogger(__name__)
 
+def clean_up_message(message):
+    if len(message) == 0:
+        return None
+
+    if message[0] == '.' or message[0] == '/':
+        log.warning('Message we attempted to send started with . or /, skipping.')
+        return None
+
+    # Stop the bot from calling other bot commands
+    if message[0] == '!' or message[0] == '$' or message[0] == '-' or message[0] == '<':
+        message = '\u206D' + message
+
+    return message
+
 
 class Bot:
     """
@@ -601,18 +615,13 @@ class Bot:
         if not self.silent:
             message = separator.join(messages).strip()
 
-            if len(message) >= 1:
-                if (message[0] == '.' or message[0] == '/') and not message[1:3] == 'me':
-                    log.warning('Message we attempted to send started with . or /, skipping.')
-                    return
+            message = clean_up_message(message)
+            if not message:
+                return False
 
-                # Stop the bot from calling other bot commands
-                if message[0] == '!' or message[0] == '$' or message[0] == '-' or message[0] == '<':
-                    message = '\u206D' + message
+            log.info('Sending message: {0}'.format(message))
 
-                log.info('Sending message: {0}'.format(message))
-
-                self.privmsg(message[:510], channel)
+            self.privmsg(message[:510], channel)
 
     def is_bad_message(self, message):
         return self.banphrase_manager.check_message(message, None) is not False
@@ -625,14 +634,13 @@ class Bot:
         if not self.silent:
             message = message.strip()
 
-            if len(message) >= 1:
-                if message[0] == '.' or message[0] == '/':
-                    log.warning('Message we attempted to send started with . or /, skipping.')
-                    return
+            message = clean_up_message(message)
+            if not message:
+                return False
 
-                log.info('Sending message: {0}'.format(message))
+            log.info('Sending message: {0}'.format(message))
 
-                self.privmsg('.me ' + message[:500], channel)
+            self.privmsg('.me ' + message[:500], channel)
 
     def parse_version(self):
         self.version = self.version
