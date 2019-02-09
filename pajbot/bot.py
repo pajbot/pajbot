@@ -260,7 +260,7 @@ class Bot:
         self.whisper(user.username, 'You finished todays quest! You have been awarded with {} tokens.'.format(tokens_gained))
 
     def update_subscribers_stage1(self):
-        limit = 100
+        limit = 25
         offset = 0
         subscribers = []
         log.info('Starting stage1 subscribers update')
@@ -269,7 +269,7 @@ class Bot:
             retry_same = 0
             while True:
                 log.debug('Beginning sub request {0} {1}'.format(limit, offset))
-                subs, retry_same, error = self.twitchapi.get_subscribers(self.streamer, limit, offset, 0 if retry_same is False else retry_same)
+                subs, retry_same, error = self.twitchapi.get_subscribers(self.streamer, 0, offset, 0 if retry_same is False else retry_same)
                 log.debug('got em!')
 
                 if error is True:
