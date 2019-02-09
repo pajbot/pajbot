@@ -606,6 +606,10 @@ class Bot:
                     log.warning('Message we attempted to send started with . or /, skipping.')
                     return
 
+                # Stop the bot from calling other bot commands
+                if message[0] == '!' or message[0] == '$' or message[0] == '-' or message[0] == '<':
+                    message = '\u206D' + message
+
                 log.info('Sending message: {0}'.format(message))
 
                 self.privmsg(message[:510], channel)
