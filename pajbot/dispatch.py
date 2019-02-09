@@ -81,6 +81,7 @@ class Dispatch:
 
     def query(bot, source, message, event, args):
         appid = bot.config["main"].get("wolfram", None)
+        ip = bot.config["main"].get("wolfram_ip", None)
         location = bot.config["main"].get("wolfram_location", None)
 
         if appid is None:
@@ -98,8 +99,10 @@ class Dispatch:
                 'units': 'metric'
             }
 
-            # location-specific results, such as "current time", etc.
-            if location is not None:
+            # location-specific/IP-specific results, such as "current time", etc.
+            if ip is not None:
+                query_parameters['ip'] = ip
+            elif location is not None:
                 query_parameters['location'] = location
 
             res = requests.get('http://api.wolframalpha.com/v2/query', params = query_parameters)
