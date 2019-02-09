@@ -93,7 +93,9 @@ class Dispatch:
                 'appid': appid,
                 'input': message,
                 'output': 'json',
-                'format': 'plaintext'
+                'format': 'plaintext',
+                'reinterpret': 'true',
+                'units': 'metric'
             }
 
             # location-specific results, such as "current time", etc.
