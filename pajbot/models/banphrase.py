@@ -391,6 +391,7 @@ class BanphraseManager:
         parser.add_argument('--no-subimmunity', dest='sub_immunity', action='store_false')
         parser.add_argument('--removeaccents', dest='remove_accents', action='store_true')
         parser.add_argument('--no-removeaccents', dest='remove_accents', action='store_false')
+        parser.add_argument('--operator', dest='operator', type=str)
         parser.add_argument('--name', nargs='+', dest='name')
         parser.set_defaults(length=None,
                 notify=None,
@@ -398,7 +399,8 @@ class BanphraseManager:
                 case_sensitive=None,
                 warning=None,
                 sub_immunity=None,
-                remove_accents=None)
+                remove_accents=None,
+                operator='contains')
 
         try:
             args, unknown = parser.parse_known_args(message.split())
