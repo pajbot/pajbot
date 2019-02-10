@@ -637,7 +637,7 @@ class Bot:
             self.me(message, channel)
 
     def me(self, message, channel=None):
-        self.say('.me ' + message[:500], channel)
+        self.say('.me ' + message[:500], channel=channel)
 
     def parse_version(self):
         self.version = self.version
