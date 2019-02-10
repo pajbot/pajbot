@@ -494,6 +494,22 @@ class Bot:
         except:
             log.exception('error in privmsg_from_file')
 
+    # event is an event to clone and change the text from.
+    def eval_from_file(self, event, url):
+        try:
+            r = requests.get(url)
+            lines = r.text.splitlines()
+            import copy
+            for msg in lines:
+                cloned_event = copy.deepcopy(event)
+                cloned_event.arguments = [ msg ]
+                # omit the source connectino as None (since its not used)
+                self.on_pubmsg(None, cloned_event)
+        except:
+            log.exception('BabyRage')
+            self.say('Exception')
+        self.say("All lines done")
+
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
             channel = self.channel
