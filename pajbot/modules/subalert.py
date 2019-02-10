@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class SubAlertModule(BaseModule):
-
     ID = __name__.split('.')[-1]
     NAME = 'Subscription Alert (text)'
     DESCRIPTION = 'Prints a message in chat or a whisper for someone who subscribed'
@@ -154,7 +153,7 @@ class SubAlertModule(BaseModule):
 
     def __init__(self):
         super().__init__()
-        self.new_sub_regex = re.compile('^(\w+) just subscribed')
+        self.new_sub_regex = re.compile(r'^(\w+) just subscribed')
         self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_sub_shared(self, user):

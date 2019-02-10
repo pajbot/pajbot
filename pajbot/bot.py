@@ -1,19 +1,19 @@
 import argparse
 import datetime
 import logging
-import re
 import os
+import re
 import subprocess
 import sys
 import time
 import urllib
-import pajbot.models.user
 
 import irc.client
 import requests
 from numpy import random
 from pytz import timezone
 
+import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
@@ -25,7 +25,6 @@ from pajbot.managers.filter import FilterManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import MultiIRCManager
 from pajbot.managers.irc import SingleIRCManager
-from pajbot.tmi import TMI
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -41,10 +40,12 @@ from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
+from pajbot.tmi import TMI
 from pajbot.utils import time_method
 from pajbot.utils import time_since
 
 log = logging.getLogger(__name__)
+
 
 def clean_up_message(message):
     me = False
@@ -97,8 +98,8 @@ class Bot:
     def load_config(self, config):
         self.config = config
 
-        pajbot.models.user.se_sync_token = config['main'].get('se_sync_token', None)
-        pajbot.models.user.se_channel = config['main'].get('se_channel', None)
+        pajbot.models.user.Config.se_sync_token = config['main'].get('se_sync_token', None)
+        pajbot.models.user.Config.se_channel = config['main'].get('se_channel', None)
 
         self.domain = config['web'].get('domain', 'localhost')
 
@@ -508,13 +509,13 @@ class Bot:
             import copy
             for msg in lines:
                 cloned_event = copy.deepcopy(event)
-                cloned_event.arguments = [ msg ]
+                cloned_event.arguments = [msg]
                 # omit the source connectino as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
         except:
             log.exception('BabyRage')
             self.say('Exception')
-        self.say("All lines done")
+        self.say('All lines done')
 
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
@@ -531,8 +532,8 @@ class Bot:
     def c_molly_age_in_years(self):
         molly_birth = datetime.datetime(2018, 10, 29)
         now = datetime.datetime.now()
-        diff = now-molly_birth
-        return diff.total_seconds()/3600/24/365
+        diff = now - molly_birth
+        return diff.total_seconds() / 3600 / 24 / 365
 
     @property
     def is_online(self):
@@ -1041,6 +1042,6 @@ def lowercase_first_letter(s):
 
 def _filter_add(var, args):
     try:
-        return str(int(var)+int(args[0]))
+        return str(int(var) + int(args[0]))
     except:
         return ''

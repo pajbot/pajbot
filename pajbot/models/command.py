@@ -56,7 +56,7 @@ def parse_command_for_web(alias, command, list):
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(alias if command.command is None else command.main_alias + ' ' + inner_alias, inner_command, list)
     else:
-        test = re.compile('[^\w]')
+        test = re.compile(r'[^\w]')
         first_alias = command.command.split('|')[0]
         command.resolve_string = test.sub('', first_alias.replace(' ', '_'))
         command.main_alias = '!' + first_alias
@@ -435,7 +435,7 @@ class Command(Base):
             examples = []
             if self.can_execute_with_whisper is True:
                 example = CommandExample(self.id, 'Default usage through whisper')
-                subtype = self.action.subtype if self.action.subtype is not 'reply' else 'say'
+                subtype = self.action.subtype if self.action.subtype != 'reply' else 'say'
                 example.add_chat_message('whisper', self.main_alias, 'user', 'bot')
                 if subtype == 'say' or subtype == 'me':
                     example.add_chat_message(subtype, self.action.response, 'bot')
@@ -444,7 +444,7 @@ class Command(Base):
                 examples.append(example)
 
             example = CommandExample(self.id, 'Default usage')
-            subtype = self.action.subtype if self.action.subtype is not 'reply' else 'say'
+            subtype = self.action.subtype if self.action.subtype != 'reply' else 'say'
             example.add_chat_message('say', self.main_alias, 'user')
             if subtype == 'say' or subtype == 'me':
                 example.add_chat_message(subtype, self.action.response, 'bot')

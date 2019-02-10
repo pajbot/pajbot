@@ -1,8 +1,7 @@
 import logging
 import re
-import requests
-import sys
 
+import requests
 from sqlalchemy import func
 
 from pajbot.managers.adminlog import AdminLogManager
@@ -80,9 +79,9 @@ class Dispatch:
                 bot.say(nl_pos.format(**phrase_data))
 
     def query(bot, source, message, event, args):
-        appid = bot.config["main"].get("wolfram", None)
-        ip = bot.config["main"].get("wolfram_ip", None)
-        location = bot.config["main"].get("wolfram_location", None)
+        appid = bot.config['main'].get('wolfram', None)
+        ip = bot.config['main'].get('wolfram_ip', None)
+        location = bot.config['main'].get('wolfram_location', None)
 
         if appid is None:
             return False
@@ -105,48 +104,48 @@ class Dispatch:
             elif location is not None:
                 query_parameters['location'] = location
 
-            res = requests.get('http://api.wolframalpha.com/v2/query', params = query_parameters)
-            answer = res.json()["queryresult"]
+            res = requests.get('http://api.wolframalpha.com/v2/query', params=query_parameters)
+            answer = res.json()['queryresult']
 
-            base_reply = "{0}, ".format(source.username_raw)
+            base_reply = '{0}, '.format(source.username_raw)
 
-            is_error = answer["error"]
-            is_success = answer["success"]
-            log.debug("Result status: error: {0}, success: {1}".format(is_error, is_success))
+            is_error = answer['error']
+            is_success = answer['success']
+            log.debug('Result status: error: {0}, success: {1}'.format(is_error, is_success))
 
             if is_error:
-                reply = base_reply + "your query errored FeelsBadMan"
+                reply = base_reply + 'your query errored FeelsBadMan'
                 bot.send_message_to_user(source, reply, event, method='reply')
                 return False
 
             if not is_success:
                 log.debug(answer)
-                reply = base_reply + "Wolfram|Alpha didn't understand your query FeelsBadMan"
-                didyoumeans = answer.get("didyoumeans", None)
+                reply = base_reply + 'Wolfram|Alpha didn\'t understand your query FeelsBadMan'
+                didyoumeans = answer.get('didyoumeans', None)
                 if didyoumeans is not None and len(didyoumeans) > 0:
-                    reply += " Did you mean: "
+                    reply += ' Did you mean: '
 
                     if isinstance(didyoumeans, dict):
                         # When there is only one "didyoumean", Wolfram|Alpha returns
                         # a single object under the "didyoumeans" key, so we convert it
                         # into a single-element list.
-                        didyoumeans = [ didyoumeans ]
-                    reply += " | ".join(list(map(lambda x: x.get("val", None), didyoumeans)))
+                        didyoumeans = [didyoumeans]
+                    reply += ' | '.join(list(map(lambda x: x.get('val', None), didyoumeans)))
                 log.debug(reply)
                 bot.send_message_to_user(source, reply, event, method='reply')
                 return False
 
             # pods and subpods explanation: https://products.wolframalpha.com/api/documentation/#subpod-states
             def stringify_subpod(subpod):
-                lines = subpod["plaintext"].splitlines()
-                lines = map(str.strip, lines) # strip all lines
-                return "; ".join(lines)
+                lines = subpod['plaintext'].splitlines()
+                lines = map(str.strip, lines)  # strip all lines
+                return '; '.join(lines)
 
             def stringify_pod(pod):
-                subpods = pod["subpods"]
+                subpods = pod['subpods']
                 stringified_subpods = map(stringify_subpod, subpods)
                 all_subpods = ' / '.join(stringified_subpods)
-                return '{0}: {1}'.format(pod["title"], all_subpods)
+                return '{0}: {1}'.format(pod['title'], all_subpods)
 
             # find the right pods to print to chat.
             # if there is an "Input" and "Result" pod, choose those two.
@@ -160,14 +159,14 @@ class Dispatch:
             # (so we print the "Input Interpretation", but dont echo the "Input"
             # as-is if it was understood by WolframAlpha as-is.
 
-            pods = answer["pods"]
+            pods = answer['pods']
 
-            input_pod = next((pod for pod in pods if pod["id"].lower() == "input"), None)
-            result_pod = next((pod for pod in pods if pod["id"].lower() == "result"), None)
-            is_direct_input_pod = input_pod is not None and input_pod["title"].lower() == "input"
+            input_pod = next((pod for pod in pods if pod['id'].lower() == 'input'), None)
+            result_pod = next((pod for pod in pods if pod['id'].lower() == 'result'), None)
+            is_direct_input_pod = input_pod is not None and input_pod['title'].lower() == 'input'
 
             if input_pod is not None and result_pod is not None:
-                selected_pods = [ input_pod, result_pod ]
+                selected_pods = [input_pod, result_pod]
             else:
                 selected_pods = pods.copy()
 
@@ -178,7 +177,7 @@ class Dispatch:
             complete_answer = ' // '.join(stringified_pods)
             reply = base_reply + complete_answer
 
-            reply = (reply[:499] + "…") if len(reply) > 500 else reply
+            reply = (reply[:499] + '…') if len(reply) > 500 else reply
 
             bot.send_message_to_user(source, reply, event, method='reply')
 
@@ -434,7 +433,7 @@ class Dispatch:
                 return False
 
             existing_alias = message_parts[0]
-            new_aliases = re.split('\|| ', ' '.join(message_parts[1:]))
+            new_aliases = re.split(r'\|| ', ' '.join(message_parts[1:]))
             added_aliases = []
             already_used_aliases = []
 
@@ -469,7 +468,7 @@ class Dispatch:
         """Dispatch method for removing aliases from a command.
         Usage: !remove alias EXISTING_ALIAS_1 EXISTING_ALIAS_2"""
         if message:
-            aliases = re.split('\|| ', message.lower())
+            aliases = re.split(r'\|| ', message.lower())
             log.info(aliases)
             if len(aliases) < 1:
                 bot.whisper(source.username, 'Usage: !remove alias EXISTINGALIAS')

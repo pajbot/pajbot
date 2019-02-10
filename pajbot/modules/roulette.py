@@ -257,7 +257,7 @@ class RouletteModule(BaseModule):
         parts.append('{} {} {}{}'.format(win_emote if arguments['win'] else lose_emote, arguments['user'], '+' if arguments['win'] else '-', arguments['bet']))
 
         log.debug(parts)
-        new_buffer = new_buffer+ ', '.join(parts)
+        new_buffer += ', '.join(parts)
 
         if len(new_buffer) > 480:
             self.flush_output_buffer()

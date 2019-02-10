@@ -4,7 +4,6 @@ import logging
 from contextlib import contextmanager
 
 import requests
-
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
@@ -20,6 +19,11 @@ from pajbot.streamhelper import StreamHelper
 from pajbot.utils import time_method  # NOQA
 
 log = logging.getLogger(__name__)
+
+
+class Config:
+    se_sync_token = None
+    se_channel = None
 
 
 class User(Base):
@@ -223,16 +227,16 @@ class UserSQL:
 
     @points.setter
     def points(self, value):
-        if value != self.user_model.points and se_channel is not None and se_sync_token is not None:
+        if value != self.user_model.points and Config.se_channel is not None and Config.se_sync_token is not None:
             try:
-                log.debug("Updating points for {0} to {1}".format(self.username, value))
-                requests.put("https://api.streamelements.com/kappa/v2/points/{0}".format(se_channel), \
-                             headers = { 'Authorization': 'Bearer ' + se_sync_token }, \
-                             json = { 'users': [ { 'username': self.username, 'current': value } ], 'mode': 'set' })
+                log.debug('Updating points for {0} to {1}'.format(self.username, value))
+                requests.put('https://api.streamelements.com/kappa/v2/points/{0}'.format(Config.se_channel),
+                             headers={'Authorization': 'Bearer ' + Config.se_sync_token},
+                             json={'users': [{'username': self.username, 'current': value}], 'mode': 'set'})
             except requests.exceptions.ReadTimeout:
                 pass
             except:
-                log.exception("BabyRage")
+                log.exception('BabyRage')
         self.sql_load()
         self.user_model.points = value
 

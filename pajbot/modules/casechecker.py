@@ -53,12 +53,6 @@ class CaseCheckerModule(BaseModule):
                 type='boolean',
                 required=True,
                 default=True),
-            ModuleSetting(
-                key='allow_all_emotes',
-                label='Allow all emotes',
-                type='boolean',
-                required=True,
-                default=False),
                 ]
 
     def __init__(self):
@@ -68,13 +62,6 @@ class CaseCheckerModule(BaseModule):
     def on_message(self, source, message, emotes, whisper, urls, event):
         if source.level >= self.settings['bypass_level'] or source.moderator is True:
             return True
-
-        if self.settings['allow_all_emotes']:
-            offset = 0
-            original_message = message
-            for emote in emotes:
-                message = message[0:emote['start']] + message[emote['end']+1:]
-                offset = len(original_message) - len(message)
 
         if self.settings['online_chat_only'] and not self.bot.is_online:
             return True

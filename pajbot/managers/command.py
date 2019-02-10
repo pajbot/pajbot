@@ -341,8 +341,7 @@ class CommandManager(UserDict):
                     command.action.reset()
 
                 if alias in out:
-                    if (command.action and command.action.type == 'multi' and
-                            out[alias].action and out[alias].action.type == 'multi'):
+                    if (command.action and command.action.type == 'multi' and out[alias].action and out[alias].action.type == 'multi'):
                         out[alias].action += command.action
                     else:
                         out[alias] = command

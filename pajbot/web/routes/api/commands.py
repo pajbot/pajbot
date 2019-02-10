@@ -18,6 +18,7 @@ from pajbot.utils import find
 
 log = logging.getLogger(__name__)
 
+
 class APICommands(Resource):
     def get(self):
         commands = pajbot.web.utils.get_cached_commands()
@@ -25,6 +26,7 @@ class APICommands(Resource):
         return {
                 'commands': commands
                 }, 200
+
 
 class APICommand(Resource):
     def get(self, raw_command_id):
