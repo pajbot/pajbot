@@ -2,6 +2,7 @@ import argparse
 import datetime
 import logging
 import re
+import os
 import subprocess
 import sys
 import time
@@ -101,6 +102,7 @@ class Bot:
         self.password = config['main'].get('password', 'abcdef')
 
         self.timezone = config['main'].get('timezone', 'UTC')
+        os.environ['TZ'] = self.timezone
 
         if config['main'].getboolean('verified', False):
             TMI.promote_to_verified()
