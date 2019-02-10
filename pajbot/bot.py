@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 import urllib
+import pajbot.models.user
 
 import irc.client
 import requests
@@ -95,6 +96,9 @@ class Bot:
 
     def load_config(self, config):
         self.config = config
+
+        pajbot.models.user.se_sync_token = config['main'].get('se_sync_token', None)
+        pajbot.models.user.se_channel = config['main'].get('se_channel', None)
 
         self.domain = config['web'].get('domain', 'localhost')
 
