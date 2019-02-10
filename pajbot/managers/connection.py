@@ -1,6 +1,7 @@
 import logging
 import random
 import socket
+import ssl
 
 import irc
 from irc.client import InvalidCharacters
@@ -132,8 +133,8 @@ class ConnectionManager:
     """
     def get_chat_server(self):
         servers = [
-            {'host': 'irc.chat.twitch.tv', 'port': 6667},
-            {'host': 'irc.chat.twitch.tv', 'port': 80},
+            {'host': 'irc.chat.twitch.tv', 'port': 6697},
+            {'host': 'irc.chat.twitch.tv', 'port': 443},
         ]
 
         server = random.choice(servers)
@@ -148,10 +149,11 @@ class ConnectionManager:
         log.debug('Selected {0}:{1}'.format(ip, port))
 
         try:
+            ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
             newconn = Connection(self.reactor)
             with self.reactor.mutex:
                 self.reactor.connections.append(newconn)
-            newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname)
+            newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory)
             log.debug('Connecting to IRC server...')
             newconn.cap('REQ', 'twitch.tv/membership')
             newconn.cap('REQ', 'twitch.tv/commands')
