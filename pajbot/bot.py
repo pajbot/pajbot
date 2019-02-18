@@ -480,20 +480,20 @@ class Bot:
         log.warning('Unknown key passed to get_value: {0}'.format(key))
         return None
 
-    def privmsg_arr(self, arr):
+    def privmsg_arr(self, arr, target=None):
         for msg in arr:
-            self.privmsg(msg)
+            self.privmsg(msg, target)
 
-    def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30):
+    def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
             r = requests.get(url)
             lines = r.text.split('\n')
             i = 0
             while len(lines) > 0:
                 if i == 0:
-                    self.privmsg_arr(lines[:per_chunk])
+                    self.privmsg_arr(lines[:per_chunk], target)
                 else:
-                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk],))
+                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk], target))
 
                 del lines[:per_chunk]
 
