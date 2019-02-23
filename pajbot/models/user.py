@@ -229,7 +229,7 @@ class UserSQL:
     def points(self, value):
         self.sql_load()
         if Config.se_channel is not None and Config.se_sync_token is not None and value != self.user_model.points:
-            value = max(0, value) # negative points are incompatible with the SE sync system
+            value = max(0, value)  # negative points are incompatible with the SE sync system
             try:
                 log.debug('Updating points for {0} to {1}'.format(self.username, value))
                 if value > 0:
