@@ -227,18 +227,20 @@ class UserSQL:
 
     @points.setter
     def points(self, value):
-        if Config.se_channel is not None and Config.se_sync_token is not None:
-            if value != self.user_model.points:
-                try:
-                    log.debug('Updating points for {0} to {1}'.format(self.username, value))
+        self.sql_load()
+        if Config.se_channel is not None and Config.se_sync_token is not None and value != self.user_model.points:
+            value = max(0, value) # negative points are incompatible with the SE sync system
+            try:
+                log.debug('Updating points for {0} to {1}'.format(self.username, value))
+                if value > 0:
                     requests.put('https://api.streamelements.com/kappa/v2/points/{0}'.format(Config.se_channel),
                                  headers={'Authorization': 'Bearer ' + Config.se_sync_token},
                                  json={'users': [{'username': self.username, 'current': value}], 'mode': 'set'})
-                except requests.exceptions.ReadTimeout:
-                    pass
-                except:
-                    log.exception('BabyRage')
-        self.sql_load()
+                else:
+                    requests.delete('https://api.streamelements.com/kappa/v2/points/{0}/{1}'.format(Config.se_channel, self.username),
+                                    headers={'Authorization': 'Bearer ' + Config.se_sync_token})
+            except:
+                log.exception('BabyRage')
         self.user_model.points = value
 
     @property
