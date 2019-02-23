@@ -38,7 +38,7 @@ class AdminCommandsModule(BaseModule):
             msg_split = message.split(' ')
             if len(msg_split) < 2:
                 # The user did not supply enough arguments
-                bot.whisper(source.username, 'Usage: !editpoints USERNAME POINTS')
+                bot.whisper(source.username, 'Usage: !{command_name} USERNAME POINTS'.format(command_name=self.command_name))
                 return False
 
             username = msg_split[0]
@@ -64,6 +64,39 @@ class AdminCommandsModule(BaseModule):
                     bot.whisper(source.username, 'Successfully gave {} {} points.'.format(user.username_raw, num_points))
                 else:
                     bot.whisper(source.username, 'Successfully removed {} points from {}.'.format(abs(num_points), user.username_raw))
+
+    def set_points(self, **options):
+        message = options['message']
+        bot = options['bot']
+        source = options['source']
+
+        if message:
+            msg_split = message.split(' ')
+            if len(msg_split) < 2:
+                # The user did not supply enough arguments
+                bot.whisper(source.username, 'Usage: !{command_name} USERNAME POINTS'.format(command_name=self.command_name))
+                return False
+
+            username = msg_split[0]
+            if len(username) < 2:
+                # The username specified was too short. ;-)
+                return False
+
+            try:
+                num_points = int(msg_split[1])
+            except (ValueError, TypeError):
+                # The user did not specify a valid integer for points
+                bot.whisper(source.username, 'Invalid amount of points. Usage: !{command_name} USERNAME POINTS'.format(command_name=self.command_name))
+                return False
+
+            with bot.users.find_context(username) as user:
+                if not user:
+                    bot.whisper(source.username, 'This user does not exist FailFish')
+                    return False
+
+                user.points = num_points
+
+                bot.whisper(source.username, 'Successfully set {}\'s points to {}.'.format(user.username_raw, num_points))
 
     def level(self, **options):
         message = options['message']
@@ -191,7 +224,7 @@ class AdminCommandsModule(BaseModule):
                 description='Send a whisper from the bot')
         self.commands['editpoints'] = pajbot.models.command.Command.raw_command(self.edit_points,
                 level=1500,
-                description='Modifies a users points',
+                description='Modifies a user\'s points',
                 examples=[
                     pajbot.models.command.CommandExample(None, 'Give a user points',
                         chat='user:!editpoints pajlada 500\n'
@@ -201,6 +234,15 @@ class AdminCommandsModule(BaseModule):
                         chat='user:!editpoints pajlada -500\n'
                         'bot>user:Successfully removed 500 points from pajlada.',
                         description='This removes 500 points from pajlada. Users can go into negative points with this.').parse(),
+                    ])
+        self.commands['setpoints'] = pajbot.models.command.Command.raw_command(self.set_points,
+                level=1500,
+                description='Sets a user\'s points',
+                examples=[
+                    pajbot.models.command.CommandExample(None, 'Set a user\'s points',
+                        chat='user:!setpoints pajlada 500\n'
+                        'bot>user:Successfully set pajlada\'s points to 500.',
+                        description='This sets pajlada\'s points to 500.').parse(),
                     ])
         self.commands['level'] = pajbot.models.command.Command.raw_command(self.level,
                 level=1000,
