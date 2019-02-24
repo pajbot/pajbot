@@ -68,7 +68,7 @@ def clean_up_message(message):
         if parts[0][1:] in permitted_commands:
             # permitted twitch command
             command = parts[0]
-            if len(parts < 2):
+            if len(parts) < 2:
                 payload = None
             else:
                 payload = parts[1]
