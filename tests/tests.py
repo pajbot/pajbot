@@ -203,7 +203,7 @@ class TestCleanUpMessage(unittest2.TestCase):
             self.assertEqual('.me \u206D{}'.format(prefix), pajbot.bot.clean_up_message('.me    {}'.format(prefix)))
             self.assertEqual('.me \u206D{}'.format(prefix), pajbot.bot.clean_up_message(' .me    {}'.format(prefix)))
             self.assertEqual('/me \u206D{}'.format(prefix), pajbot.bot.clean_up_message('/me    {}'.format(prefix)))
-            self.assertEqual('/me \u206D{}.format(prefix)', pajbot.bot.clean_up_message(' /me    {}'.format(prefix)))
+            self.assertEqual('/me \u206D{}'.format(prefix), pajbot.bot.clean_up_message(' /me    {}'.format(prefix)))
 
 
 if __name__ == '__main__':
