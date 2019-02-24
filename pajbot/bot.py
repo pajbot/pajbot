@@ -48,24 +48,53 @@ log = logging.getLogger(__name__)
 
 
 def clean_up_message(message):
-    me = False
+    # list of twitch commands permitted, without leading slash or dot
+    permitted_commands = ['me']
 
-    if message.startswith('.me') or message.startswith('/me'):
-        me = True
-        message = message[3:].strip()
+    # remove leading whitespace
+    message = message.lstrip()
 
-    if len(message) == 0:
-        return None
+    # limit of one split
+    # '' -> ['']
+    # 'a' -> ['a']
+    # 'a ' -> ['a', '']
+    # 'a b' -> ['a', 'b']
+    # 'a b ' -> ['a', 'b ']
+    # 'a b c' -> ['a', 'b c']
+    parts = message.split(' ', 1)
 
-    if message[0] in ['.', '/']:
-        log.warning('Message we attempted to send started with . or /, skipping: {}'.format(message))
-        return None
+    # if part 0 is a twitch command, we determine command and payload.
+    if parts[0][:1] in ['.', '/']:
+        if parts[0][:1] in permitted_commands:
+            # permitted twitch command
+            command = parts[0]
+            if len(parts < 2):
+                payload = None
+            else:
+                payload = parts[1]
+        else:
+            # disallowed twitch command
+            command = "."
+            payload = message
+    else:
+        # not a twitch command
+        command = None
+        payload = message
 
     # Stop the bot from calling other bot commands
-    if message[0] in ['!', '$', '-', '<']:
-        message = '\u206D' + message
+    if payload[:1] in ['!', '$', '-', '<']:
+        payload = '\u206D' + payload
 
-    return message if not me else '.me ' + message
+    if command is not None and payload is not None:
+        # we have command and payload (e.g. ".me asd" or ". .timeout")
+        return "{} {}".format(command, payload)
+
+    if command is not None:
+        # we have command and NO payload (e.g. ".me")
+        return command
+
+    # we have payload and NO command (e.g. "asd", "\u206D!ping")
+    return payload
 
 
 class Bot:
