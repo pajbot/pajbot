@@ -74,7 +74,7 @@ def clean_up_message(message):
                 payload = parts[1]
         else:
             # disallowed twitch command
-            command = "."
+            command = '.'
             payload = message
     else:
         # not a twitch command
@@ -87,7 +87,7 @@ def clean_up_message(message):
 
     if command is not None and payload is not None:
         # we have command and payload (e.g. ".me asd" or ". .timeout")
-        return "{} {}".format(command, payload)
+        return '{} {}'.format(command, payload)
 
     if command is not None:
         # we have command and NO payload (e.g. ".me")
