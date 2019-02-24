@@ -1,5 +1,6 @@
 # Travis CI checks for pajbot
 
+dist: xenial
 language: python
 sudo: false
 cache: pip
