@@ -71,7 +71,7 @@ def clean_up_message(message):
             if len(parts) < 2:
                 payload = None
             else:
-                payload = parts[1]
+                payload = parts[1].lstrip()
         else:
             # disallowed twitch command
             command = '.'
