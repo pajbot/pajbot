@@ -185,10 +185,14 @@ class Bot:
         # come from pajbot.utils.load_config
         self.load_config(config)
 
+        log.debug('Loaded config')
+
         # Update the database scheme if necessary using alembic
         # In case of errors, i.e. if the database is out of sync or the alembic
         # binary can't be called, we will shut down the bot.
         pajbot.utils.alembic_upgrade()
+
+        log.debug('ran db upgrade')
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
