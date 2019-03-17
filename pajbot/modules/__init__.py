@@ -61,6 +61,7 @@ from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
+from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
 from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
@@ -119,6 +120,7 @@ available_modules = [
         RaffleModule,
         RepspamModule,
         RouletteModule,
+        SlotMachineModule,
         ShowEmoteTokenCommandModule,
         SubAlertModule,
         TopModule,
