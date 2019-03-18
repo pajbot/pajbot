@@ -15,6 +15,44 @@ from pajbot.modules import ModuleSetting
 log = logging.getLogger(__name__)
 
 
+# pull_lol returns the: (bet_return, emotes)
+def pull_lol(low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltbw, htbw):
+    slot_options = []
+    for e in low_tier_emotes:
+        slot_options += [e] * 3
+    for e in high_tier_emotes:
+        slot_options += [e]
+
+    randomized_emotes = random.choice(slot_options, 3).tolist()
+
+    # figure out results of these randomized emotes xd
+    bet_return = 0.0
+
+    emote_counts = Counter(randomized_emotes)
+
+    for emote_name in emote_counts:
+        emote_count = emote_counts[emote_name]
+
+        if emote_count <= 1:
+            continue
+
+        if emote_count == 2:
+            # small win
+            if emote_name in low_tier_emotes:
+                bet_return += ltsw
+            else:
+                bet_return += htsw
+
+        if emote_count == 3:
+            # big win
+            if emote_name in low_tier_emotes:
+                bet_return += ltbw
+            else:
+                bet_return += htbw
+
+    return bet_return, randomized_emotes
+
+
 class SlotMachineModule(BaseModule):
 
     ID = __name__.split('.')[-1]
@@ -46,7 +84,7 @@ class SlotMachineModule(BaseModule):
                 }),
             ModuleSetting(
                 key='low_tier_emotes',
-                label='Low tier emotes, space-separated',
+                label='Low tier emotes, space-separated. Low-tier emote are 3 times as likely to appear as high tier emotes (they get 3 slots compared to high emotes 1 slot per roll)',
                 type='text',
                 required=True,
                 placeholder='KKona 4Head NaM',
@@ -67,48 +105,48 @@ class SlotMachineModule(BaseModule):
                     'max_str_len': 400,
                 }),
             ModuleSetting(
-                key='low_tier_small_win',
-                label='Low tier small win (Percentage)',
+                key='ltsw',
+                label='Low tier small win (Percentage) 22.6% with 2 low 2 high',
                 type='number',
                 required=True,
                 placeholder='',
                 default=125,
                 constraints={
                     'min_value': 0,
-                    'max_value': 1000,
+                    'max_value': 100000,
                     }),
             ModuleSetting(
-                key='low_tier_big_win',
-                label='Low tier big win (Percentage)',
+                key='ltbw',
+                label='Low tier big win (Percentage) 0.98% with 2 low 2 high',
                 type='number',
                 required=True,
                 placeholder='',
                 default=175,
                 constraints={
                     'min_value': 0,
-                    'max_value': 1000,
+                    'max_value': 100000,
                     }),
             ModuleSetting(
-                key='high_tier_small_win',
-                label='High tier small win (Percentage)',
+                key='htsw',
+                label='High tier small win (Percentage) 0.14% with 2 low 2 high',
                 type='number',
                 required=True,
                 placeholder='',
                 default=225,
                 constraints={
                     'min_value': 0,
-                    'max_value': 1000,
+                    'max_value': 100000,
                     }),
             ModuleSetting(
-                key='high_tier_big_win',
-                label='High tier big win (Percentage)',
+                key='htbw',
+                label='High tier big win (Percentage) 0.07% with 2 low 2 high',
                 type='number',
                 required=True,
                 placeholder='',
                 default=400,
                 constraints={
                     'min_value': 0,
-                    'max_value': 1000,
+                    'max_value': 100000,
                     }),
             ModuleSetting(
                 key='online_global_cd',
@@ -194,6 +232,7 @@ class SlotMachineModule(BaseModule):
                     ],
                 )
 
+
     def pull(self, **options):
         log.debug('pull xd')
         message = options['message']
@@ -225,39 +264,15 @@ class SlotMachineModule(BaseModule):
             bot.whisper(user.username, 'You have to bet at least {} point! :('.format(self.settings['min_bet']))
             return False
 
-        probabilities = ([0.9 / len(low_tier_emotes)] * len(low_tier_emotes)) + \
-                        ([0.1 / len(high_tier_emotes)] * len(high_tier_emotes))
+        # how much of the users point they're expected to get back (basically how much the house yoinks)
+        expected_return = 1.0
 
-        all_emotes = low_tier_emotes + high_tier_emotes
+        ltsw = self.settings['ltsw'] / 100.0
+        htsw = self.settings['htsw'] / 100.0
+        ltbw = self.settings['ltbw'] / 100.0
+        htbw = self.settings['htbw'] / 100.0
 
-        randomized_emotes = []
-        for _ in range(0, 3):
-            randomized_emotes.append(random.choice(all_emotes, p=probabilities))
-
-        # figure out results of these randomized emotes xd
-        bet_return = 0.0
-
-        emote_counts = Counter(randomized_emotes)
-
-        for emote_name in emote_counts:
-            emote_count = emote_counts[emote_name]
-
-            if emote_count <= 1:
-                continue
-
-            if emote_count == 2:
-                # small win
-                if emote_name in low_tier_emotes:
-                    bet_return += self.settings['low_tier_small_win'] / 100
-                else:
-                    bet_return += self.settings['high_tier_small_win'] / 100
-
-            if emote_count == 3:
-                # big win
-                if emote_name in low_tier_emotes:
-                    bet_return += self.settings['low_tier_big_win'] / 100
-                else:
-                    bet_return += self.settings['high_tier_big_win'] / 100
+        bet_return, randomized_emotes = pull_lol(low_tier_emotes, high_tier_emotes, bet, expected_return, ltsw, htsw, ltbw, htbw)
 
         # Calculating the result
         if bet_return <= 0.0:
