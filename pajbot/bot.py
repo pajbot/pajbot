@@ -535,6 +535,7 @@ class Bot:
             log.exception('error in privmsg_from_file')
 
     # event is an event to clone and change the text from.
+    # Usage: !eval bot.eval_from_file(event, 'https://pastebin.com/raw/LhCt8FLh')
     def eval_from_file(self, event, url):
         try:
             r = requests.get(url)
@@ -543,12 +544,12 @@ class Bot:
             for msg in lines:
                 cloned_event = copy.deepcopy(event)
                 cloned_event.arguments = [msg]
-                # omit the source connectino as None (since its not used)
+                # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
+            self.whisper(event.source.user.lower(), 'Successfully evaluated {0} lines'.format(len(lines)))
         except:
             log.exception('BabyRage')
-            self.say('Exception')
-        self.say('All lines done')
+            self.whisper(event.source.user.lower(), 'Exception BabyRage')
 
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
