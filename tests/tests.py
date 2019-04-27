@@ -172,7 +172,7 @@ class TestCleanUpMessage(unittest2.TestCase):
     def test_clean_up(self):
         import pajbot.bot
 
-		self.assertEqual('󠀀', '\U000e0000')
+        self.assertEqual('󠀀', '\U000e0000')
 
         self.assertEqual('', pajbot.bot.clean_up_message(''))
         self.assertEqual('', pajbot.bot.clean_up_message('  '))
