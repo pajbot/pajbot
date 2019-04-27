@@ -1,13 +1,12 @@
 import datetime
 import logging
+from collections import Counter
 
 from numpy import random
-from collections import Counter
 
 import pajbot.exc
 import pajbot.models
 import pajbot.utils
-from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -231,7 +230,6 @@ class SlotMachineModule(BaseModule):
                         description='Do a slot machine pull for 69 points').parse(),
                     ],
                 )
-
 
     def pull(self, **options):
         log.debug('pull xd')
