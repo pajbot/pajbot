@@ -82,8 +82,9 @@ def clean_up_message(message):
         payload = message
 
     # Stop the bot from calling other bot commands
+    # by prefixing payload with invisible character
     if payload[:1] in ['!', '$', '-', '<']:
-        payload = '\u206D' + payload
+        payload = '\uE000' + payload
 
     if command is not None and payload is not None:
         # we have command and payload (e.g. ".me asd" or ". .timeout")
@@ -93,7 +94,7 @@ def clean_up_message(message):
         # we have command and NO payload (e.g. ".me")
         return command
 
-    # we have payload and NO command (e.g. "asd", "\u206D!ping")
+    # we have payload and NO command (e.g. "asd", "\uE000!ping")
     return payload
 
 
