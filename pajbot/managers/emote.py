@@ -375,7 +375,7 @@ class EmoteManager:
             with RedisManager.pipeline_context() as pipeline:
                 if not whisper:
                     for emote in message_emotes:
-                        pipeline.zincrby('{streamer}:emotes:count'.format(streamer=streamer), emote['code'], emote['count'])
+                        pipeline.zincrby('{streamer}:emotes:count'.format(streamer=streamer), value=emote['code'], amount=float(emote['count']))
                         self.epm_incr(emote['code'], emote['count'])
 
                 user_tags = source.get_tags()

@@ -390,12 +390,17 @@ class StreamManager:
     def refresh_stream_status_stage2(self, status):
         try:
             redis = RedisManager.get()
+            key_prefix = self.bot.streamer + ':'
 
-            redis.hmset('stream_data', {
-                '{streamer}:online'.format(streamer=self.bot.streamer): status['online'],
-                '{streamer}:viewers'.format(streamer=self.bot.streamer): status['viewers'],
-                '{streamer}:game'.format(streamer=self.bot.streamer): status['game'],
-                })
+            stream_data = {}
+            stream_data[key_prefix + 'online'] = str(status['online'])
+            stream_data[key_prefix + 'viewers'] = status['viewers']
+            if status['game']:
+                stream_data[key_prefix + 'game'] = status['game']
+            else:
+                stream_data[key_prefix + 'game'] = ''
+
+            redis.hmset('stream_data', stream_data)
 
             self.num_viewers = status['viewers']
             self.game = status['game']
