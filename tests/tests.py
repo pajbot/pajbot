@@ -172,6 +172,8 @@ class TestCleanUpMessage(unittest2.TestCase):
     def test_clean_up(self):
         import pajbot.bot
 
+		self.assertEqual('󠀀', '\U000e0000')
+
         self.assertEqual('', pajbot.bot.clean_up_message(''))
         self.assertEqual('', pajbot.bot.clean_up_message('  '))
         self.assertEqual('', pajbot.bot.clean_up_message(' '))
@@ -187,23 +189,23 @@ class TestCleanUpMessage(unittest2.TestCase):
         self.assertEqual('asd', pajbot.bot.clean_up_message('asd'))
         self.assertEqual('asd', pajbot.bot.clean_up_message('    asd'))
         for prefix in ['!', '$', '-', '<']:
-            self.assertEqual('\uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('{}ping'.format(prefix)))
-            self.assertEqual('/me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('/me {}ping'.format(prefix)))
-            self.assertEqual('.me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('.me {}ping'.format(prefix)))
-            self.assertEqual('\uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('    {}ping'.format(prefix)))
-            self.assertEqual('.me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('.me    {}ping'.format(prefix)))
-            self.assertEqual('.me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message(' .me    {}ping'.format(prefix)))
-            self.assertEqual('/me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message('/me    {}ping'.format(prefix)))
-            self.assertEqual('/me \uE000{}ping'.format(prefix), pajbot.bot.clean_up_message(' /me    {}ping'.format(prefix)))
+            self.assertEqual('\U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('{}ping'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('/me {}ping'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('.me {}ping'.format(prefix)))
+            self.assertEqual('\U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('    {}ping'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('.me    {}ping'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message(' .me    {}ping'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message('/me    {}ping'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}ping'.format(prefix), pajbot.bot.clean_up_message(' /me    {}ping'.format(prefix)))
 
-            self.assertEqual('\uE000{}'.format(prefix), pajbot.bot.clean_up_message('{}'.format(prefix)))
-            self.assertEqual('/me \uE000{}'.format(prefix), pajbot.bot.clean_up_message('/me {}'.format(prefix)))
-            self.assertEqual('.me \uE000{}'.format(prefix), pajbot.bot.clean_up_message('.me {}'.format(prefix)))
-            self.assertEqual('\uE000{}'.format(prefix), pajbot.bot.clean_up_message('    {}'.format(prefix)))
-            self.assertEqual('.me \uE000{}'.format(prefix), pajbot.bot.clean_up_message('.me    {}'.format(prefix)))
-            self.assertEqual('.me \uE000{}'.format(prefix), pajbot.bot.clean_up_message(' .me    {}'.format(prefix)))
-            self.assertEqual('/me \uE000{}'.format(prefix), pajbot.bot.clean_up_message('/me    {}'.format(prefix)))
-            self.assertEqual('/me \uE000{}'.format(prefix), pajbot.bot.clean_up_message(' /me    {}'.format(prefix)))
+            self.assertEqual('\U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('{}'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('/me {}'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('.me {}'.format(prefix)))
+            self.assertEqual('\U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('    {}'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('.me    {}'.format(prefix)))
+            self.assertEqual('.me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message(' .me    {}'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message('/me    {}'.format(prefix)))
+            self.assertEqual('/me \U000e0000{}'.format(prefix), pajbot.bot.clean_up_message(' /me    {}'.format(prefix)))
 
 
 if __name__ == '__main__':
