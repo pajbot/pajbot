@@ -29,7 +29,6 @@ def init(app):
                     score_cast_func=int):
                 user = UserManager.get_static(redis_user[0], db_session=db_session)
                 user.save_to_redis = False
-                user.num_lines = redis_user[1]
                 top_5_line_farmers.append(user)
 
             return render_template('stats.html',

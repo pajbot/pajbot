@@ -55,9 +55,10 @@ MarkupSafe==1.1.1
 mccabe==0.6.1
 more-itertools==7.0.0
 numpy==1.16.3
-oauthlib==3.0.1
+oauthlib==2.1.0
 pbr==5.2.0
 Pillow==6.0.0
+pkg-resources==0.0.0
 pyasn1==0.4.5
 pyasn1-modules==0.2.5
 pycodestyle==2.5.0
@@ -77,7 +78,7 @@ pytz==2019.1
 redis==3.2.1
 regex==2019.4.14
 requests==2.21.0
-requests-oauthlib==1.2.0
+requests-oauthlib==1.1.0
 riotwatcher==2.5.0
 rsa==4.0
 scrypt==0.8.13
@@ -95,7 +96,8 @@ tzlocal==1.5.1
 Unidecode==1.0.23
 unittest2==1.1.0
 uritemplate==3.0.0
-urllib3==1.25.1
+urllib3==1.24.2
+uWSGI==2.0.18
 uwsgidecorators==1.1.0
 webassets==0.12.1
 Werkzeug==0.15.2
