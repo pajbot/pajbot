@@ -58,7 +58,6 @@ numpy==1.16.3
 oauthlib==2.1.0
 pbr==5.2.0
 Pillow==6.0.0
-pkg-resources==0.0.0
 pyasn1==0.4.5
 pyasn1-modules==0.2.5
 pycodestyle==2.5.0
