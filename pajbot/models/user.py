@@ -366,17 +366,13 @@ class UserRedis:
         else:
             return self.values.get('num_lines', 0)
 
-    @num_lines.setter
-    def num_lines(self, value):
+    def incr_num_lines(self):
         # Set cached value
-        self.values['num_lines'] = value
+        self.values['num_lines'] = self.num_lines + 1
 
         if self.save_to_redis:
             # Set redis value
-            if value != 0:
-                self.redis.zincrby('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), value=self.username, amount=float(value))
-            else:
-                self.redis.zrem('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), self.username)
+            self.redis.zincrby('{streamer}:users:num_lines'.format(streamer=StreamHelper.get_streamer()), value=self.username, amount=1.0)
 
     @property
     def tokens(self):

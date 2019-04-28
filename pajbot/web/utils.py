@@ -106,7 +106,7 @@ def get_cached_commands():
 
         bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
         bot_commands_list = [c.jsonify() for c in bot_commands_list]
-        redis.setex(commands_key, json.dumps(bot_commands_list, separators=(',', ':')), CACHE_TIME)
+        redis.setex(commands_key, value=json.dumps(bot_commands_list, separators=(',', ':')), time=CACHE_TIME)
     else:
         bot_commands_list = json.loads(commands)
 
