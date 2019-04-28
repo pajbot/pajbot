@@ -26,8 +26,8 @@ class MassPingProtectionModule(BaseModule):
                 placeholder='',
                 default=5,
                 constraints={
-                    'min_value': 20,
-                    'max_value': 1000,
+                    'min_value': 3,
+                    'max_value': 100,
                     }),
             ModuleSetting(
                 key='timeout_length_base',
