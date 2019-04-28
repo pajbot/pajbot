@@ -85,6 +85,8 @@ class MassPingProtectionModule(BaseModule):
         # to lowercase + filter out matches that are too long...
         potential_usernames = (x.lower() for x in potential_usernames if len(x) <= 25)
         real_usernames = (x for x in potential_usernames if MassPingProtectionModule.is_known_user(x))
+        # filter duplicates
+        real_usernames = list(set(real_usernames))
 
         # count real users
         return sum(1 for x in real_usernames)
