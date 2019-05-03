@@ -449,7 +449,12 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
 
     for needle, url in urlfetch_subs.items():
         try:
-            r = requests.get(url)
+            headers = {
+                'Accept': 'text/plain',
+                'Accept-Language': 'en-US, en;q=0.9, *;q=0.5',
+                'User-Agent': 'pajbot1/{}'.format(bot.version)
+            }
+            r = requests.get(url, allow_redirects=True, headers=headers)
             r.raise_for_status()
             value = r.text.strip().replace('\n', '').replace('\r', '')[:400]
         except:
