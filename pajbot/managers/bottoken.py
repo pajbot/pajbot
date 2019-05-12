@@ -43,6 +43,9 @@ class BotToken:
                 log.exception('babyrate')
 
             RedisManager.get().set('{}:token'.format(self.nickname), r.text)
+            if 'expires_in' not in self.token:
+                # Infinite token
+                self.token['expires_in'] = 86400
             self.access_token_expires_at = datetime.datetime.now() + datetime.timedelta(seconds=self.token['expires_in'])
 
         return self.token['access_token']
