@@ -73,7 +73,6 @@ def init(app):
             log.exception('Unhandled exception while authorizing')
             return render_template('login_error.html')
 
-        print(resp)
         if resp is None:
             if 'error' in request.args and 'error_description' in request.args:
                 log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
