@@ -101,7 +101,7 @@ class EmotesOnScreenModule(BaseModule):
 
         # keep a mapping emote code -> emote
         # so we can count emote occurrance by emote code
-        # and then later map back to the emote code
+        # and then later map back to the emote
         emote_code_to_emote = dict()
         for emote in emotes:
             emote_code_to_emote[emote['code']] = emote
