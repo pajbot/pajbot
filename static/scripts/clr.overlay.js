@@ -166,40 +166,48 @@ function add_random_box(color)
     }, 5000);
 }
 
-function add_emote(emote)
+// opacity = number between 0 and 100
+function add_emotes(emotes, opacity, persistenceTime, emoteScale)
 {
-    var url = '';
-    if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
-        url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
-    } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
-        url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
-    } else if ('twitch_id' in emote) {
-        url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
-    } else {
-        if (emote['code'] == 'xD') {
-            url = 'https://cdn.pajlada.se/emoticons/XD.gif';
+    for (let emoteInstance of emotes) {
+        let emote = emoteInstance["emote"];
+        let shownCount = emoteInstance["shown_count"];
+        var url = '';
+        if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
+            url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
+        } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
+            url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
+        } else if ('twitch_id' in emote) {
+            url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
+        } else {
+            if (emote['code'] == 'xD') {
+                url = 'https://cdn.pajlada.se/emoticons/XD.gif';
+            }
+        }
+        var divsize = 120;
+        for (let i = 0; i < shownCount; i++) {
+            let posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+            let posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+            let newdiv = $('<img class="absemote" src="' + url + '">').css({
+                'left': posx + 'px',
+                'top': posy + 'px',
+                'opacity': 0,
+                'transform': 'scale(' + String(emoteScale/100) + ')'
+            });
+            newdiv.appendTo('body');
+            newdiv.animate({
+                opacity: opacity/100
+            }, 500);
+            setTimeout(() => {
+                newdiv.animate({
+                    opacity: 0,
+                }, 1000);
+                setTimeout(() => {
+                    newdiv.remove();
+                }, 1000);
+            }, persistenceTime);
         }
     }
-    var divsize = 120;
-    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
-    var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
-    var $newdiv = $('<img class="absemote" src="' + url + '">').css({
-        'left': posx + 'px',
-        'top': posy + 'px',
-        'opacity': 0
-    });
-    $newdiv.appendTo('body');
-    $newdiv.animate({
-        opacity: 1
-    }, 500);
-    setTimeout(function() {
-        $newdiv.animate({
-            opacity: 0,
-        }, 1000);
-        setTimeout(function() {
-            $newdiv.remove();
-        }, 1000);
-    }, 5000);
 }
 
 function show_custom_image(data)
@@ -513,8 +521,9 @@ function connect_to_ws()
                     case 'new_box':
                         add_random_box(json_data['data']['color']);
                         break;
-                    case 'new_emote':
-                        add_emote(json_data['data']['emote']);
+                    case 'new_emotes':
+                        add_emotes(json_data['data']['emotes'], json_data['data']['opacity'],
+                            json_data['data']['persistence_time'], json_data['data']['scale']);
                         break;
                     case 'notification':
                         add_notification(json_data['data']['message']);
