@@ -17,6 +17,7 @@ import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import TwitchAPI
+from pajbot.managers.bottoken import BotToken
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -125,8 +126,37 @@ class Bot:
 
         return parser.parse_args()
 
+    bot_token = None
+
+    @property
+    def password(self):
+        if 'password' in self.config['main']:
+            log.warn('DEPRECATED - Using bot password/oauth token from file. You should authenticate in web gui using route /bot_login and remove password from config file')
+            return self.config['main']['password']
+
+        if self.bot_token is None:
+            self.bot_token = BotToken(self.config)
+
+        t = self.bot_token.access_token()
+        return 'oauth:{}'.format(t)
+
     def load_config(self, config):
         self.config = config
+
+        DBManager.init(self.config['main']['db'])
+
+        # Update the database scheme if necessary using alembic
+        # In case of errors, i.e. if the database is out of sync or the alembic
+        # binary can't be called, we will shut down the bot.
+        pajbot.utils.alembic_upgrade()
+
+        log.debug('ran db upgrade')
+
+        redis_options = {}
+        if 'redis' in config:
+            redis_options = config._sections['redis']
+
+        RedisManager.init(**redis_options)
 
         pajbot.models.user.Config.se_sync_token = config['main'].get('se_sync_token', None)
         pajbot.models.user.Config.se_channel = config['main'].get('se_channel', None)
@@ -134,7 +164,6 @@ class Bot:
         self.domain = config['web'].get('domain', 'localhost')
 
         self.nickname = config['main'].get('nickname', 'pajbot')
-        self.password = config['main'].get('password', 'abcdef')
 
         self.timezone = config['main'].get('timezone', 'UTC')
         os.environ['TZ'] = self.timezone
@@ -172,14 +201,6 @@ class Bot:
             self.silent = True if 'silent' in config['flags'] and config['flags']['silent'] == '1' else self.silent
             self.dev = True if 'dev' in config['flags'] and config['flags']['dev'] == '1' else self.dev
 
-        DBManager.init(self.config['main']['db'])
-
-        redis_options = {}
-        if 'redis' in config:
-            redis_options = config._sections['redis']
-
-        RedisManager.init(**redis_options)
-
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
         # The config object that should be passed through should
@@ -187,13 +208,6 @@ class Bot:
         self.load_config(config)
 
         log.debug('Loaded config')
-
-        # Update the database scheme if necessary using alembic
-        # In case of errors, i.e. if the database is out of sync or the alembic
-        # binary can't be called, we will shut down the bot.
-        pajbot.utils.alembic_upgrade()
-
-        log.debug('ran db upgrade')
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.

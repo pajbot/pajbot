@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -10,6 +11,7 @@ from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 
 from pajbot.managers.db import DBManager
+from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
@@ -42,6 +44,17 @@ def init(app):
         return twitch.authorize(
                 callback=callback_url,
                 state=state,
+                )
+
+    @app.route('/bot_login')
+    def bot_login():
+        callback_url = app.bot_config['webtwitchapi']['redirect_uri'] if 'redirect_uri' in app.bot_config['webtwitchapi'] else url_for('authorized', _external=True)
+        state = request.args.get('n') or request.referrer or None
+        return twitch.authorize(
+                callback=callback_url,
+                state=state,
+                scope='user_read user:edit user:read:email channel:moderate chat:edit chat:read whispers:read whispers:edit',
+                force_verify='true',
                 )
 
     @app.route('/login/error')
@@ -84,6 +97,11 @@ def init(app):
                 'username_raw': me.data['display_name'],
                 'level': level,
                 }
+
+        if me.data['name'] == app.bot_config['main']['nickname']:
+            redis = RedisManager.get()
+            redis.set('{}:token'.format(app.bot_config['main']['nickname']), json.dumps(resp))
+
         next_url = get_next_url(request, 'state')
         return redirect(next_url)
 
