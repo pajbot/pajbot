@@ -212,8 +212,9 @@ sudo systemctl start pajbot-web@kkonatestbroadcaster
 #
 # Authenticate your bot
 #
- - Go to https://bot.kkonatestbroadcaster.tv/bot_login
- - Log in with your bot account (the same as set up in your config file)
+# - Go to https://bot.kkonatestbroadcaster.tv/bot_login
+# - Log in with your bot account (the same as set up in your config file)
+# Your bot should now come online in chat.
 
 #
 # Set up your channels
