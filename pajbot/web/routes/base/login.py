@@ -98,7 +98,7 @@ def init(app):
                 'level': level,
                 }
 
-        if me.data['name'] == app.bot_config['main']['nickname']:
+        if me.data['name'].lower() == app.bot_config['main']['nickname'].lower():
             redis = RedisManager.get()
             redis.set('{}:token'.format(app.bot_config['main']['nickname']), json.dumps(resp))
 
