@@ -189,7 +189,6 @@ def load_config(path):
     import configparser
     import os
     defaults = {
-            'add_self_as_whisper_account': '1',
             'trusted_mods': '0',
             'deck_tab_images': '1',
             }
