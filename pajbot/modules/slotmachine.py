@@ -230,6 +230,7 @@ class SlotMachineModule(BaseModule):
                         description='Do a slot machine pull for 69 points').parse(),
                     ],
                 )
+        self.commands['smp'] = self.commands['slotmachine']
 
     def pull(self, **options):
         log.debug('pull xd')
