@@ -23,6 +23,8 @@ class APICommands(Resource):
     def get(self):
         commands = pajbot.web.utils.get_cached_commands()
 
+        commands = list(filter(lambda c: c['id'] is not None, commands))
+
         return {
                 'commands': commands
                 }, 200
