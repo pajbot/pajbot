@@ -124,7 +124,7 @@ def init(args):
                 'domain': config['web']['domain'],
                 'deck_tab_images': config.getboolean('web', 'deck_tab_images'),
                 'websocket': {
-                    'host': config['websocket'].get('host', config['web']['domain']),
+                    'host': config['websocket'].get('host', 'wss://{}/clrsocket'.format(config['web']['domain'])),
                     }
                 },
             'streamer': {
