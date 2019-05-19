@@ -1,6 +1,7 @@
 import json
 import logging
 import threading
+from pathlib import Path
 
 log = logging.getLogger('pajbot')
 
@@ -43,6 +44,9 @@ class WebSocketServer:
 
         def reactor_run(reactor, factory, port, context_factory=None, unix_socket_path=None):
             if unix_socket_path:
+                sock_file = Path(unix_socket_path)
+                if sock_file.exists():
+                    sock_file.unlink()
                 reactor.listenUNIX(unix_socket_path, factory)
             else:
                 if context_factory:
