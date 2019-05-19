@@ -56,7 +56,16 @@ class AdminLogManager:
     def get_entries(offset=0, limit=50):
         redis = RedisManager.get()
 
-        return [json.loads(entry) for entry in redis.lrange(AdminLogManager.get_key(), offset, limit)]
+        entries = []
+
+        for entry in redis.lrange(AdminLogManager.get_key(), offset, limit):
+            try:
+                entries.append(json.loads(entry))
+            except:
+                log.exception('babyrage')
+                pass
+
+        return entries
 
     def post(type, source, *args, data={}):
         if type not in AdminLogManager.TEMPLATES:
