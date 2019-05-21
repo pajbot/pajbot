@@ -198,8 +198,8 @@ rm -r ~/pajbot
 # Set up pajbot and pajbot-web services
 #
 sudo apt install uwsgi uwsgi-plugin-python3
-sudo mkdir /srv/pajbot /srv/pajbot-web
-sudo chown pajbot:pajbot /srv/pajbot /srv/pajbot-web
+sudo mkdir /srv/pajbot
+sudo chown pajbot:pajbot /srv/pajbot
 sudo chown -R pajbot:pajbot /opt/pajbot
 sudo nano /etc/systemd/system/pajbot@.service # copy provided file into there
 sudo nano /etc/systemd/system/pajbot-web@.service # copy provided file into there
