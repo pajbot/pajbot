@@ -108,7 +108,7 @@ sudo adduser --system --group pajbot
 #
 # install redis and mysql for pajbot1
 #
-sudo apt install mysql-server redis-server
+sudo apt install mariadb-server redis-server
 sudo mysql
 # > CREATE DATABASE pajbot_kkonatestbroadcaster CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 # this line only needs to be done once (for the first pajbot install):
