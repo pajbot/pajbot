@@ -1,5 +1,9 @@
 upstream kkonatestbroadcaster-botsite {
-    server unix:///srv/pajbot-web/.kkonatestbroadcaster.sock;
+    server unix:///srv/pajbot/kkonatestbroadcaster-web.sock;
+}
+
+upstream kkonatestbroadcaster-websocket {
+    server unix:///srv/pajbot/kkonatestbroadcaster-websocket.sock;
 }
 
 server {
@@ -25,9 +29,9 @@ server {
         expires epoch;
         add_header Cache-Control "public";
     }
-    
+
     location /clrsocket {
-        proxy_pass http://127.0.0.1:2320;
+        proxy_pass kkonatestbroadcaster-websocket;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
