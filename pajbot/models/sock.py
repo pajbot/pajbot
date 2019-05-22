@@ -75,7 +75,7 @@ class SocketManager:
                     try:
                         json_data = json.loads(data.decode('utf-8'))
                     except ValueError:
-                        log.warn('Invalid JSON Data passwed through SocketManager: {}'.format(data))
+                        log.warn('Invalid JSON Data passed through SocketManager: {}'.format(data))
                         continue
 
                     if 'event' not in json_data:
