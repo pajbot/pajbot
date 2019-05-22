@@ -153,8 +153,6 @@ class SubAlertModule(BaseModule):
 
     def __init__(self):
         super().__init__()
-        self.new_sub_regex = re.compile(r'^(\w+) just subscribed')
-        self.valid_usernames = ('twitchnotify', 'pajlada')
 
     def on_sub_shared(self, user):
         if self.settings['grant_points_on_sub'] <= 0:
@@ -216,16 +214,6 @@ class SubAlertModule(BaseModule):
 
         if self.settings['whisper_message'] is True:
             self.bot.execute_delayed(self.settings['whisper_after'], self.bot.whisper, (user.username, self.get_phrase('resub_whisper', **payload)), )
-
-    def on_message(self, source, message, emotes, whisper, urls, event):
-        if whisper is False and source.username in self.valid_usernames:
-            # Did twitchnotify tell us about a new sub?
-            m = self.new_sub_regex.search(message)
-            if m and 'subscribed to ' not in message:
-                username = m.group(1)
-                with UserManager.get().get_user_context(username) as user:
-                    self.on_new_sub(user)
-                    HandlerManager.trigger('on_user_sub', user)
 
     def on_usernotice(self, source, message, tags):
         if 'msg-id' not in tags:
@@ -292,10 +280,8 @@ class SubAlertModule(BaseModule):
             log.debug('Unhandled msg-id: {} - tags: {}'.format(tags['msg-id'], tags))
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_message', self.on_message)
         HandlerManager.add_handler('on_usernotice', self.on_usernotice)
         self.bot = bot
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_message', self.on_message)
         HandlerManager.remove_handler('on_usernotice', self.on_usernotice)
