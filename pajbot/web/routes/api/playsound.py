@@ -44,15 +44,17 @@ class PlaysoundApi(Resource):
         args = post_parser.parse_args()
 
         link = args['link']
-        if link is None or not PlaysoundModule.validate_link(link):
-            return "Empty or bad link, links must start with https://", 400
+        if not PlaysoundModule.validate_link(link):
+            return "Empty or bad link, links must start with https:// and must not contain spaces", 400
 
         volume = args['volume']
-        if volume is None or volume < 0 or volume > 100:
+        if not PlaysoundModule.validate_volume(volume):
             return "Bad volume argument", 400
 
         # cooldown is allowed to be null/None
         cooldown = args.get('cooldown', None)
+        if not PlaysoundModule.validate_cooldown(cooldown):
+            return "Bad cooldown argument", 400
 
         enabled = args['enabled']
         if enabled is None:
@@ -98,6 +100,8 @@ class PlayPlaysoundApi(Resource):
             # explicitly don't check for disabled
 
         SocketClientManager.send('playsound.play', {'name': playsound_name})
+
+        return "OK", 200
 
 
 def init(api):
