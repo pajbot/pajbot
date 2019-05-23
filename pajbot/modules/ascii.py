@@ -53,6 +53,7 @@ class AsciiProtectionModule(BaseModule):
         super().__init__()
         self.bot = None
 
+    @staticmethod
     def check_message(message):
         non_alnum = sum(not c.isalnum() for c in message)
         ratio = non_alnum / len(message)

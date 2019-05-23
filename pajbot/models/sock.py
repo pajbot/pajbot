@@ -111,9 +111,11 @@ class SocketManager:
 class SocketClientManager:
     sock_file = None
 
+    @staticmethod
     def init(sock_file):
         SocketClientManager.sock_file = sock_file
 
+    @staticmethod
     def send(event, data):
         if SocketClientManager.sock_file is None:
             return False
