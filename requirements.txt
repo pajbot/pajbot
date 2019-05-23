@@ -14,6 +14,7 @@ Click==7.0
 colorama==0.4.1
 constantly==15.1.0
 cryptography==2.6.1
+cssmin==0.2.0
 decorator==4.4.0
 entrypoints==0.3
 flake8==3.7.7
@@ -58,6 +59,7 @@ numpy==1.16.3
 oauthlib==2.1.0
 pbr==5.2.0
 Pillow==6.0.0
+pkg-resources==0.0.0
 pyasn1==0.4.5
 pyasn1-modules==0.2.5
 pycodestyle==2.5.0
