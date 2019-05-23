@@ -112,11 +112,9 @@ class PlaysoundModule(BaseModule):
                 log.warning("Web UI tried to play invalid playsound. Ignoring.")
                 return
 
-            playsound.volume = int(round(playsound.volume * self.settings['global_volume'] / 100))
-
             payload = {
                 "link": playsound.link,
-                "volume": playsound.volume
+                'volume': int(round(playsound.volume * self.settings['global_volume'] / 100))
             }
 
             log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
@@ -140,29 +138,27 @@ class PlaysoundModule(BaseModule):
 
         with DBManager.create_session_scope() as session:
             # load playsound from the database
-            playsound: Optional[Playsound] = session.query(Playsound).filter(
-                Playsound.name == playsound_name).one_or_none()
+            playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
 
             if playsound is None:
-                # TODO link
                 bot.whisper(source.username,
-                            'The playsound you gave does not exist. Check out all the valid playsounds here: TODO link')
+                            'The playsound you gave does not exist. Check out all the valid playsounds here: '
+                            'https://{}/playsounds'.format(self.bot.config['web']['domain']))
                 return False
 
             if not playsound.enabled:
-                # TODO link
                 bot.whisper(source.username,
-                            'The playsound you gave is disabled. Check out all the valid playsounds here: TODO link')
+                            'The playsound you gave is disabled. Check out all the valid playsounds here: '
+                            'https://{}/playsounds'.format(self.bot.config['web']['domain']))
                 return False
 
-            if playsound.cooldown is None:
-                playsound.cooldown = self.settings['default_sample_cd']
-
-            playsound.volume = int(round(playsound.volume * self.settings['global_volume'] / 100))
+            cooldown = playsound.cooldown
+            if cooldown is None:
+                cooldown = self.settings['default_sample_cd']
 
             payload = {
                 "link": playsound.link,
-                "volume": playsound.volume
+                'volume': int(round(playsound.volume * self.settings['global_volume'] / 100))
             }
 
             log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
