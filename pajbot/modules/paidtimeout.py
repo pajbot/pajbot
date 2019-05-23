@@ -248,7 +248,6 @@ class PaidTimeoutDiscountModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_paid_timeout', self.on_paid_timeout)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_paid_timeout', self.on_paid_timeout)

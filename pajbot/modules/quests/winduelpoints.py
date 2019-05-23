@@ -45,8 +45,8 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     LIMIT = 1
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         # XXX: This key should probably be generic and always set in the BaseQuest
         self.points_required_key = '{streamer}:current_quest_points_required'.format(streamer=StreamHelper.get_streamer())
         # The points_required variable is randomized at the start of the quest.
@@ -115,6 +115,3 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def get_objective(self):
         return 'Make a profit of {} or more points in one or multiple duels.'.format(self.points_required)
-
-    def enable(self, bot):
-        self.bot = bot

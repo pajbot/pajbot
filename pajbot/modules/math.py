@@ -76,8 +76,8 @@ class MathModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.action_queue = ActionQueue()
         self.action_queue.start()
 

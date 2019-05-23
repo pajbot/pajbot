@@ -72,8 +72,8 @@ class QuestModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.current_quest = None
 
     def my_progress(self, **options):
@@ -210,8 +210,6 @@ class QuestModule(BaseModule):
         HandlerManager.add_handler('on_stream_start', self.on_stream_start)
         HandlerManager.add_handler('on_stream_stop', self.on_stream_stop)
         HandlerManager.add_handler('on_managers_loaded', self.on_managers_loaded)
-
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_stream_start', self.on_stream_start)

@@ -23,10 +23,6 @@ class LineFarmingModule(BaseModule):
                 default=False)
                 ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
     def on_pubmsg(self, source, message):
         if self.bot.is_online:
             source.incr_num_lines()
@@ -35,7 +31,6 @@ class LineFarmingModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)

@@ -151,8 +151,8 @@ class SubAlertModule(BaseModule):
                     }),
                 ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.new_sub_regex = re.compile(r'^(\w+) just subscribed')
         self.valid_usernames = ('twitchnotify', 'pajlada')
 
@@ -294,7 +294,6 @@ class SubAlertModule(BaseModule):
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
         HandlerManager.add_handler('on_usernotice', self.on_usernotice)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)

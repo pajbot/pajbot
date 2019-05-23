@@ -21,8 +21,8 @@ class ChattersModule(BaseModule):
     HIDDEN = True
     SETTINGS = []
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.update_chatters_interval = 5
         self.initialized = False
 
@@ -159,8 +159,6 @@ class ChattersModule(BaseModule):
         Update chatters every `update_chatters_interval' minutes.
         By default, this is set to run every 5 minutes.
         """
-        self.bot = bot
-
         if bot:
             if not self.initialized:
                 self.bot.execute_every(self.update_chatters_interval * 60,

@@ -32,8 +32,8 @@ class TypeEmoteQuestModule(BaseQuest):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.current_emote_key = '{streamer}:current_quest_emote'.format(streamer=StreamHelper.get_streamer())
         self.current_emote = '???'
         self.progress = {}
@@ -90,6 +90,3 @@ class TypeEmoteQuestModule(BaseQuest):
 
     def get_objective(self):
         return 'Use the {} emote {} times'.format(self.current_emote, self.get_limit())
-
-    def enable(self, bot):
-        self.bot = bot

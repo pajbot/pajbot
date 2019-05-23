@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 username_in_message_pattern = re.compile("[A-Za-z0-9_]{4,}")
 
+
 class MassPingProtectionModule(BaseModule):
 
     ID = __name__.split('.')[-1]
@@ -70,14 +71,15 @@ class MassPingProtectionModule(BaseModule):
                     })
             ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
+    def __init__(self, bot):
+        super().__init__(bot)
 
+    @staticmethod
     def is_known_user(username):
         streamer = StreamHelper.get_streamer()
         return RedisManager.get().hexists('{streamer}:users:last_seen'.format(streamer=streamer), username)
 
+    @staticmethod
     def count_pings(message):
         potential_usernames = username_in_message_pattern.finditer(message)
         # get the matched string part...
@@ -112,7 +114,6 @@ class MassPingProtectionModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)

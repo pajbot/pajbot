@@ -45,9 +45,6 @@ class HighlightModule(BaseModule):
 
         return False  # message was ok
 
-    def enable(self, bot):
-        self.bot = bot
-
     def add_highlight(self, **options):
         """Method for creating highlights
         Usage: !add highlight [options] DESCRIPTION

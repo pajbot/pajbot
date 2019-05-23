@@ -12,8 +12,8 @@ log = logging.getLogger(__name__)
 class BaseQuest(BaseModule):
     OBJECTIVE = 'No objective set.'
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.progress = {}
         self.progress_key = '{streamer}:current_quest_progress'.format(streamer=StreamHelper.get_streamer())
         self.quest_finished_key = '{streamer}:quests:finished'.format(streamer=StreamHelper.get_streamer())

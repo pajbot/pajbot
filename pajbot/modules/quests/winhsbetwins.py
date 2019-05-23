@@ -67,6 +67,3 @@ class WinHsBetWinsQuestModule(BaseQuest):
 
     def get_objective(self):
         return 'Bet the right outcome on {} Hearthstone games.'.format(self.get_limit())
-
-    def enable(self, bot):
-        self.bot = bot

@@ -211,8 +211,8 @@ class SlotMachineModule(BaseModule):
                     }),
                 ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.output_buffer = ''
         self.output_buffer_args = []
         self.last_add = None
@@ -354,8 +354,6 @@ class SlotMachineModule(BaseModule):
         self.last_add = datetime.datetime.now()
 
     def enable(self, bot):
-        self.bot = bot
-
         HandlerManager.add_handler('on_tick', self.on_tick)
 
     def disable(self, bot):

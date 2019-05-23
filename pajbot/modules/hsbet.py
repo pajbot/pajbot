@@ -66,8 +66,8 @@ class HSBetModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.bets = {}
 
         redis = RedisManager.get()
@@ -429,7 +429,6 @@ class HSBetModule(BaseModule):
         if bot:
             self.job.resume()
             self.reminder_job.resume()
-        self.bot = bot
 
     def disable(self, bot):
         if bot:

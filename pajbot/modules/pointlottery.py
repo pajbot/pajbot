@@ -15,8 +15,8 @@ class PointLotteryModule(BaseModule):
     CATEGORY = 'Game'
     SETTINGS = []
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
 
         self.lottery_running = False
         self.lottery_users = []

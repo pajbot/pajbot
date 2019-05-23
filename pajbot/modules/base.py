@@ -103,8 +103,10 @@ class BaseModule:
     HIDDEN = False
     MODULE_TYPE = ModuleType.TYPE_NORMAL
 
-    def __init__(self):
+    def __init__(self, bot):
         """ Initialize any dictionaries the module might or might not use. """
+        self.bot = bot
+
         self.commands = {}
         self.default_settings = {}
         self.settings = {}

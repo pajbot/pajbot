@@ -55,10 +55,6 @@ class CaseCheckerModule(BaseModule):
                 default=True),
                 ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
     def on_message(self, source, message, emotes, whisper, urls, event):
         if source.level >= self.settings['bypass_level'] or source.moderator is True:
             return True
@@ -78,7 +74,6 @@ class CaseCheckerModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)
