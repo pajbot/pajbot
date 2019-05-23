@@ -35,7 +35,8 @@ def main():
         link = se_playsound["alert"]["audio"]["src"]
         volume = int(se_playsound["alert"]["audio"]["volume"] * 100)
         cooldown = se_playsound["cooldown"]["user"]
-        enabled = se_playsound["bot"]["enabled"]
+        enabled = se_playsound["enabled"]
+
 
         print("!add playsound {name} {link} --volume {volume} --cooldown {cooldown}{disabled}".format(
             name=name,
