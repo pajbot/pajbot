@@ -1,0 +1,72 @@
+.grow, .grow * {
+    width: 100%;
+}
+
+.volume-label {
+    min-width: 50px;
+    text-align: right;
+    padding-left: 5px;
+}
+
+.volume-label:after {
+    content: " %";
+}
+
+.min-height-container {
+    display: flex;
+    align-items: center;
+
+    /** same height as the semantic compact input fields */
+    /** 0.375em margin * 2 + 1.2142em line-height + 2 * 1px border */
+    min-height: calc((.375em * 2) + 1.2142em + 2px) !important;
+}
+
+.volume-slider {
+    flex: 1;
+    min-width: 150px;
+}
+
+.cooldown-input {
+    width: 100px;
+}
+
+.audio-section {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: flex-start;
+    margin-bottom: -.5em;
+}
+
+.audio-section > * {
+    margin-bottom: .5em;
+}
+
+.play-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: baseline;
+    align-content: flex-start;
+}
+
+.actions-buttons-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: stretch;
+    margin-bottom: -.5em !important;
+}
+
+.actions-buttons-container > * {
+    margin-bottom: .5em !important;
+}
+
+.middle-input {
+    border-radius: 0 !important;
+}

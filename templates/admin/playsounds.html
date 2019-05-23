@@ -1,0 +1,221 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_playsounds' %}
+{% block title %}Playsounds{% endblock %}
+{% block body %}
+    <h2>Playsounds</h2>
+
+    <div class="ui icon message">
+        <i class="info circle icon"></i>
+        <div class="content">
+            <div class="header">
+                Playsounds usage help
+            </div>
+            <p>The playsound feature allows viewers to play predefined soundbites on stream.</p>
+
+            <div class="ui raised segment">
+                <p>
+                    Playing a sound
+                    {% if module_settings.point_cost <= 0 and module_settings.token_cost <= 0 %}
+                        is <b>free</b>.
+                    {% elif module_settings.point_cost > 0 and module_settings.token_cost > 0 %}
+                        costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }} and
+                        {{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
+                    {% elif module_settings.point_cost > 0 %}
+                        costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }}</b>.
+                    {% else %}
+                        costs <b>{{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
+                    {% endif %}
+                    {% if module_settings.sub_only %}
+                        <b>Only twitch channel subscribers can play sounds at this time.</b>
+                    {% endif %}
+
+                    <br>
+                    There is a global cooldown of <b>{{ module_settings.global_cd }}
+                    second{{ "s" if module_settings.global_cd != 1 }}</b>.
+                    <br>
+                    If you don't specify an override cooldown in the table below (by leaving the input field empty),
+                    the default cooldown for each sample will be <b>{{ module_settings.default_sample_cd }}
+                    second{{ "s" if module_settings.default_sample_cd != 1 }}</b>.
+                </p>
+
+                <p>
+                    Global Playsounds volume is currently set to <b>{{ module_settings.global_volume }}%</b>.
+                    The global volume is multiplied with the volume you configure for each sample.
+                </p>
+
+                <p>
+                    {% if module_settings.sub_only %}
+                        <b>Only subscribers</b> are allowed to play sounds.
+                    {% else %}
+                        Both <b>subscribers and plebs</b> are allowed to play sounds.
+                    {% endif %}
+                </p>
+            </div>
+
+            <p>
+                You can reconfigure these settings on the
+                <a href="/admin/modules/edit/playsound">playsound module settings page</a>.
+            </p>
+
+            <p>
+                Alongside the controls via this web page, you can control playsounds via chat with the commands
+                <a href="/commands/add_playsound"><b>!add playsound</b></a>,
+                <a href="/commands/remove_playsound"><b>!remove playsound</b></a> and
+                <a href="/commands/edit_playsound"><b>!edit playsound</b></a>.
+                Follow the links to get usage help.
+            </p>
+        </div>
+    </div>
+
+    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} message">
+        <i class="{{ "check circle" if playsounds_enabled else "exclamation triangle" }} icon"></i>
+        <div class="content">
+            <div class="header">
+                Playsounds are currently
+                <b>{{ "enabled" if playsounds_enabled else "disabled" }}</b>.
+            </div>
+            <p>
+                {% if  playsounds_enabled %}
+                    You are good to go! Your viewers can play the sounds listed below.
+                {% else %}
+                    Your viewers can currently not play any sounds.
+                {% endif %}
+            </p>
+            <p>Use the slider below to enable or disable the module:
+            <div class="ui toggle checkbox">
+                <input id="toggle-module-checkbox" type="checkbox" autocomplete="off" {% if playsounds_enabled %}
+                       checked {% endif %}>
+                <label>Enable Playsound module</label>
+            </div>
+            </p>
+        </div>
+    </div>
+    <div id="message-box" class="ui message hidden">
+        <i class="close icon" id="message-box-hide-icon"></i>
+        <div class="header" id="message-text">
+        </div>
+    </div>
+    <div>
+        <div>
+            <form class="ui action input" id="new-playsound-form">
+                <input autocomplete="off" type="text" name="name" placeholder="New playsound name" style="width: 300px;"
+                       required>
+                <input autocomplete="off" type="url" name="link" class="link-input middle-input"
+                       placeholder="New playsound link"
+                       style="width: 300px;" required>
+                <button class="ui button positive" id="#create-playsound-button" type="submit">Create Playsound</button>
+            </form>
+        </div>
+    </div>
+    <table class="ui compact table">
+        <thead>
+        <tr>
+            <th class="collapsing">Name</th>
+            <th>Link</th>
+            <th class="collapsing">Volume</th>
+            <th class="collapsing">
+                Cooldown<br>
+                (seconds)
+            </th>
+            <th class="collapsing">Enabled</th>
+            <th class="collapsing" style="min-width: 120px">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for playsound in playsounds %}
+            <tr>
+                <td>{{ playsound.name }}</td>
+                <td>
+                    <form class="playsound-form" id="form-{{ playsound.name }}"></form>
+                    <input form="form-{{ playsound.name }}" type="hidden" name="name" value="{{ playsound.name }}">
+                    <div class="audio-section">
+                        <div class="grow ui input compact">
+                            <input autocomplete="off" form="form-{{ playsound.name }}" class="link-input" type="url"
+                                   required
+                                   placeholder="Audio file link" name="link" value="{{ playsound.link }}">
+                        </div>
+                        <div class="play-buttons">
+                            <div class="play-in-browser-wrapper"
+                                 data-name="{{ playsound.name }}"
+                                 data-link="{{ playsound.link }}"
+                                 data-volume="{{ playsound.volume }}">
+                                <button class="positive play-in-browser-play ui icon button compact">
+                                    <i class="play circle outline icon"></i>
+                                    Test in browser
+                                </button>
+                                <button class="play-in-browser-stop ui button compact icon disabled">
+                                    <i class="stop circle outline icon"></i>Stop Playback
+                                </button>
+                                <button class="play-on-stream ui button icon compact">
+                                    <i class="play circle outline icon"></i>Test on stream
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </td>
+                <td class="top aligned">
+                    <div class="min-height-container volume-container">
+                        <input form="form-{{ playsound.name }}" type="hidden" name="volume">
+                        <div class="ui range volume-slider" data-initial="{{ playsound.volume }}"></div>
+                        <div class="volume-label">{{ playsound.volume }}</div>
+                    </div>
+                </td>
+                <td class="top aligned">
+                    <div class="ui input compact cooldown-input">
+                        <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cooldown"
+                               value="{{ playsound.cooldown }}">
+                    </div>
+                </td>
+                <td class="top aligned">
+                    <div class="min-height-container">
+                        <div class="ui toggle fitted checkbox enabled-input">
+                            <input autocomplete="off" form="form-{{ playsound.name }}" type="checkbox"
+                                   name="enabled" {% if playsound.enabled %}checked{% endif %}>
+                            <label></label>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="actions-buttons-container">
+                        <button form="form-{{ playsound.name }}"
+                                class="playsound-submit-save ui compact positive button" type="submit">Save
+                        </button>
+                        <button form="form-{{ playsound.name }}"
+                                class="playsound-submit-delete ui compact negative button" type="button">Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="ui tiny test modal" id="delete-modal">
+        <div class="header">
+            Delete Playsound
+        </div>
+        <div class="content">
+            <p>Please confirm you want to delete that playsound. This action is irreversible.</p>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">
+                No, Don't delete
+            </div>
+            <div class="ui positive right labeled icon button">
+                Yes, delete
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block footer %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script>
+    {% assets 'base_js', 'range_slider_js', 'playsound_common_js', 'playsound_admin_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets 'range_slider_css', 'playsound_admin_css' %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+{% endblock %}

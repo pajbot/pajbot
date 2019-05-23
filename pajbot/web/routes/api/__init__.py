@@ -14,6 +14,7 @@ import pajbot.web.routes.api.timers
 import pajbot.web.routes.api.streamlabs
 import pajbot.web.routes.api.twitter
 import pajbot.web.routes.api.users
+import pajbot.web.routes.api.playsound
 
 
 def init(app):
@@ -62,3 +63,7 @@ def init(app):
 
     # /streamelements
     pajbot.web.routes.api.streamelements.init(api)
+
+    # /playsound/:name
+    # /playsound/:name/play
+    pajbot.web.routes.api.playsound.init(api)

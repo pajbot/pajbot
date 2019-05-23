@@ -15,6 +15,8 @@ def init(app):
     if app.bot_config['main']['nickname'] not in ['scamazbot', 'exdeebot']:
         nav_bar_header.append(MenuItem('/points', 'points', 'Points'))
     nav_bar_header.append(MenuItem('/stats', 'stats', 'Stats'))
+    if 'playsounds' in app.bot_modules:
+        nav_bar_header.append(MenuItem('/playsounds', 'user_playsounds', 'Playsounds'))
     nav_bar_header.append(MenuItem('/highlights', 'highlights', 'Highlights'))
     if 'pleblist' in app.bot_modules:
         nav_bar_header.append(MenuItem('/pleblist/history', 'pleblist', 'Pleblist'))
@@ -31,6 +33,8 @@ def init(app):
     nav_bar_admin_header.append(MenuItem('/admin/timers', 'admin_timers', 'Timers'))
     nav_bar_admin_header.append(MenuItem('/admin/moderators', 'admin_moderators', 'Moderators'))
     nav_bar_admin_header.append(MenuItem('/admin/modules', 'admin_modules', 'Modules'))
+    if 'playsounds' in app.bot_modules:
+        nav_bar_admin_header.append(MenuItem('/admin/playsounds', 'admin_playsounds', 'Playsounds'))
     if 'predict' in app.module_manager:
         nav_bar_admin_header.append(MenuItem('/admin/predictions', 'admin_predictions', 'Predictions'))
     nav_bar_admin_header.append(MenuItem('/admin/streamer', 'admin_streamer', 'Streamer Info'))

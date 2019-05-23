@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% set active_page = 'user_playsounds' %}
+{% block title %}Playsounds{% endblock %}
+{% block body %}
+    <h2>Playsounds</h2>
+    <div class="ui icon message">
+        <i class="info circle icon"></i>
+        <div class="content">
+            <div class="header">
+                Playsounds usage
+            </div>
+            <p>The playsound feature allows viewers to play predefined soundbites on stream.</p>
+
+            <p>
+                Playing a sound
+                {% if module_settings.point_cost <= 0 and module_settings.token_cost <= 0 %}
+                    is <b>free</b>.
+                {% elif module_settings.point_cost > 0 and module_settings.token_cost > 0 %}
+                    costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }} and
+                    {{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
+                {% elif module_settings.point_cost > 0 %}
+                    costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }}</b>.
+                {% else %}
+                    costs <b>{{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
+                {% endif %}
+                {% if module_settings.sub_only %}
+                    <b>Only twitch channel subscribers can play sounds at this time.</b>
+                {% endif %}
+
+                <br>
+                There is a global cooldown of <b>{{ module_settings.global_cd }}
+                second{{ "s" if module_settings.global_cd != 1 }}</b>.
+                Check the table below for the individual sample cooldown as it might be higher for individual samples.
+            </p>
+
+            <p>
+                You can play each soundbite by typing the listed command in chat
+                {% if module_settings.can_whisper %}
+                    or by whispering the command to <b>{{ bot.name }}</b>{% endif %}.
+            </p>
+        </div>
+    </div>
+
+    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} message">
+        <i class="{{ "check circle" if playsounds_enabled else "exclamation triangle" }} icon"></i>
+        <div class="content">
+            <div class="header">
+                Playsounds are currently
+                <b>{{ "enabled" if playsounds_enabled else "disabled" }}</b>.
+            </div>
+            <p>
+                {% if not playsounds_enabled %}
+                    You can currently not play any samples. Only the moderators or
+                    {{ streamer.name }} can enable playsounds.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <h3>List of available Playsounds</h3>
+    <table class="ui collapsing single line compact table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Command</th>
+            <th>Per-Sample Cooldown</th>
+            <th>Test</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for playsound in playsounds %}
+            <tr>
+                <td>{{ playsound.name }}</td>
+                <td>
+                    <div class="ui action input compact">
+                        <input type="text" readonly="readonly" class="copyInput compact"
+                               value="!#playsound {{ playsound.name }}">
+                        <button type="button" name="copyToken" title="Copy command to clipboard"
+                                class="copyButton ui right icon button compact">
+                            <i class="clipboard icon"></i>
+                        </button>
+                    </div>
+                </td>
+                <td>{{ module_settings.default_sample_cd if playsound.cooldown is none else playsound.cooldown }}
+                    seconds {{ "(global default)" if playsound.cooldown is none }}
+                </td>
+                <td>
+                    <div class="play-in-browser-wrapper"
+                         data-name="{{ playsound.name }}"
+                         data-link="{{ playsound.link }}"
+                         data-volume="{{ playsound.volume }}">
+                        <button class="positive play-in-browser-play ui labeled icon button compact">
+                            <i class="play circle outline icon"></i>
+                            Test in browser
+                        </button>
+                        <button class="play-in-browser-stop ui labeled button compact icon disabled">
+                            <i class="stop circle outline icon"></i>Stop Playback
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
+{% block footer %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script>
+    {% assets 'base_js', 'playsound_common_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    <script>
+        $(document).ready(function () {
+            $('.copyButton').click(function () {
+                let input = $(this).closest('div').find('.copyInput');
+
+                input.select();
+
+                document.execCommand("copy");
+            });
+        })
+    </script>
+{% endblock %}
