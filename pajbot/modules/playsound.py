@@ -145,12 +145,6 @@ class PlaysoundModule(BaseModule):
 
         playsound_name = message.split(' ')[0].lower()
 
-        if playsound_name in self.sample_cooldown:
-            bot.whisper(source.username,
-                        'The playsound {0} was played too recently. Please wait before trying to use it again'.format(
-                            playsound_name))
-            return False
-
         with DBManager.create_session_scope() as session:
             # load playsound from the database
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
@@ -161,12 +155,6 @@ class PlaysoundModule(BaseModule):
                             'https://{}/playsounds'.format(self.bot.config['web']['domain']))
                 return False
 
-            if not playsound.enabled:
-                bot.whisper(source.username,
-                            'The playsound you gave is disabled. Check out all the valid playsounds here: '
-                            'https://{}/playsounds'.format(self.bot.config['web']['domain']))
-                return False
-
             if self.global_cooldown:
                 if self.settings["global_cd_whisper"]:
                     bot.whisper(source.username,
@@ -174,11 +162,21 @@ class PlaysoundModule(BaseModule):
                                 'of {} seconds has run out.'.format(self.settings['global_cd']))
                 return False
 
-            self.global_cooldown = True
-
             cooldown = playsound.cooldown
             if cooldown is None:
                 cooldown = self.settings['default_sample_cd']
+
+            if playsound_name in self.sample_cooldown:
+                bot.whisper(source.username,
+                            'The playsound {0} was played too recently. '.format(playsound.name) +
+                            'Please wait before its cooldown of {} seconds has run out.'.format(cooldown))
+                return False
+
+            if not playsound.enabled:
+                bot.whisper(source.username,
+                            'The playsound you gave is disabled. Check out all the valid playsounds here: '
+                            'https://{}/playsounds'.format(self.bot.config['web']['domain']))
+                return False
 
             payload = {
                 "link": playsound.link,
@@ -191,6 +189,7 @@ class PlaysoundModule(BaseModule):
             if self.settings['confirmation_whisper']:
                 bot.whisper(source.username, 'Successfully played the sound {} on stream!'.format(playsound_name))
 
+            self.global_cooldown = True
             self.sample_cooldown.append(playsound.name)
             bot.execute_delayed(cooldown, self.sample_cooldown.remove, (playsound.name,))
             bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd, ())
