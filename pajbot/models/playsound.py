@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Integer, Boolean, CheckConstraint
+from sqlalchemy.dialects.mysql import TEXT
 
 from pajbot.managers.db import Base
 
@@ -8,7 +9,7 @@ class Playsound(Base):
 
     name = Column(String(256), primary_key=True, nullable=False)
     # todo aliases?
-    link = Column(String(256), nullable=False)
+    link = Column(TEXT, nullable=False)
     # from 0 to 100
     volume = Column(Integer, nullable=False, default=100)
     cooldown = Column(Integer, nullable=True)
