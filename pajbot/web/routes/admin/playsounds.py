@@ -14,7 +14,7 @@ def init(page):
     @requires_level(500)
     def playsounds(**options):
         with DBManager.create_session_scope() as session:
-            playsounds = session.query(Playsound).filter(Playsound.enabled).all()
+            playsounds = session.query(Playsound).all()
             playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one()
             settings = json.loads(playsound_module.settings)
 
