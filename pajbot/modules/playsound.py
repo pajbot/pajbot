@@ -87,6 +87,18 @@ class PlaysoundModule(BaseModule):
             type='boolean',
             required=True,
             default=True),
+        ModuleSetting(
+            key='confirmation_whisper',
+            label='Send user a whisper when sound was successfully played',
+            type='boolean',
+            required=True,
+            default=True),
+        ModuleSetting(
+            key='global_cd_whisper',
+            label='Send user a whisper playsounds are on global cooldown',
+            type='boolean',
+            required=True,
+            default=True),
     ]
 
     def __init__(self, bot):
@@ -97,6 +109,7 @@ class PlaysoundModule(BaseModule):
             bot.socket_manager.add_handler('playsound.play', self.on_web_playsound)
 
         self.sample_cooldown = []
+        self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
     def on_web_playsound(self, data, conn):
@@ -118,6 +131,9 @@ class PlaysoundModule(BaseModule):
 
             log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
             self.bot.websocket_manager.emit('play_sound', payload)
+
+    def reset_global_cd(self):
+        self.global_cooldown = False
 
     def play_sound(self, **options):
         bot = options['bot']
@@ -151,6 +167,15 @@ class PlaysoundModule(BaseModule):
                             'https://{}/playsounds'.format(self.bot.config['web']['domain']))
                 return False
 
+            if self.global_cooldown:
+                if self.settings["global_cd_whisper"]:
+                    bot.whisper(source.username,
+                                'Another user played a sample too recently. Please try again after the global cooldown '+
+                                'of {} seconds has run out.'.format(self.settings['global_cd']))
+                return False
+
+            self.global_cooldown = True
+
             cooldown = playsound.cooldown
             if cooldown is None:
                 cooldown = self.settings['default_sample_cd']
@@ -163,8 +188,12 @@ class PlaysoundModule(BaseModule):
             log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
             bot.websocket_manager.emit('play_sound', payload)
 
+            if self.settings['confirmation_whisper']:
+                bot.whisper(source.username, 'Successfully played the sound {} on stream!'.format(playsound_name))
+
             self.sample_cooldown.append(playsound.name)
-            bot.execute_delayed(playsound.cooldown, self.sample_cooldown.remove, (playsound.name,))
+            bot.execute_delayed(cooldown, self.sample_cooldown.remove, (playsound.name,))
+            bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd, ())
 
     def parse_playsound_arguments(self, message):
         """
@@ -380,7 +409,8 @@ class PlaysoundModule(BaseModule):
             tokens_cost=self.settings['token_cost'],
             cost=self.settings['point_cost'],
             sub_only=self.settings['sub_only'],
-            delay_all=self.settings['global_cd'],
+            delay_all=0,
+            delay_user=0,
             description='Play a sound on stream!',
             can_execute_with_whisper=self.settings['can_whisper'],
             examples=[
