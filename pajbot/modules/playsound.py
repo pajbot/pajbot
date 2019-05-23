@@ -169,7 +169,7 @@ class PlaysoundModule(BaseModule):
             if playsound_name in self.sample_cooldown:
                 bot.whisper(source.username,
                             'The playsound {0} was played too recently. '.format(playsound.name) +
-                            'Please wait before its cooldown of {} seconds has run out.'.format(cooldown))
+                            'Please wait until its cooldown of {} seconds has run out.'.format(cooldown))
                 return False
 
             if not playsound.enabled:
