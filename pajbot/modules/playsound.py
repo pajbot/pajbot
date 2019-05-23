@@ -136,8 +136,7 @@ class PlaysoundModule(BaseModule):
             bot.whisper(source.username,
                         'The playsound {0} was played too recently. Please wait before trying to use it again'.format(
                             playsound_name))
-            # return False
-            pass
+            return False
 
         with DBManager.create_session_scope() as session:
             # load playsound from the database
