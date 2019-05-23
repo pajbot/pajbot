@@ -28,3 +28,4 @@ myvenv/
 venv/
 
 .idea/
+configs/
