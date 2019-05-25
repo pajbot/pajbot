@@ -417,7 +417,7 @@ function connect_to_ws() {
         handleWebsocketData(json_data);
     };
     socket.onclose = function (e) {
-        console.log(`WebSocket closed ${e.wasClean ? 'un' : ''}cleanly with reason ${e.code}: ${e.reason}`);
+        console.log(`WebSocket closed ${e.wasClean ? '' : 'un'}cleanly with reason ${e.code}: ${e.reason}`);
         socket = null;
         setTimeout(connect_to_ws, 2500);
     }
