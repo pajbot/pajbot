@@ -48,10 +48,8 @@ class BingoModule(BaseModule):
                     })
             ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
+    def __init__(self, bot):
+        super().__init__(bot)
         self.bingo_running = False
         self.bingo_bttv_twitch_running = False
 
@@ -288,8 +286,6 @@ class BingoModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
-
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)

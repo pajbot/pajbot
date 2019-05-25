@@ -49,10 +49,7 @@ class AsciiProtectionModule(BaseModule):
                     })
                 ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
+    @staticmethod
     def check_message(message):
         non_alnum = sum(not c.isalnum() for c in message)
         ratio = non_alnum / len(message)
@@ -74,7 +71,6 @@ class AsciiProtectionModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)

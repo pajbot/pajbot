@@ -40,8 +40,8 @@ class EightBallModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.phrases = [
             'sure',
             'are you kidding?!',

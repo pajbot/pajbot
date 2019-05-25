@@ -45,8 +45,8 @@ class LinkTrackerModule(BaseModule):
     CATEGORY = 'Feature'
     SETTINGS = []
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.db_session = None
         self.links = {}
 

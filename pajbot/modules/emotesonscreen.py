@@ -32,7 +32,6 @@ class EmotesOnScreenModule(BaseModule):
             self.bot.websocket_manager.emit('new_emote', {'emote': emotes[0]})
 
     def enable(self, bot):
-        self.bot = bot
         HandlerManager.add_handler('on_message', self.on_message)
 
     def disable(self, bot):

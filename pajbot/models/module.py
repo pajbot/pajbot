@@ -114,7 +114,7 @@ class ModuleManager:
 
         from pajbot.modules import available_modules
 
-        self.all_modules = [module() for module in available_modules]
+        self.all_modules = [module(self.bot) for module in available_modules]
 
         with DBManager.create_session_scope() as db_session:
             # Make sure there's a row in the DB for each module that's available

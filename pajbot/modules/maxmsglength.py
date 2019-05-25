@@ -60,10 +60,6 @@ class MaxMsgLengthModule(BaseModule):
                     })
                 ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
     def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper:
             return
@@ -89,7 +85,6 @@ class MaxMsgLengthModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message, priority=100)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)

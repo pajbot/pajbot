@@ -176,8 +176,8 @@ class RaffleModule(BaseModule):
                 default=True),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
 
         self.raffle_running = False
         self.raffle_users = []
@@ -484,8 +484,6 @@ class RaffleModule(BaseModule):
         self.multi_start_raffle(points, length)
 
     def enable(self, bot):
-        self.bot = bot
-
         HandlerManager.add_handler('on_user_sub', self.on_user_sub)
         HandlerManager.add_handler('on_user_resub', self.on_user_resub)
 

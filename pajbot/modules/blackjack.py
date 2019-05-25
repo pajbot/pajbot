@@ -77,8 +77,8 @@ class BlackjackModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.games = {}
 
     def command_bet(self, **options):
@@ -208,7 +208,6 @@ class BlackjackModule(BaseModule):
         if bot:
             self.job.resume()
             self.reminder_job.resume()
-        self.bot = bot
 
     def disable(self, bot):
         if bot:

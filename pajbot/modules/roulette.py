@@ -136,8 +136,8 @@ class RouletteModule(BaseModule):
                     }),
                 ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.last_sub = None
         self.output_buffer = ''
         self.output_buffer_args = []
@@ -280,8 +280,6 @@ class RouletteModule(BaseModule):
             self.bot.say('Rouletting is now allowed for {} seconds! PogChamp'.format(self.settings['after_sub_roulette_time']))
 
     def enable(self, bot):
-        self.bot = bot
-
         HandlerManager.add_handler('on_user_sub', self.on_user_sub)
         HandlerManager.add_handler('on_user_resub', self.on_user_resub)
         HandlerManager.add_handler('on_tick', self.on_tick)

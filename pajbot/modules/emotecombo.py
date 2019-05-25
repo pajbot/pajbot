@@ -15,10 +15,8 @@ class EmoteComboModule(BaseModule):
     SETTINGS = [
                 ]
 
-    def __init__(self):
-        super().__init__()
-        self.bot = None
-
+    def __init__(self, bot):
+        super().__init__(bot)
         self.emote_count = 0
         self.current_emote = None
 
@@ -73,7 +71,6 @@ class EmoteComboModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_message', self.on_message)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_message', self.on_message)

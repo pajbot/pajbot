@@ -60,9 +60,6 @@ class VanishModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
-
     def vanish_command(self, **options):
         source = options['source']
         bot = options['bot']

@@ -66,6 +66,3 @@ class WinDuelsQuestModule(BaseQuest):
 
     def get_objective(self):
         return 'Win {} duels and make profit in every duel.'.format(self.get_limit())
-
-    def enable(self, bot):
-        self.bot = bot

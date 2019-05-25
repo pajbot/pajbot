@@ -63,8 +63,8 @@ from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subalert import SubAlertModule
-from pajbot.modules.tokencommands.playsound import PlaySoundTokenCommandModule
-from pajbot.modules.tokencommands.showemote import ShowEmoteTokenCommandModule
+from pajbot.modules.playsound import PlaysoundModule
+from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
@@ -111,7 +111,7 @@ available_modules = [
         PaidUntimeoutModule,
         PermabanModule,
         PersonalUptimeModule,
-        PlaySoundTokenCommandModule,
+        PlaysoundModule,
         PleblistModule,
         PointLotteryModule,
         PointsResetModule,
@@ -122,7 +122,7 @@ available_modules = [
         RepspamModule,
         RouletteModule,
         SlotMachineModule,
-        ShowEmoteTokenCommandModule,
+        ShowEmoteModule,
         SubAlertModule,
         TopModule,
         TriviaModule,

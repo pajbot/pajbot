@@ -127,8 +127,8 @@ class DuelModule(BaseModule):
                 delay_user=120,
                 description='Get your duel statistics')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.duel_requests = {}
         self.duel_request_price = {}
         self.duel_targets = {}

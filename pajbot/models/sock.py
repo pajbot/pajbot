@@ -75,7 +75,7 @@ class SocketManager:
                     try:
                         json_data = json.loads(data.decode('utf-8'))
                     except ValueError:
-                        log.warn('Invalid JSON Data passwed through SocketManager: {}'.format(data))
+                        log.warn('Invalid JSON Data passed through SocketManager: {}'.format(data))
                         continue
 
                     if 'event' not in json_data:
@@ -111,9 +111,11 @@ class SocketManager:
 class SocketClientManager:
     sock_file = None
 
+    @staticmethod
     def init(sock_file):
         SocketClientManager.sock_file = sock_file
 
+    @staticmethod
     def send(event, data):
         if SocketClientManager.sock_file is None:
             return False

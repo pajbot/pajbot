@@ -70,10 +70,12 @@ class HandlerManager:
         # on_tick()
         HandlerManager.create_handler('on_tick')
 
+    @staticmethod
     def create_handler(event):
         """ Create an empty list for the given event """
         HandlerManager.handlers[event] = []
 
+    @staticmethod
     def add_handler(event, method, priority=0):
         try:
             HandlerManager.handlers[event].append((method, priority))
@@ -82,9 +84,11 @@ class HandlerManager:
             # No handlers for this event found
             log.error('add_handler No handler for {} found.'.format(event))
 
+    @staticmethod
     def method_matches(h, method):
         return h[0] == method
 
+    @staticmethod
     def remove_handler(event, method):
         handler = None
         try:
@@ -95,6 +99,7 @@ class HandlerManager:
             # No handlers for this event found
             log.error('remove_handler No handler for {} found.'.format(event))
 
+    @staticmethod
     def trigger(event, *arguments, stop_on_false=True):
         if event not in HandlerManager.handlers:
             log.error('No handler set for event {}'.format(event))

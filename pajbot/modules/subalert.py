@@ -151,8 +151,8 @@ class SubAlertModule(BaseModule):
                     }),
                 ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
 
     def on_sub_shared(self, user):
         if self.settings['grant_points_on_sub'] <= 0:
@@ -281,7 +281,6 @@ class SubAlertModule(BaseModule):
 
     def enable(self, bot):
         HandlerManager.add_handler('on_usernotice', self.on_usernotice)
-        self.bot = bot
 
     def disable(self, bot):
         HandlerManager.remove_handler('on_usernotice', self.on_usernotice)

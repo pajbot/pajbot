@@ -9,6 +9,7 @@ import pajbot.web.routes.base.pleblist
 import pajbot.web.routes.base.points
 import pajbot.web.routes.base.stats
 import pajbot.web.routes.base.user
+import pajbot.web.routes.base.playsounds
 
 def init(app):
     pajbot.web.routes.base.commands.init(app)
@@ -22,3 +23,4 @@ def init(app):
     pajbot.web.routes.base.points.init(app)
     pajbot.web.routes.base.stats.init(app)
     pajbot.web.routes.base.user.init(app)
+    pajbot.web.routes.base.playsounds.init(app)

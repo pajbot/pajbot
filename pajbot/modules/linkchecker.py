@@ -18,6 +18,7 @@ from pajbot.apiwrappers import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -175,8 +176,8 @@ class LinkCheckerModule(BaseModule):
                     }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
         self.db_session = None
         self.links = {}
 
@@ -189,9 +190,8 @@ class LinkCheckerModule(BaseModule):
         self.action_queue.start()
 
     def enable(self, bot):
-        self.bot = bot
-        pajbot.managers.handler.HandlerManager.add_handler('on_message', self.on_message, priority=100)
-        pajbot.managers.handler.HandlerManager.add_handler('on_commit', self.on_commit)
+        HandlerManager.add_handler('on_message', self.on_message, priority=100)
+        HandlerManager.add_handler('on_commit', self.on_commit)
         if bot:
             self.run_later = bot.execute_delayed
 

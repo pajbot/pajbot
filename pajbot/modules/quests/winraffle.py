@@ -56,6 +56,3 @@ class WinRaffleQuestModule(BaseQuest):
         HandlerManager.remove_handler('on_multiraffle_win', self.on_multiraffle_win)
 
         self.reset_progress()
-
-    def enable(self, bot):
-        self.bot = bot

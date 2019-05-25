@@ -66,8 +66,8 @@ class TriviaModule(BaseModule):
                 }),
             ]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, bot):
+        super().__init__(bot)
 
         self.job = ScheduleManager.execute_every(1, self.poll_trivia)
         self.job.pause()
@@ -232,6 +232,3 @@ class TriviaModule(BaseModule):
                         ),
                     }
                 )
-
-    def enable(self, bot):
-        self.bot = bot
