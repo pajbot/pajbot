@@ -413,12 +413,9 @@ class PlaysoundModule(BaseModule):
             description='Play a sound on stream!',
             can_execute_with_whisper=self.settings['can_whisper'],
             examples=[
-                CommandExample(None, 'Play the "cumming" sample',
-                               chat='user:!#playsound cumming\n'
-                                    'bot>user:Successfully played your sample cumming').parse(),
-                CommandExample(None, 'Play the "fuckyou" sample',
-                               chat='user:!#playsound fuckyou\n'
-                                    'bot>user:Successfully played your sample fuckyou').parse(),
+                CommandExample(None, 'Play the "doot" sample',
+                               chat='user:!#playsound doot\n'
+                                    'bot>user:Successfully played the sound doot on stream!').parse(),
             ],
         )
 
