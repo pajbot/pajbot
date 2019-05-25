@@ -6,7 +6,7 @@ from pajbot.managers.db import Base
 class Playsound(Base):
     __tablename__ = 'tb_playsound'
 
-    name = Column(String(256), primary_key=True, nullable=False)
+    name = Column(String(190), primary_key=True, nullable=False)
     # todo aliases?
     link = Column(TEXT, nullable=False)
     # from 0 to 100
