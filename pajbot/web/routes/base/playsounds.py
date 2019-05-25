@@ -14,7 +14,7 @@ def init(app):
             playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one_or_none()
 
             enabled = False
-            if playsound_module is None:
+            if playsound_module is not None:
                 enabled = playsound_module.enabled
 
             return render_template('playsounds.html', playsounds=playsounds, module_settings=PlaysoundModule.module_settings(),
