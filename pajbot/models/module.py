@@ -81,17 +81,7 @@ class ModuleManager:
         if module is None:
             return False
 
-        with DBManager.create_session_scope() as db_session:
-            db_module = db_session.query(Module).filter_by(id=module.ID).one_or_none()
-            options = {}
-            if db_module is not None:
-                if db_module.settings is not None:
-                    try:
-                        options['settings'] = json.loads(db_module.settings)
-                    except ValueError:
-                        log.warn('Invalid JSON in the settings for module {}'.format(module.ID))
-
-            module.load(**options)
+        module.load()
 
     def disable_module(self, module_id, reload_commands=False):
         module = self.get_module(module_id)

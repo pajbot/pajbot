@@ -1,5 +1,8 @@
+import json
 import logging
 
+from pajbot.managers.db import DBManager
+from pajbot.models.module import Module
 from pajbot.utils import find
 
 log = logging.getLogger(__name__)
@@ -121,20 +124,37 @@ class BaseModule:
         """ This method will load everything from the module into
         their proper dictionaries, which we can then use later. """
 
-        self.load_settings(options.get('settings', {}))
+        self.settings = self.module_settings()
 
         self.commands = {}
         self.load_commands(**options)
 
         return self
 
-    def load_settings(self, settings):
-        self.settings = settings if settings else {}
+    @classmethod
+    def db_settings(cls):
+        settings = {}
+        with DBManager.create_session_scope() as session:
+            module = session.query(Module).filter(Module.id == cls.ID).one()
+            if module.settings is not None:
+                try:
+                    settings = json.loads(module.settings)
+                except ValueError:
+                    pass
+            pass
+
+        return settings
+
+    @classmethod
+    def module_settings(cls):
+        settings = cls.db_settings()
 
         # Load any unset settings
-        for setting in self.SETTINGS:
-            if setting.key not in self.settings:
-                self.settings[setting.key] = setting.default
+        for setting in cls.SETTINGS:
+            if setting.key not in settings:
+                settings[setting.key] = setting.default
+
+        return settings
 
     def load_commands(self, **options):
         pass
