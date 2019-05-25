@@ -1,5 +1,3 @@
-import json
-
 from flask import render_template
 
 from pajbot.managers.db import DBManager
@@ -13,8 +11,11 @@ def init(app):
     def user_playsounds():
         with DBManager.create_session_scope() as session:
             playsounds = session.query(Playsound).filter(Playsound.enabled).all()
-            playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one()
-            settings = json.loads(playsound_module.settings)
+            playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one_or_none()
 
-            return render_template('playsounds.html', playsounds=playsounds, module_settings=settings,
-                                   playsounds_enabled=playsound_module.enabled)
+            enabled = False
+            if playsound_module is None:
+                enabled = playsound_module.enabled
+
+            return render_template('playsounds.html', playsounds=playsounds, module_settings=PlaysoundModule.module_settings(),
+                                   playsounds_enabled=enabled)
