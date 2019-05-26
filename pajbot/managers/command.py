@@ -379,12 +379,12 @@ class CommandManager(UserDict):
             self.db_session.add(command.data)
 
     def parse_for_web(self):
-        list = []
+        command_list = []
 
         for alias, command in self.data.items():
-            parse_command_for_web(alias, command, list)
+            parse_command_for_web(alias, command, command_list)
 
-        return list
+        return command_list
 
     def parse_command_arguments(self, message):
         parser = argparse.ArgumentParser()
