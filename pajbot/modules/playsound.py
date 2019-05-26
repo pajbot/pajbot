@@ -48,7 +48,7 @@ class PlaysoundModule(BaseModule):
             type='number',
             required=True,
             placeholder='',
-            default=2,
+            default=10,
             constraints={
                 'min_value': 0,
                 'max_value': 600,
@@ -70,7 +70,7 @@ class PlaysoundModule(BaseModule):
             type='number',
             required=True,
             placeholder='',
-            default=100,
+            default=40,
             constraints={
                 'min_value': 0,
                 'max_value': 100,
