@@ -1,10 +1,6 @@
 import json
 import logging
 
-from pajbot.managers.db import DBManager
-from pajbot.models.module import Module
-from pajbot.modules import PlaysoundModule
-
 log = logging.getLogger(__name__)
 
 
@@ -26,14 +22,6 @@ def init(app):
             return
         if module_update['id'] == 'playsound':
             playsound_menu_item.active = module_update['new_state']
-            admin_playsound_menu_item.active = module_update['new_state']
-
-    with DBManager.create_session_scope() as session:
-        playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one_or_none()
-
-        if playsound_module is not None:
-            playsound_menu_item.active = playsound_module.enabled
-            admin_playsound_menu_item.active = playsound_module.enabled
 
     app.socket_manager.add_handler('module.update', my_handler)
 
