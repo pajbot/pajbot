@@ -25,9 +25,6 @@
                     {% else %}
                         costs <b>{{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
                     {% endif %}
-                    {% if module_settings.sub_only %}
-                        <b>Only twitch channel subscribers can play sounds at this time.</b>
-                    {% endif %}
 
                     <br>
                     There is a global cooldown of <b>{{ module_settings.global_cd }}
