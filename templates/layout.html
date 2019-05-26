@@ -26,11 +26,13 @@
     <div class="ui top fixed menu">
         <div class="right menu">
         {% for menuitem in nav_bar_header %}
+        {% if menuitem.active %}
         <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
             {% if menuitem.id == 'home' %}
             <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
             {{ menuitem.caption }}</a>
+        {% endif %}
         {% endfor %}
         </div>
         <div class="left menu">

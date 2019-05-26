@@ -3,6 +3,7 @@
     <div class="ui top fixed menu inverted blue">
         <div class="right menu">
         {% for menuitem in nav_bar_admin_header %}
+        {% if menuitem.active %}
         {%- if not session.user or session.user.level > menuitem.level %}
             {%- if menuitem.id %}
             <a class="inverted blue item{%- if menuitem.id == active_page %} active{% endif -%}" href="{{ menuitem.href }}">
@@ -23,6 +24,7 @@
             </div>
             {% endif -%}
         {% endif -%}
+        {% endif %}
         {% endfor %}
         </div>
         <div class="left menu"></div>

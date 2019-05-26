@@ -80,12 +80,7 @@ def init(page):
                         module=current_module,
                         sub_modules=sub_modules)
             else:
-                settings = None
-                try:
-                    settings = json.loads(current_module.db_module.settings)
-                except (TypeError, ValueError):
-                    pass
-                current_module.load(settings=settings)
+                current_module.load()
 
                 return render_template('admin/configure_module.html',
                         module=current_module,
