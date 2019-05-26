@@ -40,11 +40,11 @@ class TwitterManager:
                 log.exception('Twitter authentication failed.')
                 self.twitter_client = None
 
-    def on_twitter_follow(self, data, conn):
+    def on_twitter_follow(self, data):
         log.info('TWITTER FOLLOW')
         self.reload()
 
-    def on_twitter_unfollow(self, data, conn):
+    def on_twitter_unfollow(self, data):
         log.info('TWITTER UNFOLLOW')
         self.reload()
 

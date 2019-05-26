@@ -112,7 +112,7 @@ class PlaysoundModule(BaseModule):
         self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
-    def on_web_playsound(self, data, conn):
+    def on_web_playsound(self, data):
         # on playsound test triggered by the Web UI
         # this works even if the module is not enabled.
         playsound_name = data["name"]

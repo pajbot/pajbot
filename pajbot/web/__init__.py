@@ -30,6 +30,7 @@ def init(args):
     from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
+    from pajbot.models.sock import SocketManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
@@ -70,6 +71,8 @@ def init(args):
         redis_options = config._sections['redis']
 
     RedisManager.init(**redis_options)
+
+    app.socket_manager = SocketManager()
 
     with open(args.config, 'w') as configfile:
         config.write(configfile)

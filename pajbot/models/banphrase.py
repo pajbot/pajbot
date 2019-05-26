@@ -225,7 +225,7 @@ class BanphraseManager:
             self.bot.socket_manager.add_handler('banphrase.update', self.on_banphrase_update)
             self.bot.socket_manager.add_handler('banphrase.remove', self.on_banphrase_remove)
 
-    def on_banphrase_update(self, data, conn):
+    def on_banphrase_update(self, data):
         try:
             banphrase_id = int(data['id'])
         except (KeyError, ValueError):
@@ -255,7 +255,7 @@ class BanphraseManager:
             if banphrase.enabled is False:
                 self.enabled_banphrases.remove(banphrase)
 
-    def on_banphrase_remove(self, data, conn):
+    def on_banphrase_remove(self, data):
         try:
             banphrase_id = int(data['id'])
         except (KeyError, ValueError):
