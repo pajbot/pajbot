@@ -585,7 +585,7 @@ class LinkCheckerModule(BaseModule):
         self.cache_url(original_redirected_url.url, True)
         return
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['add'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,

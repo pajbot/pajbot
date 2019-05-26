@@ -13,7 +13,7 @@ class DeckModule(BaseModule):
     DESCRIPTION = 'Handles displaying/updating decks through commands and the website.'
     CATEGORY = 'Feature'
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['setdeck'] = pajbot.models.command.Command.raw_command(self.set_deck,
                 level=420,
                 delay_all=0,

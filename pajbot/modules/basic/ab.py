@@ -70,7 +70,7 @@ class AbCommandModule(BaseModule):
 
         return
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['ab'] = pajbot.models.command.Command.raw_command(
                 self.ab,
                 delay_all=self.settings['global_cd'],

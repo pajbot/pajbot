@@ -83,7 +83,7 @@ class DuelModule(BaseModule):
                 default=True),
                 ]
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['duel'] = pajbot.models.command.Command.raw_command(self.initiate_duel,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

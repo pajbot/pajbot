@@ -47,7 +47,7 @@ class FFZEmotesModule(BaseModule):
         else:
             bot.say('No FFZ Emotes active in this chat')
 
-    def load_commands(self):
+    def load_commands(self, **options):
         get_cmd = pajbot.models.command.Command.raw_command(self.get_ffz_emotes,
                 level=100,
                 delay_all=15,

@@ -41,7 +41,7 @@ class PointsResetModule(BaseModule):
                 victim.points = 0
                 bot.whisper(source.username, 'You changed the points for {0} from {1} to {2} points'.format(victim.username_raw, old_points, victim.points))
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['pointsreset'] = pajbot.models.command.Command.raw_command(
                 self.points_reset,
                 delay_all=0,

@@ -58,7 +58,7 @@ class LeagueRankModule(BaseModule):
                     }),
             ]
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['lolrank'] = pajbot.models.command.Command.raw_command(self.league_rank,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

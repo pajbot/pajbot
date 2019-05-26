@@ -184,7 +184,7 @@ class RaffleModule(BaseModule):
         self.raffle_points = 0
         self.raffle_length = 0
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['singleraffle'] = pajbot.models.command.Command.raw_command(self.raffle,
                 delay_all=0,
                 delay_user=0,

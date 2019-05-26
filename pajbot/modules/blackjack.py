@@ -173,7 +173,7 @@ class BlackjackModule(BaseModule):
             bot.whisper(username, 'Your HS bet of {} points has been refunded because the bet has been cancelled.'.format(points))
         self.bets = {}
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['blackjack'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 default='bet',

@@ -42,7 +42,7 @@ class DBManageModule(BaseModule):
         else:
             bot.commit_all()
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['reload'] = pajbot.models.command.Command.raw_command(self.reload,
                 level=1000,
                 description='Reload a bunch of data from the database')

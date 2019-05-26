@@ -22,7 +22,7 @@ class PointLotteryModule(BaseModule):
         self.lottery_users = []
         self.lottery_points = 0
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['pointlottery'] = pajbot.models.command.Command.raw_command(
                 self.lottery,
                 delay_all=0,

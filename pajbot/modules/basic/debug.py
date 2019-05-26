@@ -125,7 +125,7 @@ class DebugModule(BaseModule):
             bot.whisper(source.username, 'Usage: !debug user USERNAME')
             return False
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['debug'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,

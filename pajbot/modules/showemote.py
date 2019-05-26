@@ -64,7 +64,7 @@ class ShowEmoteModule(BaseModule):
         bot.websocket_manager.emit('new_emote', payload)
         bot.whisper(source.username, 'Successfully sent the emote {} to the stream!'.format(first_emote['code']))
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['#showemote'] = pajbot.models.command.Command.raw_command(
             self.show_emote,
             tokens_cost=self.settings['token_cost'],

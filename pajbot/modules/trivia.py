@@ -209,7 +209,7 @@ class TriviaModule(BaseModule):
                 self.step = 0
                 self.last_question = datetime.datetime.now()
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['trivia'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,

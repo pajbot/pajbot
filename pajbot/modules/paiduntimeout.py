@@ -88,7 +88,7 @@ class PaidUntimeoutModule(BaseModule):
         bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
-    def load_commands(self):
+    def load_commands(self, **options):
         if self.settings['untimeout_enable']:
             self.commands[self.settings['untimeout_command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.untimeout_source,
                 cost=self.settings['untimeout_cost'],

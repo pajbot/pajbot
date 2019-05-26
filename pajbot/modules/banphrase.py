@@ -120,7 +120,7 @@ class BanphraseModule(BaseModule):
             bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
             return False
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['add'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 delay_all=0,

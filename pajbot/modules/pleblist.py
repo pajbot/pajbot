@@ -164,7 +164,7 @@ class PleblistModule(BaseModule):
 
             ScheduleManager.execute_now(self.bg_pleblist_add_song, args=[stream_id, youtube_id, force], kwargs=options)
 
-    def load_commands(self):
+    def load_commands(self, **options):
         if self.settings['songrequest_command']:
             self.commands['songrequest'] = pajbot.models.command.Command.raw_command(self.pleblist_add_song,
                     delay_all=0,

@@ -53,7 +53,7 @@ class BingoModule(BaseModule):
         self.bingo_running = False
         self.bingo_bttv_twitch_running = False
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['bingo'] = pajbot.models.command.Command.multiaction_command(
                 level=500,
                 default=None,

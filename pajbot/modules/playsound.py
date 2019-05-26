@@ -399,7 +399,7 @@ class PlaysoundModule(BaseModule):
             session.delete(playsound)
             bot.whisper(source.username, 'Successfully deleted your playsound.')
 
-    def load_commands(self):
+    def load_commands(self, **options):
         from pajbot.models.command import Command
         from pajbot.models.command import CommandExample
 

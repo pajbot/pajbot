@@ -63,5 +63,5 @@ class DummyModule(BaseModule):
         if bot:
             bot.say('we did it {}!'.format(self.settings['who']))
 
-    def load_commands(self):
+    def load_commands(self, **options):
         self.commands['dummy'] = pajbot.models.command.Command.raw_command(self.dummy_command)

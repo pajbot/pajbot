@@ -146,7 +146,7 @@ class HighlightModule(BaseModule):
         else:
             bot.whisper(source.username, 'No highlight with the ID {} found.'.format(id))
 
-    def load_commands(self):
+    def load_commands(self, **options):
         try:
             level_trusted_mods = 100 if self.bot.trusted_mods else 500
             mod_only_trusted_mods = True if self.bot.trusted_mods else False

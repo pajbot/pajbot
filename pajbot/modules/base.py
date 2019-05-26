@@ -120,14 +120,14 @@ class BaseModule:
         for setting in self.SETTINGS:
             self.default_settings[setting.key] = setting.default
 
-    def load(self):
+    def load(self, **options):
         """ This method will load everything from the module into
         their proper dictionaries, which we can then use later. """
 
         self.settings = self.module_settings()
 
         self.commands = {}
-        self.load_commands()
+        self.load_commands(**options)
 
         return self
 
@@ -156,7 +156,7 @@ class BaseModule:
 
         return settings
 
-    def load_commands(self):
+    def load_commands(self, **options):
         pass
 
     def parse_settings(self, **in_settings):

@@ -117,7 +117,7 @@ class TopModule(BaseModule):
             num_top=self.settings['num_top'],
             data=', '.join(data)))
 
-    def load_commands(self):
+    def load_commands(self, **options):
         if self.settings['enable_topchatters']:
             self.commands['topchatters'] = pajbot.models.command.Command.raw_command(
                     self.top_chatters,
