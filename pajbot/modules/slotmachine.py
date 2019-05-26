@@ -217,7 +217,7 @@ class SlotMachineModule(BaseModule):
         self.output_buffer_args = []
         self.last_add = None
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['slotmachine'] = pajbot.models.command.Command.raw_command(self.pull,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

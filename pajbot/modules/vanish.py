@@ -65,7 +65,7 @@ class VanishModule(BaseModule):
         bot = options['bot']
         bot.execute_delayed(0.5, bot._timeout, (source.username, 1))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.vanish_command,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

@@ -84,6 +84,6 @@ class PaidSubmodeModule(BaseModule):
 
         bot.whisper(source.username, 'You just used {} points to put the chat into subscribers mode!'.format(_cost))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands[self.settings['subon_command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.paid_subon, cost=self.settings['subon_cost'])
         self.commands[self.settings['suboff_command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(self.paid_suboff, cost=self.settings['suboff_cost'])

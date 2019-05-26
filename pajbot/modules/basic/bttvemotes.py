@@ -47,7 +47,7 @@ class BTTVEmotesModule(BaseModule):
         else:
             bot.say('No BTTV Emotes active in this chat')
 
-    def load_commands(self, **options):
+    def load_commands(self):
         get_cmd = pajbot.models.command.Command.raw_command(self.get_bttv_emotes,
                 level=100,
                 delay_all=15,

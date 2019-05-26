@@ -61,7 +61,7 @@ class PermabanModule(BaseModule):
 
                 AdminLogManager.add_entry('Permaban remove', source, log_msg)
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['permaban'] = pajbot.models.command.Command.raw_command(self.permaban_command,
                 level=1000,
                 description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again',

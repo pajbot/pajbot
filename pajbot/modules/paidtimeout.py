@@ -186,7 +186,7 @@ class PaidTimeoutModule(BaseModule):
 
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] = pajbot.models.command.Command.raw_command(
             self.paid_timeout,
             cost=self.settings['cost'],

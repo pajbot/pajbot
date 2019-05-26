@@ -122,7 +122,7 @@ class EightBallModule(BaseModule):
         else:
             return False
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['8ball'] = pajbot.models.command.Command.raw_command(self.eightball_command,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

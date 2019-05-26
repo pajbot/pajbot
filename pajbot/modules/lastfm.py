@@ -29,7 +29,7 @@ class LastfmModule(BaseModule):
                 default=''),
             ]
 
-    def load_commands(self, **options):
+    def load_commands(self):
         # TODO: Aliases should be set in settings?
         #       This way, it can be run alongside other modules
         self.commands['song'] = pajbot.models.command.Command.raw_command(self.song,

@@ -208,7 +208,7 @@ class DubtrackModule(BaseModule):
         self.update_song(force=True)
         self.say_song(options['bot'])
 
-    def load_commands(self, **options):
+    def load_commands(self):
         commands = {
                 'link': pajbot.models.command.Command.raw_command(
                     self.link,

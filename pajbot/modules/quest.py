@@ -123,7 +123,7 @@ class QuestModule(BaseModule):
             elif event.type == 'whisper':
                 bot.whisper(source.username, message_tokens)
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['myprogress'] = pajbot.models.command.Command.raw_command(
                 self.my_progress,
                 can_execute_with_whisper=True,

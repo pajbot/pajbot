@@ -68,7 +68,7 @@ class FollowAgeModule(BaseModule):
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
-    def load_commands(self, **options):
+    def load_commands(self):
         # TODO: Have delay modifiable in settings
 
         self.commands['followage'] = pajbot.models.command.Command.raw_command(self.follow_age,

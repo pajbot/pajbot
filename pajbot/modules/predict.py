@@ -107,7 +107,7 @@ class PredictModule(BaseModule):
                     'min_value': 0}),
             ]
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['predict'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 default='vote',

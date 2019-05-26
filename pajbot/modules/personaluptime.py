@@ -33,7 +33,7 @@ class PersonalUptimeModule(BaseModule):
             log.info(minutes_watched)
             bot.say('{}, You have been watching the stream for ~{}'.format(source.username_raw, time_since(minutes_watched, 0)))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['myuptime'] = pajbot.models.command.Command.raw_command(
                 self.cmd_puptime,
                 delay_all=3,

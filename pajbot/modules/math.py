@@ -81,7 +81,7 @@ class MathModule(BaseModule):
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['math'] = pajbot.models.command.Command.raw_command(self.math,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],

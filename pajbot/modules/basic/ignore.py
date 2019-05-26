@@ -58,7 +58,7 @@ class IgnoreModule(BaseModule):
                 message = message.lower()
                 bot.whisper(source.username, 'No longer ignoring {0}'.format(user.username))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['ignore'] = pajbot.models.command.Command.raw_command(self.ignore_command,
                 level=1000,
                 description='Ignore a user, which means he can\'t run any commands',

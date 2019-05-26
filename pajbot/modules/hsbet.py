@@ -387,7 +387,7 @@ class HSBetModule(BaseModule):
 
         bot.whisper(source.username, 'Current win/lose points: {}/{}'.format(win_points, lose_points))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['hsbet'] = pajbot.models.command.Command.multiaction_command(
                 level=100,
                 default='bet',

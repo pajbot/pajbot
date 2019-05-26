@@ -218,7 +218,7 @@ class AdminCommandsModule(BaseModule):
             bot.commands.rebuild()
             bot.say('Enabled module {}'.format(module_id))
 
-    def load_commands(self, **options):
+    def load_commands(self):
         self.commands['w'] = pajbot.models.command.Command.raw_command(self.whisper,
                 level=2000,
                 description='Send a whisper from the bot')
