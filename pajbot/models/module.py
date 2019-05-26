@@ -132,16 +132,12 @@ class ModuleManager:
         with DBManager.create_session_scope() as db_session:
             for enabled_module in db_session.query(Module).filter_by(enabled=True):
                 module = self.get_module(enabled_module.id)
-                if module is not None:
-                    options = {}
-                    if enabled_module.settings is not None:
-                        try:
-                            options['settings'] = json.loads(enabled_module.settings)
-                        except ValueError:
-                            log.warn('Invalid JSON')
 
-                    self.modules.append(module.load(**options))
-                    module.enable(self.bot)
+                if module is None:
+                    continue
+
+                self.modules.append(module.load())
+                module.enable(self.bot)
 
         to_be_removed = []
         self.modules.sort(key=lambda m: 1 if m.PARENT_MODULE is not None else 0)
