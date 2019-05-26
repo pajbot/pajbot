@@ -381,13 +381,11 @@ class PlaysoundModule(BaseModule):
         message = options['message']
         source = options['source']
 
-        split = message.split(' ', 1)
+        playsound_name = message.split(' ')[0].lower()
         # check for empty string
-        if not split[0]:
+        if not playsound_name:
             bot.whisper(source.username, 'Invalid usage. Correct syntax: !remove playsound <name>')
             return
-
-        playsound_name = split[0]
 
         with DBManager.create_session_scope() as session:
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
