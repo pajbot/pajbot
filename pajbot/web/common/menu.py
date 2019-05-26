@@ -1,30 +1,12 @@
-import json
-import logging
-
-log = logging.getLogger(__name__)
-
-
 class MenuItem:
     def __init__(self, href, id, caption, level=100):
         self.href = href
         self.id = id
         self.caption = caption
         self.level = level
-        self.active = True
 
 
 def init(app):
-    playsound_menu_item = MenuItem('/playsounds', 'user_playsounds', 'Playsounds')
-    admin_playsound_menu_item = MenuItem('/admin/playsounds', 'admin_playsounds', 'Playsounds')
-
-    def my_handler(module_update):
-        if 'id' not in module_update or 'new_state' not in module_update:
-            return
-        if module_update['id'] == 'playsound':
-            playsound_menu_item.active = module_update['new_state']
-
-    app.socket_manager.add_handler('module.update', my_handler)
-
     nav_bar_header = []
     nav_bar_header.append(MenuItem('/', 'home', 'Home'))
     nav_bar_header.append(MenuItem('/commands', 'commands', 'Commands'))
@@ -33,7 +15,8 @@ def init(app):
     if app.bot_config['main']['nickname'] not in ['scamazbot', 'exdeebot']:
         nav_bar_header.append(MenuItem('/points', 'points', 'Points'))
     nav_bar_header.append(MenuItem('/stats', 'stats', 'Stats'))
-    nav_bar_header.append(playsound_menu_item)
+    if 'playsounds' in app.bot_modules:
+        nav_bar_header.append(MenuItem('/playsounds', 'user_playsounds', 'Playsounds'))
     nav_bar_header.append(MenuItem('/highlights', 'highlights', 'Highlights'))
     if 'pleblist' in app.bot_modules:
         nav_bar_header.append(MenuItem('/pleblist/history', 'pleblist', 'Pleblist'))
@@ -50,7 +33,8 @@ def init(app):
     nav_bar_admin_header.append(MenuItem('/admin/timers', 'admin_timers', 'Timers'))
     nav_bar_admin_header.append(MenuItem('/admin/moderators', 'admin_moderators', 'Moderators'))
     nav_bar_admin_header.append(MenuItem('/admin/modules', 'admin_modules', 'Modules'))
-    nav_bar_admin_header.append(admin_playsound_menu_item)
+    if 'playsounds' in app.bot_modules:
+        nav_bar_admin_header.append(MenuItem('/admin/playsounds', 'admin_playsounds', 'Playsounds'))
     if 'predict' in app.module_manager:
         nav_bar_admin_header.append(MenuItem('/admin/predictions', 'admin_predictions', 'Predictions'))
     nav_bar_admin_header.append(MenuItem('/admin/streamer', 'admin_streamer', 'Streamer Info'))

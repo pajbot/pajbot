@@ -49,7 +49,7 @@ class ModuleManager:
     def get_module(self, module_id):
         return find(lambda m: m.ID == module_id, self.all_modules)
 
-    def on_module_update(self, data):
+    def on_module_update(self, data, conn):
         new_state = data.get('new_state', None)
         if new_state is True:
             self.enable_module(data['id'])

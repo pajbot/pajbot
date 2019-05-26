@@ -22,4 +22,3 @@ pajbot.web.init(args)
 
 if __name__ == '__main__':
     app.run(debug=args.debug, host=args.host, port=args.port)
-    app.socket_manager.quit()

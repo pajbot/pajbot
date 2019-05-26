@@ -31,7 +31,6 @@ class CommandManager(UserDict):
         self.internal_commands = {}
         self.db_commands = {}
         self.module_commands = {}
-        self.data = {}
 
         self.bot = bot
         self.module_manager = module_manager
@@ -41,12 +40,12 @@ class CommandManager(UserDict):
             socket_manager.add_handler('command.update', self.on_command_update)
             socket_manager.add_handler('command.remove', self.on_command_remove)
 
-    def on_module_reload(self, data):
+    def on_module_reload(self, data, conn):
         log.debug('Rebuilding commands...')
         self.rebuild()
         log.debug('Done rebuilding commands')
 
-    def on_command_update(self, data):
+    def on_command_update(self, data, conn):
         try:
             command_id = int(data['command_id'])
         except (KeyError, ValueError):
@@ -63,7 +62,7 @@ class CommandManager(UserDict):
 
         self.rebuild()
 
-    def on_command_remove(self, data):
+    def on_command_remove(self, data, conn):
         try:
             command_id = int(data['command_id'])
         except (KeyError, ValueError):
