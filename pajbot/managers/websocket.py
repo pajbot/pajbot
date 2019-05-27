@@ -40,6 +40,7 @@ class WebSocketServer:
                     pass
 
         factory = WebSocketServerFactory()
+        factory.setProtocolOptions(autoPingInterval=15, autoPingTimeout=5)
         factory.protocol = MyServerProtocol
 
         def reactor_run(reactor, factory, port, context_factory=None, unix_socket_path=None):
