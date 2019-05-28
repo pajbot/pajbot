@@ -324,10 +324,11 @@ class BanphraseManager:
         if banphrase.data is not None:
             banphrase.data.num_uses += 1
 
+        reason = 'Banned phrase {} ({})'.format(banphrase.id, banphrase.name)
         if banphrase.permanent is True:
             # Permanently ban user
             punishment = 'permanently banned'
-            self.bot.ban(user.username)
+            self.bot.ban(user.username, reason=reason)
         else:
             # Timeout user
             timeout_length, punishment = user.timeout(banphrase.length,
@@ -335,7 +336,7 @@ class BanphraseManager:
                     use_warnings=banphrase.warning)
 
             """ Finally, time out the user for whatever timeout length was required. """
-            self.bot.timeout(user.username, timeout_length, reason='Banned phrase {}'.format(banphrase.id))
+            self.bot.timeout(user.username, timeout_length, reason=reason)
 
         if banphrase.notify is True and user.minutes_in_chat_online > 60:
             """ Last but not least, notify the user why he has been timed out
