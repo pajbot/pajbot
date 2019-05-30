@@ -67,7 +67,7 @@ def init(args):
 
     redis_options = {}
     if 'redis' in config:
-        redis_options = config._sections['redis']
+        redis_options = dict(config['redis'])
 
     RedisManager.init(**redis_options)
 
