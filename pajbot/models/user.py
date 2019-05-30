@@ -355,7 +355,8 @@ class UserRedis:
             data = pipeline.execute()
             self.load_redis_data(data)
 
-    def fix_ss(self, key, value):
+    @staticmethod
+    def fix_ss(key, value):
         try:
             val = int(value)
         except:
@@ -370,7 +371,8 @@ class UserRedis:
 
         return val
 
-    def fix_bool(self, key, value):
+    @staticmethod
+    def fix_bool(key, value):
         return False if value is None else True
 
     @property
@@ -670,7 +672,8 @@ class UserCombined(UserRedis, UserSQL):
             for id in range(0, total_chances)
         ]
 
-    def get_warnings(self, redis, warning_keys):
+    @staticmethod
+    def get_warnings(redis, warning_keys):
         """ Pass through a list of warning keys.
         Example of warning_keys syntax: ['_pajlada_warning1', '_pajlada_warning2']
         Returns a list of values for the warning keys list above.
@@ -680,13 +683,15 @@ class UserCombined(UserRedis, UserSQL):
 
         return redis.mget(warning_keys)
 
-    def get_chances_used(self, warnings):
+    @staticmethod
+    def get_chances_used(warnings):
         """ Returns a number between 0 and n where n is the amount of
             chances a user has before he should face the full timeout length. """
 
         return len(warnings) - warnings.count(None)
 
-    def add_warning(self, redis, timeout, warning_keys, warnings):
+    @staticmethod
+    def add_warning(redis, timeout, warning_keys, warnings):
         """ Returns a number between 0 and n where n is the amount of
             chances a user has before he should face the full timeout length. """
 

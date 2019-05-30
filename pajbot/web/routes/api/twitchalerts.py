@@ -54,7 +54,8 @@ class APITwitchAlertsOAuth(Resource):
 
 
 class APITwitchAlertsValidate(Resource):
-    def shared(self):
+    @staticmethod
+    def shared():
         password = pajbot.web.utils.create_pleblist_login(app.bot_config)
         resp = flask.make_response(flask.jsonify({'password': password}))
         resp.set_cookie('password', password)

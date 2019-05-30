@@ -767,7 +767,8 @@ class LinkCheckerModule(BaseModule):
             bot.whisper(source.username, 'Usage: !remove link whitelist ID')
             return False
 
-    def parse_link_blacklist_arguments(self, message):
+    @staticmethod
+    def parse_link_blacklist_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--deep', dest='level', action='store_true')
         parser.add_argument('--shallow', dest='level', action='store_false')

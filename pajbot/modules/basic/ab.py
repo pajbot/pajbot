@@ -52,7 +52,8 @@ class AbCommandModule(BaseModule):
                     }),
             ]
 
-    def ab(self, **options):
+    @staticmethod
+    def ab(**options):
         bot = options['bot']
         message = options['message']
         source = options['source']

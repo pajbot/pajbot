@@ -60,7 +60,8 @@ class VanishModule(BaseModule):
                     }),
             ]
 
-    def vanish_command(self, **options):
+    @staticmethod
+    def vanish_command(**options):
         source = options['source']
         bot = options['bot']
         bot.execute_delayed(0.5, bot._timeout, (source.username, 1))

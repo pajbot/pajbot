@@ -329,7 +329,8 @@ class DuelModule(BaseModule):
         else:
             bot.whisper(source.username, 'You have no duel request or duel target. Type !duel USERNAME POT to duel someone!')
 
-    def get_duel_stats(self, **options):
+    @staticmethod
+    def get_duel_stats(**options):
         """
         Whispers the users duel winratio to the user
         """

@@ -189,7 +189,8 @@ class FollowAgeModule(BaseModule):
 
         self.action_queue.add(self.check_follow_since, args=[bot, source, username, streamer, event])
 
-    def parse_message(self, bot, source, message):
+    @staticmethod
+    def parse_message(bot, source, message):
         username = source.username
         streamer = None
         if message is not None and len(message) > 0:

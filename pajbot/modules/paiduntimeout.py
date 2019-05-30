@@ -72,7 +72,8 @@ class PaidUntimeoutModule(BaseModule):
                     }),
             ]
 
-    def untimeout_source(self, **options):
+    @staticmethod
+    def untimeout_source(**options):
         bot = options['bot']
         source = options['source']
 
@@ -80,7 +81,8 @@ class PaidUntimeoutModule(BaseModule):
         bot.whisper(source.username, 'You have been unbanned.')
         source.timed_out = False
 
-    def unban_source(self, **options):
+    @staticmethod
+    def unban_source(**options):
         bot = options['bot']
         source = options['source']
 

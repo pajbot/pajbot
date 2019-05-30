@@ -15,7 +15,8 @@ class PointsResetModule(BaseModule):
     CATEGORY = 'Feature'
     PARENT_MODULE = BasicCommandsModule
 
-    def points_reset(self, **options):
+    @staticmethod
+    def points_reset(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

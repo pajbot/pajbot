@@ -5,7 +5,8 @@ import pajbot.web.utils
 
 
 class APITest(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         return redirect('/commands', 303)
 
 

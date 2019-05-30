@@ -58,11 +58,13 @@ def init(api):
             )
 
     class StreamlabsIndex(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             return redirect(url_for('streamlabslogin'))
 
     class StreamlabsLogin(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             callback = url_for('streamlabsloginauthorized', _external=True)
             return streamlabs.authorize(callback=callback, state=uuid.uuid4())
 

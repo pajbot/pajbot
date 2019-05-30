@@ -37,11 +37,13 @@ def check_connection(dbapi_con, con_record, con_proxy):
 
 
 class DBManager:
+    @staticmethod
     def init(url):
         DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)
         DBManager.Session = sessionmaker(bind=DBManager.engine, autoflush=False)
         DBManager.ScopedSession = scoped_session(sessionmaker(bind=DBManager.engine))
 
+    @staticmethod
     def create_session(**options):
         """
         Useful options:
@@ -55,6 +57,7 @@ class DBManager:
 
         return None
 
+    @staticmethod
     def create_scoped_session(**options):
         """
         Useful options:
@@ -68,6 +71,7 @@ class DBManager:
 
         return None
 
+    @staticmethod
     def session_add_expunge(object, **options):
         """
         Useful shorthand method of creating a session,
@@ -92,6 +96,7 @@ class DBManager:
         finally:
             session.close()
 
+    @staticmethod
     @contextmanager
     def create_session_scope(**options):
         session = DBManager.create_session(**options)
@@ -104,6 +109,7 @@ class DBManager:
         finally:
             session.close()
 
+    @staticmethod
     @contextmanager
     def create_session_scope_nc(**options):
         session = DBManager.create_session(**options)
@@ -115,6 +121,7 @@ class DBManager:
         finally:
             session.close()
 
+    @staticmethod
     @contextmanager
     def create_session_scope_ea(**options):
         session = DBManager.create_session(**options)
@@ -127,6 +134,7 @@ class DBManager:
         finally:
             session.close()
 
+    @staticmethod
     @contextmanager
     def create_scoped_session_scope(**options):
         session = DBManager.create_scoped_session(**options)
@@ -139,6 +147,7 @@ class DBManager:
         finally:
             session.close()
 
+    @staticmethod
     def debug(object):
         try:
             inspected_object = inspect(object)

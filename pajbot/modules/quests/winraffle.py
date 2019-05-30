@@ -18,7 +18,8 @@ class WinRaffleQuestModule(BaseQuest):
 
     LIMIT = 1
 
-    def on_paid_timeout(self, source, victim, cost):
+    @staticmethod
+    def on_paid_timeout(source, victim, cost):
         log.warn('{} just timed out {} for {} points'.format(source, victim, cost))
 
     def winraffle_progress_quest(self, winner):

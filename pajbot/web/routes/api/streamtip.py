@@ -58,11 +58,13 @@ def init(api):
             )
 
     class StreamtipIndex(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             return redirect(url_for('streamtiplogin'))
 
     class StreamtipLogin(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             callback = url_for('streamtiploginauthorized', _external=True)
             return streamtip.authorize(callback=callback, state=uuid.uuid4())
 

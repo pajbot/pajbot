@@ -15,7 +15,8 @@ class CheckModModule(BaseModule):
     CATEGORY = 'Feature'
     PARENT_MODULE = BasicCommandsModule
 
-    def check_mod(self, **options):
+    @staticmethod
+    def check_mod(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

@@ -58,7 +58,8 @@ class BanphraseModule(BaseModule):
             # return False so no more code is run for this message
             return False
 
-    def add_banphrase(self, **options):
+    @staticmethod
+    def add_banphrase(**options):
         """Method for creating and editing banphrases.
         Usage: !add banphrase BANPHRASE [options]
         Multiple options available:
@@ -95,7 +96,8 @@ class BanphraseModule(BaseModule):
             bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
             AdminLogManager.post('Banphrase edited', source, phrase)
 
-    def remove_banphrase(self, **options):
+    @staticmethod
+    def remove_banphrase(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

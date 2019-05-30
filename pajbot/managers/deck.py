@@ -73,14 +73,16 @@ class DeckManager(UserList):
             db_session.expunge(deck)
         return deck, True
 
-    def update_deck(self, deck, **options):
+    @staticmethod
+    def update_deck(deck, **options):
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             db_session.add(deck)
             deck.set(**options)
             db_session.commit()
             db_session.expunge(deck)
 
-    def parse_update_arguments(self, message):
+    @staticmethod
+    def parse_update_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--id', type=int, dest='id')
         parser.add_argument('--name', nargs='+', dest='name')

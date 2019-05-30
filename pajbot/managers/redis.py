@@ -15,6 +15,7 @@ class RedisManager:
 
     redis = None
 
+    @staticmethod
     def init(**options):
         default_options = {
                 'decode_responses': True,
@@ -22,9 +23,11 @@ class RedisManager:
         default_options.update(options)
         RedisManager.redis = redis.Redis(**default_options)
 
+    @staticmethod
     def get():
         return RedisManager.redis
 
+    @staticmethod
     @contextmanager
     def pipeline_context():
         try:

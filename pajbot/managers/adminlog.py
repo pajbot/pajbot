@@ -34,12 +34,14 @@ class AdminLogManager:
             'Whitelist link removed': LogEntryTemplate('Removed whitelisted link "{}"'),
             }
 
+    @staticmethod
     def get_key():
         if AdminLogManager.KEY is None:
             streamer = StreamHelper.get_streamer()
             AdminLogManager.KEY = '{streamer}:logs:admin'.format(streamer=streamer)
         return AdminLogManager.KEY
 
+    @staticmethod
     def add_entry(type, source, message, data={}):
         redis = RedisManager.get()
 
@@ -53,6 +55,7 @@ class AdminLogManager:
 
         redis.lpush(AdminLogManager.get_key(), json.dumps(payload))
 
+    @staticmethod
     def get_entries(offset=0, limit=50):
         redis = RedisManager.get()
 
@@ -67,6 +70,7 @@ class AdminLogManager:
 
         return entries
 
+    @staticmethod
     def post(type, source, *args, data={}):
         if type not in AdminLogManager.TEMPLATES:
             log.warn('{} has no template'.format(type))

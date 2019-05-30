@@ -26,11 +26,13 @@ class ScheduledJob:
 class ScheduleManager:
     base_scheduler = None
 
+    @staticmethod
     def init():
         if not ScheduleManager.base_scheduler:
             ScheduleManager.base_scheduler = BackgroundScheduler(daemon=True)
             ScheduleManager.base_scheduler.start()
 
+    @staticmethod
     def execute_now(method, args=[], kwargs={}, scheduler=None):
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler
@@ -45,6 +47,7 @@ class ScheduleManager:
                 kwargs=kwargs)
         return ScheduledJob(job)
 
+    @staticmethod
     def execute_delayed(delay, method, args=[], kwargs={}, scheduler=None):
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler
@@ -59,6 +62,7 @@ class ScheduleManager:
                 kwargs=kwargs)
         return ScheduledJob(job)
 
+    @staticmethod
     def execute_every(interval, method, args=[], kwargs={}, scheduler=None):
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler

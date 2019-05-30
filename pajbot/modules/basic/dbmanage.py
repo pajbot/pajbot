@@ -18,7 +18,8 @@ class DBManageModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
 
-    def reload(self, **options):
+    @staticmethod
+    def reload(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -30,7 +31,8 @@ class DBManageModule(BaseModule):
         else:
             bot.reload_all()
 
-    def commit(self, **options):
+    @staticmethod
+    def commit(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

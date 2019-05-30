@@ -49,11 +49,13 @@ def init(api):
             )
 
     class StreamElementsIndex(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             return redirect(url_for('streamelementslogin'))
 
     class StreamElementsLogin(Resource):
-        def get(self):
+        @staticmethod
+        def get():
             callback = url_for('streamelementsloginauthorized', _external=True)
             return streamelements.authorize(callback=callback, state=uuid.uuid4())
 

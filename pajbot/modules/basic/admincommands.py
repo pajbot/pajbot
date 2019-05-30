@@ -18,7 +18,8 @@ class AdminCommandsModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
 
-    def whisper(self, **options):
+    @staticmethod
+    def whisper(**options):
         message = options['message']
         bot = options['bot']
 
@@ -98,7 +99,8 @@ class AdminCommandsModule(BaseModule):
 
                 bot.whisper(source.username, 'Successfully set {}\'s points to {}.'.format(user.username_raw, num_points))
 
-    def level(self, **options):
+    @staticmethod
+    def level(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -135,7 +137,8 @@ class AdminCommandsModule(BaseModule):
         bot.whisper(source.username, 'Usage: !level USERNAME NEW_LEVEL')
         return False
 
-    def cmd_silence(self, **options):
+    @staticmethod
+    def cmd_silence(**options):
         bot = options['bot']
         source = options['source']
 
@@ -145,7 +148,8 @@ class AdminCommandsModule(BaseModule):
             bot.silent = True
             bot.whisper(source.username, 'The bot is now silent. Use !unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts')
 
-    def cmd_unsilence(self, **options):
+    @staticmethod
+    def cmd_unsilence(**options):
         bot = options['bot']
         source = options['source']
 
@@ -155,7 +159,8 @@ class AdminCommandsModule(BaseModule):
             bot.silent = False
             bot.whisper(source.username, 'The bot can now talk again')
 
-    def cmd_module(self, **options):
+    @staticmethod
+    def cmd_module(**options):
         bot = options['bot']
         # source = options['source']
         message = options['message']

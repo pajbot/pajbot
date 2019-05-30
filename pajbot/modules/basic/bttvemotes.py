@@ -16,7 +16,8 @@ class BTTVEmotesModule(BaseModule):
     CATEGORY = 'Feature'
     PARENT_MODULE = BasicCommandsModule
 
-    def reload_bttv_emotes(self, **options):
+    @staticmethod
+    def reload_bttv_emotes(**options):
         bot = options['bot']
         source = options['source']
 
@@ -24,7 +25,8 @@ class BTTVEmotesModule(BaseModule):
 
         bot.action_queue.add(bot.emotes.bttv_emote_manager.update_emotes)
 
-    def get_bttv_emotes(self, **options):
+    @staticmethod
+    def get_bttv_emotes(**options):
         bot = options['bot']
 
         if len(bot.emotes.bttv_emote_manager.channel_emotes) > 0:

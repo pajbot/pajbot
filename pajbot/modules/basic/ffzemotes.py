@@ -16,7 +16,8 @@ class FFZEmotesModule(BaseModule):
     CATEGORY = 'Feature'
     PARENT_MODULE = BasicCommandsModule
 
-    def reload_ffz_emotes(self, **options):
+    @staticmethod
+    def reload_ffz_emotes(**options):
         bot = options['bot']
         source = options['source']
 
@@ -24,7 +25,8 @@ class FFZEmotesModule(BaseModule):
 
         bot.action_queue.add(bot.emotes.ffz_emote_manager.update_emotes)
 
-    def get_ffz_emotes(self, **options):
+    @staticmethod
+    def get_ffz_emotes(**options):
         bot = options['bot']
 
         if len(bot.emotes.ffz_emote_manager.channel_emotes) > 0:

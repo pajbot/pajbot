@@ -15,7 +15,8 @@ class PersonalUptimeModule(BaseModule):
     CATEGORY = 'Feature'
     SETTINGS = []
 
-    def cmd_puptime(self, **options):
+    @staticmethod
+    def cmd_puptime(**options):
         bot = options['bot']
         source = options['source']
 

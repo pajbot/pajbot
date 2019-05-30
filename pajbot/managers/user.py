@@ -18,6 +18,7 @@ class UserManager:
         UserSQLCache.init()
         UserManager._instance = self
 
+    @staticmethod
     def get():
         return UserManager._instance
 
@@ -26,6 +27,7 @@ class UserManager:
         This means cached data (like his debts) and SQL """
         self.data[user.username] = user.save()
 
+    @staticmethod
     def get_static(username, db_session=None, user_model=None, redis=None):
         return UserCombined(username, db_session=db_session, user_model=user_model, redis=redis)
 
@@ -61,6 +63,7 @@ class UserManager:
             if user:
                 self.save(user)
 
+    @staticmethod
     def find_static(username, db_session=None):
         """
         Attempts to find the user with the given username.
@@ -155,6 +158,7 @@ class UserManager:
 
                 db_session.add(user)
 
-    def bulk_load_user_models(self, usernames, db_session):
+    @staticmethod
+    def bulk_load_user_models(usernames, db_session):
         users = db_session.query(User).filter(User.username.in_(usernames))
         return {user.username: user for user in users}

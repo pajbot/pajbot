@@ -293,7 +293,8 @@ class StreamManager:
     def offline(self):
         return self.current_stream is None
 
-    def commit(self):
+    @staticmethod
+    def commit():
         log.info('commiting something?')
 
     def create_stream_chunk(self, status):
@@ -498,7 +499,8 @@ class StreamManager:
 
         return True
 
-    def parse_highlight_arguments(self, message):
+    @staticmethod
+    def parse_highlight_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--offset', dest='offset', type=int)
         parser.add_argument('--id', dest='id', type=int)
@@ -524,7 +526,8 @@ class StreamManager:
 
         return options, response
 
-    def update_highlight(self, id, **options):
+    @staticmethod
+    def update_highlight(id, **options):
         """
         Returns True if a highlight was modified, otherwise return False
         """
@@ -541,7 +544,8 @@ class StreamManager:
 
         return (num_rows == 1)
 
-    def remove_highlight(self, id):
+    @staticmethod
+    def remove_highlight(id):
         """
         Returns True if a highlight was removed, otherwise return False
         """
