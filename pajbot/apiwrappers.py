@@ -12,6 +12,8 @@ log = logging.getLogger(__name__)
 class APIBase:
     def __init__(self, strict=False):
         self.strict = strict
+        self.base_url = ""
+        self.headers = {}
 
     def _get(self, url, headers={}):
         try:
@@ -21,16 +23,16 @@ class APIBase:
             # If strict is True, return the proper HTTP error. Otherwise
             if self.strict:
                 raise e
-            else:
-                return None
+
+            return None
         except:
-            log.exception('Unhandled exception in APIBase._get')
+            log.exception("Unhandled exception in APIBase._get")
             return None
 
         try:
-            return response.read().decode('utf-8')
+            return response.read().decode("utf-8")
         except:
-            log.exception('Unhandled exception in APIBase._get while reading response')
+            log.exception("Unhandled exception in APIBase._get while reading response")
             return None
 
         return None
@@ -39,18 +41,22 @@ class APIBase:
         data = self._get(url, headers)
 
         try:
-            if data and type(data) is str:
+            if data and isinstance(data, str):
                 return json.loads(data)
-            else:
-                return data
+
+            return data
         except:
-            log.exception('Caught exception while trying to parse json data.')
+            log.exception("Caught exception while trying to parse json data.")
             return None
 
         return None
 
     def get_url(self, endpoints=[], parameters={}, base=None):
-        return (base or self.base_url) + '/'.join(endpoints) + ('' if len(parameters) == 0 else '?' + urllib.parse.urlencode(parameters))
+        return (
+            (base or self.base_url)
+            + "/".join(endpoints)
+            + ("" if not parameters else "?" + urllib.parse.urlencode(parameters))
+        )
 
     def getraw(self, endpoints=[], parameters={}, base=None):
         return self._get(self.get_url(endpoints, parameters, base=base), self.headers)
@@ -59,18 +65,18 @@ class APIBase:
         data = self.getraw(endpoints, parameters, base=base)
 
         try:
-            if data and type(data) is str:
+            if data and isinstance(data, str):
                 return json.loads(data)
-            else:
-                return data
+
+            return data
         except:
-            log.exception('Unhandled exception in APIBase.get')
+            log.exception("Unhandled exception in APIBase.get")
             return None
 
-        log.error('why the fuck are we here')
+        log.error("why the fuck are we here")
         return None
 
-    def _req_with_data(self, url, data, method='POST'):
+    def _req_with_data(self, url, data, method="POST"):
         """Send data along with the request.
 
         Arguments:
@@ -81,8 +87,10 @@ class APIBase:
         method -- What method we should use for the request. (default: 'POST')
         """
         try:
-            encoded_data = urllib.parse.urlencode(data).encode('utf-8')
-            req = urllib.request.Request(url, data=encoded_data, headers=self.headers, method=method)
+            encoded_data = urllib.parse.urlencode(data).encode("utf-8")
+            req = urllib.request.Request(
+                url, data=encoded_data, headers=self.headers, method=method
+            )
             return urllib.request.urlopen(req, timeout=30)
         except urllib.error.HTTPError as e:
             # Irregular HTTP code
@@ -90,30 +98,39 @@ class APIBase:
                 log.error(e)
             else:
                 try:
-                    error_data_raw = e.fp.read().decode('utf-8')
+                    error_data_raw = e.fp.read().decode("utf-8")
                     error_data = json.loads(error_data_raw)
-                    log.error('HTTP Error {0}: {1}: {2}'.format(error_data['status'], error_data['error'], error_data['message']))
+                    log.error(
+                        "HTTP Error %s: %s: %s",
+                        error_data["status"],
+                        error_data["error"],
+                        error_data["message"],
+                    )
                 except:
-                    log.exception('Unhandled exception in exception handler')
+                    log.exception("Unhandled exception in exception handler")
             return None
         except:
-            log.exception('Unhandled exception caught in method `req_with_data`')
+            log.exception("Unhandled exception caught in method `req_with_data`")
             return None
 
     def post(self, endpoints=[], parameters={}, data={}, base=None):
         try:
-            response = self._req_with_data(self.get_url(endpoints, parameters, base=base), data, method='POST')
-            return response.read().decode('utf-8')
+            response = self._req_with_data(
+                self.get_url(endpoints, parameters, base=base), data, method="POST"
+            )
+            return response.read().decode("utf-8")
         except:
-            log.exception('Unhandled exception caught in method `post`')
+            log.exception("Unhandled exception caught in method `post`")
             return None
 
     def put(self, endpoints=[], parameters={}, data={}, base=None):
         try:
-            response = self._req_with_data(self.get_url(endpoints, parameters, base=base), data, method='PUT')
-            return response.read().decode('utf-8')
+            response = self._req_with_data(
+                self.get_url(endpoints, parameters, base=base), data, method="PUT"
+            )
+            return response.read().decode("utf-8")
         except:
-            log.exception('Unhandled exception caught in method `put`')
+            log.exception("Unhandled exception caught in method `put`")
             return None
 
 
@@ -121,41 +138,37 @@ class ChatDepotAPI(APIBase):
     def __init__(self):
         APIBase.__init__(self)
 
-        self.base_url = 'http://chatdepot.twitch.tv/'
+        self.base_url = "http://chatdepot.twitch.tv/"
 
-        self.headers = {
-                'Accept': 'application/vnd.twitchtv.v3+json'
-                }
+        self.headers = {"Accept": "application/vnd.twitchtv.v3+json"}
 
 
 class ImraisingAPI(APIBase):
     def __init__(self, apikey):
         APIBase.__init__(self)
 
-        self.base_url = 'https://imraising.tv/api/v1/'
+        self.base_url = "https://imraising.tv/api/v1/"
 
         self.headers = {
-                'Authorization': 'APIKey apikey="{0}"'.format(apikey),
-                'Content-Type': 'application/json',
-                }
+            "Authorization": 'APIKey apikey="{0}"'.format(apikey),
+            "Content-Type": "application/json",
+        }
 
 
 class StreamtipAPI(APIBase):
     def __init__(self, client_id, access_token):
         APIBase.__init__(self)
 
-        self.base_url = 'https://streamtip.com/api/'
+        self.base_url = "https://streamtip.com/api/"
 
-        self.headers = {
-                'Authorization': client_id + ' ' + access_token,
-                }
+        self.headers = {"Authorization": client_id + " " + access_token}
 
 
 class BTTVApi(APIBase):
     def __init__(self, strict=True):
         APIBase.__init__(self, strict)
 
-        self.base_url = 'https://api.betterttv.net/2/'
+        self.base_url = "https://api.betterttv.net/2/"
         self.headers = {}
 
     def get_global_emotes(self):
@@ -163,21 +176,21 @@ class BTTVApi(APIBase):
 
         emotes = []
         try:
-            data = self.get(['emotes'])
+            data = self.get(["emotes"])
 
-            for emote in data['emotes']:
-                emotes.append({'emote_hash': emote['id'], 'code': emote['code']})
+            for emote in data["emotes"]:
+                emotes.append({"emote_hash": emote["id"], "code": emote["code"]})
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting global emotes.')
+                log.warning("Bad Gateway when getting global emotes.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting global emotes.')
+                log.warning("Service Unavailable when getting global emotes.")
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except KeyError:
-            log.exception('Caught exception while trying to get global BTTV emotes')
+            log.exception("Caught exception while trying to get global BTTV emotes")
         except:
-            log.exception('Uncaught exception in BTTVApi.get_global_emotes')
+            log.exception("Uncaught exception in BTTVApi.get_global_emotes")
 
         return emotes
 
@@ -186,23 +199,25 @@ class BTTVApi(APIBase):
 
         emotes = []
         try:
-            data = self.get(['channels', channel])
+            data = self.get(["channels", channel])
 
-            for emote in data['emotes']:
-                emotes.append({'emote_hash': emote['id'], 'code': emote['code']})
+            for emote in data["emotes"]:
+                emotes.append({"emote_hash": emote["id"], "code": emote["code"]})
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting channel emotes.')
+                log.warning("Bad Gateway when getting channel emotes.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting channel emotes.')
+                log.warning("Service Unavailable when getting channel emotes.")
             elif e.code == 404:
-                log.info('There are no BTTV Emotes for this channel.')
+                log.info("There are no BTTV Emotes for this channel.")
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except KeyError:
-            log.exception('Caught exception while trying to get channel-specific BTTV emotes')
+            log.exception(
+                "Caught exception while trying to get channel-specific BTTV emotes"
+            )
         except:
-            log.exception('Uncaught exception in BTTVApi.get_channel_emotes')
+            log.exception("Uncaught exception in BTTVApi.get_channel_emotes")
 
         return emotes
 
@@ -211,7 +226,7 @@ class FFZApi(APIBase):
     def __init__(self, strict=True):
         APIBase.__init__(self, strict)
 
-        self.base_url = 'https://api.frankerfacez.com/v1/'
+        self.base_url = "https://api.frankerfacez.com/v1/"
         self.headers = {}
 
     def get_global_emotes(self):
@@ -219,22 +234,22 @@ class FFZApi(APIBase):
 
         emotes = []
         try:
-            data = self.get(['set', 'global'])
+            data = self.get(["set", "global"])
 
-            for emote_set in data['sets']:
-                for emote in data['sets'][emote_set]['emoticons']:
-                    emotes.append({'emote_hash': emote['id'], 'code': emote['name']})
+            for emote_set in data["sets"]:
+                for emote in data["sets"][emote_set]["emoticons"]:
+                    emotes.append({"emote_hash": emote["id"], "code": emote["name"]})
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting global emotes.')
+                log.warning("Bad Gateway when getting global emotes.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting global emotes.')
+                log.warning("Service Unavailable when getting global emotes.")
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except KeyError:
-            log.exception('Caught exception while trying to get global FFZ emotes')
+            log.exception("Caught exception while trying to get global FFZ emotes")
         except:
-            log.exception('Uncaught exception in FFZApi.get_global_emotes')
+            log.exception("Uncaught exception in FFZApi.get_global_emotes")
 
         return emotes
 
@@ -243,24 +258,26 @@ class FFZApi(APIBase):
 
         emotes = []
         try:
-            data = self.get(['room', channel])
+            data = self.get(["room", channel])
 
-            for emote_set in data['sets']:
-                for emote in data['sets'][emote_set]['emoticons']:
-                    emotes.append({'emote_hash': emote['id'], 'code': emote['name']})
+            for emote_set in data["sets"]:
+                for emote in data["sets"][emote_set]["emoticons"]:
+                    emotes.append({"emote_hash": emote["id"], "code": emote["name"]})
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting channel emotes.')
+                log.warning("Bad Gateway when getting channel emotes.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting channel emotes.')
+                log.warning("Service Unavailable when getting channel emotes.")
             elif e.code == 404:
-                log.info('There are no FFZ Emotes for this channel.')
+                log.info("There are no FFZ Emotes for this channel.")
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except KeyError:
-            log.exception('Caught exception while trying to get channel-specific FFZ emotes')
+            log.exception(
+                "Caught exception while trying to get channel-specific FFZ emotes"
+            )
         except:
-            log.exception('Uncaught exception in FFZApi.get_channel_emotes')
+            log.exception("Uncaught exception in FFZApi.get_channel_emotes")
 
         return emotes
 
@@ -275,24 +292,23 @@ class TwitchAPI(APIBase):
         """
         APIBase.__init__(self, strict)
 
-        self.base_url = 'https://api.twitch.tv/api/'
-        self.kraken_url = 'http://127.0.0.1:7221/kraken/'
-        self.tmi_url = 'https://tmi.twitch.tv/'
+        self.base_url = "https://api.twitch.tv/api/"
+        self.kraken_url = "http://127.0.0.1:7221/kraken/"
+        self.tmi_url = "https://tmi.twitch.tv/"
 
-        self.headers = {
-                'Accept': 'application/vnd.twitchtv.v3+json',
-                }
+        self.headers = {"Accept": "application/vnd.twitchtv.v3+json"}
 
         if client_id:
-            self.headers['Client-ID'] = client_id
+            self.headers["Client-ID"] = client_id
         if oauth:
-            self.headers['Authorization'] = 'OAuth ' + oauth
+            self.headers["Authorization"] = "OAuth " + oauth
 
+    @staticmethod
     def parse_datetime(datetime_str):
         """Parses date strings in the format of 2015-09-11T23:01:11+00:00
         to a naive datetime object."""
         trimmed_str = datetime_str[:19]
-        return datetime.datetime.strptime(trimmed_str, '%Y-%m-%dT%H:%M:%S')
+        return datetime.datetime.strptime(trimmed_str, "%Y-%m-%dT%H:%M:%S")
 
     def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
@@ -308,16 +324,23 @@ class TwitchAPI(APIBase):
         if attempt > 2:
             return False, False, True
         try:
-            data = self.get(['channels', streamer, 'subscriptions'], {'limit': limit, 'offset': offset}, base=self.kraken_url)
+            data = self.get(
+                ["channels", streamer, "subscriptions"],
+                {"limit": limit, "offset": offset},
+                base=self.kraken_url,
+            )
             if data:
-                return [u['user']['name'] for u in data['subscriptions']], False, False
+                return [u["user"]["name"] for u in data["subscriptions"]], False, False
         except urllib.error.HTTPError as e:
             # Non-standard HTTP Code returned.
-            log.warning('Non-standard HTTP Code returned while fetching subscribers: {0}'.format(e.code))
+            log.warning(
+                "Non-standard HTTP Code returned while fetching subscribers: %s",
+                e.code,
+            )
             log.info(e)
             log.info(e.fp.read())
         except:
-            log.exception('Unhandled exception caught in TwitchAPI.get_subscribers')
+            log.exception("Unhandled exception caught in TwitchAPI.get_subscribers")
 
         return [], attempt + 1, False
 
@@ -326,21 +349,30 @@ class TwitchAPI(APIBase):
         chatters = []
 
         try:
-            data = self.get(['group', 'user', streamer, 'chatters'], base=self.tmi_url)
-            ch = data['chatters']
+            data = self.get(["group", "user", streamer, "chatters"], base=self.tmi_url)
+            ch = data["chatters"]
 
-            chatters = ch['moderators'] + ch['staff'] + ch['admins'] + ch['global_mods'] + ch['viewers']
+            chatters = (
+                ch["moderators"]
+                + ch["staff"]
+                + ch["admins"]
+                + ch["global_mods"]
+                + ch["viewers"]
+            )
         except urllib.error.HTTPError as e:
             if e.code == 502:
-                log.warning('Bad Gateway when getting chatters.')
+                log.warning("Bad Gateway when getting chatters.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting chatters.')
+                log.warning("Service Unavailable when getting chatters.")
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except KeyError:
-            log.exception('Caught exception while trying to get chatters for streamer {0}'.format(streamer))
+            log.exception(
+                "Caught exception while trying to get chatters for streamer %s",
+                streamer,
+            )
         except:
-            log.exception('Uncaught exception in TwitchAPI.get_chatters')
+            log.exception("Uncaught exception in TwitchAPI.get_chatters")
 
         return chatters
 
@@ -351,53 +383,53 @@ class TwitchAPI(APIBase):
         The key 'exists' is set to False if the user does not exist, True if the user exists and None if we don't know.
         """
         stream_status = {
-                'error': True,
-                'exists': None,
-                'online': False,
-                'viewers': -1,
-                'game': None,
-                'title': None,
-                'created_at': None,
-                'followers': -1,
-                'views': -1,
-                'broadcast_id': None,
-                }
+            "error": True,
+            "exists": None,
+            "online": False,
+            "viewers": -1,
+            "game": None,
+            "title": None,
+            "created_at": None,
+            "followers": -1,
+            "views": -1,
+            "broadcast_id": None,
+        }
         data = None
 
         try:
-            data = self.get(['streams', streamer], base=self.kraken_url)
-            stream_status['error'] = False
+            data = self.get(["streams", streamer], base=self.kraken_url)
+            stream_status["error"] = False
 
-            stream_status['online'] = 'stream' in data and data['stream'] is not None
-            if stream_status['online']:
-                stream_status['viewers'] = data['stream']['viewers']
-                stream_status['game'] = data['stream']['game']
-                stream_status['title'] = data['stream']['channel']['status']
-                stream_status['created_at'] = data['stream']['created_at']
-                stream_status['followers'] = data['stream']['channel']['followers']
-                stream_status['views'] = data['stream']['channel']['views']
-                stream_status['broadcast_id'] = data['stream']['_id']
+            stream_status["online"] = "stream" in data and data["stream"] is not None
+            if stream_status["online"]:
+                stream_status["viewers"] = data["stream"]["viewers"]
+                stream_status["game"] = data["stream"]["game"]
+                stream_status["title"] = data["stream"]["channel"]["status"]
+                stream_status["created_at"] = data["stream"]["created_at"]
+                stream_status["followers"] = data["stream"]["channel"]["followers"]
+                stream_status["views"] = data["stream"]["channel"]["views"]
+                stream_status["broadcast_id"] = data["stream"]["_id"]
         except urllib.error.HTTPError as e:
             if e.code == 404:
-                stream_status['exists'] = False
-                data = json.loads(e.read().decode('utf-8'))
+                stream_status["exists"] = False
+                data = json.loads(e.read().decode("utf-8"))
             elif e.code == 502:
-                log.warning('Bad Gateway when getting stream status.')
+                log.warning("Bad Gateway when getting stream status.")
             elif e.code == 503:
-                log.warning('Service Unavailable when getting stream status.')
+                log.warning("Service Unavailable when getting stream status.")
             elif e.code == 422:
                 # User is banned
                 pass
             else:
-                log.exception('Unhandled HTTP error code')
+                log.exception("Unhandled HTTP error code")
         except TypeError:
             log.warning(data)
-            log.warning('Somehow, the get request returned None')
-            log.exception('Something went seriously wrong during the get-request')
+            log.warning("Somehow, the get request returned None")
+            log.exception("Something went seriously wrong during the get-request")
         except KeyError:
-            log.exception('Some key in get_status does not exist. FIX!')
+            log.exception("Some key in get_status does not exist. FIX!")
         except:
-            log.exception('Unhandled exception in TwitchAPI.get_status')
+            log.exception("Unhandled exception in TwitchAPI.get_status")
 
         return stream_status
 
@@ -413,7 +445,11 @@ class TwitchAPI(APIBase):
         game -- the game we should update to (i.e. 'Counter Strike: Global Offensive')
         """
         new_game = game
-        self.put(endpoints=['channels', streamer], data={'channel[game]': new_game}, base=self.kraken_url)
+        self.put(
+            endpoints=["channels", streamer],
+            data={"channel[game]": new_game},
+            base=self.kraken_url,
+        )
 
     def set_title(self, streamer, title):
         """Updates the streamers title on twitch.
@@ -422,7 +458,11 @@ class TwitchAPI(APIBase):
         streamer -- the streamer whose game we should update (i.e. 'tyggbar')
         title -- the title we should update to (i.e. 'Gonna play some games, yolo!')
         """
-        self.put(endpoints=['channels', streamer], data={'channel[status]': title}, base=self.kraken_url)
+        self.put(
+            endpoints=["channels", streamer],
+            data={"channel[status]": title},
+            base=self.kraken_url,
+        )
 
     def get_follow_relationship(self, username, streamer):
         """Returns the follow relationship between the user and a streamer.
@@ -433,37 +473,39 @@ class TwitchAPI(APIBase):
         This value is cached in Redis for 2 minutes.
         """
 
-        # XXX TODO FIXME
         from pajbot.managers.redis import RedisManager
 
         redis = RedisManager.get()
 
-        fr_key = 'fr_{username}_{streamer}'.format(username=username, streamer=streamer)
+        fr_key = "fr_{username}_{streamer}".format(username=username, streamer=streamer)
         follow_relationship = redis.get(fr_key)
 
         if follow_relationship is None:
             try:
-                data = self.get(endpoints=['users', username, 'follows', 'channels', streamer], base=self.kraken_url)
-                created_at = data['created_at']
+                data = self.get(
+                    endpoints=["users", username, "follows", "channels", streamer],
+                    base=self.kraken_url,
+                )
+                created_at = data["created_at"]
                 redis.setex(fr_key, time=120, value=created_at)
                 return TwitchAPI.parse_datetime(created_at)
             except ValueError:
-                log.exception('value error xd')
+                log.exception("value error xd")
                 raise
             except urllib.error.HTTPError as e:
-                log.exception('http error xd')
-                log.debug('e: {}'.format(e))
-                redis.setex(fr_key, time=120, value='-1')
+                log.exception("http error xd")
+                log.debug("e: %s", e)
+                redis.setex(fr_key, time=120, value="-1")
                 return False
             except:
-                log.exception('Unhandled exception in get_follow_relationship')
+                log.exception("Unhandled exception in get_follow_relationship")
                 return False
         else:
-            if follow_relationship == '-1':
-                log.debug('follow relationship = -1')
+            if follow_relationship == "-1":
+                log.debug("follow relationship = -1")
                 return False
-            else:
-                return TwitchAPI.parse_datetime(follow_relationship)
+
+            return TwitchAPI.parse_datetime(follow_relationship)
 
 
 class SafeBrowsingAPI:
@@ -471,14 +513,23 @@ class SafeBrowsingAPI:
         self.apikey = apikey
         self.appname = appname
         self.appvers = appvers
-        return
 
     def check_url(self, url):
-        base_url = 'https://sb-ssl.google.com/safebrowsing/api/lookup?client=' + self.appname + '&key=' + self.apikey + '&appver=' + self.appvers + '&pver=3.1&url='
-        url2 = base_url + urllib.parse.quote(url, '')
+        base_url = (
+            "https://sb-ssl.google.com/safebrowsing/api/lookup?client="
+            + self.appname
+            + "&key="
+            + self.apikey
+            + "&appver="
+            + self.appvers
+            + "&pver=3.1&url="
+        )
+        url2 = base_url + urllib.parse.quote(url, "")
         r = requests.get(url2)
 
         if r.status_code == 200:
             return True  # malware or phishing
 
-        return False  # some handling of error codes should be added, they're just ignored for now
+        return (
+            False
+        )  # some handling of error codes should be added, they're just ignored for now

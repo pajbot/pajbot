@@ -7,58 +7,41 @@ class StreamHelper:
     stream_id: The ID of the current stream. False if the stream is not live
     """
 
-    streamer = 'Unknown'
+    streamer = "Unknown"
     stream_manager = None
     social_keys_unsorted = {
-            'twitter': {
-                'format': 'https://twitter.com/{}',
-                'title': 'Twitter',
-                },
-            'github': {
-                'format': 'https://github.com/{}',
-                'title': 'Github',
-                },
-            'youtube': {
-                'format': '{}',
-                'title': 'YouTube',
-                },
-            'instagram': {
-                'format': 'https://www.instagram.com/{}/',
-                'title': 'Instagram',
-                },
-            'reddit': {
-                'format': 'https://www.reddit.com/r/{}/',
-                'title': 'Reddit',
-                },
-            'steam': {
-                'format': '{}',
-                'title': 'Steam',
-                },
-            'facebook': {
-                'format': '{}',
-                'title': 'Facebook',
-                },
-            'star': {
-                'format': '{}',
-                'title': 'Website',
-                },
-            }
-    social_keys = collections.OrderedDict(sorted(social_keys_unsorted.items(), key=lambda t: t[0]))
+        "twitter": {"format": "https://twitter.com/{}", "title": "Twitter"},
+        "github": {"format": "https://github.com/{}", "title": "Github"},
+        "youtube": {"format": "{}", "title": "YouTube"},
+        "instagram": {"format": "https://www.instagram.com/{}/", "title": "Instagram"},
+        "reddit": {"format": "https://www.reddit.com/r/{}/", "title": "Reddit"},
+        "steam": {"format": "{}", "title": "Steam"},
+        "facebook": {"format": "{}", "title": "Facebook"},
+        "star": {"format": "{}", "title": "Website"},
+    }
+    social_keys = collections.OrderedDict(
+        sorted(social_keys_unsorted.items(), key=lambda t: t[0])
+    )
     valid_social_keys = set(social_keys.keys())
 
+    @staticmethod
     def init_bot(bot, stream_manager):
         StreamHelper.init_streamer(bot.streamer)
         StreamHelper.stream_manager = stream_manager
 
+    @staticmethod
     def init_web(streamer):
         StreamHelper.init_streamer(streamer)
 
+    @staticmethod
     def init_streamer(streamer):
         StreamHelper.streamer = streamer
 
+    @staticmethod
     def get_streamer():
         return StreamHelper.streamer
 
+    @staticmethod
     def get_current_stream_id():
         """ Gets the stream ID of the current stream.
         Returns None if the stream manager has not been initialized.
@@ -76,6 +59,7 @@ class StreamHelper:
 
         return StreamHelper.stream_manager.current_stream.id
 
+    @staticmethod
     def get_last_stream_id():
         """ Gets the stream ID of the last stream.
         Returns None if the stream manager has not been initialized.
@@ -93,6 +77,7 @@ class StreamHelper:
 
         return StreamHelper.stream_manager.last_stream.id
 
+    @staticmethod
     def get_viewers():
         """ Returns how many viewers are currently watching the stream.
         Returns 0 if something fails

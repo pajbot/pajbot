@@ -45,7 +45,8 @@ pb_config = load_config(args.config)
 
 redis_options = {}
 if 'redis' in pb_config:
-    redis_options = pb_config._sections['redis']
+    redis_options = dict(pb_config.items("redis"))
+
 
 RedisManager.init(**redis_options)
 
