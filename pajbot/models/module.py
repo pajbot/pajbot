@@ -11,25 +11,29 @@ from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.utils import find
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger("pajbot")
 
 
 class Module(Base):
-    __tablename__ = 'tb_module'
+    __tablename__ = "tb_module"
 
     id = Column(String(64), primary_key=True)
-    enabled = Column(Boolean,
-            nullable=False,
-            default=False,
-            server_default=sqlalchemy.sql.expression.false())
-    settings = Column(TEXT,
-            nullable=True,
-            default=None,
-            server_default=sqlalchemy.sql.expression.null())
+    enabled = Column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=sqlalchemy.sql.expression.false(),
+    )
+    settings = Column(
+        TEXT,
+        nullable=True,
+        default=None,
+        server_default=sqlalchemy.sql.expression.null(),
+    )
 
-    def __init__(self, id, **options):
-        self.id = id
-        self.enabled = options.get('enabled', False)
+    def __init__(self, module_id, **options):
+        self.id = module_id
+        self.enabled = options.get("enabled", False)
         self.settings = None
 
 
@@ -44,55 +48,57 @@ class ModuleManager:
         self.bot = bot
 
         if socket_manager:
-            socket_manager.add_handler('module.update', self.on_module_update)
+            socket_manager.add_handler("module.update", self.on_module_update)
 
     def get_module(self, module_id):
         return find(lambda m: m.ID == module_id, self.all_modules)
 
-    def on_module_update(self, data, conn):
-        new_state = data.get('new_state', None)
+    def on_module_update(self, data, _):
+        new_state = data.get("new_state", None)
         if new_state is True:
-            self.enable_module(data['id'])
+            self.enable_module(data["id"])
         elif new_state is False:
-            self.disable_module(data['id'])
+            self.disable_module(data["id"])
         else:
-            module = self.get_module(data['id'])
-            self.load_module(module)
+            module = self.get_module(data["id"])
+
+            if module:
+                module.load()
 
     def enable_module(self, module_id):
         module = self.get_module(module_id)
         if module is None:
-            log.error('No module with the ID {} found.'.format(module_id))
+            log.error("No module with the ID {} found.".format(module_id))
             return False
 
         module.enable(self.bot)
 
         if module in self.modules:
-            log.error('Module {} is already in the list of enabled modules pajaW'.format(module_id))
+            log.error(
+                "Module %s is already in the list of enabled modules pajaW", module_id
+            )
             return False
 
         self.modules.append(module)
 
-        self.load_module(module)
+        module.load()
 
         return True
 
-    def load_module(self, module):
-        if module is None:
-            return False
-
-        module.load()
-
-    def disable_module(self, module_id, reload_commands=False):
+    def disable_module(self, module_id):
         module = self.get_module(module_id)
         if not module:
-            log.error('No module with the ID {} found.'.format(module_id))
+            log.error("No module with the ID {} found.".format(module_id))
             return False
 
         module.disable(self.bot)
 
         if module not in self.modules:
-            log.error('Module {} is not in the list of enabled modules pajaW'.format(module_id))
+            log.error(
+                "Module {} is not in the list of enabled modules pajaW".format(
+                    module_id
+                )
+            )
             return False
 
         self.modules.remove(module)
@@ -110,9 +116,9 @@ class ModuleManager:
             # Make sure there's a row in the DB for each module that's available
             db_modules = db_session.query(Module).all()
             for module in self.all_modules:
-                mod = find(lambda m: m.id == module.ID, db_modules)
+                mod = find(lambda db_module, registered_module=module: db_module.id == registered_module.ID, db_modules)
                 if mod is None:
-                    log.info('Creating row in DB for module {}'.format(module.ID))
+                    log.info("Creating row in DB for module {}".format(module.ID))
                     mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
                     db_session.add(mod)
 
@@ -136,9 +142,9 @@ class ModuleManager:
                     options = {}
                     if enabled_module.settings is not None:
                         try:
-                            options['settings'] = json.loads(enabled_module.settings)
+                            options["settings"] = json.loads(enabled_module.settings)
                         except ValueError:
-                            log.warn('Invalid JSON')
+                            log.warning("Invalid JSON")
 
                     self.modules.append(module.load(**options))
                     module.enable(self.bot)
@@ -149,7 +155,9 @@ class ModuleManager:
             if module.PARENT_MODULE is None:
                 module.submodules = []
             else:
-                parent = find(lambda m: m.__class__ == module.PARENT_MODULE, self.modules)
+                parent = find(
+                    lambda m: m.__class__ == module.PARENT_MODULE, self.modules
+                )
                 if parent is not None:
                     parent.submodules.append(module)
                     module.parent_module = parent

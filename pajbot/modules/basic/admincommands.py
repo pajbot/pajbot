@@ -188,7 +188,7 @@ class AdminCommandsModule(BaseModule):
                 bot.say('Unable to disable module {}'.format(module_id))
                 return
 
-            if not module_manager.disable_module(module_id, True):
+            if not module_manager.disable_module(module_id):
                 bot.say('Unable to disable module {}, maybe it\'s not enabled?'.format(module_id))
                 return
 

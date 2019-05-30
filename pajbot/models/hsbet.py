@@ -7,15 +7,15 @@ from sqlalchemy import Integer
 
 from pajbot.managers.db import Base
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger("pajbot")
 
 
 class HSBetGame(Base):
-    __tablename__ = 'tb_hsbet_game'
+    __tablename__ = "tb_hsbet_game"
 
     id = Column(Integer, primary_key=True)
     internal_id = Column(Integer, nullable=False)
-    outcome = Column(Enum('win', 'loss', name='win_or_loss'), nullable=False)
+    outcome = Column(Enum("win", "loss", name="win_or_loss"), nullable=False)
 
     def __init__(self, internal_id, outcome):
         self.internal_id = internal_id
@@ -23,12 +23,14 @@ class HSBetGame(Base):
 
 
 class HSBetBet(Base):
-    __tablename__ = 'tb_hsbet_bet'
+    __tablename__ = "tb_hsbet_bet"
 
     id = Column(Integer, primary_key=True)
-    game_id = Column(Integer, ForeignKey('tb_hsbet_game.id'), nullable=False, index=True)
+    game_id = Column(
+        Integer, ForeignKey("tb_hsbet_game.id"), nullable=False, index=True
+    )
     user_id = Column(Integer, nullable=False, index=True)
-    outcome = Column(Enum('win', 'loss', name='win_or_loss'), nullable=False)
+    outcome = Column(Enum("win", "loss", name="win_or_loss"), nullable=False)
     points = Column(Integer, nullable=False)
     profit = Column(Integer, nullable=False)
 

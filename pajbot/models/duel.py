@@ -16,9 +16,11 @@ log = logging.getLogger(__name__)
 
 
 class UserDuelStats(Base):
-    __tablename__ = 'tb_user_duel_stats'
+    __tablename__ = "tb_user_duel_stats"
 
-    user_id = Column(Integer, ForeignKey('tb_user.id'), primary_key=True, autoincrement=False)
+    user_id = Column(
+        Integer, ForeignKey("tb_user.id"), primary_key=True, autoincrement=False
+    )
     duels_won = Column(Integer, nullable=False, default=0)
     duels_total = Column(Integer, nullable=False, default=0)
     points_won = Column(Integer, nullable=False, default=0)
@@ -28,13 +30,12 @@ class UserDuelStats(Base):
     longest_winstreak = Column(Integer, nullable=False, default=0)
     longest_losestreak = Column(Integer, nullable=False, default=0)
 
-    user = relationship('User',
-            cascade='',
-            uselist=False,
-            backref=backref('duel_stats',
-                uselist=False,
-                cascade='',
-                lazy='select'))
+    user = relationship(
+        "User",
+        cascade="",
+        uselist=False,
+        backref=backref("duel_stats", uselist=False, cascade="", lazy="select"),
+    )
 
     def __init__(self, user_id):
         self.user_id = user_id
@@ -60,12 +61,14 @@ class UserDuelStats(Base):
 
 
 class DuelManager:
+    @staticmethod
     def get_user_duel_stats(user, db_session):
         if user.duel_stats is None:
             user.duel_stats = UserDuelStats(user.id)
             db_session.add(user.duel_stats)
         return user.duel_stats
 
+    @staticmethod
     def user_won(user, points_won):
         """
         Arguments:
@@ -90,6 +93,7 @@ class DuelManager:
 
             return user_duel_stats
 
+    @staticmethod
     def user_lost(user, points_lost):
         """
         Arguments:
