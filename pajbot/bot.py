@@ -21,7 +21,6 @@ from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EmoteManager
-from pajbot.managers.filter import FilterManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import MultiIRCManager
 from pajbot.managers.irc import SingleIRCManager
@@ -249,7 +248,6 @@ class Bot:
             module_manager=self.module_manager,
             bot=self,
         ).load()
-        self.filters = FilterManager().reload()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
@@ -259,12 +257,11 @@ class Bot:
         HandlerManager.trigger("on_managers_loaded")
 
         # Reloadable managers
-        self.reloadable = {"filters": self.filters}
+        self.reloadable = {}
 
         # Commitable managers
         self.commitable = {
             "commands": self.commands,
-            "filters": self.filters,
             "banphrases": self.banphrase_manager,
         }
 

@@ -13,7 +13,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
 import pajbot.models.hsbet
 from pajbot.bot import Bot
-from pajbot.models.filter import Filter
 from pajbot.models.roulette import Roulette
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import PredictModule

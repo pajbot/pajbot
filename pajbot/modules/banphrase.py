@@ -20,26 +20,11 @@ class BanphraseModule(BaseModule):
     CATEGORY = "Filter"
     SETTINGS = []
 
-    def is_message_bad(self, source, msg_raw, event):
-        msg_lower = msg_raw.lower()
-
+    def is_message_bad(self, source, msg_raw, _event):
         res = self.bot.banphrase_manager.check_message(msg_raw, source)
         if res is not False:
             self.bot.banphrase_manager.punish(source, res)
             return True
-
-        for f in self.bot.filters:
-            if f.type == "regex":
-                m = f.search(source, msg_lower)
-                if m:
-                    log.debug("Matched regex filter '{0}'".format(f.name))
-                    f.run(self.bot, source, msg_raw, event, {"match": m})
-                    return True
-            elif f.type == "banphrase":
-                if f.filter in msg_lower:
-                    log.debug("Matched banphrase filter '{0}'".format(f.name))
-                    f.run(self.bot, source, msg_raw, event)
-                    return True
 
         return False  # message was ok
 
