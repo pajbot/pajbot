@@ -4,8 +4,8 @@ from numpy import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.modules import ModuleSetting
-from pajbot.modules import QuestModule
+from pajbot.modules.base import ModuleSetting
+from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
 from pajbot.streamhelper import StreamHelper
 
@@ -47,14 +47,13 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def __init__(self, bot):
         super().__init__(bot)
-        # XXX: This key should probably be generic and always set in the BaseQuest
         self.points_required_key = '{streamer}:current_quest_points_required'.format(streamer=StreamHelper.get_streamer())
         # The points_required variable is randomized at the start of the quest.
         # It will be a value between settings['min_value'] and settings['max_value']
         self.points_required = None
         self.progress = {}
 
-    def on_duel_complete(self, winner, loser, points_won, points_bet):
+    def on_duel_complete(self, winner, _loser, points_won, _points_bet):
         if points_won < 1:
             # This duel did not award any points.
             # That means it's entirely irrelevant to us

@@ -4,8 +4,8 @@ from numpy import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.modules import ModuleSetting
-from pajbot.modules import QuestModule
+from pajbot.modules.base import ModuleSetting
+from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
 from pajbot.streamhelper import StreamHelper
 
@@ -14,40 +14,46 @@ log = logging.getLogger(__name__)
 
 class TypeEmoteQuestModule(BaseQuest):
 
-    ID = 'quest-' + __name__.split('.')[-1]
-    NAME = 'Type X emote Y times'
-    DESCRIPTION = 'A user needs to type a specific emote Y times to complete this quest.'
+    ID = "quest-" + __name__.split(".")[-1]
+    NAME = "Type X emote Y times"
+    DESCRIPTION = (
+        "A user needs to type a specific emote Y times to complete this quest."
+    )
     PARENT_MODULE = QuestModule
     SETTINGS = [
-            ModuleSetting(
-                key='quest_limit',
-                label='How many emotes you need to type',
-                type='number',
-                required=True,
-                placeholder='How many emotes you need to type (default 100)',
-                default=100,
-                constraints={
-                    'min_value': 10,
-                    'max_value': 200,
-                    }),
-            ]
+        ModuleSetting(
+            key="quest_limit",
+            label="How many emotes you need to type",
+            type="number",
+            required=True,
+            placeholder="How many emotes you need to type (default 100)",
+            default=100,
+            constraints={"min_value": 10, "max_value": 200},
+        )
+    ]
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.current_emote_key = '{streamer}:current_quest_emote'.format(streamer=StreamHelper.get_streamer())
-        self.current_emote = '???'
+        self.current_emote_key = "{streamer}:current_quest_emote".format(
+            streamer=StreamHelper.get_streamer()
+        )
+        self.current_emote = "???"
         self.progress = {}
 
     def get_limit(self):
-        return self.settings['quest_limit']
+        return self.settings["quest_limit"]
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
+    def on_message(self, source, _message, emotes, _whisper, _urls, _event):
         for emote in emotes:
-            if emote['code'] == self.current_emote:
+            if emote["code"] == self.current_emote:
                 user_progress = self.get_user_progress(source.username, default=0) + 1
 
                 if user_progress > self.get_limit():
-                    log.debug('{} has already complete the quest. Moving along.'.format(source.username))
+                    log.debug(
+                        "{} has already complete the quest. Moving along.".format(
+                            source.username
+                        )
+                    )
                     # no need to do more
                     return
 
@@ -60,7 +66,7 @@ class TypeEmoteQuestModule(BaseQuest):
                 return
 
     def start_quest(self):
-        HandlerManager.add_handler('on_message', self.on_message)
+        HandlerManager.add_handler("on_message", self.on_message)
 
         redis = RedisManager.get()
 
@@ -81,7 +87,7 @@ class TypeEmoteQuestModule(BaseQuest):
             self.current_emote = self.current_emote
 
     def stop_quest(self):
-        HandlerManager.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler("on_message", self.on_message)
 
         redis = RedisManager.get()
 
@@ -89,4 +95,4 @@ class TypeEmoteQuestModule(BaseQuest):
         redis.delete(self.current_emote_key)
 
     def get_objective(self):
-        return 'Use the {} emote {} times'.format(self.current_emote, self.get_limit())
+        return "Use the {} emote {} times".format(self.current_emote, self.get_limit())
