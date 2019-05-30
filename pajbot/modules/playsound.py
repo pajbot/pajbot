@@ -410,7 +410,7 @@ class PlaysoundModule(BaseModule):
         playsound_name = message.split(' ')[0].lower()
         # check for empty string
         if not playsound_name:
-            bot.whisper(source.username, 'Invalid usage. Correct syntax: !remove playsound <name>')
+            bot.whisper(source.username, 'Invalid usage. Correct syntax: !debug playsound <name>')
             return
 
         with DBManager.create_session_scope() as session:
