@@ -1,6 +1,5 @@
 import argparse
 import logging
-import time
 import urllib.parse
 
 import requests
