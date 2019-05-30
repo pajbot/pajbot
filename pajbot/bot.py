@@ -40,6 +40,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
+from pajbot.utils import time_ago
 from pajbot.utils import time_method
 from pajbot.utils import time_since
 
@@ -107,8 +108,8 @@ class Bot:
     admin = None
     url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
 
-    last_ping = datetime.datetime.now()
-    last_pong = datetime.datetime.now()
+    last_ping = pajbot.utils.now()
+    last_pong = pajbot.utils.now()
 
     @staticmethod
     def parse_args():
@@ -229,7 +230,7 @@ class Bot:
         self.action_queue.start()
 
         self.reactor = irc.client.Reactor(self.on_connect)
-        self.start_time = datetime.datetime.now()
+        self.start_time = pajbot.utils.now()
         ActionParser.bot = self
 
         HandlerManager.init_handlers()
@@ -480,7 +481,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.datetime.now(tz).strftime(self.date_fmt)
+            return pajbot.utils.now(tz).strftime(self.date_fmt)
         except:
             log.exception("Unhandled exception in get_time_value")
 
@@ -610,18 +611,16 @@ class Bot:
         return self.irc.privmsg(message, channel, increase_message=increase_message)
 
     def c_uptime(self):
-        return time_since(
-            datetime.datetime.now().timestamp(), self.start_time.timestamp()
-        )
+        return time_ago(self.start_time)
 
     @staticmethod
     def c_current_time():
-        return datetime.datetime.now()
+        return pajbot.utils.now()
 
     @staticmethod
     def c_molly_age_in_years():
         molly_birth = datetime.datetime(2018, 10, 29)
-        now = datetime.datetime.now()
+        now = pajbot.utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
@@ -634,16 +633,10 @@ class Bot:
 
     def c_status_length(self):
         if self.stream_manager.online:
-            return time_since(
-                pajbot.utils.now().timestamp(),
-                self.stream_manager.current_stream.stream_start.timestamp(),
-            )
+            return time_ago(self.stream_manager.current_stream.stream_start)
 
         if self.stream_manager.last_stream is not None:
-            return time_since(
-                pajbot.utils.now().timestamp(),
-                self.stream_manager.last_stream.stream_end.timestamp(),
-            )
+            return time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
 
@@ -861,8 +854,8 @@ class Bot:
         if res is False:
             return False
 
-        source.last_seen = datetime.datetime.now()
-        source.last_active = datetime.datetime.now()
+        source.last_seen = pajbot.utils.now()
+        source.last_active = pajbot.utils.now()
 
         if source.ignored:
             return False
@@ -896,20 +889,14 @@ class Bot:
             )
 
     def on_ping(self, chatconn, event):
-        # self.say('Received a ping. Last ping received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp())))
-        log.info(
-            "Received a ping. Last ping received %s ago",
-            time_since(datetime.datetime.now().timestamp(), self.last_ping.timestamp()),
-        )
-        self.last_ping = datetime.datetime.now()
+        # self.say('Received a ping. Last ping received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_ping.timestamp())))
+        log.info("Received a ping. Last ping received %s ago", time_ago(self.last_ping))
+        self.last_ping = pajbot.utils.now()
 
     def on_pong(self, chatconn, event):
-        # self.say('Received a pong. Last pong received {} ago'.format(time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp())))
-        log.info(
-            "Received a pong. Last pong received %s ago",
-            time_since(datetime.datetime.now().timestamp(), self.last_pong.timestamp()),
-        )
-        self.last_pong = datetime.datetime.now()
+        # self.say('Received a pong. Last pong received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_pong.timestamp())))
+        log.info("Received a pong. Last pong received %s ago", time_ago(self.last_pong))
+        self.last_pong = pajbot.utils.now()
 
     def on_pubnotice(self, chatconn, event):
         return
@@ -1112,7 +1099,7 @@ class Bot:
 
 def _filter_time_since_dt(var, args):
     try:
-        ts = time_since(datetime.datetime.now().timestamp(), var.timestamp())
+        ts = time_since(pajbot.utils.now().timestamp(), var.timestamp())
         if ts:
             return ts
 
