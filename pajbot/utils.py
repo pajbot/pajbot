@@ -15,9 +15,7 @@ log = logging.getLogger(__name__)
 
 def now():
     # ????? how do timestamps work
-    u = datetime.datetime.utcnow()
-    # u = u.replace(tzinfo=datetime.timezone.utc)
-    return u
+    return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
 
 def alembic_upgrade():
