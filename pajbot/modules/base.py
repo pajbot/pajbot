@@ -24,9 +24,17 @@ class ModuleSetting:
       * options - A select/options list
     """
 
-    def __init__(self, key, label, type, required=False,
-                 placeholder='', default=None, constraints={},
-                 options=[]):
+    def __init__(
+        self,
+        key,
+        label,
+        type,
+        required=False,
+        placeholder="",
+        default=None,
+        constraints={},
+        options=[],
+    ):
         self.key = key
         self.label = label
         self.type = type
@@ -45,20 +53,40 @@ class ModuleSetting:
         So for example, calling validate('50') on a number setting would return (True, 50)
         """
 
-        validator = getattr(self, 'validate_{}'.format(self.type), None)
-        if validator:
-            return validator(value)
-        else:
-            log.info('No validator available for type {}'.format(type))
+        validator = getattr(self, "validate_{}".format(self.type), None)
+        if validator is None:
+            log.info("No validator available for type {}".format(type))
             return True, value
+
+        if not callable(validator):
+            log.error("Validator is not callable {}".format(type))
+            return True, value
+
+        return validator(value)
 
     def validate_text(self, value):
         """ Validate a text value """
         value = value.strip()
-        if 'min_str_len' in self.constraints and len(value) < self.constraints['min_str_len']:
-            return False, 'needs to be at least {} characters long'.format(self.constraints['min_str_len'])
-        if 'max_str_len' in self.constraints and len(value) > self.constraints['max_str_len']:
-            return False, 'needs to be at most {} characters long'.format(self.constraints['max_str_len'])
+        if (
+            "min_str_len" in self.constraints
+            and len(value) < self.constraints["min_str_len"]
+        ):
+            return (
+                False,
+                "needs to be at least {} characters long".format(
+                    self.constraints["min_str_len"]
+                ),
+            )
+        if (
+            "max_str_len" in self.constraints
+            and len(value) > self.constraints["max_str_len"]
+        ):
+            return (
+                False,
+                "needs to be at most {} characters long".format(
+                    self.constraints["max_str_len"]
+                ),
+            )
         return True, value
 
     def validate_number(self, value):
@@ -66,18 +94,28 @@ class ModuleSetting:
         try:
             value = int(value)
         except ValueError:
-            return False, 'Not a valid integer'
+            return False, "Not a valid integer"
 
-        if 'min_value' in self.constraints and value < self.constraints['min_value']:
-            return False, 'needs to have a value that is at least {}'.format(self.constraints['min_value'])
-        if 'max_value' in self.constraints and value > self.constraints['max_value']:
-            return False, 'needs to have a value that is at most {}'.format(self.constraints['max_value'])
+        if "min_value" in self.constraints and value < self.constraints["min_value"]:
+            return (
+                False,
+                "needs to have a value that is at least {}".format(
+                    self.constraints["min_value"]
+                ),
+            )
+        if "max_value" in self.constraints and value > self.constraints["max_value"]:
+            return (
+                False,
+                "needs to have a value that is at most {}".format(
+                    self.constraints["max_value"]
+                ),
+            )
         return True, value
 
     @staticmethod
     def validate_boolean(value):
         """ Validate a boolean value """
-        return True, value == 'on'
+        return True, value == "on"
 
     def validate_options(self, value):
         """ Validate a options value """
@@ -95,15 +133,17 @@ class BaseModule:
     to be operable.
     """
 
-    ID = __name__.split('.')[-1]
-    NAME = 'Base Module'
-    DESCRIPTION = 'This is the description for the base module. ' + \
-            'It\'s what will be shown on the website where you can enable ' + \
-            'and disable modules.'
+    ID = __name__.split(".")[-1]
+    NAME = "Base Module"
+    DESCRIPTION = (
+        "This is the description for the base module. "
+        + "It's what will be shown on the website where you can enable "
+        + "and disable modules."
+    )
     SETTINGS = []
     ENABLED_DEFAULT = False
     PARENT_MODULE = None
-    CATEGORY = 'Uncategorized'
+    CATEGORY = "Uncategorized"
     HIDDEN = False
     MODULE_TYPE = ModuleType.TYPE_NORMAL
 
@@ -142,7 +182,6 @@ class BaseModule:
                     settings = json.loads(module.settings)
                 except ValueError:
                     pass
-            pass
 
         return settings
 
@@ -163,24 +202,27 @@ class BaseModule:
     def parse_settings(self, **in_settings):
         ret = {}
         for key, value in in_settings.items():
-            setting = find(lambda setting: setting.key == key, self.SETTINGS)
+            setting = find(
+                lambda setting, setting_key=key: setting.key == setting_key,
+                self.SETTINGS,
+            )
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False
-            log.debug('{}: {}'.format(key, value))
+            log.debug("{}: {}".format(key, value))
             res, new_value = setting.validate(value)
             if res is False:
                 # Something went wrong when validating one of the settings
-                log.warn(new_value)
+                log.warning(new_value)
                 return False
 
             ret[key] = new_value
 
         for setting in self.SETTINGS:
-            if setting.type == 'boolean':
+            if setting.type == "boolean":
                 if setting.key not in ret:
                     ret[setting.key] = False
-                    log.debug('{}: {} - special'.format(setting.key, False))
+                    log.debug("{}: {} - special".format(setting.key, False))
 
         return ret
 
@@ -195,17 +237,25 @@ class BaseModule:
 
     def get_phrase(self, key, **arguments):
         if key not in self.settings:
-            log.error('{} is not in this modules settings.')
-            return 'KeyError in get_phrase'
+            log.error("{} is not in this modules settings.")
+            return "KeyError in get_phrase"
 
         try:
             return self.settings[key].format(**arguments)
         except (IndexError, ValueError, KeyError):
-            log.warning('An error occured when formatting phrase "{}". Arguments: ({})'.format(self.settings[key], arguments))
+            log.warning(
+                'An error occured when formatting phrase "{}". Arguments: ({})'.format(
+                    self.settings[key], arguments
+                )
+            )
 
         try:
             return self.default_settings[key].format(**arguments)
         except:
-            log.exception('ABORT - The default phrase {} is BAD. Arguments: ({})'.format(self.default_settings[key], arguments))
+            log.exception(
+                "ABORT - The default phrase {} is BAD. Arguments: ({})".format(
+                    self.default_settings[key], arguments
+                )
+            )
 
-        return 'FatalError in get_phrase'
+        return "FatalError in get_phrase"

@@ -35,8 +35,10 @@ class SocketManager:
         self.socket_file = None
 
         if self.check_config(bot.config) is True:
-            self.socket_file = bot.config['sock']['sock_file']
-            self.thread = threading.Thread(target=self.start, name='SocketManagerThread')
+            self.socket_file = bot.config["sock"]["sock_file"]
+            self.thread = threading.Thread(
+                target=self.start, name="SocketManagerThread"
+            )
             self.thread.daemon = True
             self.thread.start()
 
@@ -49,12 +51,16 @@ class SocketManager:
 
     @staticmethod
     def check_config(config):
-        if 'sock' not in config:
-            log.warn('Missing [sock] section in config file for SocketManager to start.')
+        if "sock" not in config:
+            log.warning(
+                "Missing [sock] section in config file for SocketManager to start."
+            )
             return False
 
-        if 'sock_file' not in config['sock']:
-            log.warn('Missing sock_file value in [sock] section in config file for SocketManager to start.')
+        if "sock_file" not in config["sock"]:
+            log.warning(
+                "Missing sock_file value in [sock] section in config file for SocketManager to start."
+            )
             return False
 
         return True
@@ -69,44 +75,56 @@ class SocketManager:
         with SocketResource(self.socket_file) as sr:
             while True:
                 conn, addr = sr.server.accept()
-                log.debug('Accepted connection from {}'.format(addr))
+                log.debug("Accepted connection from {}".format(addr))
 
                 data = conn.recv(4096)
                 if data:
                     try:
-                        json_data = json.loads(data.decode('utf-8'))
+                        json_data = json.loads(data.decode("utf-8"))
                     except ValueError:
-                        log.warn('Invalid JSON Data passed through SocketManager: {}'.format(data))
+                        log.warning(
+                            "Invalid JSON Data passed through SocketManager: {}".format(
+                                data
+                            )
+                        )
                         continue
 
-                    if 'event' not in json_data:
-                        log.warn('Missing event key from json data: {}'.format(json_data))
+                    if "event" not in json_data:
+                        log.warning(
+                            "Missing event key from json data: {}".format(json_data)
+                        )
                         continue
 
-                    if 'data' not in json_data:
-                        log.warn('Missing data key in json_data: {}'.format(json_data))
+                    if "data" not in json_data:
+                        log.warning(
+                            "Missing data key in json_data: {}".format(json_data)
+                        )
                         continue
 
                     try:
-                        event = json_data['event'].lower()
+                        event = json_data["event"].lower()
                     except AttributeError:
-                        log.warn('Unknown event: {}'.format(json_data['event']))
+                        log.warning("Unknown event: {}".format(json_data["event"]))
                         continue
 
                     try:
-                        handler, trigger = json_data['event'].lower().split('.')
+                        handler, _ = json_data["event"].lower().split(".")
                     except ValueError:
-                        log.warn('Missing separator in event: {}'.format(json_data))
+                        log.warning("Missing separator in event: {}".format(json_data))
                         continue
 
                     if event in self.handlers:
                         for handler in self.handlers[event]:
                             try:
-                                handler(json_data['data'], conn)
+                                handler(json_data["data"], conn)
                             except:
-                                log.exception('Unhandled exception in handler for event {}'.format(event))
+                                log.exception(
+                                    "Unhandled exception in handler for event {}".format(
+                                        event
+                                    )
+                                )
                     else:
-                        log.debug('Unhandled handler: {}'.format(event))
+                        log.debug("Unhandled handler: {}".format(event))
 
 
 class SocketClientManager:
@@ -121,12 +139,9 @@ class SocketClientManager:
         if SocketClientManager.sock_file is None:
             return False
 
-        payload = {
-                'event': event,
-                'data': data
-                }
+        payload = {"event": event, "data": data}
 
-        payload_bytes = json.dumps(payload).encode('utf-8')
+        payload_bytes = json.dumps(payload).encode("utf-8")
 
         try:
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
@@ -134,8 +149,8 @@ class SocketClientManager:
                 client.sendall(payload_bytes)
                 return True
         except (socket.error, socket.herror, socket.gaierror):
-            log.exception('A socket error occured')
+            log.exception("A socket error occured")
             return False
         except socket.timeout:
-            log.exception('The server took to long to respond.')
+            log.exception("The server took to long to respond.")
             return False

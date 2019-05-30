@@ -92,7 +92,7 @@ class PleblistManager:
             import apiclient
             from apiclient.discovery import build
 
-            def build_request(http, *args, **kwargs):
+            def build_request(_, *args, **kwargs):
                 import httplib2
 
                 new_http = httplib2.Http()

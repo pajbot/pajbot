@@ -4,18 +4,20 @@ import pajbot.models
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules import BaseModule
+from pajbot.modules.base import BaseModule
 
 log = logging.getLogger(__name__)
 
 
 class BanphraseModule(BaseModule):
 
-    ID = __name__.split('.')[-1]
-    NAME = 'Banphrase'
-    DESCRIPTION = 'Looks at each message for banned phrases, and takes actions accordingly'
+    ID = __name__.split(".")[-1]
+    NAME = "Banphrase"
+    DESCRIPTION = (
+        "Looks at each message for banned phrases, and takes actions accordingly"
+    )
     ENABLED_DEFAULT = True
-    CATEGORY = 'Filter'
+    CATEGORY = "Filter"
     SETTINGS = []
 
     def is_message_bad(self, source, msg_raw, event):
@@ -27,25 +29,25 @@ class BanphraseModule(BaseModule):
             return True
 
         for f in self.bot.filters:
-            if f.type == 'regex':
+            if f.type == "regex":
                 m = f.search(source, msg_lower)
                 if m:
-                    log.debug('Matched regex filter \'{0}\''.format(f.name))
-                    f.run(self.bot, source, msg_raw, event, {'match': m})
+                    log.debug("Matched regex filter '{0}'".format(f.name))
+                    f.run(self.bot, source, msg_raw, event, {"match": m})
                     return True
-            elif f.type == 'banphrase':
+            elif f.type == "banphrase":
                 if f.filter in msg_lower:
-                    log.debug('Matched banphrase filter \'{0}\''.format(f.name))
+                    log.debug("Matched banphrase filter '{0}'".format(f.name))
                     f.run(self.bot, source, msg_raw, event)
                     return True
 
         return False  # message was ok
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_message', self.on_message, priority=150)
+        HandlerManager.add_handler("on_message", self.on_message, priority=150)
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler("on_message", self.on_message)
 
     def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper:
@@ -68,119 +70,164 @@ class BanphraseModule(BaseModule):
         --notify/--no-notify
         """
 
-        message = options['message']
-        bot = options['bot']
-        source = options['source']
+        message = options["message"]
+        bot = options["bot"]
+        source = options["source"]
 
         if message:
             options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
 
             if options is False:
-                bot.whisper(source.username, 'Invalid banphrase')
+                bot.whisper(source.username, "Invalid banphrase")
                 return False
 
-            options['added_by'] = source.id
-            options['edited_by'] = source.id
+            options["added_by"] = source.id
+            options["edited_by"] = source.id
 
-            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
+            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(
+                phrase, **options
+            )
 
             if new_banphrase is True:
-                bot.whisper(source.username, 'Added your banphrase (ID: {banphrase.id})'.format(banphrase=banphrase))
-                AdminLogManager.post('Banphrase added', source, phrase)
+                bot.whisper(
+                    source.username,
+                    "Added your banphrase (ID: {banphrase.id})".format(
+                        banphrase=banphrase
+                    ),
+                )
+                AdminLogManager.post("Banphrase added", source, phrase)
                 return True
 
             banphrase.set(**options)
-            banphrase.data.set(edited_by=options['edited_by'])
+            banphrase.data.set(edited_by=options["edited_by"])
             DBManager.session_add_expunge(banphrase)
             bot.banphrase_manager.commit()
-            bot.whisper(source.username, 'Updated your banphrase (ID: {banphrase.id}) with ({what})'.format(banphrase=banphrase, what=', '.join([key for key in options if key != 'added_by'])))
-            AdminLogManager.post('Banphrase edited', source, phrase)
+            bot.whisper(
+                source.username,
+                "Updated your banphrase (ID: {banphrase.id}) with ({what})".format(
+                    banphrase=banphrase,
+                    what=", ".join([key for key in options if key != "added_by"]),
+                ),
+            )
+            AdminLogManager.post("Banphrase edited", source, phrase)
 
     @staticmethod
     def remove_banphrase(**options):
-        message = options['message']
-        bot = options['bot']
-        source = options['source']
+        message = options["message"]
+        bot = options["bot"]
+        source = options["source"]
 
         if message:
-            id = None
+            banphrase_id = None
             try:
-                id = int(message)
+                banphrase_id = int(message)
             except ValueError:
                 pass
 
-            banphrase = bot.banphrase_manager.find_match(message=message, id=id)
+            banphrase = bot.banphrase_manager.find_match(
+                message=message, id=banphrase_id
+            )
 
             if banphrase is None:
-                bot.whisper(source.username, 'No banphrase with the given parameters found')
+                bot.whisper(
+                    source.username, "No banphrase with the given parameters found"
+                )
                 return False
 
-            AdminLogManager.post('Banphrase removed', source, banphrase.phrase)
-            bot.whisper(source.username, 'Successfully removed banphrase with id {0}'.format(banphrase.id))
+            AdminLogManager.post("Banphrase removed", source, banphrase.phrase)
+            bot.whisper(
+                source.username,
+                "Successfully removed banphrase with id {0}".format(banphrase.id),
+            )
             bot.banphrase_manager.remove_banphrase(banphrase)
         else:
-            bot.whisper(source.username, 'Usage: !remove banphrase (BANPHRASE_ID)')
+            bot.whisper(source.username, "Usage: !remove banphrase (BANPHRASE_ID)")
             return False
 
     def load_commands(self, **options):
-        self.commands['add'] = pajbot.models.command.Command.multiaction_command(
-                level=100,
-                delay_all=0,
-                delay_user=0,
-                default=None,
-                command='add',
-                commands={
-                    'banphrase': pajbot.models.command.Command.raw_command(self.add_banphrase,
-                        level=500,
-                        description='Add a banphrase!',
-                        delay_all=0,
-                        delay_user=0,
-                        examples=[
-                            pajbot.models.command.CommandExample(None, 'Create a banphrase',
-                                chat='user:!add banphrase testman123\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            pajbot.models.command.CommandExample(None, 'Create a banphrase that permabans people',
-                                chat='user:!add banphrase testman123 --perma\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn\'t have said').parse(),
-                            pajbot.models.command.CommandExample(None, 'Create a banphrase that permabans people without a notification',
-                                chat='user:!add banphrase testman123 --perma --no-notify\n'
-                                'bot>user:Inserted your banphrase (ID: 83)',
-                                description='This creates a banphrase that permabans the user who types testman123 in chat').parse(),
-                            pajbot.models.command.CommandExample(None, 'Change the default timeout length for a banphrase',
-                                chat='user:!add banphrase testman123 --time 123\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)',
-                                description='Changes the default timeout length to a custom time of 123 seconds').parse(),
-                            pajbot.models.command.CommandExample(None, 'Make it so a banphrase cannot be triggered by subs',
-                                chat='user:!add banphrase testman123 --subimmunity\n'
-                                'bot>user:Updated the given banphrase (ID: 83) with (sub_immunity)',
-                                description='Changes a command so that the banphrase can only be triggered by people who are not subscribed to the channel.').parse(),
-                            ]),
-                        }
+        self.commands["add"] = pajbot.models.command.Command.multiaction_command(
+            level=100,
+            delay_all=0,
+            delay_user=0,
+            default=None,
+            command="add",
+            commands={
+                "banphrase": pajbot.models.command.Command.raw_command(
+                    self.add_banphrase,
+                    level=500,
+                    description="Add a banphrase!",
+                    delay_all=0,
+                    delay_user=0,
+                    examples=[
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Create a banphrase",
+                            chat="user:!add banphrase testman123\n"
+                            "bot>user:Inserted your banphrase (ID: 83)",
+                            description="This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn't have said",
+                        ).parse(),
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Create a banphrase that permabans people",
+                            chat="user:!add banphrase testman123 --perma\n"
+                            "bot>user:Inserted your banphrase (ID: 83)",
+                            description="This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn't have said",
+                        ).parse(),
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Create a banphrase that permabans people without a notification",
+                            chat="user:!add banphrase testman123 --perma --no-notify\n"
+                            "bot>user:Inserted your banphrase (ID: 83)",
+                            description="This creates a banphrase that permabans the user who types testman123 in chat",
+                        ).parse(),
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Change the default timeout length for a banphrase",
+                            chat="user:!add banphrase testman123 --time 123\n"
+                            "bot>user:Updated the given banphrase (ID: 83) with (time, extra_args)",
+                            description="Changes the default timeout length to a custom time of 123 seconds",
+                        ).parse(),
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Make it so a banphrase cannot be triggered by subs",
+                            chat="user:!add banphrase testman123 --subimmunity\n"
+                            "bot>user:Updated the given banphrase (ID: 83) with (sub_immunity)",
+                            description="Changes a command so that the banphrase can only be triggered by people who are not subscribed to the channel.",
+                        ).parse(),
+                    ],
                 )
+            },
+        )
 
-        self.commands['remove'] = pajbot.models.command.Command.multiaction_command(
-                level=100,
-                delay_all=0,
-                delay_user=0,
-                default=None,
-                command='remove',
-                commands={
-                    'banphrase': pajbot.models.command.Command.raw_command(self.remove_banphrase,
-                        level=500,
-                        delay_all=0,
-                        delay_user=0,
-                        description='Remove a banphrase!',
-                        examples=[
-                            pajbot.models.command.CommandExample(None, 'Remove a banphrase',
-                                chat='user:!remove banphrase KeepoKeepo\n'
-                                'bot>user:Successfully removed banphrase with id 33',
-                                description='Removes a banphrase with the trigger KeepoKeepo.').parse(),
-                            pajbot.models.command.CommandExample(None, 'Remove a banphrase with the given ID.',
-                                chat='user:!remove banphrase 25\n'
-                                'bot>user:Successfully removed banphrase with id 25',
-                                description='Removes a banphrase with id 25').parse(),
-                            ]),
-                    }
+        self.commands["remove"] = pajbot.models.command.Command.multiaction_command(
+            level=100,
+            delay_all=0,
+            delay_user=0,
+            default=None,
+            command="remove",
+            commands={
+                "banphrase": pajbot.models.command.Command.raw_command(
+                    self.remove_banphrase,
+                    level=500,
+                    delay_all=0,
+                    delay_user=0,
+                    description="Remove a banphrase!",
+                    examples=[
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Remove a banphrase",
+                            chat="user:!remove banphrase KeepoKeepo\n"
+                            "bot>user:Successfully removed banphrase with id 33",
+                            description="Removes a banphrase with the trigger KeepoKeepo.",
+                        ).parse(),
+                        pajbot.models.command.CommandExample(
+                            None,
+                            "Remove a banphrase with the given ID.",
+                            chat="user:!remove banphrase 25\n"
+                            "bot>user:Successfully removed banphrase with id 25",
+                            description="Removes a banphrase with id 25",
+                        ).parse(),
+                    ],
                 )
+            },
+        )
