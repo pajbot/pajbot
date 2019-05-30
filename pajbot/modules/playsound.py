@@ -397,6 +397,32 @@ class PlaysoundModule(BaseModule):
             session.delete(playsound)
             bot.whisper(source.username, 'Successfully deleted your playsound.')
 
+    def debug_playsound_command(self, **options):
+        """Method for debugging (printing info about) playsounds.
+        Usage: !debug playsound PLAYSOUNDNAME
+        """
+        bot = options['bot']
+        message = options['message']
+        source = options['source']
+
+        playsound_name = message.split(' ')[0].lower()
+        # check for empty string
+        if not playsound_name:
+            bot.whisper(source.username, 'Invalid usage. Correct syntax: !debug playsound <name>')
+            return
+
+        with DBManager.create_session_scope() as session:
+            playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
+
+            if playsound is None:
+                bot.whisper(source.username, 'No playsound with that name exists.')
+                return
+
+            bot.whisper(source.username, 'name={}, link={}, volume={}, cooldown={}, enabled={}'.format(
+                playsound.name, playsound.link, playsound.volume, playsound.cooldown, playsound.enabled
+            ))
+
+
     def load_commands(self, **options):
         from pajbot.models.command import Command
         from pajbot.models.command import CommandExample
@@ -519,6 +545,29 @@ class PlaysoundModule(BaseModule):
                             chat='user:!remove playsound doot\n'
                                  'bot>user:Successfully removed your playsound',
                             description='Removes the "doot" playsound.').parse(),
+                    ]),
+            }
+        )
+
+        self.commands['debug'] = Command.multiaction_command(
+            level=100,
+            delay_all=0,
+            delay_user=0,
+            default=None,
+            command='debug',
+            commands={
+                'playsound': Command.raw_command(
+                    self.debug_playsound_command,
+                    level=250,
+                    delay_all=0,
+                    delay_user=0,
+                    description='Prints data about a playsound',
+                    examples=[
+                        CommandExample(
+                            None, 'Get information about the "doot" playsound',
+                            chat='user:!debug playsound doot\n'
+                                 'bot>user: name=doot, link=https://i.nuuls.com/Bb4aX.mp3, volume=100, '
+                                 'cooldown=None, enabled=True').parse(),
                     ]),
             }
         )
