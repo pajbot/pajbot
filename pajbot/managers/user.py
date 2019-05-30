@@ -27,6 +27,7 @@ class UserManager:
         This means cached data (like his debts) and SQL """
         self.data[user.username] = user.save()
 
+    @staticmethod
     def get_static(username, db_session=None, user_model=None, redis=None):
         return UserCombined(username, db_session=db_session, user_model=user_model, redis=redis)
 
@@ -62,6 +63,7 @@ class UserManager:
             if user:
                 self.save(user)
 
+    @staticmethod
     def find_static(username, db_session=None):
         """
         Attempts to find the user with the given username.

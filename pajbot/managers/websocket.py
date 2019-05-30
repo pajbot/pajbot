@@ -123,6 +123,7 @@ class WebSocketManager:
             for client in self.server.clients:
                 client.sendMessage(payload, False)
 
+    @staticmethod
     def on_log_message(message, isError=False, printed=False):
         if isError:
             log.error(message['message'])

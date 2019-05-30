@@ -22,6 +22,7 @@ class PBMath:
                  ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
                  ast.USub: op.neg, ast.RShift: op.rshift, ast.LShift: op.lshift}
 
+    @staticmethod
     def eval_expr(expr):
         """
         >>> eval_expr('2^6')
@@ -33,6 +34,7 @@ class PBMath:
         """
         return PBMath.eval_(ast.parse(expr, mode='eval').body)
 
+    @staticmethod
     def eval_(node):
         if isinstance(node, ast.Num):  # <number>
             return node.n
