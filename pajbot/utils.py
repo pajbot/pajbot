@@ -190,7 +190,7 @@ def time_since(t1, t2, time_format="long"):
                     )
                 )
             else:
-                time_arr.append(f"{num[j]}{num_dict[j]}")
+                time_arr.append("{}{}".format(num[j], num_dict[j]))
             i += 1
         j += 1
 
