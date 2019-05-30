@@ -638,12 +638,14 @@ class Bot:
     def c_status_length(self):
         if self.stream_manager.online:
             return time_since(
-                time.time(), self.stream_manager.current_stream.stream_start.timestamp()
+                pajbot.utils.now().timestamp(),
+                self.stream_manager.current_stream.stream_start.timestamp(),
             )
 
         if self.stream_manager.last_stream is not None:
             return time_since(
-                time.time(), self.stream_manager.last_stream.stream_end.timestamp()
+                pajbot.utils.now().timestamp(),
+                self.stream_manager.last_stream.stream_end.timestamp(),
             )
 
         return "No recorded stream FeelsBadMan "
@@ -845,7 +847,9 @@ class Bot:
 
         urls = self.find_unique_urls(msg_raw)
 
-        log.debug("{2}{0}: {1}".format(source.username, msg_raw, "<w>" if whisper else ""))
+        log.debug(
+            "{2}{0}: {1}".format(source.username, msg_raw, "<w>" if whisper else "")
+        )
 
         res = HandlerManager.trigger(
             "on_message",

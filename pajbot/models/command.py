@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import re
-import time
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -14,6 +13,7 @@ from sqlalchemy.dialects.mysql import TEXT
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
+import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
@@ -410,7 +410,7 @@ class Command(Base):
 
         cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
 
-        cur_time = time.time()
+        cur_time = pajbot.utils.now().timestamp()
         time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
         if (
@@ -473,7 +473,7 @@ class Command(Base):
         return True
 
     def run_action(self, bot, source, message, event, args):
-        cur_time = time.time()
+        cur_time = pajbot.utils.now().timestamp()
         with source.spend_currency_context(self.cost, self.tokens_cost):
             ret = self.action.run(bot, source, message, event, args)
             if ret is False:
@@ -482,7 +482,7 @@ class Command(Base):
             # Only spend points/tokens, and increment num_uses if the action succeded
             if self.data is not None:
                 self.data.num_uses += 1
-                self.data.last_date_used = datetime.datetime.now()
+                self.data.last_date_used = pajbot.utils.now()
 
             # TODO: Will this be an issue?
             self.last_run = cur_time

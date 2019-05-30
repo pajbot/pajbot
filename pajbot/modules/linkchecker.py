@@ -12,6 +12,7 @@ from sqlalchemy.dialects.mysql import TEXT
 
 import pajbot.managers
 import pajbot.models
+import pajbot.utils
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers import SafeBrowsingAPI
@@ -496,10 +497,10 @@ class LinkCheckerModule(BaseModule):
                 return
 
             size = 0
-            start = time.time()
+            start = pajbot.utils.now().timestamp()
 
             for chunk in response.iter_content(1024):
-                if time.time() - start > receive_timeout:
+                if pajbot.utils.now().timestamp() - start > receive_timeout:
                     log.error('The site took too long to load')
                     return
 

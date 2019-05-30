@@ -3,7 +3,6 @@ import logging
 import math
 import signal
 import sys
-import time
 from contextlib import contextmanager
 
 from colorama import Fore
@@ -12,6 +11,13 @@ from colorama import Style
 import pajbot.exc
 
 log = logging.getLogger(__name__)
+
+
+def now():
+    # ????? how do timestamps work
+    u = datetime.datetime.utcnow()
+    # u = u.replace(tzinfo=datetime.timezone.utc)
+    return u
 
 
 def alembic_upgrade():
@@ -50,9 +56,9 @@ def time_method(f):
         return None
 
     def wrap(*args):
-        time1 = time.time()
+        time1 = now().timestamp()
         ret = f(*args)
-        time2 = time.time()
+        time2 = now().timestamp()
         log.debug(
             "{0.__name__}::{1.__name__} function took {2:.3f} ms".format(
                 get_class_that_defined_method(f), f, (time2 - time1) * 1000.0
@@ -65,9 +71,9 @@ def time_method(f):
 
 def time_nonclass_method(f):
     def wrap(*args):
-        time1 = time.time()
+        time1 = now().timestamp()
         ret = f(*args)
-        time2 = time.time()
+        time2 = now().timestamp()
         log.debug(
             "{0.__name__} function took {1:.3f} ms".format(f, (time2 - time1) * 1000.0)
         )
@@ -78,9 +84,9 @@ def time_nonclass_method(f):
 
 @contextmanager
 def profile_timer(name):
-    time1 = time.time()
+    time1 = now().timestamp()
     yield
-    time2 = time.time()
+    time2 = now().timestamp()
     log.debug('"{0}" task took {1:.3f} ms'.format(name, (time2 - time1) * 1000.0))
 
 
@@ -202,7 +208,7 @@ def time_since(t1, t2, time_format="long"):
 
 def time_ago(t, time_format="long"):
     return time_since(
-        datetime.datetime.now().timestamp(), t.timestamp(), time_format=time_format
+        now().timestamp(), t.timestamp(), time_format=time_format
     )
 
 
