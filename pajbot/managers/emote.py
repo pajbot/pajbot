@@ -83,7 +83,8 @@ class BTTVEmoteManager:
         for emote_code, emote_hash in self.channel_emotes.items():
             self.valid_emotes.append(self.build_emote(emote_code, emote_hash))
 
-    def build_emote(self, emote_code, emote_hash):
+    @staticmethod
+    def build_emote(emote_code, emote_hash):
         return {
                 'code': emote_code,
                 'type': 'bttv',
@@ -168,7 +169,8 @@ class FFZEmoteManager:
         for emote_code, emote_hash in self.channel_emotes.items():
             self.valid_emotes.append(self.build_emote(emote_code, emote_hash))
 
-    def build_emote(self, emote_code, emote_hash):
+    @staticmethod
+    def build_emote(emote_code, emote_hash):
         return {
                 'code': emote_code,
                 'type': 'ffz',
@@ -396,7 +398,8 @@ class EmoteManager:
     def epm_decr(self, code, count):
         self.epm[code] -= count
 
-    def get_emote_count(self, emote_code):
+    @staticmethod
+    def get_emote_count(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
 
@@ -408,7 +411,8 @@ class EmoteManager:
     def get_emote_epm(self, emote_code):
         return self.epm.get(emote_code, None)
 
-    def get_emote_epmrecord(self, emote_code):
+    @staticmethod
+    def get_emote_epmrecord(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
 

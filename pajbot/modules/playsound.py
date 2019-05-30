@@ -220,7 +220,8 @@ class PlaysoundModule(BaseModule):
             )
             bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd, ())
 
-    def parse_playsound_arguments(self, message):
+    @staticmethod
+    def parse_playsound_arguments(message):
         """
         Available options:
         --volume VOLUME
@@ -313,7 +314,8 @@ class PlaysoundModule(BaseModule):
             playsound.cooldown = cooldown_int
         return True
 
-    def update_enabled(self, bot, source, playsound, parsed_options):
+    @staticmethod
+    def update_enabled(bot, source, playsound, parsed_options):
         if "enabled" in parsed_options:
             playsound.enabled = parsed_options["enabled"]
         return True
@@ -419,7 +421,8 @@ class PlaysoundModule(BaseModule):
             session.add(playsound)
             bot.whisper(source.username, "Successfully edited your playsound.")
 
-    def remove_playsound_command(self, **options):
+    @staticmethod
+    def remove_playsound_command(**options):
         """Method for removing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME
         """
@@ -450,7 +453,8 @@ class PlaysoundModule(BaseModule):
             session.delete(playsound)
             bot.whisper(source.username, "Successfully deleted your playsound.")
 
-    def debug_playsound_command(self, **options):
+    @staticmethod
+    def debug_playsound_command(**options):
         """Method for debugging (printing info about) playsounds.
         Usage: !debug playsound PLAYSOUNDNAME
         """

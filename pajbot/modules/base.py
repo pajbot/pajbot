@@ -74,7 +74,8 @@ class ModuleSetting:
             return False, 'needs to have a value that is at most {}'.format(self.constraints['max_value'])
         return True, value
 
-    def validate_boolean(self, value):
+    @staticmethod
+    def validate_boolean(value):
         """ Validate a boolean value """
         return True, value == 'on'
 

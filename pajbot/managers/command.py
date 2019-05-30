@@ -385,7 +385,8 @@ class CommandManager(UserDict):
 
         return list
 
-    def parse_command_arguments(self, message):
+    @staticmethod
+    def parse_command_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--whisper', dest='whisper', action='store_true')
         parser.add_argument('--no-whisper', dest='whisper', action='store_false')

@@ -262,7 +262,8 @@ class PredictModule(BaseModule):
                 bot.say('{}, Your prediction for {} wins in run {} has been submitted.'.format(
                     source.username_raw, prediction_number, current_prediction_run.id))
 
-    def shared_new_predict(self, bot, source, type):
+    @staticmethod
+    def shared_new_predict(bot, source, type):
         with DBManager.create_session_scope() as db_session:
             # Check if there is already an open prediction
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()
@@ -275,7 +276,8 @@ class PredictModule(BaseModule):
             db_session.commit()
             bot.say('A new prediction run has been started, and is now accepting submissions. Prediction run ID: {}'.format(new_prediction_run.id))
 
-    def shared_end_predict(self, bot, source, type):
+    @staticmethod
+    def shared_end_predict(bot, source, type):
         with DBManager.create_session_scope() as db_session:
             # Check if there is a non-ended, but closed prediction run we can end
             predictions = db_session.query(PredictionRun).filter_by(ended=None, open=False, type=type).all()
@@ -287,7 +289,8 @@ class PredictModule(BaseModule):
                 prediction.ended = datetime.datetime.now()
             bot.say('Closed predictions with IDs {}'.format(', '.join([str(p.id) for p in predictions])))
 
-    def shared_close_predict(self, bot, source, type):
+    @staticmethod
+    def shared_close_predict(bot, source, type):
         with DBManager.create_session_scope() as db_session:
             # Check if there is a non-ended, but closed prediction run we can end
             current_prediction_run = db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()

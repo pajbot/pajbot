@@ -440,7 +440,8 @@ class Bot:
             return None
         return "{0:,d}".format(val)
 
-    def get_source_value(self, key, extra={}):
+    @staticmethod
+    def get_source_value(key, extra={}):
         try:
             return getattr(extra["source"], key)
         except:
@@ -458,7 +459,8 @@ class Bot:
 
         return None
 
-    def get_command_value(self, key, extra={}):
+    @staticmethod
+    def get_command_value(key, extra={}):
         try:
             return getattr(extra["command"].data, key)
         except:
@@ -510,7 +512,8 @@ class Bot:
 
         return ret
 
-    def get_args_value(self, key, extra={}):
+    @staticmethod
+    def get_args_value(key, extra={}):
         r = None
         try:
             msg_parts = extra["message"].split(" ")
@@ -614,10 +617,12 @@ class Bot:
             datetime.datetime.now().timestamp(), self.start_time.timestamp()
         )
 
-    def c_current_time(self):
+    @staticmethod
+    def c_current_time():
         return datetime.datetime.now()
 
-    def c_molly_age_in_years(self):
+    @staticmethod
+    def c_molly_age_in_years():
         molly_birth = datetime.datetime(2018, 10, 29)
         now = datetime.datetime.now()
         diff = now - molly_birth
@@ -1034,7 +1039,8 @@ class Bot:
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 
-    def do_tick(self):
+    @staticmethod
+    def do_tick():
         HandlerManager.trigger("on_tick")
 
     def quit(self, message, event, **options):
@@ -1075,7 +1081,8 @@ class Bot:
 
         sys.exit(0)
 
-    def apply_filter(self, resp, f):
+    @staticmethod
+    def apply_filter(resp, f):
         available_filters = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),

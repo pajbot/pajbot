@@ -90,7 +90,8 @@ class MathModule(BaseModule):
                     ],
                 )
 
-    def do_math(self, bot, source, message):
+    @staticmethod
+    def do_math(bot, source, message):
         expr_res = None
         with time_limit(1):
             try:

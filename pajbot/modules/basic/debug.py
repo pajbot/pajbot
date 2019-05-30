@@ -20,7 +20,8 @@ class DebugModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
 
-    def debug_command(self, **options):
+    @staticmethod
+    def debug_command(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -66,7 +67,8 @@ class DebugModule(BaseModule):
             bot.whisper(source.username, 'Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)')
             return False
 
-    def debug_user(self, **options):
+    @staticmethod
+    def debug_user(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -98,7 +100,8 @@ class DebugModule(BaseModule):
             bot.whisper(source.username, 'Usage: !debug user USERNAME')
             return False
 
-    def debug_tags(self, **options):
+    @staticmethod
+    def debug_tags(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

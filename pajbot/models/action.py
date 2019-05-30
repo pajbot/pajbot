@@ -484,7 +484,8 @@ class MessageAction(BaseAction):
 
         return resp
 
-    def get_extra_data(self, source, message, args):
+    @staticmethod
+    def get_extra_data(source, message, args):
         ret = {
             "user": source.username if source else None,
             "source": source,

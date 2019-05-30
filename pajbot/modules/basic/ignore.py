@@ -18,7 +18,8 @@ class IgnoreModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
 
-    def ignore_command(self, **options):
+    @staticmethod
+    def ignore_command(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -38,7 +39,8 @@ class IgnoreModule(BaseModule):
                 message = message.lower()
                 bot.whisper(source.username, 'Now ignoring {0}'.format(user.username))
 
-    def unignore_command(self, **options):
+    @staticmethod
+    def unignore_command(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

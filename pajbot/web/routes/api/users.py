@@ -6,7 +6,8 @@ from pajbot.streamhelper import StreamHelper
 
 
 class APIUser(Resource):
-    def get(self, username):
+    @staticmethod
+    def get(username):
         user = UserManager.find_static(username)
         if not user:
             return {

@@ -34,6 +34,7 @@ class AdminLogManager:
             'Whitelist link removed': LogEntryTemplate('Removed whitelisted link "{}"'),
             }
 
+    @staticmethod
     def get_key():
         if AdminLogManager.KEY is None:
             streamer = StreamHelper.get_streamer()

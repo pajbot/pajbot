@@ -8,6 +8,7 @@ class TimeManager:
     def init_timezone(timezone_str):
         TimeManager.timezone_object = timezone(timezone_str)
 
+    @staticmethod
     def get_timezone():
         return TimeManager.timezone_object
 

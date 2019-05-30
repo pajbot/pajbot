@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 
 
 class APICommands(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         commands = pajbot.web.utils.get_cached_commands()
 
         commands = list(filter(lambda c: c['id'] is not None, commands))
@@ -31,7 +32,8 @@ class APICommands(Resource):
 
 
 class APICommand(Resource):
-    def get(self, raw_command_id):
+    @staticmethod
+    def get(raw_command_id):
         command_string = raw_command_id
         command_id = None
 

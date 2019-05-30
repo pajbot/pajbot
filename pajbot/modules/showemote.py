@@ -47,7 +47,8 @@ class ShowEmoteModule(BaseModule):
         ),
     ]
 
-    def show_emote(self, **options):
+    @staticmethod
+    def show_emote(**options):
         bot = options["bot"]
         source = options["source"]
         args = options["args"]

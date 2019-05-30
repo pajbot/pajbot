@@ -366,7 +366,8 @@ class BanphraseManager:
             match = find(lambda banphrase: banphrase.exact_match(message), self.banphrases)
         return match
 
-    def parse_banphrase_arguments(self, message):
+    @staticmethod
+    def parse_banphrase_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--length', dest='length', type=int)
         parser.add_argument('--time', dest='length', type=int)

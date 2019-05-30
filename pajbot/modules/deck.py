@@ -86,7 +86,8 @@ class DeckModule(BaseModule):
                             ]),
                     })
 
-    def set_deck(self, **options):
+    @staticmethod
+    def set_deck(**options):
         """Dispatch method for setting the current deck.
         The command takes a link as its argument.
         If the link is an already-added deck, the deck should be set as the current deck
@@ -109,7 +110,8 @@ class DeckModule(BaseModule):
 
         return False
 
-    def update_deck(self, **options):
+    @staticmethod
+    def update_deck(**options):
         """Dispatch method for updating a deck.
         By default this will update things for the current deck, but you can update
         any deck assuming you know its ID.
@@ -150,7 +152,8 @@ class DeckModule(BaseModule):
             bot.whisper(source.username, 'Usage example: !updatedeck --name Midrange Secret --class paladin')
             return False
 
-    def remove_deck(self, **options):
+    @staticmethod
+    def remove_deck(**options):
         """Dispatch method for removing a deck.
         Usage: !removedeck imgur.com/abcdef
         OR

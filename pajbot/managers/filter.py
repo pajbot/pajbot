@@ -66,7 +66,8 @@ class FilterManager(UserList):
         self.db_session.delete(filter)
         self.data.remove(filter)
 
-    def parse_banphrase_arguments(self, message):
+    @staticmethod
+    def parse_banphrase_arguments(message):
         parser = argparse.ArgumentParser()
         parser.add_argument('--length', dest='time', type=int)
         parser.add_argument('--time', dest='time', type=int)

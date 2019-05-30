@@ -47,7 +47,8 @@ class SocketManager:
             except OSError:
                 pass
 
-    def check_config(self, config):
+    @staticmethod
+    def check_config(config):
         if 'sock' not in config:
             log.warn('Missing [sock] section in config file for SocketManager to start.')
             return False

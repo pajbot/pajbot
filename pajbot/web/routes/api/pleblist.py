@@ -230,7 +230,8 @@ class APIPleblistValidate(Resource):
 
 
 class APIPleblistBlacklist(Resource):
-    def get(self):
+    @staticmethod
+    def get():
         with DBManager.create_session_scope() as session:
             current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start).first()
             if current_stream is None:

@@ -19,7 +19,8 @@ class PermabanModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
 
-    def permaban_command(self, **options):
+    @staticmethod
+    def permaban_command(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']
@@ -38,7 +39,8 @@ class PermabanModule(BaseModule):
 
                 AdminLogManager.add_entry('Permaban added', source, log_msg)
 
-    def unpermaban_command(self, **options):
+    @staticmethod
+    def unpermaban_command(**options):
         message = options['message']
         bot = options['bot']
         source = options['source']

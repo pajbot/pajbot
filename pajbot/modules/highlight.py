@@ -45,7 +45,8 @@ class HighlightModule(BaseModule):
 
         return False  # message was ok
 
-    def add_highlight(self, **options):
+    @staticmethod
+    def add_highlight(**options):
         """Method for creating highlights
         Usage: !add highlight [options] DESCRIPTION
         Options available:
@@ -83,7 +84,8 @@ class HighlightModule(BaseModule):
 
             log.info('Create a highlight at the current timestamp!')
 
-    def edit_highlight(self, **options):
+    @staticmethod
+    def edit_highlight(**options):
         """Method for editing highlights
         Usage: !edit highlight [options] DESCRIPTION
         """
@@ -121,7 +123,8 @@ class HighlightModule(BaseModule):
         else:
             bot.whisper(source.username, 'Missing --id for which highlight to edit. Did you mean to create a new highlight? In that case, use !add highlight instead!')
 
-    def remove_highlight(self, **options):
+    @staticmethod
+    def remove_highlight(**options):
         """Dispatch method for removing highlights
         Usage: !remove highlight HIGHLIGHT_ID
         """

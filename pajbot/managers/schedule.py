@@ -26,6 +26,7 @@ class ScheduledJob:
 class ScheduleManager:
     base_scheduler = None
 
+    @staticmethod
     def init():
         if not ScheduleManager.base_scheduler:
             ScheduleManager.base_scheduler = BackgroundScheduler(daemon=True)

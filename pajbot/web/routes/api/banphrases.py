@@ -105,7 +105,8 @@ class APIBanphraseDump(Resource):
     def __init__(self):
         super().__init__()
 
-    def get(self, **options):
+    @staticmethod
+    def get(**options):
         banphrase_manager = BanphraseManager(None).load()
 
         return banphrase_manager.enabled_banphrases

@@ -18,6 +18,7 @@ class UserManager:
         UserSQLCache.init()
         UserManager._instance = self
 
+    @staticmethod
     def get():
         return UserManager._instance
 
@@ -155,6 +156,7 @@ class UserManager:
 
                 db_session.add(user)
 
-    def bulk_load_user_models(self, usernames, db_session):
+    @staticmethod
+    def bulk_load_user_models(usernames, db_session):
         users = db_session.query(User).filter(User.username.in_(usernames))
         return {user.username: user for user in users}

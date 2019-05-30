@@ -22,6 +22,7 @@ class RedisManager:
         default_options.update(options)
         RedisManager.redis = redis.Redis(**default_options)
 
+    @staticmethod
     def get():
         return RedisManager.redis
 
