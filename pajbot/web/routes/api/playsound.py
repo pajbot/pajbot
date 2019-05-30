@@ -1,5 +1,4 @@
-import re
-from flask_restful import abort, Resource
+from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 
 from pajbot.managers.db import DBManager

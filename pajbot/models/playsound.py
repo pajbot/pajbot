@@ -1,4 +1,8 @@
-from sqlalchemy import Column, String, Integer, Boolean, TEXT
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import TEXT
 
 from pajbot.managers.db import Base
 
