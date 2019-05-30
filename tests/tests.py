@@ -1,11 +1,9 @@
-#!/usr/bin/env python3
 import os
 import sys
 
 import unittest2
 
-sys.path.append(os.path.abspath('..'))
-os.chdir('..')
+sys.path.append(os.path.abspath('.'))
 
 
 class TestURLMethods(unittest2.TestCase):
@@ -63,7 +61,7 @@ class ActionsTester(unittest2.TestCase):
         from pajbot.utils import load_config
         import datetime
 
-        config = load_config('config.ini')
+        config = load_config('tests/config.test.ini')
         args = Bot.parse_args()
         self.pajbot = Bot(config, args)
         self.source = self.pajbot.users['omgthisuserdoesnotexist123']
