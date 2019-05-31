@@ -85,7 +85,7 @@ class TopModule(BaseModule):
             for user in db_session.query(User).order_by(User.minutes_in_chat_online.desc())[:self.settings['num_top']]:
                 data.append('{user.username_raw} ({time_spent})'.format(
                     user=user,
-                    time_spent=time_since(user.minutes_in_chat_online * 60, 0, format='short')))
+                    time_spent=time_since(user.minutes_in_chat_online * 60, 0, time_format='short')))
 
         bot.say('Top {num_top} watchers: {data}'.format(
             num_top=self.settings['num_top'],
@@ -99,7 +99,7 @@ class TopModule(BaseModule):
             for user in db_session.query(User).order_by(User.minutes_in_chat_offline.desc())[:self.settings['num_top']]:
                 data.append('{user.username_raw} ({time_spent})'.format(
                     user=user,
-                    time_spent=time_since(user.minutes_in_chat_offline * 60, 0, format='short')))
+                    time_spent=time_since(user.minutes_in_chat_offline * 60, 0, time_format='short')))
 
         bot.say('Top {num_top} offliners: {data}'.format(
             num_top=self.settings['num_top'],
