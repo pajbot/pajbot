@@ -73,10 +73,7 @@ class QuestModule(BaseModule):
             quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
-                bot.whisper(
-                    source.username,
-                    "You have completed todays quest!",
-                )
+                bot.whisper(source.username, "You have completed todays quest!")
             elif quest_progress is not False:
                 bot.whisper(
                     source.username,
@@ -151,7 +148,9 @@ class QuestModule(BaseModule):
 
     def on_stream_start(self):
         if not self.current_quest_key:
-            log.error('Current quest key not set when on_stream_start event fired, something is wrong')
+            log.error(
+                "Current quest key not set when on_stream_start event fired, something is wrong"
+            )
             return False
 
         available_quests = list(
@@ -182,7 +181,9 @@ class QuestModule(BaseModule):
             return False
 
         if not self.current_quest_key:
-            log.error('Current quest key not set when on_stream_stop event fired, something is wrong')
+            log.error(
+                "Current quest key not set when on_stream_stop event fired, something is wrong"
+            )
             return False
 
         self.current_quest.stop_quest()
@@ -203,32 +204,41 @@ class QuestModule(BaseModule):
         return True
 
     def on_managers_loaded(self):
+        # This function is used to resume a quest in case the bot starts when the stream is already live
         if not self.current_quest_key:
-            log.error('Current quest key not set when on_managers_loaded event fired, something is wrong')
-            return False
+            log.error(
+                "Current quest key not set when on_managers_loaded event fired, something is wrong"
+            )
+            return
 
-        if self.current_quest is None:
-            redis = RedisManager.get()
+        if self.current_quest:
+            # There's already a quest chosen for today
+            return
 
-            current_quest_id = redis.get(self.current_quest_key)
+        redis = RedisManager.get()
 
-            log.info("Try to load submodule with ID {}".format(current_quest_id))
+        current_quest_id = redis.get(self.current_quest_key)
 
-            if current_quest_id is not None:
-                current_quest_id = current_quest_id
-                quest = find(lambda m: m.ID == current_quest_id, self.submodules)
+        log.info("Try to load submodule with ID {}".format(current_quest_id))
 
-                if quest is not None:
-                    log.info("Resumed quest {}".format(quest.get_objective()))
-                    self.current_quest = quest
-                    self.current_quest.quest_module = self
-                    self.current_quest.start_quest()
-                else:
-                    log.info(
-                        "No quest with id {} found in submodules ({})".format(
-                            current_quest_id, self.submodules
-                        )
-                    )
+        if not current_quest_id:
+            # No "current quest" was chosen by an above manager
+            return
+
+        current_quest_id = current_quest_id
+        quest = find(lambda m: m.ID == current_quest_id, self.submodules)
+
+        if not quest:
+            log.info(
+                "No quest with id %s found in submodules (%s)",
+                current_quest_id,
+                self.submodules,
+            )
+
+        log.info("Resumed quest {}".format(quest.get_objective()))
+        self.current_quest = quest
+        self.current_quest.quest_module = self
+        self.current_quest.start_quest()
 
     def enable(self, bot):
         self.current_quest_key = "{streamer}:current_quest".format(
