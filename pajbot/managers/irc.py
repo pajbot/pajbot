@@ -102,7 +102,10 @@ class MultiIRCManager(IRCManager):
         self.bot.execute_every(30, lambda: self.connection_manager.get_main_conn().ping('tmi.twitch.tv'))
 
     def whisper(self, username, message):
-        self.connection_manager.privmsg('#jtv', '/w {} {}'.format(username, message))
+        self.connection_manager.privmsg(
+            '#{}'.format(self.bot.nickname),
+            '/w {} {}'.format(username, message)
+        )
 
     def on_disconnect(self, chatconn, event):
         log.debug('Disconnected from IRC server')
