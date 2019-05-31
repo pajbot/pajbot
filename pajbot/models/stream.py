@@ -3,9 +3,9 @@ import collections
 import datetime
 import json
 import logging
+import math
 import urllib
 
-import math
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime

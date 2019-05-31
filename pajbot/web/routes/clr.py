@@ -1,8 +1,8 @@
 import json
 import logging
 
-from flask import Blueprint
 from flask import abort
+from flask import Blueprint
 from flask import render_template
 
 from pajbot.managers.redis import RedisManager

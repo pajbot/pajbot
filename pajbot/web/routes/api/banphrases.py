@@ -1,8 +1,10 @@
 import logging
 
-from flask_restful import Resource
 from flask_restful import reqparse
+from flask_restful import Resource
 
+import pajbot.modules
+import pajbot.utils
 import pajbot.web.utils
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager

@@ -13,12 +13,12 @@ branch_labels = None
 depends_on = None
 
 import datetime
-
-import sqlalchemy as sa
 from alembic import op
+import sqlalchemy as sa
+from sqlalchemy import event
 from sqlalchemy.dialects import mysql
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import sessionmaker, Session as BaseSession, relationship
 
 Session = sessionmaker()
 

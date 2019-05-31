@@ -1,6 +1,7 @@
-from flask_restful import Resource
 from flask_restful import reqparse
+from flask_restful import Resource
 
+import pajbot.modules
 import pajbot.web.utils  # NOQA
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper

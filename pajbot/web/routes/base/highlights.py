@@ -2,8 +2,8 @@ import datetime
 
 from flask import redirect
 from flask import render_template
-from sqlalchemy import Date
 from sqlalchemy import cast
+from sqlalchemy import Date
 from sqlalchemy.orm import joinedload
 
 from pajbot.managers.db import DBManager

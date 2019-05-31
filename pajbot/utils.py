@@ -1,10 +1,10 @@
 import datetime
 import logging
+import math
 import signal
 import sys
 from contextlib import contextmanager
 
-import math
 from colorama import Fore
 from colorama import Style
 

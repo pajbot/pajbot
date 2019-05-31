@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 def find_youtube_id_in_string(string):
     if len(string) < 11:
-        # Too short to be a you<tube ID
+        # Too short to be a youtube ID
         return False
 
     if len(string) == 11:

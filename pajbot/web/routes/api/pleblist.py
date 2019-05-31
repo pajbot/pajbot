@@ -3,8 +3,8 @@ import logging
 
 from flask import abort
 from flask import url_for
-from flask_restful import Resource
 from flask_restful import reqparse
+from flask_restful import Resource
 from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy.orm import noload

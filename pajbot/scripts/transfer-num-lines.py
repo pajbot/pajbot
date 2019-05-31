@@ -5,7 +5,9 @@ import os
 import sys
 
 import pymysql
+
 from kvidata import KVIData
+from models.user import User
 from models.user import UserManager
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__ + '/../')))
