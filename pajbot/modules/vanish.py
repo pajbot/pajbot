@@ -68,7 +68,8 @@ class VanishModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands[self.settings['command_name'].lower().replace('!', '').replace(' ', '')] =\
-            Command.raw_command(self.vanish_command,
+            Command.raw_command(
+                self.vanish_command,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Time yourself out for a second!',

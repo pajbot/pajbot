@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.models.command import CommandExample, Command
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
