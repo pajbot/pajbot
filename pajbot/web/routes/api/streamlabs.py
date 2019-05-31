@@ -7,8 +7,8 @@ from flask import session
 from flask import url_for
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
-from flask_restful import reqparse
 from flask_restful import Resource
+from flask_restful import reqparse
 
 import pajbot.web.utils
 from pajbot.web import app

@@ -3,7 +3,6 @@ from __future__ import with_statement
 import argparse
 import os
 import sys
-from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config
@@ -11,11 +10,6 @@ from sqlalchemy import pool
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
 
-import pajbot.models.hsbet
-from pajbot.bot import Bot
-from pajbot.models.roulette import Roulette
-from pajbot.models.webcontent import WebContent
-from pajbot.modules import PredictModule
 from pajbot.utils import load_config
 
 tag = context.get_tag_argument()

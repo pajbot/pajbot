@@ -1,10 +1,8 @@
 import json
 
-from flask_restful import reqparse
 from flask_restful import Resource
+from flask_restful import reqparse
 
-import pajbot.modules
-import pajbot.utils
 import pajbot.web.utils
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper

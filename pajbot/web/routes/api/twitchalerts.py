@@ -3,8 +3,8 @@ import logging
 import flask
 import requests
 from flask import redirect
-from flask_restful import reqparse
 from flask_restful import Resource
+from flask_restful import reqparse
 
 import pajbot.web.utils
 from pajbot.web import app

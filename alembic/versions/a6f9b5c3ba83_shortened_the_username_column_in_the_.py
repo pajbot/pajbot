@@ -12,9 +12,10 @@ down_revision = 'f7182019343e'
 branch_labels = None
 depends_on = None
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
+
 
 def upgrade():
     op.alter_column('tb_user', 'username',

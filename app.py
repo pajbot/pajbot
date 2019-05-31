@@ -5,7 +5,6 @@ import pajbot.web
 from pajbot.utils import init_logging
 from pajbot.web import app
 
-
 init_logging('pajbot')
 
 parser = argparse.ArgumentParser(description='start the web app')

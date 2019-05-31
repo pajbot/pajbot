@@ -1,8 +1,8 @@
 import json
 import logging
 
-from flask_restful import reqparse
 from flask_restful import Resource
+from flask_restful import reqparse
 from sqlalchemy.orm import joinedload
 
 import pajbot.modules

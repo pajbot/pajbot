@@ -14,21 +14,20 @@ depends_on = None
 
 import argparse
 
+import sqlalchemy as sa
 from alembic import context
 from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import relationship
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.dialects import mysql
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-from pajbot.utils import load_config
 from pajbot.managers.redis import RedisManager
+from pajbot.utils import load_config
 
 Session = sessionmaker()
 
