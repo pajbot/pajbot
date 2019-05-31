@@ -2,7 +2,6 @@ import collections
 import datetime
 import logging
 
-import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -147,18 +146,18 @@ class DebugModule(BaseModule):
             return False
 
     def load_commands(self, **options):
-        self.commands["debug"] = pajbot.models.command.Command.multiaction_command(
+        self.commands["debug"] = Command.multiaction_command(
             level=100,
             delay_all=0,
             delay_user=0,
             default=None,
             commands={
-                "command": pajbot.models.command.Command.raw_command(
+                "command": Command.raw_command(
                     self.debug_command,
                     level=250,
                     description="Debug a command",
                     examples=[
-                        pajbot.models.command.CommandExample(
+                        CommandExample(
                             None,
                             "Debug a command",
                             chat="user:!debug command ping\n"
@@ -167,12 +166,12 @@ class DebugModule(BaseModule):
                         ).parse()
                     ],
                 ),
-                "user": pajbot.models.command.Command.raw_command(
+                "user": Command.raw_command(
                     self.debug_user,
                     level=250,
                     description="Debug a user",
                     examples=[
-                        pajbot.models.command.CommandExample(
+                        CommandExample(
                             None,
                             "Debug a user",
                             chat="user:!debug user snusbot\n"
@@ -181,14 +180,14 @@ class DebugModule(BaseModule):
                         ).parse()
                     ],
                 ),
-                "tags": pajbot.models.command.Command.raw_command(
+                "tags": Command.raw_command(
                     self.debug_tags,
                     level=100,
                     delay_all=0,
                     delay_user=5,
                     description="Debug tags for a user",
                     examples=[
-                        pajbot.models.command.CommandExample(
+                        CommandExample(
                             None,
                             "Debug tags for a user",
                             chat="user:!debug tags pajbot\n"

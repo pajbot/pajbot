@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
@@ -72,7 +71,7 @@ class AbCommandModule(BaseModule):
         return
 
     def load_commands(self, **options):
-        self.commands['ab'] = pajbot.models.command.Command.raw_command(
+        self.commands['ab'] = Command.raw_command(
                 self.ab,
                 delay_all=self.settings['global_cd'],
                 delay_user=self.settings['user_cd'],
@@ -80,11 +79,11 @@ class AbCommandModule(BaseModule):
                 description='Inject emote inbetween each letter/word in message',
                 command='ab',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Inject emote inbetween each letter in message',
+                    CommandExample(None, 'Inject emote inbetween each letter in message',
                         chat='user:!ab Keepo KEEPO\n'
                         'bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo',
                         description='').parse(),
-                    pajbot.models.command.CommandExample(None, 'Inject emote inbetween each word in message',
+                    CommandExample(None, 'Inject emote inbetween each word in message',
                         chat='user:!ab Kreygasm NOW THATS WHAT I CALL MUSIC\n'
                         'bot:pajlada, Kreygasm NOW Kreygasm THATS Kreygasm WHAT Kreygasm I Kreygasm CALL Kreygasm MUSIC Kreygasm',
                         description='').parse(),

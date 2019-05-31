@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
@@ -224,45 +223,45 @@ class AdminCommandsModule(BaseModule):
             bot.say('Enabled module {}'.format(module_id))
 
     def load_commands(self, **options):
-        self.commands['w'] = pajbot.models.command.Command.raw_command(self.whisper,
+        self.commands['w'] = Command.raw_command(self.whisper,
                 level=2000,
                 description='Send a whisper from the bot')
-        self.commands['editpoints'] = pajbot.models.command.Command.raw_command(self.edit_points,
+        self.commands['editpoints'] = Command.raw_command(self.edit_points,
                 level=1500,
                 description='Modifies a user\'s points',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Give a user points',
+                    CommandExample(None, 'Give a user points',
                         chat='user:!editpoints pajlada 500\n'
                         'bot>user:Successfully gave pajlada 500 points.',
                         description='This creates 500 points and gives them to pajlada').parse(),
-                    pajbot.models.command.CommandExample(None, 'Remove points from a user',
+                    CommandExample(None, 'Remove points from a user',
                         chat='user:!editpoints pajlada -500\n'
                         'bot>user:Successfully removed 500 points from pajlada.',
                         description='This removes 500 points from pajlada. Users can go into negative points with this.').parse(),
                     ])
-        self.commands['setpoints'] = pajbot.models.command.Command.raw_command(self.set_points,
+        self.commands['setpoints'] = Command.raw_command(self.set_points,
                 level=1500,
                 description='Sets a user\'s points',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Set a user\'s points',
+                    CommandExample(None, 'Set a user\'s points',
                         chat='user:!setpoints pajlada 500\n'
                         'bot>user:Successfully set pajlada\'s points to 500.',
                         description='This sets pajlada\'s points to 500.').parse(),
                     ])
-        self.commands['level'] = pajbot.models.command.Command.raw_command(self.level,
+        self.commands['level'] = Command.raw_command(self.level,
                 level=1000,
                 description='Set a users level')
 
-        self.commands['silence'] = pajbot.models.command.Command.raw_command(self.cmd_silence,
+        self.commands['silence'] = Command.raw_command(self.cmd_silence,
                 level=500,
                 description='Silence the bot')
         self.commands['mute'] = self.commands['silence']
 
-        self.commands['unsilence'] = pajbot.models.command.Command.raw_command(self.cmd_unsilence,
+        self.commands['unsilence'] = Command.raw_command(self.cmd_unsilence,
                 level=500,
                 description='Unsilence the bot')
         self.commands['unmute'] = self.commands['unsilence']
 
-        self.commands['module'] = pajbot.models.command.Command.raw_command(self.cmd_module,
+        self.commands['module'] = Command.raw_command(self.cmd_module,
                 level=500,
                 description='Modify module')

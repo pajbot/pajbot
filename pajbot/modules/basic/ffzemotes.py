@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule
 
@@ -50,23 +49,23 @@ class FFZEmotesModule(BaseModule):
             bot.say('No FFZ Emotes active in this chat')
 
     def load_commands(self, **options):
-        get_cmd = pajbot.models.command.Command.raw_command(self.get_ffz_emotes,
+        get_cmd = Command.raw_command(self.get_ffz_emotes,
                 level=100,
                 delay_all=15,
                 delay_user=60,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Show all active ffz emotes for this channel.',
+                    CommandExample(None, 'Show all active ffz emotes for this channel.',
                         chat='user: !ffzemotes\n'
                         'bot: Active FFZ Emotes in chat: forsenPls gachiGASM',
                         description='').parse(),
                     ])
 
-        reload_cmd = pajbot.models.command.Command.raw_command(self.reload_ffz_emotes,
+        reload_cmd = Command.raw_command(self.reload_ffz_emotes,
                 level=500,
                 delay_all=10,
                 delay_user=20,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Reload all active ffz emotes for this channel.',
+                    CommandExample(None, 'Reload all active ffz emotes for this channel.',
                         chat='user: !ffzemotes reload\n'
                         'bot>user: Reloading ffz emotes...',
                         description='').parse(),
@@ -74,7 +73,7 @@ class FFZEmotesModule(BaseModule):
 
         # The ' ' is there to make things look good in the
         # web interface.
-        self.commands['ffzemotes'] = pajbot.models.command.Command.multiaction_command(
+        self.commands['ffzemotes'] = Command.multiaction_command(
                 level=100,
                 default=' ',
                 fallback=' ',

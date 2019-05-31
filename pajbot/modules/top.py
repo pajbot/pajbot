@@ -1,8 +1,8 @@
 import logging
 
-import pajbot.models
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.command import Command
 from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -119,21 +119,13 @@ class TopModule(BaseModule):
 
     def load_commands(self, **options):
         if self.settings['enable_topchatters']:
-            self.commands['topchatters'] = pajbot.models.command.Command.raw_command(
-                    self.top_chatters,
-                    )
+            self.commands['topchatters'] = Command.raw_command(self.top_chatters)
 
         if self.settings['enable_topwatchers']:
-            self.commands['topwatchers'] = pajbot.models.command.Command.raw_command(
-                    self.top_watchers,
-                    )
+            self.commands['topwatchers'] = Command.raw_command(self.top_watchers)
 
         if self.settings['enable_topoffline']:
-            self.commands['topoffline'] = pajbot.models.command.Command.raw_command(
-                    self.top_offline,
-                    )
+            self.commands['topoffline'] = Command.raw_command(self.top_offline)
 
         if self.settings['enable_toppoints']:
-            self.commands['toppoints'] = pajbot.models.command.Command.raw_command(
-                    self.top_points,
-                    )
+            self.commands['toppoints'] = Command.raw_command(self.top_points)

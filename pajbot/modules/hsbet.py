@@ -3,11 +3,11 @@ import logging
 
 import requests
 
-import pajbot.models
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.models.command import Command
 from pajbot.models.hsbet import HSBetBet
 from pajbot.models.hsbet import HSBetGame
 from pajbot.modules import BaseModule
@@ -388,7 +388,7 @@ class HSBetModule(BaseModule):
         bot.whisper(source.username, 'Current win/lose points: {}/{}'.format(win_points, lose_points))
 
     def load_commands(self, **options):
-        self.commands['hsbet'] = pajbot.models.command.Command.multiaction_command(
+        self.commands['hsbet'] = Command.multiaction_command(
                 level=100,
                 default='bet',
                 fallback='bet',
@@ -396,27 +396,27 @@ class HSBetModule(BaseModule):
                 delay_user=0,
                 can_execute_with_whisper=True,
                 commands={
-                    'bet': pajbot.models.command.Command.raw_command(
+                    'bet': Command.raw_command(
                         self.command_bet,
                         delay_all=0,
                         delay_user=10,
                         can_execute_with_whisper=True,
                         ),
-                    'open': pajbot.models.command.Command.raw_command(
+                    'open': Command.raw_command(
                         self.command_open,
                         level=500,
                         delay_all=0,
                         delay_user=0,
                         can_execute_with_whisper=True,
                         ),
-                    'close': pajbot.models.command.Command.raw_command(
+                    'close': Command.raw_command(
                         self.command_close,
                         level=500,
                         delay_all=0,
                         delay_user=0,
                         can_execute_with_whisper=True,
                         ),
-                    'stats': pajbot.models.command.Command.raw_command(
+                    'stats': Command.raw_command(
                         self.command_stats,
                         level=100,
                         delay_all=0,

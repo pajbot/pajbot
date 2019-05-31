@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules.base import ModuleType
 

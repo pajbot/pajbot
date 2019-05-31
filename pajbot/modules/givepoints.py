@@ -1,6 +1,6 @@
 import logging
 
-import pajbot.models
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -103,14 +103,14 @@ class GivePointsModule(BaseModule):
 
     def load_commands(self, **options):
         self.command_name = self.settings['command_name'].lower().replace('!', '').replace(' ', '')
-        self.commands[self.command_name] = pajbot.models.command.Command.raw_command(
+        self.commands[self.command_name] = Command.raw_command(
                 self.give_points,
                 sub_only=self.settings['source_requires_sub'],
                 delay_all=0,
                 delay_user=60,
                 can_execute_with_whisper=True,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Give points to a user.',
+                    CommandExample(None, 'Give points to a user.',
                         chat='user:!{0} pajapaja 4444\n'
                         'bot>user: Successfully gave away 4444 points to pajapaja'.format(self.command_name),
                         description='').parse(),

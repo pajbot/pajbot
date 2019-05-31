@@ -259,7 +259,7 @@ def longest_repeated_substring(string):
     if longest_repeated_substr == '':
         return None
 
-    return (longest_repeated_substr, string.count(longest_repeated_substr))
+    return longest_repeated_substr, string.count(longest_repeated_substr)
 
 
 class RepspamModule(BaseModule):

@@ -1,6 +1,6 @@
 import logging
 
-import pajbot.models
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -59,20 +59,20 @@ class LeagueRankModule(BaseModule):
             ]
 
     def load_commands(self, **options):
-        self.commands['lolrank'] = pajbot.models.command.Command.raw_command(self.league_rank,
+        self.commands['lolrank'] = Command.raw_command(self.league_rank,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Check streamer\'s or other players League of Legends rank in chat.',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Check streamer\'s rank',
+                    CommandExample(None, 'Check streamer\'s rank',
                         chat='user:!rank\n'
                         'bot: The Summoner Moregain Freeman on region EUW is currently in PLATINUM IV with 62 LP 4Head',
                         description='Bot says broadcaster\'s region, League-tier, division and LP').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check other player\'s rank on default region',
+                    CommandExample(None, 'Check other player\'s rank on default region',
                         chat='user:!rank forsen\n'
                         'bot: The Summoner forsen on region EUW is currently in SILVER IV with 36 LP 4Head',
                         description='Bot says player\'s region, League-tier, division and LP').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check other player\'s rank on another region',
+                    CommandExample(None, 'Check other player\'s rank on another region',
                         chat='user:!rank imaqtpie na\n'
                         'bot: The Summoner Imaqtpie on region NA is currently in CHALLENGER I with 441 LP 4Head',
                         description='Bot says player\'s region, League-tier, division and LP. Other regions to use as arguments: euw, eune, na, oce, br, kr, las, lan, ru, tr').parse(),

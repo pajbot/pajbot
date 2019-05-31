@@ -5,7 +5,7 @@ import re
 
 import requests
 
-import pajbot.models
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -192,14 +192,14 @@ class DubtrackModule(BaseModule):
 
     def load_commands(self, **options):
         commands = {
-            "link": pajbot.models.command.Command.raw_command(
+            "link": Command.raw_command(
                 self.link,
                 level=100,
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get link to your dubtrack",
                 examples=[
-                    pajbot.models.command.CommandExample(
+                    CommandExample(
                         None,
                         "Ask bot for dubtrack link",
                         chat="user:!dubtrack link\n"
@@ -207,7 +207,7 @@ class DubtrackModule(BaseModule):
                     ).parse()
                 ],
             ),
-            "song": pajbot.models.command.Command.raw_command(
+            "song": Command.raw_command(
                 self.song,
                 level=100,
                 delay_all=self.settings["global_cd"],
@@ -215,19 +215,19 @@ class DubtrackModule(BaseModule):
                 description="Get current song",
                 run_in_thread=True,
                 examples=[
-                    pajbot.models.command.CommandExample(
+                    CommandExample(
                         None,
                         "Ask bot for current song (youtube)",
                         chat="user:!dubtrack song\n"
                         "bot:Current song: NOMA - Brain Power, link: https://youtu.be/9R8aSKwTEMg",
                     ).parse(),
-                    pajbot.models.command.CommandExample(
+                    CommandExample(
                         None,
                         "Ask bot for current song (soundcloud)",
                         chat="user:!dubtrack song\n"
                         "bot:Current song: This is Bondage, link: https://soundcloud.com/razq35/nightlife",
                     ).parse(),
-                    pajbot.models.command.CommandExample(
+                    CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
                         chat="user:!dubtrack song\n"
@@ -235,7 +235,7 @@ class DubtrackModule(BaseModule):
                     ).parse(),
                 ],
             ),
-            "update": pajbot.models.command.Command.raw_command(
+            "update": Command.raw_command(
                 self.update,
                 level=500,
                 delay_all=self.settings["global_cd"],
@@ -249,7 +249,7 @@ class DubtrackModule(BaseModule):
             commands["s"] = commands["song"]
             commands["u"] = commands["update"]
 
-        self.commands["dubtrack"] = pajbot.models.command.Command.multiaction_command(
+        self.commands["dubtrack"] = Command.multiaction_command(
             level=100,
             default="link",  # If the user does not input any argument
             fallback="link",  # If the user inputs an invalid argument

@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule
 
@@ -36,7 +35,7 @@ class CheckModModule(BaseModule):
             bot.say('{0} was not found in the user database'.format(username))
 
     def load_commands(self, **options):
-        self.commands['checkmod'] = pajbot.models.command.Command.raw_command(self.check_mod,
+        self.commands['checkmod'] = Command.raw_command(self.check_mod,
                 level=100,
                 delay_all=3,
                 delay_user=6)

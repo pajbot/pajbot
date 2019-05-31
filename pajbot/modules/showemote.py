@@ -1,6 +1,6 @@
 import logging
 
-import pajbot.models
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -67,7 +67,7 @@ class ShowEmoteModule(BaseModule):
         )
 
     def load_commands(self, **options):
-        self.commands["#showemote"] = pajbot.models.command.Command.raw_command(
+        self.commands["#showemote"] = Command.raw_command(
             self.show_emote,
             tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
@@ -75,7 +75,7 @@ class ShowEmoteModule(BaseModule):
             sub_only=self.settings["sub_only"],
             can_execute_with_whisper=self.settings["can_whisper"],
             examples=[
-                pajbot.models.command.CommandExample(
+                CommandExample(
                     None,
                     "Show an emote on stream.",
                     chat="user:!#showemote Keepo\n"

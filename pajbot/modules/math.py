@@ -1,11 +1,13 @@
 import ast
 import logging
-import math
 import operator as op
+
+import math
 
 import pajbot.exc
 import pajbot.models
 from pajbot.actions import ActionQueue
+from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.utils import time_limit
@@ -84,7 +86,7 @@ class MathModule(BaseModule):
         self.action_queue.start()
 
     def load_commands(self, **options):
-        self.commands['math'] = pajbot.models.command.Command.raw_command(self.math,
+        self.commands['math'] = Command.raw_command(self.math,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='Calculate some simple math',

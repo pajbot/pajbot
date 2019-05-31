@@ -1,6 +1,5 @@
 import logging
 
-import pajbot.models
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
@@ -64,21 +63,21 @@ class PermabanModule(BaseModule):
                 AdminLogManager.add_entry('Permaban remove', source, log_msg)
 
     def load_commands(self, **options):
-        self.commands['permaban'] = pajbot.models.command.Command.raw_command(self.permaban_command,
+        self.commands['permaban'] = Command.raw_command(self.permaban_command,
                 level=1000,
                 description='Permanently ban a user. Every time the user types in chat, he will be permanently banned again',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Default usage',
+                    CommandExample(None, 'Default usage',
                         chat='user:!permaban Karl_Kons\n'
                         'bot>user:Karl_Kons has now been permabanned',
                         description='Permanently ban Karl_Kons from the chat').parse(),
                     ])
 
-        self.commands['unpermaban'] = pajbot.models.command.Command.raw_command(self.unpermaban_command,
+        self.commands['unpermaban'] = Command.raw_command(self.unpermaban_command,
                 level=1000,
                 description='Remove a permanent ban from a user',
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Default usage',
+                    CommandExample(None, 'Default usage',
                         chat='user:!unpermaban Karl_Kons\n'
                         'bot>user:Karl_Kons is no longer permabanned',
                         description='Remove permanent ban from Karl_Kons').parse(),

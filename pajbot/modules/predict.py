@@ -9,9 +9,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
 
-import pajbot.models
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
+from pajbot.models.command import Command
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 
@@ -117,14 +117,14 @@ class PredictModule(BaseModule):
     ]
 
     def load_commands(self, **options):
-        self.commands["predict"] = pajbot.models.command.Command.multiaction_command(
+        self.commands["predict"] = Command.multiaction_command(
             level=100,
             default="vote",
             fallback="vote",
             delay_all=0,
             delay_user=0,
             commands={
-                "vote": pajbot.models.command.Command.raw_command(
+                "vote": Command.raw_command(
                     self.predict,
                     delay_all=0,
                     delay_user=10,
@@ -134,7 +134,7 @@ class PredictModule(BaseModule):
                     + self.settings["challenge_name"]
                     + " challenge",
                 ),
-                "new": pajbot.models.command.Command.raw_command(
+                "new": Command.raw_command(
                     self.new_predict,
                     delay_all=10,
                     delay_user=10,
@@ -143,14 +143,14 @@ class PredictModule(BaseModule):
                     + " run",
                     level=750,
                 ),
-                "end": pajbot.models.command.Command.raw_command(
+                "end": Command.raw_command(
                     self.end_predict,
                     delay_all=10,
                     delay_user=10,
                     description="Ends a " + self.settings["challenge_name"] + " run",
                     level=750,
                 ),
-                "close": pajbot.models.command.Command.raw_command(
+                "close": Command.raw_command(
                     self.close_predict,
                     delay_all=10,
                     delay_user=10,
@@ -163,21 +163,21 @@ class PredictModule(BaseModule):
         )
 
         # XXX: DEPRECATED, WILL BE REMOVED
-        self.commands["newpredict"] = pajbot.models.command.Command.raw_command(
+        self.commands["newpredict"] = Command.raw_command(
             self.new_predict_depr,
             delay_all=10,
             delay_user=10,
             description="Starts a new " + self.settings["challenge_name"] + " run",
             level=750,
         )
-        self.commands["endpredict"] = pajbot.models.command.Command.raw_command(
+        self.commands["endpredict"] = Command.raw_command(
             self.end_predict_depr,
             delay_all=10,
             delay_user=10,
             description="Ends a " + self.settings["challenge_name"] + " run",
             level=750,
         )
-        self.commands["closepredict"] = pajbot.models.command.Command.raw_command(
+        self.commands["closepredict"] = Command.raw_command(
             self.close_predict_depr,
             delay_all=10,
             delay_user=10,
@@ -193,14 +193,14 @@ class PredictModule(BaseModule):
         if len(mini_command) > 0:
             self.commands[
                 mini_command
-            ] = pajbot.models.command.Command.multiaction_command(
+            ] = Command.multiaction_command(
                 level=100,
                 default="vote",
                 fallback="vote",
                 delay_all=0,
                 delay_user=0,
                 commands={
-                    "vote": pajbot.models.command.Command.raw_command(
+                    "vote": Command.raw_command(
                         self.mini_predict,
                         delay_all=0,
                         delay_user=10,
@@ -210,7 +210,7 @@ class PredictModule(BaseModule):
                         + self.settings["challenge_name"]
                         + " challenge",
                     ),
-                    "new": pajbot.models.command.Command.raw_command(
+                    "new": Command.raw_command(
                         self.mini_new_predict,
                         delay_all=10,
                         delay_user=10,
@@ -219,7 +219,7 @@ class PredictModule(BaseModule):
                         + " run",
                         level=750,
                     ),
-                    "end": pajbot.models.command.Command.raw_command(
+                    "end": Command.raw_command(
                         self.mini_end_predict,
                         delay_all=10,
                         delay_user=10,
@@ -228,7 +228,7 @@ class PredictModule(BaseModule):
                         + " run",
                         level=750,
                     ),
-                    "close": pajbot.models.command.Command.raw_command(
+                    "close": Command.raw_command(
                         self.mini_close_predict,
                         delay_all=10,
                         delay_user=10,

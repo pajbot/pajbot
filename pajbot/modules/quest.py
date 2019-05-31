@@ -1,9 +1,9 @@
 import logging
 import random
 
-import pajbot.models
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.command import Command
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.streamhelper import StreamHelper
@@ -128,16 +128,16 @@ class QuestModule(BaseModule):
                 bot.whisper(source.username, message_tokens)
 
     def load_commands(self, **options):
-        self.commands["myprogress"] = pajbot.models.command.Command.raw_command(
+        self.commands["myprogress"] = Command.raw_command(
             self.my_progress, can_execute_with_whisper=True, delay_all=0, delay_user=10
         )
-        self.commands["currentquest"] = pajbot.models.command.Command.raw_command(
+        self.commands["currentquest"] = Command.raw_command(
             self.get_current_quest,
             can_execute_with_whisper=True,
             delay_all=2,
             delay_user=10,
         )
-        self.commands["tokens"] = pajbot.models.command.Command.raw_command(
+        self.commands["tokens"] = Command.raw_command(
             self.get_user_tokens,
             can_execute_with_whisper=True,
             delay_all=0,

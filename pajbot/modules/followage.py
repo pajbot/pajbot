@@ -1,8 +1,8 @@
 import datetime
 import logging
 
-import pajbot.models
 from pajbot.actions import ActionQueue
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.utils import time_since
@@ -71,50 +71,50 @@ class FollowAgeModule(BaseModule):
     def load_commands(self, **options):
         # TODO: Have delay modifiable in settings
 
-        self.commands['followage'] = pajbot.models.command.Command.raw_command(self.follow_age,
+        self.commands['followage'] = Command.raw_command(self.follow_age,
                 delay_all=self.settings['global_cd'],
                 delay_user=self.settings['user_cd'],
                 description='Check your or someone elses follow age for a channel',
                 can_execute_with_whisper=True,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Check your own follow age',
+                    CommandExample(None, 'Check your own follow age',
                         chat='user:!followage\n'
                         'bot:pajlada, you have been following Karl_Kons for 4 months and 24 days',
                         description='Check how long you have been following the current streamer (Karl_Kons in this case)').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check someone elses follow age',
+                    CommandExample(None, 'Check someone elses follow age',
                         chat='user:!followage NightNacht\n'
                         'bot:pajlada, NightNacht has been following Karl_Kons for 5 months and 4 days',
                         description='Check how long any user has been following the current streamer (Karl_Kons in this case)').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check someones follow age for a certain streamer',
+                    CommandExample(None, 'Check someones follow age for a certain streamer',
                         chat='user:!followage NightNacht forsenlol\n'
                         'bot:pajlada, NightNacht has been following forsenlol for 1 year and 4 months',
                         description='Check how long NightNacht has been following forsenlol').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check your own follow age for a certain streamer',
+                    CommandExample(None, 'Check your own follow age for a certain streamer',
                         chat='user:!followage pajlada forsenlol\n'
                         'bot:pajlada, you have been following forsenlol for 1 year and 3 months',
                         description='Check how long you have been following forsenlol').parse(),
                     ],
                 )
 
-        self.commands['followsince'] = pajbot.models.command.Command.raw_command(self.follow_since,
+        self.commands['followsince'] = Command.raw_command(self.follow_since,
                 delay_all=self.settings['global_cd'],
                 delay_user=self.settings['user_cd'],
                 description='Check from when you or someone else first followed a channel',
                 can_execute_with_whisper=True,
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'Check your own follow since',
+                    CommandExample(None, 'Check your own follow since',
                         chat='user:!followsince\n'
                         'bot:pajlada, you have been following Karl_Kons since 04 March 2015, 07:02:01 UTC',
                         description='Check when you first followed the current streamer (Karl_Kons in this case)').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check someone elses follow since',
+                    CommandExample(None, 'Check someone elses follow since',
                         chat='user:!followsince NightNacht\n'
                         'bot:pajlada, NightNacht has been following Karl_Kons since 03 July 2014, 04:12:42 UTC',
                         description='Check when NightNacht first followed the current streamer (Karl_Kons in this case)').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check someone elses follow since for another streamer',
+                    CommandExample(None, 'Check someone elses follow since for another streamer',
                         chat='user:!followsince NightNacht forsenlol\n'
                         'bot:pajlada, NightNacht has been following forsenlol since 13 June 2013, 13:10:51 UTC',
                         description='Check when NightNacht first followed the given streamer (forsenlol)').parse(),
-                    pajbot.models.command.CommandExample(None, 'Check your follow since for another streamer',
+                    CommandExample(None, 'Check your follow since for another streamer',
                         chat='user:!followsince pajlada forsenlol\n'
                         'bot:pajlada, you have been following forsenlol since 16 December 1990, 03:06:51 UTC',
                         description='Check when you first followed the given streamer (forsenlol)').parse(),

@@ -8,6 +8,7 @@ import pajbot.exc
 import pajbot.models
 import pajbot.utils
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -218,13 +219,13 @@ class SlotMachineModule(BaseModule):
         self.last_add = None
 
     def load_commands(self, **options):
-        self.commands['slotmachine'] = pajbot.models.command.Command.raw_command(self.pull,
+        self.commands['slotmachine'] = Command.raw_command(self.pull,
                 delay_all=self.settings['online_global_cd'],
                 delay_user=self.settings['online_user_cd'],
                 description='play slot machine for points',
                 can_execute_with_whisper=self.settings['can_execute_with_whisper'],
                 examples=[
-                    pajbot.models.command.CommandExample(None, 'SlotMachine for 69 points',
+                    CommandExample(None, 'SlotMachine for 69 points',
                         chat='user:!slotmachine 69\n'
                         'bot:pajlada won 69 points in slotmachine xd! FeelsGoodMan',
                         description='Do a slot machine pull for 69 points').parse(),
