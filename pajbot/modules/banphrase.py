@@ -110,7 +110,7 @@ class BanphraseModule(BaseModule):
                 pass
 
             banphrase = bot.banphrase_manager.find_match(
-                message=message, id=banphrase_id
+                message=message, banphrase_id=banphrase_id
             )
 
             if banphrase is None:
