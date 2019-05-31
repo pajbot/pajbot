@@ -40,7 +40,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
-from pajbot.utils import time_ago, clean_up_message
+from pajbot.utils import clean_up_message, time_ago
 from pajbot.utils import time_method
 from pajbot.utils import time_since
 
