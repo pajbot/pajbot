@@ -241,9 +241,10 @@ class QuestModule(BaseModule):
         self.current_quest.start_quest()
 
     def enable(self, bot):
-        self.current_quest_key = "{streamer}:current_quest".format(
-            streamer=self.bot.streamer
-        )
+        if self.bot:
+            self.current_quest_key = "{streamer}:current_quest".format(
+                streamer=self.bot.streamer
+            )
 
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
