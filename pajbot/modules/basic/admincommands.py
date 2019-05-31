@@ -1,6 +1,7 @@
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
