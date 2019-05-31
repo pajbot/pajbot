@@ -67,7 +67,7 @@ class ActionsTester(unittest2.TestCase):
         self.source = self.pajbot.users['omgthisuserdoesnotexist123']
         self.source.username_raw = 'OmgthisuserdoesnotexiSt123'
         self.source.points = 142
-        self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S')
+        self.source.last_seen = datetime.datetime.strptime('17:01:42', '%H:%M:%S').replace(tzinfo=datetime.timezone.utc)
 
     def test_message_action_parse(self):
         from pajbot.models.action import SayAction  # noqa

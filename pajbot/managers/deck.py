@@ -1,8 +1,8 @@
 import argparse
-import datetime
 import logging
 from collections import UserList
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.deck import Deck
 
@@ -50,22 +50,23 @@ class DeckManager(UserList):
 
     def set_current_deck(self, deck_link):
         # Loop through our already loaded decks
+        now = utils.now()
         for deck in self.data:
             # Is this deck link already i use?
             if deck_link == deck.link:
                 self.current_deck = deck
                 self.update_deck(deck,
-                        times_used=deck.times_used + 1,
-                        last_used=datetime.datetime.now())
+                                 times_used=deck.times_used + 1,
+                                 last_used=now)
                 return deck, False
 
         # No old deck matched the link, create a new deck!
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             deck = Deck()
             deck.set(link=deck_link,
-                    times_used=1,
-                    first_used=datetime.datetime.now(),
-                    last_used=datetime.datetime.now())
+                     times_used=1,
+                     first_used=now,
+                     last_used=now)
             self.current_deck = deck
             self.data.append(deck)
             db_session.add(deck)

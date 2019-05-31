@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from sqlalchemy import Column
@@ -9,6 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 
@@ -82,7 +82,7 @@ class DuelManager:
             user_duel_stats.duels_won += 1
             user_duel_stats.duels_total += 1
             user_duel_stats.points_won += points_won
-            user_duel_stats.last_duel = datetime.datetime.now()
+            user_duel_stats.last_duel = utils.now()
 
             if user_duel_stats.current_streak > 0:
                 user_duel_stats.current_streak += 1
@@ -106,7 +106,7 @@ class DuelManager:
             user_duel_stats = DuelManager.get_user_duel_stats(user, db_session)
             user_duel_stats.duels_total += 1
             user_duel_stats.points_lost += points_lost
-            user_duel_stats.last_duel = datetime.datetime.now()
+            user_duel_stats.last_duel = utils.now()
 
             if user_duel_stats.current_streak < 0:
                 user_duel_stats.current_streak -= 1

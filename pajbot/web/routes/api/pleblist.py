@@ -10,6 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import noload
 
 import pajbot.web.utils
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.pleblist import PleblistSong
@@ -168,7 +169,7 @@ class APIPleblistNext(Resource):
                         'error': 'No song active in the pleblist'
                         }, 404
 
-            current_song.date_played = datetime.datetime.now()
+            current_song.date_played = utils.now()
             session.commit()
 
             # TODO: Add more data.

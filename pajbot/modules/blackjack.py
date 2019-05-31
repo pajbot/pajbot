@@ -4,6 +4,7 @@ import logging
 
 from numpy import random
 
+from pajbot import utils
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -177,7 +178,7 @@ class BlackjackModule(BaseModule):
             except (ValueError, TypeError):
                 pass
 
-        self.last_game_start = datetime.datetime.now() + datetime.timedelta(
+        self.last_game_start = utils.now() + datetime.timedelta(
             seconds=time_limit
         )
 
@@ -190,7 +191,7 @@ class BlackjackModule(BaseModule):
     def command_close(self, **options):
         bot = options["bot"]
 
-        self.last_game_start = datetime.datetime.now() - datetime.timedelta(seconds=10)
+        self.last_game_start = utils.now() - datetime.timedelta(seconds=10)
 
         for username in self.bets:
             _, points = self.bets[username]

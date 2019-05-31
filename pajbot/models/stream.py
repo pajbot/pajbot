@@ -17,6 +17,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -26,7 +27,7 @@ log = logging.getLogger("pajbot")
 
 
 def parse_twitch_datetime(datetime_str):
-    return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ")
+    return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
 
 
 class Stream(Base):
@@ -59,7 +60,7 @@ class Stream(Base):
         """
 
         if self.ended is False:
-            return datetime.datetime.now() - self.stream_start
+            return utils.now() - self.stream_start
 
         return self.stream_end - self.stream_start
 
@@ -131,7 +132,7 @@ class StreamChunkHighlight(Base):
 
     def __init__(self, stream_chunk, **options):
         self.stream_chunk_id = stream_chunk.id
-        self.created_at = datetime.datetime.now()
+        self.created_at = utils.now()
         self.highlight_offset = options.get("offset", self.DEFAULT_OFFSET)
         self.description = options.get("description", None)
         self.override_link = options.get("override_link", None)
@@ -353,7 +354,7 @@ class StreamManager:
     def create_stream_chunk(self, status):
         if self.current_stream_chunk is not None:
             # There's already a stream chunk started!
-            self.current_stream_chunk.chunk_end = datetime.datetime.now()
+            self.current_stream_chunk.chunk_end = utils.now()
             DBManager.session_add_expunge(self.current_stream_chunk)
 
         stream_chunk = None
@@ -492,7 +493,7 @@ class StreamManager:
                 if self.online is True:
                     log.info("Offline. {0}".format(self.num_offlines))
                     if self.first_offline is None:
-                        self.first_offline = datetime.datetime.now()
+                        self.first_offline = utils.now()
 
                     if self.num_offlines >= 10:
                         log.info("Switching to offline state!")
@@ -546,7 +547,7 @@ class StreamManager:
                 log.info("Successfully commited video url data.")
             elif self.current_stream_chunk.video_url != video_url:
                 # End current stream chunk
-                self.current_stream_chunk.chunk_end = datetime.datetime.now()
+                self.current_stream_chunk.chunk_end = utils.now()
                 DBManager.session_add_expunge(self.current_stream_chunk)
 
                 with DBManager.create_session_scope(

@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from sqlalchemy import Column
@@ -8,6 +7,7 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 
@@ -38,7 +38,7 @@ class PleblistSong(Base):
         self.stream_id = stream_id
         self.user_id = options.get("user_id", None)
         self.youtube_id = youtube_id
-        self.date_added = datetime.datetime.now()
+        self.date_added = utils.now()
         self.date_played = None
         self.skip_after = options.get("skip_after", None)
 

@@ -3,6 +3,7 @@ import logging
 
 from numpy import random
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
@@ -179,7 +180,7 @@ class DuelModule(BaseModule):
             # You cannot duel yourself
             return False
 
-        if user.last_active is None or (datetime.datetime.now() - user._last_active).total_seconds() > 5 * 60:
+        if user.last_active is None or (utils.now() - user._last_active).total_seconds() > 5 * 60:
             bot.whisper(source.username, 'This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge')
             return False
 

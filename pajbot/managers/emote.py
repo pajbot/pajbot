@@ -6,6 +6,7 @@ import re
 
 import requests
 
+from pajbot import utils
 from pajbot.apiwrappers import APIBase
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -383,7 +384,7 @@ class EmoteManager:
                 user_tags = source.get_tags()
 
                 for tag in new_user_tags:
-                    user_tags[tag] = (datetime.datetime.now() + datetime.timedelta(days=15)).timestamp()
+                    user_tags[tag] = (utils.now() + datetime.timedelta(days=15)).timestamp()
                 source.set_tags(user_tags, redis=pipeline)
 
         return message_emotes

@@ -7,6 +7,7 @@ from numpy import random
 import pajbot.exc
 import pajbot.models
 import pajbot.utils
+from pajbot import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
@@ -320,7 +321,7 @@ class SlotMachineModule(BaseModule):
         if self.last_add is None:
             return
 
-        diff = datetime.datetime.now() - self.last_add
+        diff = utils.now() - self.last_add
 
         if diff.seconds > 3:
             self.flush_output_buffer()
@@ -352,7 +353,7 @@ class SlotMachineModule(BaseModule):
 
         self.output_buffer_args.append(arguments)
 
-        self.last_add = datetime.datetime.now()
+        self.last_add = utils.now()
 
     def enable(self, bot):
         HandlerManager.add_handler('on_tick', self.on_tick)

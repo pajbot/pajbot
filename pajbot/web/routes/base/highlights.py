@@ -6,6 +6,7 @@ from sqlalchemy import cast
 from sqlalchemy import Date
 from sqlalchemy.orm import joinedload
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.stream import StreamChunkHighlight
 
@@ -15,7 +16,7 @@ def init(app):
     def highlight_list_date(date):
         # Make sure we were passed a valid date
         try:
-            parsed_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+            parsed_date = datetime.datetime.strptime(date, '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
         except ValueError:
             # Invalid date
             return redirect('/highlights/', 303)
@@ -26,7 +27,8 @@ def init(app):
             dates_with_highlights.append(datetime.datetime(
                 year=highlight.created_at.year,
                 month=highlight.created_at.month,
-                day=highlight.created_at.day))
+                day=highlight.created_at.day,
+                tzinfo=datetime.timezone.utc))
 
         try:
             return render_template('highlights_date.html',
@@ -55,12 +57,17 @@ def init(app):
     def highlights():
         session = DBManager.create_session()
         dates_with_highlights = []
-        highlights = session.query(StreamChunkHighlight).options(joinedload('*')).filter(StreamChunkHighlight.created_at >= (datetime.datetime.utcnow() - datetime.timedelta(days=60))).order_by(StreamChunkHighlight.created_at_with_offset.desc()).all()
+        highlights = session.query(StreamChunkHighlight)\
+            .options(joinedload('*'))\
+            .filter(StreamChunkHighlight.created_at >= (utils.now() - datetime.timedelta(days=60)))\
+            .order_by(StreamChunkHighlight.created_at_with_offset.desc())\
+            .all()
         for highlight in highlights:
             dates_with_highlights.append(datetime.datetime(
                 year=highlight.created_at.year,
                 month=highlight.created_at.month,
-                day=highlight.created_at.day))
+                day=highlight.created_at.day,
+                tzinfo=datetime.timezone.utc))
         try:
             return render_template('highlights.html',
                     highlights=highlights[:10],

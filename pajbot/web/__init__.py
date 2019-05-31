@@ -13,7 +13,6 @@ app.url_map.strict_slashes = False
 
 def init(args):
     import configparser
-    import datetime
     import logging
     import subprocess
     import sys
@@ -22,6 +21,7 @@ def init(args):
     from flask import session
     from flask_scrypt import generate_random_salt
 
+    import pajbot.utils
     import pajbot.web.common
     import pajbot.web.routes
     from pajbot.bot import Bot
@@ -140,7 +140,7 @@ def init(args):
     @app.context_processor
     def current_time():
         current_time = {}
-        current_time['current_time'] = datetime.datetime.now()
+        current_time['current_time'] = pajbot.utils.now()
         return current_time
 
     @app.context_processor

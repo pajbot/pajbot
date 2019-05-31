@@ -1,5 +1,6 @@
 import datetime
 
+from pajbot import utils
 from pajbot.managers.time import TimeManager
 from pajbot.utils import time_since
 
@@ -54,7 +55,7 @@ def init(app):
 
     @app.template_filter('time_ago')
     def time_ago(t, format='long'):
-        return time_since(datetime.datetime.now().timestamp(), t.timestamp(), format)
+        return time_since(utils.now().timestamp(), t.timestamp(), format)
 
     @app.template_filter('time_diff')
     def time_diff(t1, t2, format='long'):

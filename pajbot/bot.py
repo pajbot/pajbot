@@ -570,7 +570,7 @@ class Bot:
 
     @staticmethod
     def c_molly_age_in_years():
-        molly_birth = datetime.datetime(2018, 10, 29)
+        molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
         now = pajbot.utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365

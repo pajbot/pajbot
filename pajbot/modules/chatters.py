@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.user import UserManager
@@ -67,7 +68,7 @@ class ChattersModule(BaseModule):
                     ] = self.update_chatters_interval
 
                 points_to_give_out = {}
-                dt_now = datetime.datetime.now().timestamp()
+                dt_now = utils.now().timestamp()
                 for user in users:
                     user._set_last_seen(dt_now)
 

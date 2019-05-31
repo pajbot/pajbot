@@ -6,6 +6,7 @@ from numpy import random
 import pajbot.exc
 import pajbot.models
 import pajbot.utils
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
@@ -165,7 +166,7 @@ class RouletteModule(BaseModule):
         if self.settings['only_roulette_after_sub']:
             if self.last_sub is None:
                 return False
-            if datetime.datetime.now() - self.last_sub > datetime.timedelta(seconds=self.settings['after_sub_roulette_time']):
+            if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings['after_sub_roulette_time']):
                 return False
 
         message = options['message']
@@ -236,7 +237,7 @@ class RouletteModule(BaseModule):
         if self.last_add is None:
             return
 
-        diff = datetime.datetime.now() - self.last_add
+        diff = utils.now() - self.last_add
 
         if diff.seconds > 3:
             self.flush_output_buffer()
@@ -268,15 +269,15 @@ class RouletteModule(BaseModule):
 
         self.output_buffer_args.append(arguments)
 
-        self.last_add = datetime.datetime.now()
+        self.last_add = utils.now()
 
     def on_user_sub(self, user):
-        self.last_sub = datetime.datetime.now()
+        self.last_sub = utils.now()
         if self.settings['only_roulette_after_sub']:
             self.bot.say('Rouletting is now allowed for {} seconds! PogChamp'.format(self.settings['after_sub_roulette_time']))
 
     def on_user_resub(self, user, num_months):
-        self.last_sub = datetime.datetime.now()
+        self.last_sub = utils.now()
         if self.settings['only_roulette_after_sub']:
             self.bot.say('Rouletting is now allowed for {} seconds! PogChamp'.format(self.settings['after_sub_roulette_time']))
 

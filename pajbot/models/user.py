@@ -445,7 +445,7 @@ class UserRedis:
     def _last_seen(self):
         self.redis_load()
         try:
-            return datetime.datetime.utcfromtimestamp(float(self.values["last_seen"]))
+            return datetime.datetime.fromtimestamp(float(self.values["last_seen"]), tz=datetime.timezone.utc)
         except:
             return None
 
@@ -488,7 +488,7 @@ class UserRedis:
     def _last_active(self):
         self.redis_load()
         try:
-            return datetime.datetime.utcfromtimestamp(float(self.values["last_active"]))
+            return datetime.datetime.fromtimestamp(float(self.values["last_active"]), tz=datetime.timezone.utc)
         except:
             return None
 

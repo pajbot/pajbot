@@ -1,6 +1,6 @@
-import datetime
 import json
 import logging
+import pajbot.utils
 
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
@@ -49,7 +49,7 @@ class AdminLogManager:
                 'type': type,
                 'user_id': source.id,
                 'message': message,
-                'created_at': str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')),
+                'created_at': str(pajbot.utils.now().strftime('%Y-%m-%d %H:%M:%S %Z')),
                 'data': data,
                 }
 

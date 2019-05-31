@@ -131,7 +131,8 @@ class DebugModule(BaseModule):
             else:
                 for tag in user_tags:
                     data[tag] = datetime.datetime.fromtimestamp(
-                        user_tags[tag]
+                        user_tags[tag],
+                        tz=datetime.timezone.utc
                     ).strftime("%Y-%m-%d")
 
                 bot.whisper(

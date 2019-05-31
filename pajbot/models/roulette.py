@@ -1,10 +1,10 @@
-import datetime
 import logging
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
 
+from pajbot import utils
 from pajbot.managers.db import Base
 
 log = logging.getLogger(__name__)
@@ -20,5 +20,5 @@ class Roulette(Base):
 
     def __init__(self, user_id, points):
         self.user_id = user_id
-        self.created_at = datetime.datetime.now()
+        self.created_at = utils.now()
         self.points = points

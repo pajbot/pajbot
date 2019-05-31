@@ -7,6 +7,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy.dialects.mysql import TEXT
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -28,12 +29,13 @@ class LinkTrackerLink(Base):
         self.id = None
         self.url = url
         self.times_linked = 0
-        self.first_linked = datetime.datetime.now()
-        self.last_linked = datetime.datetime.now()
+        now = utils.now()
+        self.first_linked = now
+        self.last_linked = now
 
     def increment(self):
         self.times_linked += 1
-        self.last_linked = datetime.datetime.now()
+        self.last_linked = utils.now()
 
 
 class LinkTrackerModule(BaseModule):

@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from pajbot import utils
 from pajbot.actions import ActionQueue
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
@@ -129,7 +130,7 @@ class FollowAgeModule(BaseModule):
 
         if age:
             # Following
-            human_age = time_since(datetime.datetime.now().timestamp() - age.timestamp(), 0)
+            human_age = time_since(utils.now().timestamp() - age.timestamp(), 0)
             suffix = 'been following {} for {}'.format(streamer, human_age)
             if is_self:
                 message = 'You have ' + suffix

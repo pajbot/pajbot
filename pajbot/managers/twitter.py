@@ -1,9 +1,10 @@
 import logging
-from datetime import datetime
+import datetime
 from threading import Thread
 
 import tweepy
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.twitter import TwitterUser
 from pajbot.utils import time_since
@@ -154,7 +155,10 @@ class TwitterManager:
                 for tweet in public_tweets:
                     if not tweet.text.startswith('RT ') and tweet.in_reply_to_screen_name is None:
                         tw = tweet_prettify_urls(tweet)
-                        return '{0} ({1} ago)'.format(tw.replace('\n', ' '), time_since(datetime.now().timestamp(), tweet.created_at.timestamp(), format='short'))
+                        # Tweepy returns naive datetime object (but it's always UTC)
+                        # .replace() makes it timezone-aware :)
+                        created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
+                        return '{0} ({1} ago)'.format(tw.replace('\n', ' '), time_since(utils.now().timestamp(), created_at.timestamp(), time_format='short'))
             except Exception:
                 log.exception('Exception caught while getting last tweet')
                 return 'FeelsBadMan'

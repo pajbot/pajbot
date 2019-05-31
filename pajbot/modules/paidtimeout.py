@@ -3,6 +3,7 @@ import logging
 
 import math
 
+from pajbot import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
@@ -122,7 +123,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source.username, 'This user does not exist FailFish')
                 return False
 
-            if victim.last_active is None or (datetime.datetime.now() - victim._last_active).total_seconds() > 10 * 60:
+            if victim.last_active is None or (utils.now() - victim._last_active).total_seconds() > 10 * 60:
                 bot.whisper(source.username, 'This user has not been active in chat within the last 10 minutes.')
                 return False
 
@@ -140,7 +141,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source.username, 'This person\'s user level is too high, you can\'t timeout this person.')
                 return False
 
-            now = datetime.datetime.now()
+            now = utils.now()
             if victim.timed_out is True and victim.timeout_end > now:
                 victim.timeout_end += datetime.timedelta(seconds=_time)
                 bot.whisper(victim.username, '{victim.username}, you were timed out for an additional {time} seconds by {source.username}'.format(

@@ -3,6 +3,8 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from pajbot import utils
+
 log = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ class ScheduleManager:
 
         job = scheduler.add_job(method,
                 'date',
-                run_date=datetime.datetime.now(),
+                run_date=utils.now(),
                 args=args,
                 kwargs=kwargs)
         return ScheduledJob(job)
@@ -57,7 +59,7 @@ class ScheduleManager:
 
         job = scheduler.add_job(method,
                 'date',
-                run_date=datetime.datetime.now() + datetime.timedelta(seconds=delay),
+                run_date=utils.now() + datetime.timedelta(seconds=delay),
                 args=args,
                 kwargs=kwargs)
         return ScheduledJob(job)

@@ -5,6 +5,7 @@ import Levenshtein
 import math
 import requests
 
+from pajbot import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
@@ -81,7 +82,7 @@ class TriviaModule(BaseModule):
         self.point_bounty = 0
 
     def poll_trivia(self):
-        if self.question is None and (self.last_question is None or datetime.datetime.now() - self.last_question >= datetime.timedelta(seconds=12)):
+        if self.question is None and (self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=12)):
             url = 'http://jservice.io/api/random'
             r = requests.get(url)
             self.question = r.json()[0]
@@ -95,9 +96,9 @@ class TriviaModule(BaseModule):
             self.last_step = None
 
         # Is it time for the next step?
-        condition = self.last_question is None or datetime.datetime.now() - self.last_question >= datetime.timedelta(seconds=self.settings['question_delay'])
-        if (self.last_step is None and condition) or (self.last_step is not None and datetime.datetime.now() - self.last_step >= datetime.timedelta(seconds=self.settings['step_delay'])):
-            self.last_step = datetime.datetime.now()
+        condition = self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=self.settings['question_delay'])
+        if (self.last_step is None and condition) or (self.last_step is not None and utils.now() - self.last_step >= datetime.timedelta(seconds=self.settings['step_delay'])):
+            self.last_step = utils.now()
             self.step += 1
 
             if self.step == 1:
@@ -139,7 +140,7 @@ class TriviaModule(BaseModule):
             self.bot.safe_me('MingLee No one could answer the trivia! The answer was "{}" MingLee'.format(self.question['answer']))
             self.question = None
             self.step = 0
-            self.last_question = datetime.datetime.now()
+            self.last_question = utils.now()
 
     def command_start(self, **options):
         bot = options['bot']
@@ -207,7 +208,7 @@ class TriviaModule(BaseModule):
 
                 self.question = None
                 self.step = 0
-                self.last_question = datetime.datetime.now()
+                self.last_question = utils.now()
 
     def load_commands(self, **options):
         self.commands['trivia'] = Command.multiaction_command(

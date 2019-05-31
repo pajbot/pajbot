@@ -4,6 +4,7 @@ import logging
 
 import requests
 
+from pajbot import utils
 from pajbot.managers.redis import RedisManager
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class BotToken:
 
     # Check if token has expired
     def expired(self):
-        return self.access_token_expires_at is None or datetime.datetime.now() >= self.access_token_expires_at
+        return self.access_token_expires_at is None or utils.now() >= self.access_token_expires_at
 
     def access_token(self):
         if self.expired():
@@ -38,6 +39,7 @@ class BotToken:
                         'client_secret': self.client_secret,
                         }
                 r = requests.post('https://id.twitch.tv/oauth2/token', data=payload)
+                r.raise_for_status()
                 self.token = r.json()
             except:
                 log.exception('babyrate')
@@ -46,6 +48,6 @@ class BotToken:
             if 'expires_in' not in self.token:
                 # Infinite token
                 self.token['expires_in'] = 86400
-            self.access_token_expires_at = datetime.datetime.now() + datetime.timedelta(seconds=self.token['expires_in'])
+            self.access_token_expires_at = utils.now() + datetime.timedelta(seconds=self.token['expires_in'])
 
         return self.token['access_token']

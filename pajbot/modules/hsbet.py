@@ -3,6 +3,7 @@ import logging
 
 import requests
 
+from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
@@ -76,7 +77,7 @@ class HSBetModule(BaseModule):
         self.last_game_id = None
         try:
             last_game_start_timestamp = int(redis.get('{streamer}:last_hsbet_game_start'.format(streamer=StreamHelper.get_streamer())))
-            self.last_game_start = datetime.fromtimestamp(last_game_start_timestamp)
+            self.last_game_start = datetime.datetime.fromtimestamp(last_game_start_timestamp, tz=datetime.timezone.utc)
         except (TypeError, ValueError):
             # Issue with the int-cast
             pass
@@ -96,7 +97,7 @@ class HSBetModule(BaseModule):
 
     def reminder_bet(self):
         if self.is_betting_open():
-            seconds_until_bet_closes = int((self.last_game_start - datetime.datetime.now()).total_seconds()) - 1
+            seconds_until_bet_closes = int((self.last_game_start - utils.now()).total_seconds()) - 1
             if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
                 win_points, lose_points = self.get_stats()
                 self.bot.me('The hearthstone betting closes in {} seconds. Current win/lose points: {}/{}'.format(
@@ -219,7 +220,7 @@ class HSBetModule(BaseModule):
             self.bot.me('A new game has begun! Vote with !hsbet win/lose POINTS')
             self.bets = {}
             self.last_game_id = latest_game['id']
-            self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
+            self.last_game_start = utils.now() + datetime.timedelta(seconds=self.settings['time_until_bet_closes'])
             payload = {
                     'time_left': self.settings['time_until_bet_closes'],
                     'win': 0,
@@ -242,7 +243,7 @@ class HSBetModule(BaseModule):
     def is_betting_open(self):
         if self.last_game_start is None:
             return False
-        return datetime.datetime.now() < self.last_game_start
+        return utils.now() < self.last_game_start
 
     def command_bet(self, **options):
         bot = options['bot']
@@ -331,7 +332,7 @@ class HSBetModule(BaseModule):
             except (ValueError, TypeError):
                 pass
 
-        self.last_game_start = datetime.datetime.now() + datetime.timedelta(seconds=time_limit)
+        self.last_game_start = utils.now() + datetime.timedelta(seconds=time_limit)
         win_bets = 0
         loss_bets = 0
         for username in self.bets:
@@ -354,7 +355,7 @@ class HSBetModule(BaseModule):
     def command_close(self, **options):
         bot = options['bot']
 
-        self.last_game_start = datetime.datetime.now() - datetime.timedelta(seconds=10)
+        self.last_game_start = utils.now() - datetime.timedelta(seconds=10)
 
         for username in self.bets:
             _, points = self.bets[username]

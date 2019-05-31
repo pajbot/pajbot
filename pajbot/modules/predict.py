@@ -9,6 +9,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
@@ -37,7 +38,7 @@ class PredictionRun(Base):
         self.id = None
         self.type = type
         self.winner_id = None
-        self.started = datetime.datetime.now()
+        self.started = utils.now()
         self.ended = None
 
 
@@ -394,7 +395,7 @@ class PredictModule(BaseModule):
                 return True
 
             for prediction in predictions:
-                prediction.ended = datetime.datetime.now()
+                prediction.ended = utils.now()
             bot.say(
                 "Closed predictions with IDs {}".format(
                     ", ".join([str(p.id) for p in predictions])
