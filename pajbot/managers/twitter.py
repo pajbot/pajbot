@@ -24,21 +24,24 @@ class TwitterManager:
             self.bot.socket_manager.add_handler('twitter.follow', self.on_twitter_follow)
             self.bot.socket_manager.add_handler('twitter.unfollow', self.on_twitter_unfollow)
 
-        if 'twitter' in bot.config:
-            self.use_twitter_stream = 'streaming' in bot.config['twitter'] and bot.config['twitter']['streaming'] == '1'
+        if not 'twitter' in bot.config:
+            return
 
-            try:
-                self.twitter_auth = tweepy.OAuthHandler(bot.config['twitter']['consumer_key'], bot.config['twitter']['consumer_secret'])
-                self.twitter_auth.set_access_token(bot.config['twitter']['access_token'], bot.config['twitter']['access_token_secret'])
+        twitter_config = bot.config['twitter']
+        self.use_twitter_stream = 'streaming' in twitter_config and twitter_config['streaming'] == '1'
 
-                self.twitter_client = tweepy.API(self.twitter_auth)
+        try:
+            self.twitter_auth = tweepy.OAuthHandler(twitter_config['consumer_key'], twitter_config['consumer_secret'])
+            self.twitter_auth.set_access_token(twitter_config['access_token'], twitter_config['access_token_secret'])
 
-                if self.use_twitter_stream:
-                    self.connect_to_twitter_stream()
-                    bot.execute_every(60 * 5, self.check_twitter_connection)
-            except:
-                log.exception('Twitter authentication failed.')
-                self.twitter_client = None
+            self.twitter_client = tweepy.API(self.twitter_auth)
+
+            if self.use_twitter_stream:
+                self.connect_to_twitter_stream()
+                bot.execute_every(60 * 5, self.check_twitter_connection)
+        except:
+            log.exception('Twitter authentication failed.')
+            self.twitter_client = None
 
     def on_twitter_follow(self, data, conn):
         log.info('TWITTER FOLLOW')
