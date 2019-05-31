@@ -63,9 +63,7 @@ class QuestModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.current_quest = None
-        self.current_quest_key = "{streamer}:current_quest".format(
-            streamer=self.bot.streamer
-        )
+        self.current_quest_key = None
 
     def my_progress(self, **options):
         bot = options["bot"]
@@ -152,6 +150,10 @@ class QuestModule(BaseModule):
         self.commands["quest"] = self.commands["currentquest"]
 
     def on_stream_start(self):
+        if not self.current_quest_key:
+            log.error('Current quest key not set when on_stream_start event fired, something is wrong')
+            return False
+
         available_quests = list(
             filter(lambda m: m.ID.startswith("quest-"), self.submodules)
         )
@@ -179,6 +181,10 @@ class QuestModule(BaseModule):
             log.info("No quest active on stream stop.")
             return False
 
+        if not self.current_quest_key:
+            log.error('Current quest key not set when on_stream_stop event fired, something is wrong')
+            return False
+
         self.current_quest.stop_quest()
         self.current_quest = None
         self.bot.say("Stream ended, quest has been reset.")
@@ -197,6 +203,10 @@ class QuestModule(BaseModule):
         return True
 
     def on_managers_loaded(self):
+        if not self.current_quest_key:
+            log.error('Current quest key not set when on_managers_loaded event fired, something is wrong')
+            return False
+
         if self.current_quest is None:
             redis = RedisManager.get()
 
@@ -221,6 +231,10 @@ class QuestModule(BaseModule):
                     )
 
     def enable(self, bot):
+        self.current_quest_key = "{streamer}:current_quest".format(
+            streamer=self.bot.streamer
+        )
+
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
         HandlerManager.add_handler("on_managers_loaded", self.on_managers_loaded)
