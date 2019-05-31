@@ -1,5 +1,5 @@
 # pajbot
-[![Build Status](https://travis-ci.org/pajbot/pajbot.svg?branch=master)](https://travis-ci.org/pajbot/pajbot)
+[![Build Status](https://travis-ci.com/pajbot/pajbot.svg?branch=master)](https://travis-ci.com/pajbot/pajbot)
 
 pajbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).  
 [Website](https://pajbot.com)
