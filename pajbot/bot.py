@@ -84,7 +84,9 @@ class Bot:
     def password(self):
         if "password" in self.config["main"]:
             log.warning(
-                "DEPRECATED - Using bot password/oauth token from file. You should authenticate in web gui using route /bot_login and remove password from config file"
+                "DEPRECATED - Using bot password/oauth token from file. "
+                "You should authenticate in web gui using route /bot_login "
+                "and remove password from config file"
             )
             return self.config["main"]["password"]
 
