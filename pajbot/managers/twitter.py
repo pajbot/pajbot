@@ -24,7 +24,7 @@ class TwitterManager:
             self.bot.socket_manager.add_handler('twitter.follow', self.on_twitter_follow)
             self.bot.socket_manager.add_handler('twitter.unfollow', self.on_twitter_unfollow)
 
-        if not 'twitter' in bot.config:
+        if 'twitter' not in bot.config:
             return
 
         twitter_config = bot.config['twitter']
