@@ -1,8 +1,7 @@
 import ast
 import logging
-import operator as op
-
 import math
+import operator as op
 
 import pajbot.exc
 import pajbot.models

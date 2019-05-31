@@ -524,6 +524,10 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
 
     if "command" in extra and "source" in extra:
         if extra["command"].run_through_banphrases is True or True:
+            # this is imported here to avoid circular imports
+            # (Circular import was command.py importing this file)
+            from pajbot.modules.ascii import AsciiProtectionModule
+
             checks = {
                 "banphrase": (
                     bot.banphrase_manager.check_message,

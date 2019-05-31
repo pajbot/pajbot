@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from numpy import random

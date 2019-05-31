@@ -1,5 +1,3 @@
-import datetime
-
 from pajbot import utils
 from pajbot.managers.time import TimeManager
 from pajbot.utils import time_since

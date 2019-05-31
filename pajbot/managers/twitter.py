@@ -1,5 +1,5 @@
-import logging
 import datetime
+import logging
 from threading import Thread
 
 import tweepy

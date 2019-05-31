@@ -1,4 +1,3 @@
-import datetime
 import logging
 from urllib.parse import urlsplit
 

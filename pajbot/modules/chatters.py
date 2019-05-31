@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from pajbot import utils

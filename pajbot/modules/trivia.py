@@ -1,8 +1,8 @@
 import datetime
 import logging
+import math
 
 import Levenshtein
-import math
 import requests
 
 from pajbot import utils

@@ -1,6 +1,5 @@
 import datetime
 import logging
-
 import math
 
 from pajbot import utils

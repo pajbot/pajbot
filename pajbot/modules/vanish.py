@@ -73,4 +73,4 @@ class VanishModule(BaseModule):
                 delay_user=self.settings['online_user_cd'],
                 description='Time yourself out for a second!',
                 cost=self.settings['cost'],
-        )
+            )

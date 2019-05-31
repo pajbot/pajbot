@@ -1,6 +1,6 @@
 import logging
-
 import math
+
 from numpy import random
 
 from pajbot.managers.handler import HandlerManager
