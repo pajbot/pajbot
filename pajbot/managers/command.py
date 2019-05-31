@@ -49,7 +49,7 @@ class CommandManager(UserDict):
         try:
             command_id = int(data['command_id'])
         except (KeyError, ValueError):
-            log.warn('No command ID found in on_command_update')
+            log.warning('No command ID found in on_command_update')
             return False
 
         command = find(lambda command: command.id == command_id, self.db_commands.values())
@@ -66,12 +66,12 @@ class CommandManager(UserDict):
         try:
             command_id = int(data['command_id'])
         except (KeyError, ValueError):
-            log.warn('No command ID found in on_command_update')
+            log.warning('No command ID found in on_command_update')
             return False
 
         command = find(lambda command: command.id == command_id, self.db_commands.values())
         if command is None:
-            log.warn('Invalid ID sent to on_command_update')
+            log.warning('Invalid ID sent to on_command_update')
             return False
 
         self.db_session.expunge(command.data)

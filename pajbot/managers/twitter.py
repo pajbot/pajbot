@@ -65,7 +65,7 @@ class TwitterManager:
                 log.info('Now following {0}'.format(username))
                 return True
             else:
-                log.warn('Already following {0}'.format(username))
+                log.warning('Already following {0}'.format(username))
         else:
             log.error('No twitter listener set up')
         return False
@@ -85,7 +85,7 @@ class TwitterManager:
                     else:
                         log.warning('Trying to unfollow someone we are not following')
             else:
-                log.warn('Trying to unfollow someone we are not following (2) {0}'.format(username))
+                log.warning('Trying to unfollow someone we are not following (2) {0}'.format(username))
         else:
             log.error('No twitter listener set up')
 

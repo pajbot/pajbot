@@ -22,22 +22,22 @@ class IRCManager:
             self.control_hub_channel = '#' + self.control_hub_channel
 
     def start(self):
-        log.warn('Missing implementation of IRCManager::start()')
+        log.warning('Missing implementation of IRCManager::start()')
 
     def whisper(self, username, message):
-        log.warn('Missing implementation of IRCManager::whisper()')
+        log.warning('Missing implementation of IRCManager::whisper()')
 
     def privmsg(self, message, channel, increase_message=True):
-        log.warn('Missing implementation of IRCManager::privmsg()')
+        log.warning('Missing implementation of IRCManager::privmsg()')
 
     def on_disconnect(self, chatconn, event):
-        log.warn('Missing implementation of IRCManager::on_disconnect()')
+        log.warning('Missing implementation of IRCManager::on_disconnect()')
 
     def quit(self):
         pass
 
     def _dispatcher(self, connection, event):
-        log.warn('Missing implementation of IRCManager::_dispatcher()')
+        log.warning('Missing implementation of IRCManager::_dispatcher()')
 
     def on_welcome(self, chatconn, event):
         pass

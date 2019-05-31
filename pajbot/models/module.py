@@ -162,7 +162,7 @@ class ModuleManager:
                     parent.submodules.append(module)
                     module.parent_module = parent
                 else:
-                    # log.warn('Missing parent for module {}, disabling it.'.format(module.NAME))
+                    # log.warning('Missing parent for module {}, disabling it.'.format(module.NAME))
                     module.parent_module = None
                     to_be_removed.append(module)
 

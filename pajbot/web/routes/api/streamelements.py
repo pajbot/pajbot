@@ -80,13 +80,13 @@ def init(api):
             args = self.parser.parse_args()
 
             if resp is None:
-                log.warn('Access denied: reason={}, error={}'.format(args['error'], args['error_description']))
+                log.warning('Access denied: reason={}, error={}'.format(args['error'], args['error_description']))
                 return args['error']
 
             if type(resp) is OAuthException:
-                log.warn(resp.message)
-                log.warn(resp.data)
-                log.warn(resp.type)
+                log.warning(resp.message)
+                log.warning(resp.data)
+                log.warning(resp.type)
                 return 'error 3'
 
             access_token = resp['access_token']

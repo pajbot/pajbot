@@ -75,13 +75,13 @@ def init(app):
 
         if resp is None:
             if 'error' in request.args and 'error_description' in request.args:
-                log.warn('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
+                log.warning('Access denied: reason={}, error={}'.format(request.args['error'], request.args['error_description']))
             next_url = get_next_url(request, 'state')
             return redirect(next_url)
         elif type(resp) is OAuthException:
-            log.warn(resp.message)
-            log.warn(resp.data)
-            log.warn(resp.type)
+            log.warning(resp.message)
+            log.warning(resp.data)
+            log.warning(resp.type)
             next_url = get_next_url(request, 'state')
             return redirect(next_url)
         session['twitch_token'] = (resp['access_token'], )

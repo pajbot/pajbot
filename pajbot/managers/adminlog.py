@@ -73,7 +73,7 @@ class AdminLogManager:
     @staticmethod
     def post(type, source, *args, data={}):
         if type not in AdminLogManager.TEMPLATES:
-            log.warn('{} has no template'.format(type))
+            log.warning('{} has no template'.format(type))
             return False
 
         message = AdminLogManager.TEMPLATES[type].get_message(*args)

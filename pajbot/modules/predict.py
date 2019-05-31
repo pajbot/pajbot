@@ -281,7 +281,7 @@ class PredictModule(BaseModule):
         )
 
         if source.id is None:
-            log.warn(
+            log.warning(
                 "Source ID is NONE, attempting to salvage by commiting users to the database."
             )
             log.info("New ID is: {}".format(source.id))

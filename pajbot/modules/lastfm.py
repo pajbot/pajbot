@@ -60,7 +60,7 @@ class LastfmModule(BaseModule):
         lastfmname = self.settings['username']
 
         if len(API_KEY) < 10 or len(lastfmname) < 2:
-            log.warn('You need to set up the Last FM API stuff in the Module settings.')
+            log.warning('You need to set up the Last FM API stuff in the Module settings.')
             return False
 
         try:
