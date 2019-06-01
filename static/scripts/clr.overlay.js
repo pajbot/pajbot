@@ -39,39 +39,47 @@ function add_random_box({color}) {
     }, 5000);
 }
 
-function add_emote({emote}) {
-    var url = '';
-    if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
-        url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
-    } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
-        url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
-    } else if ('twitch_id' in emote) {
-        url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
-    } else {
-        if (emote['code'] == 'xD') {
-            url = 'https://cdn.pajlada.se/emoticons/XD.gif';
+// opacity = number between 0 and 100
+function add_emotes({emotes, opacity, 'persistence_time': persistenceTime, 'scale': emoteScale}) {
+    for (let {emote, 'shown_count': shownCount} of emotes) {
+        let url;
+        if (emote['bttv_hash'] != null) {
+            url = `https://cdn.betterttv.net/emote/${emote['bttv_hash']}/3x`;
+        } else if (emote['ffz_id'] != null) {
+            url = `http://cdn.frankerfacez.com/emoticon/${emote['ffz_id']}/4`;
+        } else if (emote['twitch_id'] != null) {
+            url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote['twitch_id']}/3.0`;
+        }
+
+        if (url == null) {
+            console.warn('Failed to find a URL for emote:', emote);
+            continue;
+        }
+
+        let divsize = 120;
+        for (let i = 0; i < shownCount; i++) {
+            let posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+            let posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+            let newdiv = $('<img class="absemote" src="' + url + '">').css({
+                'left': posx + 'px',
+                'top': posy + 'px',
+                'opacity': 0,
+                'transform': 'scale(' + String(emoteScale / 100) + ')'
+            });
+            newdiv.appendTo('body');
+            newdiv.animate({
+                opacity: opacity / 100
+            }, 500);
+            setTimeout(() => {
+                newdiv.animate({
+                    opacity: 0,
+                }, 1000);
+                setTimeout(() => {
+                    newdiv.remove();
+                }, 1000);
+            }, persistenceTime);
         }
     }
-    var divsize = 120;
-    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
-    var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
-    var $newdiv = $('<img class="absemote" src="' + url + '">').css({
-        'left': posx + 'px',
-        'top': posy + 'px',
-        'opacity': 0
-    });
-    $newdiv.appendTo('body');
-    $newdiv.animate({
-        opacity: 1
-    }, 500);
-    setTimeout(function () {
-        $newdiv.animate({
-            opacity: 0,
-        }, 1000);
-        setTimeout(function () {
-            $newdiv.remove();
-        }, 1000);
-    }, 5000);
 }
 
 function show_custom_image(data) {
@@ -355,8 +363,8 @@ function handleWebsocketData(json_data) {
         case 'new_box':
             add_random_box(data);
             break;
-        case 'new_emote':
-            add_emote(data);
+        case 'new_emotes':
+            add_emotes(data);
             break;
         case 'notification':
             add_notification(data);

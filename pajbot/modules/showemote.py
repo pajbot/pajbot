@@ -20,7 +20,7 @@ class ShowEmoteModule(BaseModule):
             type="number",
             required=True,
             placeholder="Point cost",
-            default=0,
+            default=100,
             constraints={"min_value": 0, "max_value": 999999},
         ),
         ModuleSetting(
@@ -29,35 +29,114 @@ class ShowEmoteModule(BaseModule):
             type="number",
             required=True,
             placeholder="Token cost",
-            default=1,
+            default=0,
             constraints={"min_value": 0, "max_value": 15},
         ),
         ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
         ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="emote_whitelist",
+            label="Whitelisted emotes (separate by spaces). Leave empty to use the blacklist.",
+            type="text",
+            required=True,
+            placeholder="i.e. Kappa Keepo PogChamp KKona",
+            default="",
+        ),
+        ModuleSetting(
+            key="emote_blacklist",
+            label="Blacklisted emotes (separate by spaces). Leave empty to allow all emotes.",
+            type="text",
+            required=True,
+            placeholder="i.e. Kappa Keepo PogChamp KKona",
+            default="",
+        ),
+        ModuleSetting(
+            key="emote_opacity",
+            label="Emote opacity (in percent)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=100,
+            constraints={"min_value": 0, "max_value": 100},
+        ),
+        ModuleSetting(
+            key="max_emotes_per_message",
+            label="Maximum number of emotes per message that may appear on the screen. "
+            "Set to 500 for practically unlimited.",
+            type="number",
+            required=True,
+            placeholder="",
+            default=1,
+            constraints={"min_value": 0, "max_value": 500},
+        ),
+        ModuleSetting(
+            key="emote_persistence_time",
+            label="Time in milliseconds until emotes disappear on screen",
+            type="number",
+            required=True,
+            placeholder="",
+            default=5000,
+            constraints={"min_value": 500, "max_value": 60000},
+        ),
+        ModuleSetting(
+            key="emote_onscreen_scale",
+            label="Scale emotes onscreen by this factor (100 = normal size)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=100,
+            constraints={"min_value": 0, "max_value": 100000},
+        ),
+        ModuleSetting(
+            key="success_whisper",
+            label="Send a whisper when emote was successfully sent",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
     ]
 
-    @staticmethod
-    def show_emote(**options):
+    def is_emote_allowed(self, emote_code):
+        if len(self.settings["emote_whitelist"].strip()) > 0:
+            return emote_code in self.settings["emote_whitelist"]
+
+        return emote_code not in self.settings["emote_blacklist"]
+
+    def show_emote(self, **options):
         bot = options["bot"]
         source = options["source"]
         args = options["args"]
 
-        if len(args["emotes"]) == 0:
+        if len(args["emotes"]) <= 0:
             # No emotes in the given message
             bot.whisper(source.username, "No valid emotes were found in your message.")
             return False
 
         first_emote = args["emotes"][0]
-        payload = {"emote": first_emote}
-        bot.websocket_manager.emit("new_emote", payload)
-        bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote["code"]))
+
+        # request to show emote is ignored but return False ensures user is refunded tokens/points
+        if not self.is_emote_allowed(first_emote["code"]):
+            return False
+
+        self.bot.websocket_manager.emit(
+            "new_emotes",
+            {
+                "emotes": [{"emote": first_emote, "shown_count": 1}],
+                "opacity": self.settings["emote_opacity"],
+                "persistence_time": self.settings["emote_persistence_time"],
+                "scale": self.settings["emote_onscreen_scale"],
+            },
+        )
+
+        if self.settings["success_whisper"]:
+            bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote["code"]))
 
     def load_commands(self, **options):
         self.commands["#showemote"] = Command.raw_command(
             self.show_emote,
             tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
-            description="Show an emote on stream! Costs 1 token.",
+            description="Show an emote on stream!",
             sub_only=self.settings["sub_only"],
             can_execute_with_whisper=self.settings["can_whisper"],
             examples=[
