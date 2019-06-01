@@ -43,7 +43,6 @@ def init(app):
     if "predict" in app.module_manager:
         nav_bar_admin_header.append(MenuItem("/admin/predictions", "admin_predictions", "Predictions"))
     nav_bar_admin_header.append(MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"))
-    nav_bar_admin_header.append(MenuItem("/admin/clr", "admin_clr", "CLR", level=1500))
 
     @app.context_processor
     def menu():
