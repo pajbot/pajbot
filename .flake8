@@ -1,5 +1,7 @@
 [flake8]
+max-line-length = 120
 exclude = alembic/*,configs/*,install/*,myvenv/*,venv/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
+select = B950
 ignore = E123,E126,E127,E128,E501,E131,E722,Q003,Q000,W503,E203
 application-import-names = pajbot
 import-order-style = smarkets

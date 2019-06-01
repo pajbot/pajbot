@@ -43,13 +43,7 @@ class QuestModule(BaseModule):
             default="tokens",
             options=["tokens", "points"],
         ),
-        ModuleSetting(
-            key="reward_amount",
-            label="Reward amount",
-            type="number",
-            required=True,
-            default=5,
-        ),
+        ModuleSetting(key="reward_amount", label="Reward amount", type="number", required=True, default=5),
         ModuleSetting(
             key="max_tokens",
             label="Max tokens",
@@ -75,18 +69,11 @@ class QuestModule(BaseModule):
             if quest_limit is not None and quest_progress >= quest_limit:
                 bot.whisper(source.username, "You have completed todays quest!")
             elif quest_progress is not False:
-                bot.whisper(
-                    source.username,
-                    "Your current quest progress is {}".format(quest_progress),
-                )
+                bot.whisper(source.username, "Your current quest progress is {}".format(quest_progress))
             else:
-                bot.whisper(
-                    source.username, "You have no progress on the current quest."
-                )
+                bot.whisper(source.username, "You have no progress on the current quest.")
         else:
-            bot.say(
-                "{}, There is no quest active right now.".format(source.username_raw)
-            )
+            bot.say("{}, There is no quest active right now.".format(source.username_raw))
 
     def get_current_quest(self, **options):
         bot = options["bot"]
@@ -98,22 +85,16 @@ class QuestModule(BaseModule):
                 source.username_raw, self.current_quest.get_objective()
             )
         else:
-            message_quest = "{0}, there is no quest active right now.".format(
-                source.username_raw
-            )
+            message_quest = "{0}, there is no quest active right now.".format(source.username_raw)
 
-        bot.send_message_to_user(
-            source, message_quest, event, method=self.settings["action_currentquest"]
-        )
+        bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
     def get_user_tokens(self, **options):
         bot = options["bot"]
         event = options["event"]
         source = options["source"]
 
-        message_tokens = "{0}, you have {1} tokens.".format(
-            source.username_raw, source.tokens
-        )
+        message_tokens = "{0}, you have {1} tokens.".format(source.username_raw, source.tokens)
 
         if self.settings["action_tokens"] == "say":
             bot.say(message_tokens)
@@ -132,30 +113,20 @@ class QuestModule(BaseModule):
             self.my_progress, can_execute_with_whisper=True, delay_all=0, delay_user=10
         )
         self.commands["currentquest"] = Command.raw_command(
-            self.get_current_quest,
-            can_execute_with_whisper=True,
-            delay_all=2,
-            delay_user=10,
+            self.get_current_quest, can_execute_with_whisper=True, delay_all=2, delay_user=10
         )
         self.commands["tokens"] = Command.raw_command(
-            self.get_user_tokens,
-            can_execute_with_whisper=True,
-            delay_all=0,
-            delay_user=10,
+            self.get_user_tokens, can_execute_with_whisper=True, delay_all=0, delay_user=10
         )
 
         self.commands["quest"] = self.commands["currentquest"]
 
     def on_stream_start(self):
         if not self.current_quest_key:
-            log.error(
-                "Current quest key not set when on_stream_start event fired, something is wrong"
-            )
+            log.error("Current quest key not set when on_stream_start event fired, something is wrong")
             return False
 
-        available_quests = list(
-            filter(lambda m: m.ID.startswith("quest-"), self.submodules)
-        )
+        available_quests = list(filter(lambda m: m.ID.startswith("quest-"), self.submodules))
         if not available_quests:
             log.error("No quests enabled.")
             return False
@@ -169,9 +140,7 @@ class QuestModule(BaseModule):
         redis.set(self.current_quest_key, self.current_quest.ID)
 
         self.bot.say("Stream started, new quest has been chosen!")
-        self.bot.say(
-            "Current quest objective: {}".format(self.current_quest.get_objective())
-        )
+        self.bot.say("Current quest objective: {}".format(self.current_quest.get_objective()))
 
         return True
 
@@ -181,9 +150,7 @@ class QuestModule(BaseModule):
             return False
 
         if not self.current_quest_key:
-            log.error(
-                "Current quest key not set when on_stream_stop event fired, something is wrong"
-            )
+            log.error("Current quest key not set when on_stream_stop event fired, something is wrong")
             return False
 
         self.current_quest.stop_quest()
@@ -206,9 +173,7 @@ class QuestModule(BaseModule):
     def on_managers_loaded(self):
         # This function is used to resume a quest in case the bot starts when the stream is already live
         if not self.current_quest_key:
-            log.error(
-                "Current quest key not set when on_managers_loaded event fired, something is wrong"
-            )
+            log.error("Current quest key not set when on_managers_loaded event fired, something is wrong")
             return
 
         if self.current_quest:
@@ -229,11 +194,7 @@ class QuestModule(BaseModule):
         quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
         if not quest:
-            log.info(
-                "No quest with id %s found in submodules (%s)",
-                current_quest_id,
-                self.submodules,
-            )
+            log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
 
         log.info("Resumed quest {}".format(quest.get_objective()))
         self.current_quest = quest
@@ -242,9 +203,7 @@ class QuestModule(BaseModule):
 
     def enable(self, bot):
         if self.bot:
-            self.current_quest_key = "{streamer}:current_quest".format(
-                streamer=self.bot.streamer
-            )
+            self.current_quest_key = "{streamer}:current_quest".format(streamer=self.bot.streamer)
 
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)

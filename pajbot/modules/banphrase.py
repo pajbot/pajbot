@@ -3,7 +3,8 @@ import logging
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules.base import BaseModule
 
 log = logging.getLogger(__name__)
@@ -13,9 +14,7 @@ class BanphraseModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Banphrase"
-    DESCRIPTION = (
-        "Looks at each message for banned phrases, and takes actions accordingly"
-    )
+    DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
     CATEGORY = "Filter"
     SETTINGS = []
@@ -69,17 +68,10 @@ class BanphraseModule(BaseModule):
             options["added_by"] = source.id
             options["edited_by"] = source.id
 
-            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(
-                phrase, **options
-            )
+            banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
 
             if new_banphrase is True:
-                bot.whisper(
-                    source.username,
-                    "Added your banphrase (ID: {banphrase.id})".format(
-                        banphrase=banphrase
-                    ),
-                )
+                bot.whisper(source.username, "Added your banphrase (ID: {banphrase.id})".format(banphrase=banphrase))
                 AdminLogManager.post("Banphrase added", source, phrase)
                 return True
 
@@ -90,8 +82,7 @@ class BanphraseModule(BaseModule):
             bot.whisper(
                 source.username,
                 "Updated your banphrase (ID: {banphrase.id}) with ({what})".format(
-                    banphrase=banphrase,
-                    what=", ".join([key for key in options if key != "added_by"]),
+                    banphrase=banphrase, what=", ".join([key for key in options if key != "added_by"])
                 ),
             )
             AdminLogManager.post("Banphrase edited", source, phrase)
@@ -109,21 +100,14 @@ class BanphraseModule(BaseModule):
             except ValueError:
                 pass
 
-            banphrase = bot.banphrase_manager.find_match(
-                message=message, banphrase_id=banphrase_id
-            )
+            banphrase = bot.banphrase_manager.find_match(message=message, banphrase_id=banphrase_id)
 
             if banphrase is None:
-                bot.whisper(
-                    source.username, "No banphrase with the given parameters found"
-                )
+                bot.whisper(source.username, "No banphrase with the given parameters found")
                 return False
 
             AdminLogManager.post("Banphrase removed", source, banphrase.phrase)
-            bot.whisper(
-                source.username,
-                "Successfully removed banphrase with id {0}".format(banphrase.id),
-            )
+            bot.whisper(source.username, "Successfully removed banphrase with id {0}".format(banphrase.id))
             bot.banphrase_manager.remove_banphrase(banphrase)
         else:
             bot.whisper(source.username, "Usage: !remove banphrase (BANPHRASE_ID)")
@@ -147,15 +131,13 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Create a banphrase",
-                            chat="user:!add banphrase testman123\n"
-                            "bot>user:Inserted your banphrase (ID: 83)",
+                            chat="user:!add banphrase testman123\n" "bot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a banphrase that permabans people",
-                            chat="user:!add banphrase testman123 --perma\n"
-                            "bot>user:Inserted your banphrase (ID: 83)",
+                            chat="user:!add banphrase testman123 --perma\n" "bot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
@@ -208,8 +190,7 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove a banphrase with the given ID.",
-                            chat="user:!remove banphrase 25\n"
-                            "bot>user:Successfully removed banphrase with id 25",
+                            chat="user:!remove banphrase 25\n" "bot>user:Successfully removed banphrase with id 25",
                             description="Removes a banphrase with id 25",
                         ).parse(),
                     ],

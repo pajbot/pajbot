@@ -39,12 +39,7 @@ class Stream(Base):
     stream_end = Column(DateTime, nullable=True)
     ended = Column(Boolean, nullable=False, default=False)
 
-    stream_chunks = relationship(
-        "StreamChunk",
-        backref="stream",
-        cascade="save-update, merge, expunge",
-        lazy="joined",
-    )
+    stream_chunks = relationship("StreamChunk", backref="stream", cascade="save-update, merge, expunge", lazy="joined")
 
     def __init__(self, created_at, **options):
         self.id = None
@@ -77,10 +72,7 @@ class StreamChunk(Base):
     chunk_end = Column(DateTime, nullable=True)
 
     highlights = relationship(
-        "StreamChunkHighlight",
-        backref="stream_chunk",
-        cascade="save-update, merge, expunge",
-        lazy="joined",
+        "StreamChunkHighlight", backref="stream_chunk", cascade="save-update, merge, expunge", lazy="joined"
     )
 
     def __init__(self, stream, broadcast_id, created_at, **options):
@@ -166,11 +158,7 @@ class StreamChunkHighlight(Base):
             timedata["h"] = math.trunc(total_seconds / 3600)
             timedata["m"] = math.trunc(total_seconds / 60 % 60)
             timedata["s"] = math.trunc(total_seconds % 60)
-            pretimedata = {
-                "h": 0,
-                "m": timedata["h"],
-                "s": timedata["h"] + timedata["m"],
-            }
+            pretimedata = {"h": 0, "m": timedata["h"], "s": timedata["h"] + timedata["m"]}
             # XXX: Is it an issue if the format is like this: ?t=03m
             # i.e. a time format with minutes but _not_ seconds? try it out
             timestamp = "".join(
@@ -210,11 +198,7 @@ class StreamManager:
             log.exception("Uncaught exception in fetch_video_url")
 
     def fetch_video_url_stage2(self, data):
-        stream_chunk = (
-            self.current_stream_chunk
-            if self.current_stream_chunk.video_url is None
-            else None
-        )
+        stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
         try:
             for video in data["videos"]:
                 if video["broadcast_type"] == "archive":
@@ -223,18 +207,10 @@ class StreamManager:
                         time_diff = stream_chunk.chunk_start - recorded_at
                         if abs(time_diff.total_seconds()) < 60 * 5:
                             # we found the relevant video!
-                            return (
-                                video["url"],
-                                video["preview"]["large"],
-                                video["recorded_at"],
-                            )
+                            return (video["url"], video["preview"]["large"], video["recorded_at"])
                     else:
                         if video["status"] == "recording":
-                            return (
-                                video["url"],
-                                video["preview"]["large"],
-                                video["recorded_at"],
-                            )
+                            return (video["url"], video["preview"]["large"], video["recorded_at"])
         except urllib.error.HTTPError as e:
             raw_data = e.read().decode("utf-8")
             log.exception("OMGScoots")
@@ -258,30 +234,18 @@ class StreamManager:
         self.title = "Loading..."
 
         self.bot.execute_every(
-            self.STATUS_CHECK_INTERVAL,
-            self.bot.action_queue.add,
-            (self.refresh_stream_status_stage1,),
+            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_stream_status_stage1,)
         )
         self.bot.execute_every(
-            self.VIDEO_URL_CHECK_INTERVAL,
-            self.bot.action_queue.add,
-            (self.refresh_video_url_stage1,),
+            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_video_url_stage1,)
         )
 
         # This will load the latest stream so we can post an accurate "time since last online" figure.
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             self.current_stream = (
-                db_session.query(Stream)
-                .filter_by(ended=False)
-                .order_by(Stream.stream_start.desc())
-                .first()
+                db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
             )
-            self.last_stream = (
-                db_session.query(Stream)
-                .filter_by(ended=True)
-                .order_by(Stream.stream_end.desc())
-                .first()
-            )
+            self.last_stream = db_session.query(Stream).filter_by(ended=True).order_by(Stream.stream_end.desc()).first()
             if self.current_stream:
                 self.current_stream_chunk = (
                     db_session.query(StreamChunk)
@@ -289,11 +253,7 @@ class StreamManager:
                     .order_by(StreamChunk.chunk_start.desc())
                     .first()
                 )
-                log.info(
-                    "Set current stream chunk here to {0}".format(
-                        self.current_stream_chunk
-                    )
-                )
+                log.info("Set current stream chunk here to {0}".format(self.current_stream_chunk))
             db_session.expunge_all()
 
     def get_viewer_data(self, redis=None):
@@ -303,10 +263,7 @@ class StreamManager:
         if not redis:
             redis = RedisManager.get()
 
-        data = redis.hget(
-            "{streamer}:viewer_data".format(streamer=self.bot.streamer),
-            self.current_stream.id,
-        )
+        data = redis.hget("{streamer}:viewer_data".format(streamer=self.bot.streamer), self.current_stream.id)
 
         if data is None:
             data = {}
@@ -360,16 +317,10 @@ class StreamManager:
         stream_chunk = None
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            stream_chunk = (
-                db_session.query(StreamChunk)
-                .filter_by(broadcast_id=status["broadcast_id"])
-                .one_or_none()
-            )
+            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status["broadcast_id"]).one_or_none()
             if stream_chunk is None:
                 log.info("Creating stream chunk, from create_stream_chunk")
-                stream_chunk = StreamChunk(
-                    self.current_stream, status["broadcast_id"], status["created_at"]
-                )
+                stream_chunk = StreamChunk(self.current_stream, status["broadcast_id"], status["created_at"])
                 self.current_stream_chunk = stream_chunk
                 db_session.add(stream_chunk)
                 db_session.commit()
@@ -385,22 +336,13 @@ class StreamManager:
     def create_stream(self, status):
         log.info("Attempting to create a stream!")
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            stream_chunk = (
-                db_session.query(StreamChunk)
-                .filter_by(broadcast_id=status["broadcast_id"])
-                .one_or_none()
-            )
+            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status["broadcast_id"]).one_or_none()
             new_stream = False
             if stream_chunk is not None:
                 stream = stream_chunk.stream
             else:
                 log.info("checking if there is an active stream already")
-                stream = (
-                    db_session.query(Stream)
-                    .filter_by(ended=False)
-                    .order_by(Stream.stream_start.desc())
-                    .first()
-                )
+                stream = db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
                 new_stream = stream is None
 
                 if new_stream:
@@ -409,9 +351,7 @@ class StreamManager:
                     db_session.add(stream)
                     db_session.commit()
                     log.info("Successfully added stream!")
-                stream_chunk = StreamChunk(
-                    stream, status["broadcast_id"], status["created_at"]
-                )
+                stream_chunk = StreamChunk(stream, status["broadcast_id"], status["created_at"])
                 db_session.add(stream_chunk)
                 db_session.commit()
                 stream.stream_chunks.append(stream_chunk)
@@ -453,9 +393,7 @@ class StreamManager:
                 # I'll comment this out since all errors are posted live anyway
                 return
 
-            self.bot.mainthread_queue.add(
-                self.refresh_stream_status_stage2, args=[status]
-            )
+            self.bot.mainthread_queue.add(self.refresh_stream_status_stage2, args=[status])
         except:
             log.exception("Uncaught exception while refreshing stream status (Stage 1)")
 
@@ -512,32 +450,15 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        log.info(
-            "Attempting to fetch video url for broadcast {0}".format(
-                self.current_stream_chunk.broadcast_id
-            )
-        )
-        stream_chunk = (
-            self.current_stream_chunk
-            if self.current_stream_chunk.video_url is None
-            else None
-        )
-        video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(
-            data
-        )
+        log.info("Attempting to fetch video url for broadcast {0}".format(self.current_stream_chunk.broadcast_id))
+        stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
+        video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
         if video_url is not None:
             log.info("Successfully fetched a video url: {0}".format(video_url))
-            if (
-                self.current_stream_chunk is None
-                or self.current_stream_chunk.video_url is None
-            ):
-                with DBManager.create_session_scope(
-                    expire_on_commit=False
-                ) as db_session:
+            if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
+                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                     self.current_stream_chunk.video_url = video_url
-                    self.current_stream_chunk.video_preview_image_url = (
-                        video_preview_image_url
-                    )
+                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
 
                     db_session.add(self.current_stream_chunk)
 
@@ -550,19 +471,13 @@ class StreamManager:
                 self.current_stream_chunk.chunk_end = utils.now()
                 DBManager.session_add_expunge(self.current_stream_chunk)
 
-                with DBManager.create_session_scope(
-                    expire_on_commit=False
-                ) as db_session:
+                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                     stream_chunk = StreamChunk(
-                        self.current_stream,
-                        self.current_stream_chunk.broadcast_id,
-                        video_recorded_at,
+                        self.current_stream, self.current_stream_chunk.broadcast_id, video_recorded_at
                     )
                     self.current_stream_chunk = stream_chunk
                     self.current_stream_chunk.video_url = video_url
-                    self.current_stream_chunk.video_preview_image_url = (
-                        video_preview_image_url
-                    )
+                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
 
                     db_session.add(self.current_stream_chunk)
 
@@ -634,11 +549,7 @@ class StreamManager:
         num_rows = 0
         try:
             with DBManager.create_session_scope() as db_session:
-                num_rows = (
-                    db_session.query(StreamChunkHighlight)
-                    .filter_by(id=id)
-                    .update(options)
-                )
+                num_rows = db_session.query(StreamChunkHighlight).filter_by(id=id).update(options)
         except:
             log.exception("AAAAAAAAAA FIXME")
 
@@ -651,11 +562,7 @@ class StreamManager:
         """
 
         with DBManager.create_session_scope() as db_session:
-            num_rows = (
-                db_session.query(StreamChunkHighlight)
-                .filter(StreamChunkHighlight.id == id)
-                .delete()
-            )
+            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
 
         return num_rows == 1
 

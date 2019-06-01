@@ -16,9 +16,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Type X emote Y times"
-    DESCRIPTION = (
-        "A user needs to type a specific emote Y times to complete this quest."
-    )
+    DESCRIPTION = "A user needs to type a specific emote Y times to complete this quest."
     PARENT_MODULE = QuestModule
     SETTINGS = [
         ModuleSetting(
@@ -34,9 +32,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.current_emote_key = "{streamer}:current_quest_emote".format(
-            streamer=StreamHelper.get_streamer()
-        )
+        self.current_emote_key = "{streamer}:current_quest_emote".format(streamer=StreamHelper.get_streamer())
         self.current_emote = "???"
         self.progress = {}
 
@@ -49,11 +45,7 @@ class TypeEmoteQuestModule(BaseQuest):
                 user_progress = self.get_user_progress(source.username, default=0) + 1
 
                 if user_progress > self.get_limit():
-                    log.debug(
-                        "{} has already complete the quest. Moving along.".format(
-                            source.username
-                        )
-                    )
+                    log.debug("{} has already complete the quest. Moving along.".format(source.username))
                     # no need to do more
                     return
 

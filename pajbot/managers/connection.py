@@ -10,7 +10,7 @@ from irc.client import ServerNotConnectedError
 
 from pajbot.tmi import TMI
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger("pajbot")
 
 
 class CustomServerConnection(irc.client.ServerConnection):
@@ -19,6 +19,7 @@ class CustomServerConnection(irc.client.ServerConnection):
     to send strings that are 2048(?) bytes long. This is not in accordance with the IRC
     standards, but it's the limit the Twitch IRC servers use.
     """
+
     def send_raw(self, string):
         """Send raw string to the server.
 
@@ -26,24 +27,22 @@ class CustomServerConnection(irc.client.ServerConnection):
         """
         # The string should not contain any carriage return other than the
         # one added here.
-        if '\n' in string:
-            raise InvalidCharacters(
-                'Carriage returns not allowed in privmsg(text)')
-        bytes = string.encode('utf-8') + b'\r\n'
+        if "\n" in string:
+            raise InvalidCharacters("Carriage returns not allowed in privmsg(text)")
+        bytes = string.encode("utf-8") + b"\r\n"
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
         # However, Twitch have raised that limit to 2048 in their servers.
         if len(bytes) > 2048:
-            raise MessageTooLong(
-                'Messages limited to 2048 bytes including CR/LF')
+            raise MessageTooLong("Messages limited to 2048 bytes including CR/LF")
         if self.socket is None:
-            raise ServerNotConnectedError('Not connected.')
-        sender = getattr(self.socket, 'write', self.socket.send)
+            raise ServerNotConnectedError("Not connected.")
+        sender = getattr(self.socket, "write", self.socket.send)
         try:
             sender(bytes)
         except socket.error:
             # Ouch!
-            self.disconnect('Connection reset by peer.')
+            self.disconnect("Connection reset by peer.")
 
 
 class Connection(CustomServerConnection):
@@ -63,11 +62,11 @@ class Connection(CustomServerConnection):
 class ConnectionManager:
     def __init__(self, reactor, bot, streamer, control_hub_channel):
         self.streamer = streamer
-        self.channel = '#' + self.streamer
-        if len(control_hub_channel) > 0:
-            self.control_hub_channel = '#' + control_hub_channel
+        self.channel = "#" + self.streamer
+        if control_hub_channel:
+            self.control_hub_channel = "#" + control_hub_channel
         else:
-            self.control_hub_channel = ''
+            self.control_hub_channel = None
 
         self.reactor = reactor
         self.bot = bot
@@ -76,28 +75,25 @@ class ConnectionManager:
         self.maintenance_lock = False
 
     def start(self):
-        log.debug('Starting connection manager')
+        log.debug("Starting connection manager")
         try:
             self.main_conn = self.make_new_connection()
 
-            phrase_data = {
-                'nickname': self.bot.nickname,
-                'version': self.bot.version,
-                 }
+            phrase_data = {"nickname": self.bot.nickname, "version": self.bot.version}
 
-            for p in self.bot.phrases['welcome']:
+            for p in self.bot.phrases["welcome"]:
                 self.bot.privmsg(p.format(**phrase_data))
 
             self.run_maintenance()
             self.bot.execute_every(4, self.run_maintenance)
             return True
         except:
-            log.exception('babyrage')
+            log.exception("babyrage")
             return False
 
     def run_maintenance(self):
         if self.maintenance_lock:
-            log.debug('skipping due to maintenance lock')
+            log.debug("skipping due to maintenance lock")
             return
 
         self.maintenance_lock = True
@@ -110,11 +106,11 @@ class ConnectionManager:
             if not self.main_conn.in_channel:
                 if irc.client.is_channel(self.channel):
                     self.main_conn.join(self.channel)
-                    log.debug('Joined channel')
+                    log.debug("Joined channel")
 
-                if irc.client.is_channel(self.control_hub_channel):
+                if self.control_hub_channel and irc.client.is_channel(self.control_hub_channel):
                     self.main_conn.join(self.control_hub_channel)
-                    log.debug('Joined channel')
+                    log.debug("Joined channel")
 
                 self.main_conn.in_channel = True
 
@@ -127,58 +123,55 @@ class ConnectionManager:
 
         return self.main_conn
 
-    """
-    This method returns a random IRC server from a list of valid twitch IRC servers.
-    The returned servers accept unencrypted IRC traffic. (they are not SSL servers)
-    """
     @staticmethod
     def get_chat_server():
-        servers = [
-            {'host': 'irc.chat.twitch.tv', 'port': 6697},
-            {'host': 'irc.chat.twitch.tv', 'port': 443},
-        ]
+        """
+        This method returns a random IRC server from a list of valid twitch IRC servers.
+        The returned servers accept unencrypted IRC traffic. (they are not SSL servers)
+        """
+        servers = [{"host": "irc.chat.twitch.tv", "port": 6697}, {"host": "irc.chat.twitch.tv", "port": 443}]
 
         server = random.choice(servers)
-        return server['host'], server['port']
+        return server["host"], server["port"]
 
     def make_new_connection(self):
-        log.debug('Creating a new IRC connection...')
-        log.debug('Selecting random IRC server... ({0})'.format(self.streamer))
+        log.debug("Creating a new IRC connection...")
+        log.debug("Selecting random IRC server... ({0})".format(self.streamer))
 
         ip, port = self.get_chat_server()
 
-        log.debug('Selected {0}:{1}'.format(ip, port))
+        log.debug("Selected {0}:{1}".format(ip, port))
 
         try:
             ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
             newconn = Connection(self.reactor)
             with self.reactor.mutex:
                 self.reactor.connections.append(newconn)
-            newconn.connect(ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory)
-            log.debug('Connecting to IRC server...')
-            newconn.cap('REQ', 'twitch.tv/membership')
-            newconn.cap('REQ', 'twitch.tv/commands')
-            newconn.cap('REQ', 'twitch.tv/tags')
+            newconn.connect(
+                ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
+            )
+            log.debug("Connecting to IRC server...")
+            newconn.cap("REQ", "twitch.tv/membership")
+            newconn.cap("REQ", "twitch.tv/commands")
+            newconn.cap("REQ", "twitch.tv/tags")
 
             return newconn
         except irc.client.ServerConnectionError:
-            return
-
-        else:
-            log.error('No proper data returned when fetching IRC servers')
             return None
 
-    def on_disconnect(self, chatconn):
+        log.error("No proper data returned when fetching IRC servers")
+        return None
+
+    def on_disconnect(self, _chatconn):
         self.run_maintenance()
-        return
 
     def privmsg(self, channel, message, increase_message=True):
         conn = self.get_main_conn()
 
         if conn is None or not conn.can_send():
-            log.error('No available connections to send messages from. Delaying message a few seconds.')
+            log.error("No available connections to send messages from. Delaying message a few seconds.")
             self.bot.execute_delayed(2, self.privmsg, (channel, message, increase_message))
-            return False
+            return
 
         conn.privmsg(channel, message)
         if increase_message:

@@ -15,17 +15,13 @@ class BaseQuest(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.progress = {}
-        self.progress_key = "{streamer}:current_quest_progress".format(
-            streamer=StreamHelper.get_streamer()
-        )
-        self.quest_finished_key = "{streamer}:quests:finished".format(
-            streamer=StreamHelper.get_streamer()
-        )
+        self.progress_key = "{streamer}:current_quest_progress".format(streamer=StreamHelper.get_streamer())
+        self.quest_finished_key = "{streamer}:quests:finished".format(streamer=StreamHelper.get_streamer())
         self.quest_module = None
 
     def finish_quest(self, redis, user):
         if not self.quest_module:
-            log.error('Quest module not initialized')
+            log.error("Quest module not initialized")
             return
 
         stream_id = StreamHelper.get_current_stream_id()
@@ -44,23 +40,16 @@ class BaseQuest(BaseModule):
         reward_type = self.quest_module.settings["reward_type"]
         reward_amount = self.quest_module.settings["reward_amount"]
 
-        if (
-            reward_type == "tokens"
-            and user.tokens > self.quest_module.settings["max_tokens"]
-        ):
-            message = "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
-            pajbot.managers.handler.HandlerManager.trigger(
-                "send_whisper", user.username, message
+        if reward_type == "tokens" and user.tokens > self.quest_module.settings["max_tokens"]:
+            message = (
+                "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
             )
+            pajbot.managers.handler.HandlerManager.trigger("send_whisper", user.username, message)
             return
 
         # Mark the current stream ID has finished
         quests_finished.append(stream_id)
-        redis.hset(
-            self.quest_finished_key,
-            user.username,
-            json.dumps(quests_finished, separators=(",", ":")),
-        )
+        redis.hset(self.quest_finished_key, user.username, json.dumps(quests_finished, separators=(",", ":")))
 
         # Award the user appropriately
         if reward_type == "tokens":
@@ -69,12 +58,8 @@ class BaseQuest(BaseModule):
             user.points += reward_amount
 
         # Notify the user that they've finished today's quest
-        message = "You finished todays quest! You have been awarded with {} {}.".format(
-            reward_amount, reward_type
-        )
-        pajbot.managers.handler.HandlerManager.trigger(
-            "send_whisper", user.username, message
-        )
+        message = "You finished todays quest! You have been awarded with {} {}.".format(reward_amount, reward_type)
+        pajbot.managers.handler.HandlerManager.trigger("send_whisper", user.username, message)
 
         user.save()
 

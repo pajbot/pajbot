@@ -8,9 +8,9 @@ log = logging.getLogger(__name__)
 
 
 class KVIData:
-    def __init__(self, streamer, id):
-        self.key = '{streamer}:kvi'.format(streamer=streamer)
-        self.id = id
+    def __init__(self, streamer, kvi_id):
+        self.key = "{streamer}:kvi".format(streamer=streamer)
+        self.id = kvi_id
 
     def set(self, new_value, redis=None):
         if redis is None:
@@ -49,5 +49,5 @@ class KVIManager(UserDict):
         self.streamer = StreamHelper.get_streamer()
         UserDict.__init__(self)
 
-    def __getitem__(self, id):
-        return KVIData(self.streamer, id)
+    def __getitem__(self, kvi_id):
+        return KVIData(self.streamer, kvi_id)

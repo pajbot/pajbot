@@ -26,9 +26,7 @@ class HSBetBet(Base):
     __tablename__ = "tb_hsbet_bet"
 
     id = Column(Integer, primary_key=True)
-    game_id = Column(
-        Integer, ForeignKey("tb_hsbet_game.id"), nullable=False, index=True
-    )
+    game_id = Column(Integer, ForeignKey("tb_hsbet_game.id"), nullable=False, index=True)
     user_id = Column(Integer, nullable=False, index=True)
     outcome = Column(Enum("win", "loss", name="win_or_loss"), nullable=False)
     points = Column(Integer, nullable=False)

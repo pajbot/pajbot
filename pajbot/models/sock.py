@@ -36,9 +36,7 @@ class SocketManager:
 
         if self.check_config(bot.config) is True:
             self.socket_file = bot.config["sock"]["sock_file"]
-            self.thread = threading.Thread(
-                target=self.start, name="SocketManagerThread"
-            )
+            self.thread = threading.Thread(target=self.start, name="SocketManagerThread")
             self.thread.daemon = True
             self.thread.start()
 
@@ -52,15 +50,11 @@ class SocketManager:
     @staticmethod
     def check_config(config):
         if "sock" not in config:
-            log.warning(
-                "Missing [sock] section in config file for SocketManager to start."
-            )
+            log.warning("Missing [sock] section in config file for SocketManager to start.")
             return False
 
         if "sock_file" not in config["sock"]:
-            log.warning(
-                "Missing sock_file value in [sock] section in config file for SocketManager to start."
-            )
+            log.warning("Missing sock_file value in [sock] section in config file for SocketManager to start.")
             return False
 
         return True
@@ -82,23 +76,15 @@ class SocketManager:
                     try:
                         json_data = json.loads(data.decode("utf-8"))
                     except ValueError:
-                        log.warning(
-                            "Invalid JSON Data passed through SocketManager: {}".format(
-                                data
-                            )
-                        )
+                        log.warning("Invalid JSON Data passed through SocketManager: {}".format(data))
                         continue
 
                     if "event" not in json_data:
-                        log.warning(
-                            "Missing event key from json data: {}".format(json_data)
-                        )
+                        log.warning("Missing event key from json data: {}".format(json_data))
                         continue
 
                     if "data" not in json_data:
-                        log.warning(
-                            "Missing data key in json_data: {}".format(json_data)
-                        )
+                        log.warning("Missing data key in json_data: {}".format(json_data))
                         continue
 
                     try:
@@ -118,11 +104,7 @@ class SocketManager:
                             try:
                                 handler(json_data["data"], conn)
                             except:
-                                log.exception(
-                                    "Unhandled exception in handler for event {}".format(
-                                        event
-                                    )
-                                )
+                                log.exception("Unhandled exception in handler for event {}".format(event))
                     else:
                         log.debug("Unhandled handler: {}".format(event))
 

@@ -2,7 +2,8 @@ import collections
 import datetime
 import logging
 
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -45,9 +46,7 @@ class DebugModule(BaseModule):
                         break
 
             if not command:
-                bot.whisper(
-                    source.username, "No command found with the given parameters."
-                )
+                bot.whisper(source.username, "No command found with the given parameters.")
                 return False
 
             data = collections.OrderedDict()
@@ -64,14 +63,9 @@ class DebugModule(BaseModule):
             elif data["type"] == "func" or data["type"] == "rawfunc":
                 data["cb"] = command.action.cb.__name__
 
-            bot.whisper(
-                source.username,
-                ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]),
-            )
+            bot.whisper(source.username, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
         else:
-            bot.whisper(
-                source.username, "Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)"
-            )
+            bot.whisper(source.username, "Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)")
             return False
 
     @staticmethod
@@ -102,10 +96,7 @@ class DebugModule(BaseModule):
             data["banned"] = user.banned
             data["tokens"] = user.tokens
 
-            bot.whisper(
-                source.username,
-                ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]),
-            )
+            bot.whisper(source.username, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
         else:
             bot.whisper(source.username, "Usage: !debug user USERNAME")
             return False
@@ -131,17 +122,14 @@ class DebugModule(BaseModule):
                 bot.whisper(source.username, "This user does not have any tags")
             else:
                 for tag in user_tags:
-                    data[tag] = datetime.datetime.fromtimestamp(
-                        user_tags[tag],
-                        tz=datetime.timezone.utc
-                    ).strftime("%Y-%m-%d")
+                    data[tag] = datetime.datetime.fromtimestamp(user_tags[tag], tz=datetime.timezone.utc).strftime(
+                        "%Y-%m-%d"
+                    )
 
                 bot.whisper(
                     source.username,
                     "{} have the following tags: ".format(user.username_raw)
-                    + ", ".join(
-                        ["%s until %s" % (key, value) for (key, value) in data.items()]
-                    ),
+                    + ", ".join(["%s until %s" % (key, value) for (key, value) in data.items()]),
                 )
         else:
             bot.whisper(source.username, "Usage: !debug user USERNAME")

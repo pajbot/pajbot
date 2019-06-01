@@ -97,9 +97,7 @@ class TimerManager:
                 db_session.expunge(updated_timer)
         else:
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                updated_timer = (
-                    db_session.query(Timer).filter_by(id=timer_id).one_or_none()
-                )
+                updated_timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
 
         # Add the updated timer to the timer lists if required
         if updated_timer:
@@ -148,9 +146,7 @@ class TimerManager:
         if self.bot.is_online:
             for timer in self.online_timers:
                 timer.time_to_send_online -= 1
-            timer = find(
-                lambda timer: timer.time_to_send_online <= 0, self.online_timers
-            )
+            timer = find(lambda timer: timer.time_to_send_online <= 0, self.online_timers)
             if timer:
                 timer.run(self.bot)
                 timer.time_to_send_online = timer.interval_online
@@ -159,9 +155,7 @@ class TimerManager:
         else:
             for timer in self.offline_timers:
                 timer.time_to_send_offline -= 1
-            timer = find(
-                lambda timer: timer.time_to_send_offline <= 0, self.offline_timers
-            )
+            timer = find(lambda timer: timer.time_to_send_offline <= 0, self.offline_timers)
             if timer:
                 timer.run(self.bot)
                 timer.time_to_send_offline = timer.interval_offline
@@ -171,36 +165,22 @@ class TimerManager:
     def redistribute_timers(self):
         for x in range(0, len(self.offline_timers)):
             timer = self.offline_timers[x]
-            timer.time_to_send_offline = timer.interval_offline * (
-                (x + 1) / len(self.offline_timers)
-            )
+            timer.time_to_send_offline = timer.interval_offline * ((x + 1) / len(self.offline_timers))
 
         for x in range(0, len(self.online_timers)):
             timer = self.online_timers[x]
-            timer.time_to_send_online = timer.interval_online * (
-                (x + 1) / len(self.online_timers)
-            )
+            timer.time_to_send_online = timer.interval_online * ((x + 1) / len(self.online_timers))
 
     def load(self):
         self.timers = []
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             self.timers = (
-                db_session.query(Timer)
-                .order_by(Timer.interval_online, Timer.interval_offline, Timer.name)
-                .all()
+                db_session.query(Timer).order_by(Timer.interval_online, Timer.interval_offline, Timer.name).all()
             )
             db_session.expunge_all()
 
-        self.online_timers = [
-            timer
-            for timer in self.timers
-            if timer.interval_online > 0 and timer.enabled
-        ]
-        self.offline_timers = [
-            timer
-            for timer in self.timers
-            if timer.interval_offline > 0 and timer.enabled
-        ]
+        self.online_timers = [timer for timer in self.timers if timer.interval_online > 0 and timer.enabled]
+        self.offline_timers = [timer for timer in self.timers if timer.interval_offline > 0 and timer.enabled]
 
         self.redistribute_timers()
 

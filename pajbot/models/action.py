@@ -24,9 +24,7 @@ class ActionParser:
         except ImportError:
             from pajbot.dispatch import Dispatch
         except:
-            log.exception(
-                "Something went wrong while attemting to import Dispatch, this should never happen"
-            )
+            log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
             sys.exit(1)
 
         if not data:
@@ -44,11 +42,7 @@ class ActionParser:
             try:
                 action = FuncAction(getattr(Dispatch, data["cb"]))
             except AttributeError as e:
-                log.error(
-                    'AttributeError caught when parsing action for action "{}": {}'.format(
-                        command, e
-                    )
-                )
+                log.error('AttributeError caught when parsing action for action "{}": {}'.format(command, e))
                 return None
         elif data["type"] == "multi":
             action = MultiAction(data["args"], data["default"])
@@ -62,9 +56,7 @@ def apply_substitutions(text, substitutions, bot, extra):
     for needle, sub in substitutions.items():
         if sub.key and sub.argument:
             param = sub.key
-            extra["argument"] = MessageAction.get_argument_value(
-                extra["message"], sub.argument - 1
-            )
+            extra["argument"] = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
         elif sub.key:
             param = sub.key
         elif sub.argument:
@@ -88,9 +80,7 @@ def apply_substitutions(text, substitutions, bot, extra):
 class IfSubstitution:
     def __call__(self, key, extra={}):
         if self.sub.key is None:
-            msg = MessageAction.get_argument_value(
-                extra.get("message", ""), self.sub.argument - 1
-            )
+            msg = MessageAction.get_argument_value(extra.get("message", ""), self.sub.argument - 1)
             if msg:
                 return self.get_true_response(extra)
 
@@ -106,9 +96,7 @@ class IfSubstitution:
         return apply_substitutions(self.true_response, self.true_subs, self.bot, extra)
 
     def get_false_response(self, extra):
-        return apply_substitutions(
-            self.false_response, self.false_subs, self.bot, extra
-        )
+        return apply_substitutions(self.false_response, self.false_subs, self.bot, extra)
 
     def __init__(self, key, arguments, bot):
         self.bot = bot
@@ -134,9 +122,7 @@ class Substitution:
         r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
-    urlfetch_substitution_regex = re.compile(
-        r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"
-    )
+    urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
     urlfetch_substitution_regex_all = re.compile(r"\$\(urlfetch (.+?)\)")
 
     def __init__(self, cb, needle, key=None, argument=None, filters=[]):
@@ -177,11 +163,7 @@ class MultiAction(BaseAction):
                 if alias not in self.commands:
                     self.commands[alias] = cmd
                 else:
-                    log.error(
-                        "Alias {0} for this multiaction is already in use.".format(
-                            alias
-                        )
-                    )
+                    log.error("Alias {0} for this multiaction is already in use.".format(alias))
 
         import copy
 
@@ -235,11 +217,7 @@ class MultiAction(BaseAction):
             if source.level >= cmd.level:
                 return cmd.run(bot, source, extra_msg, event, args)
 
-            log.info(
-                "User {0} tried running a sub-command he had no access to ({1}).".format(
-                    source.username, command
-                )
-            )
+            log.info("User {0} tried running a sub-command he had no access to ({1}).".format(source.username, command))
 
         return None
 
@@ -289,9 +267,7 @@ def get_argument_substitutions(string):
         if found:
             continue
 
-        argument_substitutions.append(
-            Substitution(None, needle=needle, argument=argument_num)
-        )
+        argument_substitutions.append(Substitution(None, needle=needle, argument=argument_num))
 
     return argument_substitutions
 
@@ -336,9 +312,7 @@ def get_substitutions(string, bot):
     substitutions = collections.OrderedDict()
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(
-            sub_key
-        )
+        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
 
         if sub_string in substitutions:
             # We already matched this variable
@@ -350,13 +324,7 @@ def get_substitutions(string, bot):
                     if_substitution = IfSubstitution(key, if_arguments, bot)
                     if if_substitution.sub is None:
                         continue
-                    sub = Substitution(
-                        if_substitution,
-                        needle=sub_string,
-                        key=key,
-                        argument=argument,
-                        filters=filters,
-                    )
+                    sub = Substitution(if_substitution, needle=sub_string, key=key, argument=argument, filters=filters)
                     substitutions[sub_string] = sub
         except:
             log.exception("BabyRage")
@@ -386,22 +354,14 @@ def get_substitutions(string, bot):
         pass
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(
-            sub_key
-        )
+        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
 
         if sub_string in substitutions:
             # We already matched this variable
             continue
 
         if path in method_mapping:
-            sub = Substitution(
-                method_mapping[path],
-                needle=sub_string,
-                key=key,
-                argument=argument,
-                filters=filters,
-            )
+            sub = Substitution(method_mapping[path], needle=sub_string, key=key, argument=argument, filters=filters)
             substitutions[sub_string] = sub
 
     return substitutions
@@ -429,9 +389,7 @@ class MessageAction(BaseAction):
         if bot:
             self.argument_subs = get_argument_substitutions(self.response)
             self.subs = get_substitutions(self.response, bot)
-            self.num_urlfetch_subs = len(
-                get_urlfetch_substitutions(self.response, all=True)
-            )
+            self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
         else:
             self.argument_subs = []
             self.subs = {}
@@ -458,9 +416,7 @@ class MessageAction(BaseAction):
 
         for sub in self.argument_subs:
             needle = sub.needle
-            value = str(
-                MessageAction.get_argument_value(extra["message"], sub.argument - 1)
-            )
+            value = str(MessageAction.get_argument_value(extra["message"], sub.argument - 1))
             resp = resp.replace(needle, value)
             log.debug("Replacing {0} with {1}".format(needle, value))
 
@@ -471,10 +427,7 @@ class MessageAction(BaseAction):
                 from pajbot.modules.ascii import AsciiProtectionModule
 
                 checks = {
-                    "banphrase": (
-                        bot.banphrase_manager.check_message,
-                        [resp, extra["source"]],
-                    ),
+                    "banphrase": (bot.banphrase_manager.check_message, [resp, extra["source"]]),
                     "ascii": (AsciiProtectionModule.check_message, [resp]),
                 }
                 # Check banphrases
@@ -489,11 +442,7 @@ class MessageAction(BaseAction):
 
     @staticmethod
     def get_extra_data(source, message, args):
-        ret = {
-            "user": source.username if source else None,
-            "source": source,
-            "message": message,
-        }
+        ret = {"user": source.username if source else None, "source": source, "message": message}
         ret.update(args)
         return ret
 
@@ -529,10 +478,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             from pajbot.modules.ascii import AsciiProtectionModule
 
             checks = {
-                "banphrase": (
-                    bot.banphrase_manager.check_message,
-                    [message, extra["source"]],
-                ),
+                "banphrase": (bot.banphrase_manager.check_message, [message, extra["source"]]),
                 "ascii": (AsciiProtectionModule.check_message, [message]),
             }
             # Check banphrases

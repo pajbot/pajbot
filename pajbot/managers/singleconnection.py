@@ -10,12 +10,13 @@ log = logging.getLogger(__name__)
 
 
 @six.add_metaclass(abc.ABCMeta)
-class ReconnectStrategy(object):
+class ReconnectStrategy:
     """
     An abstract base class describing the interface used by
     SingleServerIRCBot for handling reconnect following
     disconnect events.
     """
+
     @abc.abstractmethod
     def run(self, bot):
         """
@@ -29,6 +30,7 @@ class StaticInterval(ReconnectStrategy):
     def __init__(self, interval):
         self.interval = interval
         self._check_scheduled = False
+        self.bot = None
 
     def run(self, bot):
         self.bot = bot
@@ -36,12 +38,16 @@ class StaticInterval(ReconnectStrategy):
         if self._check_scheduled:
             return
 
-        log.info('Attempting to reconnect...')
+        log.info("Attempting to reconnect...")
 
         self.bot.execute_delayed(self.interval, self.check)
         self._check_scheduled = True
 
     def check(self):
+        if not self.bot:
+            log.warning("Missing bot value in StaticInterval ReconnectStrategy")
+            return
+
         self._check_scheduled = False
         if not self.bot.relay_connection.is_connected():
             self.run(self.bot)
@@ -53,7 +59,7 @@ class SingleConnectionManager:
         self.reactor = reactor
         self.host = host
         self.username = username
-        self.password = '{};{}'.format(relay_password, password)
+        self.password = "{};{}".format(relay_password, password)
 
         # Try to reconnect every 3 seconds
         self.recon = StaticInterval(3)
@@ -68,13 +74,13 @@ class SingleConnectionManager:
         self._connect()
 
     def _connect(self):
-        ip, port = self.host.split(':')
+        ip, port = self.host.split(":")
         port = int(port)
-        log.debug('Connecting to relay {}:{}'.format(ip, port))
+        log.debug("Connecting to relay {}:{}".format(ip, port))
         try:
             self.relay_connection.connect(ip, port, self.username, self.password, self.username)
         except irc.client.ServerConnectionError:
-            log.error('Error connecting to {}:{}'.format(ip, port))
+            log.error("Error connecting to {}:{}".format(ip, port))
             self.recon.run(self)
 
     def privmsg(self, channel, message):
@@ -82,10 +88,9 @@ class SingleConnectionManager:
             return self.relay_connection.privmsg(channel, message)
         except irc.client.ServerNotConnectedError:
             log.warning('Unable to send message "{}", not connected to the relay.'.format(message))
-            pass
 
     def whisper(self, username, message):
-        return self.relay_connection.privmsg('#jtv', '/w {0} {1}'.format(username, message))
+        return self.relay_connection.privmsg("#jtv", "/w {0} {1}".format(username, message))
 
     def on_disconnect(self):
         self.recon.run(self)

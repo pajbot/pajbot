@@ -40,11 +40,7 @@ class Dispatch:
 
         if user.points > 0:
             with DBManager.create_session_scope() as db_session:
-                query_data = (
-                    db_session.query(func.count(User.id))
-                    .filter(User.points > user.points)
-                    .one()
-                )
+                query_data = db_session.query(func.count(User.id)).filter(User.points > user.points).one()
                 phrase_data["point_pos"] = int(query_data[0]) + 1
                 bot.whisper(source.username, point_pos.format(**phrase_data))
 
@@ -75,11 +71,7 @@ class Dispatch:
             bot.say(nl_0.format(**phrase_data))
         else:
             with DBManager.create_session_scope() as db_session:
-                query_data = (
-                    db_session.query(func.count(User.id))
-                    .filter(User.num_lines > num_lines)
-                    .one()
-                )
+                query_data = db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
                 phrase_data["nl_pos"] = int(query_data[0]) + 1
                 bot.say(nl_pos.format(**phrase_data))
 
@@ -110,9 +102,7 @@ class Dispatch:
             elif location is not None:
                 query_parameters["location"] = location
 
-            res = requests.get(
-                "http://api.wolframalpha.com/v2/query", params=query_parameters
-            )
+            res = requests.get("http://api.wolframalpha.com/v2/query", params=query_parameters)
             answer = res.json()["queryresult"]
 
             base_reply = "{0}, ".format(source.username_raw)
@@ -128,10 +118,7 @@ class Dispatch:
 
             if not is_success:
                 log.debug(answer)
-                reply = (
-                    base_reply
-                    + "Wolfram|Alpha didn't understand your query FeelsBadMan"
-                )
+                reply = base_reply + "Wolfram|Alpha didn't understand your query FeelsBadMan"
                 didyoumeans = answer.get("didyoumeans", None)
                 if didyoumeans is not None and len(didyoumeans) > 0:
                     reply += " Did you mean: "
@@ -141,9 +128,7 @@ class Dispatch:
                         # a single object under the "didyoumeans" key, so we convert it
                         # into a single-element list.
                         didyoumeans = [didyoumeans]
-                    reply += " | ".join(
-                        list(map(lambda x: x.get("val", None), didyoumeans))
-                    )
+                    reply += " | ".join(list(map(lambda x: x.get("val", None), didyoumeans)))
                 log.debug(reply)
                 bot.send_message_to_user(source, reply, event, method="reply")
                 return False
@@ -174,15 +159,9 @@ class Dispatch:
 
             pods = answer["pods"]
 
-            input_pod = next(
-                (pod for pod in pods if pod["id"].lower() == "input"), None
-            )
-            result_pod = next(
-                (pod for pod in pods if pod["id"].lower() == "result"), None
-            )
-            is_direct_input_pod = (
-                input_pod is not None and input_pod["title"].lower() == "input"
-            )
+            input_pod = next((pod for pod in pods if pod["id"].lower() == "input"), None)
+            result_pod = next((pod for pod in pods if pod["id"].lower() == "result"), None)
+            is_direct_input_pod = input_pod is not None and input_pod["title"].lower() == "input"
 
             if input_pod is not None and result_pod is not None:
                 selected_pods = [input_pod, result_pod]
@@ -227,9 +206,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(
-                    source.username, "Usage: !add command ALIAS [options] RESPONSE"
-                )
+                bot.whisper(source.username, "Usage: !add command ALIAS [options] RESPONSE")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -253,18 +230,11 @@ class Dispatch:
                 type = "say"
             action = {"type": type, "message": response}
 
-            command, new_command, alias_matched = bot.commands.create_command(
-                alias_str, action=action, **options
-            )
+            command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
-                bot.whisper(
-                    source.username,
-                    "Added your command (ID: {command.id})".format(command=command),
-                )
+                bot.whisper(source.username, "Added your command (ID: {command.id})".format(command=command))
 
-                log_msg = "The !{} command has been created".format(
-                    command.command.split("|")[0]
-                )
+                log_msg = "The !{} command has been created".format(command.command.split("|")[0])
                 AdminLogManager.add_entry("Command created", source, log_msg)
                 return True
 
@@ -295,9 +265,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(
-                    source.username, "Usage: !add command ALIAS [options] RESPONSE"
-                )
+                bot.whisper(source.username, "Usage: !add command ALIAS [options] RESPONSE")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -342,25 +310,17 @@ class Dispatch:
             elif not type == command.action.subtype:
                 options["action"] = {"type": type, "message": command.action.response}
             bot.commands.edit_command(command, **options)
-            bot.whisper(
-                source.username,
-                "Updated the command (ID: {command.id})".format(command=command),
-            )
+            bot.whisper(source.username, "Updated the command (ID: {command.id})".format(command=command))
 
             if len(new_message) > 0:
                 log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
                     command.command.split("|")[0], old_message, new_message
                 )
             else:
-                log_msg = "The !{} command has been updated".format(
-                    command.command.split("|")[0]
-                )
+                log_msg = "The !{} command has been updated".format(command.command.split("|")[0])
 
             AdminLogManager.add_entry(
-                "Command edited",
-                source,
-                log_msg,
-                data={"old_message": old_message, "new_message": new_message},
+                "Command edited", source, log_msg, data={"old_message": old_message, "new_message": new_message}
             )
 
     @staticmethod
@@ -379,9 +339,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(" ")
             if len(message_parts) < 2:
-                bot.whisper(
-                    source.username, "Usage: !add funccommand ALIAS [options] CALLBACK"
-                )
+                bot.whisper(source.username, "Usage: !add funccommand ALIAS [options] CALLBACK")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -395,14 +353,9 @@ class Dispatch:
             alias_str = message_parts[0].replace("!", "").lower()
             action = {"type": "func", "cb": response.strip()}
 
-            command, new_command, alias_matched = bot.commands.create_command(
-                alias_str, action=action, **options
-            )
+            command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
-                bot.whisper(
-                    source.username,
-                    "Added your command (ID: {command.id})".format(command=command),
-                )
+                bot.whisper(source.username, "Added your command (ID: {command.id})".format(command=command))
                 return True
 
             # At least one alias is already in use, notify the user to use !edit command instead
@@ -430,9 +383,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(" ")
             if len(message_parts) < 2:
-                bot.whisper(
-                    source.username, "Usage: !add funccommand ALIAS [options] CALLBACK"
-                )
+                bot.whisper(source.username, "Usage: !add funccommand ALIAS [options] CALLBACK")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -460,10 +411,7 @@ class Dispatch:
             if len(action["cb"]) > 0:
                 options["action"] = action
             bot.commands.edit_command(command, **options)
-            bot.whisper(
-                source.username,
-                "Updated the command (ID: {command.id})".format(command=command),
-            )
+            bot.whisper(source.username, "Updated the command (ID: {command.id})".format(command=command))
 
     @staticmethod
     def remove_win(bot, source, message, event, args):
@@ -491,10 +439,7 @@ class Dispatch:
             already_used_aliases = []
 
             if existing_alias not in bot.commands:
-                bot.whisper(
-                    source.username,
-                    'No command called "{0}" found'.format(existing_alias),
-                )
+                bot.whisper(source.username, 'No command called "{0}" found'.format(existing_alias))
                 return False
 
             command = bot.commands[existing_alias]
@@ -512,20 +457,14 @@ class Dispatch:
 
                 bot.whisper(
                     source.username,
-                    "Successfully added the aliases {0} to {1}".format(
-                        ", ".join(added_aliases), existing_alias
-                    ),
+                    "Successfully added the aliases {0} to {1}".format(", ".join(added_aliases), existing_alias),
                 )
-                log_msg = "The aliases {0} has been added to {1}".format(
-                    ", ".join(added_aliases), existing_alias
-                )
+                log_msg = "The aliases {0} has been added to {1}".format(", ".join(added_aliases), existing_alias)
                 AdminLogManager.add_entry("Alias added", source, log_msg)
             if len(already_used_aliases) > 0:
                 bot.whisper(
                     source.username,
-                    "The following aliases were already in use: {0}".format(
-                        ", ".join(already_used_aliases)
-                    ),
+                    "The following aliases were already in use: {0}".format(", ".join(already_used_aliases)),
                 )
         else:
             bot.whisper(source.username, "Usage: !add alias existingalias newalias")
@@ -556,9 +495,7 @@ class Dispatch:
                 if len(current_aliases) == 0:
                     bot.whisper(
                         source.username,
-                        "{0} is the only remaining alias for this command and can't be removed.".format(
-                            alias
-                        ),
+                        "{0} is the only remaining alias for this command and can't be removed.".format(alias),
                     )
                     continue
 
@@ -567,18 +504,14 @@ class Dispatch:
 
                 num_removed += 1
                 del bot.commands[alias]
-                log_msg = "The alias {0} has been removed from {1}".format(
-                    alias, new_aliases.split("|")[0]
-                )
+                log_msg = "The alias {0} has been removed from {1}".format(alias, new_aliases.split("|")[0])
                 AdminLogManager.add_entry("Alias removed", source, log_msg)
 
             whisper_str = ""
             if num_removed > 0:
                 whisper_str = "Successfully removed {0} aliases.".format(num_removed)
             if len(commands_not_found) > 0:
-                whisper_str += " Aliases {0} not found".format(
-                    ", ".join(commands_not_found)
-                )
+                whisper_str += " Aliases {0} not found".format(", ".join(commands_not_found))
             if len(whisper_str) > 0:
                 bot.whisper(source.username, whisper_str)
         else:
@@ -605,39 +538,24 @@ class Dispatch:
                         break
 
             if command is None:
-                bot.whisper(
-                    source.username, "No command with the given parameters found"
-                )
+                bot.whisper(source.username, "No command with the given parameters found")
                 return False
 
             if command.id == -1:
-                bot.whisper(
-                    source.username,
-                    "That command is an internal command, it cannot be removed.",
-                )
+                bot.whisper(source.username, "That command is an internal command, it cannot be removed.")
                 return False
 
             if source.level < 2000:
                 if command.action is not None and not command.action.type == "message":
-                    bot.whisper(
-                        source.username,
-                        "That command is not a normal command, it cannot be removed by you.",
-                    )
+                    bot.whisper(source.username, "That command is not a normal command, it cannot be removed by you.")
                     return False
 
-            bot.whisper(
-                source.username,
-                "Successfully removed command with id {0}".format(command.id),
-            )
-            log_msg = "The !{} command has been removed".format(
-                command.command.split("|")[0]
-            )
+            bot.whisper(source.username, "Successfully removed command with id {0}".format(command.id))
+            log_msg = "The !{} command has been removed".format(command.command.split("|")[0])
             AdminLogManager.add_entry("Command removed", source, log_msg)
             bot.commands.remove_command(command)
         else:
-            bot.whisper(
-                source.username, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)"
-            )
+            bot.whisper(source.username, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
     @staticmethod
     def set_game(bot, source, message, event, args):
@@ -654,9 +572,7 @@ class Dispatch:
         # XXX: This should be a module
         if message:
             bot.twitchapi.set_title(bot.streamer, message)
-            log_msg = '{0} updated the title to "{1}"'.format(
-                source.username_raw, message
-            )
+            log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
             bot.say(log_msg)
 
             AdminLogManager.add_entry("Title set", source, log_msg)
@@ -725,9 +641,7 @@ class Dispatch:
         try:
             exec(message)
         except:
-            log.exception(
-                'Exception caught while trying to evaluate code: "%s"', message
-            )
+            log.exception('Exception caught while trying to evaluate code: "%s"', message)
 
     @staticmethod
     def check_sub(bot, source, message, event, args):

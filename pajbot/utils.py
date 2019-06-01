@@ -29,12 +29,7 @@ def now():
 def alembic_upgrade():
     import alembic.config
 
-    alembic_args = [
-        "--raiseerr",
-        "upgrade",
-        "head",
-        '--tag="{0}"'.format(" ".join(sys.argv[1:])),
-    ]
+    alembic_args = ["--raiseerr", "upgrade", "head", '--tag="{0}"'.format(" ".join(sys.argv[1:]))]
 
     try:
         alembic.config.main(argv=alembic_args)
@@ -53,10 +48,7 @@ def time_method(f):
                     return cls
             meth = meth.__func__
         if inspect.isfunction(meth):
-            cls = getattr(
-                inspect.getmodule(meth),
-                meth.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0],
-            )
+            cls = getattr(inspect.getmodule(meth), meth.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
             if isinstance(cls, type):
                 return cls
         return None
@@ -80,9 +72,7 @@ def time_nonclass_method(f):
         time1 = now().timestamp()
         ret = f(*args)
         time2 = now().timestamp()
-        log.debug(
-            "{0.__name__} function took {1:.3f} ms".format(f, (time2 - time1) * 1000.0)
-        )
+        log.debug("{0.__name__} function took {1:.3f} ms".format(f, (time2 - time1) * 1000.0))
         return ret
 
     return wrap
@@ -119,9 +109,7 @@ def parse_points_amount(user, point_string):
 
             return bet
         except (ValueError, TypeError):
-            raise pajbot.exc.InvalidPointAmount(
-                "Invalid binary format (example: 0b101)"
-            )
+            raise pajbot.exc.InvalidPointAmount("Invalid binary format (example: 0b101)")
     elif point_string.startswith("0x"):
         try:
             bet = int(point_string, 16)
@@ -133,15 +121,11 @@ def parse_points_amount(user, point_string):
         try:
             percentage = float(point_string[:-1])
             if percentage <= 0 or percentage > 100:
-                raise pajbot.exc.InvalidPointAmount(
-                    "Invalid percentage format (example: 43.5%) :o"
-                )
+                raise pajbot.exc.InvalidPointAmount("Invalid percentage format (example: 43.5%) :o")
 
             return math.floor(user.points_available() * (percentage / 100))
         except (ValueError, TypeError):
-            raise pajbot.exc.InvalidPointAmount(
-                "Invalid percentage format (example: 43.5%)"
-            )
+            raise pajbot.exc.InvalidPointAmount("Invalid percentage format (example: 43.5%)")
     elif point_string[0].isnumeric():
         try:
             point_string = point_string.lower()
@@ -158,15 +142,11 @@ def parse_points_amount(user, point_string):
 
             return round(bet)
         except (ValueError, TypeError):
-            raise pajbot.exc.InvalidPointAmount(
-                "Non-recognizable point amount (examples: 100, 10k, 1m, 0.5k)"
-            )
+            raise pajbot.exc.InvalidPointAmount("Non-recognizable point amount (examples: 100, 10k, 1m, 0.5k)")
     elif point_string.lower() in ALLIN_PHRASES:
         return user.points_available()
 
-    raise pajbot.exc.InvalidPointAmount(
-        "Invalid point amount (examples: 100, 10k, 1m, 0.5k)"
-    )
+    raise pajbot.exc.InvalidPointAmount("Invalid point amount (examples: 100, 10k, 1m, 0.5k)")
 
 
 def print_traceback():
@@ -196,11 +176,7 @@ def time_since(t1, t2, time_format="long"):
     while i < 2 and j < 6:
         if num[j] > 0:
             if time_format == "long":
-                time_arr.append(
-                    "{0:g} {1}{2}".format(
-                        num[j], num_dict[j], "s" if num[j] > 1 else ""
-                    )
-                )
+                time_arr.append("{0:g} {1}{2}".format(num[j], num_dict[j], "s" if num[j] > 1 else ""))
             else:
                 time_arr.append("{}{}".format(num[j], num_dict[j]))
             i += 1
@@ -213,9 +189,7 @@ def time_since(t1, t2, time_format="long"):
 
 
 def time_ago(t, time_format="long"):
-    return time_since(
-        now().timestamp(), t.timestamp(), time_format=time_format
-    )
+    return time_since(now().timestamp(), t.timestamp(), time_format=time_format)
 
 
 def tweet_prettify_urls(tweet):
@@ -279,9 +253,7 @@ def init_logging(app="pajbot"):
         def format(self, record):
             levelname = record.levelname
             if levelname in colors:
-                levelname_color = (
-                    Style.BRIGHT + colors[levelname] + levelname + Style.RESET_ALL
-                )
+                levelname_color = Style.BRIGHT + colors[levelname] + levelname + Style.RESET_ALL
                 record.levelname = levelname_color
             return logging.Formatter.format(self, record)
 

@@ -26,12 +26,7 @@ class PredictionRun(Base):
     winner_id = Column(Integer, nullable=True)
     started = Column(DateTime, nullable=False)
     ended = Column(DateTime, nullable=True)
-    open = Column(
-        Boolean,
-        nullable=False,
-        default=True,
-        server_default=sqlalchemy.sql.expression.true(),
-    )
+    open = Column(Boolean, nullable=False, default=True, server_default=sqlalchemy.sql.expression.true())
 
     def __init__(self, type):
         self.id = None
@@ -45,9 +40,7 @@ class PredictionRunEntry(Base):
     __tablename__ = "tb_prediction_run_entry"
 
     id = Column(Integer, primary_key=True)
-    prediction_run_id = Column(
-        Integer, ForeignKey("tb_prediction_run.id"), nullable=False
-    )
+    prediction_run_id = Column(Integer, ForeignKey("tb_prediction_run.id"), nullable=False)
     user_id = Column(Integer, nullable=False)
     prediction = Column(Integer, nullable=False)
 
@@ -91,13 +84,7 @@ class PredictModule(BaseModule):
             default=120,
             constraints={"min_value": 0},
         ),
-        ModuleSetting(
-            key="sub_only",
-            label="Sub only",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
+        ModuleSetting(key="sub_only", label="Sub only", type="boolean", required=True, default=True),
         ModuleSetting(
             key="mini_command",
             label="Mini predict command (Leave empty to disable)",
@@ -138,9 +125,7 @@ class PredictModule(BaseModule):
                     self.new_predict,
                     delay_all=10,
                     delay_user=10,
-                    description="Starts a new "
-                    + self.settings["challenge_name"]
-                    + " run",
+                    description="Starts a new " + self.settings["challenge_name"] + " run",
                     level=750,
                 ),
                 "end": Command.raw_command(
@@ -154,9 +139,7 @@ class PredictModule(BaseModule):
                     self.close_predict,
                     delay_all=10,
                     delay_user=10,
-                    description="Close submissions to the latest "
-                    + self.settings["challenge_name"]
-                    + " run",
+                    description="Close submissions to the latest " + self.settings["challenge_name"] + " run",
                     level=750,
                 ),
             },
@@ -181,19 +164,13 @@ class PredictModule(BaseModule):
             self.close_predict_depr,
             delay_all=10,
             delay_user=10,
-            description="Close submissions to the latest "
-            + self.settings["challenge_name"]
-            + " run",
+            description="Close submissions to the latest " + self.settings["challenge_name"] + " run",
             level=750,
         )
 
-        mini_command = (
-            self.settings["mini_command"].lower().replace("!", "").replace(" ", "")
-        )
+        mini_command = self.settings["mini_command"].lower().replace("!", "").replace(" ", "")
         if len(mini_command) > 0:
-            self.commands[
-                mini_command
-            ] = Command.multiaction_command(
+            self.commands[mini_command] = Command.multiaction_command(
                 level=100,
                 default="vote",
                 fallback="vote",
@@ -214,27 +191,21 @@ class PredictModule(BaseModule):
                         self.mini_new_predict,
                         delay_all=10,
                         delay_user=10,
-                        description="Starts a new "
-                        + self.settings["challenge_name"]
-                        + " run",
+                        description="Starts a new " + self.settings["challenge_name"] + " run",
                         level=750,
                     ),
                     "end": Command.raw_command(
                         self.mini_end_predict,
                         delay_all=10,
                         delay_user=10,
-                        description="Ends a "
-                        + self.settings["challenge_name"]
-                        + " run",
+                        description="Ends a " + self.settings["challenge_name"] + " run",
                         level=750,
                     ),
                     "close": Command.raw_command(
                         self.mini_close_predict,
                         delay_all=10,
                         delay_user=10,
-                        description="Close submissions to the latest "
-                        + self.settings["challenge_name"]
-                        + " run",
+                        description="Close submissions to the latest " + self.settings["challenge_name"] + " run",
                         level=750,
                     ),
                 },
@@ -244,30 +215,21 @@ class PredictModule(BaseModule):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(
-            source.username,
-            'This command is deprecated, please use "!predict new" in the future.',
-        )
+        bot.whisper(source.username, 'This command is deprecated, please use "!predict new" in the future.')
         self.new_predict(**options)
 
     def end_predict_depr(self, **options):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(
-            source.username,
-            'This command is deprecated, please use "!predict end" in the future.',
-        )
+        bot.whisper(source.username, 'This command is deprecated, please use "!predict end" in the future.')
         self.end_predict(**options)
 
     def close_predict_depr(self, **options):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(
-            source.username,
-            'This command is deprecated, please use "!predict close" in the future.',
-        )
+        bot.whisper(source.username, 'This command is deprecated, please use "!predict close" in the future.')
         self.close_predict(**options)
 
     def shared_predict(self, bot, source, message, type):
@@ -281,9 +243,7 @@ class PredictModule(BaseModule):
         )
 
         if source.id is None:
-            log.warning(
-                "Source ID is NONE, attempting to salvage by commiting users to the database."
-            )
+            log.warning("Source ID is NONE, attempting to salvage by commiting users to the database.")
             log.info("New ID is: {}".format(source.id))
             bot.whisper(source.username, "uuh, please try the command again :D")
             return False
@@ -307,9 +267,7 @@ class PredictModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             # Get the current open prediction
             current_prediction_run = (
-                db_session.query(PredictionRun)
-                .filter_by(ended=None, open=True, type=type)
-                .one_or_none()
+                db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()
             )
             if current_prediction_run is None:
                 bot.say(
@@ -321,9 +279,7 @@ class PredictModule(BaseModule):
 
             user_entry = (
                 db_session.query(PredictionRunEntry)
-                .filter_by(
-                    prediction_run_id=current_prediction_run.id, user_id=source.id
-                )
+                .filter_by(prediction_run_id=current_prediction_run.id, user_id=source.id)
                 .one_or_none()
             )
             if user_entry is not None:
@@ -331,22 +287,15 @@ class PredictModule(BaseModule):
                 user_entry.prediction = prediction_number
                 bot.say(
                     "{}, Updated your prediction for run {} from {} to {}".format(
-                        source.username_raw,
-                        current_prediction_run.id,
-                        old_prediction_num,
-                        prediction_number,
+                        source.username_raw, current_prediction_run.id, old_prediction_num, prediction_number
                     )
                 )
             else:
-                user_entry = PredictionRunEntry(
-                    current_prediction_run.id, source.id, prediction_number
-                )
+                user_entry = PredictionRunEntry(current_prediction_run.id, source.id, prediction_number)
                 db_session.add(user_entry)
                 bot.say(
                     "{}, Your prediction for {} wins in run {} has been submitted.".format(
-                        source.username_raw,
-                        prediction_number,
-                        current_prediction_run.id,
+                        source.username_raw, prediction_number, current_prediction_run.id
                     )
                 )
 
@@ -355,9 +304,7 @@ class PredictModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             # Check if there is already an open prediction
             current_prediction_run = (
-                db_session.query(PredictionRun)
-                .filter_by(ended=None, open=True, type=type)
-                .one_or_none()
+                db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()
             )
             if current_prediction_run is not None:
                 bot.say(
@@ -380,42 +327,24 @@ class PredictModule(BaseModule):
     def shared_end_predict(bot, source, type):
         with DBManager.create_session_scope() as db_session:
             # Check if there is a non-ended, but closed prediction run we can end
-            predictions = (
-                db_session.query(PredictionRun)
-                .filter_by(ended=None, open=False, type=type)
-                .all()
-            )
+            predictions = db_session.query(PredictionRun).filter_by(ended=None, open=False, type=type).all()
             if len(predictions) == 0:
-                bot.say(
-                    "{}, There is no closed prediction runs we can end right now.".format(
-                        source.username_raw
-                    )
-                )
+                bot.say("{}, There is no closed prediction runs we can end right now.".format(source.username_raw))
                 return True
 
             for prediction in predictions:
                 prediction.ended = utils.now()
-            bot.say(
-                "Closed predictions with IDs {}".format(
-                    ", ".join([str(p.id) for p in predictions])
-                )
-            )
+            bot.say("Closed predictions with IDs {}".format(", ".join([str(p.id) for p in predictions])))
 
     @staticmethod
     def shared_close_predict(bot, source, type):
         with DBManager.create_session_scope() as db_session:
             # Check if there is a non-ended, but closed prediction run we can end
             current_prediction_run = (
-                db_session.query(PredictionRun)
-                .filter_by(ended=None, open=True, type=type)
-                .one_or_none()
+                db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()
             )
             if current_prediction_run is None:
-                bot.say(
-                    "{}, There is no open prediction runs we can close right now.".format(
-                        source.username_raw
-                    )
-                )
+                bot.say("{}, There is no open prediction runs we can close right now.".format(source.username_raw))
                 return True
 
             current_prediction_run.open = False

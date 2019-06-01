@@ -5,7 +5,8 @@ import re
 
 import requests
 
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -82,13 +83,7 @@ class DubtrackModule(BaseModule):
             default=15,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(
-            key="if_dt_alias",
-            label="Allow !dt as !dubtrack",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
+        ModuleSetting(key="if_dt_alias", label="Allow !dt as !dubtrack", type="boolean", required=True, default=True),
         ModuleSetting(
             key="if_short_alias",
             label="Allow !dubtrack [s, l, u] as !dubtrack [song, link, update]",
@@ -97,11 +92,7 @@ class DubtrackModule(BaseModule):
             default=True,
         ),
         ModuleSetting(
-            key="if_song_alias",
-            label="Allow !song as !dubtrack song",
-            type="boolean",
-            required=True,
-            default=True,
+            key="if_song_alias", label="Allow !song as !dubtrack song", type="boolean", required=True, default=True
         ),
     ]
 
@@ -202,8 +193,7 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for dubtrack link",
-                        chat="user:!dubtrack link\n"
-                        "bot:Request your songs at https://dubtrack.fm/join/pajlada",
+                        chat="user:!dubtrack link\n" "bot:Request your songs at https://dubtrack.fm/join/pajlada",
                     ).parse()
                 ],
             ),
@@ -230,8 +220,7 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
-                        chat="user:!dubtrack song\n"
-                        "bot:There's no song playing right now FeelsBadMan",
+                        chat="user:!dubtrack song\n" "bot:There's no song playing right now FeelsBadMan",
                     ).parse(),
                 ],
             ),

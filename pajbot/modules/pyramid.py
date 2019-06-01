@@ -10,79 +10,70 @@ log = logging.getLogger(__name__)
 
 class PyramidModule(BaseModule):
 
-    ID = __name__.split('.')[-1]
-    NAME = 'Pyramid'
-    DESCRIPTION = 'Congratulates people who build successfully pyramids in twitch chat'
-    CATEGORY = 'Game'
-    SETTINGS = [ModuleSetting(
-                key='message_5',
-                label='Message for a < 5 pyramid | Available arguments: {user}, {width}, {emote}',
-                type='text',
-                required=True,
-                placeholder='.me {user} just finished a {width}-width {emote} pyramid! That\'s pretty neat KKona //',
-                default='.me {user} just finished a {width}-width {emote} pyramid! That\'s pretty neat KKona //',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-                ModuleSetting(
-                key='message_7',
-                label='Message for a < 7 pyramid | Available arguments: {user}, {width}, {emote}',
-                type='text',
-                required=True,
-                placeholder='.me {user} just finished a {width}-width {emote} pyramid! Good job!!! PogChamp //',
-                default='.me {user} just finished a {width}-width {emote} pyramid! Good job!!! PogChamp //',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-                ModuleSetting(
-                key='message_15',
-                label='Message for a < 15 pyramid | Available arguments: {user}, {width}, {emote}',
-                type='text',
-                required=True,
-                placeholder='.me {user} just finished a {width}-width {emote} pyramid! Now that\'s what I call pyramid-farming Kappa // PogChamp //',
-                default='.me {user} just finished a {width}-width {emote} pyramid! Now that\'s what I call pyramid-farming Kappa // PogChamp //',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-                ModuleSetting(
-                key='message_25',
-                label='Message for a < 25 pyramid | Available arguments: {user}, {width}, {emote}',
-                type='text',
-                required=True,
-                placeholder='.me {user} just finished a {width}-width {emote} pyramid! Wow, I can\'t even fit this pyramid in my memory bank MrDestructoid //',
-                default='.me {user} just finished a {width}-width {emote} pyramid! Wow, I can\'t even fit this pyramid in my memory bank MrDestructoid //',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-                ModuleSetting(
-                key='message_else',
-                label='Message for a >= 25 pyramid | Available arguments: {user}, {width}, {emote}',
-                type='text',
-                required=True,
-                placeholder='.me {user} just finished a {width}-width {emote} pyramid! BUFFER OVERFLOW WutFace //',
-                default='.me {user} just finished a {width}-width {emote} pyramid! BUFFER OVERFLOW WutFace //',
-                constraints={
-                    'min_str_len': 10,
-                    'max_str_len': 400,
-                }),
-                ]
+    ID = __name__.split(".")[-1]
+    NAME = "Pyramid"
+    DESCRIPTION = "Congratulates people who build successfully pyramids in twitch chat"
+    CATEGORY = "Game"
+    SETTINGS = [
+        ModuleSetting(
+            key="message_5",
+            label="Message for a < 5 pyramid | Available arguments: {user}, {width}, {emote}",
+            type="text",
+            required=True,
+            placeholder=".me {user} just finished a {width}-width {emote} pyramid! That's pretty neat KKona //",
+            default=".me {user} just finished a {width}-width {emote} pyramid! That's pretty neat KKona //",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="message_7",
+            label="Message for a < 7 pyramid | Available arguments: {user}, {width}, {emote}",
+            type="text",
+            required=True,
+            placeholder=".me {user} just finished a {width}-width {emote} pyramid! Good job!!! PogChamp //",
+            default=".me {user} just finished a {width}-width {emote} pyramid! Good job!!! PogChamp //",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="message_15",
+            label="Message for a < 15 pyramid | Available arguments: {user}, {width}, {emote}",
+            type="text",
+            required=True,
+            placeholder=".me {user} just finished a {width}-width {emote} pyramid! Now that's what I call pyramid-farming Kappa // PogChamp //",
+            default=".me {user} just finished a {width}-width {emote} pyramid! Now that's what I call pyramid-farming Kappa // PogChamp //",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="message_25",
+            label="Message for a < 25 pyramid | Available arguments: {user}, {width}, {emote}",
+            type="text",
+            required=True,
+            placeholder=".me {user} just finished a {width}-width {emote} pyramid! Wow, I can't even fit this pyramid in my memory bank MrDestructoid //",
+            default=".me {user} just finished a {width}-width {emote} pyramid! Wow, I can't even fit this pyramid in my memory bank MrDestructoid //",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="message_else",
+            label="Message for a >= 25 pyramid | Available arguments: {user}, {width}, {emote}",
+            type="text",
+            required=True,
+            placeholder=".me {user} just finished a {width}-width {emote} pyramid! BUFFER OVERFLOW WutFace //",
+            default=".me {user} just finished a {width}-width {emote} pyramid! BUFFER OVERFLOW WutFace //",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+    ]
 
     def __init__(self, bot):
         super().__init__(bot)
         self.data = []
         self.going_down = False
-        self.regex = re.compile(' +')
+        self.regex = re.compile(" +")
 
     def on_pubmsg(self, source, message):
-        if source.username == 'twitchnotify':
+        if source.username == "twitchnotify":
             return
 
         try:
-            msg_parts = message.split(' ')
+            msg_parts = message.split(" ")
             if len(self.data) > 0:
                 cur_len = len(msg_parts)
                 last_len = len(self.data[-1])
@@ -112,23 +103,19 @@ class PyramidModule(BaseModule):
                                     if len(x) > peak_length:
                                         peak_length = len(x)
 
-                                arguments = {
-                                    'emote': pyramid_thing,
-                                    'user': source.username_raw,
-                                    'width': peak_length
-                                }
+                                arguments = {"emote": pyramid_thing, "user": source.username_raw, "width": peak_length}
 
                                 if peak_length > 2:
                                     if peak_length < 5:
-                                        self.bot.say(self.get_phrase('message_5', **arguments))
+                                        self.bot.say(self.get_phrase("message_5", **arguments))
                                     elif peak_length < 7:
-                                        self.bot.say(self.get_phrase('message_7', **arguments))
+                                        self.bot.say(self.get_phrase("message_7", **arguments))
                                     elif peak_length < 15:
-                                        self.bot.say(self.get_phrase('message_15', **arguments))
+                                        self.bot.say(self.get_phrase("message_15", **arguments))
                                     elif peak_length < 25:
-                                        self.bot.say(self.get_phrase('message_25', **arguments))
+                                        self.bot.say(self.get_phrase("message_25", **arguments))
                                     else:
-                                        self.bot.say(self.get_phrase('message_else', **arguments))
+                                        self.bot.say(self.get_phrase("message_else", **arguments))
                                 self.data = []
                                 self.going_down = False
                     else:
@@ -142,10 +129,10 @@ class PyramidModule(BaseModule):
                 self.data.append(msg_parts)
         except:
             # Let's just catch all exceptions, in case I fucked up in the above spaghetti code
-            log.exception('Unhandled exception in pyramid parser')
+            log.exception("Unhandled exception in pyramid parser")
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_pubmsg', self.on_pubmsg)
+        HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)

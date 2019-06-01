@@ -62,9 +62,7 @@ class PleblistSong(Base):
 class PleblistSongInfo(Base):
     __tablename__ = "tb_pleblist_song_info"
 
-    pleblist_song_youtube_id = Column(
-        String(64, collation="utf8mb4_bin"), primary_key=True, autoincrement=False
-    )
+    pleblist_song_youtube_id = Column(String(64, collation="utf8mb4_bin"), primary_key=True, autoincrement=False)
     title = Column(String(128), nullable=False)
     duration = Column(Integer, nullable=False)
     default_thumbnail = Column(String(256), nullable=False)
@@ -76,11 +74,7 @@ class PleblistSongInfo(Base):
         self.default_thumbnail = default_thumbnail
 
     def jsonify(self):
-        return {
-            "title": self.title,
-            "duration": self.duration,
-            "default_thumbnail": self.default_thumbnail,
-        }
+        return {"title": self.title, "duration": self.duration, "default_thumbnail": self.default_thumbnail}
 
 
 class PleblistManager:
@@ -98,20 +92,11 @@ class PleblistManager:
                 new_http = httplib2.Http()
                 return apiclient.http.HttpRequest(new_http, *args, **kwargs)
 
-            PleblistManager.youtube = build(
-                "youtube",
-                "v3",
-                developerKey=developer_key,
-                requestBuilder=build_request,
-            )
+            PleblistManager.youtube = build("youtube", "v3", developerKey=developer_key, requestBuilder=build_request)
 
     @staticmethod
     def get_song_info(youtube_id, db_session):
-        return (
-            db_session.query(PleblistSongInfo)
-            .filter_by(pleblist_song_youtube_id=youtube_id)
-            .one_or_none()
-        )
+        return db_session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).one_or_none()
 
     @staticmethod
     def create_pleblist_song_info(youtube_id):
@@ -124,9 +109,7 @@ class PleblistManager:
 
         try:
             video_response = (
-                PleblistManager.youtube.videos()
-                .list(id=str(youtube_id), part="snippet,contentDetails")
-                .execute()
+                PleblistManager.youtube.videos().list(id=str(youtube_id), part="snippet,contentDetails").execute()
             )
         except HttpError as e:
             log.exception("Youtube HTTPError")
@@ -145,9 +128,7 @@ class PleblistManager:
         video = video_response["items"][0]
 
         title = video["snippet"]["title"]
-        duration = int(
-            isodate.parse_duration(video["contentDetails"]["duration"]).total_seconds()
-        )
+        duration = int(isodate.parse_duration(video["contentDetails"]["duration"]).total_seconds())
         default_thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
 
         return PleblistSongInfo(youtube_id, title, duration, default_thumbnail)
@@ -157,10 +138,7 @@ class PleblistManager:
         with DBManager.create_session_scope() as session:
             cur_song = (
                 session.query(PleblistSong)
-                .filter(
-                    PleblistSong.stream_id == stream_id,
-                    PleblistSong.date_played.is_(None),
-                )
+                .filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None))
                 .order_by(PleblistSong.date_added.asc(), PleblistSong.id.asc())
                 .first()
             )

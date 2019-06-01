@@ -46,11 +46,7 @@ class CaseCheckerModule(BaseModule):
             constraints={"min_value": 3, "max_value": 120},
         ),
         ModuleSetting(
-            key="online_chat_only",
-            label="Only enabled in online chat",
-            type="boolean",
-            required=True,
-            default=True,
+            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
         ),
     ]
 
@@ -62,19 +58,11 @@ class CaseCheckerModule(BaseModule):
             return True
 
         if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
-            self.bot._timeout_user(
-                source,
-                self.settings["timeout_duration"],
-                reason="no uppercase characters allowed",
-            )
+            self.bot._timeout_user(source, self.settings["timeout_duration"], reason="no uppercase characters allowed")
             return False
 
         if self.settings["timeout_lowercase"] and any(c.islower() for c in message):
-            self.bot._timeout_user(
-                source,
-                self.settings["timeout_duration"],
-                reason="NO LOWERCASE CHARACTERS ALLOWED",
-            )
+            self.bot._timeout_user(source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED")
             return False
 
         return True

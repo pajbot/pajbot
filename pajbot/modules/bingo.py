@@ -3,7 +3,8 @@ import logging
 from numpy import random
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -28,11 +29,7 @@ class BingoModule(BaseModule):
             constraints={"min_value": 0, "max_value": 35000},
         ),
         ModuleSetting(
-            key="allow_negative_bingo",
-            label="Allow negative bingo",
-            type="boolean",
-            required=True,
-            default=True,
+            key="allow_negative_bingo", label="Allow negative bingo", type="boolean", required=True, default=True
         ),
         ModuleSetting(
             key="max_negative_points",
@@ -135,8 +132,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Cancel a bingo",
-                            chat="user:!bingo cancel\n"
-                            "bot: Bingo cancelled by pajlada FeelsBadMan",
+                            chat="user:!bingo cancel\n" "bot: Bingo cancelled by pajlada FeelsBadMan",
                             description="",
                         ).parse()
                     ],
@@ -180,26 +176,18 @@ class BingoModule(BaseModule):
         self.bingo_target = target
         self.bingo_running = True
         self.bingo_points = bingo_points_win
-        log.debug(
-            "Bingo target set: {0} for {1} points".format(target, bingo_points_win)
-        )
+        log.debug("Bingo target set: {0} for {1} points".format(target, bingo_points_win))
 
     def set_bingo_target_bttv(self, target_bttv, bingo_points_win):
         self.bingo_target = target_bttv
         self.bingo_running = True
         self.bingo_points = bingo_points_win
-        log.debug(
-            "Bingo Bttv target set: {0} for {1} points".format(
-                target_bttv, bingo_points_win
-            )
-        )
+        log.debug("Bingo Bttv target set: {0} for {1} points".format(target_bttv, bingo_points_win))
 
     def bingo_emotes(self, bot, source, message, event, args):
         """ Twitch and BTTV emotes """
         if hasattr(self, "bingo_running") and self.bingo_running is True:
-            bot.me(
-                "{0}, a bingo is already running OMGScoots".format(source.username_raw)
-            )
+            bot.me("{0}, a bingo is already running OMGScoots".format(source.username_raw))
             return False
 
         self.bingo_bttv_twitch_running = True
@@ -212,9 +200,7 @@ class BingoModule(BaseModule):
     def bingo_bttv(self, bot, source, message, event, args):
         """ BTTV emotes """
         if hasattr(self, "bingo_running") and self.bingo_running is True:
-            bot.me(
-                "{0}, a bingo is already running OMGScoots".format(source.username_raw)
-            )
+            bot.me("{0}, a bingo is already running OMGScoots".format(source.username_raw))
             return False
 
         bingo_points_win = 100
@@ -231,30 +217,21 @@ class BingoModule(BaseModule):
         if bingo_points_win >= 0:
             bingo_points_win = min(bingo_points_win, self.settings["max_points"])
         if bingo_points_win <= -1:
-            bingo_points_win = max(
-                bingo_points_win, -self.settings["max_negative_points"]
-            )
+            bingo_points_win = max(bingo_points_win, -self.settings["max_negative_points"])
 
         self.emotes_bttv = bot.emotes.get_global_bttv_emotes()
 
         target_bttv = random.choice(self.emotes_bttv)
         self.set_bingo_target_bttv(target_bttv, bingo_points_win)
-        if (
-            hasattr(self, "bingo_bttv_twitch_running")
-            and self.bingo_bttv_twitch_running is True
-        ):
+        if hasattr(self, "bingo_bttv_twitch_running") and self.bingo_bttv_twitch_running is True:
             bot.me(
                 "A bingo has started! Guess the right target to win {0} points! Only one target per message! Use BTTV and TWITCH global emotes.".format(
                     bingo_points_win
                 )
             )
-            bot.websocket_manager.emit(
-                "notification", {"message": "A bingo has started!"}
-            )
+            bot.websocket_manager.emit("notification", {"message": "A bingo has started!"})
             bot.execute_delayed(
-                0.75,
-                bot.websocket_manager.emit,
-                ("notification", {"message": "Guess the target, win the prize!"}),
+                0.75, bot.websocket_manager.emit, ("notification", {"message": "Guess the target, win the prize!"})
             )
             return True
         else:
@@ -263,22 +240,16 @@ class BingoModule(BaseModule):
                     bingo_points_win
                 )
             )
-            bot.websocket_manager.emit(
-                "notification", {"message": "A bingo has started!"}
-            )
+            bot.websocket_manager.emit("notification", {"message": "A bingo has started!"})
             bot.execute_delayed(
-                0.75,
-                bot.websocket_manager.emit,
-                ("notification", {"message": "Guess the target, win the prize!"}),
+                0.75, bot.websocket_manager.emit, ("notification", {"message": "Guess the target, win the prize!"})
             )
             return False
 
     def bingo_twitch(self, bot, source, message, event, args):
         """ Twitch emotes """
         if hasattr(self, "bingo_running") and self.bingo_running is True:
-            bot.me(
-                "{0}, a bingo is already running OMGScoots".format(source.username_raw)
-            )
+            bot.me("{0}, a bingo is already running OMGScoots".format(source.username_raw))
             return False
 
         bingo_points_win = 100
@@ -295,30 +266,21 @@ class BingoModule(BaseModule):
         if bingo_points_win >= 0:
             bingo_points_win = min(bingo_points_win, self.settings["max_points"])
         if bingo_points_win <= -1:
-            bingo_points_win = max(
-                bingo_points_win, -self.settings["max_negative_points"]
-            )
+            bingo_points_win = max(bingo_points_win, -self.settings["max_negative_points"])
 
         self.emotes = bot.emotes.get_global_emotes()
 
         target = random.choice(self.emotes)
         self.set_bingo_target(target, bingo_points_win)
-        if (
-            hasattr(self, "bingo_bttv_twitch_running")
-            and self.bingo_bttv_twitch_running is True
-        ):
+        if hasattr(self, "bingo_bttv_twitch_running") and self.bingo_bttv_twitch_running is True:
             bot.me(
                 "A bingo has started! Guess the right target to win {0} points! Only one target per message! Use BTTV and TWITCH global emotes.".format(
                     bingo_points_win
                 )
             )
-            bot.websocket_manager.emit(
-                "notification", {"message": "A bingo has started!"}
-            )
+            bot.websocket_manager.emit("notification", {"message": "A bingo has started!"})
             bot.execute_delayed(
-                0.75,
-                bot.websocket_manager.emit,
-                ("notification", {"message": "Guess the target, win the prize!"}),
+                0.75, bot.websocket_manager.emit, ("notification", {"message": "Guess the target, win the prize!"})
             )
             return True
         else:
@@ -327,13 +289,9 @@ class BingoModule(BaseModule):
                     bingo_points_win
                 )
             )
-            bot.websocket_manager.emit(
-                "notification", {"message": "A bingo has started!"}
-            )
+            bot.websocket_manager.emit("notification", {"message": "A bingo has started!"})
             bot.execute_delayed(
-                0.75,
-                bot.websocket_manager.emit,
-                ("notification", {"message": "Guess the target, win the prize!"}),
+                0.75, bot.websocket_manager.emit, ("notification", {"message": "Guess the target, win the prize!"})
             )
             return False
 
@@ -346,11 +304,7 @@ class BingoModule(BaseModule):
             self.bingo_bttv_twitch_running = False
             return True
         else:
-            bot.me(
-                "{0}, no bingo is currently running FailFish".format(
-                    source.username_raw
-                )
-            )
+            bot.me("{0}, no bingo is currently running FailFish".format(source.username_raw))
             return False
 
     def bingo_help_random(self, bot, source, message, event, args):
@@ -365,11 +319,7 @@ class BingoModule(BaseModule):
             log.debug("Bingo help: {0}".format(target_split_random))
             return True
         else:
-            bot.me(
-                "{0}, no bingo is currently running FailFish".format(
-                    source.username_raw
-                )
-            )
+            bot.me("{0}, no bingo is currently running FailFish".format(source.username_raw))
             return False
 
     def bingo_help_first(self, bot, source, message, event, args):
@@ -384,9 +334,7 @@ class BingoModule(BaseModule):
             log.debug("Bingo help: {0}".format(target_first_letter))
             return True
 
-        bot.me(
-            "{0}, no bingo is currently running FailFish".format(source.username_raw)
-        )
+        bot.me("{0}, no bingo is currently running FailFish".format(source.username_raw))
         return False
 
     def on_message(self, source, msg_raw, message_emotes, whisper, urls, event):
@@ -396,9 +344,7 @@ class BingoModule(BaseModule):
         if hasattr(self, "bingo_running") and self.bingo_running is True:
             if len(message_emotes) == 1 and len(msg_raw.split(" ")) == 1:
                 if message_emotes[0]["code"] == self.bingo_target:
-                    HandlerManager.trigger(
-                        "on_bingo_win", source, self.bingo_points, self.bingo_target
-                    )
+                    HandlerManager.trigger("on_bingo_win", source, self.bingo_points, self.bingo_target)
                     self.bingo_running = False
                     self.bingo_bttv_twitch_running = False
                     self.bot.me(
@@ -407,11 +353,7 @@ class BingoModule(BaseModule):
                         )
                     )
                     source.points += self.bingo_points
-                    log.info(
-                        "{0} won the bingo for {1} points!".format(
-                            source.username_raw, self.bingo_points
-                        )
-                    )
+                    log.info("{0} won the bingo for {1} points!".format(source.username_raw, self.bingo_points))
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message)

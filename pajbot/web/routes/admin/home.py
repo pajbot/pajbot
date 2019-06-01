@@ -7,7 +7,7 @@ from pajbot.web.utils import requires_level
 
 
 def init(page):
-    @page.route('/')
+    @page.route("/")
     @requires_level(500)
     def home(**options):
         latest_logs_raw = AdminLogManager.get_entries()
@@ -15,8 +15,11 @@ def init(page):
         with DBManager.create_session_scope() as db_session:
             latest_logs = []
             for log in latest_logs_raw:
-                log['user'] = cached_users[log['user_id']] if log['user_id'] in cached_users else db_session.query(User).filter_by(id=log['user_id']).one_or_none()
+                log["user"] = (
+                    cached_users[log["user_id"]]
+                    if log["user_id"] in cached_users
+                    else db_session.query(User).filter_by(id=log["user_id"]).one_or_none()
+                )
                 latest_logs.append(log)
 
-            return render_template('admin/home.html',
-                    latest_logs=latest_logs)
+            return render_template("admin/home.html", latest_logs=latest_logs)

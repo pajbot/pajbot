@@ -17,9 +17,7 @@ class BlackjackDeck:
     RANKS = "23456789TJQKA"
 
     def __init__(self):
-        self.cards = [
-            "".join(card) for card in itertools.product(self.RANKS, self.SUITS)
-        ]
+        self.cards = ["".join(card) for card in itertools.product(self.RANKS, self.SUITS)]
         random.shuffle(self.cards)
 
     def __repr__(self):
@@ -50,18 +48,10 @@ class BlackjackModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Blackjack"
-    DESCRIPTION = (
-        "Enables the users to play Blackjack with the bot using the !blackjack command"
-    )
+    DESCRIPTION = "Enables the users to play Blackjack with the bot using the !blackjack command"
     CATEGORY = "Game"
     SETTINGS = [
-        ModuleSetting(
-            key="reply_in_whispers",
-            label="Reply in whispers",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
+        ModuleSetting(key="reply_in_whispers", label="Reply in whispers", type="boolean", required=True, default=False),
         ModuleSetting(
             key="only_play_in_whispers",
             label="Only accept commands through whispers",
@@ -96,10 +86,7 @@ class BlackjackModule(BaseModule):
             return False
 
         if not self.is_betting_open():
-            bot.whisper(
-                source.username,
-                "The game is too far along for you to bet on it. Wait until the next game!",
-            )
+            bot.whisper(source.username, "The game is too far along for you to bet on it. Wait until the next game!")
             return False
 
         msg_parts = message.split(" ")
@@ -132,32 +119,23 @@ class BlackjackModule(BaseModule):
         if points > self.settings["max_bet"]:
             bot.whisper(
                 source.username,
-                "You cannot bet more than {} points, please try again!".format(
-                    self.settings["max_bet"]
-                ),
+                "You cannot bet more than {} points, please try again!".format(self.settings["max_bet"]),
             )
             return False
 
         if not source.can_afford(points):
-            bot.whisper(
-                source.username, "You don't have {} points to bet".format(points)
-            )
+            bot.whisper(source.username, "You don't have {} points to bet".format(points))
             return False
 
         if source.username in self.bets:
-            bot.whisper(
-                source.username,
-                "You have already bet on this game. Wait until the next game starts!",
-            )
+            bot.whisper(source.username, "You have already bet on this game. Wait until the next game starts!")
             return False
 
         source.create_debt(points)
         self.bets[source.username] = (bet_for_win, points)
         bot.whisper(
             source.username,
-            "You have bet {} points on this game resulting in a {}.".format(
-                points, "win" if bet_for_win else "loss"
-            ),
+            "You have bet {} points on this game resulting in a {}.".format(points, "win" if bet_for_win else "loss"),
         )
 
     def command_open(self, **options):
@@ -178,9 +156,7 @@ class BlackjackModule(BaseModule):
             except (ValueError, TypeError):
                 pass
 
-        self.last_game_start = utils.now() + datetime.timedelta(
-            seconds=time_limit
-        )
+        self.last_game_start = utils.now() + datetime.timedelta(seconds=time_limit)
 
         bot.me(
             "The bet for the current hearthstone game is open again! You have {} seconds to vote !hsbet win/lose POINTS".format(
@@ -199,9 +175,7 @@ class BlackjackModule(BaseModule):
             user.remove_debt(points)
             bot.whisper(
                 username,
-                "Your HS bet of {} points has been refunded because the bet has been cancelled.".format(
-                    points
-                ),
+                "Your HS bet of {} points has been refunded because the bet has been cancelled.".format(points),
             )
         self.bets = {}
 
@@ -215,24 +189,13 @@ class BlackjackModule(BaseModule):
             can_execute_with_whisper=True,
             commands={
                 "start": Command.raw_command(
-                    self.command_bet,
-                    delay_all=0,
-                    delay_user=10,
-                    can_execute_with_whisper=True,
+                    self.command_bet, delay_all=0, delay_user=10, can_execute_with_whisper=True
                 ),
                 "open": Command.raw_command(
-                    self.command_open,
-                    level=500,
-                    delay_all=0,
-                    delay_user=0,
-                    can_execute_with_whisper=True,
+                    self.command_open, level=500, delay_all=0, delay_user=0, can_execute_with_whisper=True
                 ),
                 "close": Command.raw_command(
-                    self.command_close,
-                    level=500,
-                    delay_all=0,
-                    delay_user=0,
-                    can_execute_with_whisper=True,
+                    self.command_close, level=500, delay_all=0, delay_user=0, can_execute_with_whisper=True
                 ),
             },
         )

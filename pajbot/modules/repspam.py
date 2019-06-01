@@ -14,6 +14,7 @@ class SuffixTreeNode:
     """
     Suffix tree node class. Actually, it also respresents a tree edge that points to this node.
     """
+
     new_identifier = 0
 
     def __init__(self, start=0, end=END_OF_STRING):
@@ -69,7 +70,7 @@ class SuffixTreeNode:
         return min(self.end, current_index + 1) - self.start
 
     def __str__(self):
-        return 'id=' + str(self.identifier)
+        return "id=" + str(self.identifier)
 
 
 class SuffixTree:
@@ -82,7 +83,7 @@ class SuffixTree:
         self.root = SuffixTreeNode()
 
         # all strings are concatenaited together. Tree's nodes stores only indices
-        self.input_string = ''
+        self.input_string = ""
 
         # number of strings stored by this tree
         self.strings_count = 0
@@ -98,7 +99,7 @@ class SuffixTree:
         current_string_index = self.strings_count
 
         # each sting should have a unique ending
-        input_string += '$' + str(current_string_index)
+        input_string += "$" + str(current_string_index)
 
         # gathering 'em all together
         self.input_string += input_string
@@ -159,9 +160,7 @@ class SuffixTree:
 
                     # splitting edge
                     split_node = active_node.add_child(
-                        self.input_string[active_edge],
-                        next_node.start,
-                        next_node.start + active_length
+                        self.input_string[active_edge], next_node.start, next_node.start + active_length
                     )
                     next_node.start += active_length
                     split_node.add_exisiting_node_as_child(self.input_string[next_node.start], next_node)
@@ -211,19 +210,19 @@ class SuffixTree:
                     lowest_common_ancestors.append(node)
                     break
 
-        longest_common_substrings = ['']
+        longest_common_substrings = [""]
         longest_length = 0
 
         # need to filter the result array and get the longest common strings
         for common_ancestor in lowest_common_ancestors:
-            common_substring = ''
+            common_substring = ""
             node = common_ancestor
             while node.parent is not None:
-                label = self.input_string[node.start:node.end]
+                label = self.input_string[node.start : node.end]
                 common_substring = label + common_substring
                 node = node.parent
             # remove unique endings ($<number>), we don't need them anymore
-            common_substring = re.sub(r'(.*?)\$?\d*$', r'\1', common_substring)
+            common_substring = re.sub(r"(.*?)\$?\d*$", r"\1", common_substring)
             if len(common_substring) > longest_length:
                 longest_length = len(common_substring)
                 longest_common_substrings = [common_substring]
@@ -235,9 +234,9 @@ class SuffixTree:
 
 def longest_repeated_substring(string):
     length = len(string)
-    substr = ''
+    substr = ""
     repeated_index = -1
-    longest_repeated_substr = ''
+    longest_repeated_substr = ""
     # get every possible repeated substring by looping through each beginning
     # character index and incrementing its ending index with each iteration
     for begin in range(length):
@@ -256,7 +255,7 @@ def longest_repeated_substring(string):
                 if repeated_index != -1 and not substr.isspace():
                     if len(substr) > len(longest_repeated_substr):
                         longest_repeated_substr = substr
-    if longest_repeated_substr == '':
+    if longest_repeated_substr == "":
         return None
 
     return longest_repeated_substr, string.count(longest_repeated_substr)
@@ -264,18 +263,18 @@ def longest_repeated_substring(string):
 
 class RepspamModule(BaseModule):
 
-    ID = __name__.split('.')[-1]
-    NAME = 'Repetitive Spam'
-    DESCRIPTION = 'Looks at each message for repetitive spam'
+    ID = __name__.split(".")[-1]
+    NAME = "Repetitive Spam"
+    DESCRIPTION = "Looks at each message for repetitive spam"
     ENABLED_DEFAULT = False
-    CATEGORY = 'Filter'
+    CATEGORY = "Filter"
     SETTINGS = []
 
     def enable(self, bot):
-        HandlerManager.add_handler('on_message', self.on_message, priority=150)
+        HandlerManager.add_handler("on_message", self.on_message, priority=150)
 
     def disable(self, bot):
-        HandlerManager.remove_handler('on_message', self.on_message)
+        HandlerManager.remove_handler("on_message", self.on_message)
 
     def on_message(self, source, message, emotes, whisper, urls, event):
         if whisper:
@@ -288,7 +287,7 @@ class RepspamModule(BaseModule):
         suffix_tree.append_string(message)
 
         word_freq = []
-        word_list = message.split(' ')
+        word_list = message.split(" ")
         if len(word_list) <= 1:
             # Not enough words to see if it's repetitive this way
             return
@@ -312,7 +311,7 @@ class RepspamModule(BaseModule):
 
         if word_freq[0][0] == word_freq[1][0]:
             if word_freq[0][0] > 4:
-                log.info('Time out {}'.format(message))
-                self.bot._timeout(source.username, 10, reason='No repetitive messages OMGScoods')
+                log.info("Time out {}".format(message))
+                self.bot._timeout(source.username, 10, reason="No repetitive messages OMGScoods")
 
-        log.debug('Word pairs: {}'.format(str(word_freq)))
+        log.debug("Word pairs: {}".format(str(word_freq)))

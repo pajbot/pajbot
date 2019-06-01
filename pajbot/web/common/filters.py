@@ -1,33 +1,34 @@
 from pajbot import utils
 from pajbot.managers.time import TimeManager
+from pajbot.utils import time_ago
 from pajbot.utils import time_since
 
 
 def init(app):
     @app.template_filter()
-    def date_format(value, format='full'):
-        if format == 'full':
-            date_format = '%Y-%m-%d %H:%M:%S'
+    def date_format(value, format="full"):
+        if format == "full":
+            date_format = "%Y-%m-%d %H:%M:%S"
 
         return value.strftime(date_format)
 
-    @app.template_filter('strftime')
+    @app.template_filter("strftime")
     def time_strftime(value, format):
         return value.strftime(format)
 
-    @app.template_filter('localize')
+    @app.template_filter("localize")
     def time_localize(value):
         return TimeManager.localize(value)
 
-    @app.template_filter('unix_timestamp')
+    @app.template_filter("unix_timestamp")
     def time_unix_timestamp(value):
         return value.timestamp()
 
     @app.template_filter()
-    def number_format(value, tsep=',', dsep='.'):
+    def number_format(value, tsep=",", dsep="."):
         s = str(value)
         cnt = 0
-        numchars = dsep + '0123456789'
+        numchars = dsep + "0123456789"
         ls = len(s)
         while cnt < ls and s[cnt] not in numchars:
             cnt += 1
@@ -39,35 +40,35 @@ def init(app):
         else:
             cnt = s.rfind(dsep)
         if cnt > 0:
-            rhs = dsep + s[cnt + 1:]
+            rhs = dsep + s[cnt + 1 :]
             s = s[:cnt]
         else:
-            rhs = ''
+            rhs = ""
 
-        splt = ''
-        while s != '':
+        splt = ""
+        while s != "":
             splt = s[-3:] + tsep + splt
             s = s[:-3]
 
         return lhs + splt[:-1] + rhs
 
-    @app.template_filter('time_ago')
-    def time_ago(t, format='long'):
-        return time_since(utils.now().timestamp(), t.timestamp(), format)
+    @app.template_filter("time_ago")
+    def time_ago(t, time_format="long"):
+        return time_ago(t, time_format=time_format)
 
-    @app.template_filter('time_diff')
-    def time_diff(t1, t2, format='long'):
-        return time_since(t1.timestamp(), t2.timestamp(), format)
+    @app.template_filter("time_diff")
+    def time_diff(t1, t2, time_format="long"):
+        return time_since(t1.timestamp(), t2.timestamp(), time_format=time_format)
 
-    @app.template_filter('time_ago_timespan_seconds')
-    def time_ago_timespan_seconds(t, format='long'):
+    @app.template_filter("time_ago_timespan_seconds")
+    def time_ago_timespan_seconds(t, format="long"):
         v = time_since(t, 0, format)
-        return 'None' if len(v) == 0 else v
+        return "None" if len(v) == 0 else v
 
-    @app.template_filter('seconds_to_vodtime')
+    @app.template_filter("seconds_to_vodtime")
     def seconds_to_vodtime(t):
         s = int(t)
         h = s / 3600
         m = s % 3600 / 60
         s = s % 60
-        return '%dh%02dm%02ds' % (h, m, s)
+        return "%dh%02dm%02ds" % (h, m, s)

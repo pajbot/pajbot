@@ -6,12 +6,12 @@ from pajbot.models.roulette import Roulette
 
 
 def init(app):
-    @app.route('/user/<username>')
+    @app.route("/user/<username>")
     def user_profile(username):
         with DBManager.create_session_scope() as db_session:
             user = UserManager.find_static(username, db_session=db_session)
             if not user:
-                return render_template('no_user.html'), 404
+                return render_template("no_user.html"), 404
 
             roulettes = db_session.query(Roulette).filter_by(user_id=user.id).order_by(Roulette.created_at.desc()).all()
 
@@ -71,25 +71,22 @@ def init(app):
                     if cw > biggest_winstreak:
                         biggest_winstreak = cw
 
-                if 'roulette' in app.module_manager:
-                    roulette_base_winrate = 1.0 - app.module_manager['roulette'].settings['rigged_percentage'] / 100
+                if "roulette" in app.module_manager:
+                    roulette_base_winrate = 1.0 - app.module_manager["roulette"].settings["rigged_percentage"] / 100
                 else:
                     roulette_base_winrate = 0.45
 
                 roulette_stats = {
-                        'profit': profit,
-                        'total_points': total_points,
-                        'biggest_win': biggest_win,
-                        'biggest_loss': biggest_loss,
-                        'num_roulettes': num_roulettes,
-                        'biggest_winstreak': biggest_winstreak,
-                        'biggest_losestreak': biggest_losestreak,
-                        'winrate': winrate,
-                        'winrate_str': '{:.2f}%'.format(winrate * 100),
-                        'roulette_base_winrate': roulette_base_winrate,
-                        }
+                    "profit": profit,
+                    "total_points": total_points,
+                    "biggest_win": biggest_win,
+                    "biggest_loss": biggest_loss,
+                    "num_roulettes": num_roulettes,
+                    "biggest_winstreak": biggest_winstreak,
+                    "biggest_losestreak": biggest_losestreak,
+                    "winrate": winrate,
+                    "winrate_str": "{:.2f}%".format(winrate * 100),
+                    "roulette_base_winrate": roulette_base_winrate,
+                }
 
-            return render_template('user.html',
-                    user=user,
-                    roulette_stats=roulette_stats,
-                    roulettes=roulettes)
+            return render_template("user.html", user=user, roulette_stats=roulette_stats, roulettes=roulettes)

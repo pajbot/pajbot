@@ -19,18 +19,21 @@ log = logging.getLogger(__name__)
 
 def run(args):
     from pajbot.utils import load_config
+
     config = load_config(args.config)
 
-    if 'main' not in config:
-        log.error('Missing section [main] in config')
+    if "main" not in config:
+        log.error("Missing section [main] in config")
         sys.exit(1)
 
-    if 'sql' in config:
-        log.error('The [sql] section in config is no longer used. See config.example.ini for the new format under [main].')
+    if "sql" in config:
+        log.error(
+            "The [sql] section in config is no longer used. See config.example.ini for the new format under [main]."
+        )
         sys.exit(1)
 
-    if 'db' not in config['main']:
-        log.error('Missing required db config in the [main] section.')
+    if "db" not in config["main"]:
+        log.error("Missing required db config in the [main] section.")
         sys.exit(1)
 
     pajbot = Bot(config, args)
@@ -51,15 +54,15 @@ def run(args):
 
 
 def handle_exceptions(exctype, value, tb):
-    log.error('Logging an uncaught exception', exc_info=(exctype, value, tb))
+    log.error("Logging an uncaught exception", exc_info=(exctype, value, tb))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from pajbot.utils import init_logging
 
     sys.excepthook = handle_exceptions
 
     args = Bot.parse_args()
 
-    init_logging('pajbot')
+    init_logging("pajbot")
     run(args)

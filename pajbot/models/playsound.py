@@ -1,14 +1,14 @@
+from sqlalchemy import TEXT
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import TEXT
 
 from pajbot.managers.db import Base
 
 
 class Playsound(Base):
-    __tablename__ = 'tb_playsound'
+    __tablename__ = "tb_playsound"
 
     name = Column(String(190), primary_key=True, nullable=False)
     # todo aliases?

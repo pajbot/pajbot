@@ -7,9 +7,9 @@ log = logging.getLogger(__name__)
 
 
 class BasicCommandsModule(BaseModule):
-    ID = 'basiccommands-group'
-    NAME = 'Basic Commands'
-    DESCRIPTION = 'A collection of basic commands'
-    CATEGORY = 'Feature'
+    ID = "basiccommands-group"
+    NAME = "Basic Commands"
+    DESCRIPTION = "A collection of basic commands"
+    CATEGORY = "Feature"
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED

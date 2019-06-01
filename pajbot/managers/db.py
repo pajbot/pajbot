@@ -12,11 +12,11 @@ from sqlalchemy.pool import Pool
 
 Base = declarative_base()
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger("pajbot")
 
 
-@event.listens_for(Pool, 'checkout')
-def check_connection(dbapi_con, con_record, con_proxy):
+@event.listens_for(Pool, "checkout")
+def check_connection(dbapi_con, _con_record, _con_proxy):
     """
     Listener for Pool checkout events that pings every connection before using.
     Implements pessimistic disconnect handling strategy. See also:
@@ -25,15 +25,18 @@ def check_connection(dbapi_con, con_record, con_proxy):
 
     cursor = dbapi_con.cursor()
     try:
-        cursor.execute('SELECT 1')
+        cursor.execute("SELECT 1")
     except exc.OperationalError as ex:
-        if ex.args[0] in (2006,   # MySQL server has gone away
-                          2013,   # Lost connection to MySQL server during query
-                          2055):  # Lost connection to MySQL server at '%s', system error: %d
+        if ex.args[0] in (
+            2006,  # MySQL server has gone away
+            2013,  # Lost connection to MySQL server during query
+            2055,
+        ):  # Lost connection to MySQL server at '%s', system error: %d
             # caught by pool, which will retry with a new connection
             raise exc.DisconnectionError()
-        else:
-            raise
+
+        # Raise the normal operational error exception
+        raise
 
 
 class DBManager:
@@ -53,7 +56,7 @@ class DBManager:
         try:
             return DBManager.Session(**options)
         except:
-            log.exception('Unhandled exception while creating a session')
+            log.exception("Unhandled exception while creating a session")
 
         return None
 
@@ -67,12 +70,12 @@ class DBManager:
         try:
             return DBManager.ScopedSession(**options)
         except:
-            log.exception('Unhandled exception while creating a scoped session')
+            log.exception("Unhandled exception while creating a scoped session")
 
         return None
 
     @staticmethod
-    def session_add_expunge(object, **options):
+    def session_add_expunge(db_object, **options):
         """
         Useful shorthand method of creating a session,
         adding an object to the session,
@@ -82,14 +85,14 @@ class DBManager:
         all while having expire_on_commit set to False
         """
 
-        if 'expire_on_commit' not in options:
-            options['expire_on_commit'] = False
+        if "expire_on_commit" not in options:
+            options["expire_on_commit"] = False
 
         session = DBManager.create_session(**options)
         try:
-            session.add(object)
+            session.add(db_object)
             session.commit()
-            session.expunge(object)
+            session.expunge(db_object)
         except:
             session.rollback()
             raise
@@ -148,13 +151,13 @@ class DBManager:
             session.close()
 
     @staticmethod
-    def debug(object):
+    def debug(raw_object):
         try:
-            inspected_object = inspect(object)
-            log.debug('Object:     {0}'.format(object))
-            log.debug('Transient:  {0.transient}'.format(inspected_object))
-            log.debug('Pending:    {0.pending}'.format(inspected_object))
-            log.debug('Persistent: {0.persistent}'.format(inspected_object))
-            log.debug('Detached:   {0.detached}'.format(inspected_object))
+            inspected_object = inspect(raw_object)
+            log.debug("Object:     {0}".format(raw_object))
+            log.debug("Transient:  {0.transient}".format(inspected_object))
+            log.debug("Pending:    {0.pending}".format(inspected_object))
+            log.debug("Persistent: {0.persistent}".format(inspected_object))
+            log.debug("Detached:   {0.detached}".format(inspected_object))
         except:
-            log.exception('Uncaught exception in DBManager.debug')
+            log.exception("Uncaught exception in DBManager.debug")

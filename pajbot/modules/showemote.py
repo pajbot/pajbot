@@ -1,6 +1,7 @@
 import logging
 
-from pajbot.models.command import Command, CommandExample
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -31,20 +32,8 @@ class ShowEmoteModule(BaseModule):
             default=1,
             constraints={"min_value": 0, "max_value": 15},
         ),
-        ModuleSetting(
-            key="sub_only",
-            label="Subscribers only",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="can_whisper",
-            label="Command can be whispered",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
+        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
+        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
     ]
 
     @staticmethod
@@ -61,10 +50,7 @@ class ShowEmoteModule(BaseModule):
         first_emote = args["emotes"][0]
         payload = {"emote": first_emote}
         bot.websocket_manager.emit("new_emote", payload)
-        bot.whisper(
-            source.username,
-            "Successfully sent the emote {} to the stream!".format(first_emote["code"]),
-        )
+        bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote["code"]))
 
     def load_commands(self, **options):
         self.commands["#showemote"] = Command.raw_command(
@@ -78,8 +64,7 @@ class ShowEmoteModule(BaseModule):
                 CommandExample(
                     None,
                     "Show an emote on stream.",
-                    chat="user:!#showemote Keepo\n"
-                    "bot>user: Successfully sent the emote Keepo to the stream!",
+                    chat="user:!#showemote Keepo\n" "bot>user: Successfully sent the emote Keepo to the stream!",
                     description="",
                 ).parse()
             ],

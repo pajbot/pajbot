@@ -42,29 +42,20 @@ class ChattersModule(BaseModule):
 
         with RedisManager.pipeline_context() as pipeline:
             with DBManager.create_session_scope() as db_session:
-                user_models = UserManager.get().bulk_load_user_models(
-                    chatters, db_session
-                )
+                user_models = UserManager.get().bulk_load_user_models(chatters, db_session)
                 users = []
                 for username in chatters:
                     user_model = user_models.get(username, None)
                     user = UserManager.get().get_user(
-                        username,
-                        db_session=db_session,
-                        user_model=user_model,
-                        redis=pipeline,
+                        username, db_session=db_session, user_model=user_model, redis=pipeline
                     )
                     users.append(user)
 
                 more_update_data = {}
                 if self.bot.is_online:
-                    more_update_data[
-                        "minutes_in_chat_online"
-                    ] = self.update_chatters_interval
+                    more_update_data["minutes_in_chat_online"] = self.update_chatters_interval
                 else:
-                    more_update_data[
-                        "minutes_in_chat_offline"
-                    ] = self.update_chatters_interval
+                    more_update_data["minutes_in_chat_offline"] = self.update_chatters_interval
 
                 points_to_give_out = {}
                 dt_now = utils.now().timestamp()
@@ -75,10 +66,7 @@ class ChattersModule(BaseModule):
                     if user.subscriber:
                         num_points *= 5
                     # TODO: Load user tags during the pipeline redis data fetch
-                    if (
-                        self.bot.streamer == "forsenlol"
-                        and "trumpsc_sub" in user.get_tags()
-                    ):
+                    if self.bot.streamer == "forsenlol" and "trumpsc_sub" in user.get_tags():
                         num_points *= 0.5
 
                     num_points = int(num_points)
@@ -179,9 +167,7 @@ class ChattersModule(BaseModule):
         if bot:
             if not self.initialized:
                 self.bot.execute_every(
-                    self.update_chatters_interval * 60,
-                    self.bot.action_queue.add,
-                    (self.update_chatters_stage1,),
+                    self.update_chatters_interval * 60, self.bot.action_queue.add, (self.update_chatters_stage1,)
                 )
                 self.initialized = True
             else:

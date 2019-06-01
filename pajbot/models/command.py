@@ -37,9 +37,7 @@ def parse_command_for_web(alias, command, list):
         if command.description is not None:
             command.json_description = json.loads(command.description)
             if "description" in command.json_description:
-                command.parsed_description = Markup(
-                    markdown.markdown(command.json_description["description"])
-                )
+                command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
             if command.json_description.get("hidden", False) is True:
                 return
     except ValueError:
@@ -58,11 +56,7 @@ def parse_command_for_web(alias, command, list):
             command.main_alias = command.command.split("|")[0]
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(
-                alias
-                if command.command is None
-                else command.main_alias + " " + inner_alias,
-                inner_command,
-                list,
+                alias if command.command is None else command.main_alias + " " + inner_alias, inner_command, list
             )
     else:
         test = re.compile(r"[^\w]")
@@ -83,9 +77,7 @@ def parse_command_for_web(alias, command, list):
 class CommandData(Base):
     __tablename__ = "tb_command_data"
 
-    command_id = Column(
-        Integer, ForeignKey("tb_command.id"), primary_key=True, autoincrement=False
-    )
+    command_id = Column(Integer, ForeignKey("tb_command.id"), primary_key=True, autoincrement=False)
     num_uses = Column(Integer, nullable=False, default=0)
 
     added_by = Column(Integer, nullable=True)
@@ -141,9 +133,7 @@ class CommandData(Base):
             "num_uses": self.num_uses,
             "added_by": self.added_by,
             "edited_by": self.edited_by,
-            "last_date_used": self.last_date_used.isoformat()
-            if self.last_date_used
-            else None,
+            "last_date_used": self.last_date_used.isoformat() if self.last_date_used else None,
         }
 
 
@@ -169,10 +159,7 @@ class CommandExample(Base):
         self.parse()
 
     def add_chat_message(self, type, message, user_from, user_to=None):
-        chat_message = {
-            "source": {"type": type, "from": user_from, "to": user_to},
-            "message": message,
-        }
+        chat_message = {"source": {"type": type, "from": user_from, "to": user_to}, "message": message}
         self.chat_messages.append(chat_message)
 
     def parse(self):
@@ -213,9 +200,7 @@ class Command(Base):
     can_execute_with_whisper = Column(Boolean)
     sub_only = Column(Boolean, nullable=False, default=False)
     mod_only = Column(Boolean, nullable=False, default=False)
-    run_through_banphrases = Column(
-        Boolean, nullable=False, default=False, server_default="0"
-    )
+    run_through_banphrases = Column(Boolean, nullable=False, default=False, server_default="0")
     long_description = ""
 
     data = relationship("CommandData", uselist=False, cascade="", lazy="joined")
@@ -284,14 +269,10 @@ class Command(Base):
         self.tokens_cost = options.get("tokens_cost", self.tokens_cost)
         if self.tokens_cost < 0:
             self.tokens_cost = 0
-        self.can_execute_with_whisper = options.get(
-            "can_execute_with_whisper", self.can_execute_with_whisper
-        )
+        self.can_execute_with_whisper = options.get("can_execute_with_whisper", self.can_execute_with_whisper)
         self.sub_only = options.get("sub_only", self.sub_only)
         self.mod_only = options.get("mod_only", self.mod_only)
-        self.run_through_banphrases = options.get(
-            "run_through_banphrases", self.run_through_banphrases
-        )
+        self.run_through_banphrases = options.get("run_through_banphrases", self.run_through_banphrases)
         self.examples = options.get("examples", self.examples)
         self.run_in_thread = options.get("run_in_thread", self.run_in_thread)
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
@@ -327,9 +308,7 @@ class Command(Base):
     @classmethod
     def dispatch_command(cls, cb, **options):
         cmd = cls(**options)
-        cmd.action = ActionParser.parse(
-            '{"type": "func", "cb": "' + cb + '"}', command=cmd.command
-        )
+        cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}', command=cmd.command)
         return cmd
 
     @classmethod
@@ -338,9 +317,7 @@ class Command(Base):
         try:
             cmd.action = RawFuncAction(cb)
         except:
-            log.exception(
-                "Uncaught exception in Command.raw_command. catch the following exception manually!"
-            )
+            log.exception("Uncaught exception in Command.raw_command. catch the following exception manually!")
             cmd.enabled = False
         return cmd
 
@@ -361,9 +338,7 @@ class Command(Base):
         from pajbot.models.action import MultiAction
 
         cmd = cls(**options)
-        cmd.action = MultiAction.ready_built(
-            options.get("commands"), default=default, fallback=fallback
-        )
+        cmd.action = MultiAction.ready_built(options.get("commands"), default=default, fallback=fallback)
         return cmd
 
     def load_args(self, level, action):
@@ -400,11 +375,7 @@ class Command(Base):
             # User is not a sub or a moderator, and cannot use the command.
             return False
 
-        if (
-            self.mod_only
-            and source.moderator is False
-            and source.level < Command.BYPASS_MOD_ONLY_LEVEL
-        ):
+        if self.mod_only and source.moderator is False and source.level < Command.BYPASS_MOD_ONLY_LEVEL:
             # User is not a twitch moderator, or a bot moderator
             return False
 
@@ -413,29 +384,15 @@ class Command(Base):
         cur_time = pajbot.utils.now().timestamp()
         time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
-        if (
-            time_since_last_run < self.delay_all
-            and source.level < Command.BYPASS_DELAY_LEVEL
-        ):
-            log.debug(
-                "Command was run {0:.2f} seconds ago, waiting...".format(
-                    time_since_last_run
-                )
-            )
+        if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
+            log.debug("Command was run {0:.2f} seconds ago, waiting...".format(time_since_last_run))
             return False
 
-        time_since_last_run_user = (
-            cur_time - self.last_run_by_user.get(source.username, 0)
-        ) / cd_modifier
+        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.username, 0)) / cd_modifier
 
-        if (
-            time_since_last_run_user < self.delay_user
-            and source.level < Command.BYPASS_DELAY_LEVEL
-        ):
+        if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
             log.debug(
-                "{0} ran command {1:.2f} seconds ago, waiting...".format(
-                    source.username, time_since_last_run_user
-                )
+                "{0} ran command {1:.2f} seconds ago, waiting...".format(source.username, time_since_last_run_user)
             )
             return False
 
@@ -464,9 +421,7 @@ class Command(Base):
         args.update(self.extra_args)
         if self.run_in_thread:
             log.debug("Running {} in a thread".format(self))
-            ScheduleManager.execute_now(
-                self.run_action, args=[bot, source, message, event, args]
-            )
+            ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
         else:
             self.run_action(bot, source, message, event, args)
 
@@ -489,25 +444,16 @@ class Command(Base):
             self.last_run_by_user[source.username] = cur_time
 
     def autogenerate_examples(self):
-        if (
-            not self.examples
-            and self.id is not None
-            and self.action
-            and self.action.type == "message"
-        ):
+        if not self.examples and self.id is not None and self.action and self.action.type == "message":
             examples = []
             if self.can_execute_with_whisper is True:
                 example = CommandExample(self.id, "Default usage through whisper")
-                subtype = (
-                    self.action.subtype if self.action.subtype != "reply" else "say"
-                )
+                subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me"):
                     example.add_chat_message(subtype, self.action.response, "bot")
                 elif subtype == "whisper":
-                    example.add_chat_message(
-                        subtype, self.action.response, "bot", "user"
-                    )
+                    example.add_chat_message(subtype, self.action.response, "bot", "user")
                 examples.append(example)
 
             example = CommandExample(self.id, "Default usage")

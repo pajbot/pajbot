@@ -40,7 +40,8 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
-from pajbot.utils import clean_up_message, time_ago
+from pajbot.utils import clean_up_message
+from pajbot.utils import time_ago
 from pajbot.utils import time_method
 from pajbot.utils import time_since
 
@@ -64,16 +65,9 @@ class Bot:
     def parse_args():
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            "--config",
-            "-c",
-            default="config.ini",
-            help="Specify which config file to use (default: config.ini)",
+            "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
         )
-        parser.add_argument(
-            "--silent",
-            action="count",
-            help="Decides whether the bot should be silent or not",
-        )
+        parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
         # TODO: Add a log level argument.
 
         return parser.parse_args()
@@ -114,9 +108,7 @@ class Bot:
 
         RedisManager.init(**redis_options)
 
-        pajbot.models.user.Config.se_sync_token = config["main"].get(
-            "se_sync_token", None
-        )
+        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
         self.domain = config["web"].get("domain", "localhost")
@@ -131,10 +123,7 @@ class Bot:
 
         self.trusted_mods = config.getboolean("main", "trusted_mods")
 
-        self.phrases = {
-            "welcome": ["{nickname} {version} running!"],
-            "quit": ["{nickname} {version} shutting down..."],
-        }
+        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
 
         if "phrases" in config:
             phrases = config["phrases"]
@@ -156,16 +145,8 @@ class Bot:
         self.dev = False
 
         if "flags" in config:
-            self.silent = (
-                True
-                if "silent" in config["flags"] and config["flags"]["silent"] == "1"
-                else self.silent
-            )
-            self.dev = (
-                True
-                if "dev" in config["flags"] and config["flags"]["dev"] == "1"
-                else self.dev
-            )
+            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
+            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
 
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
@@ -196,9 +177,7 @@ class Bot:
         self.decks = DeckManager()
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
-            socket_manager=self.socket_manager,
-            module_manager=self.module_manager,
-            bot=self,
+            socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
@@ -212,10 +191,7 @@ class Bot:
         self.reloadable = {}
 
         # Commitable managers
-        self.commitable = {
-            "commands": self.commands,
-            "banphrases": self.banphrase_manager,
-        }
+        self.commitable = {"commands": self.commands, "banphrases": self.banphrase_manager}
 
         self.execute_every(10 * 60, self.commit_all)
         self.execute_every(1, self.do_tick)
@@ -223,9 +199,7 @@ class Bot:
         try:
             self.admin = self.config["main"]["admin"]
         except KeyError:
-            log.warning(
-                "No admin user specified. See the [main] section in config.example.ini for its usage."
-            )
+            log.warning("No admin user specified. See the [main] section in config.example.ini for its usage.")
         if self.admin:
             with self.users.get_user_context(self.admin) as user:
                 user.level = 2000
@@ -249,9 +223,7 @@ class Bot:
 
         # A client ID is required for the bot to work properly now, give an error for now
         if twitch_client_id is None:
-            log.error(
-                'MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE'
-            )
+            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
 
         self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
 
@@ -285,9 +257,7 @@ class Bot:
 
         try:
             if self.config["twitchapi"]["update_subscribers"] == "1":
-                self.execute_every(
-                    30 * 60, self.action_queue.add, (self.update_subscribers_stage1,)
-                )
+                self.execute_every(30 * 60, self.action_queue.add, (self.update_subscribers_stage1,))
         except:
             pass
 
@@ -300,10 +270,7 @@ class Bot:
 
     def on_user_gain_tokens(self, user, tokens_gained):
         self.whisper(
-            user.username,
-            "You finished todays quest! You have been awarded with {} tokens.".format(
-                tokens_gained
-            ),
+            user.username, "You finished todays quest! You have been awarded with {} tokens.".format(tokens_gained)
         )
 
     def update_subscribers_stage1(self):
@@ -349,9 +316,7 @@ class Bot:
         log.info("Ended stage1 subscribers update")
         if subscribers:
             log.info("Got some subscribers, so we are pushing them to stage 2!")
-            self.mainthread_queue.add(
-                self.update_subscribers_stage2, args=[subscribers]
-            )
+            self.mainthread_queue.add(self.update_subscribers_stage2, args=[subscribers])
             log.info("Pushed them now.")
 
     def update_subscribers_stage2(self, subscribers):
@@ -440,9 +405,7 @@ class Bot:
 
     def get_current_song_value(self, key, extra={}):
         if self.stream_manager.online:
-            current_song = PleblistManager.get_current_song(
-                self.stream_manager.current_stream.id
-            )
+            current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)
             inner_keys = key.split(".")
             val = current_song
             for inner_key in inner_keys:
@@ -489,11 +452,7 @@ class Bot:
             return ""
 
     def get_notify_value(self, key, extra={}):
-        payload = {
-            "message": extra["message"] or "",
-            "trigger": extra["trigger"],
-            "user": extra["source"].username_raw,
-        }
+        payload = {"message": extra["message"] or "", "trigger": extra["trigger"], "user": extra["source"].username_raw}
         self.websocket_manager.emit("notify", payload)
 
         return ""
@@ -524,9 +483,7 @@ class Bot:
                 if i == 0:
                     self.privmsg_arr(lines[:per_chunk], target)
                 else:
-                    self.execute_delayed(
-                        chunk_delay * i, self.privmsg_arr, (lines[:per_chunk], target)
-                    )
+                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk], target))
 
                 del lines[:per_chunk]
 
@@ -547,10 +504,7 @@ class Bot:
                 cloned_event.arguments = [msg]
                 # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
-            self.whisper(
-                event.source.user.lower(),
-                "Successfully evaluated {0} lines".format(len(lines)),
-            )
+            self.whisper(event.source.user.lower(), "Successfully evaluated {0} lines".format(len(lines)))
         except:
             log.exception("BabyRage")
             self.whisper(event.source.user.lower(), "Exception BabyRage")
@@ -616,10 +570,7 @@ class Bot:
         self.privmsg(".unban {0}".format(username), increase_message=False)
 
     def _timeout(self, username, duration, reason=""):
-        self.privmsg(
-            ".timeout {0} {1} {2}".format(username, duration, reason),
-            increase_message=False,
-        )
+        self.privmsg(".timeout {0} {1} {2}".format(username, duration, reason), increase_message=False)
 
     def timeout(self, username, duration, reason=""):
         log.debug("Timing out %s for %d seconds", username, duration)
@@ -627,9 +578,7 @@ class Bot:
         self.execute_delayed(1, self._timeout, (username, duration, reason))
 
     def timeout_warn(self, user, duration, reason=""):
-        duration, punishment = user.timeout(
-            duration, warning_module=self.module_manager["warning"]
-        )
+        duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
         self.timeout(user.username, duration, reason)
         return (duration, punishment)
 
@@ -655,10 +604,7 @@ class Bot:
 
     def send_message_to_user(self, user, message, event, separator=". ", method="say"):
         if method == "say":
-            self.say(
-                user.username + ", " + lowercase_first_letter(message),
-                separator=separator,
-            )
+            self.say(user.username + ", " + lowercase_first_letter(message), separator=separator)
         elif method == "whisper":
             self.whisper(user.username, message, separator=separator)
         elif method == "me":
@@ -675,9 +621,7 @@ class Bot:
         # Check for banphrases
         res = self.banphrase_manager.check_message(message, None)
         if res is not False:
-            self.privmsg(
-                "filtered message ({})".format(res.id), channel, increase_message
-            )
+            self.privmsg("filtered message ({})".format(res.id), channel, increase_message)
             return
 
         self.privmsg(message, channel, increase_message)
@@ -719,22 +663,10 @@ class Bot:
         if self.dev:
             try:
                 current_branch = (
-                    subprocess.check_output(
-                        ["git", "rev-parse", "--abbrev-ref", "HEAD"]
-                    )
-                    .decode("utf8")
-                    .strip()
+                    subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
                 )
-                latest_commit = (
-                    subprocess.check_output(["git", "rev-parse", "HEAD"])
-                    .decode("utf8")
-                    .strip()[:8]
-                )
-                commit_number = (
-                    subprocess.check_output(["git", "rev-list", "HEAD", "--count"])
-                    .decode("utf8")
-                    .strip()
-                )
+                latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
+                commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
                 self.version = "{0} DEV ({1}, {2}, commit {3})".format(
                     self.version, current_branch, latest_commit, commit_number
                 )
@@ -763,9 +695,7 @@ class Bot:
             elif tag["key"] == "display-name" and tag["value"]:
                 source.username_raw = tag["value"]
             elif tag["key"] == "user-type":
-                source.moderator = (
-                    tag["value"] == "mod" or source.username == self.streamer
-                )
+                source.moderator = tag["value"] == "mod" or source.username == self.streamer
 
         # source.num_lines += 1
 
@@ -782,25 +712,14 @@ class Bot:
             source.timed_out = False
 
         # Parse emotes in the message
-        message_emotes = self.emotes.parse_message_twitch_emotes(
-            source, msg_raw, emote_tag, whisper
-        )
+        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag, whisper)
 
         urls = self.find_unique_urls(msg_raw)
 
-        log.debug(
-            "{2}{0}: {1}".format(source.username, msg_raw, "<w>" if whisper else "")
-        )
+        log.debug("{2}{0}: {1}".format(source.username, msg_raw, "<w>" if whisper else ""))
 
         res = HandlerManager.trigger(
-            "on_message",
-            source,
-            msg_raw,
-            message_emotes,
-            whisper,
-            urls,
-            event,
-            stop_on_false=True,
+            "on_message", source, msg_raw, message_emotes, whisper, urls, event, stop_on_false=True
         )
         if res is False:
             return False
@@ -815,29 +734,18 @@ class Bot:
             msg_lower_parts = msg_lower.split(" ")
             trigger = msg_lower_parts[0][1:]
             msg_raw_parts = msg_raw.split(" ")
-            remaining_message = (
-                " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
-            )
+            remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if trigger in self.commands:
                 command = self.commands[trigger]
                 extra_args = {"emotes": message_emotes, "trigger": trigger}
-                command.run(
-                    self,
-                    source,
-                    remaining_message,
-                    event=event,
-                    args=extra_args,
-                    whisper=whisper,
-                )
+                command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         username = event.source.user.lower()
 
         with self.users.get_user_context(username) as source:
-            self.parse_message(
-                event.arguments[0], source, event, whisper=True, tags=event.tags
-            )
+            self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
         # self.say('Received a ping. Last ping received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_ping.timestamp())))
@@ -950,9 +858,7 @@ class Bot:
 
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         with self.users.get_user_context(username) as source:
-            res = HandlerManager.trigger(
-                "on_pubmsg", source, event.arguments[0], stop_on_false=True
-            )
+            res = HandlerManager.trigger("on_pubmsg", source, event.arguments[0], stop_on_false=True)
             if res is False:
                 return False
 
@@ -1029,9 +935,7 @@ class Bot:
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
             else time_since(var * 60, 0, time_format="long"),
-            "time_since": lambda var, args: "no time"
-            if var == 0
-            else time_since(var, 0, time_format="long"),
+            "time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
             "urlencode": _filter_urlencode,
             "join": _filter_join,

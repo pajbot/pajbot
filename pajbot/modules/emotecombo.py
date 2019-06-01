@@ -22,9 +22,7 @@ class EmoteComboModule(BaseModule):
     def inc_emote_count(self):
         self.emote_count += 1
         if self.emote_count >= 5:
-            self.bot.websocket_manager.emit(
-                "emote_combo", {"emote": self.current_emote, "count": self.emote_count}
-            )
+            self.bot.websocket_manager.emit("emote_combo", {"emote": self.current_emote, "count": self.emote_count})
 
     def reset(self):
         self.emote_count = 0

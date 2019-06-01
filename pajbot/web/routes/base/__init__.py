@@ -11,6 +11,7 @@ import pajbot.web.routes.base.stats
 import pajbot.web.routes.base.user
 import pajbot.web.routes.base.playsounds
 
+
 def init(app):
     pajbot.web.routes.base.commands.init(app)
     pajbot.web.routes.base.contact.init(app)

@@ -7,7 +7,7 @@ from pajbot.modules import PlaysoundModule
 
 
 def init(app):
-    @app.route('/playsounds/')
+    @app.route("/playsounds/")
     def user_playsounds():
         with DBManager.create_session_scope() as session:
             playsounds = session.query(Playsound).filter(Playsound.enabled).all()
@@ -17,5 +17,9 @@ def init(app):
             if playsound_module is not None:
                 enabled = playsound_module.enabled
 
-            return render_template('playsounds.html', playsounds=playsounds, module_settings=PlaysoundModule.module_settings(),
-                                   playsounds_enabled=enabled)
+            return render_template(
+                "playsounds.html",
+                playsounds=playsounds,
+                module_settings=PlaysoundModule.module_settings(),
+                playsounds_enabled=enabled,
+            )

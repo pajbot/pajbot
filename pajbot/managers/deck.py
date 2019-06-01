@@ -29,8 +29,8 @@ class DeckManager(UserList):
     def action_get_curdeck(self, key, extra={}):
         if self.current_deck is not None:
             return getattr(self.current_deck, key, None)
-        else:
-            return None
+
+        return None
 
     def refresh_current_deck(self):
         self.current_deck = None
@@ -45,7 +45,7 @@ class DeckManager(UserList):
             db_session.commit()
 
         if deck == self.current_deck:
-            log.info('refreshing current deck')
+            log.info("refreshing current deck")
             self.refresh_current_deck()
 
     def set_current_deck(self, deck_link):
@@ -55,18 +55,13 @@ class DeckManager(UserList):
             # Is this deck link already i use?
             if deck_link == deck.link:
                 self.current_deck = deck
-                self.update_deck(deck,
-                                 times_used=deck.times_used + 1,
-                                 last_used=now)
+                self.update_deck(deck, times_used=deck.times_used + 1, last_used=now)
                 return deck, False
 
         # No old deck matched the link, create a new deck!
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             deck = Deck()
-            deck.set(link=deck_link,
-                     times_used=1,
-                     first_used=now,
-                     last_used=now)
+            deck.set(link=deck_link, times_used=1, first_used=now, last_used=now)
             self.current_deck = deck
             self.data.append(deck)
             db_session.add(deck)
@@ -85,24 +80,24 @@ class DeckManager(UserList):
     @staticmethod
     def parse_update_arguments(message):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--id', type=int, dest='id')
-        parser.add_argument('--name', nargs='+', dest='name')
-        parser.add_argument('--class', dest='class')
-        parser.add_argument('--link', dest='link')
+        parser.add_argument("--id", type=int, dest="id")
+        parser.add_argument("--name", nargs="+", dest="name")
+        parser.add_argument("--class", dest="class")
+        parser.add_argument("--link", dest="link")
 
         try:
             args, unknown = parser.parse_known_args(message.split())
         except SystemExit:
             return False, False
         except:
-            log.exception('Unhandled exception in add_command')
+            log.exception("Unhandled exception in add_command")
             return False, False
 
         # Strip options of any values that are set as None
         options = {k: v for k, v in vars(args).items() if v is not None}
-        if 'name' in options:
-            options['name'] = ' '.join(options['name'])
-        response = ' '.join(unknown)
+        if "name" in options:
+            options["name"] = " ".join(options["name"])
+        response = " ".join(unknown)
 
         return options, response
 

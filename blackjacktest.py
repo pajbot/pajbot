@@ -7,7 +7,7 @@ from pajbot.modules.blackjack import BlackjackGame
 logging.basicConfig(level=logging.DEBUG)
 
 
-print('hello')
+print("hello")
 
 game = BlackjackGame(None, None, 500)
 

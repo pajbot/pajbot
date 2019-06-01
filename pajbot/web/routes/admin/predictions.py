@@ -9,20 +9,21 @@ from pajbot.web.utils import requires_level
 
 
 def init(page):
-    @page.route('/predictions/')
+    @page.route("/predictions/")
     @requires_level(500)
     def predictions(**options):
         with DBManager.create_session_scope() as db_session:
             predictions = db_session.query(PredictionRun).order_by(PredictionRun.started.desc()).all()
 
             for prediction in predictions:
-                prediction.num_entries = db_session.query(PredictionRunEntry).filter_by(prediction_run_id=prediction.id).count()
+                prediction.num_entries = (
+                    db_session.query(PredictionRunEntry).filter_by(prediction_run_id=prediction.id).count()
+                )
                 pass
 
-            return render_template('admin/predictions.html',
-                    predictions=predictions)
+            return render_template("admin/predictions.html", predictions=predictions)
 
-    @page.route('/predictions/view/<prediction_run_id>')
+    @page.route("/predictions/view/<prediction_run_id>")
     @requires_level(500)
     def predictions_view(prediction_run_id, **options):
         with DBManager.create_session_scope() as db_session:
@@ -30,9 +31,13 @@ def init(page):
             if prediction is None:
                 abort(404)
 
-            entries = db_session.query(PredictionRunEntry).options(joinedload(PredictionRunEntry.user)).filter_by(prediction_run_id=prediction_run_id).order_by(PredictionRunEntry.prediction.asc()).all()
+            entries = (
+                db_session.query(PredictionRunEntry)
+                .options(joinedload(PredictionRunEntry.user))
+                .filter_by(prediction_run_id=prediction_run_id)
+                .order_by(PredictionRunEntry.prediction.asc())
+                .all()
+            )
             prediction.num_entries = len(entries)
 
-            return render_template('admin/predictions_view.html',
-                    prediction=prediction,
-                    entries=entries)
+            return render_template("admin/predictions_view.html", prediction=prediction, entries=entries)

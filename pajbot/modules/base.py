@@ -24,17 +24,7 @@ class ModuleSetting:
       * options - A select/options list
     """
 
-    def __init__(
-        self,
-        key,
-        label,
-        type,
-        required=False,
-        placeholder="",
-        default=None,
-        constraints={},
-        options=[],
-    ):
+    def __init__(self, key, label, type, required=False, placeholder="", default=None, constraints={}, options=[]):
         self.key = key
         self.label = label
         self.type = type
@@ -67,26 +57,10 @@ class ModuleSetting:
     def validate_text(self, value):
         """ Validate a text value """
         value = value.strip()
-        if (
-            "min_str_len" in self.constraints
-            and len(value) < self.constraints["min_str_len"]
-        ):
-            return (
-                False,
-                "needs to be at least {} characters long".format(
-                    self.constraints["min_str_len"]
-                ),
-            )
-        if (
-            "max_str_len" in self.constraints
-            and len(value) > self.constraints["max_str_len"]
-        ):
-            return (
-                False,
-                "needs to be at most {} characters long".format(
-                    self.constraints["max_str_len"]
-                ),
-            )
+        if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
+            return (False, "needs to be at least {} characters long".format(self.constraints["min_str_len"]))
+        if "max_str_len" in self.constraints and len(value) > self.constraints["max_str_len"]:
+            return (False, "needs to be at most {} characters long".format(self.constraints["max_str_len"]))
         return True, value
 
     def validate_number(self, value):
@@ -97,19 +71,9 @@ class ModuleSetting:
             return False, "Not a valid integer"
 
         if "min_value" in self.constraints and value < self.constraints["min_value"]:
-            return (
-                False,
-                "needs to have a value that is at least {}".format(
-                    self.constraints["min_value"]
-                ),
-            )
+            return (False, "needs to have a value that is at least {}".format(self.constraints["min_value"]))
         if "max_value" in self.constraints and value > self.constraints["max_value"]:
-            return (
-                False,
-                "needs to have a value that is at most {}".format(
-                    self.constraints["max_value"]
-                ),
-            )
+            return (False, "needs to have a value that is at most {}".format(self.constraints["max_value"]))
         return True, value
 
     @staticmethod
@@ -202,10 +166,7 @@ class BaseModule:
     def parse_settings(self, **in_settings):
         ret = {}
         for key, value in in_settings.items():
-            setting = find(
-                lambda setting, setting_key=key: setting.key == setting_key,
-                self.SETTINGS,
-            )
+            setting = find(lambda setting, setting_key=key: setting.key == setting_key, self.SETTINGS)
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False
@@ -244,18 +205,14 @@ class BaseModule:
             return self.settings[key].format(**arguments)
         except (IndexError, ValueError, KeyError):
             log.warning(
-                'An error occured when formatting phrase "{}". Arguments: ({})'.format(
-                    self.settings[key], arguments
-                )
+                'An error occured when formatting phrase "{}". Arguments: ({})'.format(self.settings[key], arguments)
             )
 
         try:
             return self.default_settings[key].format(**arguments)
         except:
             log.exception(
-                "ABORT - The default phrase {} is BAD. Arguments: ({})".format(
-                    self.default_settings[key], arguments
-                )
+                "ABORT - The default phrase {} is BAD. Arguments: ({})".format(self.default_settings[key], arguments)
             )
 
         return "FatalError in get_phrase"

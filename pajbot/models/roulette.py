@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class Roulette(Base):
-    __tablename__ = 'tb_roulette'
+    __tablename__ = "tb_roulette"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, index=True, nullable=False)

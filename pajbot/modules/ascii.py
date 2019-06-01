@@ -11,9 +11,7 @@ class AsciiProtectionModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Ascii Protection"
-    DESCRIPTION = (
-        "Times out users who post messages that contain too many ASCII characters."
-    )
+    DESCRIPTION = "Times out users who post messages that contain too many ASCII characters."
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
@@ -63,9 +61,7 @@ class AsciiProtectionModule(BaseModule):
         ):
             if AsciiProtectionModule.check_message(message) is not False:
                 duration, punishment = self.bot.timeout_warn(
-                    source,
-                    self.settings["timeout_length"],
-                    reason="Too many ASCII characters",
+                    source, self.settings["timeout_length"], reason="Too many ASCII characters"
                 )
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """

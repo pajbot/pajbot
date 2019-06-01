@@ -6,7 +6,7 @@ from pajbot.managers.db import Base
 
 
 class TwitterUser(Base):
-    __tablename__ = 'tb_twitter_following'
+    __tablename__ = "tb_twitter_following"
 
     id = Column(Integer, primary_key=True)
     username = Column(String(32))
@@ -15,7 +15,4 @@ class TwitterUser(Base):
         self.username = username
 
     def jsonify(self):
-        return {
-                'id': self.id,
-                'username': self.username
-                }
+        return {"id": self.id, "username": self.username}

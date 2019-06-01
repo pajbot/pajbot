@@ -18,18 +18,8 @@ class Module(Base):
     __tablename__ = "tb_module"
 
     id = Column(String(64), primary_key=True)
-    enabled = Column(
-        Boolean,
-        nullable=False,
-        default=False,
-        server_default=sqlalchemy.sql.expression.false(),
-    )
-    settings = Column(
-        TEXT,
-        nullable=True,
-        default=None,
-        server_default=sqlalchemy.sql.expression.null(),
-    )
+    enabled = Column(Boolean, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
+    settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
 
     def __init__(self, module_id, **options):
         self.id = module_id
@@ -74,9 +64,7 @@ class ModuleManager:
         module.enable(self.bot)
 
         if module in self.modules:
-            log.error(
-                "Module %s is already in the list of enabled modules pajaW", module_id
-            )
+            log.error("Module %s is already in the list of enabled modules pajaW", module_id)
             return False
 
         self.modules.append(module)
@@ -94,11 +82,7 @@ class ModuleManager:
         module.disable(self.bot)
 
         if module not in self.modules:
-            log.error(
-                "Module {} is not in the list of enabled modules pajaW".format(
-                    module_id
-                )
-            )
+            log.error("Module {} is not in the list of enabled modules pajaW".format(module_id))
             return False
 
         self.modules.remove(module)
@@ -155,9 +139,7 @@ class ModuleManager:
             if module.PARENT_MODULE is None:
                 module.submodules = []
             else:
-                parent = find(
-                    lambda m: m.__class__ == module.PARENT_MODULE, self.modules
-                )
+                parent = find(lambda m: m.__class__ == module.PARENT_MODULE, self.modules)
                 if parent is not None:
                     parent.submodules.append(module)
                     module.parent_module = parent

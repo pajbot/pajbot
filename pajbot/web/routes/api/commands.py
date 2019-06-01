@@ -1,8 +1,8 @@
 import json
 import logging
 
-from flask_restful import reqparse
 from flask_restful import Resource
+from flask_restful import reqparse
 from sqlalchemy.orm import joinedload
 
 import pajbot.modules
@@ -24,11 +24,9 @@ class APICommands(Resource):
     def get():
         commands = pajbot.web.utils.get_cached_commands()
 
-        commands = list(filter(lambda c: c['id'] is not None, commands))
+        commands = list(filter(lambda c: c["id"] is not None, commands))
 
-        return {
-                'commands': commands
-                }, 200
+        return {"commands": commands}, 200
 
 
 class APICommand(Resource):
@@ -43,18 +41,14 @@ class APICommand(Resource):
             pass
 
         if command_id:
-            command = find(lambda c: c['id'] == command_id, pajbot.web.utils.get_cached_commands())
+            command = find(lambda c: c["id"] == command_id, pajbot.web.utils.get_cached_commands())
         else:
-            command = find(lambda c: c['resolve_string'] == command_string, pajbot.web.utils.get_cached_commands())
+            command = find(lambda c: c["resolve_string"] == command_string, pajbot.web.utils.get_cached_commands())
 
         if not command:
-            return {
-                'message': 'A command with the given ID was not found.'
-            }, 404
+            return {"message": "A command with the given ID was not found."}, 404
 
-        return {
-                'command': command
-                }, 200
+        return {"command": command}, 200
 
 
 class APICommandRemove(Resource):
@@ -63,20 +57,18 @@ class APICommandRemove(Resource):
         with DBManager.create_session_scope() as db_session:
             command = db_session.query(Command).filter_by(id=command_id).one_or_none()
             if command is None:
-                return {'error': 'Invalid command ID'}, 404
-            if command.level > options['user'].level:
-                return {'error': 'Unauthorized'}, 403
-            log_msg = 'The !{} command has been removed'.format(command.command.split('|')[0])
-            AdminLogManager.add_entry('Command removed',
-                    options['user'],
-                    log_msg)
+                return {"error": "Invalid command ID"}, 404
+            if command.level > options["user"].level:
+                return {"error": "Unauthorized"}, 403
+            log_msg = "The !{} command has been removed".format(command.command.split("|")[0])
+            AdminLogManager.add_entry("Command removed", options["user"], log_msg)
             db_session.delete(command.data)
             db_session.delete(command)
 
-        if SocketClientManager.send('command.remove', {'command_id': command_id}) is True:
-            return {'success': 'good job'}, 200
+        if SocketClientManager.send("command.remove", {"command_id": command_id}) is True:
+            return {"success": "good job"}, 200
         else:
-            return {'error': 'could not push update'}, 500
+            return {"error": "could not push update"}, 500
 
 
 class APICommandUpdate(Resource):
@@ -84,62 +76,52 @@ class APICommandUpdate(Resource):
         super().__init__()
 
         self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument('data_level', required=False)
-        self.post_parser.add_argument('data_enabled', required=False)
-        self.post_parser.add_argument('data_delay_all', required=False)
-        self.post_parser.add_argument('data_delay_user', required=False)
-        self.post_parser.add_argument('data_cost', required=False)
-        self.post_parser.add_argument('data_can_execute_with_whisper', required=False)
-        self.post_parser.add_argument('data_sub_only', required=False)
-        self.post_parser.add_argument('data_action_type', required=False)
-        self.post_parser.add_argument('data_action_message', required=False)
+        self.post_parser.add_argument("data_level", required=False)
+        self.post_parser.add_argument("data_enabled", required=False)
+        self.post_parser.add_argument("data_delay_all", required=False)
+        self.post_parser.add_argument("data_delay_user", required=False)
+        self.post_parser.add_argument("data_cost", required=False)
+        self.post_parser.add_argument("data_can_execute_with_whisper", required=False)
+        self.post_parser.add_argument("data_sub_only", required=False)
+        self.post_parser.add_argument("data_action_type", required=False)
+        self.post_parser.add_argument("data_action_message", required=False)
 
     @pajbot.web.utils.requires_level(500)
     def post(self, command_id, **extra_args):
         args = pajbot.utils.remove_none_values(self.post_parser.parse_args())
         if len(args) == 0:
-            return {
-                    'error': 'Missing parameter to edit.'
-                    }, 400
+            return {"error": "Missing parameter to edit."}, 400
 
-        valid_names = [
-                'enabled',
-                'level',
-                'delay_all',
-                'delay_user',
-                'cost',
-                'can_execute_with_whisper',
-                'sub_only'
-                ]
+        valid_names = ["enabled", "level", "delay_all", "delay_user", "cost", "can_execute_with_whisper", "sub_only"]
 
-        valid_action_names = [
-                'type',
-                'message'
-                ]
+        valid_action_names = ["type", "message"]
 
         with DBManager.create_session_scope() as db_session:
-            command = db_session.query(Command).options(joinedload(Command.data).joinedload(CommandData.user)).filter_by(id=command_id).one_or_none()
+            command = (
+                db_session.query(Command)
+                .options(joinedload(Command.data).joinedload(CommandData.user))
+                .filter_by(id=command_id)
+                .one_or_none()
+            )
             if command is None:
-                return {'error': 'Invalid command ID'}, 404
+                return {"error": "Invalid command ID"}, 404
 
-            if command.level > extra_args['user'].level:
-                return {'error': 'Unauthorized'}, 403
+            if command.level > extra_args["user"].level:
+                return {"error": "Unauthorized"}, 403
             parsed_action = json.loads(command.action_json)
-            options = {
-                'edited_by': extra_args['user'].id,
-            }
+            options = {"edited_by": extra_args["user"].id}
 
             for key in args:
-                if key.startswith('data_'):
+                if key.startswith("data_"):
                     name = key[5:]
                     value = args[key]
 
-                    if name.startswith('action_'):
+                    if name.startswith("action_"):
                         name = name[7:]
-                        if name in valid_action_names and name in parsed_action and command.action.type == 'message':
+                        if name in valid_action_names and name in parsed_action and command.action.type == "message":
                             value_type = type(parsed_action[name])
                             if value_type is bool:
-                                parsed_value = True if value == '1' else False
+                                parsed_value = True if value == "1" else False
                             elif value_type is int:
                                 try:
                                     parsed_value = int(value)
@@ -153,7 +135,7 @@ class APICommandUpdate(Resource):
                         if name in valid_names:
                             value_type = type(getattr(command, name))
                             if value_type is bool:
-                                parsed_value = True if value == '1' else False
+                                parsed_value = True if value == "1" else False
                             elif value_type is int:
                                 try:
                                     parsed_value = int(value)
@@ -164,11 +146,11 @@ class APICommandUpdate(Resource):
                             options[name] = parsed_value
 
             aj = json.loads(command.action_json)
-            old_message = ''
-            new_message = ''
+            old_message = ""
+            new_message = ""
             try:
                 old_message = command.action.response
-                new_message = aj['message']
+                new_message = aj["message"]
             except:
                 pass
 
@@ -177,24 +159,22 @@ class APICommandUpdate(Resource):
 
             if len(old_message) > 0 and old_message != new_message:
                 log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
-                        command.command.split('|')[0],
-                        old_message,
-                        new_message)
+                    command.command.split("|")[0], old_message, new_message
+                )
             else:
-                log_msg = 'The !{} command has been updated'.format(command.command.split('|')[0])
+                log_msg = "The !{} command has been updated".format(command.command.split("|")[0])
 
-            AdminLogManager.add_entry('Command edited',
-                    extra_args['user'],
-                    log_msg,
-                    data={
-                        'old_message': old_message,
-                        'new_message': new_message,
-                        })
+            AdminLogManager.add_entry(
+                "Command edited",
+                extra_args["user"],
+                log_msg,
+                data={"old_message": old_message, "new_message": new_message},
+            )
 
-        if SocketClientManager.send('command.update', {'command_id': command_id}) is True:
-            return {'success': 'good job'}, 200
+        if SocketClientManager.send("command.update", {"command_id": command_id}) is True:
+            return {"success": "good job"}, 200
         else:
-            return {'error': 'could not push update'}, 500
+            return {"error": "could not push update"}, 500
 
 
 class APICommandCheckAlias(Resource):
@@ -202,37 +182,36 @@ class APICommandCheckAlias(Resource):
         super().__init__()
 
         self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument('alias', required=True)
+        self.post_parser.add_argument("alias", required=True)
 
     @pajbot.web.utils.requires_level(500)
     def post(self, **extra_args):
         args = pajbot.utils.remove_none_values(self.post_parser.parse_args())
 
-        request_alias = args['alias'].lower()
+        request_alias = args["alias"].lower()
 
         command_manager = pajbot.managers.command.CommandManager(
-                socket_manager=None,
-                module_manager=ModuleManager(None).load(),
-                bot=None).load(enabled=None)
+            socket_manager=None, module_manager=ModuleManager(None).load(), bot=None
+        ).load(enabled=None)
 
         command_aliases = []
 
         for alias, command in command_manager.items():
             command_aliases.append(alias)
             if command.command and len(command.command) > 0:
-                command_aliases.extend(command.command.split('|'))
+                command_aliases.extend(command.command.split("|"))
 
         command_aliases = set(command_aliases)
 
         if request_alias in command_aliases:
-            return {'error': 'Alias already in use'}
+            return {"error": "Alias already in use"}
         else:
-            return {'success': 'good job'}
+            return {"success": "good job"}
 
 
 def init(api):
-    api.add_resource(APICommands, '/commands')
-    api.add_resource(APICommand, '/commands/<raw_command_id>')
-    api.add_resource(APICommandRemove, '/commands/remove/<int:command_id>')
-    api.add_resource(APICommandUpdate, '/commands/update/<int:command_id>')
-    api.add_resource(APICommandCheckAlias, '/commands/checkalias')
+    api.add_resource(APICommands, "/commands")
+    api.add_resource(APICommand, "/commands/<raw_command_id>")
+    api.add_resource(APICommandRemove, "/commands/remove/<int:command_id>")
+    api.add_resource(APICommandUpdate, "/commands/update/<int:command_id>")
+    api.add_resource(APICommandCheckAlias, "/commands/checkalias")

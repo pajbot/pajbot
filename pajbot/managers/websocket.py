@@ -3,7 +3,7 @@ import logging
 import threading
 from pathlib import Path
 
-log = logging.getLogger('pajbot')
+log = logging.getLogger("pajbot")
 
 
 class WebSocketServer:
@@ -13,8 +13,7 @@ class WebSocketServer:
         self.manager = manager
         from twisted.internet import reactor, ssl
 
-        from autobahn.twisted.websocket import WebSocketServerFactory, \
-                WebSocketServerProtocol
+        from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 
         class MyServerProtocol(WebSocketServerProtocol):
             def onConnect(self, request):
@@ -23,17 +22,17 @@ class WebSocketServer:
                 pass
 
             def onOpen(self):
-                log.info('WebSocket connection open')
+                log.info("WebSocket connection open")
                 WebSocketServer.clients.append(self)
 
             def onMessage(self, payload, isBinary):
                 if isBinary:
-                    log.info('Binary message received: {0} bytes'.format(len(payload)))
+                    log.info("Binary message received: {0} bytes".format(len(payload)))
                 else:
-                    log.info('Text message received: {0}'.format(payload.decode('utf8')))
+                    log.info("Text message received: {0}".format(payload.decode("utf8")))
 
             def onClose(self, wasClean, code, reason):
-                log.info('WebSocket connection closed: {0}'.format(reason))
+                log.info("WebSocket connection closed: {0}".format(reason))
                 try:
                     WebSocketServer.clients.remove(self)
                 except:
@@ -51,10 +50,10 @@ class WebSocketServer:
                 reactor.listenUNIX(unix_socket_path, factory)
             else:
                 if context_factory:
-                    log.info('wss secure')
+                    log.info("wss secure")
                     reactor.listenSSL(port, factory, context_factory)
                 else:
-                    log.info('ws unsecure')
+                    log.info("ws unsecure")
                     reactor.listenTCP(port, factory)
             reactor.run(installSignalHandlers=0)
 
@@ -63,13 +62,9 @@ class WebSocketServer:
         else:
             context_factory = None
 
-        reactor_thread = threading.Thread(target=reactor_run,
-                args=(reactor,
-                    factory,
-                    port,
-                    context_factory,
-                    unix_socket_path),
-                name='WebSocketThread')
+        reactor_thread = threading.Thread(
+            target=reactor_run, args=(reactor, factory, port, context_factory, unix_socket_path), name="WebSocketThread"
+        )
         reactor_thread.daemon = True
         reactor_thread.start()
 
@@ -80,53 +75,53 @@ class WebSocketManager:
         self.server = None
         self.bot = bot
 
-        if 'websocket' not in bot.config:
-            log.debug('WebSocket support not set up, check out https://github.com/pajlada/pajbot/wiki/Config-File#websocket')
+        if "websocket" not in bot.config:
+            log.debug(
+                "WebSocket support not set up, check out https://github.com/pajlada/pajbot/wiki/Config-File#websocket"
+            )
             return
 
-        cfg = bot.config['websocket']
+        cfg = bot.config["websocket"]
 
         try:
-            if cfg['enabled'] == '1':
+            if cfg["enabled"] == "1":
                 # Initialize twisted logging
                 try:
                     from twisted.python import log as twisted_log
+
                     twisted_log.addObserver(WebSocketManager.on_log_message)
                 except ImportError:
-                    log.error('twisted is not installed, websocket cannot be initialized.')
+                    log.error("twisted is not installed, websocket cannot be initialized.")
                     return
                 except:
-                    log.exception('Uncaught exception')
+                    log.exception("Uncaught exception")
                     return
 
-                ssl = bool(cfg.get('ssl', '0') == '1')
-                port = int(cfg.get('port', '443' if ssl else '80'))
-                key_path = cfg.get('key_path', '')
-                crt_path = cfg.get('crt_path', '')
-                unix_socket_path = cfg.get('unix_socket', None)
+                ssl = bool(cfg.get("ssl", "0") == "1")
+                port = int(cfg.get("port", "443" if ssl else "80"))
+                key_path = cfg.get("key_path", "")
+                crt_path = cfg.get("crt_path", "")
+                unix_socket_path = cfg.get("unix_socket", None)
 
                 if ssl:
-                    if key_path == '' or crt_path == '':
-                        log.error('SSL enabled in config, but missing key_path or crt_path')
+                    if key_path == "" or crt_path == "":
+                        log.error("SSL enabled in config, but missing key_path or crt_path")
                         return
 
                 self.server = WebSocketServer(self, port, ssl, key_path, crt_path, unix_socket_path)
         except:
-            log.exception('Uncaught exception in WebSocketManager')
+            log.exception("Uncaught exception in WebSocketManager")
 
     def emit(self, event, data={}):
         if self.server:
-            payload = json.dumps({
-                'event': event,
-                'data': data,
-                }).encode('utf8')
+            payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
                 client.sendMessage(payload, False)
 
     @staticmethod
     def on_log_message(message, isError=False, printed=False):
         if isError:
-            log.error(message['message'])
+            log.error(message["message"])
         else:
             pass
             # log.debug('on_log_message({})'.format(message['message']))

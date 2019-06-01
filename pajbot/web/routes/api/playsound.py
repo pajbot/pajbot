@@ -12,13 +12,13 @@ class PlaysoundApi(Resource):
     @requires_level(500)
     def put(self, playsound_name, **options):
         post_parser = RequestParser()
-        post_parser.add_argument('link', required=True)
+        post_parser.add_argument("link", required=True)
         args = post_parser.parse_args()
 
         try:
-            link = args['link']
+            link = args["link"]
         except (ValueError, KeyError):
-            return {'error': 'Invalid `link` parameter.'}, 400
+            return {"error": "Invalid `link` parameter."}, 400
 
         with DBManager.create_session_scope() as db_session:
             count = db_session.query(Playsound).filter(Playsound.name == playsound_name).count()
@@ -35,27 +35,27 @@ class PlaysoundApi(Resource):
     def post(self, playsound_name, **options):
         # require JSON so the cooldown can be null
         post_parser = RequestParser()
-        post_parser.add_argument('link', required=True)
-        post_parser.add_argument('volume', type=int, required=True)
-        post_parser.add_argument('cooldown', type=int, required=False)
-        post_parser.add_argument('enabled', type=bool, required=False)
+        post_parser.add_argument("link", required=True)
+        post_parser.add_argument("volume", type=int, required=True)
+        post_parser.add_argument("cooldown", type=int, required=False)
+        post_parser.add_argument("enabled", type=bool, required=False)
 
         args = post_parser.parse_args()
 
-        link = args['link']
+        link = args["link"]
         if not PlaysoundModule.validate_link(link):
             return "Empty or bad link, links must start with https:// and must not contain spaces", 400
 
-        volume = args['volume']
+        volume = args["volume"]
         if not PlaysoundModule.validate_volume(volume):
             return "Bad volume argument", 400
 
         # cooldown is allowed to be null/None
-        cooldown = args.get('cooldown', None)
+        cooldown = args.get("cooldown", None)
         if not PlaysoundModule.validate_cooldown(cooldown):
             return "Bad cooldown argument", 400
 
-        enabled = args['enabled']
+        enabled = args["enabled"]
         if enabled is None:
             return "Bad enabled argument", 400
 
@@ -88,7 +88,6 @@ class PlaysoundApi(Resource):
 
 
 class PlayPlaysoundApi(Resource):
-
     @requires_level(500)
     def post(self, playsound_name, **options):
         with DBManager.create_session_scope() as db_session:
@@ -98,11 +97,11 @@ class PlayPlaysoundApi(Resource):
                 return "Playsound does not exist", 404
             # explicitly don't check for disabled
 
-        SocketClientManager.send('playsound.play', {'name': playsound_name})
+        SocketClientManager.send("playsound.play", {"name": playsound_name})
 
         return "OK", 200
 
 
 def init(api):
-    api.add_resource(PlaysoundApi, '/playsound/<playsound_name>')
-    api.add_resource(PlayPlaysoundApi, '/playsound/<playsound_name>/play')
+    api.add_resource(PlaysoundApi, "/playsound/<playsound_name>")
+    api.add_resource(PlayPlaysoundApi, "/playsound/<playsound_name>/play")

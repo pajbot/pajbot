@@ -16,9 +16,7 @@ class MassPingProtectionModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Mass Ping Protection"
-    DESCRIPTION = (
-        "Times out users who post messages that mention too many users at once."
-    )
+    DESCRIPTION = "Times out users who post messages that mention too many users at once."
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
@@ -72,9 +70,7 @@ class MassPingProtectionModule(BaseModule):
     @staticmethod
     def is_known_user(username):
         streamer = StreamHelper.get_streamer()
-        return RedisManager.get().hexists(
-            "{streamer}:users:last_seen".format(streamer=streamer), username
-        )
+        return RedisManager.get().hexists("{streamer}:users:last_seen".format(streamer=streamer), username)
 
     @staticmethod
     def count_pings(message):
@@ -83,9 +79,7 @@ class MassPingProtectionModule(BaseModule):
         potential_usernames = (x.group(0) for x in potential_usernames)
         # to lowercase + filter out matches that are too long...
         potential_usernames = (x.lower() for x in potential_usernames if len(x) <= 25)
-        real_usernames = (
-            x for x in potential_usernames if MassPingProtectionModule.is_known_user(x)
-        )
+        real_usernames = (x for x in potential_usernames if MassPingProtectionModule.is_known_user(x))
 
         # count real users
         # set() is used so the same user is only counted once
@@ -102,20 +96,16 @@ class MassPingProtectionModule(BaseModule):
             return
 
         timeout_duration = (
-            self.settings["timeout_length_base"]
-            + self.settings["extra_timeout_length_per_ping"] * pings_too_many
+            self.settings["timeout_length_base"] + self.settings["extra_timeout_length_per_ping"] * pings_too_many
         )
 
-        self.bot.timeout(
-            source.username, timeout_duration, reason="Too many users pinged in message"
-        )
+        self.bot.timeout(source.username, timeout_duration, reason="Too many users pinged in message")
 
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
                 source.username,
                 (
-                    "You have been timed out for {} seconds because your "
-                    + "message mentioned too many users at once."
+                    "You have been timed out for {} seconds because your " + "message mentioned too many users at once."
                 ).format(timeout_duration),
             )
 

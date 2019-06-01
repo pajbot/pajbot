@@ -45,7 +45,7 @@ class UserManager:
 
             yield user
         except:
-            log.exception('Uncaught exception in UserManager::get_user({})'.format(username))
+            log.exception("Uncaught exception in UserManager::get_user({})".format(username))
         finally:
             self.save(user)
 
@@ -58,7 +58,7 @@ class UserManager:
             user = self.find(username, db_session=db_session)
             yield user
         except:
-            log.exception('Uncaught exception in UserManager::find_context({})'.format(username))
+            log.exception("Uncaught exception in UserManager::find_context({})".format(username))
         finally:
             if user:
                 self.save(user)
@@ -80,12 +80,12 @@ class UserManager:
         # log.debug('UserManager::find({})'.format(username))
 
         # Return None if the username is an empty string!
-        if username == '':
+        if username == "":
             return None
 
         # Replace any occurances of @ in the username
         # This helps non-bttv-users who tab-complete usernames
-        username = username.replace('@', '')
+        username = username.replace("@", "")
 
         # This will be used when we access the cache dictionary
         username_lower = username.lower()
@@ -112,12 +112,12 @@ class UserManager:
         # log.debug('UserManager::find({})'.format(username))
 
         # Return None if the username is an empty string!
-        if username == '':
+        if username == "":
             return None
 
         # Replace any occurances of @ in the username
         # This helps non-bttv-users who tab-complete usernames
-        username = username.replace('@', '')
+        username = username.replace("@", "")
 
         # This will be used when we access the cache dictionary
         username_lower = username.lower()
@@ -132,8 +132,11 @@ class UserManager:
     def reset_subs(self):
         """ Returns how many subs were reset """
         with DBManager.create_session_scope() as db_session:
-            return db_session.query(User).filter_by(subscriber=True).\
-                    update({User.subscriber: False}, synchronize_session=False)
+            return (
+                db_session.query(User)
+                .filter_by(subscriber=True)
+                .update({User.subscriber: False}, synchronize_session=False)
+            )
 
     @time_method
     def update_subs(self, subs):

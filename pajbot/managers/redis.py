@@ -17,9 +17,7 @@ class RedisManager:
 
     @staticmethod
     def init(**options):
-        default_options = {
-                'decode_responses': True,
-                }
+        default_options = {"decode_responses": True}
         default_options.update(options)
         RedisManager.redis = redis.Redis(**default_options)
 
@@ -34,7 +32,7 @@ class RedisManager:
             pipeline = RedisManager.get().pipeline()
             yield pipeline
         except:
-            log.exception('Exception caught during RedisManager::pipeline_context')
+            log.exception("Exception caught during RedisManager::pipeline_context")
             pipeline.reset()
         finally:
             pipeline.execute()
