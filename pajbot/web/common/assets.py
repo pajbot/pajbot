@@ -23,9 +23,7 @@ def init(app):
         "scripts/pleblist.shared.js", filters="jsmin", output="gen/scripts/pleblist.shared.%(version)s.js"
     )
     pleblist_host = Bundle(
-        "scripts/pleblist.host.js",
-        filters="jsmin",
-        output="gen/scripts/pleblist.host.%(version)s.js",
+        "scripts/pleblist.host.js", filters="jsmin", output="gen/scripts/pleblist.host.%(version)s.js"
     )
     assets.register("pleblist_shared", pleblist_shared)
     assets.register("pleblist_client", pleblist_client)
