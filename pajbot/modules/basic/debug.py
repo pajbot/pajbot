@@ -128,7 +128,7 @@ class DebugModule(BaseModule):
 
                 bot.whisper(
                     source.username,
-                    "{} have the following tags: ".format(user.username_raw)
+                    "{} has the following tags: ".format(user.username_raw)
                     + ", ".join(["%s until %s" % (key, value) for (key, value) in data.items()]),
                 )
         else:
@@ -181,7 +181,7 @@ class DebugModule(BaseModule):
                             None,
                             "Debug tags for a user",
                             chat="user:!debug tags pajbot\n"
-                            "bot>user: pajbot have the following tags: pajlada_sub until 2016-04-28",
+                            "bot>user: pajbot has the following tags: pajlada_sub until 2016-04-28",
                             description="",
                         ).parse()
                     ],
