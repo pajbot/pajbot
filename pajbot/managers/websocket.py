@@ -77,7 +77,7 @@ class WebSocketManager:
 
         if "websocket" not in bot.config:
             log.debug(
-                "WebSocket support not set up, check out https://github.com/pajlada/pajbot/wiki/Config-File#websocket"
+                "WebSocket support not set up, check out https://github.com/pajbot/pajbot/wiki/Config-File#websocket"
             )
             return
 
