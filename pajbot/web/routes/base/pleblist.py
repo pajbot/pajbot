@@ -8,9 +8,6 @@ from pajbot.models.pleblist import PleblistSong
 from pajbot.models.stream import Stream
 from pajbot.models.stream import StreamChunk
 from pajbot.utils import find
-from pajbot.web.routes.api.streamelements import has_streamelements
-from pajbot.web.routes.api.streamlabs import has_streamlabs
-from pajbot.web.routes.api.streamtip import has_streamtip
 from pajbot.web.utils import seconds_to_vodtime
 
 log = logging.getLogger(__name__)
@@ -25,11 +22,11 @@ def init(app):
     def pleblist_host():
         return render_template(
             "pleblist_host.html",
-            has_streamtip=has_streamtip(),
-            streamtip_client_id=app.bot_config["streamtip"]["client_id"] if has_streamtip() else "",
-            has_streamlabs=has_streamlabs(),
-            streamlabs_client_id=app.bot_config["streamlabs"]["client_id"] if has_streamlabs() else "",
-            has_streamelements=has_streamelements(),
+            has_streamtip=False,
+            streamtip_client_id="",
+            has_streamlabs=False,
+            streamlabs_client_id="",
+            has_streamelements=False,
         )
 
     @app.route("/pleblist/history/")

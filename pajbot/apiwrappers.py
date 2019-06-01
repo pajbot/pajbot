@@ -132,24 +132,6 @@ class ChatDepotAPI(APIBase):
         self.headers = {"Accept": "application/vnd.twitchtv.v3+json"}
 
 
-class ImraisingAPI(APIBase):
-    def __init__(self, apikey):
-        APIBase.__init__(self)
-
-        self.base_url = "https://imraising.tv/api/v1/"
-
-        self.headers = {"Authorization": 'APIKey apikey="{0}"'.format(apikey), "Content-Type": "application/json"}
-
-
-class StreamtipAPI(APIBase):
-    def __init__(self, client_id, access_token):
-        APIBase.__init__(self)
-
-        self.base_url = "https://streamtip.com/api/"
-
-        self.headers = {"Authorization": client_id + " " + access_token}
-
-
 class BTTVApi(APIBase):
     def __init__(self, strict=True):
         APIBase.__init__(self, strict)

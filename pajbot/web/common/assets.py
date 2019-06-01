@@ -24,9 +24,6 @@ def init(app):
     )
     pleblist_host = Bundle(
         "scripts/pleblist.host.js",
-        "scripts/pleblist.host.streamtip.js",
-        "scripts/pleblist.host.streamelements.js",
-        "scripts/pleblist.host.streamlabs.js",
         filters="jsmin",
         output="gen/scripts/pleblist.host.%(version)s.js",
     )
