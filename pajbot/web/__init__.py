@@ -93,7 +93,6 @@ def init(args):
 
     pajbot.web.common.filters.init(app)
     pajbot.web.common.assets.init(app)
-    pajbot.web.common.tasks.init(app)
     pajbot.web.common.menu.init(app)
 
     app.register_blueprint(pajbot.web.routes.clr.page)
