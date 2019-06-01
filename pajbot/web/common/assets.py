@@ -35,22 +35,14 @@ def init(app):
     assets.register("pleblist_host", pleblist_host)
 
     # CLR Overlay
-    # Availabe under: clr_overlay_js, clr_overlay_css, clr_donations_js, clr_donations_css, clr_shared_js
+    # Availabe under: clr_overlay_js, clr_overlay_css, clr_shared_js
     clr_overlay_js = Bundle("scripts/clr.overlay.js", filters="jsmin", output="gen/scripts/clr.overlay.%(version)s.js")
     clr_overlay_css = Bundle(
         "css/clr.overlay.scss", filters="pyscss,cssmin", output="gen/css/clr.overlay.%(version)s.css"
     )
-    clr_donations_js = Bundle(
-        "scripts/clr.donations.js", filters="jsmin", output="gen/scripts/clr.donations.%(version)s.js"
-    )
-    clr_donations_css = Bundle(
-        "css/clr.donations.scss", filters="pyscss,cssmin", output="gen/css/clr.donations.%(version)s.css"
-    )
     clr_shared_js = Bundle("scripts/clr.shared.js", filters="jsmin", output="gen/scripts/clr.shared.%(version)s.js")
     assets.register("clr_overlay_js", clr_overlay_js)
     assets.register("clr_overlay_css", clr_overlay_css)
-    assets.register("clr_donations_js", clr_donations_js)
-    assets.register("clr_donations_css", clr_donations_css)
     assets.register("clr_shared_js", clr_shared_js)
 
     # Admin site
@@ -72,12 +64,6 @@ def init(app):
     assets.register("admin_create_command", admin_create_command)
     assets.register("admin_create_row", admin_create_row)
     assets.register("admin_edit_command", admin_edit_command)
-
-    # Admin CLR
-    admin_clr_donations_edit_js = Bundle(
-        "scripts/admin/clr/donations/edit.js", output="gen/scripts/admin/clr/donations/edit.%(version)s.js"
-    )
-    assets.register("admin_clr_donations_edit_js", admin_clr_donations_edit_js)
 
     notifications_base = Bundle(
         "scripts/notifications/base.js", filters="jsmin", output="gen/scripts/notifications/base.%(version)s.js"

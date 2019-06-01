@@ -1,17 +1,13 @@
 from flask_restful import Api
 
 import pajbot.web.routes.api.banphrases
-import pajbot.web.routes.api.clr
 import pajbot.web.routes.api.commands
 import pajbot.web.routes.api.common
 import pajbot.web.routes.api.email
 import pajbot.web.routes.api.modules
 import pajbot.web.routes.api.pleblist
 import pajbot.web.routes.api.social
-import pajbot.web.routes.api.streamtip
-import pajbot.web.routes.api.streamelements
 import pajbot.web.routes.api.timers
-import pajbot.web.routes.api.streamlabs
 import pajbot.web.routes.api.twitter
 import pajbot.web.routes.api.users
 import pajbot.web.routes.api.playsound
@@ -37,15 +33,6 @@ def init(app):
     # /pleblist
     pajbot.web.routes.api.pleblist.init(api)
 
-    # /streamtip
-    pajbot.web.routes.api.streamtip.init(api)
-
-    # /streamlabs
-    pajbot.web.routes.api.streamlabs.init(api)
-
-    # /clr
-    pajbot.web.routes.api.clr.init(api)
-
     # /email
     pajbot.web.routes.api.email.init(api)
 
@@ -60,9 +47,6 @@ def init(app):
 
     # /modules
     pajbot.web.routes.api.modules.init(api)
-
-    # /streamelements
-    pajbot.web.routes.api.streamelements.init(api)
 
     # /playsound/:name
     # /playsound/:name/play

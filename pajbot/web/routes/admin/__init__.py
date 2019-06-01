@@ -1,7 +1,6 @@
 from flask import Blueprint
 
 import pajbot.web.routes.admin.banphrases
-import pajbot.web.routes.admin.clr
 import pajbot.web.routes.admin.commands
 import pajbot.web.routes.admin.home
 import pajbot.web.routes.admin.links
@@ -17,7 +16,6 @@ def init(app):
     page = Blueprint("admin", __name__, url_prefix="/admin")
 
     pajbot.web.routes.admin.banphrases.init(page)
-    pajbot.web.routes.admin.clr.init(page)
     pajbot.web.routes.admin.commands.init(page)
     pajbot.web.routes.admin.home.init(page)
     pajbot.web.routes.admin.links.init(page)
