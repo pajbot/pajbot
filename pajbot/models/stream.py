@@ -71,10 +71,6 @@ class StreamChunk(Base):
     chunk_start = Column(DateTime, nullable=False)
     chunk_end = Column(DateTime, nullable=True)
 
-    highlights = relationship(
-        "StreamChunkHighlight", backref="stream_chunk", cascade="save-update, merge, expunge", lazy="joined"
-    )
-
     def __init__(self, stream, broadcast_id, created_at, **options):
         self.id = None
         self.stream_id = stream.id
@@ -85,92 +81,6 @@ class StreamChunk(Base):
         self.chunk_end = None
 
         self.stream = stream
-
-        self.highlights = []
-
-
-class StreamChunkHighlight(Base):
-    __tablename__ = "tb_stream_chunk_highlight"
-
-    id = Column(Integer, primary_key=True)
-    stream_chunk_id = Column(Integer, ForeignKey("tb_stream_chunk.id"), nullable=False)
-    created_by = Column(Integer, nullable=True)
-    last_edited_by = Column(Integer, nullable=True)
-    created_at = Column(DateTime, nullable=False)
-    highlight_offset = Column(Integer, nullable=False)
-    description = Column(String(128), nullable=True)
-    override_link = Column(String(256), nullable=True)
-    thumbnail = Column(Boolean, nullable=True, default=None)
-    video_url = None
-
-    created_by_user = relationship(
-        "User",
-        lazy="noload",
-        primaryjoin="User.id==StreamChunkHighlight.created_by",
-        foreign_keys="StreamChunkHighlight.created_by",
-        cascade="save-update, merge, expunge",
-        uselist=False,
-    )
-    last_edited_by_user = relationship(
-        "User",
-        lazy="noload",
-        primaryjoin="User.id==StreamChunkHighlight.last_edited_by",
-        foreign_keys="StreamChunkHighlight.last_edited_by",
-        cascade="save-update, merge, expunge",
-        uselist=False,
-    )
-
-    DEFAULT_OFFSET = 0
-
-    def __init__(self, stream_chunk, **options):
-        self.stream_chunk_id = stream_chunk.id
-        self.created_at = utils.now()
-        self.highlight_offset = options.get("offset", self.DEFAULT_OFFSET)
-        self.description = options.get("description", None)
-        self.override_link = options.get("override_link", None)
-        self.thumbnail = None
-        self.created_by = options.get("created_by", None)
-        self.last_edited_by = options.get("last_edited_by", None)
-
-        self.stream_chunk = stream_chunk
-        self.refresh_video_url()
-
-        stream_chunk.highlights.append(self)
-
-    @reconstructor
-    def on_load(self):
-        self.refresh_video_url()
-
-    @hybrid_property
-    def created_at_with_offset(self):
-        return self.created_at - self.highlight_offset
-
-    def refresh_video_url(self):
-        if self.override_link is not None:
-            self.video_url = self.override_link
-        elif self.stream_chunk.video_url is None:
-            self.video_url = None
-        else:
-            date_diff = self.created_at - self.stream_chunk.chunk_start
-            total_seconds = date_diff.total_seconds()
-            total_seconds -= abs(self.highlight_offset)
-            timedata = collections.OrderedDict()
-            timedata["h"] = math.trunc(total_seconds / 3600)
-            timedata["m"] = math.trunc(total_seconds / 60 % 60)
-            timedata["s"] = math.trunc(total_seconds % 60)
-            pretimedata = {"h": 0, "m": timedata["h"], "s": timedata["h"] + timedata["m"]}
-            # XXX: Is it an issue if the format is like this: ?t=03m
-            # i.e. a time format with minutes but _not_ seconds? try it out
-            timestamp = "".join(
-                [
-                    "{value:02d}{key}".format(value=value, key=key)
-                    for key, value in timedata.items()
-                    if value > 0 or pretimedata[key] > 0
-                ]
-            )
-            self.video_url = "{stream_chunk.video_url}?t={timestamp}".format(
-                stream_chunk=self.stream_chunk, timestamp=timestamp
-            )
 
 
 class StreamManager:
@@ -487,84 +397,6 @@ class StreamManager:
                 log.info("Successfully commited video url data in a new chunk.")
         else:
             log.info("Not video for broadcast found")
-
-    def create_highlight(self, **options):
-        """
-        Returns an error message (string) if something went wrong, otherwise returns True
-        """
-        if self.online is False or self.current_stream_chunk is None:
-            return "The stream is not online"
-
-        if self.current_stream_chunk.video_url is None:
-            return "No video URL fetched for this chunk yet, try in 5 minutes"
-
-        try:
-            highlight = StreamChunkHighlight(self.current_stream_chunk, **options)
-
-            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                db_session.add(highlight)
-                db_session.add(self.current_stream_chunk)
-        except:
-            log.exception("uncaught exception in create_highlight")
-            return "Unknown reason, ask pajlada"
-
-        return True
-
-    @staticmethod
-    def parse_highlight_arguments(message):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--offset", dest="offset", type=int)
-        parser.add_argument("--id", dest="id", type=int)
-        parser.add_argument("--link", dest="override_link")
-        parser.add_argument("--url", dest="override_link")
-        parser.add_argument("--overridelink", dest="override_link")
-        parser.add_argument("--no-link", dest="override_link", action="store_false")
-
-        try:
-            args, unknown = parser.parse_known_args(message.split())
-        except SystemExit:
-            return False, False
-        except:
-            log.exception("Unhandled exception in add_highlight")
-            return False, False
-
-        # Strip options of any values that are set as None
-        options = {k: v for k, v in vars(args).items() if v is not None}
-        response = " ".join(unknown)
-
-        if "override_link" in options and options["override_link"] is False:
-            options["override_link"] = None
-
-        return options, response
-
-    @staticmethod
-    def update_highlight(id, **options):
-        """
-        Returns True if a highlight was modified, otherwise return False
-        """
-
-        if "offset" in options:
-            options["highlight_offset"] = options.pop("offset")
-
-        num_rows = 0
-        try:
-            with DBManager.create_session_scope() as db_session:
-                num_rows = db_session.query(StreamChunkHighlight).filter_by(id=id).update(options)
-        except:
-            log.exception("AAAAAAAAAA FIXME")
-
-        return num_rows == 1
-
-    @staticmethod
-    def remove_highlight(id):
-        """
-        Returns True if a highlight was removed, otherwise return False
-        """
-
-        with DBManager.create_session_scope() as db_session:
-            num_rows = db_session.query(StreamChunkHighlight).filter(StreamChunkHighlight.id == id).delete()
-
-        return num_rows == 1
 
     def get_stream_value(self, key, extra={}):
         return getattr(self, key, None)

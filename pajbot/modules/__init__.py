@@ -27,7 +27,6 @@ from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.givepoints import GivePointsModule
-from pajbot.modules.highlight import HighlightModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
@@ -95,7 +94,6 @@ available_modules = [
     GetTimedOutQuestModule,
     GivePointsModule,
     HSBetModule,
-    HighlightModule,
     IgnoreModule,
     LastfmModule,
     LeagueRankModule,
