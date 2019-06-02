@@ -41,12 +41,12 @@ class CommandManager(UserDict):
             socket_manager.add_handler("command.update", self.on_command_update)
             socket_manager.add_handler("command.remove", self.on_command_remove)
 
-    def on_module_reload(self, _data, _conn):
+    def on_module_reload(self, _data):
         log.debug("Rebuilding commands...")
         self.rebuild()
         log.debug("Done rebuilding commands")
 
-    def on_command_update(self, data, _conn):
+    def on_command_update(self, _data):
         try:
             command_id = int(data["command_id"])
         except (KeyError, ValueError):
@@ -63,7 +63,7 @@ class CommandManager(UserDict):
 
         self.rebuild()
 
-    def on_command_remove(self, data, _conn):
+    def on_command_remove(self, data):
         try:
             command_id = int(data["command_id"])
         except (KeyError, ValueError):

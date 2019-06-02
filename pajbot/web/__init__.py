@@ -30,6 +30,7 @@ def init(args):
     from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
+    from pajbot.models.sock import SocketManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
@@ -78,9 +79,6 @@ def init(args):
     app.bot_commands_list = []
     app.bot_config = config
     app.secret_key = config["web"]["secret_key"]
-
-    if "sock" in config and "sock_file" in config["sock"]:
-        SocketClientManager.init(config["sock"]["sock_file"])
 
     DBManager.init(config["main"]["db"])
     TimeManager.init_timezone(config["main"].get("timezone", "UTC"))

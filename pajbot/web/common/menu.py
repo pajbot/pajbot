@@ -1,3 +1,9 @@
+import json
+import logging
+
+log = logging.getLogger(__name__)
+
+
 class MenuItem:
     def __init__(self, href, menu_id, caption, level=100):
         self.href = href

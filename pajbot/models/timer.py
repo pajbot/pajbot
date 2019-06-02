@@ -81,7 +81,7 @@ class TimerManager:
             self.bot.socket_manager.add_handler("timer.update", self.on_timer_update)
             self.bot.socket_manager.add_handler("timer.remove", self.on_timer_remove)
 
-    def on_timer_update(self, data, _):
+    def on_timer_update(self, data):
         try:
             timer_id = int(data["id"])
         except (KeyError, ValueError):
@@ -124,7 +124,7 @@ class TimerManager:
 
         return True
 
-    def on_timer_remove(self, data, _):
+    def on_timer_remove(self, data):
         try:
             timer_id = int(data["id"])
         except (KeyError, ValueError):

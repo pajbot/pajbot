@@ -36,3 +36,7 @@ class RedisManager:
             pipeline.reset()
         finally:
             pipeline.execute()
+
+    @classmethod
+    def publish(cls, channel, message):
+        cls.redis.publish(channel, message)
