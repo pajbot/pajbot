@@ -696,7 +696,6 @@ class Dispatch:
 
     @staticmethod
     def do_hex(bot, source, message, event, args):
-        print("a")
         if not message:
             return False
 
