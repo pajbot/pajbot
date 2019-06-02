@@ -38,8 +38,14 @@ class SocketManager:
             if message["channel"] not in self.handlers:
                 continue
 
+            try:
+                parsed_data = json.loads(message["data"])
+            except json.decoder.JSONDecodeError:
+                log.exception("Bad JSON data on %s topic: '%s'", message["channel"], message["data"])
+                continue
+
             for handler in self.handlers[message["channel"]]:
-                handler(json.loads(message["data"]))
+                handler(parsed_data)
 
         self.pubsub.close()
 
