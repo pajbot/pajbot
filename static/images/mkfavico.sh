@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# cd into the directory containing this script
+cd "${0%/*}"
+
 for f in badge_sub_*.png
 do
     STREAMER=${f:10:-4}
