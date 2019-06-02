@@ -31,7 +31,9 @@ def init(app):
 
     # CLR Overlay
     # Availabe under: clr_overlay_js, clr_overlay_css, clr_shared_js
-    clr_overlay_js = Bundle("scripts/clr.overlay.js", filters="jsmin", output="gen/scripts/clr.overlay.%(version)s.js")
+    # jsmin is intentionally disabled for clr.overlay.js because the output is broken (same as below for
+    # playsounds)
+    clr_overlay_js = Bundle("scripts/clr.overlay.js", output="gen/scripts/clr.overlay.%(version)s.js")
     clr_overlay_css = Bundle(
         "css/clr.overlay.scss", filters="pyscss,cssmin", output="gen/css/clr.overlay.%(version)s.css"
     )
