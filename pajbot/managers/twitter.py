@@ -119,6 +119,7 @@ class TwitterManager:
 
                 def on_error(self, status_code):
                     log.warning("Unhandled in twitter stream: %s", status_code)
+                    return super().on_error(status_code)
 
             self.listener = MyStreamListener(self.bot)
             self.reload()
@@ -141,8 +142,19 @@ class TwitterManager:
             log.exception("Exception caught while trying to connect to the twitter stream")
 
     def _run(self):
+        user_ids=[]
+        with DBManager.create_session_scope() as db_session:
+            for user in db_session.query(TwitterUser):
+                twitter_user = self.twitter_client.get_user(user.username)
+                if twitter_user:
+                    user_ids.append(twitter_user.id_str)
+
+        log.debug('Interested in: %s', user_ids)
+        if not user_ids:
+            return
+
         try:
-            self.twitter_stream.userstream(_with="followings", replies="all")
+            self.twitter_stream.filter(follow=user_ids)
         except:
             log.exception("Exception caught in twitter stream _run")
 
