@@ -80,7 +80,7 @@ class QuestModule(BaseModule):
         event = options["event"]
         source = options["source"]
 
-        if self.current_quest is not None:
+        if self.current_quest:
             message_quest = "{0}, the current quest active is {1}.".format(
                 source.username_raw, self.current_quest.get_objective()
             )
@@ -195,6 +195,7 @@ class QuestModule(BaseModule):
 
         if not quest:
             log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
+            return
 
         log.info("Resumed quest {}".format(quest.get_objective()))
         self.current_quest = quest
