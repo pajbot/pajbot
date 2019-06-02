@@ -131,14 +131,14 @@ class TwitterManager:
         self.initialize_listener()
         self.initialize_twitter_stream()
 
-        user_ids=[]
+        user_ids = []
         with DBManager.create_session_scope() as db_session:
             for user in db_session.query(TwitterUser):
                 twitter_user = self.twitter_client.get_user(user.username)
                 if twitter_user:
                     user_ids.append(twitter_user.id_str)
 
-        log.debug('Interested in: %s', user_ids)
+        log.debug("Interested in: %s", user_ids)
         if not user_ids:
             return
 
@@ -184,4 +184,3 @@ class TwitterManager:
     def quit(self):
         if self.twitter_stream:
             self.twitter_stream.disconnect()
-            self._thread.join(1.0)
