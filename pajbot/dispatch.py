@@ -172,7 +172,7 @@ class Dispatch:
                 selected_pods.remove(input_pod)
 
             stringified_pods = map(stringify_pod, selected_pods)
-            complete_answer = " // ".join(stringified_pods)
+            complete_answer = " ❚ ".join(stringified_pods)
             reply = base_reply + complete_answer
 
             reply = (reply[:499] + "…") if len(reply) > 500 else reply
