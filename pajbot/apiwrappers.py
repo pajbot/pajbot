@@ -123,15 +123,6 @@ class APIBase:
             return None
 
 
-class ChatDepotAPI(APIBase):
-    def __init__(self):
-        APIBase.__init__(self)
-
-        self.base_url = "http://chatdepot.twitch.tv/"
-
-        self.headers = {"Accept": "application/vnd.twitchtv.v3+json"}
-
-
 class BTTVApi(APIBase):
     def __init__(self, strict=True):
         APIBase.__init__(self, strict)
