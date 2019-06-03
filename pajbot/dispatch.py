@@ -102,7 +102,7 @@ class Dispatch:
             elif location is not None:
                 query_parameters["location"] = location
 
-            res = requests.get("http://api.wolframalpha.com/v2/query", params=query_parameters)
+            res = requests.get("https://api.wolframalpha.com/v2/query", params=query_parameters)
             answer = res.json()["queryresult"]
 
             base_reply = "{0}, ".format(source.username_raw)
