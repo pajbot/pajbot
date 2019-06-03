@@ -39,17 +39,20 @@ function add_random_box({color}) {
     }, 5000);
 }
 
+function getEmoteUrl(emote) {
+    if (emote['bttv_hash'] != null) {
+        return `https://cdn.betterttv.net/emote/${emote['bttv_hash']}/3x`;
+    } else if (emote['ffz_id'] != null) {
+        return `https://cdn.frankerfacez.com/emoticon/${emote['ffz_id']}/4`;
+    } else if (emote['twitch_id'] != null) {
+        return `https://static-cdn.jtvnw.net/emoticons/v1/${emote['twitch_id']}/3.0`;
+    }
+}
+
 // opacity = number between 0 and 100
 function add_emotes({emotes, opacity, 'persistence_time': persistenceTime, 'scale': emoteScale}) {
     for (let {emote, 'shown_count': shownCount} of emotes) {
-        let url;
-        if (emote['bttv_hash'] != null) {
-            url = `https://cdn.betterttv.net/emote/${emote['bttv_hash']}/3x`;
-        } else if (emote['ffz_id'] != null) {
-            url = `http://cdn.frankerfacez.com/emoticon/${emote['ffz_id']}/4`;
-        } else if (emote['twitch_id'] != null) {
-            url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote['twitch_id']}/3.0`;
-        }
+        let url = getEmoteUrl(emote);
 
         if (url == null) {
             console.warn('Failed to find a URL for emote:', emote);
@@ -173,19 +176,7 @@ function refresh_combo_count(count) {
 }
 
 function refresh_combo_emote(emote) {
-    var url = '';
-    if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
-        url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/3x';
-    } else if ('ffz_id' in emote && emote['ffz_id'] !== null) {
-        url = 'http://cdn.frankerfacez.com/emoticon/' + emote['ffz_id'] + '/4';
-    } else if ('twitch_id' in emote) {
-        url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/3.0';
-    } else {
-        if (emote['code'] == 'xD') {
-            url = 'https://cdn.pajlada.se/emoticons/XD.gif';
-        }
-    }
-    $('#emote_combo img').attr('src', url);
+    $('#emote_combo img').attr('src', getEmoteUrl(emote));
 }
 
 function debug_text(text) {
