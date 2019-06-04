@@ -17,65 +17,6 @@ class Dispatch:
     """
 
     @staticmethod
-    def point_pos(bot, source, message, event, args):
-        # XXX: This should be a module
-        user = None
-
-        # This phrase should be a module setting
-        point_pos = "{username_w_verb} rank {point_pos} point-hoarder in this channel with {points} points."
-
-        if message:
-            tmp_username = message.split(" ")[0].strip().lower()
-            user = bot.users.find(tmp_username)
-
-        if not user:
-            user = source
-
-        phrase_data = {"points": user.points}
-
-        if user == source:
-            phrase_data["username_w_verb"] = "You are"
-        else:
-            phrase_data["username_w_verb"] = "{0} is".format(user.username_raw)
-
-        if user.points > 0:
-            with DBManager.create_session_scope() as db_session:
-                query_data = db_session.query(func.count(User.id)).filter(User.points > user.points).one()
-                phrase_data["point_pos"] = int(query_data[0]) + 1
-                bot.whisper(source.username, point_pos.format(**phrase_data))
-
-    @staticmethod
-    def nl_pos(bot, source, message, event, args):
-        # XXX: This should be a module
-
-        # These phrases should be module settings
-        nl_0 = "{username} has not typed any messages in this channel BibleThump"
-        nl_pos = "{username} is rank {nl_pos} line-farmer in this channel!"
-
-        if message:
-            tmp_username = message.split(" ")[0].strip().lower()
-            user = bot.users.find(tmp_username)
-            if user:
-                username = user.username_raw
-                num_lines = user.num_lines
-            else:
-                username = tmp_username
-                num_lines = 0
-        else:
-            username = source.username_raw
-            num_lines = source.num_lines
-
-        phrase_data = {"username": username, "num_lines": num_lines}
-
-        if num_lines <= 0:
-            bot.say(nl_0.format(**phrase_data))
-        else:
-            with DBManager.create_session_scope() as db_session:
-                query_data = db_session.query(func.count(User.id)).filter(User.num_lines > num_lines).one()
-                phrase_data["nl_pos"] = int(query_data[0]) + 1
-                bot.say(nl_pos.format(**phrase_data))
-
-    @staticmethod
     def query(bot, source, message, event, args):
         appid = bot.config["main"].get("wolfram", None)
         ip = bot.config["main"].get("wolfram_ip", None)
