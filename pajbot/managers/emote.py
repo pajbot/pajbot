@@ -211,13 +211,14 @@ class EmoteManager:
         self.epm = {}
 
         try:
-            # Update BTTV Emotes every 2 hours
+            # Update BTTV and FFZ Emotes every 2 hours
             ScheduleManager.execute_every(60 * 60 * 2, self.bttv_emote_manager.update_emotes)
+            ScheduleManager.execute_every(60 * 60 * 2, self.ffz_emote_manager.update_emotes)
 
             # Update Twitch emotes every 3 hours
             ScheduleManager.execute_every(60 * 60 * 3, self.update_emotes)
         except:
-            pass
+            log.exception("Something went wrong trying to initialize automatic BTTV and FFZ refresh")
 
         # Used as caching to store emotes
         self.global_emotes = []
