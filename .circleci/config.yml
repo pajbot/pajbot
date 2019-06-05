@@ -1,0 +1,65 @@
+# CircleCI configuration
+# see: https://circleci.com/docs/2.0/configuration-reference/
+
+version: 2
+jobs:
+  test:
+    working_directory: ~/pajbot
+    docker:
+    - image: circleci/python:3.7
+    steps:
+    - checkout
+    - restore_cache:
+        name: Restore cached virtual environment
+        key: v1-python3.7-{{ checksum "requirements.txt" }}
+    - run:
+        name: Create virtual environment
+        command: python -m venv venv
+    - run:
+        name: Upgrade pip
+        command: ./venv/bin/pip install --upgrade pip
+    - run:
+        name: Install requirements into virtual environment
+        command: ./venv/bin/pip install --progress-bar off -r requirements.txt
+    - save_cache:
+        name: Save virtual environment to cache
+        key: v1-python3.7-{{ checksum "requirements.txt" }}
+        paths:
+          - ./venv
+    - run:
+        name: Run tests
+        command: ./venv/bin/pytest
+  lint:
+    working_directory: ~/pajbot
+    docker:
+    - image: circleci/python:3.7
+    steps:
+    - checkout
+    - restore_cache:
+        name: Restore cached virtual environment
+        key: v1-python3.7-{{ checksum "requirements.txt" }}
+    - run:
+        name: Create virtual environment
+        command: python -m venv venv
+    - run:
+        name: Upgrade pip
+        command: ./venv/bin/pip install --upgrade pip
+    - run:
+        name: Install requirements into virtual environment
+        command: ./venv/bin/pip install --progress-bar off -r requirements.txt
+    - save_cache:
+        name: Save virtual environment to cache
+        key: v1-python3.7-{{ checksum "requirements.txt" }}
+        paths:
+          - ./venv
+    - run:
+        name: Run flake8
+        command: ./venv/bin/flake8
+
+# add one workflow that runs all jobs in parallel
+workflows:
+  version: 2
+  run-all:
+    jobs:
+    - test
+    - lint
