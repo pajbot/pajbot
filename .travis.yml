@@ -19,5 +19,5 @@ install:
   - cp ./install/config.example.ini ./config.ini
 
 script:
-  - python3 tests/tests.py
+  - pytest
   - flake8
