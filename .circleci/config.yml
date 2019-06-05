@@ -18,7 +18,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-  - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
+            - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
 jobs:
   setup:
     executor: pajbot
