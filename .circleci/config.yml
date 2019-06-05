@@ -1,19 +1,24 @@
 # CircleCI configuration
 # see: https://circleci.com/docs/2.0/configuration-reference/
 
+# The "setup" job clones pajbot and initializes the virtual environment and then saves
+# the entire working directory to the cache.
+# The "test" and "lint" jobs then fan out in parallel, restore the cache that "setup" produced
+# (using the load_setup command defined below) and run their respective command.
+
 version: 2.1
+executors:
+  pajbot:
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/pajbot
 commands:
   load_setup:
     description: "Load the cache that the \"setup\" job produced."
     steps:
       - restore_cache:
           keys:
-            - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
-executors:
-  pajbot:
-    docker:
-      - image: circleci/python:3.7
-    working_directory: ~/pajbot
+  - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
 jobs:
   setup:
     executor: pajbot
@@ -40,7 +45,7 @@ jobs:
           name: Save created project dir to cache for other jobs to use
           key: v1-setup-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            # working directory
+            # working directory (entire project directory)
             - .
   test:
     executor: pajbot
