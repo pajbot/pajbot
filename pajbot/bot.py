@@ -116,7 +116,6 @@ class Bot:
         self.nickname = config["main"].get("nickname", "pajbot")
 
         self.timezone = config["main"].get("timezone", "UTC")
-        # os.environ['TZ'] = self.timezone
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
