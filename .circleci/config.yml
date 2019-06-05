@@ -1,12 +1,22 @@
 # CircleCI configuration
 # see: https://circleci.com/docs/2.0/configuration-reference/
 
-version: 2
-jobs:
-  setup:
-    working_directory: ~/pajbot
+version: 2.1
+commands:
+  load_setup:
+    description: "Load the cache that the \"setup\" job produced."
+    steps:
+      - restore_cache:
+          keys:
+            - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
+executors:
+  pajbot:
     docker:
       - image: circleci/python:3.7
+    working_directory: ~/pajbot
+jobs:
+  setup:
+    executor: pajbot
     steps:
       - checkout
       - restore_cache:
@@ -26,32 +36,36 @@ jobs:
           key: v1-python3.7-{{ checksum "requirements.txt" }}
           paths:
             - ./venv
+      - save_cache:
+          name: Save created project dir to cache for other jobs to use
+          key: v1-setup-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            # working directory
+            - .
   test:
-    working_directory: ~/pajbot
-    docker:
-    - image: circleci/python:3.7
+    executor: pajbot
     steps:
-    - run:
-        name: Run tests
-        command: ./venv/bin/pytest
+      - load_setup
+      - run:
+          name: Run tests
+          command: ./venv/bin/pytest
   lint:
-    working_directory: ~/pajbot
-    docker:
-    - image: circleci/python:3.7
+    executor: pajbot
     steps:
-    - run:
-        name: Run flake8
-        command: ./venv/bin/flake8
+      - load_setup
+      - run:
+          name: Run flake8 (lint)
+          command: ./venv/bin/flake8
 
 # add one workflow that runs all jobs in parallel
 workflows:
   version: 2
   run-all:
     jobs:
-    - setup
-    - test:
-        requires:
-          - setup
-    - test:
-        requires:
-          - setup
+      - setup
+      - test:
+          requires:
+            - setup
+      - lint:
+          requires:
+            - setup
