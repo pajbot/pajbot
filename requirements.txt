@@ -94,7 +94,6 @@ Twisted==19.2.0
 txaio==18.8.1
 tzlocal==1.5.1
 Unidecode==1.0.23
-unittest2==1.1.0
 uritemplate==3.0.0
 urllib3==1.24.2
 uWSGI==2.0.18
