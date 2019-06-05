@@ -7,12 +7,11 @@ log = logging.getLogger(__name__)
 
 
 class EmoteComboModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Emote Combo (web interface)"
     DESCRIPTION = "Shows emote combos in the web interface CLR thing"
     CATEGORY = "Feature"
-    SETTINGS = []
+    SETTINGS = []  # TODO setting to configure equal emotes, e.g. monkaPickle and nymnPickle
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -28,48 +27,32 @@ class EmoteComboModule(BaseModule):
         self.emote_count = 0
         self.current_emote = None
 
-    def on_message(self, _source, _message, emotes, whisper, _urls, _event):
+    def on_message(self, emote_instances, emote_counts, whisper, **rest):
         if whisper:
             return True
 
-        if not emotes:
+        # Check if the message contains exactly one unique emote
+        num_unique_emotes = len(emote_counts)
+        if num_unique_emotes != 1:
+            self.reset()
             return True
 
-        prev_code = None
+        new_emote = emote_instances[0]["emote"]
+        new_emote_code = new_emote["code"]
 
-        # Check if the message contains more than one unique emotes
-        for emote in emotes:
-            if prev_code is not None:
-                if prev_code != emote["code"]:
-                    # The message contained more than 1 unique emote, reset.
-                    self.reset()
-                    return True
-            else:
-                prev_code = emote["code"]
-
-        emote = emotes[0]
-
-        # forsenGASM and gachiGASM are the same emotes, so they should count for the same combo
-        if emote["code"] == "forsenGASM":
-            emote["code"] = "gachiGASM"
-
+        # if there is currently a combo...
         if self.current_emote is not None:
-            if not self.current_emote["code"] == emote["code"]:
+            # and this emote is not equal to the combo emote...
+            if self.current_emote["code"] != new_emote_code:
                 # The emote of this message is not the one we were previously counting, reset.
                 # We do not stop.
                 # We start counting this emote instead.
                 self.reset()
 
         if self.current_emote is None:
-            self.current_emote = {
-                "code": emote["code"],
-                "twitch_id": emote.get("twitch_id", None),
-                "bttv_hash": emote.get("bttv_hash", None),
-                "ffz_id": emote.get("ffz_id", None),
-            }
+            self.current_emote = new_emote
 
         self.inc_emote_count()
-
         return True
 
     def enable(self, bot):

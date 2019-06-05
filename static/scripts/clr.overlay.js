@@ -39,49 +39,43 @@ function add_random_box({color}) {
     }, 5000);
 }
 
-function getEmoteUrl(emote) {
-    if (emote['bttv_hash'] != null) {
-        return `https://cdn.betterttv.net/emote/${emote['bttv_hash']}/3x`;
-    } else if (emote['ffz_id'] != null) {
-        return `https://cdn.frankerfacez.com/emoticon/${emote['ffz_id']}/4`;
-    } else if (emote['twitch_id'] != null) {
-        return `https://static-cdn.jtvnw.net/emoticons/v1/${emote['twitch_id']}/3.0`;
-    }
+function getEmoteURL({urls}) {
+    let sortedSizes = Object.keys(urls).map(size => parseInt(size)).sort();
+    let largestSize = sortedSizes[sortedSizes.length - 1];
+    return {
+        url: urls[String(largestSize)],
+        needsScale: 4 / largestSize
+    };
 }
 
 // opacity = number between 0 and 100
 function add_emotes({emotes, opacity, 'persistence_time': persistenceTime, 'scale': emoteScale}) {
-    for (let {emote, 'shown_count': shownCount} of emotes) {
-        let url = getEmoteUrl(emote);
-
-        if (url == null) {
-            console.warn('Failed to find a URL for emote:', emote);
-            continue;
-        }
+    for (let emote of emotes) {
+        // largest URL available
+        let {url, needsScale} = getEmoteURL(emote);
 
         let divsize = 120;
-        for (let i = 0; i < shownCount; i++) {
-            let posx = (Math.random() * ($(document).width() - divsize)).toFixed();
-            let posy = (Math.random() * ($(document).height() - divsize)).toFixed();
-            let newdiv = $('<img class="absemote" src="' + url + '">').css({
-                'left': posx + 'px',
-                'top': posy + 'px',
-                'opacity': 0,
-                'transform': 'scale(' + String(emoteScale / 100) + ')'
-            });
-            newdiv.appendTo('body');
+        let posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+        let posy = (Math.random() * ($(document).height() - divsize)).toFixed();
+        let newdiv = $('<img class="absemote">').css({
+            'left': posx + 'px',
+            'top': posy + 'px',
+            'opacity': 0,
+            'transform': `scale(${emoteScale / 100 * needsScale})`
+        });
+        newdiv.attr({src: url});
+        newdiv.appendTo('body');
+        newdiv.animate({
+            opacity: opacity / 100
+        }, 500);
+        setTimeout(() => {
             newdiv.animate({
-                opacity: opacity / 100
-            }, 500);
+                opacity: 0,
+            }, 1000);
             setTimeout(() => {
-                newdiv.animate({
-                    opacity: 0,
-                }, 1000);
-                setTimeout(() => {
-                    newdiv.remove();
-                }, 1000);
-            }, persistenceTime);
-        }
+                newdiv.remove();
+            }, 1000);
+        }, persistenceTime);
     }
 }
 
@@ -160,9 +154,6 @@ function add_notification({message}) {
     });
 }
 
-var current_emote_code = null;
-var close_down_combo = null;
-
 function refresh_combo_count(count) {
     $('#emote_combo span.count').html(count);
     $('#emote_combo span.count').addClass('animated pulsebig');
@@ -176,24 +167,25 @@ function refresh_combo_count(count) {
 }
 
 function refresh_combo_emote(emote) {
-    $('#emote_combo img').attr('src', getEmoteUrl(emote));
+    let {url, needsScale} = getEmoteURL(emote);
+    let $emoteCombo = $('#emote_combo img');
+    $emoteCombo.attr('src', url);
+    $emoteCombo.css('zoom', String(needsScale))
 }
 
 function debug_text(text) {
     //add_notification(text);
 }
 
+let current_emote_code = null;
+let close_down_combo = null;
+
 function refresh_emote_combo({emote, count}) {
-    var emote_combo = $('#emote_combo');
-    if (emote_combo.length == 0) {
-        if ('bttv_hash' in emote && emote['bttv_hash'] !== null) {
-            var url = 'https://cdn.betterttv.net/emote/' + emote['bttv_hash'] + '/2x';
-        } else {
-            var url = 'https://static-cdn.jtvnw.net/emoticons/v1/' + emote['twitch_id'] + '/2.0';
-        }
-        current_emote_code = emote['code'];
-        var message = 'x<span class="count">{0}</span> <img class="comboemote" src="{1}" /> combo!'.format(count, url)
-        var new_notification = $('<div id="emote_combo">' + message + '</div>').prependTo('div.notifications');
+    let emote_combo = $('#emote_combo');
+    if (emote_combo.length === 0) {
+        current_emote_code = emote.code;
+        let message = `x<span class="count">${count}</span> <img class="comboemote" /> combo!`;
+        let new_notification = $(`<div id="emote_combo">${message}</div>`).prependTo('div.notifications');
         new_notification.addClass('animated bounceInLeft');
 
         new_notification.on('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
@@ -217,9 +209,10 @@ function refresh_emote_combo({emote, count}) {
         close_down_combo = setTimeout(function () {
             emote_combo.addClass('animated bounceOutLeft ended');
         }, 3000);
-        refresh_combo_emote(emote);
-        refresh_combo_count(count);
     }
+
+    refresh_combo_emote(emote);
+    refresh_combo_count(count);
 }
 
 function create_object_for_win(points) {

@@ -33,9 +33,14 @@
     transform: scale3d(1, 1, 1);
   }
 }
+
+/*
+Temporarily disabled because idk if that's really a good thing...
+and it looked ugly when the emote combo was pulsing
 * {
   overflow: hidden !important;
 }
+ */
 
 body {
   font-family: "Arial", sans-serif;

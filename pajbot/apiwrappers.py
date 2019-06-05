@@ -1,10 +1,13 @@
 import datetime
 import json
 import logging
+import urllib.error
 import urllib.parse
 import urllib.request
 
 import requests
+
+from pajbot.managers.emote import EmoteManager
 
 log = logging.getLogger(__name__)
 
@@ -123,6 +126,18 @@ class APIBase:
             return None
 
 
+def fill_in_url_scheme(url, default_scheme="https"):
+    """Fill in the scheme part of a given URL string, e.g.
+    with given inputs of url = "//example.com/abc" and
+    default_scheme="https", the output would be
+    "https://example.com/abc"
+
+    If the given input URL already has a scheme, the scheme is not altered.
+    """
+    parsed_template = urllib.parse.urlparse(url, scheme=default_scheme)
+    return urllib.parse.urlunparse(parsed_template)
+
+
 class BTTVApi(APIBase):
     def __init__(self, strict=True):
         APIBase.__init__(self, strict)
@@ -130,15 +145,37 @@ class BTTVApi(APIBase):
         self.base_url = "https://api.betterttv.net/2/"
         self.headers = {}
 
+    @staticmethod
+    def parse_emotes(api_response_data):
+        url_template = api_response_data.get("urlTemplate", "//cdn.betterttv.net/emote/{{id}}/{{image}}")
+        url_template = fill_in_url_scheme(url_template)
+
+        def get_url(emote_hash, size):
+            return url_template.replace("{{id}}", emote_hash).replace("{{image}}", size + "x")
+
+        emotes = []
+        for emote in api_response_data["emotes"]:
+            emote_hash = emote["id"]
+            emotes.append(
+                {
+                    "code": emote["code"],
+                    "provider": "bttv",
+                    "id": emote_hash,
+                    "urls": {
+                        "1": get_url(emote_hash, "1"),
+                        "2": get_url(emote_hash, "2"),
+                        "4": get_url(emote_hash, "3"),
+                    },
+                }
+            )
+        return emotes
+
     def get_global_emotes(self):
         """Returns a list of global BTTV emotes in the standard Emote format."""
 
-        emotes = []
         try:
             data = self.get(["emotes"])
-
-            for emote in data["emotes"]:
-                emotes.append({"emote_hash": emote["id"], "code": emote["code"]})
+            return self.parse_emotes(data)
         except urllib.error.HTTPError as e:
             if e.code == 502:
                 log.warning("Bad Gateway when getting global emotes.")
@@ -151,17 +188,14 @@ class BTTVApi(APIBase):
         except:
             log.exception("Uncaught exception in BTTVApi.get_global_emotes")
 
-        return emotes
+        return []
 
     def get_channel_emotes(self, channel):
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
 
-        emotes = []
         try:
             data = self.get(["channels", channel])
-
-            for emote in data["emotes"]:
-                emotes.append({"emote_hash": emote["id"], "code": emote["code"]})
+            return self.parse_emotes(data)
         except urllib.error.HTTPError as e:
             if e.code == 502:
                 log.warning("Bad Gateway when getting channel emotes.")
@@ -176,7 +210,7 @@ class BTTVApi(APIBase):
         except:
             log.exception("Uncaught exception in BTTVApi.get_channel_emotes")
 
-        return emotes
+        return []
 
 
 class FFZApi(APIBase):
@@ -186,16 +220,31 @@ class FFZApi(APIBase):
         self.base_url = "https://api.frankerfacez.com/v1/"
         self.headers = {}
 
+    @staticmethod
+    def parse_sets(emote_sets):
+        emotes = []
+        for emote_set in emote_sets.values():
+            for emote in emote_set["emoticons"]:
+                # FFZ returns relative URLs (e.g. //cdn.frankerfacez.com/...)
+                # so we fill in the scheme if it's missing :)
+                urls = {size: fill_in_url_scheme(url) for size, url in emote["urls"].items()}
+                emotes.append({"code": emote["name"], "provider": "ffz", "id": emote["id"], "urls": urls})
+
+        return emotes
+
     def get_global_emotes(self):
         """Returns a list of global FFZ emotes in the standard Emote format."""
 
-        emotes = []
         try:
             data = self.get(["set", "global"])
 
-            for emote_set in data["sets"]:
-                for emote in data["sets"][emote_set]["emoticons"]:
-                    emotes.append({"emote_hash": emote["id"], "code": emote["name"]})
+            # FFZ returns a number of global sets but only a subset of them should be available
+            # in all channels, those are available under "default_sets", e.g. a list of set IDs like this:
+            # [ 3, 6, 7, 14342 ]
+            global_set_ids = data["default_sets"]
+            global_sets = {str(set_id): data["sets"][str(set_id)] for set_id in global_set_ids}
+
+            return self.parse_sets(global_sets)
         except urllib.error.HTTPError as e:
             if e.code == 502:
                 log.warning("Bad Gateway when getting global emotes.")
@@ -208,18 +257,16 @@ class FFZApi(APIBase):
         except:
             log.exception("Uncaught exception in FFZApi.get_global_emotes")
 
-        return emotes
+        # error
+        return []
 
     def get_channel_emotes(self, channel):
         """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
 
-        emotes = []
         try:
             data = self.get(["room", channel])
+            return self.parse_sets(data["sets"])
 
-            for emote_set in data["sets"]:
-                for emote in data["sets"][emote_set]["emoticons"]:
-                    emotes.append({"emote_hash": emote["id"], "code": emote["name"]})
         except urllib.error.HTTPError as e:
             if e.code == 502:
                 log.warning("Bad Gateway when getting channel emotes.")
@@ -234,7 +281,7 @@ class FFZApi(APIBase):
         except:
             log.exception("Uncaught exception in FFZApi.get_channel_emotes")
 
-        return emotes
+        return []
 
 
 class TwitchAPI(APIBase):
@@ -435,6 +482,53 @@ class TwitchAPI(APIBase):
                 return False
 
             return TwitchAPI.parse_datetime(follow_relationship)
+
+    def get_channel_emotes(self, channel):
+        """Returns a tuple of three lists of emotes, each one corresponding to tier 1, tier 2 and tier 3 respectively.
+        Tier 2 and Tier 3 ONLY contain the respective extra emotes added to that tier, typically tier 2 and tier 3
+        will contain exactly one or zero emotes.
+        """
+        # base is https://api.twitch.tv/api
+        try:
+            resp = self.get(["channels", channel, "product"], base=self.base_url)
+            plans = resp["plans"]
+            if len(plans) <= 0:
+                log.warning("No subscription plans found for channel {}".format(channel))
+                return []
+
+            # plans[0] is tier 1
+            ret_data = []
+            already_visited_plans = set()
+            for plan in plans:
+                emotes = [
+                    EmoteManager.twitch_emote(data["id"], data["regex"])
+                    for data in plan["emoticons"]
+                    if data["emoticon_set"] not in already_visited_plans
+                ]
+                ret_data.append(emotes)
+                already_visited_plans.update(plan["emoticon_set_ids"])
+
+            # fill up to form at least three lists of emotes
+            for i in range(len(ret_data), 3):
+                ret_data[i] = []
+
+            return tuple(ret_data)
+
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                log.warning("No sub emotes found for channel {}".format(channel))
+                return [], [], []
+
+            log.exception("Error fetching sub emotes for {}".format(channel))
+            return [], [], []
+
+    def get_global_emotes(self):
+        try:
+            resp = self.get(["chat", "emoticon_images"], {"emotesets": "0"}, base=self.kraken_url)
+            return [EmoteManager.twitch_emote(data["id"], data["code"]) for data in resp["emoticon_sets"]["0"]]
+        except urllib.error.HTTPError:
+            log.exception("Error fetching global twitch emotes")
+            return []
 
 
 class SafeBrowsingAPI:

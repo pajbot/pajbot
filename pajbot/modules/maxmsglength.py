@@ -52,7 +52,7 @@ class MaxMsgLengthModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
+    def on_message(self, source, message, whisper, **rest):
         if whisper:
             return
         if source.level >= self.settings["bypass_level"] or source.moderator:

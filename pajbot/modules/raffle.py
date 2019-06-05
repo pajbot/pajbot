@@ -323,7 +323,7 @@ class RaffleModule(BaseModule):
 
         winner.save()
 
-        HandlerManager.trigger("on_raffle_win", winner, self.raffle_points)
+        HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
 
     def multi_start_raffle(self, points, length):
         if self.raffle_running:
@@ -460,9 +460,9 @@ class RaffleModule(BaseModule):
             winners_str = generate_winner_list(winners_arr)
             self.bot.me("{} won {} points each!".format(winners_str, points_per_user))
 
-        HandlerManager.trigger("on_multiraffle_win", winners, points_per_user)
+        HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 
-    def on_user_sub(self, user):
+    def on_user_sub(self, **rest):
         if self.settings["multi_raffle_on_sub"] is False:
             return
 
@@ -477,7 +477,7 @@ class RaffleModule(BaseModule):
 
         self.multi_start_raffle(points, length)
 
-    def on_user_resub(self, user, num_months):
+    def on_user_resub(self, num_months, **rest):
         if self.settings["multi_raffle_on_sub"] is False:
             return
 

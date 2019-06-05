@@ -50,13 +50,14 @@ class CaseCheckerModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source, message, _emotes, _whisper, _urls, _event):
+    def on_message(self, source, message, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
         if self.settings["online_chat_only"] and not self.bot.is_online:
             return True
 
+        # TODO don't use private members on bot here
         if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
             self.bot._timeout_user(source, self.settings["timeout_duration"], reason="no uppercase characters allowed")
             return False

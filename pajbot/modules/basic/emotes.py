@@ -1,0 +1,189 @@
+import logging
+
+from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager
+from pajbot.models.command import Command
+from pajbot.models.command import CommandExample
+from pajbot.modules import BaseModule
+from pajbot.modules.basic import BasicCommandsModule
+from pajbot.streamhelper import StreamHelper
+
+log = logging.getLogger(__name__)
+
+
+def split_into_chunks_with_prefix(chunks, separator=" ", limit=500, default=None):
+    messages = []
+    current_message = ""
+    current_prefix = None
+
+    def try_append(prefix, new_part, recursive=False):
+        nonlocal messages
+        nonlocal current_message
+        nonlocal current_prefix
+        needs_prefix = current_prefix != prefix
+        # new_suffix is the thing we want to append to the current_message
+        new_suffix = prefix + separator + new_part if needs_prefix else new_part
+        if len(current_message) > 0:
+            new_suffix = separator + new_suffix
+
+        if len(current_message) + len(new_suffix) <= limit:
+            # fits
+            current_message += new_suffix
+            current_prefix = prefix
+        else:
+            # doesn't fit, start new message
+            if recursive:
+                raise ValueError("Function was given part that could never fit")
+
+            messages.append(current_message)
+            current_message = ""
+            current_prefix = None
+            try_append(prefix, new_part, True)
+
+    for chunk in chunks:
+        prefix = chunk["prefix"]
+        parts = chunk["parts"]
+        for part in parts:
+            try_append(prefix, part)
+
+    if len(current_message) > 0:
+        messages.append(current_message)
+
+    if len(messages) <= 0 and default is not None:
+        messages = [default]
+
+    return messages
+
+
+class EmotesModule(BaseModule):
+    ID = __name__.split(".")[-1]
+    NAME = "!emotes"
+    ENABLED_DEFAULT = True
+    DESCRIPTION = "Refresh and list FFZ and BTTV emotes"
+    CATEGORY = "Feature"
+    PARENT_MODULE = BasicCommandsModule
+
+    def print_emotes(self, manager):
+        emotes = manager.channel_emotes
+        messages = split_into_chunks_with_prefix(
+            [{"prefix": "{} emotes:".format(manager.friendly_name), "parts": [e["code"] for e in emotes]}],
+            default="No {} Emotes active in this chat :(".format(manager.friendly_name),
+        )
+
+        for message in messages:
+            self.bot.say(message)
+
+    def print_twitch_emotes(self, **rest):
+        manager = self.bot.emote_manager.twitch_emote_manager
+        messages = split_into_chunks_with_prefix(
+            [
+                {"prefix": "Subscriber emotes:", "parts": [e["code"] for e in manager.tier_one_emotes]},
+                {"prefix": "T2:", "parts": [e["code"] for e in manager.tier_two_emotes]},
+                {"prefix": "T3:", "parts": [e["code"] for e in manager.tier_three_emotes]},
+            ],
+            default="Looks like {} has no subscriber emotes! :(".format(StreamHelper.get_streamer()),
+        )
+
+        for message in messages:
+            self.bot.say(message)
+
+    def reload_cmd(self, manager):
+        # manager is an instance of the manager in the bot and the class of the manager on the web interface
+        reload_msg = "Reloading {} emotes...".format(manager.friendly_name)
+
+        def do_reload(bot, source, **rest):
+            bot.whisper(source.username, reload_msg)
+            self.bot.action_queue.add(manager.update_all)
+
+        return Command.raw_command(
+            do_reload,
+            level=500,
+            delay_all=10,
+            delay_user=20,
+            examples=[
+                CommandExample(
+                    None,
+                    "Reload all active {} emotes for this channel.".format(manager.friendly_name),
+                    chat="user: !{}emotes reload\n".format(manager.friendly_name.lower())
+                    + "bot>user: {}".format(reload_msg),
+                ).parse()
+            ],
+        )
+
+    def print_cmd(self, manager, examples):
+        def do_print(**rest):
+            self.print_emotes(manager)
+
+        return Command.raw_command(
+            do_print,
+            level=100,
+            delay_all=15,
+            delay_user=30,
+            examples=[
+                CommandExample(
+                    None,
+                    "Show all active {} emotes for this channel.".format(manager.friendly_name),
+                    chat="user: !{}emotes\n".format(manager.friendly_name.lower())
+                    + "bot: {} emotes: {}".format(manager.friendly_name, examples),
+                ).parse()
+            ],
+        )
+
+    def print_twitch_cmd(self):
+        return Command.raw_command(
+            self.print_twitch_emotes,
+            level=100,
+            delay_all=15,
+            delay_user=30,
+            examples=[
+                CommandExample(
+                    None,
+                    "Show all active sub emotes for {}.".format(StreamHelper.get_streamer()),
+                    chat="user: !subemotes\n"
+                    "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
+                    "Tier 2: forsenSnus Tier 3: forsen2499",
+                ).parse()
+            ],
+        )
+
+    def load_commands(self, **options):
+        cmd_reload_bttv_emotes = self.reload_cmd(
+            self.bot.emote_manager.bttv_emote_manager if self.bot else BTTVEmoteManager
+        )
+        cmd_reload_ffz_emotes = self.reload_cmd(
+            self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager
+        )
+        cmd_reload_twitch_emotes = self.reload_cmd(
+            self.bot.emote_manager.twitch_emote_manager if self.bot else TwitchEmoteManager
+        )
+        cmd_print_bttv_emotes = self.print_cmd(
+            self.bot.emote_manager.bttv_emote_manager if self.bot else BTTVEmoteManager, "forsenPls gachiGASM"
+        )
+        cmd_print_ffz_emotes = self.print_cmd(
+            self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager, "FeelsOkayMan Kapp LULW"
+        )
+
+        # The ' ' is there to make things look good in the
+        # web interface.
+        self.commands["bttvemotes"] = Command.multiaction_command(
+            level=100,
+            default=" ",
+            fallback=" ",
+            command="bttvemotes",
+            commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
+        )
+
+        self.commands["ffzemotes"] = Command.multiaction_command(
+            level=100,
+            default=" ",
+            fallback=" ",
+            command="ffzemotes",
+            commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
+        )
+
+        self.commands["subemotes"] = Command.multiaction_command(
+            level=100,
+            default=" ",
+            fallback=" ",
+            command="subemotes",
+            commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
+        )

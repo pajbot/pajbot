@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 class EmotesOnScreenModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Emotes on Screen (CLR)"
     DESCRIPTION = "Shows one or more emotes on screen per message"
@@ -76,41 +75,18 @@ class EmotesOnScreenModule(BaseModule):
 
         return emote_code not in self.settings["emote_blacklist"]
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
+    def on_message(self, emote_instances, whisper, **rest):
         if whisper:
             return
 
-        emote_instances = []
-        for emote in emotes:
-            if not self.is_emote_allowed(emote["code"]):
-                continue
+        # filter out disallowed emotes
+        emotes = [e["emote"] for e in emote_instances if self.is_emote_allowed(e["emote"]["code"])]
 
-            for i in range(emote["count"]):
-                emote_instances.append(emote)
+        sample_size = min(len(emotes), self.settings["max_emotes_per_message"])
+        sent_emotes = random.sample(emotes, sample_size)
 
-        sample_size = min(len(emote_instances), self.settings["max_emotes_per_message"])
-        sent_emote_instances = random.sample(emote_instances, sample_size)
-
-        if len(sent_emote_instances) < 1:
+        if len(sent_emotes) <= 0:
             return
-
-        # keep a mapping emote code -> emote
-        # so we can count emote occurrence by emote code
-        # and then later map back to the emote
-        emote_code_to_emote = dict()
-        for emote in emotes:
-            emote_code_to_emote[emote["code"]] = emote
-
-        # map emote code -> shown count
-        # can't use the emote itself as the key
-        sent_emotes_map = {}
-        for emote in sent_emote_instances:
-            sent_emotes_map[emote["code"]] = sent_emotes_map.get(emote["code"], 0) + 1
-
-        # turn the map into a list
-        sent_emotes = []
-        for emote_code, shown_count in sent_emotes_map.items():
-            sent_emotes.append({"emote": emote_code_to_emote[emote_code], "shown_count": shown_count})
 
         self.bot.websocket_manager.emit(
             "new_emotes",

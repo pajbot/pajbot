@@ -68,7 +68,7 @@ class PyramidModule(BaseModule):
         self.going_down = False
         self.regex = re.compile(" +")
 
-    def on_pubmsg(self, source, message):
+    def on_pubmsg(self, source, message, **rest):
         if source.username == "twitchnotify":
             return
 

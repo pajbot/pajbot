@@ -219,9 +219,9 @@ class RouletteModule(BaseModule):
             else:
                 bot.whisper(user.username, out_message)
 
-        HandlerManager.trigger("on_roulette_finish", user, points)
+        HandlerManager.trigger("on_roulette_finish", user=user, points=points)
 
-    def on_tick(self):
+    def on_tick(self, **rest):
         if self.output_buffer == "":
             return
 
@@ -273,14 +273,14 @@ class RouletteModule(BaseModule):
 
         self.last_add = utils.now()
 
-    def on_user_sub(self, user):
+    def on_user_sub(self, **rest):
         self.last_sub = utils.now()
         if self.settings["only_roulette_after_sub"]:
             self.bot.say(
                 "Rouletting is now allowed for {} seconds! PogChamp".format(self.settings["after_sub_roulette_time"])
             )
 
-    def on_user_resub(self, user, num_months):
+    def on_user_resub(self, **rest):
         self.last_sub = utils.now()
         if self.settings["only_roulette_after_sub"]:
             self.bot.say(

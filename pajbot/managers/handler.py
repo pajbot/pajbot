@@ -16,7 +16,7 @@ class HandlerManager:
         # on_pubmsg(source, message)
         HandlerManager.create_handler("on_pubmsg")
 
-        # on_message(source, message, emotes, whisper, urls, event)
+        # on_message(source, message, emote_instances, emote_counts, whisper, urls, event)
         HandlerManager.create_handler("on_message")
 
         # on_usernotice(source, message, tags)
@@ -43,7 +43,10 @@ class HandlerManager:
         # on_roulette_finish(user, points)
         HandlerManager.create_handler("on_roulette_finish")
 
-        # on_bingo_win(winner, points, target_emote)
+        # on_slot_machine_finish(user, points)
+        HandlerManager.create_handler("on_slot_machine_finish")
+
+        # on_bingo_win(winner, game)
         HandlerManager.create_handler("on_bingo_win")
 
         # on_managers_loaded()
@@ -51,9 +54,6 @@ class HandlerManager:
 
         # on_duel_complete(winner, loser, points_won, points_bet)
         HandlerManager.create_handler("on_duel_complete")
-
-        # on_user_gain_tokens(user, tokens_gained)
-        HandlerManager.create_handler("on_user_gain_tokens")
 
         # on_user_win_hs_bet(user, points_won)
         HandlerManager.create_handler("on_user_win_hs_bet")
@@ -63,9 +63,6 @@ class HandlerManager:
 
         # on_user_resub(user, num_months)
         HandlerManager.create_handler("on_user_resub")
-
-        # send_whisper(user, message)
-        HandlerManager.create_handler("send_whisper")
 
         # on_tick()
         HandlerManager.create_handler("on_tick")
@@ -100,17 +97,17 @@ class HandlerManager:
             log.error("remove_handler No handler for {} found.".format(event))
 
     @staticmethod
-    def trigger(event, *arguments, stop_on_false=True):
-        if event not in HandlerManager.handlers:
-            log.error("No handler set for event {}".format(event))
+    def trigger(event_name, stop_on_false=True, *args, **kwargs):
+        if event_name not in HandlerManager.handlers:
+            log.error("No handler set for event {}".format(event_name))
             return False
 
-        for handler, _ in HandlerManager.handlers[event]:
+        for handler, _ in HandlerManager.handlers[event_name]:
             res = None
             try:
-                res = handler(*arguments)
+                res = handler(*args, **kwargs)
             except:
-                log.exception("Unhandled exception from {} in {}".format(handler, event))
+                log.exception("Unhandled exception from {} in {}".format(handler, event_name))
 
             if res is False and stop_on_false is True:
                 # Abort if handler returns false and stop_on_false is enabled
