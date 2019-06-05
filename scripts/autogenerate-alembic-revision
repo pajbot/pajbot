@@ -1,0 +1,4 @@
+#!/bin/sh
+
+alembic revision --autogenerate
+echo "Please remember to rename the generated revision file!"
