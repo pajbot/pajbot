@@ -16,8 +16,11 @@ jobs:
         name: Create virtual environment
         command: python -m venv venv
     - run:
+        name: Upgrade pip
+        command: ./venv/bin/pip install --upgrade pip
+    - run:
         name: Install requirements into virtual environment
-        command: ./venv/bin/pip install -r requirements.txt
+        command: ./venv/bin/pip install --progress-bar off -r requirements.txt
     - save_cache:
         name: Save virtual environment to cache
         key: v1-python3.7-{{ checksum "requirements.txt" }}
@@ -38,6 +41,9 @@ jobs:
     - run:
         name: Create virtual environment
         command: python -m venv venv
+    - run:
+        name: Upgrade pip
+        command: ./venv/bin/pip install --upgrade pip
     - run:
         name: Install requirements into virtual environment
         command: ./venv/bin/pip install --progress-bar off -r requirements.txt
