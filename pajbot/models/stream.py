@@ -1,9 +1,6 @@
-import argparse
-import collections
 import datetime
 import json
 import logging
-import math
 import urllib
 
 from sqlalchemy import Boolean
@@ -13,8 +10,6 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.dialects.mysql import BIGINT
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
 
 from pajbot import utils

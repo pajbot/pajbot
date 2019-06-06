@@ -2,11 +2,8 @@ import logging
 import re
 
 import requests
-from sqlalchemy import func
 
 from pajbot.managers.adminlog import AdminLogManager
-from pajbot.managers.db import DBManager
-from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 

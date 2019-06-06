@@ -1,4 +1,3 @@
-from pajbot import utils
 from pajbot.managers.time import TimeManager
 import pajbot.utils
 
