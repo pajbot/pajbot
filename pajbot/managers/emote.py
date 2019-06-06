@@ -62,7 +62,7 @@ class GenericChannelEmoteManager:
             redis_result = redis.get(redis_key)
             if redis_result is None:
                 return None
-            return json.loads(redis_result)
+            return [Emote(**args) for args in json.loads(redis_result)]
         except:
             log.exception("Failed to get emotes from key {} from redis".format(redis_key))
             return []
@@ -162,7 +162,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
             redis_result = redis.get(redis_key)
             if redis_result is None:
                 return None, None, None
-            obj = json.loads(redis_result)
+            obj = {key: [Emote(**args) for args in value] for key, value in json.loads(redis_result).items()}
             return obj["1"], obj["2"], obj["3"]
         except:
             log.exception("Failed to get subemotes from key {} from redis".format(redis_key))
