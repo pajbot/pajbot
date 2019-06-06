@@ -46,7 +46,7 @@ class CommandManager(UserDict):
         self.rebuild()
         log.debug("Done rebuilding commands")
 
-    def on_command_update(self, _data):
+    def on_command_update(self, data):
         try:
             command_id = int(data["command_id"])
         except (KeyError, ValueError):
