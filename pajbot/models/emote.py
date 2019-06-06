@@ -19,12 +19,10 @@ class Emote:
         if not isinstance(other, Emote):
             return False
 
-        return (
-            self.code == other.code
-            and self.provider == other.provider
-            and self.id == other.id
-            and self.urls == other.urls
-        )
+        return self.provider == other.provider and self.id == other.id
+
+    def __hash__(self):
+        return hash((self.provider, self.id))
 
     def __repr__(self):
         return "{}: {}".format(self.provider, self.code)
@@ -53,6 +51,9 @@ class EmoteInstance:
 
         return self.start == other.start and self.end == other.end and self.emote == other.emote
 
+    def __hash__(self):
+        return hash((self.start, self.end, self.emote))
+
     def jsonify(self):
         return {"start": self.start, "end": self.end, "emote": self.emote}
 
@@ -77,6 +78,9 @@ class EmoteInstanceCount:
             return False
 
         return self.count == other.count and self.emote == other.emote and self.emote_instances == other.emote_instances
+
+    def __hash__(self):
+        return hash((self.count, self.emote, self.emote_instances))
 
     def jsonify(self):
         return {"count": self.count, "emote": self.emote, "emote_instances": self.emote_instances}

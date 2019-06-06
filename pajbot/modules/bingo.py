@@ -1,10 +1,14 @@
 import logging
 
+import random
+import re
+
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.utils import iterate_split_with_index
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +19,48 @@ class BingoGame:
         self.points_reward = points_reward
 
 
+def two_word_variations(word1, word2, value):
+    # this produces:
+    # bttv_global
+    # global_bttv
+    # bttv-global
+    # global-bttv
+    # bttvglobal
+    # globalbttv
+    variations = [
+        "{}_{}".format(word1, word2),
+        "{}_{}".format(word2, word1),
+        "{}-{}".format(word1, word2),
+        "{}-{}".format(word2, word1),
+        "{}{}".format(word1, word2),
+        "{}{}".format(word2, word1),
+    ]
+
+    return {key: value for key in variations}
+
+
+def join_to_sentence(list, sep=", ", last_sep=" and "):
+    if len(list) == 0:
+        return ""
+
+    if len(list) == 1:
+        return list[0]
+
+    return last_sep.join([sep.join(list[:-1]), list[-1]])
+
+
+remove_emotes_suffix_regex = re.compile(r"^(.*?)(?:[-_]?emotes?)?$", re.IGNORECASE)
+
+
+def remove_emotes_suffix(word):
+    match = remove_emotes_suffix_regex.match(word)
+    if not match:
+        # the regex has a .* in it which means it should match anything O_o
+        raise ValueError("That doesn't match my regex O_o")
+
+    return match.group(1)
+
+
 class BingoModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Bingo Games"
@@ -22,6 +68,15 @@ class BingoModule(BaseModule):
     ENABLED_DEFAULT = False
     CATEGORY = "Game"
     SETTINGS = [
+        ModuleSetting(
+            key="default_points",
+            label="Defaults points reward for a bingo",
+            type="number",
+            required=True,
+            placeholder="",
+            default=100,
+            constraints={"min_value": 0, "max_value": 35000},
+        ),
         ModuleSetting(
             key="max_points",
             label="Max points for a bingo",
@@ -49,27 +104,263 @@ class BingoModule(BaseModule):
         super().__init__(bot)
         self.active_game = None
 
-    def begin_game(self, correct_emote, points_reward):
-        self.active_game = BingoGame(correct_emote, points_reward)
-
     @property
     def bingo_running(self):
         return self.active_game is not None
 
+    @staticmethod
+    def make_twitch_sets(manager):
+        tier_one_emotes = ("Tier 1 sub emotes", manager.tier_one_emotes)
+        tier_two_emotes = ("Tier 2 sub emotes", manager.tier_one_emotes)
+        tier_three_emotes = ("Tier 3 sub emotes", manager.tier_one_emotes)
+        global_emotes = ("Global Twitch emotes", manager.global_emotes)
+        all_emotes = ("Global + Twitch tier 1 sub emotes", manager.tier_one_emotes + manager.global_emotes)
+        return {
+            "twitch": tier_one_emotes,
+            "sub": tier_one_emotes,
+            "tier1": tier_one_emotes,
+            "tier2": tier_two_emotes,
+            "tier3": tier_three_emotes,
+            **two_word_variations("twitch", "sub", tier_one_emotes),
+            **two_word_variations("twitch", "tier1", tier_one_emotes),
+            **two_word_variations("twitch", "tier2", tier_two_emotes),
+            **two_word_variations("twitch", "tier3", tier_three_emotes),
+            **two_word_variations("twitch", "global", global_emotes),
+            **two_word_variations("twitch", "channel", tier_one_emotes),
+            **two_word_variations("twitch", "all", all_emotes),
+        }
+
+    @staticmethod
+    def make_bttv_ffz_sets(manager):
+        friendly_name = manager.friendly_name
+        channel_emotes = ("Channel {} emotes".format(friendly_name), manager.channel_emotes)
+        global_emotes = ("Global {} emotes".format(friendly_name), manager.global_emotes)
+        all_emotes = (
+            "Global + Channel {} emotes".format(friendly_name),
+            manager.channel_emotes + manager.global_emotes,
+        )
+
+        key = friendly_name.lower()
+        return {
+            key: channel_emotes,
+            **two_word_variations(key, "global", global_emotes),
+            **two_word_variations(key, "channel", channel_emotes),
+            **two_word_variations(key, "all", all_emotes),
+        }
+
+    def make_known_sets_dict(self):
+        # we first make a dict containing lists as the list of emotes (because it's less to type...)
+        list_dict = {
+            **self.make_twitch_sets(self.bot.emote_manager.twitch_emote_manager),
+            **self.make_bttv_ffz_sets(self.bot.emote_manager.ffz_emote_manager),
+            **self.make_bttv_ffz_sets(self.bot.emote_manager.bttv_emote_manager),
+            "all": (
+                "FFZ and BTTV Channel emotes + Tier 1 subemotes",
+                self.bot.emote_manager.ffz_emote_manager.channel_emotes
+                + self.bot.emote_manager.bttv_emote_manager.channel_emotes
+                + self.bot.emote_manager.twitch_emote_manager.tier_one_emotes,
+            ),
+        }
+
+        # then convert all the lists to tuples so they are hashable
+        # and can be stored in a set of "selected sets" later
+        return {key: (set_name, tuple(set_emotes), False) for key, (set_name, set_emotes) in list_dict.items()}
+
     def bingo_start(self, bot, source, message, event, args):
-        pass
+        if self.bingo_running:
+            bot.say("{}, a bingo is already running FailFish".format(source.username_raw))
+            return False
+
+        emote_instances = args["emote_instances"]
+        known_sets = self.make_known_sets_dict()
+
+        selected_sets = set()
+        points_reward = None
+        unparsed_options = []
+
+        words_in_message = [s for s in message.split(" ") if len(s) > 0]
+        if len(words_in_message) <= 0:
+            bot.say(
+                "{}, You must at least give me some emote sets or emotes to choose from! FailFish".format(
+                    source.username_raw
+                )
+            )
+            return False
+
+        emote_index_offset = len("!bingo start ")
+
+        # we can't iterate using words_in_message here because that would mess up the accompanying index
+        for index, word in iterate_split_with_index(message.split(" ")):
+            if len(word) <= 0:
+                continue
+
+            # Is the current word an emote?
+            potential_emote_instance = next((e for e in emote_instances if e.start == index + emote_index_offset), None)
+            if potential_emote_instance is not None:
+                # single-emote set with the name of the emote
+                new_set = (potential_emote_instance.emote.code, (potential_emote_instance.emote,), True)
+                selected_sets.add(new_set)
+                continue
+
+            # Is the current word a number?
+            try:
+                parsed_int = int(word)
+            except ValueError:
+                parsed_int = None
+
+            if parsed_int is not None:
+                # if points_reward is already set this is the second number in the message
+                if points_reward is not None:
+                    unparsed_options.append(word)
+                    continue
+                points_reward = parsed_int
+                continue
+
+            # Is the current word a known set?
+            cleaned_key = remove_emotes_suffix(word).lower()
+            if cleaned_key in known_sets:
+                selected_sets.add(known_sets[cleaned_key])
+                continue
+
+            unparsed_options.append(word)
+
+        if len(unparsed_options) > 0:
+            bot.say(
+                "{}, I don't know what to do with the argument{} {} BabyRage".format(
+                    source.username_raw,
+                    "" if len(unparsed_options) == 1 else "s",  # pluralization
+                    join_to_sentence(['"' + s + '"' for s in unparsed_options]),
+                )
+            )
+            return False
+
+        default_points = self.settings["default_points"]
+        if points_reward is None:
+            points_reward = default_points
+
+        max_points = self.settings["max_points"]
+        if points_reward > max_points:
+            bot.say(
+                "{}, You can't start a bingo with that many points. FailFish ".format(source.username_raw)
+                + "{} are allowed at most.".format(max_points)
+            )
+            return False
+
+        allow_negative_bingo = self.settings["allow_negative_bingo"]
+        if points_reward < 0 and not allow_negative_bingo:
+            bot.say("{}, You can't start a bingo with negative points. FailFish".format(source.username_raw))
+            return False
+
+        min_points = -self.settings["max_negative_points"]
+        if points_reward < min_points:
+            bot.say(
+                "{}, You can't start a bingo with that many negative points. FailFish ".format(source.username_raw)
+                + "{} are allowed at most.".format(min_points)
+            )
+            return False
+
+        if len(selected_sets) <= 0:
+            bot.say(
+                "{}, You must at least give me some "
+                "emotes or emote sets to choose from! FailFish".format(source.username_raw)
+            )
+            return False
+
+        selected_set_names = []
+        selected_discrete_emote_codes = []
+        selected_emotes = set()
+        for set_name, set_emotes, is_discrete_emote in selected_sets:
+            if is_discrete_emote:
+                selected_discrete_emote_codes.append(set_name)
+            else:
+                selected_set_names.append(set_name)
+            selected_emotes.update(set_emotes)
+
+        correct_emote = random.choice(list(selected_emotes))
+
+        user_messages = []
+        if len(selected_set_names) > 0:
+            user_messages.append(join_to_sentence(selected_set_names))
+
+        if len(selected_discrete_emote_codes) > 0:
+            # the space at the end is so the ! from the below message doesn't stop the last emote from showing up in chat
+            user_messages.append("these emotes: {} ".format(" ".join(selected_discrete_emote_codes)))
+
+        bot.me(
+            "A bingo has started! ThunBeast Guess the right emote to win {} points! B) ".format(points_reward)
+            + "Only one emote per message! Select from {}!".format(" and ".join(user_messages))
+        )
+
+        log.info("A Bingo game has begun for {} points, correct emote is {}".format(points_reward, correct_emote))
+        self.active_game = BingoGame(correct_emote, points_reward)
 
     def bingo_cancel(self, bot, source, message, event, args):
-        pass
+        if not self.bingo_running:
+            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            return False
+
+        self.active_game = None
+        bot.me("Bingo cancelled by {} FeelsBadMan".format(source.username_raw))
 
     def bingo_help_random(self, bot, source, message, event, args):
-        pass
+        if not self.bingo_running:
+            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            return False
+
+        correct_emote_code = self.active_game.correct_emote.code
+        random_letter = random.choice(correct_emote_code)
+
+        bot.me(
+            "A bingo for {} points is still running. ".format(self.active_game.points_reward)
+            + "You should maybe use {0} {0} {0} {0} {0} for the target".format(random_letter)
+        )
 
     def bingo_help_first(self, bot, source, message, event, args):
-        pass
+        if not self.bingo_running:
+            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            return False
+
+        correct_emote_code = self.active_game.correct_emote.code
+        first_letter = correct_emote_code[0]
+
+        bot.me(
+            "A bingo for {} points is still running. ".format(self.active_game.points_reward)
+            + "You should use {0} {0} {0} {0} {0} as the first letter for the target".format(first_letter)
+        )
 
     def on_message(self, source, message, emote_instances, **rest):
-        pass
+        if not self.bingo_running:
+            return
+
+        if len(emote_instances) != 1:
+            return
+
+        correct_emote = self.active_game.correct_emote
+        correct_emote_code = correct_emote.code
+
+        # we check for BOTH exact match (which works by comparing provider and ID, see __eq__ and __hash__ in
+        # the Emote class) and for code-only match because we want to allow equal-named sub and ffz/bttv emotes
+        # to be treated equally (e.g. sub-emote pajaL vs bttv emote pajaL)
+        # The reason exact match can differ from code match is in case of regex twitch emotes, such as :) and :-)
+        # If the "correct_emote" was chosen from the list of global twitch emotes, then its code will be the regex
+        # for the emote (If the bingo was started by specifying :) as an explicit emote, then the code will be
+        # :)). To make sure we don't trip on this we only compare by provider and provider ID.
+        exact_match = correct_emote in (e.emote for e in emote_instances)
+        only_code_match = correct_emote_code in (e.emote.code for e in emote_instances)
+        if not (exact_match or only_code_match):
+            return
+
+        # user guessed the emote
+        HandlerManager.trigger("on_bingo_win", source, self.active_game)
+        points_reward = self.active_game.points_reward
+        source.points += points_reward
+        self.active_game = None
+
+        self.bot.me(
+            "{} won the bingo! ".format(source.username_raw)
+            + "{} was the target. ".format(correct_emote_code)
+            + "Congrats, {} points to you PogChamp".format(points_reward)
+        )
 
     def load_commands(self, **options):
         self.commands["bingo"] = Command.multiaction_command(
@@ -86,16 +377,18 @@ class BingoModule(BaseModule):
                     examples=[
                         CommandExample(
                             None,
-                            "Emote bingo for 100 points",
-                            chat="user:!bingo emotes\n"
-                            "bot: A bingo has started! Guess the right target to win 100 points! Only one target per message! ",
+                            "Emote bingo for default points",
+                            chat="user:!bingo start bttv\n"
+                            "bot: A bingo has started! Guess the right target to win 100 points! "
+                            "Only one target per message! Select from Channel BTTV Emotes!",
                             description="",
                         ).parse(),
                         CommandExample(
                             None,
                             "Emote bingo for 222 points",
-                            chat="user:!bingo emotes 222\n"
-                            "bot: A bingo has started! Guess the right target to win 222 points! Only one target per message! ",
+                            chat="user:!bingo start bttv 222\n"
+                            "bot: A bingo has started! Guess the right target to win 222 points! "
+                            "Only one target per message! Select from Channel BTTV Emotes!",
                             description="",
                         ).parse(),
                     ],
