@@ -49,6 +49,7 @@ log = logging.getLogger(__name__)
 
 class GenericChannelEmoteManager:
     # to be implemented
+    api = None
     redis_name = None
     friendly_name = None
 
