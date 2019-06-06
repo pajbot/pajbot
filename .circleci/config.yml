@@ -61,6 +61,13 @@ jobs:
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
+  format:
+    executor: pajbot
+    steps:
+      - load_setup
+      - run:
+          name: Run black in check mode
+          command: ./venv/bin/black --check --diff pajbot
 
 # add one workflow that runs all jobs in parallel
 workflows:
@@ -72,5 +79,8 @@ workflows:
           requires:
             - setup
       - lint:
+          requires:
+            - setup
+      - format:
           requires:
             - setup
