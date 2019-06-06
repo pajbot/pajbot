@@ -677,7 +677,7 @@ class Bot:
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
 
-        emote_tag = ""
+        emote_tag = None
 
         for tag in tags:
             if tag["key"] == "subscriber" and event.target == self.channel:
