@@ -399,7 +399,7 @@ end
 
     def save_epm_record(self, code, count):
         streamer = StreamHelper.get_streamer()
-        self.redis_zadd_if_higher(keys=['{streamer}:emotes:epmrecord'.format(streamer=streamer), count], args=[code])
+        self.redis_zadd_if_higher(keys=["{streamer}:emotes:epmrecord".format(streamer=streamer), count], args=[code])
 
     def get_emote_epm(self, emote_code):
         """Returns the current "emote per minute" usage of the given emote code,
@@ -410,7 +410,7 @@ end
     def get_emote_epm_record(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
-        return redis.zscore('{streamer}:emotes:epmrecord'.format(streamer=streamer), emote_code)
+        return redis.zscore("{streamer}:emotes:epmrecord".format(streamer=streamer), emote_code)
 
 
 class EcountManager:
