@@ -212,9 +212,12 @@ class EmoteManager:
 
         try:
             # every 1 hour
-            ScheduleManager.execute_every(60 * 60 * 1, self.bttv_emote_manager.update_all)
-            ScheduleManager.execute_every(60 * 60 * 1, self.ffz_emote_manager.update_all)
-            ScheduleManager.execute_every(60 * 60 * 1, self.twitch_emote_manager.update_all)
+            # note: whenever emotes are refreshed (cache is saved to redis), the key is additionally set to expire
+            # in one hour. This is to prevent emotes from never refreshing if the bot restarts in less than an hour.
+            # (In practice, this means that the bot will never have emotes older than 2 hours at maximum)
+            ScheduleManager.execute_every(1 * 60 * 60, self.bttv_emote_manager.update_all)
+            ScheduleManager.execute_every(1 * 60 * 60, self.ffz_emote_manager.update_all)
+            ScheduleManager.execute_every(1 * 60 * 60, self.twitch_emote_manager.update_all)
         except:
             log.exception("Something went wrong trying to initialize automatic emote refresh")
 
