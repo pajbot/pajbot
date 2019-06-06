@@ -364,23 +364,53 @@ class EpmManager:
     def __init__(self):
         self.epm = {}
 
+        redis = RedisManager.get()
+        self.redis_zadd_if_higher = redis.register_script(
+            """
+local c = tonumber(redis.call('zscore', KEYS[1], ARGV[1]));
+if c then
+    if tonumber(KEYS[2]) > c then
+        redis.call('zadd', KEYS[1], KEYS[2], ARGV[1])
+        return tonumber(KEYS[2]) - c
+    else
+        return 0
+    end
+else
+    redis.call('zadd', KEYS[1], KEYS[2], ARGV[1])
+    return 'OK'
+end
+"""
+        )
+
     def handle_emotes(self, emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         for emote_code, obj in emote_counts.items():
             self.epm_incr(emote_code, obj.count)
 
     def epm_incr(self, code, count):
-        self.epm[code] = self.epm.get(code, 0) + count
+        new_epm = self.epm.get(code, 0) + count
+        self.epm[code] = new_epm
+        self.save_epm_record(code, new_epm)
         # TODO if we want to add epm records back, do it here
         ScheduleManager.execute_delayed(60, self.epm_decr, args=[code, count])
 
     def epm_decr(self, code, count):
         self.epm[code] -= count
 
+    def save_epm_record(self, code, count):
+        streamer = StreamHelper.get_streamer()
+        self.redis_zadd_if_higher(keys=['{streamer}:emotes:epmrecord'.format(streamer=streamer), count], args=[code])
+
     def get_emote_epm(self, emote_code):
         """Returns the current "emote per minute" usage of the given emote code,
         or None if the emote is unknown to the bot."""
         return self.epm.get(emote_code, None)
+
+    @staticmethod
+    def get_emote_epm_record(emote_code):
+        redis = RedisManager.get()
+        streamer = StreamHelper.get_streamer()
+        return redis.zscore('{streamer}:emotes:epmrecord'.format(streamer=streamer), emote_code)
 
 
 class EcountManager:

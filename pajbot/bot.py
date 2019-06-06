@@ -338,13 +338,22 @@ class Bot:
         val = self.epm_manager.get_emote_epm(key)
         if val is None:
             return None
-        return "{0:,d}".format(val)
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
+
+    def get_emote_epm_record(self, key, extra={}):
+        val = self.epm_manager.get_emote_epm_record(key)
+        if val is None:
+            return None
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
 
     def get_emote_count(self, key, extra={}):
         val = self.ecount_manager.get_emote_count(key)
         if val is None:
             return None
-        return "{0:,d}".format(val)
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
 
     @staticmethod
     def get_source_value(key, extra={}):
