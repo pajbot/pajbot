@@ -1,7 +1,6 @@
 import logging
 
 import json
-from numpy import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager

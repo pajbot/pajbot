@@ -1,7 +1,4 @@
 import logging
-from functools import reduce
-
-from numpy import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command
