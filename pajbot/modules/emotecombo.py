@@ -21,7 +21,9 @@ class EmoteComboModule(BaseModule):
     def inc_emote_count(self):
         self.emote_count += 1
         if self.emote_count >= 5:
-            self.bot.websocket_manager.emit("emote_combo", {"emote": self.current_emote, "count": self.emote_count})
+            self.bot.websocket_manager.emit(
+                "emote_combo", {"emote": self.current_emote.jsonify(), "count": self.emote_count}
+            )
 
     def reset(self):
         self.emote_count = 0
@@ -37,13 +39,13 @@ class EmoteComboModule(BaseModule):
             self.reset()
             return True
 
-        new_emote = emote_instances[0]["emote"]
-        new_emote_code = new_emote["code"]
+        new_emote = emote_instances[0].emote
+        new_emote_code = new_emote.code
 
         # if there is currently a combo...
         if self.current_emote is not None:
             # and this emote is not equal to the combo emote...
-            if self.current_emote["code"] != new_emote_code:
+            if self.current_emote.code != new_emote_code:
                 # The emote of this message is not the one we were previously counting, reset.
                 # We do not stop.
                 # We start counting this emote instead.

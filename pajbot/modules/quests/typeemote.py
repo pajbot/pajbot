@@ -4,6 +4,7 @@ import json
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.emote import Emote
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
@@ -39,22 +40,23 @@ class TypeEmoteQuestModule(BaseQuest):
         return self.settings["quest_limit"]
 
     def on_message(self, source, emote_instances, **rest):
-        typed_emotes = {emote_instance["emote"] for emote_instance in emote_instances}
-        if self.current_emote in typed_emotes:
-            user_progress = self.get_user_progress(source.username, default=0) + 1
-
-            if user_progress > self.get_limit():
-                log.debug("{} has already completed the quest. Moving along.".format(source.username))
-                # no need to do more
-                return
-
-            redis = RedisManager.get()
-
-            if user_progress == self.get_limit():
-                self.finish_quest(redis, source)
-
-            self.set_user_progress(source.username, user_progress, redis=redis)
+        typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
+        if self.current_emote not in typed_emotes:
             return
+
+        user_progress = self.get_user_progress(source.username, default=0) + 1
+
+        if user_progress > self.get_limit():
+            log.debug("{} has already completed the quest. Moving along.".format(source.username))
+            # no need to do more
+            return
+
+        redis = RedisManager.get()
+
+        if user_progress == self.get_limit():
+            self.finish_quest(redis, source)
+
+        self.set_user_progress(source.username, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)
@@ -76,9 +78,9 @@ class TypeEmoteQuestModule(BaseQuest):
             self.current_emote = self.bot.emote_manager.random_emote(twitch_global=True)
             # If EmoteManager has no global emotes, current_emote will be None
             if self.current_emote is not None:
-                redis.set(self.current_emote_key, json.dumps(self.current_emote))
+                redis.set(self.current_emote_key, json.dumps(self.current_emote.jsonify()))
         else:
-            self.current_emote = json.loads(redis_json)
+            self.current_emote = Emote(**json.loads(redis_json))
 
     def stop_quest(self):
         HandlerManager.remove_handler("on_message", self.on_message)
@@ -89,4 +91,4 @@ class TypeEmoteQuestModule(BaseQuest):
         redis.delete(self.current_emote_key)
 
     def get_objective(self):
-        return "Use the {} emote {} times".format(self.current_emote["code"], self.get_limit())
+        return "Use the {} emote {} times".format(self.current_emote.code, self.get_limit())

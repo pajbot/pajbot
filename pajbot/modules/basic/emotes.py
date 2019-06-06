@@ -65,7 +65,7 @@ class EmotesModule(BaseModule):
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
         messages = split_into_chunks_with_prefix(
-            [{"prefix": "{} emotes:".format(manager.friendly_name), "parts": [e["code"] for e in emotes]}],
+            [{"prefix": "{} emotes:".format(manager.friendly_name), "parts": [e.code for e in emotes]}],
             default="No {} Emotes active in this chat :(".format(manager.friendly_name),
         )
 
@@ -76,9 +76,9 @@ class EmotesModule(BaseModule):
         manager = self.bot.emote_manager.twitch_emote_manager
         messages = split_into_chunks_with_prefix(
             [
-                {"prefix": "Subscriber emotes:", "parts": [e["code"] for e in manager.tier_one_emotes]},
-                {"prefix": "T2:", "parts": [e["code"] for e in manager.tier_two_emotes]},
-                {"prefix": "T3:", "parts": [e["code"] for e in manager.tier_three_emotes]},
+                {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
+                {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
+                {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
             ],
             default="Looks like {} has no subscriber emotes! :(".format(StreamHelper.get_streamer()),
         )

@@ -80,7 +80,7 @@ class EmotesOnScreenModule(BaseModule):
             return
 
         # filter out disallowed emotes
-        emotes = [e["emote"] for e in emote_instances if self.is_emote_allowed(e["emote"]["code"])]
+        emotes = [e.emote for e in emote_instances if self.is_emote_allowed(e.emote.code)]
 
         sample_size = min(len(emotes), self.settings["max_emotes_per_message"])
         sent_emotes = random.sample(emotes, sample_size)
@@ -91,7 +91,7 @@ class EmotesOnScreenModule(BaseModule):
         self.bot.websocket_manager.emit(
             "new_emotes",
             {
-                "emotes": sent_emotes,
+                "emotes": [e.jsonify() for e in sent_emotes],
                 "opacity": self.settings["emote_opacity"],
                 "persistence_time": self.settings["emote_persistence_time"],
                 "scale": self.settings["emote_onscreen_scale"],

@@ -8,6 +8,7 @@ import urllib.request
 import requests
 
 from pajbot.managers.emote import EmoteManager
+from pajbot.models.emote import Emote
 
 log = logging.getLogger(__name__)
 
@@ -157,16 +158,12 @@ class BTTVApi(APIBase):
         for emote in api_response_data["emotes"]:
             emote_hash = emote["id"]
             emotes.append(
-                {
-                    "code": emote["code"],
-                    "provider": "bttv",
-                    "id": emote_hash,
-                    "urls": {
-                        "1": get_url(emote_hash, "1"),
-                        "2": get_url(emote_hash, "2"),
-                        "4": get_url(emote_hash, "3"),
-                    },
-                }
+                Emote(
+                    code=emote["code"],
+                    provider="bttv",
+                    id=emote_hash,
+                    urls={"1": get_url(emote_hash, "1"), "2": get_url(emote_hash, "2"), "4": get_url(emote_hash, "3")},
+                )
             )
         return emotes
 
@@ -228,7 +225,7 @@ class FFZApi(APIBase):
                 # FFZ returns relative URLs (e.g. //cdn.frankerfacez.com/...)
                 # so we fill in the scheme if it's missing :)
                 urls = {size: fill_in_url_scheme(url) for size, url in emote["urls"].items()}
-                emotes.append({"code": emote["name"], "provider": "ffz", "id": emote["id"], "urls": urls})
+                emotes.append(Emote(code=emote["name"], provider="ffz", id=emote["id"], urls=urls))
 
         return emotes
 

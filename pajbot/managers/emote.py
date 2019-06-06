@@ -5,46 +5,11 @@ import random
 
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
 
 log = logging.getLogger(__name__)
-
-
-#
-# an emote is always (provider is bttv, ffz or twitch and ID is provider-specific ID):
-# {
-#     "code": "KKona",
-#     "provider": "bttv",
-#     "id": "566ca04265dbbdab32ec054a",
-#     "urls": {
-#         "1": "https://cdn.betterttv.net/emote/566ca04265dbbdab32ec054a/1x",
-#         "2": "https://cdn.betterttv.net/emote/566ca04265dbbdab32ec054a/2x",
-#         "4": "https://cdn.betterttv.net/emote/566ca04265dbbdab32ec054a/4x",
-#      }
-# }
-#
-# an emote instance is always (start inclusive, end exclusive):
-# {
-#     "start": 0,
-#     "end": 5,
-#     "emote": <emote as above>
-# }
-#
-# The emote_counts dict looks like this:
-# {
-#     "Kappa": {
-#         "count": 5,
-#         "emote": <emote as above>,
-#         "emote_instances": [
-#             <emote_instance as above>
-#             <emote_instance as above>
-#             <emote_instance as above>
-#             <emote_instance as above>
-#             <emote_instance as above>
-#         }
-#     }
-# }
 
 
 class GenericChannelEmoteManager:
@@ -79,7 +44,7 @@ class GenericChannelEmoteManager:
     @global_emotes.setter
     def global_emotes(self, value):
         self._global_emotes = value
-        self.global_lookup_table = {emote["code"]: emote for emote in value} if value is not None else {}
+        self.global_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
     @property
     def channel_emotes(self):
@@ -88,7 +53,7 @@ class GenericChannelEmoteManager:
     @channel_emotes.setter
     def channel_emotes(self, value):
         self._channel_emotes = value
-        self.channel_lookup_table = {emote["code"]: emote for emote in value} if value is not None else {}
+        self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
     @staticmethod
     def load_cached_emotes(redis_key):
@@ -257,20 +222,20 @@ class EmoteManager:
 
     @staticmethod
     def twitch_emote(emote_id, code):
-        return {
-            "code": code,
-            "provider": "twitch",
-            "id": emote_id,
-            "urls": {
+        return Emote(
+            code=code,
+            provider="twitch",
+            id=emote_id,
+            urls={
                 "1": EmoteManager.twitch_emote_url(emote_id, "1.0"),
                 "2": EmoteManager.twitch_emote_url(emote_id, "2.0"),
                 "4": EmoteManager.twitch_emote_url(emote_id, "3.0"),
             },
-        }
+        )
 
     @staticmethod
     def twitch_emote_instance(emote_id, code, start, end):
-        return {"start": start, "end": end, "emote": EmoteManager.twitch_emote(emote_id, code)}
+        return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
 
     @staticmethod
     def parse_twitch_emotes_tag(tag, message):
@@ -315,7 +280,7 @@ class EmoteManager:
     def parse_all_emotes(self, message, twitch_emotes_tag):
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
-        twitch_emote_start_indices = {instance["start"] for instance in twitch_emote_instances}
+        twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
 
         # for the other providers, split the message by spaces
         # and then, if word is not a twitch emote, consider ffz channel -> bttv channel ->
@@ -334,11 +299,11 @@ class EmoteManager:
                 continue
 
             third_party_emote_instances.append(
-                {"start": current_word_index, "end": current_word_index + len(word), "emote": emote}
+                EmoteInstance(start=current_word_index, end=current_word_index + len(word), emote=emote)
             )
 
         all_instances = twitch_emote_instances + third_party_emote_instances
-        all_instances.sort(key=lambda instance: instance["start"])
+        all_instances.sort(key=lambda instance: instance.start)
 
         return all_instances, compute_emote_counts(all_instances)
 
@@ -382,15 +347,15 @@ def compute_emote_counts(emote_instances):
     to count and a list of instances."""
     emote_counts = {}
     for emote_instance in emote_instances:
-        emote_code = emote_instance["emote"]["code"]
+        emote_code = emote_instance.emote.code
         current_value = emote_counts.get(emote_code, None)
 
         if current_value is None:
-            current_value = {"count": 1, "emote": emote_instance["emote"], "emote_instances": [emote_instance]}
+            current_value = EmoteInstanceCount(count=1, emote=emote_instance.emote, emote_instances=[emote_instance])
             emote_counts[emote_code] = current_value
         else:
-            current_value["count"] += 1
-            current_value["emote_instances"].append(emote_instance)
+            current_value.count += 1
+            current_value.emote_instances.append(emote_instance)
 
     return emote_counts
 
@@ -400,10 +365,9 @@ class EpmManager:
         self.epm = {}
 
     def handle_emotes(self, emote_counts):
-        # passed dict maps emote code (e.g. "Kappa") to an object holding the count (see the top of this file
-        # for details)
+        # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         for emote_code, obj in emote_counts.items():
-            self.epm_incr(emote_code, obj["count"])
+            self.epm_incr(emote_code, obj.count)
 
     def epm_incr(self, code, count):
         self.epm[code] = self.epm.get(code, 0) + count
@@ -422,13 +386,12 @@ class EpmManager:
 class EcountManager:
     @staticmethod
     def handle_emotes(emote_counts):
-        # passed dict maps emote code (e.g. "Kappa") to an object holding the count (see the top of this file
-        # for details)
+        # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         streamer = StreamHelper.get_streamer()
         redis_key = "{streamer}:emotes:count".format(streamer=streamer)
         with RedisManager.pipeline_context() as redis:
-            for emote_code, data in emote_counts.items():
-                redis.zincrby(redis_key, data["count"], emote_code)
+            for emote_code, instance_counts in emote_counts.items():
+                redis.zincrby(redis_key, instance_counts.count, emote_code)
 
     @staticmethod
     def get_emote_count(emote_code):
