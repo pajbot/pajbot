@@ -72,7 +72,7 @@ class GenericChannelEmoteManager:
         try:
             redis = RedisManager.get()
             # emotes expire after 1 hour
-            redis.setex(redis_key, 3600, json.dumps(emotes))
+            redis.setex(redis_key, 60 * 60, json.dumps([emote.jsonify() for emote in emotes]))
         except:
             log.exception("Error saving emotes to redis key {}".format(redis_key))
 
@@ -173,7 +173,9 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         try:
             redis = RedisManager.get()
             # emotes expire after 1 hour
-            redis.setex(redis_key, 3600, json.dumps({"1": tier_one, "2": tier_two, "3": tier_three}))
+            dict = {"1": tier_one, "2": tier_two, "3": tier_three}
+            dict = {key: [emote.jsonify() for emote in emotes] for key, emotes in dict.items()}
+            redis.setex(redis_key, 60 * 60, json.dumps(dict))
         except:
             log.exception("Error saving subemotes to redis key {}".format(redis_key))
 
