@@ -396,7 +396,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return pajbot.utils.now(tz).strftime(self.date_fmt)
+            return datetime.datetime.now(tz).strftime(self.date_fmt)
         except:
             log.exception("Unhandled exception in get_time_value")
 
