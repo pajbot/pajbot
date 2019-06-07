@@ -7,6 +7,7 @@ import irc
 from irc.client import InvalidCharacters
 from irc.client import MessageTooLong
 from irc.client import ServerNotConnectedError
+from irc.connection import Factory
 
 from pajbot.tmi import TMI
 
@@ -143,7 +144,7 @@ class ConnectionManager:
         log.debug("Selected {0}:{1}".format(ip, port))
 
         try:
-            ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+            ssl_factory = Factory(wrapper=ssl.wrap_socket)
             newconn = Connection(self.reactor)
             with self.reactor.mutex:
                 self.reactor.connections.append(newconn)
