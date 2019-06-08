@@ -6,7 +6,7 @@ services:
       dockerfile: PajbotDockerfile
     environment:
       - REDIS=redis
-      - KRAKEN_URL=kraken:7221
+      - APIPROXY_HOST=kraken:7221
     ports:
       - "7070:2325" # Forward container port 2325 to host port 7070
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: always # Enabled auto restart, since the bot is gonna crash until redis has token
     environment:
       - REDIS=redis
-      - KRAKEN_URL=kraken:7221
+      - APIPROXY_HOST=kraken:7221
     volumes:
       - pajbot-bot:/opt/www/configs
     depends_on:
