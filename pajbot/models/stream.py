@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import os
 import urllib
 
 from sqlalchemy import Boolean
@@ -91,7 +92,7 @@ class StreamManager:
             data = self.bot.twitchapi.get(
                 ["channels", self.bot.streamer, "videos"],
                 parameters={"broadcasts": "true"},
-                base="http://127.0.0.1:7221/kraken/",
+                base=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/",
             )
 
             self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])

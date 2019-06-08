@@ -3,6 +3,7 @@ import binascii
 import datetime
 import json
 import logging
+import os
 import urllib.parse
 from functools import update_wrapper
 from functools import wraps
@@ -70,7 +71,7 @@ def download_logo(client_id, streamer):
 
     twitchapi = TwitchAPI(client_id)
     try:
-        data = twitchapi.get(["users", streamer], base="http://127.0.0.1:7221/kraken/")
+        data = twitchapi.get(["users", streamer], base=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/")
         log.info(data)
         if data:
             logo_raw = "static/images/logo_{}.png".format(streamer)

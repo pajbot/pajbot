@@ -28,7 +28,7 @@ def init(app):
         consumer_key=app.bot_config["webtwitchapi"]["client_id"],
         consumer_secret=app.bot_config["webtwitchapi"]["client_secret"],
         request_token_params={"scope": "user_read"},
-        base_url="http://127.0.0.1:7221/kraken/",
+        base_url=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/",
         request_token_url=None,
         access_token_method="POST",
         access_token_url="https://id.twitch.tv/oauth2/token",
