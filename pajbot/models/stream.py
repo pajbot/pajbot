@@ -92,7 +92,7 @@ class StreamManager:
             data = self.bot.twitchapi.get(
                 ["channels", self.bot.streamer, "videos"],
                 parameters={"broadcasts": "true"},
-                base="http://{}/kraken/".format(os.environ.get('APIPROXY_HOST', '127.0.0.1:7221')),
+                base="{}/kraken/".format(os.environ.get('APIPROXY_HOST', 'http://127.0.0.1:7221')),
             )
 
             self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])
