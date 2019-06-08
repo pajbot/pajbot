@@ -65,15 +65,13 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(client_id, streamer):'REDIS', 'localhost'
+def download_logo(client_id, streamer):
     import urllib
     from pajbot.apiwrappers import TwitchAPI
 
     twitchapi = TwitchAPI(client_id)
     try:
-        data = twitchapi.get(
-            ["users", streamer], base=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/"
-        )
+        data = twitchapi.get(["users", streamer], base=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/")
         log.info(data)
         if data:
             logo_raw = "static/images/logo_{}.png".format(streamer)
