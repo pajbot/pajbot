@@ -361,7 +361,7 @@ function handleWebsocketData(json_data) {
             add_notification(data);
             break;
         case 'timeout':
-            add_notification('<span class="user">' + data.user + '</span> timed out <span class="victim">' + data.victim + '</span> EleGiggle');
+            add_notification({message: '<span class="user">' + data.user + '</span> timed out <span class="victim">' + data.victim + '</span> EleGiggle'});
             setTimeout(function () {
                 // TODO idk kev maybe this will just stay removed with new playsounds system
                 //play_sound('slap');
