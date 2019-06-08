@@ -72,7 +72,7 @@ def download_logo(client_id, streamer):
     twitchapi = TwitchAPI(client_id)
     try:
         data = twitchapi.get(
-            ["users", streamer], base=f"http://{os.environ.get('KRAKEN_URL', '127.0.0.1:7221')}/kraken/"
+            ["users", streamer], base="http://{}/kraken/".format(os.environ.get('APIPROXY_HOST', '127.0.0.1:7221'))
         )
         log.info(data)
         if data:
