@@ -1,0 +1,3 @@
+FROM ganjaaa/mariadb:latest
+
+COPY "./mysql/my.cnf" "/etc/mysql/my.cnf"

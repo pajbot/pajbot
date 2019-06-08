@@ -1,0 +1,67 @@
+version: '3.2'
+services:
+  pajbot_web:
+    build:
+      context: .
+      dockerfile: PajbotDockerfile
+    environment:
+      - REDIS=redis
+      - KRAKEN_URL=kraken:7221
+    ports:
+      - "7070:2325" # Forward container port 2325 to host port 7070
+    volumes:
+      - pajbot-bot:/opt/www/configs
+    depends_on:
+      - mysql
+      - redis
+      - kraken
+    command: ["python3", "app.py", "--config", "configs/config.ini"]
+
+  pajbot_bot:
+    build:
+      context: .
+      dockerfile: PajbotDockerfile
+    restart: always # Enabled auto restart, since the bot is gonna crash until redis has token
+    environment:
+      - REDIS=redis
+      - KRAKEN_URL=kraken:7221
+    volumes:
+      - pajbot-bot:/opt/www/configs
+    depends_on:
+      - mysql
+      - redis
+      - kraken
+    command: ["python3", "main.py", "--config", "configs/config.ini"]
+
+  kraken:
+    image: zwb3/twitch-api-v3-proxy:latest
+    restart: always
+    command: ["/opt/twitch-api-v3-proxy-boot/bin/twitch-api-v3-proxy", "--server.address=0.0.0.0", "--clientId=${CLIENTID}"] # CLIENTID is enviroment variable on server
+
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - pajbot-redis:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  mysql:
+    build:
+      context: .
+      dockerfile: MariaDBDockerfile
+    restart: always
+    volumes:
+      - pajbot-db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=myroot
+      - MYSQL_USER=user1;user2
+      - MYSQL_PASSWORD=pass1;pass2
+      - MYSQL_DATABASE=db1;db2
+
+volumes:
+  pajbot-db:
+    driver: local
+  pajbot-redis:
+    driver: local
+  pajbot-bot:
+    driver: local
