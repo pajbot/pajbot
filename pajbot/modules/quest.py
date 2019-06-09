@@ -187,10 +187,11 @@ class QuestModule(BaseModule):
             log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
             return
 
-        log.info("Resumed quest {}".format(quest.get_objective()))
         self.current_quest = quest
         self.current_quest.quest_module = self
         self.current_quest.start_quest()
+        log.info("Resumed quest {}".format(quest.get_objective()))
+
 
     def enable(self, bot):
         if self.bot:
