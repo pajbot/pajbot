@@ -192,7 +192,6 @@ class QuestModule(BaseModule):
         self.current_quest.start_quest()
         log.info("Resumed quest {}".format(quest.get_objective()))
 
-
     def enable(self, bot):
         if self.bot:
             self.current_quest_key = "{streamer}:current_quest".format(streamer=self.bot.streamer)
