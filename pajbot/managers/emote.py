@@ -344,7 +344,7 @@ class EmoteManager:
         if len(emotes) <= 0:
             return None
 
-        return random.sample(emotes)
+        return random.choice(emotes)
 
 
 def compute_emote_counts(emote_instances):
