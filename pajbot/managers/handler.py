@@ -66,6 +66,9 @@ class HandlerManager:
 
         # on_tick()
         HandlerManager.create_handler("on_tick")
+        
+        # on_quit()
+        HandlerManager.create_handler("on_quit")
 
     @staticmethod
     def create_handler(event):
