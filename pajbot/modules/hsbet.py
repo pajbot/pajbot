@@ -201,7 +201,7 @@ class HSBetModule(BaseModule):
 
                     if points == 0:
                         # If you didn't bet any points, you don't get a part of the cut.
-                        HandlerManager.trigger("on_user_win_hs_bet", user, points_reward)
+                        HandlerManager.trigger("on_user_win_hs_bet", user=user, points_won=points_reward)
                         continue
 
                     pot_cut = points / total_winning_points
@@ -209,7 +209,7 @@ class HSBetModule(BaseModule):
                     db_bets[user.username].profit = points_reward
                     user.points += points_reward
                     user.save()
-                    HandlerManager.trigger("on_user_win_hs_bet", user, points_reward)
+                    HandlerManager.trigger("on_user_win_hs_bet", user=user, points_won=points_reward)
                     self.bot.whisper(
                         user.username,
                         "You bet {} points on the right outcome, that rewards you with a profit of {} points! (Your bet was {:.2f}% of the total pool)".format(

@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class TypeMeMessageQuestModule(BaseQuest):
-
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Colorful chat /me"
     DESCRIPTION = "Type X /me messages with X message length."
@@ -43,22 +42,23 @@ class TypeMeMessageQuestModule(BaseQuest):
     def get_quest_message_length(self):
         return self.settings["quest_message_length"]
 
-    def on_message(self, source, message, _emotes, _whisper, _urls, event):
-        if len(message) >= self.get_quest_message_length():
-            if event.type == "action":
-                user_progress = self.get_user_progress(source.username, default=0)
+    def on_message(self, source, message, event, **rest):
+        if len(message) < self.get_quest_message_length() or event.type != "action":
+            return
 
-                if user_progress >= self.get_limit():
-                    return
+        user_progress = self.get_user_progress(source.username, default=0)
 
-                user_progress += 1
+        if user_progress >= self.get_limit():
+            return
 
-                redis = RedisManager.get()
+        user_progress += 1
 
-                if user_progress == self.get_limit():
-                    self.finish_quest(redis, source)
+        redis = RedisManager.get()
 
-                self.set_user_progress(source.username, user_progress, redis=redis)
+        if user_progress == self.get_limit():
+            self.finish_quest(redis, source)
+
+        self.set_user_progress(source.username, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)

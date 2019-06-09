@@ -20,10 +20,8 @@ class LineFarmingModule(BaseModule):
         )
     ]
 
-    def on_pubmsg(self, source, message):
-        if self.bot.is_online:
-            source.incr_num_lines()
-        elif self.settings["count_offline"] is True:
+    def on_pubmsg(self, source, **rest):
+        if self.bot.is_online or self.settings["count_offline"] is True:
             source.incr_num_lines()
 
     def enable(self, bot):

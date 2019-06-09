@@ -51,7 +51,7 @@ class LinkTrackerModule(BaseModule):
         self.db_session = None
         self.links = {}
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
+    def on_message(self, whisper, urls, **rest):
         if whisper is False:
             for url in urls:
                 self.add_url(url)
@@ -87,7 +87,7 @@ class LinkTrackerModule(BaseModule):
 
         self.links[url].increment()
 
-    def on_commit(self):
+    def on_commit(self, **rest):
         if self.db_session is not None:
             self.db_session.commit()
 
