@@ -51,7 +51,7 @@ class WinDuelPointsQuestModule(BaseQuest):
         self.points_required = None
         self.progress = {}
 
-    def on_duel_complete(self, winner, _loser, points_won, _points_bet):
+    def on_duel_complete(self, winner, points_won, **rest):
         if points_won < 1:
             # This duel did not award any points.
             # That means it's entirely irrelevant to us

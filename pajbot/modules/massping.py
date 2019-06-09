@@ -85,7 +85,7 @@ class MassPingProtectionModule(BaseModule):
         # set() is used so the same user is only counted once
         return sum(1 for x in set(real_usernames))
 
-    def on_pubmsg(self, source, message):
+    def on_pubmsg(self, source, message, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 

@@ -7,11 +7,10 @@ from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.modules.basic.ab import AbCommandModule
 from pajbot.modules.basic.admincommands import AdminCommandsModule
-from pajbot.modules.basic.bttvemotes import BTTVEmotesModule
 from pajbot.modules.basic.checkmod import CheckModModule
 from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
-from pajbot.modules.basic.ffzemotes import FFZEmotesModule
+from pajbot.modules.basic.emotes import EmotesModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
@@ -74,7 +73,7 @@ available_modules = [
     AbCommandModule,
     AdminCommandsModule,
     AsciiProtectionModule,
-    BTTVEmotesModule,
+    EmotesModule,
     BanphraseModule,
     BasicCommandsModule,
     BingoModule,
@@ -89,7 +88,6 @@ available_modules = [
     EightBallModule,
     EmoteComboModule,
     EmotesOnScreenModule,
-    FFZEmotesModule,
     FollowAgeModule,
     GetTimedOutQuestModule,
     GivePointsModule,

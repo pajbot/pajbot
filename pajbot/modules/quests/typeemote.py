@@ -1,9 +1,10 @@
 import logging
 
-from numpy import random
+import json
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.emote import Emote
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
@@ -13,7 +14,6 @@ log = logging.getLogger(__name__)
 
 
 class TypeEmoteQuestModule(BaseQuest):
-
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Type X emote Y times"
     DESCRIPTION = "A user needs to type a specific emote Y times to complete this quest."
@@ -33,29 +33,30 @@ class TypeEmoteQuestModule(BaseQuest):
     def __init__(self, bot):
         super().__init__(bot)
         self.current_emote_key = "{streamer}:current_quest_emote".format(streamer=StreamHelper.get_streamer())
-        self.current_emote = "???"
+        self.current_emote = None
         self.progress = {}
 
     def get_limit(self):
         return self.settings["quest_limit"]
 
-    def on_message(self, source, _message, emotes, _whisper, _urls, _event):
-        for emote in emotes:
-            if emote["code"] == self.current_emote:
-                user_progress = self.get_user_progress(source.username, default=0) + 1
+    def on_message(self, source, emote_instances, **rest):
+        typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
+        if self.current_emote not in typed_emotes:
+            return
 
-                if user_progress > self.get_limit():
-                    log.debug("{} has already complete the quest. Moving along.".format(source.username))
-                    # no need to do more
-                    return
+        user_progress = self.get_user_progress(source.username, default=0) + 1
 
-                redis = RedisManager.get()
+        if user_progress > self.get_limit():
+            log.debug("{} has already completed the quest. Moving along.".format(source.username))
+            # no need to do more
+            return
 
-                if user_progress == self.get_limit():
-                    self.finish_quest(redis, source)
+        redis = RedisManager.get()
 
-                self.set_user_progress(source.username, user_progress, redis=redis)
-                return
+        if user_progress == self.get_limit():
+            self.finish_quest(redis, source)
+
+        self.set_user_progress(source.username, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)
@@ -69,14 +70,17 @@ class TypeEmoteQuestModule(BaseQuest):
         if redis is None:
             redis = RedisManager.get()
 
-        self.current_emote = redis.get(self.current_emote_key)
-        if self.current_emote is None:
+        redis_json = redis.get(self.current_emote_key)
+        if redis_json is None:
             # randomize an emote
-            global_twitch_emotes = self.bot.emotes.get_global_emotes()
-            self.current_emote = random.choice(global_twitch_emotes)
-            redis.set(self.current_emote_key, self.current_emote)
+            # TODO possibly a setting to allow the user to configure the twitch_global=True, etc
+            #      parameters to random_emote?
+            self.current_emote = self.bot.emote_manager.random_emote(twitch_global=True)
+            # If EmoteManager has no global emotes, current_emote will be None
+            if self.current_emote is not None:
+                redis.set(self.current_emote_key, json.dumps(self.current_emote.jsonify()))
         else:
-            self.current_emote = self.current_emote
+            self.current_emote = Emote(**json.loads(redis_json))
 
     def stop_quest(self):
         HandlerManager.remove_handler("on_message", self.on_message)
@@ -87,4 +91,4 @@ class TypeEmoteQuestModule(BaseQuest):
         redis.delete(self.current_emote_key)
 
     def get_objective(self):
-        return "Use the {} emote {} times".format(self.current_emote, self.get_limit())
+        return "Use the {} emote {} times".format(self.current_emote.code, self.get_limit())

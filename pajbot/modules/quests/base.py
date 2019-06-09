@@ -1,7 +1,6 @@
 import json
 import logging
 
-import pajbot.managers
 from pajbot.managers.redis import RedisManager
 from pajbot.modules.base import BaseModule
 from pajbot.streamhelper import StreamHelper
@@ -19,6 +18,7 @@ class BaseQuest(BaseModule):
         self.quest_finished_key = "{streamer}:quests:finished".format(streamer=StreamHelper.get_streamer())
         self.quest_module = None
 
+    # TODO remove redis parameter
     def finish_quest(self, redis, user):
         if not self.quest_module:
             log.error("Quest module not initialized")
@@ -44,7 +44,7 @@ class BaseQuest(BaseModule):
             message = (
                 "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
             )
-            pajbot.managers.handler.HandlerManager.trigger("send_whisper", user.username, message)
+            self.bot.whisper(user.username, message)
             return
 
         # Mark the current stream ID has finished
@@ -59,7 +59,7 @@ class BaseQuest(BaseModule):
 
         # Notify the user that they've finished today's quest
         message = "You finished todays quest! You have been awarded with {} {}.".format(reward_amount, reward_type)
-        pajbot.managers.handler.HandlerManager.trigger("send_whisper", user.username, message)
+        self.bot.whisper(user.username, message)
 
         user.save()
 
@@ -75,12 +75,14 @@ class BaseQuest(BaseModule):
     def get_user_progress(self, username, default=False):
         return self.progress.get(username, default)
 
+    # TODO remove redis parameter
     def set_user_progress(self, username, new_progress, redis=None):
         if redis is None:
             redis = RedisManager.get()
         redis.hset(self.progress_key, username, new_progress)
         self.progress[username] = new_progress
 
+    # TODO remove redis parameter
     def load_progress(self, redis=None):
         if redis is None:
             redis = RedisManager.get()
@@ -92,12 +94,14 @@ class BaseQuest(BaseModule):
             except (TypeError, ValueError):
                 pass
 
+    # TODO remove redis parameter
     def load_data(self, redis=None):
         """
         Useful base method for loading dynamic parts of the quest.
         For example, what emote is supposed to be used in the type emote quest
         """
 
+    # TODO remove redis parameter
     def reset_progress(self, redis=None):
         if redis is None:
             redis = RedisManager.get()

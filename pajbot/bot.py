@@ -20,7 +20,7 @@ from pajbot.managers.bottoken import BotToken
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
-from pajbot.managers.emote import EmoteManager
+from pajbot.managers.emote import EmoteManager, EpmManager, EcountManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import MultiIRCManager
 from pajbot.managers.irc import SingleIRCManager
@@ -95,13 +95,6 @@ class Bot:
 
         DBManager.init(self.config["main"]["db"])
 
-        # Update the database scheme if necessary using alembic
-        # In case of errors, i.e. if the database is out of sync or the alembic
-        # binary can't be called, we will shut down the bot.
-        pajbot.utils.alembic_upgrade()
-
-        log.debug("ran db upgrade")
-
         redis_options = {}
         if "redis" in config:
             redis_options = dict(config.items("redis"))
@@ -140,6 +133,8 @@ class Bot:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
 
+        StreamHelper.init_streamer(self.streamer)
+
         self.silent = False
         self.dev = False
 
@@ -152,8 +147,18 @@ class Bot:
         # The config object that should be passed through should
         # come from pajbot.utils.load_config
         self.load_config(config)
-
         log.debug("Loaded config")
+
+        # streamer is additionally initialized here so streamer can be accessed by the DB migrations
+        # before StreamHelper.init_bot() is called later (which depends on an upgraded DB because
+        # StreamManager accesses the DB)
+        StreamHelper.init_streamer(self.streamer)
+
+        # Update the database (and partially redis) scheme if necessary using alembic
+        # In case of errors, i.e. if the database is out of sync or the alembic
+        # binary can't be called, we will shut down the bot.
+        pajbot.utils.alembic_upgrade()
+        log.debug("ran db upgrade")
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
@@ -174,15 +179,30 @@ class Bot:
 
         self.users = UserManager()
         self.decks = DeckManager()
+        self.banphrase_manager = BanphraseManager(self).load()
+        self.timer_manager = TimerManager(self).load()
+        self.kvi = KVIManager()
+
+        twitch_client_id = None
+        twitch_oauth = None
+        if "twitchapi" in self.config:
+            twitch_client_id = self.config["twitchapi"].get("client_id", None)
+            twitch_oauth = self.config["twitchapi"].get("oauth", None)
+
+        # A client ID is required for the bot to work properly now, give an error for now
+        if twitch_client_id is None:
+            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
+
+        self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
+        self.emote_manager = EmoteManager(twitch_client_id)
+        self.epm_manager = EpmManager()
+        self.ecount_manager = EcountManager()
+        self.twitter_manager = TwitterManager(self)
+
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
-        self.banphrase_manager = BanphraseManager(self).load()
-        self.timer_manager = TimerManager(self).load()
-        self.kvi = KVIManager()
-        self.emotes = EmoteManager(self)
-        self.twitter_manager = TwitterManager(self)
 
         HandlerManager.trigger("on_managers_loaded")
 
@@ -213,18 +233,6 @@ class Bot:
             self.irc = SingleIRCManager(self)
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
-
-        twitch_client_id = None
-        twitch_oauth = None
-        if "twitchapi" in self.config:
-            twitch_client_id = self.config["twitchapi"].get("client_id", None)
-            twitch_oauth = self.config["twitchapi"].get("oauth", None)
-
-        # A client ID is required for the bot to work properly now, give an error for now
-        if twitch_client_id is None:
-            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
-
-        self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
 
         self.data = {}
         self.data_cb = {}
@@ -260,17 +268,8 @@ class Bot:
         except:
             pass
 
-        # XXX: TEMPORARY UGLY CODE
-        HandlerManager.add_handler("on_user_gain_tokens", self.on_user_gain_tokens)
-        HandlerManager.add_handler("send_whisper", self.whisper)
-
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
-
-    def on_user_gain_tokens(self, user, tokens_gained):
-        self.whisper(
-            user.username, "You finished todays quest! You have been awarded with {} tokens.".format(tokens_gained)
-        )
 
     def update_subscribers_stage1(self):
         limit = 25
@@ -335,23 +334,26 @@ class Bot:
     def get_last_tweet(self, key, extra={}):
         return self.twitter_manager.get_last_tweet(key)
 
-    def get_emote_tm(self, key, extra={}):
-        val = self.emotes.get_emote_epm(key)
-        if not val:
+    def get_emote_epm(self, key, extra={}):
+        val = self.epm_manager.get_emote_epm(key)
+        if val is None:
             return None
-        return "{0:,d}".format(val)
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
+
+    def get_emote_epm_record(self, key, extra={}):
+        val = self.epm_manager.get_emote_epm_record(key)
+        if val is None:
+            return None
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
 
     def get_emote_count(self, key, extra={}):
-        val = self.emotes.get_emote_count(key)
-        if not val:
+        val = self.ecount_manager.get_emote_count(key)
+        if val is None:
             return None
-        return "{0:,d}".format(val)
-
-    def get_emote_tm_record(self, key, extra={}):
-        val = self.emotes.get_emote_epmrecord(key)
-        if not val:
-            return None
-        return "{0:,d}".format(val)
+        # formats the number with grouping (e.g. 112,556) and zero decimal places
+        return "{0:,.0f}".format(val)
 
     @staticmethod
     def get_source_value(key, extra={}):
@@ -588,7 +590,7 @@ class Bot:
     def _timeout_user(self, user, duration, reason=""):
         self._timeout(user.username, duration, reason)
 
-    def whisper(self, username, *messages, separator=". "):
+    def whisper(self, username, *messages, separator=". ", **rest):
         """
         Takes a sequence of strings and concatenates them with separator.
         Then sends that string as a whisper to username
@@ -681,15 +683,15 @@ class Bot:
     def on_disconnect(self, chatconn, event):
         self.irc.on_disconnect(chatconn, event)
 
-    def parse_message(self, msg_raw, source, event, tags={}, whisper=False):
-        msg_lower = msg_raw.lower()
+    def parse_message(self, message, source, event, tags={}, whisper=False):
+        msg_lower = message.lower()
 
         emote_tag = None
 
         for tag in tags:
             if tag["key"] == "subscriber" and event.target == self.channel:
                 source.subscriber = tag["value"] == "1"
-            elif tag["key"] == "emotes" and tag["value"]:
+            elif tag["key"] == "emotes":
                 emote_tag = tag["value"]
             elif tag["key"] == "display-name" and tag["value"]:
                 source.username_raw = tag["value"]
@@ -711,14 +713,24 @@ class Bot:
             source.timed_out = False
 
         # Parse emotes in the message
-        message_emotes = self.emotes.parse_message_twitch_emotes(source, msg_raw, emote_tag, whisper)
+        emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
 
-        urls = self.find_unique_urls(msg_raw)
+        self.epm_manager.handle_emotes(emote_counts)
+        self.ecount_manager.handle_emotes(emote_counts)
 
-        log.debug("{2}{0}: {1}".format(source.username, msg_raw, "<w>" if whisper else ""))
+        urls = self.find_unique_urls(message)
+
+        log.debug("{2}{0}: {1}".format(source.username, message, "<w>" if whisper else ""))
 
         res = HandlerManager.trigger(
-            "on_message", source, msg_raw, message_emotes, whisper, urls, event, stop_on_false=True
+            "on_message",
+            source=source,
+            message=message,
+            emote_instances=emote_instances,
+            emote_counts=emote_counts,
+            whisper=whisper,
+            urls=urls,
+            event=event,
         )
         if res is False:
             return False
@@ -732,11 +744,11 @@ class Bot:
         if msg_lower[:1] == "!":
             msg_lower_parts = msg_lower.split(" ")
             trigger = msg_lower_parts[0][1:]
-            msg_raw_parts = msg_raw.split(" ")
+            msg_raw_parts = message.split(" ")
             remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if trigger in self.commands:
                 command = self.commands[trigger]
-                extra_args = {"emotes": message_emotes, "trigger": trigger}
+                extra_args = {"emote_instances": emote_instances, "emote_counts": emote_counts, "trigger": trigger}
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
@@ -776,7 +788,7 @@ class Bot:
             msg = ""
             if event.arguments:
                 msg = event.arguments[0]
-            HandlerManager.trigger("on_usernotice", source, msg, tags)
+            HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
@@ -857,7 +869,7 @@ class Bot:
 
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         with self.users.get_user_context(username) as source:
-            res = HandlerManager.trigger("on_pubmsg", source, event.arguments[0], stop_on_false=True)
+            res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
             if res is False:
                 return False
 

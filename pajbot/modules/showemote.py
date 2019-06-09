@@ -102,26 +102,24 @@ class ShowEmoteModule(BaseModule):
 
         return emote_code not in self.settings["emote_blacklist"]
 
-    def show_emote(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        args = options["args"]
+    def show_emote(self, bot, source, args, **rest):
+        emote_instances = args["emote_instances"]
 
-        if len(args["emotes"]) <= 0:
+        if len(emote_instances) <= 0:
             # No emotes in the given message
             bot.whisper(source.username, "No valid emotes were found in your message.")
             return False
 
-        first_emote = args["emotes"][0]
+        first_emote = emote_instances[0].emote
 
         # request to show emote is ignored but return False ensures user is refunded tokens/points
-        if not self.is_emote_allowed(first_emote["code"]):
+        if not self.is_emote_allowed(first_emote.code):
             return False
 
         self.bot.websocket_manager.emit(
             "new_emotes",
             {
-                "emotes": [{"emote": first_emote, "shown_count": 1}],
+                "emotes": [first_emote.jsonify()],
                 "opacity": self.settings["emote_opacity"],
                 "persistence_time": self.settings["emote_persistence_time"],
                 "scale": self.settings["emote_onscreen_scale"],
@@ -129,7 +127,7 @@ class ShowEmoteModule(BaseModule):
         )
 
         if self.settings["success_whisper"]:
-            bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote["code"]))
+            bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote.code))
 
     def load_commands(self, **options):
         self.commands["#showemote"] = Command.raw_command(

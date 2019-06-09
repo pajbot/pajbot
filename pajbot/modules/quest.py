@@ -59,9 +59,7 @@ class QuestModule(BaseModule):
         self.current_quest = None
         self.current_quest_key = None
 
-    def my_progress(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def my_progress(self, bot, source, **rest):
         if self.current_quest is not None:
             quest_progress = self.current_quest.get_user_progress(source.username)
             quest_limit = self.current_quest.get_limit()
@@ -75,25 +73,15 @@ class QuestModule(BaseModule):
         else:
             bot.say("{}, There is no quest active right now.".format(source.username_raw))
 
-    def get_current_quest(self, **options):
-        bot = options["bot"]
-        event = options["event"]
-        source = options["source"]
-
+    def get_current_quest(self, bot, event, source, **rest):
         if self.current_quest:
-            message_quest = "{0}, the current quest active is {1}.".format(
-                source.username_raw, self.current_quest.get_objective()
-            )
+            message_quest = "the current quest active is {}.".format(self.current_quest.get_objective())
         else:
-            message_quest = "{0}, there is no quest active right now.".format(source.username_raw)
+            message_quest = "there is no quest active right now."
 
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
-    def get_user_tokens(self, **options):
-        bot = options["bot"]
-        event = options["event"]
-        source = options["source"]
-
+    def get_user_tokens(self, bot, event, source, **rest):
         message_tokens = "{0}, you have {1} tokens.".format(source.username_raw, source.tokens)
 
         if self.settings["action_tokens"] == "say":
@@ -121,7 +109,7 @@ class QuestModule(BaseModule):
 
         self.commands["quest"] = self.commands["currentquest"]
 
-    def on_stream_start(self):
+    def on_stream_start(self, **rest):
         if not self.current_quest_key:
             log.error("Current quest key not set when on_stream_start event fired, something is wrong")
             return False
@@ -144,7 +132,7 @@ class QuestModule(BaseModule):
 
         return True
 
-    def on_stream_stop(self):
+    def on_stream_stop(self, **rest):
         if self.current_quest is None:
             log.info("No quest active on stream stop.")
             return False
@@ -170,7 +158,7 @@ class QuestModule(BaseModule):
 
         return True
 
-    def on_managers_loaded(self):
+    def on_managers_loaded(self, **rest):
         # This function is used to resume a quest in case the bot starts when the stream is already live
         if not self.current_quest_key:
             log.error("Current quest key not set when on_managers_loaded event fired, something is wrong")
@@ -197,10 +185,10 @@ class QuestModule(BaseModule):
             log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
             return
 
-        log.info("Resumed quest {}".format(quest.get_objective()))
         self.current_quest = quest
         self.current_quest.quest_module = self
         self.current_quest.start_quest()
+        log.info("Resumed quest {}".format(quest.get_objective()))
 
     def enable(self, bot):
         if self.bot:

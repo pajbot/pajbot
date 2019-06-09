@@ -215,12 +215,7 @@ class SlotMachineModule(BaseModule):
         )
         self.commands["smp"] = self.commands["slotmachine"]
 
-    def pull(self, **options):
-        log.debug("pull xd")
-        message = options["message"]
-        user = options["source"]
-        bot = options["bot"]
-
+    def pull(self, bot, user, message, **rest):
         if message is None:
             bot.whisper(user.username, "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points")
             return False
@@ -300,9 +295,9 @@ class SlotMachineModule(BaseModule):
             else:
                 bot.whisper(user.username, out_message)
 
-        HandlerManager.trigger("on_slot_machine_finish", user, points)
+        HandlerManager.trigger("on_slot_machine_finish", user=user, points=points)
 
-    def on_tick(self):
+    def on_tick(self, **rest):
         if self.output_buffer == "":
             return
 

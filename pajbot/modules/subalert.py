@@ -205,7 +205,7 @@ class SubAlertModule(BaseModule):
                 (user.username, self.get_phrase("resub_whisper", **payload)),
             )
 
-    def on_usernotice(self, source, message, tags):
+    def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
             return
 
@@ -231,7 +231,7 @@ class SubAlertModule(BaseModule):
 
             # TODO: Should we check room id with streamer ID here? Maybe that's for pajbot2 instead
             self.on_resub(source, num_months, tags["msg-param-sub-plan"], None, substreak_count)
-            HandlerManager.trigger("on_user_resub", source, num_months)
+            HandlerManager.trigger("on_user_resub", user=source, num_months=num_months)
         elif tags["msg-id"] == "subgift":
             num_months = 0
             substreak_count = 0
@@ -256,18 +256,18 @@ class SubAlertModule(BaseModule):
                     self.on_resub(
                         receiver, num_months, tags["msg-param-sub-plan"], tags["display-name"], substreak_count
                     )
-                    HandlerManager.trigger("on_user_resub", receiver, num_months)
+                    HandlerManager.trigger("on_user_resub", user=receiver, num_months=num_months)
                 else:
                     # New sub
                     self.on_new_sub(receiver, tags["msg-param-sub-plan"], tags["display-name"])
-                    HandlerManager.trigger("on_user_sub", receiver)
+                    HandlerManager.trigger("on_user_sub", user=receiver)
         elif tags["msg-id"] == "sub":
             if "msg-param-sub-plan" not in tags:
                 log.debug("subalert msg-id is sub, but missing msg-param-sub-plan: {}".format(tags))
                 return
 
             self.on_new_sub(source, tags["msg-param-sub-plan"])
-            HandlerManager.trigger("on_user_sub", source)
+            HandlerManager.trigger("on_user_sub", user=source)
         else:
             log.debug("Unhandled msg-id: {} - tags: {}".format(tags["msg-id"], tags))
 

@@ -159,7 +159,7 @@ class PaidTimeoutModule(BaseModule):
                 payload = {"user": source.username, "victim": victim.username}
                 bot.websocket_manager.emit("timeout", payload)
 
-            HandlerManager.trigger("on_paid_timeout", source, victim, _cost, stop_on_false=False)
+            HandlerManager.trigger("on_paid_timeout", source=source, victim=victim, cost=_cost, stop_on_false=False)
 
     def paid_timeout(self, **options):
         message = options["message"]
@@ -228,7 +228,7 @@ class PaidTimeoutDiscountModule(BaseModule):
     # would also like to have the discounts customizeable
     SETTINGS = []
 
-    def on_paid_timeout(self, source, victim, cost):
+    def on_paid_timeout(self, source, victim, cost, **rest):
         log.info("PAID TIMEOUT OCCURED")
         # Discounts here!
         discounts = {

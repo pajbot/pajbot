@@ -48,15 +48,15 @@ class WinHsBetPointsQuestModule(BaseQuest):
         self.hsbet_points_required = None
         self.progress = {}
 
-    def on_user_win_hs_bet(self, user, points_reward):
-        if points_reward < 1:
+    def on_user_win_hs_bet(self, user, points_won, **rest):
+        if points_won < 1:
             return
 
         user_progress = self.get_user_progress(user.username, default=0)
         if user_progress >= self.hsbet_points_required:
             return
 
-        user_progress += points_reward
+        user_progress += points_won
 
         redis = RedisManager.get()
 

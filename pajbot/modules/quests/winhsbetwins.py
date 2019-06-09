@@ -31,7 +31,7 @@ class WinHsBetWinsQuestModule(BaseQuest):
     def get_limit(self):
         return self.settings["quest_limit"]
 
-    def on_user_win_hs_bet(self, user, _points_reward):
+    def on_user_win_hs_bet(self, user, **rest):
         # User needs to make 1 point profit at least
         # if points_reward < 1:
         #    return

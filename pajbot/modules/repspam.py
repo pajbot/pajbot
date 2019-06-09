@@ -276,7 +276,7 @@ class RepspamModule(BaseModule):
     def disable(self, bot):
         HandlerManager.remove_handler("on_message", self.on_message)
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
+    def on_message(self, source, message, whisper, **rest):
         if whisper:
             return
         if source.level >= 420 or source.moderator:

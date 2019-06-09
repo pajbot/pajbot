@@ -296,7 +296,9 @@ class DuelModule(BaseModule):
         del self.duel_requests[self.duel_targets[source.username]]
         del self.duel_targets[source.username]
 
-        HandlerManager.trigger("on_duel_complete", winner, loser, winning_pot, duel_price)
+        HandlerManager.trigger(
+            "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
+        )
 
     def decline_duel(self, **options):
         """

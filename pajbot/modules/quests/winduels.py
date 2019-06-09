@@ -31,7 +31,7 @@ class WinDuelsQuestModule(BaseQuest):
     def get_limit(self):
         return self.settings["quest_limit"]
 
-    def on_duel_complete(self, winner, _loser, points_won, _points_bet):
+    def on_duel_complete(self, winner, points_won, **rest):
         if points_won < 1:
             return
 
