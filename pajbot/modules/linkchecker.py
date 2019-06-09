@@ -236,52 +236,57 @@ class LinkCheckerModule(BaseModule):
         )
         return self
 
-    super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com", "inboxesbot.com", "inboxes.tv"]
+    super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
 
-    def on_message(self, source, message, emotes, whisper, urls, event):
-        if not whisper and source.level < 500 and source.moderator is False:
-            if len(urls) > 0:
-                do_timeout = False
-                ban_reason = "You are not allowed to post links in chat"
-                whisper_reason = "??? KKona"
+    def on_message(self, source, whisper, urls, **rest):
+        if whisper:
+            return
 
-                if self.settings["ban_pleb_links"] is True and source.subscriber is False:
-                    do_timeout = True
-                    whisper_reason = "You cannot post non-verified links in chat if you're not a subscriber."
-                elif self.settings["ban_sub_links"] is True and source.subscriber is True:
-                    do_timeout = True
-                    whisper_reason = "You cannot post non-verified links in chat."
+        if source.level >= 500 or source.moderator is True:
+            return
 
-                if do_timeout is True:
-                    # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
-                    for url in urls:
-                        parsed_url = Url(url)
-                        if len(parsed_url.parsed.netloc.split(".")) < 2:
-                            continue
-                        whitelisted = False
-                        for whitelist in self.super_whitelist:
-                            if is_subdomain(parsed_url.parsed.netloc, whitelist):
-                                whitelisted = True
-                                break
-                        if whitelisted is False:
-                            self.bot.timeout(source.username, 30, reason=ban_reason)
-                            if source.minutes_in_chat_online > 60:
-                                self.bot.whisper(source.username, whisper_reason)
-                            return False
+        if len(urls) > 0:
+            do_timeout = False
+            ban_reason = "You are not allowed to post links in chat"
+            whisper_reason = "??? KKona"
 
-            for url in urls:
-                # Action which will be taken when a bad link is found
-                action = Action(
-                    self.bot.timeout,
-                    args=[source.username, self.settings["timeout_length"]],
-                    kwargs={"reason": "Banned link"},
-                )
-                # First we perform a basic check
-                if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
-                    # If the basic check returns no relevant data, we queue up a proper check on the URL
-                    self.action_queue.add(self.check_url, args=[url, action])
+            if self.settings["ban_pleb_links"] is True and source.subscriber is False:
+                do_timeout = True
+                whisper_reason = "You cannot post non-verified links in chat if you're not a subscriber."
+            elif self.settings["ban_sub_links"] is True and source.subscriber is True:
+                do_timeout = True
+                whisper_reason = "You cannot post non-verified links in chat."
 
-    def on_commit(self):
+            if do_timeout is True:
+                # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
+                for url in urls:
+                    parsed_url = Url(url)
+                    if len(parsed_url.parsed.netloc.split(".")) < 2:
+                        continue
+                    whitelisted = False
+                    for whitelist in self.super_whitelist:
+                        if is_subdomain(parsed_url.parsed.netloc, whitelist):
+                            whitelisted = True
+                            break
+                    if whitelisted is False:
+                        self.bot.timeout(source.username, 30, reason=ban_reason)
+                        if source.minutes_in_chat_online > 60:
+                            self.bot.whisper(source.username, whisper_reason)
+                        return False
+
+        for url in urls:
+            # Action which will be taken when a bad link is found
+            action = Action(
+                self.bot.timeout,
+                args=[source.username, self.settings["timeout_length"]],
+                kwargs={"reason": "Banned link"},
+            )
+            # First we perform a basic check
+            if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
+                # If the basic check returns no relevant data, we queue up a proper check on the URL
+                self.action_queue.add(self.check_url, args=[url, action])
+
+    def on_commit(self, **rest):
         if self.db_session is not None:
             self.db_session.commit()
 

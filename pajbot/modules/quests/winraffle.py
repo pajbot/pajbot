@@ -34,15 +34,15 @@ class WinRaffleQuestModule(BaseQuest):
 
         self.set_user_progress(winner.username, user_progress, redis=redis)
 
-    def on_raffle_win(self, winner, _points):
+    def on_raffle_win(self, winner, **rest):
         self.winraffle_progress_quest(winner)
 
-    def on_bingo_win(self, winner, _points, _target_emote):
+    def on_bingo_win(self, winner, **rest):
         self.winraffle_progress_quest(winner)
 
-    def on_multiraffle_win(self, winners, points_per_user):
+    def on_multiraffle_win(self, winners, points_per_user, **rest):
         for winner in winners:
-            self.on_raffle_win(winner, points_per_user)
+            self.on_raffle_win(winner)
 
     def start_quest(self):
         HandlerManager.add_handler("on_raffle_win", self.on_raffle_win)

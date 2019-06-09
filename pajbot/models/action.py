@@ -334,9 +334,12 @@ def get_substitutions(string, bot):
         method_mapping["kvi"] = bot.get_kvi_value
         method_mapping["tb"] = bot.get_value
         method_mapping["lasttweet"] = bot.get_last_tweet
-        method_mapping["etm"] = bot.get_emote_tm
+        # "etm" is legacy
+        method_mapping["etm"] = bot.get_emote_epm
+        method_mapping["epm"] = bot.get_emote_epm
+        method_mapping["etmrecord"] = bot.get_emote_epm_record
+        method_mapping["epmrecord"] = bot.get_emote_epm_record
         method_mapping["ecount"] = bot.get_emote_count
-        method_mapping["etmrecord"] = bot.get_emote_tm_record
         method_mapping["source"] = bot.get_source_value
         method_mapping["user"] = bot.get_user_value
         method_mapping["usersource"] = bot.get_usersource_value

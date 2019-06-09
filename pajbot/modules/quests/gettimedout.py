@@ -16,7 +16,7 @@ class GetTimedOutQuestModule(BaseQuest):
     OBJECTIVE = "Get timed out by another user"
 
     @staticmethod
-    def on_paid_timeout(source, victim, cost):
+    def on_paid_timeout(source, victim, cost, **rest):
         log.warning("{} just timed out {} for {} points".format(source, victim, cost))
 
     def enable(self, bot):
