@@ -9,7 +9,7 @@ services:
     ports:
       - "7070:2325" # Forward container port 2325 to host port 7070
     volumes:
-      - pajbot-bot:/opt/www/configs
+      - /opt/pajbots/:/opt/www/configs # /opt/pajbots/ is the host folder, /opt/www/configs is the folder in the container
     depends_on:
       - mysql
       - redis
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     volumes:
-      - pajbot-bot:/opt/www/configs
+      - /opt/pajbots/:/opt/www/configs # /opt/pajbots/ is the host folder, /opt/www/configs is the folder in the container
     depends_on:
       - mysql
       - redis
@@ -60,6 +60,4 @@ volumes:
   pajbot-db:
     driver: local
   pajbot-redis:
-    driver: local
-  pajbot-bot:
     driver: local
