@@ -75,11 +75,9 @@ class QuestModule(BaseModule):
 
     def get_current_quest(self, bot, event, source, **rest):
         if self.current_quest:
-            message_quest = "{0}, the current quest active is {1}.".format(
-                source.username_raw, self.current_quest.get_objective()
-            )
+            message_quest = "the current quest active is {}.".format(self.current_quest.get_objective())
         else:
-            message_quest = "{0}, there is no quest active right now.".format(source.username_raw)
+            message_quest = "there is no quest active right now."
 
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
