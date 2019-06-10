@@ -204,8 +204,8 @@ class TriviaModule(BaseModule):
 
         HandlerManager.remove_handler("on_message", self.on_message)
 
-    def on_message(self, source, message, **rest):
-        if message is None:
+    def on_message(self, source, message, whisper, **rest):
+        if not message or whisper:
             return
 
         if self.question:
