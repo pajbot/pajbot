@@ -396,7 +396,6 @@ end
         new_epm = self.epm.get(code, 0) + count
         self.epm[code] = new_epm
         self.save_epm_record(code, new_epm)
-        # TODO if we want to add epm records back, do it here
         ScheduleManager.execute_delayed(60, self.epm_decr, args=[code, count])
 
     def epm_decr(self, code, count):
