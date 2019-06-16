@@ -57,17 +57,17 @@ jobs:
   setup-3.5:
     executor: pajbot-3.5
     steps:
-      - create_setup
+      - create_setup:
           python_version: 3.5
   setup-3.7:
     executor: pajbot-3.7
     steps:
-      - create_setup
+      - create_setup:
           python_version: 3.7
   test-3.5:
     executor: pajbot-3.5
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.5
       - run:
           name: Run tests
@@ -75,7 +75,7 @@ jobs:
   test-3.7:
     executor: pajbot-3.7
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.7
       - run:
           name: Run tests
@@ -83,7 +83,7 @@ jobs:
   lint-3.5:
     executor: pajbot-3.5
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.5
       - run:
           name: Run flake8 (lint)
@@ -91,7 +91,7 @@ jobs:
   lint-3.7:
     executor: pajbot-3.7
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.7
       - run:
           name: Run flake8 (lint)
@@ -99,7 +99,7 @@ jobs:
   check-format-3.5:
     executor: pajbot-3.7
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.7
       - run:
           name: Install black
@@ -110,7 +110,7 @@ jobs:
   check-format-3.7:
     executor: pajbot-3.7
     steps:
-      - load_setup
+      - load_setup:
           python_version: 3.7
       - run:
           name: Install black
