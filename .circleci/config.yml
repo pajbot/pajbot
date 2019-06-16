@@ -58,17 +58,17 @@ jobs:
     executor: pajbot-35
     steps:
       - create_setup:
-          python_version: 3.5
+          python_version: "3.5"
   setup-37:
     executor: pajbot-37
     steps:
       - create_setup:
-          python_version: 3.7
+          python_version: "3.7"
   test-35:
     executor: pajbot-35
     steps:
       - load_setup:
-          python_version: 3.5
+          python_version: "3.5"
       - run:
           name: Run tests
           command: ./venv/bin/pytest
@@ -76,7 +76,7 @@ jobs:
     executor: pajbot-37
     steps:
       - load_setup:
-          python_version: 3.7
+          python_version: "3.7"
       - run:
           name: Run tests
           command: ./venv/bin/pytest
@@ -84,7 +84,7 @@ jobs:
     executor: pajbot-35
     steps:
       - load_setup:
-          python_version: 3.5
+          python_version: "3.5"
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
@@ -92,7 +92,7 @@ jobs:
     executor: pajbot-37
     steps:
       - load_setup:
-          python_version: 3.7
+          python_version: "3.7"
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
@@ -100,7 +100,7 @@ jobs:
     executor: pajbot-37
     steps:
       - load_setup:
-          python_version: 3.7
+          python_version: "3.7"
       - run:
           name: Install black
           command: ./venv/bin/pip install black
@@ -111,7 +111,7 @@ jobs:
     executor: pajbot-37
     steps:
       - load_setup:
-          python_version: 3.7
+          python_version: "3.7"
       - run:
           name: Install black
           command: ./venv/bin/pip install black
