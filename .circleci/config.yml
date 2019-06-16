@@ -32,6 +32,9 @@ commands:
       - run:
           name: Install requirements into virtual environment
           command: ./venv/bin/pip install --progress-bar off -r requirements.txt
+      - run:
+          name: Install black if supported
+          command: ./.circleci/install-black.py
       - save_cache:
           name: Save virtual environment to cache
           key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
@@ -102,9 +105,6 @@ jobs:
       - load_setup:
           python_version: "3.7"
       - run:
-          name: Install black
-          command: ./venv/bin/pip install black
-      - run:
           name: Run black in check mode
           command: ./venv/bin/black --target-version py35 --check --diff pajbot
   check-format-37:
@@ -112,9 +112,6 @@ jobs:
     steps:
       - load_setup:
           python_version: "3.7"
-      - run:
-          name: Install black
-          command: ./venv/bin/pip install black
       - run:
           name: Run black in check mode
           command: ./venv/bin/black --target-version py37 --check --diff pajbot
