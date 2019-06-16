@@ -3,9 +3,9 @@ services:
   pajbot_web:
     build:
       context: .
-      dockerfile: PajbotDockerfile
+      dockerfile: docker/PajbotDockerfile
     env_file:
-      - .env
+      - docker/.env
     ports:
       - "7070:2325" # Forward container port 2325 to host port 7070
     volumes:
@@ -19,10 +19,10 @@ services:
   pajbot_bot:
     build:
       context: .
-      dockerfile: PajbotDockerfile
+      dockerfile: docker/PajbotDockerfile
     restart: unless-stopped # Enabled auto restart, since the bot is gonna crash until redis has token
     env_file:
-      - .env
+      - docker/.env
     volumes:
       - /opt/pajbots/:/opt/www/configs # /opt/pajbots/ is the host folder, /opt/www/configs is the folder in the container
     depends_on:
@@ -46,7 +46,7 @@ services:
   mysql:
     build:
       context: .
-      dockerfile: MariaDBDockerfile
+      dockerfile: docker/MariaDBDockerfile
     restart: always
     volumes:
       - pajbot-db:/var/lib/mysql
