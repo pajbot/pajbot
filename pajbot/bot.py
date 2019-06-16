@@ -771,7 +771,7 @@ class Bot:
     def on_pubnotice(self, chatconn, event):
         return
         type = "whisper" if chatconn in self.whisper_manager else "normal"
-        log.debug(f"NOTICE {type}@{event.target}: {event.arguments}")
+        log.debug("NOTICE {}@{}: {}".format(type, event.target, event.arguments))
 
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
