@@ -1,32 +1,28 @@
 # CircleCI configuration
 # see: https://circleci.com/docs/2.0/configuration-reference/
 
-# The "setup" job clones pajbot and initializes the virtual environment and then saves
-# the entire working directory to the cache.
-# The "test" and "lint" jobs then fan out in parallel, restore the cache that "setup" produced
-# (using the load_setup command defined below) and run their respective command.
-
 version: 2.1
 executors:
-  pajbot:
+  pajbot-3.7:
     docker:
       - image: circleci/python:3.7
     working_directory: ~/pajbot
+  pajbot-3.5:
+    docker:
+      - image: circleci/python:3.5
+    working_directory: ~/pajbot
+
 commands:
-  load_setup:
-    description: "Load the cache that the \"setup\" job produced."
-    steps:
-      - restore_cache:
-          keys:
-            - v1-setup-{{ .Environment.CIRCLE_SHA1 }}
-jobs:
-  setup:
-    executor: pajbot
+  create_setup:
+    description: "Install virtual environment and requirements"
+    parameters:
+      python_version:
+        type: string
     steps:
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
-          key: v1-python3.7-{{ checksum "requirements.txt" }}
+          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
       - run:
           name: Create virtual environment
           command: python -m venv venv
@@ -38,49 +34,113 @@ jobs:
           command: ./venv/bin/pip install --progress-bar off -r requirements.txt
       - save_cache:
           name: Save virtual environment to cache
-          key: v1-python3.7-{{ checksum "requirements.txt" }}
+          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
           paths:
             - ./venv
       - save_cache:
           name: Save created project dir to cache for other jobs to use
-          key: v1-setup-{{ .Environment.CIRCLE_SHA1 }}
+          key: v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             # working directory (entire project directory)
             - .
-  test:
-    executor: pajbot
+  load_setup:
+    description: "Load the cache that the \"setup\" job produced."
+    parameters:
+      python_version:
+        type: string
+    steps:
+      - restore_cache:
+          keys:
+            - v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
+
+jobs:
+  setup-3.5:
+    executor: pajbot-3.5
+    steps:
+      - create_setup
+          python_version: 3.5
+  setup-3.7:
+    executor: pajbot-3.7
+    steps:
+      - create_setup
+          python_version: 3.7
+  test-3.5:
+    executor: pajbot-3.5
     steps:
       - load_setup
+          python_version: 3.5
       - run:
           name: Run tests
           command: ./venv/bin/pytest
-  lint:
-    executor: pajbot
+  test-3.7:
+    executor: pajbot-3.7
     steps:
       - load_setup
+          python_version: 3.7
+      - run:
+          name: Run tests
+          command: ./venv/bin/pytest
+  lint-3.5:
+    executor: pajbot-3.5
+    steps:
+      - load_setup
+          python_version: 3.5
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
-  format:
-    executor: pajbot
+  lint-3.7:
+    executor: pajbot-3.7
     steps:
       - load_setup
+          python_version: 3.7
+      - run:
+          name: Run flake8 (lint)
+          command: ./venv/bin/flake8
+  check-format-3.5:
+    executor: pajbot-3.7
+    steps:
+      - load_setup
+          python_version: 3.7
+      - run:
+          name: Install black
+          command: ./venv/bin/pip install black
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --check --diff pajbot
+          command: ./venv/bin/black --target-version py35 --check --diff pajbot
+  check-format-3.7:
+    executor: pajbot-3.7
+    steps:
+      - load_setup
+          python_version: 3.7
+      - run:
+          name: Install black
+          command: ./venv/bin/pip install black
+      - run:
+          name: Run black in check mode
+          command: ./venv/bin/black --target-version py37 --check --diff pajbot
 
 # add one workflow that runs all jobs in parallel
 workflows:
   version: 2
   run-all:
     jobs:
-      - setup
-      - test:
+      - setup-3.5
+      - setup-3.7
+      - test-3.5:
           requires:
-            - setup
-      - lint:
+            - setup-3.5
+      - test-3.7:
           requires:
-            - setup
-      - format:
+            - setup-3.7
+      - lint-3.5:
           requires:
-            - setup
+            - setup-3.5
+      - lint-3.7:
+          requires:
+            - setup-3.7
+      - check-format-3.5:
+          requires:
+            - setup-3.7 # this is intentional
+      - check-format-3.7:
+          requires:
+            - setup-3.7
