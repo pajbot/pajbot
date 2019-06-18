@@ -8,10 +8,11 @@ log = logging.getLogger(__name__)
 
 
 class SocketManager:
-    def __init__(self):
+    def __init__(self, streamer_name):
         self.handlers = {}
         self.pubsub = RedisManager.get().pubsub()
         self.running = True
+        self.streamer_name = streamer_name
 
         self.pubsub.subscribe("test")  # need this for keepalive? idk
 
@@ -23,6 +24,8 @@ class SocketManager:
         self.running = False
 
     def add_handler(self, topic, method):
+        topic = '{}:{}'.format(self.streamer_name, topic)
+
         if topic not in self.handlers:
             self.handlers[topic] = [method]
             self.pubsub.subscribe(topic)
@@ -52,5 +55,14 @@ class SocketManager:
 
 class SocketClientManager:
     @staticmethod
+    def init(streamer_name):
+        SocketClientManager.streamer_name = streamer_name
+
+    @staticmethod
     def send(topic, data):
+        topic = '{}:{}'.format(SocketClientManager.streamer_name, topic)
+
+        if not SocketClientManager.streamer_name:
+            log.error('STREAMER NAME NOT SET IN SOCKET CLIENT MANAGER')
+
         RedisManager.publish(topic, json.dumps(data))
