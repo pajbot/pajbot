@@ -509,7 +509,7 @@ class Bot:
 
             content_type = r.headers["Content-Type"]
             if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
-                log.error("privmsg_from_file should be fed with a text/plain URL. Refusing to send.")
+                log.error("eval_from_file should be fed with a text/plain URL. Refusing to send.")
                 return
 
             lines = r.text.splitlines()
