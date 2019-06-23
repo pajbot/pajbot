@@ -340,3 +340,13 @@ def iterate_split_with_index(split_parts, separator_length=1):
     for part in split_parts:
         yield index, part
         index += len(part) + separator_length
+
+
+def dump_threads():
+    import threading
+    import traceback
+
+    for th in threading.enumerate():
+        print(th)
+        traceback.print_stack(sys._current_frames()[th.ident])
+        print()
