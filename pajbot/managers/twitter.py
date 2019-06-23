@@ -1,5 +1,6 @@
 import datetime
 import logging
+import threading
 
 import tweepy
 
@@ -37,7 +38,7 @@ class TwitterManager:
             self.twitter_client = tweepy.API(self.twitter_auth)
 
             if self.use_twitter_stream:
-                self._run_twitter_stream()
+                self.check_twitter_connection()
                 bot.execute_every(60 * 5, self.check_twitter_connection)
         except:
             log.exception("Twitter authentication failed.")
@@ -138,12 +139,11 @@ class TwitterManager:
                 if twitter_user:
                     user_ids.append(twitter_user.id_str)
 
-        log.debug("Interested in: %s", user_ids)
         if not user_ids:
             return
 
         try:
-            self.twitter_stream.filter(follow=user_ids, is_async=True)
+            self.twitter_stream.filter(follow=user_ids, is_async=False)
         except:
             log.exception("Exception caught in twitter stream _run")
 
@@ -151,11 +151,13 @@ class TwitterManager:
         """Check if the twitter stream is running.
         If it's not running, try to restart it.
         """
-        if self.twitter_stream.running:
+        if self.twitter_stream and self.twitter_stream.running:
             return
 
         try:
-            self._run_twitter_stream()
+            t = threading.Thread(target=self._run_twitter_stream, name="Twitter")
+            t.daemon = True
+            t.start()
         except:
             log.exception("Caught exception while checking twitter connection")
 
