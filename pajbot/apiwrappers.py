@@ -306,7 +306,7 @@ class TwitchAPI(APIBase):
     def parse_datetime(datetime_str):
         """Parses date strings in the format of 2015-09-11T23:01:11+00:00
         to a naive datetime object."""
-        return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
+        return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ")
 
     def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
