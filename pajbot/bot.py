@@ -783,11 +783,6 @@ class Bot:
         log.info("Received a pong. Last pong received %s ago", time_ago(self.last_pong))
         self.last_pong = pajbot.utils.now()
 
-    def on_pubnotice(self, chatconn, event):
-        return
-        type = "whisper" if chatconn in self.whisper_manager else "normal"
-        log.debug("NOTICE {}@{}: {}".format(type, event.target, event.arguments))
-
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         tags = {}
