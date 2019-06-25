@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class CaseCheckerModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Case checker"
-    DESCRIPTION = "Times out users who post messages that contain too many characters."
+    DESCRIPTION = "Times out users who post messages that contain lowercase/uppercase letters."
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
