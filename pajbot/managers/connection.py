@@ -28,8 +28,8 @@ class CustomServerConnection(irc.client.ServerConnection):
         """
         # The string should not contain any carriage return other than the
         # one added here.
-        if "\n" in string:
-            raise InvalidCharacters("Carriage returns not allowed in privmsg(text)")
+        if "\n" in string or "\r" in string:
+            raise InvalidCharacters("CR/LF not allowed in IRC commands")
         bytes = string.encode("utf-8") + b"\r\n"
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
