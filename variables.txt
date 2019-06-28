@@ -63,9 +63,8 @@ tb - Info about the bot instance
 Data from `extra`:
 tb:trigger - String - Command trigger (e.g. "logs" for "!logs")
 tb:user - String - Sender login name
-tb:emote_instances - List of EmoteInstance objects - not very useful
-tb:emote_counts - List of EmoteInstanceCount objects - not very useful
-(not sure you can use this with substitutions...)
+tb:emote_instances - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]
+tb:emote_counts - List of EmoteInstanceCount objects - useful for debugging. Outputs something like this: {'Kappa': [twitch] Kappa @ [12-17], 'Keepo': [twitch] Keepo @ [18-23, 24-29]}
 tb:source - pajbot.models.user.UserCombined - (Command sender)
  -> see user: for all fields on user objects
 tb:command - pajbot.models.command.Command
