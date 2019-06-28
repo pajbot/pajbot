@@ -106,7 +106,7 @@ class ConnectionManager:
             self.main_conn.connect(
                 ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
             )
-            self.main_conn.cap("REQ", "twitch.tv/commands twitch.tv/tags")
+            self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
         except irc.client.ServerConnectionError:
             return False
 
