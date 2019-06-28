@@ -25,7 +25,7 @@ class Emote:
         return hash((self.provider, self.id))
 
     def __repr__(self):
-        return "{}: {}".format(self.provider, self.code)
+        return "[{}] {}".format(self.provider, self.code)
 
     def jsonify(self):
         return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls}
@@ -54,6 +54,9 @@ class EmoteInstance:
     def __hash__(self):
         return hash((self.start, self.end, self.emote))
 
+    def __repr__(self):
+        return "{} @ {}-{}".format(self.emote, self.start, self.end)
+
     def jsonify(self):
         return {"start": self.start, "end": self.end, "emote": self.emote}
 
@@ -81,6 +84,11 @@ class EmoteInstanceCount:
 
     def __hash__(self):
         return hash((self.count, self.emote, self.emote_instances))
+
+    def __repr__(self):
+        indices = ["{}-{}".format(instance.start, instance.end) for instance in self.emote_instances]
+
+        return "{} @ [{}]".format(self.emote, ", ".join(indices))
 
     def jsonify(self):
         return {"count": self.count, "emote": self.emote, "emote_instances": self.emote_instances}
