@@ -39,10 +39,6 @@ special substitutions:
 $(urlfetch <url>) - HTTP GET the given URL, and returns the body of the request.
 Some useful "customapi" resources are:
 
-$(urlfetch https://braize.pajlada.com/pajbot/subemotes/<twitchChannelID>/) where you put
-the twitch user ID of the broadcaster into the URL. Returns a space-separated list of all
-sub emotes in the given channel.
-
 All resources from https://customapi.aidenwallis.co.uk/
 
 All resources from https://docs.decapi.me/#toc
@@ -67,7 +63,8 @@ tb - Info about the bot instance
 Data from `extra`:
 tb:trigger - String - Command trigger (e.g. "logs" for "!logs")
 tb:user - String - Sender login name
-tb:emotes - Array - Emotes, e.g. [{'twitch_id': '521050', 'count': 1, 'start': 8, 'code': 'forsenE', 'end': 14}]
+tb:emote_instances - List of EmoteInstance objects - not very useful
+tb:emote_counts - List of EmoteInstanceCount objects - not very useful
 (not sure you can use this with substitutions...)
 tb:source - pajbot.models.user.UserCombined - (Command sender)
  -> see user: for all fields on user objects
