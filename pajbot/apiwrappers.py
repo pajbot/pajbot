@@ -491,7 +491,7 @@ class TwitchAPI(APIBase):
             plans = resp["plans"]
             if len(plans) <= 0:
                 log.warning("No subscription plans found for channel {}".format(channel))
-                return []
+                return [], [], []
 
             # plans[0] is tier 1
             ret_data = []
