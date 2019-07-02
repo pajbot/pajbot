@@ -60,16 +60,6 @@ class ShowEmoteModule(BaseModule):
             constraints={"min_value": 0, "max_value": 100},
         ),
         ModuleSetting(
-            key="max_emotes_per_message",
-            label="Maximum number of emotes per message that may appear on the screen. "
-            "Set to 500 for practically unlimited.",
-            type="number",
-            required=True,
-            placeholder="",
-            default=1,
-            constraints={"min_value": 0, "max_value": 500},
-        ),
-        ModuleSetting(
             key="emote_persistence_time",
             label="Time in milliseconds until emotes disappear on screen",
             type="number",
