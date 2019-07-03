@@ -1,0 +1,39 @@
+upstream kkonatestbroadcaster-botsite {
+    server unix:///srv/pajbot/kkonatestbroadcaster-web.sock;
+}
+
+upstream kkonatestbroadcaster-websocket {
+    server unix:///srv/pajbot/kkonatestbroadcaster-websocket.sock;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    ssl_certificate /etc/letsencrypt/live/kkonatestbroadcaster.tv/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kkonatestbroadcaster.tv/privkey.pem;
+
+    server_name bot.kkonatestbroadcaster.tv;
+
+    charset utf-8;
+
+    location /api/ {
+        uwsgi_pass kkonatestbroadcaster-botsite;
+        include uwsgi_params;
+        expires epoch;
+    }
+
+    location / {
+        uwsgi_pass kkonatestbroadcaster-botsite;
+        include uwsgi_params;
+        expires epoch;
+        add_header Cache-Control "public";
+    }
+
+    location /clrsocket {
+        proxy_pass http://kkonatestbroadcaster-websocket/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+}
