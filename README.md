@@ -12,4 +12,5 @@ pajbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).
 
 ## Detailed install
 
-* You can find a detailed installation Guide for **pajbot** in the  [pajbot1-doc repo](https://github.com/pajbot/pajbot1-doc)
+You can find a detailed installation guide for **pajbot** in the
+[`install-docs` directory](./install-docs) of this repository.
