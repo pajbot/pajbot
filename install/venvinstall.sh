@@ -9,13 +9,19 @@ if [ ! -d install ]; then
 fi
 
 # Create virtual environment
-python3 -m venv myvenv
+python3 -m venv venv
 
 # Activate virtual environment
-. myvenv/bin/activate
+. ./venv/bin/activate
+
+extra_install_args=""
+
+if [ -n "$CI" ]; then
+    extra_install_args="--progress-bar off"
+fi
 
 # Upgrade pip
-pip install pip --upgrade
+pip install $extra_install_args pip --upgrade
 
 # Install requirements.txt
-pip install -r requirements.txt
+pip install $extra_install_args -r requirements.txt
