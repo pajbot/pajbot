@@ -75,7 +75,7 @@ class Banphrase(Base):
         if self.case_sensitive is False:
             message = message.lower()
         if self.remove_accents:
-            message = unidecode(message)
+            message = unidecode(message).strip()
 
         return message
 
