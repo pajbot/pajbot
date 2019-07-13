@@ -158,6 +158,7 @@ disable=print-statement,
         too-many-return-statements,
         too-many-ancestors,
         too-many-locals,
+        unused-argument,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

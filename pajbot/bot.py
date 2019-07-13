@@ -23,8 +23,7 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EmoteManager, EpmManager, EcountManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.irc import MultiIRCManager
-from pajbot.managers.irc import SingleIRCManager
+from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -226,12 +225,14 @@ class Bot:
 
         self.parse_version()
 
+        self.irc = IRCManager(self)
+
         relay_host = self.config["main"].get("relay_host", None)
         relay_password = self.config["main"].get("relay_password", None)
-        if relay_host is None or relay_password is None:
-            self.irc = MultiIRCManager(self)
-        else:
-            self.irc = SingleIRCManager(self)
+        if relay_host is not None or relay_password is not None:
+            log.warning(
+                "DEPRECATED - Relaybroker support is no longer implemented. relay_host and relay_password are ignored"
+            )
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
 
@@ -944,7 +945,6 @@ class Bot:
 
         self.twitter_manager.quit()
         self.socket_manager.quit()
-        self.irc.quit()
 
         sys.exit(0)
 
