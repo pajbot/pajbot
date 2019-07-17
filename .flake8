@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 120
-exclude = alembic/*,configs/*,install/*,myvenv/*,venv/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
+exclude = alembic/*,configs/*,install/*,venv/*,pajbot/scripts/*,__pycache__/*,requirements/*,static/*,templates/*,uwsgiconfigs/*,.git/*,userdispatch.py,src/*,__init__.py
 # see: https://flake8.readthedocs.io/en/latest/user/violations.html#selecting-violations-with-flake8
 select = E, F, W, C90, B950
 ignore = E123,E126,E127,E128,E501,E131,E722,Q003,Q000,W503,E203

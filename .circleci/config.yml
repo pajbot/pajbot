@@ -24,14 +24,8 @@ commands:
           name: Restore cached virtual environment
           key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
       - run:
-          name: Create virtual environment
-          command: python -m venv venv
-      - run:
-          name: Upgrade pip
-          command: ./venv/bin/pip install --upgrade pip
-      - run:
-          name: Install requirements into virtual environment
-          command: ./venv/bin/pip install --progress-bar off -r requirements.txt
+          name: Install virtual environment
+          command: ./install/venvinstall.sh
       - run:
           name: Install black if supported
           command: ./.circleci/install-black.py
