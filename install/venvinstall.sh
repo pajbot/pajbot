@@ -14,14 +14,8 @@ python3 -m venv venv
 # Activate virtual environment
 . ./venv/bin/activate
 
-extra_install_args=""
-
-if [ -n "$CI" ]; then
-    extra_install_args="--progress-bar off"
-fi
-
 # Upgrade pip
-pip install $extra_install_args pip --upgrade
+pip install pip --upgrade
 
 # Install requirements.txt
-pip install $extra_install_args -r requirements.txt
+pip install -r requirements.txt
