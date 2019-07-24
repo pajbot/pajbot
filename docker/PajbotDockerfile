@@ -1,0 +1,7 @@
+FROM python:3.7.3
+
+ENV API_SERVER_HOME=/opt/www
+WORKDIR "$API_SERVER_HOME"
+COPY "./" "./"
+
+RUN pip install -r requirements.txt

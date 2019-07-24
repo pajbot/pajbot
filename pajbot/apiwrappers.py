@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -292,7 +293,7 @@ class TwitchAPI(APIBase):
         APIBase.__init__(self, strict)
 
         self.base_url = "https://api.twitch.tv/api/"
-        self.kraken_url = "http://127.0.0.1:7221/kraken/"
+        self.kraken_url = "{}/kraken/".format(os.environ.get("APIPROXY_HOST", "http://127.0.0.1:7221"))
         self.tmi_url = "https://tmi.twitch.tv/"
 
         self.headers = {"Accept": "application/vnd.twitchtv.v3+json"}
