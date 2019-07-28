@@ -50,8 +50,8 @@ class ActionQueue:
             action = self.queue.get()
             action.run()
 
-    def add(self, f, args=[], kwargs={}):
-        action = Action(f, args, kwargs)
+    def add(self, func, args=[], kwargs={}):
+        action = Action(func, args, kwargs)
         self._add(action)
 
     def _add(self, action):
