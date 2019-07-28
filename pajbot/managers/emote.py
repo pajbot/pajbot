@@ -282,7 +282,7 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message, twitch_emotes_tag):
+    def parse_all_emotes(self, message, twitch_emotes_tag = None):
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}

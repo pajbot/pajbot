@@ -73,46 +73,72 @@ class MassPingProtectionModule(BaseModule):
         return RedisManager.get().hexists("{streamer}:users:last_seen".format(streamer=streamer), username)
 
     @staticmethod
-    def count_pings(message):
-        potential_usernames = username_in_message_pattern.finditer(message)
-        # get the matched string part...
-        potential_usernames = (x.group(0) for x in potential_usernames)
-        # to lowercase + filter out matches that are too long...
-        potential_usernames = (x.lower() for x in potential_usernames if len(x) <= 25)
-        real_usernames = (x for x in potential_usernames if MassPingProtectionModule.is_known_user(x))
+    def count_pings(message, source, emote_instances):
+        pings = set()
 
-        # count real users
-        # set() is used so the same user is only counted once
-        return sum(1 for x in set(real_usernames))
+        for match in username_in_message_pattern.finditer(message):
+            matched_part = match.group()
+            start_idx = match.start()
+            end_idx = match.end()
 
-    def on_pubmsg(self, source, message, **rest):
+            potential_emote = next((e for e in emote_instances if e.start == start_idx and e.end == end_idx), None)
+            # this "username" is an emote. skip
+            if potential_emote is not None:
+                continue
+
+            matched_part = matched_part.lower()
+
+            # this is the sending user. We allow people to "ping" themselves
+            if matched_part == source.username or matched_part == source.username_raw.lower():
+                continue
+
+            # check that this word is a known user (we have seen this username before)
+            if not MassPingProtectionModule.is_known_user(matched_part):
+                continue
+
+            pings.add(matched_part)
+
+        return len(pings)
+
+    def determine_timeout_length(self, message, source, emote_instances):
+        ping_count = MassPingProtectionModule.count_pings(message, source, emote_instances)
+        pings_too_many = ping_count - self.settings["max_ping_count"]
+
+        if pings_too_many <= 0:
+            return 0
+
+        return self.settings["timeout_length_base"] + self.settings["extra_timeout_length_per_ping"] * pings_too_many
+
+    def check_message(self, message, source):
+        emote_instances, _ = self.bot.emote_manager.parse_all_emotes(message)
+
+        # returns False if message is good,
+        # True if message is bad.
+        return self.determine_timeout_length(message, source, emote_instances) > 0
+
+    def on_pubmsg(self, source, message, emote_instances, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
-        ping_count = MassPingProtectionModule.count_pings(message)
-        pings_too_many = max(ping_count - self.settings["max_ping_count"], 0)
+        timeout_duration = self.determine_timeout_length(message, source, emote_instances)
 
-        if pings_too_many <= 0:
+        if timeout_duration <= 0:
             return
 
-        timeout_duration = (
-            self.settings["timeout_length_base"] + self.settings["extra_timeout_length_per_ping"] * pings_too_many
-        )
-
-        self.bot.timeout(source.username, timeout_duration, reason="Too many users pinged in message")
+        self.bot.timeout_user(source, timeout_duration, reason="Too many users pinged in message")
 
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
                 source.username,
                 (
-                    "You have been timed out for {} seconds because your " + "message mentioned too many users at once."
+                    "You have been timed out for {} seconds because your message mentioned too many users at once."
                 ).format(timeout_duration),
             )
 
         return False
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
+        HandlerManager.add_handler("on_message", self.on_pubmsg, priority=150)
 
     def disable(self, bot):
-        HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)
+        HandlerManager.remove_handler("on_message", self.on_pubmsg)
