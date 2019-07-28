@@ -15,7 +15,9 @@ from pytz import timezone
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
-from pajbot.apiwrappers import TwitchAPI
+from pajbot.apiwrappers.twitch_kraken_v3 import KrakenV3TwitchApi
+from pajbot.apiwrappers.twitch_kraken_v5 import KrakenV5TwitchApi
+from pajbot.apiwrappers.twitch_legacy import LegacyTwitchApi
 from pajbot.managers.bottoken import BotToken
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
@@ -192,7 +194,10 @@ class Bot:
         if twitch_client_id is None:
             log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
 
-        self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
+        self.twitch_api_v3 = KrakenV3TwitchApi(twitch_client_id, twitch_oauth)
+        self.twitch_api_v5 = KrakenV5TwitchApi(twitch_client_id, twitch_oauth)
+        self.twitch_api_legacy = LegacyTwitchApi(twitch_client_id, twitch_oauth)
+
         self.emote_manager = EmoteManager(twitch_client_id)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()

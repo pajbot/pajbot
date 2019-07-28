@@ -30,7 +30,6 @@ def init(args):
     from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
-    from pajbot.models.sock import SocketManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
@@ -60,9 +59,11 @@ def init(args):
         config.set("web", "secret_key", salt.decode("utf-8"))
 
     if "logo" not in config["web"]:
-        res = download_logo(config["webtwitchapi"]["client_id"], config["main"]["streamer"])
-        if res:
+        try:
+            download_logo(config["webtwitchapi"]["client_id"], config["main"]["streamer"])
             config.set("web", "logo", "set")
+        except:
+            log.exception("Error downloading logo")
 
     StreamHelper.init_web(config["main"]["streamer"])
     SocketClientManager.init(config["main"]["streamer"])

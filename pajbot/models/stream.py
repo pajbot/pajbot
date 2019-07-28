@@ -1,7 +1,5 @@
-import datetime
 import json
 import logging
-import urllib
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -13,16 +11,14 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
 
 from pajbot import utils
+from pajbot.apiwrappers.twitch_common import BaseTwitchApi
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger("pajbot")
-
-
-def parse_twitch_datetime(datetime_str):
-    return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
 
 
 class Stream(Base):
@@ -39,7 +35,7 @@ class Stream(Base):
     def __init__(self, created_at, **options):
         self.id = None
         self.title = options.get("title", "NO TITLE")
-        self.stream_start = parse_twitch_datetime(created_at)
+        self.stream_start = BaseTwitchApi.parse_datetime(created_at)
         self.stream_end = None
         self.ended = False
 
@@ -72,7 +68,7 @@ class StreamChunk(Base):
         self.broadcast_id = broadcast_id
         self.video_url = None
         self.video_preview_image_url = None
-        self.chunk_start = parse_twitch_datetime(created_at)
+        self.chunk_start = BaseTwitchApi.parse_datetime(created_at)
         self.chunk_end = None
 
         self.stream = stream
@@ -87,39 +83,24 @@ class StreamManager:
         if self.online is False:
             return
 
-        try:
-            data = self.bot.twitchapi.get(
-                ["channels", self.bot.streamer, "videos"],
-                parameters={"broadcasts": "true"},
-                base="http://127.0.0.1:7221/kraken/",
-            )
-
-            self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])
-        except urllib.error.HTTPError as e:
-            raw_data = e.read().decode("utf-8")
-            log.exception("OMGScoots")
-            log.info(raw_data)
-        except:
-            log.exception("Uncaught exception in fetch_video_url")
+        data = self.bot.twitch_api_v3.get_vod_videos(StreamHelper.get_streamer())
+        self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])
 
     def fetch_video_url_stage2(self, data):
         stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
         try:
             for video in data["videos"]:
                 if video["broadcast_type"] == "archive":
-                    recorded_at = parse_twitch_datetime(video["recorded_at"])
-                    if stream_chunk is not None:
-                        time_diff = stream_chunk.chunk_start - recorded_at
-                        if abs(time_diff.total_seconds()) < 60 * 5:
-                            # we found the relevant video!
-                            return video["url"], video["preview"]["large"], video["recorded_at"]
-                    else:
-                        if video["status"] == "recording":
-                            return video["url"], video["preview"]["large"], video["recorded_at"]
-        except urllib.error.HTTPError as e:
-            raw_data = e.read().decode("utf-8")
-            log.exception("OMGScoots")
-            log.info(raw_data)
+                    continue
+                recorded_at = BaseTwitchApi.parse_datetime(video["recorded_at"])
+                if stream_chunk is not None:
+                    time_diff = stream_chunk.chunk_start - recorded_at
+                    if abs(time_diff.total_seconds()) < 60 * 5:
+                        # we found the relevant video!
+                        return video["url"], video["preview"]["large"], video["recorded_at"]
+                else:
+                    if video["status"] == "recording":
+                        return video["url"], video["preview"]["large"], video["recorded_at"]
         except:
             log.exception("Uncaught exception in fetch_video_url")
 
@@ -291,59 +272,46 @@ class StreamManager:
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
     def refresh_stream_status_stage1(self):
-        try:
-            status = self.bot.twitchapi.get_status(self.bot.streamer)
-            if status["error"] is True:
-                # log.error('An error occured while fetching stream status')
-                # I'll comment this out since all errors are posted live anyway
-                return
-
-            self.bot.mainthread_queue.add(self.refresh_stream_status_stage2, args=[status])
-        except:
-            log.exception("Uncaught exception while refreshing stream status (Stage 1)")
+        status = self.bot.twitch_api_v3.get_stream_status(self.bot.streamer)
+        self.bot.mainthread_queue.add(self.refresh_stream_status_stage2, args=[status])
 
     def refresh_stream_status_stage2(self, status):
-        try:
-            redis = RedisManager.get()
-            key_prefix = self.bot.streamer + ":"
+        redis = RedisManager.get()
+        key_prefix = self.bot.streamer + ":"
 
-            stream_data = {}
-            stream_data[key_prefix + "online"] = str(status["online"])
-            stream_data[key_prefix + "viewers"] = status["viewers"]
-            if status["game"]:
-                stream_data[key_prefix + "game"] = status["game"]
-            else:
-                stream_data[key_prefix + "game"] = ""
+        stream_data = {key_prefix + "online": str(status["online"]), key_prefix + "viewers": status["viewers"]}
+        if status["game"]:
+            stream_data[key_prefix + "game"] = status["game"]
+        else:
+            stream_data[key_prefix + "game"] = ""
 
-            redis.hmset("stream_data", stream_data)
+        redis.hmset("stream_data", stream_data)
 
-            self.num_viewers = status["viewers"]
-            self.game = status["game"]
-            self.title = status["title"]
+        self.num_viewers = status["viewers"]
+        self.game = status["game"]
+        self.title = status["title"]
 
-            if status["online"]:
-                if self.current_stream is None:
-                    self.create_stream(status)
-                if self.current_stream_chunk is None:
-                    self.create_stream_chunk(status)
-                if self.current_stream_chunk.broadcast_id != status["broadcast_id"]:
-                    log.debug("Detected a new chunk!")
-                    self.create_stream_chunk(status)
+        if status["online"]:
+            if self.current_stream is None:
+                self.create_stream(status)
+            if self.current_stream_chunk is None:
+                self.create_stream_chunk(status)
+            if self.current_stream_chunk.broadcast_id != status["broadcast_id"]:
+                log.debug("Detected a new chunk!")
+                self.create_stream_chunk(status)
 
-                self.num_offlines = 0
-                self.first_offline = None
-            else:
-                if self.online is True:
-                    log.info("Offline. {0}".format(self.num_offlines))
-                    if self.first_offline is None:
-                        self.first_offline = utils.now()
+            self.num_offlines = 0
+            self.first_offline = None
+        else:
+            if self.online is True:
+                log.info("Offline. {0}".format(self.num_offlines))
+                if self.first_offline is None:
+                    self.first_offline = utils.now()
 
-                    if self.num_offlines >= self.NUM_OFFLINES_REQUIRED:
-                        log.info("Switching to offline state!")
-                        self.go_offline()
-                    self.num_offlines += 1
-        except:
-            log.exception("Uncaught exception while refreshing stream status (Stage 2)")
+                if self.num_offlines >= self.NUM_OFFLINES_REQUIRED:
+                    log.info("Switching to offline state!")
+                    self.go_offline()
+                self.num_offlines += 1
 
     def refresh_video_url_stage1(self):
         self.fetch_video_url_stage1()
@@ -356,42 +324,43 @@ class StreamManager:
             return
 
         log.info("Attempting to fetch video url for broadcast {0}".format(self.current_stream_chunk.broadcast_id))
-        stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
         video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
-        if video_url is not None:
-            log.info("Successfully fetched a video url: {0}".format(video_url))
-            if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
-                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                    self.current_stream_chunk.video_url = video_url
-                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
 
-                    db_session.add(self.current_stream_chunk)
-
-                    db_session.commit()
-
-                    db_session.expunge_all()
-                log.info("Successfully commited video url data.")
-            elif self.current_stream_chunk.video_url != video_url:
-                # End current stream chunk
-                self.current_stream_chunk.chunk_end = utils.now()
-                DBManager.session_add_expunge(self.current_stream_chunk)
-
-                with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-                    stream_chunk = StreamChunk(
-                        self.current_stream, self.current_stream_chunk.broadcast_id, video_recorded_at
-                    )
-                    self.current_stream_chunk = stream_chunk
-                    self.current_stream_chunk.video_url = video_url
-                    self.current_stream_chunk.video_preview_image_url = video_preview_image_url
-
-                    db_session.add(self.current_stream_chunk)
-
-                    db_session.commit()
-
-                    db_session.expunge_all()
-                log.info("Successfully commited video url data in a new chunk.")
-        else:
+        if video_url is None:
             log.info("Not video for broadcast found")
+            return
+
+        log.info("Successfully fetched a video url: {0}".format(video_url))
+        if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                self.current_stream_chunk.video_url = video_url
+                self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+
+                db_session.add(self.current_stream_chunk)
+
+                db_session.commit()
+
+                db_session.expunge_all()
+            log.info("Successfully commited video url data.")
+        elif self.current_stream_chunk.video_url != video_url:
+            # End current stream chunk
+            self.current_stream_chunk.chunk_end = utils.now()
+            DBManager.session_add_expunge(self.current_stream_chunk)
+
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                stream_chunk = StreamChunk(
+                    self.current_stream, self.current_stream_chunk.broadcast_id, video_recorded_at
+                )
+                self.current_stream_chunk = stream_chunk
+                self.current_stream_chunk.video_url = video_url
+                self.current_stream_chunk.video_preview_image_url = video_preview_image_url
+
+                db_session.add(self.current_stream_chunk)
+
+                db_session.commit()
+
+                db_session.expunge_all()
+            log.info("Successfully commited video url data in a new chunk.")
 
     def get_stream_value(self, key, extra={}):
         return getattr(self, key, None)

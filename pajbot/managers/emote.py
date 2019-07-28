@@ -3,6 +3,8 @@ import logging
 
 import random
 
+from pajbot.apiwrappers.twitch_kraken_v5 import KrakenV5TwitchApi
+from pajbot.apiwrappers.twitch_legacy import LegacyTwitchApi
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
@@ -85,9 +87,12 @@ class GenericChannelEmoteManager:
             self.update_global_emotes()
 
     def update_global_emotes(self):
-        self.global_emotes = self.api.get_global_emotes()
-        self.save_cached_emotes(self.global_emote_redis_key, self.global_emotes)
-        log.info("Successfully updated {} global emotes".format(self.friendly_name))
+        try:
+            self.global_emotes = self.api.get_global_emotes()
+            self.save_cached_emotes(self.global_emote_redis_key, self.global_emotes)
+            log.info("Successfully updated {} global emotes".format(self.friendly_name))
+        except:
+            log.exception("Failed to update {} global emotes".format(self.friendly_name))
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
@@ -98,10 +103,13 @@ class GenericChannelEmoteManager:
             self.update_channel_emotes()
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer)
-        self.save_cached_emotes(self.channel_emote_redis_key, self.channel_emotes)
-        log.info("Successfully updated {} channel emotes".format(self.friendly_name))
+        try:
+            streamer = StreamHelper.get_streamer()
+            self.channel_emotes = self.api.get_channel_emotes(streamer)
+            self.save_cached_emotes(self.channel_emote_redis_key, self.channel_emotes)
+            log.info("Successfully updated {} channel emotes".format(self.friendly_name))
+        except:
+            log.exception("Failed to update {} channel emotes".format(self.friendly_name))
 
     def update_all(self):
         self.update_global_emotes()
@@ -123,9 +131,8 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
     def __init__(self, client_id):
-        from pajbot.apiwrappers import TwitchAPI
-
-        self.api = TwitchAPI(client_id)
+        self.api = KrakenV5TwitchApi(client_id)
+        self.legacy_api = LegacyTwitchApi(client_id)
 
         self.tier_one_emotes = []
         self.tier_two_emotes = []
@@ -138,12 +145,17 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         return self.tier_one_emotes
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(streamer)
-        self.save_cached_subemotes(
-            self.channel_emote_redis_key, self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes
-        )
-        log.info("Successfully updated {} channel emotes".format(self.friendly_name))
+        try:
+            streamer = StreamHelper.get_streamer()
+            self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.legacy_api.get_channel_emotes(
+                streamer
+            )
+            self.save_cached_subemotes(
+                self.channel_emote_redis_key, self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes
+            )
+            log.info("Successfully updated Twitch channel emotes")
+        except:
+            log.exception("Failed to update Twitch global emotes")
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
@@ -185,7 +197,7 @@ class FFZEmoteManager(GenericChannelEmoteManager):
     friendly_name = "FFZ"
 
     def __init__(self):
-        from pajbot.apiwrappers import FFZApi
+        from pajbot.apiwrappers.ffz import FFZApi
 
         self.api = FFZApi()
         super().__init__()
@@ -196,7 +208,7 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
     friendly_name = "BTTV"
 
     def __init__(self):
-        from pajbot.apiwrappers import BTTVApi
+        from pajbot.apiwrappers.bttv import BTTVApi
 
         self.api = BTTVApi()
         super().__init__()

@@ -14,7 +14,7 @@ import pajbot.models
 import pajbot.utils
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
-from pajbot.apiwrappers import SafeBrowsingAPI
+from pajbot.apiwrappers.safebrowsing import SafeBrowsingApi
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
@@ -191,19 +191,17 @@ class LinkCheckerModule(BaseModule):
         self.action_queue = ActionQueue()
         self.action_queue.start()
 
+        if bot and "safebrowsingapi" in bot.config["main"]:
+            # XXX: This should be loaded as a setting instead.
+            # There needs to be a setting for settings to have them as "passwords"
+            # so they're not displayed openly
+            self.safe_browsing_api = SafeBrowsingApi(bot.config["main"]["safebrowsingapi"])
+        else:
+            self.safe_browsing_api = None
+
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message, priority=100)
         HandlerManager.add_handler("on_commit", self.on_commit)
-        if bot:
-            self.run_later = bot.execute_delayed
-
-            if "safebrowsingapi" in bot.config["main"]:
-                # XXX: This should be loaded as a setting instead.
-                # There needs to be a setting for settings to have them as "passwords"
-                # so they're not displayed openly
-                self.safeBrowsingAPI = SafeBrowsingAPI(bot.config["main"]["safebrowsingapi"], bot.nickname, bot.version)
-            else:
-                self.safeBrowsingAPI = None
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -301,7 +299,7 @@ class LinkCheckerModule(BaseModule):
 
         log.debug("LinkChecker: Caching url {0} as {1}".format(url, "SAFE" if safe is True else "UNSAFE"))
         self.cache[url] = safe
-        self.run_later(20, self.delete_from_cache, (url,))
+        self.bot.execute_delayed(20, self.delete_from_cache, (url,))
 
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug("LinkChecker: BAD URL FOUND {0}".format(url.url))
@@ -489,12 +487,11 @@ class LinkCheckerModule(BaseModule):
             elif res == self.RET_BAD_LINK:
                 return
 
-        if self.safeBrowsingAPI:
-            if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
-                log.debug("Bad url because google api")
-                self.counteract_bad_url(url, action, want_to_blacklist=False)
-                self.counteract_bad_url(redirected_url, want_to_blacklist=False)
-                return
+        if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
+            log.debug("Google Safe Browsing API lists URL")
+            self.counteract_bad_url(url, action, want_to_blacklist=False)
+            self.counteract_bad_url(redirected_url, want_to_blacklist=False)
+            return
 
         if "content-type" not in r.headers or not r.headers["content-type"].startswith("text/html"):
             return  # can't analyze non-html content
@@ -586,14 +583,13 @@ class LinkCheckerModule(BaseModule):
                 elif res == self.RET_GOOD_LINK:
                     continue
 
-            if self.safeBrowsingAPI:
-                if self.safeBrowsingAPI.check_url(redirected_url.url):  # harmful url detected
-                    log.debug("Evil sublink {0} by google API".format(url))
-                    self.counteract_bad_url(original_url, action)
-                    self.counteract_bad_url(original_redirected_url)
-                    self.counteract_bad_url(url)
-                    self.counteract_bad_url(redirected_url)
-                    return
+            if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
+                log.debug("Evil sublink {0} by google API".format(url))
+                self.counteract_bad_url(original_url, action)
+                self.counteract_bad_url(original_redirected_url)
+                self.counteract_bad_url(url)
+                self.counteract_bad_url(redirected_url)
+                return
 
         # if we got here, the site is clean for our standards
         self.cache_url(original_url.url, True)
