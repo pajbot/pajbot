@@ -21,6 +21,7 @@ from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
+from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.followage import FollowAgeModule
@@ -100,6 +101,7 @@ available_modules = [
     MathModule,
     MaxMsgLengthModule,
     CaseCheckerModule,
+    EmoteTimeoutModule,
     PaidSubmodeModule,
     PaidTimeoutDiscountModule,
     PaidTimeoutModule,
