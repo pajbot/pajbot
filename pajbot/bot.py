@@ -735,6 +735,7 @@ class Bot:
         emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
 
         if not whisper:
+            # increment epm and ecount
             self.epm_manager.handle_emotes(emote_counts)
             self.ecount_manager.handle_emotes(emote_counts)
 
