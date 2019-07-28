@@ -383,6 +383,7 @@ def get_urlfetch_substitutions(string, all=False):
 
     return substitutions
 
+
 def is_message_good(bot, message, extra):
     # this is imported here to avoid circular imports
     # (Circular import was command.py importing this file)
@@ -391,9 +392,7 @@ def is_message_good(bot, message, extra):
     checks = {
         "banphrase": lambda: bot.banphrase_manager.check_message(message, extra["source"]),
         "ascii": lambda: AsciiProtectionModule.check_message(message),
-        "massping": lambda: bot.module_manager.get_module("massping").check_message(
-            message, extra["source"]
-        ),
+        "massping": lambda: bot.module_manager.get_module("massping").check_message(message, extra["source"]),
     }
 
     for check_name, check_fn in checks.items():
@@ -404,7 +403,7 @@ def is_message_good(bot, message, extra):
         # apply the check fn
         # only if the result is False the check was successful
         if check_fn() is not False:
-            log.info("Not sending message \"{}\" because check \"{}\" failed.".format(message, check_name))
+            log.info('Not sending message "{}" because check "{}" failed.'.format(message, check_name))
             return False
 
     return True
