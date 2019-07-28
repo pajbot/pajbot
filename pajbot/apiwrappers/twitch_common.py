@@ -2,7 +2,7 @@ import datetime
 
 from abc import ABC, abstractmethod
 
-from pajbot.apiwrappers.apiwrappers import BaseApi
+from pajbot.apiwrappers.common import BaseApi
 
 
 class BaseTwitchApi(BaseApi, ABC):

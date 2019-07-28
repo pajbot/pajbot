@@ -1,4 +1,4 @@
-from pajbot.apiwrappers.apiwrappers import BaseApi
+from pajbot.apiwrappers.common import BaseApi
 from pajbot.bot import Bot
 
 

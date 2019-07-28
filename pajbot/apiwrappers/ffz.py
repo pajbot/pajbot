@@ -1,4 +1,4 @@
-from pajbot.apiwrappers.apiwrappers import BaseApi, fill_in_url_scheme
+from pajbot.apiwrappers.common import BaseApi, fill_in_url_scheme
 from pajbot.models.emote import Emote
 
 

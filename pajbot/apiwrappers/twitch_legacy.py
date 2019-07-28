@@ -3,7 +3,6 @@ import logging
 from requests import HTTPError
 
 from pajbot.apiwrappers.twitch_common import BaseTwitchApi
-from pajbot.managers.emote import EmoteManager
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +17,9 @@ class LegacyTwitchApi(BaseTwitchApi):
         """Returns a tuple of three lists of emotes, each one corresponding to tier 1, tier 2 and tier 3 respectively.
         Tier 2 and Tier 3 ONLY contain the respective extra emotes added to that tier, typically tier 2 and tier 3
         will contain exactly one or zero emotes."""
+        # circular import prevention
+        from pajbot.managers.emote import EmoteManager
+
         try:
             resp = self.get("/channels/{}/product".format(self.quote_path_param(channel)))
             plans = resp["plans"]

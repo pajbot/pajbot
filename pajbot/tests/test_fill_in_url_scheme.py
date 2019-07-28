@@ -1,4 +1,4 @@
-from pajbot.apiwrappers.apiwrappers import fill_in_url_scheme
+from pajbot.apiwrappers.common import fill_in_url_scheme
 
 
 def test_fills_in_relative_url():

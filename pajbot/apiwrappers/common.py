@@ -3,13 +3,15 @@ from urllib.parse import quote, urlparse, urlunparse
 
 from requests_toolbelt.sessions import BaseUrlSession
 
-from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
 
 class BaseApi:
     def __init__(self, base_url, default_headers=None):
+        # circular import prevention
+        from pajbot.bot import Bot
+
         self.session = BaseUrlSession(base_url)
 
         # e.g. pajbot1/1.35
