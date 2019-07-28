@@ -609,6 +609,9 @@ class Bot:
     def _timeout_user(self, user, duration, reason=""):
         self._timeout(user.username, duration, reason)
 
+    def delete_message(self, msg_id):
+        self.privmsg(".delete {0}".format(msg_id))
+
     def whisper(self, username, *messages, separator=". ", **rest):
         """
         Takes a sequence of strings and concatenates them with separator.
@@ -706,6 +709,7 @@ class Bot:
         msg_lower = message.lower()
 
         emote_tag = None
+        msg_id = None
 
         for tag in tags:
             if tag["key"] == "subscriber" and event.target == self.channel:
@@ -716,6 +720,8 @@ class Bot:
                 source.username_raw = tag["value"]
             elif tag["key"] == "user-type":
                 source.moderator = tag["value"] == "mod" or source.username == self.streamer
+            elif tag["key"] == "id":
+                msg_id = tag["value"]
 
         # source.num_lines += 1
 
@@ -751,6 +757,7 @@ class Bot:
             emote_counts=emote_counts,
             whisper=whisper,
             urls=urls,
+            msg_id=msg_id,
             event=event,
         )
         if res is False:
@@ -769,7 +776,12 @@ class Bot:
             remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if trigger in self.commands:
                 command = self.commands[trigger]
-                extra_args = {"emote_instances": emote_instances, "emote_counts": emote_counts, "trigger": trigger}
+                extra_args = {
+                    "emote_instances": emote_instances,
+                    "emote_counts": emote_counts,
+                    "trigger": trigger,
+                    "msg_id": msg_id,
+                }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
