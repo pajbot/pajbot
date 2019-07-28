@@ -1,6 +1,6 @@
 import pytest
 
-from pajbot.modules.basic.emotes import split_into_chunks_with_prefix
+from pajbot.utils import split_into_chunks_with_prefix
 
 
 def test_basic():
