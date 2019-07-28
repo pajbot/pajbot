@@ -604,7 +604,7 @@ class Bot:
         self.execute_delayed(1, self._timeout, (user.username, duration, reason))
 
     def timeout_user_once(self, user, duration, reason):
-        self._timeout(user, duration, reason)
+        self._timeout(user.username, duration, reason)
 
     def _timeout_user(self, user, duration, reason=""):
         self._timeout(user.username, duration, reason)
