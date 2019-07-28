@@ -61,11 +61,10 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def on_pubmsg(self, source, message, **rest):
-        if (
-            len(message) <= self.settings["min_msg_length"]
-            or source.level >= self.settings["bypass_level"]
-            or source.moderator is True
-        ):
+        if source.level >= self.settings["bypass_level"] or source.moderator is True:
+            return
+
+        if len(message) <= self.settings["min_msg_length"]:
             return
 
         if AsciiProtectionModule.check_message(message) is False:
