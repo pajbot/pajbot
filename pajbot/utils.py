@@ -210,7 +210,7 @@ def load_config(path):
     res = config.read(os.path.realpath(path))
 
     if not res:
-        log.error("%s missing. Check out install/config.example.ini", path)
+        log.error("%s missing. Check out the example config file.", path)
         sys.exit(0)
 
     return config

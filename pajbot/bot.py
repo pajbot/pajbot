@@ -218,7 +218,7 @@ class Bot:
         try:
             self.admin = self.config["main"]["admin"]
         except KeyError:
-            log.warning("No admin user specified. See the [main] section in config.example.ini for its usage.")
+            log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         if self.admin:
             with self.users.get_user_context(self.admin) as user:
                 user.level = 2000

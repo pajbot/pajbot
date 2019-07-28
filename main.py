@@ -28,7 +28,7 @@ def run(args):
 
     if "sql" in config:
         log.error(
-            "The [sql] section in config is no longer used. See config.example.ini for the new format under [main]."
+            "The [sql] section in config is no longer used. See the example config for the new format under [main]."
         )
         sys.exit(1)
 
