@@ -112,10 +112,10 @@ class StreamManager:
                         time_diff = stream_chunk.chunk_start - recorded_at
                         if abs(time_diff.total_seconds()) < 60 * 5:
                             # we found the relevant video!
-                            return (video["url"], video["preview"]["large"], video["recorded_at"])
+                            return video["url"], video["preview"]["large"], video["recorded_at"]
                     else:
                         if video["status"] == "recording":
-                            return (video["url"], video["preview"]["large"], video["recorded_at"])
+                            return video["url"], video["preview"]["large"], video["recorded_at"]
         except urllib.error.HTTPError as e:
             raw_data = e.read().decode("utf-8")
             log.exception("OMGScoots")
