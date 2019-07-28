@@ -10,8 +10,8 @@ class Action:
     args = []
     kwargs = {}
 
-    def __init__(self, f=None, args=[], kwargs={}):
-        self.func = f
+    def __init__(self, func=None, args=[], kwargs={}):
+        self.func = func
         self.args = args
         self.kwargs = kwargs
 
@@ -51,11 +51,7 @@ class ActionQueue:
             action.run()
 
     def add(self, f, args=[], kwargs={}):
-        action = Action()
-        action.func = f
-
-        action.args = args
-        action.kwargs = kwargs
+        action = Action(f, args, kwargs)
         self._add(action)
 
     def _add(self, action):
