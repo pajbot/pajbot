@@ -39,8 +39,6 @@ class APIBase:
             log.exception("Unhandled exception in APIBase._get while reading response")
             return None
 
-        return None
-
     def _get_json(self, url, headers={}):
         data = self._get(url, headers)
 
@@ -52,8 +50,6 @@ class APIBase:
         except:
             log.exception("Caught exception while trying to parse json data.")
             return None
-
-        return None
 
     def get_url(self, endpoints=[], parameters={}, base=None):
         return (
@@ -76,9 +72,6 @@ class APIBase:
         except:
             log.exception("Unhandled exception in APIBase.get")
             return None
-
-        log.error("why the fuck are we here")
-        return None
 
     def _req_with_data(self, url, data, method="POST"):
         """Send data along with the request.
