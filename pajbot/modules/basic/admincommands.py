@@ -6,6 +6,7 @@ from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.utils import split_into_chunks_with_prefix
 
 log = logging.getLogger(__name__)
 
@@ -207,8 +208,14 @@ class AdminCommandsModule(BaseModule):
         sub_command = msg_args[0].lower()
 
         if sub_command == "list":
-            for module in module_manager.all_modules:
-                bot.say("Module ID: {}".format(module.ID))
+            messages = split_into_chunks_with_prefix(
+                [{"prefix": "Available modules:", "parts": [module.ID for module in module_manager.all_modules]}],
+                " ",
+                default="No modules available.",
+            )
+
+            for message in messages:
+                bot.say(message)
         elif sub_command == "disable":
             if len(msg_args) < 2:
                 return
