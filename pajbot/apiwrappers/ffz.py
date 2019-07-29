@@ -21,7 +21,7 @@ class FFZApi(BaseApi):
     def get_global_emotes(self):
         """Returns a list of global FFZ emotes in the standard Emote format."""
 
-        data = self.get("/set/global")
+        data = self.get("set/global")
 
         # FFZ returns a number of global sets but only a subset of them should be available
         # in all channels, those are available under "default_sets", e.g. a list of set IDs like this:
@@ -33,5 +33,5 @@ class FFZApi(BaseApi):
 
     def get_channel_emotes(self, channel_name):
         """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
-        data = self.get("/room/{}".format(self.quote_path_param(channel_name)))
+        data = self.get("room/{}".format(self.quote_path_param(channel_name)))
         return self.parse_sets(data["sets"])

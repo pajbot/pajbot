@@ -14,7 +14,7 @@ class KrakenV3TwitchApi(BaseTwitchKrakenAPI):
         )
 
     def get_stream_status(self, streamer):
-        data = self.get("/streams/{}".format(self.quote_path_param(streamer)))
+        data = self.get("streams/{}".format(self.quote_path_param(streamer)))
 
         def rest_data_offline():
             return {
@@ -83,7 +83,7 @@ class KrakenV3TwitchApi(BaseTwitchKrakenAPI):
         # cache miss
         try:
             data = self.get(
-                "/users/{}/follows/channels/{}".format(self.quote_path_param(username), self.quote_path_param(streamer))
+                "users/{}/follows/channels/{}".format(self.quote_path_param(username), self.quote_path_param(streamer))
             )
             created_at = data["created_at"]
             redis.setex(fr_key, time=120, value=created_at)
@@ -96,8 +96,8 @@ class KrakenV3TwitchApi(BaseTwitchKrakenAPI):
                 raise e
 
     def get_logo_url(self, username):
-        data = self.get("/users/{}".format(self.quote_path_param(username)))
+        data = self.get("users/{}".format(self.quote_path_param(username)))
         return data["logo"]
 
     def get_vod_videos(self, username):
-        return self.get("/channels/{}/videos".format(self.quote_path_param(username)), {"broadcast_type": "archive"})
+        return self.get("channels/{}/videos".format(self.quote_path_param(username)), {"broadcast_type": "archive"})

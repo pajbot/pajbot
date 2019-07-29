@@ -30,8 +30,8 @@ class BTTVApi(BaseApi):
 
     def get_global_emotes(self):
         """Returns a list of global BTTV emotes in the standard Emote format."""
-        return self.parse_emotes(self.get("/emotes"))
+        return self.parse_emotes(self.get("emotes"))
 
     def get_channel_emotes(self, channel_name):
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
-        return self.parse_emotes(self.get("/channels/{}".format(self.quote_path_param(channel_name))))
+        return self.parse_emotes(self.get("channels/{}".format(self.quote_path_param(channel_name))))

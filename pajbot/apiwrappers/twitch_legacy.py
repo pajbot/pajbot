@@ -21,7 +21,7 @@ class LegacyTwitchApi(BaseTwitchApi):
         from pajbot.managers.emote import EmoteManager
 
         try:
-            resp = self.get("/channels/{}/product".format(self.quote_path_param(channel)))
+            resp = self.get("channels/{}/product".format(self.quote_path_param(channel)))
             plans = resp["plans"]
             if len(plans) <= 0:
                 log.warning("No subscription plans found for channel {}".format(channel))
