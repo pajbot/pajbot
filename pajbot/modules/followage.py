@@ -139,7 +139,7 @@ class FollowAgeModule(BaseModule):
 
     def check_follow_age(self, bot, source, username, streamer, event):
         streamer = bot.streamer if streamer is None else streamer.lower()
-        age = bot.twitchapi.get_follow_since(username, streamer)
+        age = bot.twitch_api_v3.get_follow_since(username, streamer)
         is_self = source.username == username
         message = ""
 
@@ -163,7 +163,7 @@ class FollowAgeModule(BaseModule):
 
     def check_follow_since(self, bot, source, username, streamer, event):
         streamer = bot.streamer if streamer is None else streamer.lower()
-        follow_since = bot.twitchapi.get_follow_since(username, streamer)
+        follow_since = bot.twitch_api_v3.get_follow_since(username, streamer)
         is_self = source.username == username
         message = ""
 
