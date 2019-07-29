@@ -13,6 +13,7 @@ class BaseApi:
         from pajbot.bot import Bot
 
         self.session = BaseUrlSession(base_url)
+        self.timeout = 20
 
         # e.g. pajbot1/1.35
         self.session.headers["User-Agent"] = "pajbot1/{}".format(Bot.version)
@@ -25,22 +26,22 @@ class BaseApi:
         return quote(param, safe="")
 
     def get(self, endpoint, params=None):
-        response = self.session.get(endpoint, params=params)
+        response = self.session.get(endpoint, params=params, timeout=self.timeout)
         response.raise_for_status()
         return response.json()
 
     def get_binary(self, endpoint, params=None):
-        response = self.session.get(endpoint, params=params)
+        response = self.session.get(endpoint, params=params, timeout=self.timeout)
         response.raise_for_status()
         return response.content
 
     def post(self, endpoint, params=None, json=None):
-        response = self.session.post(endpoint, params=params, json=json)
+        response = self.session.post(endpoint, params=params, json=json, timeout=self.timeout)
         response.raise_for_status()
         return response.json()
 
     def put(self, endpoint, params=None, json=None):
-        response = self.session.post(endpoint, params=params, json=json)
+        response = self.session.post(endpoint, params=params, json=json, timeout=self.timeout)
         response.raise_for_status()
         return response.json()
 
