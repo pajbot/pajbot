@@ -11,7 +11,7 @@ def download_emoji_data():
     return resp.text
 
 
-data_line_regex = re.compile("^[^#]*# (\S+).*$")
+data_line_regex = re.compile(r"^[^#]*# (\\S+).*$")
 
 
 def parse_emoji_data(text):
