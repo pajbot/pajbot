@@ -61,10 +61,15 @@ class AccessToken(ABC):
 
     def jsonify(self):
         """serialize for storage"""
+        if self.expires_in is None:
+            expires_in_milliseconds = None
+        else:
+            expires_in_milliseconds = self.expires_in.total_seconds() * 1000
+
         return {
             "access_token": self.access_token,
             "created_at": self.created_at.timestamp() * 1000,
-            "expires_in": self.expires_in.total_seconds() * 1000,
+            "expires_in": expires_in_milliseconds,
             "token_type": self.token_type,
             "refresh_token": self.refresh_token,
             "scope": self.scope,
@@ -73,10 +78,15 @@ class AccessToken(ABC):
     @classmethod
     def from_json(cls, json_data):
         """deserialize json produced by jsonify()"""
+        if json_data["expires_in"] is None:
+            expires_in = None
+        else:
+            expires_in = datetime.timedelta(milliseconds=json_data["expires_in"])
+
         return cls(
             access_token=json_data["access_token"],
             created_at=pajbot.utils.datetime_from_utc_milliseconds(json_data["created_at"]),
-            expires_in=datetime.timedelta(milliseconds=json_data["expires_in"]),
+            expires_in=expires_in,
             token_type=json_data["token_type"],
             refresh_token=json_data["refresh_token"],
             scope=json_data["scope"],
