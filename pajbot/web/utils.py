@@ -81,8 +81,8 @@ def download_logo(twitch_helix_api, streamer):
         logo_raw_file.write(logo_image_bytes)
 
     # decode downloaded image
-    with BytesIO(logo_image_bytes) as read_stream:
-        pil_image = Image.open(read_stream)
+    read_stream = BytesIO(logo_image_bytes)
+    pil_image = Image.open(read_stream)
 
     # downscale and save the thumbnail
     pil_image.thumbnail((64, 64), Image.ANTIALIAS)

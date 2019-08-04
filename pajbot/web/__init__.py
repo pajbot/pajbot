@@ -51,6 +51,12 @@ def init(args):
         config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
     )
 
+    redis_options = {}
+    if "redis" in config:
+        redis_options = dict(config["redis"])
+
+    RedisManager.init(**redis_options)
+
     id_api = TwitchIdApi(api_client_credentials)
     app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
     twitch_helix_api = TwitchHelixApi(RedisManager.get(), app_token_manager)
@@ -80,12 +86,6 @@ def init(args):
 
     StreamHelper.init_web(config["main"]["streamer"])
     SocketClientManager.init(config["main"]["streamer"])
-
-    redis_options = {}
-    if "redis" in config:
-        redis_options = dict(config["redis"])
-
-    RedisManager.init(**redis_options)
 
     with open(args.config, "w") as configfile:
         config.write(configfile)
