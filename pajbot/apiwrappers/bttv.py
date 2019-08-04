@@ -33,7 +33,7 @@ class BttvApi(BaseApi):
         """Returns a list of global BTTV emotes in the standard Emote format."""
         return self.parse_emotes(self.get("/emotes"))
 
-    def get_global_emotes(self, force_fetch=None):
+    def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
@@ -46,7 +46,7 @@ class BttvApi(BaseApi):
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
         return self.parse_emotes(self.get(["channels", channel_name]))
 
-    def get_channel_emotes(self, channel_name, force_fetch=None):
+    def get_channel_emotes(self, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:channel-emotes:{}".format(channel_name),
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),

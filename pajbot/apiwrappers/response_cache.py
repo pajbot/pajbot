@@ -88,10 +88,7 @@ class ApiResponseCache:
     def __init__(self, redis):
         self.redis = redis
 
-    def cache_fetch_fn(self, redis_key, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=None):
-        if force_fetch is None:
-            force_fetch = False
-
+    def cache_fetch_fn(self, redis_key, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=False):
         if not force_fetch:
             cache_result = self.redis.get(redis_key)
             if cache_result is not None:

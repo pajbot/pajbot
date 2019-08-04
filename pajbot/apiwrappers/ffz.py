@@ -31,7 +31,7 @@ class FFZApi(BaseApi):
 
         return self.parse_sets(global_sets)
 
-    def get_global_emotes(self, force_fetch=None):
+    def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(
             redis_key="api:ffz:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
@@ -45,7 +45,7 @@ class FFZApi(BaseApi):
         response = self.get(["room", channel_name])
         return self.parse_sets(response["sets"])
 
-    def get_channel_emotes(self, channel_name, force_fetch=None):
+    def get_channel_emotes(self, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
             redis_key="api:ffz:channel-emotes:{}".format(channel_name),
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
