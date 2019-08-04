@@ -185,7 +185,7 @@ class Bot:
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered unter [main] does not exist on twitch.")
+            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
 
         if "password" in self.config["main"]:
             log.warning(
