@@ -44,7 +44,7 @@ class DateTimeSerializer(BaseJsonSerializer):
     # 'null' <=> None
     # '123456' <=> datetime.datetime (milliseconds since UTC epoch)
     def safe_serialize(self, fetch_result):
-        return fetch_result.timestamp()
+        return fetch_result.timestamp() * 1000
 
     def safe_deserialize(self, cache_result):
         return utils.datetime_from_utc_milliseconds(cache_result)
