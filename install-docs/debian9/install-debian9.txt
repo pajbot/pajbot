@@ -224,6 +224,5 @@ In KKonaTestBot
 !add alias uptime downtime
 !add command userpoints @$(source:username_raw), $(usersource;1:username_raw) has $(usersource;1:points|number_format) points
 !add command whereisstreamer @$(source:username_raw), Latest tweet by KKonaTestBroadcaster: $(lasttweet:kkonatestbroadcastertwitterhandle)
-!add command apiproxy @$(source:username_raw), $(urlfetch http://127.0.0.1:7221/apiproxy/status) --level 250
 # Also be sure to login into the admin panel under https://bot.kkonatestbroadcaster.tv
 # login at the bottom, afterwards click "Admin Panel" at the bottom
