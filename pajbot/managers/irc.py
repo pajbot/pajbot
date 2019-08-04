@@ -13,9 +13,6 @@ class IRCManager:
     def __init__(self, bot):
         self.bot = bot
 
-        self.username = self.bot.nickname
-        self.password = self.bot.password
-
         self.channels = []
 
         self.channel = "#" + self.bot.streamer
