@@ -17,9 +17,6 @@ class AccessToken(ABC):
 
         self.created_at = created_at
 
-        if isinstance(expires_in, int):
-            expires_in = datetime.timedelta(seconds=expires_in)
-
         # can both be None
         self.expires_in = expires_in
         if self.expires_in is not None:
@@ -91,10 +88,16 @@ class AccessToken(ABC):
 
         # expires_in is only missing for old Client-IDs to which twitch will respond with
         # infinitely-lived tokens (the "expires_in" field is absent in that case).
+        expires_in_seconds = response.get("expires_in", None)
+        if expires_in_seconds is None:
+            expires_in = None
+        else:
+            expires_in = datetime.timedelta(seconds=expires_in_seconds)
+
         return cls(
             access_token=response["access_token"],
             created_at=pajbot.utils.now(),
-            expires_in=response.get("expires_in", None),
+            expires_in=expires_in,
             token_type=response["token_type"],
             refresh_token=response.get("refresh_token", None),
             scope=response.get("scope", None),
