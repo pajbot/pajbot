@@ -66,7 +66,7 @@ class AccessToken(ABC):
         """serialize for storage"""
         return {
             "access_token": self.access_token,
-            "created_at": self.created_at.timestamp(),
+            "created_at": self.created_at.timestamp() * 1000,
             "expires_in": self.expires_in.total_seconds() * 1000,
             "token_type": self.token_type,
             "refresh_token": self.refresh_token,
