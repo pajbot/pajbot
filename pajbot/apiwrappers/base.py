@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import quote, urlparse, urlunparse, urljoin
+from urllib.parse import quote, urlparse, urlunparse
 
 import datetime
 
@@ -52,13 +52,15 @@ class BaseApi:
         url = base
         for path_segment in path_segments:
             # str(endpoint) so numbers can be used as path segments too
-            url = urljoin(url + "/", BaseApi.quote_path_param(str(path_segment)))
+            url = BaseApi.join_base_and_string(url, BaseApi.quote_path_param(str(path_segment)))
 
         return url
 
     @staticmethod
     def join_base_and_string(base, endpoint):
-        return urljoin(base + "/", endpoint.lstrip("/"))
+        base = base.rstrip("/")
+        endpoint = endpoint.lstrip("/")
+        return base + "/" + endpoint
 
     @staticmethod
     def join_base_and_endpoint(base, endpoint):
@@ -69,9 +71,10 @@ class BaseApi:
 
     def request(self, method, endpoint, params, headers, json=None):
 
+        full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
             method,
-            self.join_base_and_endpoint(self.base_url, endpoint),
+            full_url,
             params=params,
             headers=headers,
             json=json,
