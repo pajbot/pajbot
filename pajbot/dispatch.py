@@ -1,8 +1,6 @@
 import logging
 import re
 
-from requests import HTTPError
-
 from pajbot.managers.adminlog import AdminLogManager
 
 log = logging.getLogger(__name__)
