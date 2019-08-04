@@ -73,12 +73,7 @@ class BaseApi:
 
         full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
-            method,
-            full_url,
-            params=params,
-            headers=headers,
-            json=json,
-            timeout=self.timeout,
+            method, full_url, params=params, headers=headers, json=json, timeout=self.timeout
         )
         response.raise_for_status()
         return response

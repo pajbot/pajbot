@@ -89,9 +89,7 @@ def init(app):
             next_url = get_next_url(request, "state")
             return redirect(next_url)
         session["twitch_token"] = (resp["access_token"],)
-        me = twitch.get("user", headers={
-            "Accept": "application/vnd.twitchtv.v5+json"
-        })
+        me = twitch.get("user", headers={"Accept": "application/vnd.twitchtv.v5+json"})
         level = 100
         with DBManager.create_session_scope() as db_session:
             db_user = db_session.query(User).filter_by(username=me.data["name"].lower()).one_or_none()
