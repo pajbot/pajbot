@@ -52,7 +52,7 @@ class BaseApi:
         url = base
         for path_segment in path_segments:
             # str(endpoint) so numbers can be used as path segments too
-            url = urljoin(url + "/", quote(str(path_segment), safe=""))
+            url = urljoin(url + "/", BaseApi.quote_path_param(str(path_segment)))
 
         return url
 
