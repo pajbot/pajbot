@@ -51,7 +51,7 @@ class AccessToken(ABC):
         else:
             # this is a token that never expires
             # because we don't want any issues, refresh it anyways
-            expires_after = datetime.timedelta(days=1)
+            expires_after = datetime.timedelta(hours=1)
 
         # how much time has passed since token creation
         token_age = pajbot.utils.now() - self.created_at
