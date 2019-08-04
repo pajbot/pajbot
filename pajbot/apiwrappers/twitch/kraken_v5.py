@@ -68,5 +68,5 @@ class TwitchKrakenV5Api(BaseTwitchApi):
         # circular import prevention
         from pajbot.managers.emote import EmoteManager
 
-        resp = self.get("chat/emoticon_images", params={"emotesets": "0"})
+        resp = self.get("/chat/emoticon_images", params={"emotesets": "0"})
         return [EmoteManager.twitch_emote(data["id"], data["code"]) for data in resp["emoticon_sets"]["0"]]
