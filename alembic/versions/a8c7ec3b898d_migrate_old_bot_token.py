@@ -49,6 +49,8 @@ def upgrade():
     new_token = old_token.refresh(AlembicContext.bot.twitch_id_api)
     redis.set(new_redis_key, json.dumps(new_token.jsonify()))
 
+    log.info("Bot token migration: Successfully migrated old bot token")
+
 
 def downgrade():
     redis = RedisManager.get()
