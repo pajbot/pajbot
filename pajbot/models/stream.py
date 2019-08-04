@@ -330,7 +330,7 @@ class StreamManager:
         video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
 
         if video_url is None:
-            log.info("Not video for broadcast found")
+            log.info("No video for broadcast found")
             return
 
         log.info("Successfully fetched a video url: {0}".format(video_url))
