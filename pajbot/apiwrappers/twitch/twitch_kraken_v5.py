@@ -61,8 +61,8 @@ class TwitchKrakenV5Api(BaseTwitchApi):
     def set_title(self, user_id, title, authorization):
         self.put(["channels", user_id], json={"channel": {"status": title}}, authorization=authorization)
 
-    def get_vod_videos(self, username):
-        return self.get("channels/{}/videos".format(self.quote_path_param(username)), {"broadcast_type": "archive"})
+    def get_vod_videos(self, channel_name):
+        return self.get(["channels", channel_name, "videos"], {"broadcast_type": "archive"})
 
     def get_global_emotes(self):
         # circular import prevention
