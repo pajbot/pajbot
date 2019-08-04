@@ -6,10 +6,11 @@ from pajbot.apiwrappers.authentication.access_token import AppAccessToken
 
 
 class RedisTokenStorage:
-    def __init__(self, redis, cls, redis_key):
+    def __init__(self, redis, cls, redis_key, expire):
         self.redis = redis
         self.cls = cls
         self.redis_key = redis_key
+        self.expire = expire
 
     def load(self):
         cache_result = self.redis.get(self.redis_key)
@@ -19,8 +20,12 @@ class RedisTokenStorage:
         return self.cls.from_json(json.loads(cache_result))
 
     def save(self, token):
-        redis_expire_in = token.expires_in.total_seconds() * token.SHOULD_REFRESH_THRESHOLD
-        self.redis.setex(self.redis_key, json.dumps(token.jsonify()), redis_expire_in)
+        if self.expire:
+            redis_expire_in = token.expires_in.total_seconds() * token.SHOULD_REFRESH_THRESHOLD
+            self.redis.setex(self.redis_key, int(redis_expire_in), json.dumps(token.jsonify()))
+        else:
+            self.redis.set(self.redis_key, json.dumps(token.jsonify()))
+
 
 
 class NoTokenError(Exception):
@@ -72,7 +77,7 @@ class AccessTokenManager(ABC):
 class AppAccessTokenManager(AccessTokenManager):
     def __init__(self, api, redis, scope=[], token=None):
         redis_key = "authentication:app-access-token:{}:{}".format(api.client_credentials.client_id, json.dumps(scope))
-        storage = RedisTokenStorage(redis, AppAccessToken, redis_key)
+        storage = RedisTokenStorage(redis, AppAccessToken, redis_key, expire=True)
 
         super().__init__(api, storage, token)
         self.scope = scope
@@ -84,7 +89,7 @@ class AppAccessTokenManager(AccessTokenManager):
 class UserAccessTokenManager(AccessTokenManager):
     def __init__(self, api, redis, username, user_id, token=None):
         redis_key = "authentication:user-access-token:{}".format(user_id)
-        storage = RedisTokenStorage(redis, AppAccessToken, redis_key)
+        storage = RedisTokenStorage(redis, UserAccessToken, redis_key, expire=False)
 
         super().__init__(api, storage, token)
         self.username = username
