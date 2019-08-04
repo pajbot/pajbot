@@ -12,6 +12,7 @@ import requests
 from numpy import random
 from pytz import timezone
 
+import pajbot.db_migration
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
@@ -144,10 +145,27 @@ class Bot:
         # StreamManager accesses the DB)
         StreamHelper.init_streamer(self.streamer)
 
+        # do this earlier since alembic upgrade can depend on the helix api
+        self.api_client_credentials = ClientCredentials(
+            self.config["twitchapi"]["client_id"],
+            self.config["twitchapi"]["client_secret"],
+            self.config["twitchapi"]["redirect_uri"],
+        )
+
+        self.twitch_id_api = TwitchIdApi(self.api_client_credentials)
+        self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
+        self.twitch_helix_api = TwitchHelixApi(RedisManager.get(), self.app_token_manager)
+        self.twitch_v5_api = TwitchKrakenV5Api(self.api_client_credentials, RedisManager.get())
+        self.twitch_legacy_api = TwitchLegacyApi(self.api_client_credentials, RedisManager.get())
+
+        self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
+        if self.bot_user_id is None:
+            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+
         # Update the database (and partially redis) scheme if necessary using alembic
         # In case of errors, i.e. if the database is out of sync or the alembic
         # binary can't be called, we will shut down the bot.
-        pajbot.utils.alembic_upgrade()
+        pajbot.db_migration.run_alembic_upgrade(self)
         log.debug("ran db upgrade")
 
         # Actions in this queue are run in a separate thread.
@@ -173,20 +191,6 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
 
-        self.api_client_credentials = ClientCredentials(
-            self.config["twitchapi"]["client_id"],
-            self.config["twitchapi"]["client_secret"],
-            self.config["twitchapi"]["redirect_uri"],
-        )
-
-        self.twitch_id_api = TwitchIdApi(self.api_client_credentials)
-        self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
-        self.twitch_helix_api = TwitchHelixApi(RedisManager.get(), self.app_token_manager)
-
-        self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
-        if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
-
         if "password" in self.config["main"]:
             log.warning(
                 "DEPRECATED - Using bot password/oauth token from file. "
@@ -210,9 +214,6 @@ class Bot:
             self.bot_token_manager = UserAccessTokenManager(
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
-
-        self.twitch_v5_api = TwitchKrakenV5Api(self.api_client_credentials, RedisManager.get())
-        self.twitch_legacy_api = TwitchLegacyApi(self.api_client_credentials, RedisManager.get())
 
         self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
         self.epm_manager = EpmManager()

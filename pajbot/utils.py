@@ -32,18 +32,6 @@ def datetime_from_utc_milliseconds(ms):
     return datetime.datetime.fromtimestamp(ms / 1000, tz=datetime.timezone.utc)
 
 
-def alembic_upgrade():
-    import alembic.config
-
-    alembic_args = ["--raiseerr", "upgrade", "head", '--tag="{0}"'.format(" ".join(sys.argv[1:]))]
-
-    try:
-        alembic.config.main(argv=alembic_args)
-    except:
-        log.exception("xd")
-        sys.exit(1)
-
-
 def time_method(f):
     import inspect
 
