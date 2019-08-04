@@ -1,4 +1,4 @@
-"""Move bot token
+"""Migrate old bot token
 
 Revision ID: a8c7ec3b898d
 Revises: a8ad6e7fadd6
