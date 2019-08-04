@@ -42,7 +42,7 @@ class AccessTokenManager(ABC):
 
     def refresh(self):
         """called when the current token should be refreshed"""
-        new_token = self.token.refresh(self.api)
+        new_token = self._token.refresh(self.api)
         self.storage.save(new_token)
         self._token = new_token
 
