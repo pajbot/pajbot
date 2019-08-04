@@ -8,6 +8,7 @@ from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserA
 
 log = logging.getLogger(__name__)
 
+
 class RedisTokenStorage:
     def __init__(self, redis, cls, redis_key, expire):
         self.redis = redis
@@ -28,7 +29,6 @@ class RedisTokenStorage:
             self.redis.setex(self.redis_key, int(redis_expire_in), json.dumps(token.jsonify()))
         else:
             self.redis.set(self.redis_key, json.dumps(token.jsonify()))
-
 
 
 class NoTokenError(Exception):
