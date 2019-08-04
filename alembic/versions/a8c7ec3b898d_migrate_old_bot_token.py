@@ -31,7 +31,7 @@ def upgrade():
     new_redis_key = "authentication:user-access-token:{}".format(bot_user_id)
 
     if redis.exists(new_redis_key):
-        log.info("Bot token migration: New token already present. Will delete old key")
+        log.info("Bot token migration: New token already present. Will delete old key if present")
         redis.delete(old_redis_key)
         return
 
