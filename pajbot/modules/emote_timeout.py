@@ -15,7 +15,7 @@ class EmoteTimeoutModule(BaseModule):
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
-            key="timeout_twitch", label="Timeout any twitch emotes", type="boolean", required=True, default=False
+            key="timeout_twitch", label="Timeout any Twitch emotes", type="boolean", required=True, default=False
         ),
         ModuleSetting(key="timeout_ffz", label="Timeout any FFZ emotes", type="boolean", required=True, default=False),
         ModuleSetting(
