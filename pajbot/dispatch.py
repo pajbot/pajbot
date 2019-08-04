@@ -398,9 +398,7 @@ class Dispatch:
                 bot.twitch_v5_api.set_game(streamer_id, message, authorization=bot.bot_token_manager)
             except HTTPError as e:
                 if e.response.status_code == 401:
-                    bot.say(
-                        "Error (bot operator): The bot needs to be re-authenticated " "to be able to update the game."
-                    )
+                    bot.say("Error (bot operator): The bot needs to be re-authenticated to be able to update the game.")
                     return
                 elif e.response.status_code == 403:
                     bot.say("Error: The bot is not a channel editor and was not able to update the game.")
@@ -423,7 +421,7 @@ class Dispatch:
             except HTTPError as e:
                 if e.response.status_code == 401:
                     bot.say(
-                        "Error (bot operator): The bot needs to be re-authenticated " "to be able to update the title."
+                        "Error (bot operator): The bot needs to be re-authenticated to be able to update the title."
                     )
                     return
                 elif e.response.status_code == 403:
