@@ -64,5 +64,5 @@ class TwitchLegacyApi(BaseTwitchApi):
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
             serializer=TwitchChannelEmotesSerializer(),
             expiry=60 * 60,
-            force_fetch=force_fetch
+            force_fetch=force_fetch,
         )
