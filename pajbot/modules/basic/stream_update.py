@@ -31,7 +31,11 @@ class StreamUpdateModule(BaseModule):
             api_fn(streamer_id, message, authorization=bot.bot_token_manager)
         except HTTPError as e:
             if e.response.status_code == 401:
-                bot.say("Error (bot operator): The bot needs to be re-authenticated to be able to update the {}.".format(field))
+                bot.say(
+                    "Error (bot operator): The bot needs to be re-authenticated to be able to update the {}.".format(
+                        field
+                    )
+                )
                 return
             elif e.response.status_code == 403:
                 bot.say("Error: The bot is not a channel editor and was not able to update the {}.".format(field))
@@ -57,8 +61,8 @@ class StreamUpdateModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Update the game to \"World of Warcraft\"",
-                    chat="user:!setgame World of Warcraft\n" "bot>user:pajlada updated the game to \"World of Warcraft\"",
+                    'Update the game to "World of Warcraft"',
+                    chat="user:!setgame World of Warcraft\n" 'bot>user:pajlada updated the game to "World of Warcraft"',
                 ).parse()
             ],
         )
@@ -70,8 +74,8 @@ class StreamUpdateModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Update the title to \"Games and shit\"",
-                    chat="user:!settitle Games and shit\n" "bot>user:pajlada updated the title to \"Games and shit\"",
+                    'Update the title to "Games and shit"',
+                    chat="user:!settitle Games and shit\n" 'bot>user:pajlada updated the title to "Games and shit"',
                 ).parse()
             ],
         )
