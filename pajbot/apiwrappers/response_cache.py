@@ -92,7 +92,6 @@ class ApiResponseCache:
         if not force_fetch:
             cache_result = self.redis.get(redis_key)
             if cache_result is not None:
-                log.debug("Cache Hit: %s", redis_key)
                 return serializer.deserialize(cache_result)
 
         log.debug("Cache Miss: %s", redis_key)
