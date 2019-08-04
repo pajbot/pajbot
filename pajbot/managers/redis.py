@@ -29,12 +29,14 @@ class RedisManager:
     @staticmethod
     @contextmanager
     def pipeline_context():
+        pipeline = None
         try:
             pipeline = RedisManager.get().pipeline()
             yield pipeline
         except:
             log.exception("Exception caught during RedisManager::pipeline_context")
-            pipeline.reset()
+            if pipeline is not None:
+                pipeline.reset()
         finally:
             pipeline.execute()
 

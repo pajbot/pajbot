@@ -28,7 +28,7 @@ def run(args):
 
     if "sql" in config:
         log.error(
-            "The [sql] section in config is no longer used. See config.example.ini for the new format under [main]."
+            "The [sql] section in config is no longer used. See the example config for the new format under [main]."
         )
         sys.exit(1)
 
@@ -58,8 +58,14 @@ def handle_exceptions(exctype, value, tb):
 
 
 if __name__ == "__main__":
-    from pajbot.utils import init_logging
+    from pajbot.utils import init_logging, dump_threads
 
+    def on_sigusr1(signal, frame):
+        log.info("Process was interrupted with SIGUSR1, dumping all thread stack traces")
+        dump_threads()
+
+    # dump all stack traces on SIGUSR1
+    signal.signal(signal.SIGUSR1, on_sigusr1)
     sys.excepthook = handle_exceptions
 
     args = Bot.parse_args()

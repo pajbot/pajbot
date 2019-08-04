@@ -41,6 +41,13 @@ class AsciiProtectionModule(BaseModule):
             default=500,
             constraints={"min_value": 100, "max_value": 1000},
         ),
+        ModuleSetting(
+            key="whisper_offenders",
+            label="Send offenders a whisper explaining the timeout",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     @staticmethod
@@ -54,25 +61,30 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def on_pubmsg(self, source, message, **rest):
-        if (
-            len(message) > self.settings["min_msg_length"]
-            and source.level < self.settings["bypass_level"]
-            and source.moderator is False
-        ):
-            if AsciiProtectionModule.check_message(message) is not False:
-                duration, punishment = self.bot.timeout_warn(
-                    source, self.settings["timeout_length"], reason="Too many ASCII characters"
-                )
-                """ We only send a notification to the user if he has spent more than
-                one hour watching the stream. """
-                if duration > 0 and source.minutes_in_chat_online > 60:
-                    self.bot.whisper(
-                        source.username,
-                        "You have been {punishment} because your message contained too many ascii characters.".format(
-                            punishment=punishment
-                        ),
-                    )
-                return False
+        if source.level >= self.settings["bypass_level"] or source.moderator is True:
+            return
+
+        if len(message) <= self.settings["min_msg_length"]:
+            return
+
+        if AsciiProtectionModule.check_message(message) is False:
+            return
+
+        duration, punishment = self.bot.timeout_warn(
+            source, self.settings["timeout_length"], reason="Too many ASCII characters"
+        )
+
+        """ We only send a notification to the user if he has spent more than
+        one hour watching the stream. """
+        if self.settings["whisper_offenders"] and duration > 0 and source.minutes_in_chat_online > 60:
+            self.bot.whisper(
+                source.username,
+                "You have been {punishment} because your message contained too many ascii characters.".format(
+                    punishment=punishment
+                ),
+            )
+
+        return False
 
     def enable(self, bot):
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)

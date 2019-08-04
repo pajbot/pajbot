@@ -282,7 +282,7 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message, twitch_emotes_tag):
+    def parse_all_emotes(self, message, twitch_emotes_tag=None):
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
@@ -396,7 +396,6 @@ end
         new_epm = self.epm.get(code, 0) + count
         self.epm[code] = new_epm
         self.save_epm_record(code, new_epm)
-        # TODO if we want to add epm records back, do it here
         ScheduleManager.execute_delayed(60, self.epm_decr, args=[code, count])
 
     def epm_decr(self, code, count):

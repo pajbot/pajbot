@@ -16,12 +16,12 @@ from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.blackjack import BlackjackModule
-from pajbot.modules.chatters import ChattersModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
+from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.followage import FollowAgeModule
@@ -68,6 +68,7 @@ from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.massping import MassPingProtectionModule
+from pajbot.modules.wolfram import WolframModule
 
 available_modules = [
     AbCommandModule,
@@ -77,7 +78,6 @@ available_modules = [
     BanphraseModule,
     BasicCommandsModule,
     BingoModule,
-    ChattersModule,
     CheckModModule,
     DBManageModule,
     DebugModule,
@@ -101,6 +101,7 @@ available_modules = [
     MathModule,
     MaxMsgLengthModule,
     CaseCheckerModule,
+    EmoteTimeoutModule,
     PaidSubmodeModule,
     PaidTimeoutDiscountModule,
     PaidTimeoutModule,
@@ -132,4 +133,5 @@ available_modules = [
     WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
     MassPingProtectionModule,
+    WolframModule,
 ]

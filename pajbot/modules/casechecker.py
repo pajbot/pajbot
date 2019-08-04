@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class CaseCheckerModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Case checker"
-    DESCRIPTION = "Times out users who post messages that contain too many characters."
+    DESCRIPTION = "Times out users who post messages that contain lowercase/uppercase letters."
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
@@ -57,13 +57,16 @@ class CaseCheckerModule(BaseModule):
         if self.settings["online_chat_only"] and not self.bot.is_online:
             return True
 
-        # TODO don't use private members on bot here
         if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
-            self.bot._timeout_user(source, self.settings["timeout_duration"], reason="no uppercase characters allowed")
+            self.bot.timeout_user_once(
+                source, self.settings["timeout_duration"], reason="no uppercase characters allowed"
+            )
             return False
 
         if self.settings["timeout_lowercase"] and any(c.islower() for c in message):
-            self.bot._timeout_user(source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED")
+            self.bot.timeout_user_once(
+                source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED"
+            )
             return False
 
         return True

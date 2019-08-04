@@ -384,6 +384,31 @@ def get_urlfetch_substitutions(string, all=False):
     return substitutions
 
 
+def is_message_good(bot, message, extra):
+    # this is imported here to avoid circular imports
+    # (Circular import was command.py importing this file)
+    from pajbot.modules.ascii import AsciiProtectionModule
+
+    checks = {
+        "banphrase": lambda: bot.banphrase_manager.check_message(message, extra["source"]),
+        "ascii": lambda: AsciiProtectionModule.check_message(message),
+        "massping": lambda: bot.module_manager.get_module("massping").check_message(message, extra["source"]),
+    }
+
+    for check_name, check_fn in checks.items():
+        # Make sure the module is enabled
+        if check_name not in bot.module_manager:
+            continue
+
+        # apply the check fn
+        # only if the result is False the check was successful
+        if check_fn() is not False:
+            log.info('Not sending message "{}" because check "{}" failed.'.format(message, check_name))
+            return False
+
+    return True
+
+
 class MessageAction(BaseAction):
     type = "message"
 
@@ -424,22 +449,8 @@ class MessageAction(BaseAction):
             log.debug("Replacing {0} with {1}".format(needle, value))
 
         if "command" in extra and "source" in extra:
-            if extra["command"].run_through_banphrases is True:
-                # this is imported here to avoid circular imports
-                # (Circular import was command.py importing this file)
-                from pajbot.modules.ascii import AsciiProtectionModule
-
-                checks = {
-                    "banphrase": (bot.banphrase_manager.check_message, [resp, extra["source"]]),
-                    "ascii": (AsciiProtectionModule.check_message, [resp]),
-                }
-                # Check banphrases
-                for check in checks:
-                    # Make sure the module is enabled
-                    if check in bot.module_manager:
-                        res = checks[check][0](*checks[check][1])
-                        if res is not False:
-                            return None
+            if not is_message_good(bot, resp, extra):
+                return None
 
         return resp
 
@@ -475,23 +486,8 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
         message = message.replace(needle, value)
 
     if "command" in extra and "source" in extra:
-        if extra["command"].run_through_banphrases is True or True:
-            # this is imported here to avoid circular imports
-            # (Circular import was command.py importing this file)
-            from pajbot.modules.ascii import AsciiProtectionModule
-
-            checks = {
-                "banphrase": (bot.banphrase_manager.check_message, [message, extra["source"]]),
-                "ascii": (AsciiProtectionModule.check_message, [message]),
-            }
-            # Check banphrases
-            for check in checks:
-                # Make sure the module is enabled
-                if check in bot.module_manager:
-                    log.debug("Checking result for {}".format(check))
-                    res = checks[check][0](*checks[check][1])
-                    if res is not False:
-                        return None
+        if not is_message_good(bot, message, extra):
+            return None
 
     args.append(message)
 

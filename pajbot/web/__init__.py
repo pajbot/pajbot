@@ -65,6 +65,7 @@ def init(args):
             config.set("web", "logo", "set")
 
     StreamHelper.init_web(config["main"]["streamer"])
+    SocketClientManager.init(config["main"]["streamer"])
 
     redis_options = {}
     if "redis" in config:

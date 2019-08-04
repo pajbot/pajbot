@@ -40,8 +40,6 @@ class APIBase:
             log.exception("Unhandled exception in APIBase._get while reading response")
             return None
 
-        return None
-
     def _get_json(self, url, headers={}):
         data = self._get(url, headers)
 
@@ -53,8 +51,6 @@ class APIBase:
         except:
             log.exception("Caught exception while trying to parse json data.")
             return None
-
-        return None
 
     def get_url(self, endpoints=[], parameters={}, base=None):
         return (
@@ -77,9 +73,6 @@ class APIBase:
         except:
             log.exception("Unhandled exception in APIBase.get")
             return None
-
-        log.error("why the fuck are we here")
-        return None
 
     def _req_with_data(self, url, data, method="POST"):
         """Send data along with the request.
@@ -307,7 +300,7 @@ class TwitchAPI(APIBase):
     def parse_datetime(datetime_str):
         """Parses date strings in the format of 2015-09-11T23:01:11+00:00
         to a naive datetime object."""
-        return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
+        return datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ")
 
     def get_subscribers(self, streamer, limit=25, offset=0, attempt=0):
         """Returns a list of subscribers within the limit+offset range.
@@ -492,7 +485,7 @@ class TwitchAPI(APIBase):
             plans = resp["plans"]
             if len(plans) <= 0:
                 log.warning("No subscription plans found for channel {}".format(channel))
-                return []
+                return [], [], []
 
             # plans[0] is tier 1
             ret_data = []

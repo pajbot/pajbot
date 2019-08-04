@@ -1,0 +1,15 @@
+[Unit]
+Description=pajbot for %i
+After=network.target
+
+[Service]
+Type=simple
+User=pajbot
+Group=pajbot
+WorkingDirectory=/opt/pajbot
+ExecStart=/opt/pajbot/venv/bin/python3 main.py --config "configs/%i.ini"
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,11 +1,14 @@
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.module import Module
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.utils import split_into_chunks_with_prefix
 
 log = logging.getLogger(__name__)
 
@@ -190,11 +193,7 @@ class AdminCommandsModule(BaseModule):
             bot.whisper(source.username, "The bot can now talk again")
 
     @staticmethod
-    def cmd_module(**options):
-        bot = options["bot"]
-        # source = options['source']
-        message = options["message"]
-
+    def cmd_module(bot, source, message, **options):
         module_manager = bot.module_manager
 
         if not message:
@@ -207,8 +206,14 @@ class AdminCommandsModule(BaseModule):
         sub_command = msg_args[0].lower()
 
         if sub_command == "list":
-            for module in module_manager.all_modules:
-                bot.say("Module ID: {}".format(module.ID))
+            messages = split_into_chunks_with_prefix(
+                [{"prefix": "Available modules:", "parts": [module.ID for module in module_manager.all_modules]}],
+                " ",
+                default="No modules available.",
+            )
+
+            for message in messages:
+                bot.say(message)
         elif sub_command == "disable":
             if len(msg_args) < 2:
                 return
@@ -229,6 +234,13 @@ class AdminCommandsModule(BaseModule):
 
             # Rebuild command cache
             bot.commands.rebuild()
+
+            with DBManager.create_session_scope() as db_session:
+                db_module = db_session.query(Module).filter_by(id=module_id).one()
+                db_module.enabled = False
+
+            AdminLogManager.post("Module toggled", source, "Disabled", module_id)
+
             bot.say("Disabled module {}".format(module_id))
 
         elif sub_command == "enable":
@@ -251,6 +263,13 @@ class AdminCommandsModule(BaseModule):
 
             # Rebuild command cache
             bot.commands.rebuild()
+
+            with DBManager.create_session_scope() as db_session:
+                db_module = db_session.query(Module).filter_by(id=module_id).one()
+                db_module.enabled = True
+
+            AdminLogManager.post("Module toggled", source, "Enabled", module_id)
+
             bot.say("Enabled module {}".format(module_id))
 
     def load_commands(self, **options):

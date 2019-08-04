@@ -16,7 +16,7 @@ class HandlerManager:
         # on_pubmsg(source, message)
         HandlerManager.create_handler("on_pubmsg")
 
-        # on_message(source, message, emote_instances, emote_counts, whisper, urls, event)
+        # on_message(source, message, emote_instances, emote_counts, whisper, urls, msg_id, event)
         HandlerManager.create_handler("on_message")
 
         # on_usernotice(source, message, tags)
@@ -66,6 +66,9 @@ class HandlerManager:
 
         # on_tick()
         HandlerManager.create_handler("on_tick")
+
+        # on_quit()
+        HandlerManager.create_handler("on_quit")
 
     @staticmethod
     def create_handler(event):

@@ -215,9 +215,9 @@ class SlotMachineModule(BaseModule):
         )
         self.commands["smp"] = self.commands["slotmachine"]
 
-    def pull(self, bot, user, message, **rest):
+    def pull(self, bot, source, message, **rest):
         if message is None:
-            bot.whisper(user.username, "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points")
+            bot.whisper(source.username, "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points")
             return False
 
         low_tier_emotes = self.settings["low_tier_emotes"].split()
@@ -228,19 +228,19 @@ class SlotMachineModule(BaseModule):
 
         msg_split = message.split(" ")
         try:
-            bet = pajbot.utils.parse_points_amount(user, msg_split[0])
+            bet = pajbot.utils.parse_points_amount(source, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
-            bot.whisper(user.username, str(e))
+            bot.whisper(source.username, str(e))
             return False
 
-        if not user.can_afford(bet):
+        if not source.can_afford(bet):
             bot.whisper(
-                user.username, "You don't have enough points to do a slot machine pull for {} points :(".format(bet)
+                source.username, "You don't have enough points to do a slot machine pull for {} points :(".format(bet)
             )
             return False
 
         if bet < self.settings["min_bet"]:
-            bot.whisper(user.username, "You have to bet at least {} point! :(".format(self.settings["min_bet"]))
+            bot.whisper(source.username, "You have to bet at least {} point! :(".format(self.settings["min_bet"]))
             return False
 
         # how much of the users point they're expected to get back (basically how much the house yoinks)
@@ -261,13 +261,13 @@ class SlotMachineModule(BaseModule):
         else:
             points = bet * bet_return
 
-        user.points += points
+        source.points += points
 
         arguments = {
             "bet": bet,
             "result": points,
-            "user": user.username_raw,
-            "points": user.points_available(),
+            "user": source.username_raw,
+            "points": source.points_available(),
             "win": points > 0,
             "emotes": " ".join(randomized_emotes),
         }
@@ -285,7 +285,7 @@ class SlotMachineModule(BaseModule):
         if self.settings["options_output"] == "1. Show results in chat":
             bot.me(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
-            bot.whisper(user.username, out_message)
+            bot.whisper(source.username, out_message)
         if (
             self.settings["options_output"]
             == "3. Show results in chat if it's over X points else it will be whispered."
@@ -293,9 +293,9 @@ class SlotMachineModule(BaseModule):
             if abs(points) >= self.settings["min_show_points"]:
                 bot.me(out_message)
             else:
-                bot.whisper(user.username, out_message)
+                bot.whisper(source.username, out_message)
 
-        HandlerManager.trigger("on_slot_machine_finish", user=user, points=points)
+        HandlerManager.trigger("on_slot_machine_finish", user=source, points=points)
 
     def on_tick(self, **rest):
         if self.output_buffer == "":

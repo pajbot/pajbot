@@ -166,11 +166,31 @@ function refresh_combo_count(count) {
     });
 }
 
+// https://gist.github.com/mkornblum/1384495
+// slightly altered
+$.fn.detachThenReattach = function (fn) {
+    return this.each(function () {
+        let $this = $(this);
+        let tmpElement = $('<div style="display: none"/>');
+        $this.after(tmpElement);
+        $this.detach();
+        fn.call($this);
+        tmpElement.replaceWith($this);
+    });
+};
+
 function refresh_combo_emote(emote) {
     let {url, needsScale} = getEmoteURL(emote);
     let $emoteCombo = $('#emote_combo img');
-    $emoteCombo.attr('src', url);
-    $emoteCombo.css('zoom', String(needsScale))
+
+    // Fix for issue #378
+    // we detach the <img> element from the DOM, then edit src and zoom,
+    // then it is reattached where it used to be. This prevents the GIF animation
+    // from resetting on all other emotes with the same URL on the screen
+    $emoteCombo.detachThenReattach(function () {
+        this.attr('src', url);
+        this.css('zoom', String(needsScale));
+    })
 }
 
 function debug_text(text) {

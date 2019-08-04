@@ -111,8 +111,8 @@ class BingoModule(BaseModule):
     @staticmethod
     def make_twitch_sets(manager):
         tier_one_emotes = ("Tier 1 sub emotes", manager.tier_one_emotes)
-        tier_two_emotes = ("Tier 2 sub emotes", manager.tier_one_emotes)
-        tier_three_emotes = ("Tier 3 sub emotes", manager.tier_one_emotes)
+        tier_two_emotes = ("Tier 2 sub emotes", manager.tier_two_emotes)
+        tier_three_emotes = ("Tier 3 sub emotes", manager.tier_three_emotes)
         global_emotes = ("Global Twitch emotes", manager.global_emotes)
         all_emotes = ("Global + Twitch tier 1 sub emotes", manager.tier_one_emotes + manager.global_emotes)
         return {
@@ -338,6 +338,9 @@ class BingoModule(BaseModule):
         correct_emote = self.active_game.correct_emote
         correct_emote_code = correct_emote.code
 
+        typed_emote = emote_instances[0].emote
+        typed_emote_code = typed_emote.code
+
         # we check for BOTH exact match (which works by comparing provider and ID, see __eq__ and __hash__ in
         # the Emote class) and for code-only match because we want to allow equal-named sub and ffz/bttv emotes
         # to be treated equally (e.g. sub-emote pajaL vs bttv emote pajaL)
@@ -345,8 +348,8 @@ class BingoModule(BaseModule):
         # If the "correct_emote" was chosen from the list of global twitch emotes, then its code will be the regex
         # for the emote (If the bingo was started by specifying :) as an explicit emote, then the code will be
         # :)). To make sure we don't trip on this we only compare by provider and provider ID.
-        exact_match = correct_emote in (e.emote for e in emote_instances)
-        only_code_match = correct_emote_code in (e.emote.code for e in emote_instances)
+        exact_match = correct_emote == typed_emote
+        only_code_match = correct_emote_code == typed_emote_code
         if not (exact_match or only_code_match):
             return
 

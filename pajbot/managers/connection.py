@@ -1,5 +1,4 @@
 import logging
-import random
 import socket
 import ssl
 
@@ -8,6 +7,7 @@ from irc.client import InvalidCharacters
 from irc.client import MessageTooLong
 from irc.client import ServerNotConnectedError
 from irc.connection import Factory
+from ratelimiter import RateLimiter
 
 from pajbot.tmi import TMI
 
@@ -28,8 +28,8 @@ class CustomServerConnection(irc.client.ServerConnection):
         """
         # The string should not contain any carriage return other than the
         # one added here.
-        if "\n" in string:
-            raise InvalidCharacters("Carriage returns not allowed in privmsg(text)")
+        if "\n" in string or "\r" in string:
+            raise InvalidCharacters("CR/LF not allowed in IRC commands")
         bytes = string.encode("utf-8") + b"\r\n"
         # According to the RFC http://tools.ietf.org/html/rfc2812#page-6,
         # clients should not transmit more than 512 bytes.
@@ -61,7 +61,10 @@ class Connection(CustomServerConnection):
 
 
 class ConnectionManager:
-    def __init__(self, reactor, bot, streamer, control_hub_channel):
+    def __init__(self, reactor, bot, streamer, control_hub_channel, host, port):
+        self.host = host
+        self.port = port
+
         self.streamer = streamer
         self.channel = "#" + self.streamer
         if control_hub_channel:
@@ -73,101 +76,46 @@ class ConnectionManager:
         self.bot = bot
         self.main_conn = None
 
-        self.maintenance_lock = False
-
+    @RateLimiter(max_calls=1, period=2)
     def start(self):
-        log.debug("Starting connection manager")
         try:
-            self.main_conn = self.make_new_connection()
+            self.make_new_connection()
 
             phrase_data = {"nickname": self.bot.nickname, "version": self.bot.version}
 
             for p in self.bot.phrases["welcome"]:
                 self.bot.privmsg(p.format(**phrase_data))
 
-            self.run_maintenance()
-            self.bot.execute_every(4, self.run_maintenance)
+            # XXX
+            self.bot.execute_every(30, lambda: self.main_conn.ping("tmi.twitch.tv"))
+
             return True
         except:
             log.exception("babyrage")
             return False
 
-    def run_maintenance(self):
-        if self.maintenance_lock:
-            log.debug("skipping due to maintenance lock")
-            return
-
-        self.maintenance_lock = True
-        if self.main_conn is None:
-            self.main_conn = self.make_new_connection()
-            self.maintenance_lock = False
-            return
-
-        if self.main_conn.is_connected():
-            if not self.main_conn.in_channel:
-                if irc.client.is_channel(self.channel):
-                    self.main_conn.join(self.channel)
-                    log.debug("Joined channel")
-
-                if self.control_hub_channel and irc.client.is_channel(self.control_hub_channel):
-                    self.main_conn.join(self.control_hub_channel)
-                    log.debug("Joined channel")
-
-                self.main_conn.in_channel = True
-
-        self.maintenance_lock = False
-
-    def get_main_conn(self):
-        if self.main_conn is None:
-            self.run_maintenance()
-            return self.get_main_conn()
-
-        return self.main_conn
-
-    @staticmethod
-    def get_chat_server():
-        """
-        This method returns a random IRC server from a list of valid twitch IRC servers.
-        The returned servers accept encrypted IRC traffic. (connections must be made using TLS)
-        """
-        servers = [{"host": "irc.chat.twitch.tv", "port": 6697}, {"host": "irc.chat.twitch.tv", "port": 443}]
-
-        server = random.choice(servers)
-        return server["host"], server["port"]
-
     def make_new_connection(self):
-        log.debug("Creating a new IRC connection...")
-        log.debug("Selecting random IRC server... ({0})".format(self.streamer))
-
-        ip, port = self.get_chat_server()
-
-        log.debug("Selected {0}:{1}".format(ip, port))
+        ip = self.host
+        port = self.port
 
         try:
             ssl_factory = Factory(wrapper=ssl.wrap_socket)
-            newconn = Connection(self.reactor)
+            self.main_conn = Connection(self.reactor)
             with self.reactor.mutex:
-                self.reactor.connections.append(newconn)
-            newconn.connect(
+                self.reactor.connections.append(self.main_conn)
+            self.main_conn.connect(
                 ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
             )
-            log.debug("Connecting to IRC server...")
-            newconn.cap("REQ", "twitch.tv/membership")
-            newconn.cap("REQ", "twitch.tv/commands")
-            newconn.cap("REQ", "twitch.tv/tags")
-
-            return newconn
+            self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
         except irc.client.ServerConnectionError:
-            return None
-
-        log.error("No proper data returned when fetching IRC servers")
-        return None
+            return False
 
     def on_disconnect(self, _chatconn):
-        self.run_maintenance()
+        log.error("Disconnected from IRC")
+        self.start()
 
     def privmsg(self, channel, message, increase_message=True):
-        conn = self.get_main_conn()
+        conn = self.main_conn
 
         if conn is None or not conn.can_send():
             log.error("No available connections to send messages from. Delaying message a few seconds.")

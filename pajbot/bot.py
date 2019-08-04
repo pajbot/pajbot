@@ -1,4 +1,5 @@
 import argparse
+import cgi
 import datetime
 import logging
 import re
@@ -22,8 +23,7 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EmoteManager, EpmManager, EcountManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.irc import MultiIRCManager
-from pajbot.managers.irc import SingleIRCManager
+from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -171,7 +171,7 @@ class Bot:
 
         HandlerManager.init_handlers()
 
-        self.socket_manager = SocketManager()
+        self.socket_manager = SocketManager(self.streamer)
         self.stream_manager = StreamManager(self)
 
         StreamHelper.init_bot(self, self.stream_manager)
@@ -218,19 +218,21 @@ class Bot:
         try:
             self.admin = self.config["main"]["admin"]
         except KeyError:
-            log.warning("No admin user specified. See the [main] section in config.example.ini for its usage.")
+            log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         if self.admin:
             with self.users.get_user_context(self.admin) as user:
                 user.level = 2000
 
         self.parse_version()
 
+        self.irc = IRCManager(self)
+
         relay_host = self.config["main"].get("relay_host", None)
         relay_password = self.config["main"].get("relay_password", None)
-        if relay_host is None or relay_password is None:
-            self.irc = MultiIRCManager(self)
-        else:
-            self.irc = SingleIRCManager(self)
+        if relay_host is not None or relay_password is not None:
+            log.warning(
+                "DEPRECATED - Relaybroker support is no longer implemented. relay_host and relay_password are ignored"
+            )
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
 
@@ -478,6 +480,13 @@ class Bot:
     def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
             r = requests.get(url)
+            r.raise_for_status()
+
+            content_type = r.headers["Content-Type"]
+            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+                log.error("privmsg_from_file should be fed with a text/plain URL. Refusing to send.")
+                return
+
             lines = r.text.splitlines()
             i = 0
             while lines:
@@ -497,6 +506,13 @@ class Bot:
     def eval_from_file(self, event, url):
         try:
             r = requests.get(url)
+            r.raise_for_status()
+
+            content_type = r.headers["Content-Type"]
+            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+                log.error("eval_from_file should be fed with a text/plain URL. Refusing to send.")
+                return
+
             lines = r.text.splitlines()
             import copy
 
@@ -587,8 +603,14 @@ class Bot:
         self._timeout(user.username, duration, reason)
         self.execute_delayed(1, self._timeout, (user.username, duration, reason))
 
+    def timeout_user_once(self, user, duration, reason):
+        self._timeout(user.username, duration, reason)
+
     def _timeout_user(self, user, duration, reason=""):
         self._timeout(user.username, duration, reason)
+
+    def delete_message(self, msg_id):
+        self.privmsg(".delete {0}".format(msg_id))
 
     def whisper(self, username, *messages, separator=". ", **rest):
         """
@@ -687,6 +709,7 @@ class Bot:
         msg_lower = message.lower()
 
         emote_tag = None
+        msg_id = None
 
         for tag in tags:
             if tag["key"] == "subscriber" and event.target == self.channel:
@@ -697,6 +720,8 @@ class Bot:
                 source.username_raw = tag["value"]
             elif tag["key"] == "user-type":
                 source.moderator = tag["value"] == "mod" or source.username == self.streamer
+            elif tag["key"] == "id":
+                msg_id = tag["value"]
 
         # source.num_lines += 1
 
@@ -715,8 +740,10 @@ class Bot:
         # Parse emotes in the message
         emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
 
-        self.epm_manager.handle_emotes(emote_counts)
-        self.ecount_manager.handle_emotes(emote_counts)
+        if not whisper:
+            # increment epm and ecount
+            self.epm_manager.handle_emotes(emote_counts)
+            self.ecount_manager.handle_emotes(emote_counts)
 
         urls = self.find_unique_urls(message)
 
@@ -730,6 +757,7 @@ class Bot:
             emote_counts=emote_counts,
             whisper=whisper,
             urls=urls,
+            msg_id=msg_id,
             event=event,
         )
         if res is False:
@@ -748,7 +776,12 @@ class Bot:
             remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
             if trigger in self.commands:
                 command = self.commands[trigger]
-                extra_args = {"emote_instances": emote_instances, "emote_counts": emote_counts, "trigger": trigger}
+                extra_args = {
+                    "emote_instances": emote_instances,
+                    "emote_counts": emote_counts,
+                    "trigger": trigger,
+                    "msg_id": msg_id,
+                }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
@@ -767,11 +800,6 @@ class Bot:
         # self.say('Received a pong. Last pong received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_pong.timestamp())))
         log.info("Received a pong. Last pong received %s ago", time_ago(self.last_pong))
         self.last_pong = pajbot.utils.now()
-
-    def on_pubnotice(self, chatconn, event):
-        return
-        type = "whisper" if chatconn in self.whisper_manager else "normal"
-        log.debug("NOTICE {}@{}: {}".format(type, event.target, event.arguments))
 
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
@@ -917,6 +945,7 @@ class Bot:
 
     def quit_bot(self, **options):
         self.commit_all()
+        HandlerManager.trigger("on_quit")
         phrase_data = {"nickname": self.nickname, "version": self.version}
 
         try:
@@ -933,7 +962,6 @@ class Bot:
 
         self.twitter_manager.quit()
         self.socket_manager.quit()
-        self.irc.quit()
 
         sys.exit(0)
 

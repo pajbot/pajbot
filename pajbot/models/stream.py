@@ -339,7 +339,7 @@ class StreamManager:
                     if self.first_offline is None:
                         self.first_offline = utils.now()
 
-                    if self.num_offlines >= 10:
+                    if self.num_offlines >= self.NUM_OFFLINES_REQUIRED:
                         log.info("Switching to offline state!")
                         self.go_offline()
                     self.num_offlines += 1
