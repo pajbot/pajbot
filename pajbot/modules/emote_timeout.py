@@ -1,5 +1,6 @@
 import logging
 
+from pajbot.emoji import ALL_EMOJI
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -10,7 +11,7 @@ log = logging.getLogger(__name__)
 class EmoteTimeoutModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Emote timeout"
-    DESCRIPTION = "Times out users who post emotes from Twitch, BTTV or FFZ"
+    DESCRIPTION = "Times out users who post emoji or Twitch, BTTV or FFZ emotes"
     CATEGORY = "Filter"
     SETTINGS = [
         ModuleSetting(
@@ -19,6 +20,9 @@ class EmoteTimeoutModule(BaseModule):
         ModuleSetting(key="timeout_ffz", label="Timeout any FFZ emotes", type="boolean", required=True, default=False),
         ModuleSetting(
             key="timeout_bttv", label="Timeout any BTTV emotes", type="boolean", required=True, default=False
+        ),
+        ModuleSetting(
+            key="timeout_emoji", label="Timeout any unicode emoji", type="boolean", required=True, default=False
         ),
         ModuleSetting(
             key="bypass_level",
@@ -47,7 +51,10 @@ class EmoteTimeoutModule(BaseModule):
             constraints={"min_value": 3, "max_value": 120},
         ),
         ModuleSetting(
-            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
+            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
         ),
     ]
 
@@ -57,11 +64,14 @@ class EmoteTimeoutModule(BaseModule):
         elif self.settings["moderation_action"] == "Timeout":
             self.bot.timeout_user_once(user, self.settings["timeout_duration"], reason)
 
-    def on_message(self, source, emote_instances, msg_id, **rest):
+    def on_message(self, source, message, emote_instances, msg_id, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
-        if self.settings["online_chat_only"] and not self.bot.is_online:
+        if self.bot.is_online and not self.settings["enable_in_online_chat"]:
+            return True
+
+        if not self.bot.is_online and not self.settings["enable_in_offline_chat"]:
             return True
 
         if self.settings["timeout_twitch"] and any(e.emote.provider == "twitch" for e in emote_instances):
@@ -74,6 +84,10 @@ class EmoteTimeoutModule(BaseModule):
 
         if self.settings["timeout_bttv"] and any(e.emote.provider == "bttv" for e in emote_instances):
             self.delete_or_timeout(source, msg_id, "No BTTV emotes allowed")
+            return False
+
+        if self.settings["timeout_emoji"] and any(emoji in message for emoji in ALL_EMOJI):
+            self.delete_or_timeout(source, msg_id, "No emoji allowed")
             return False
 
         return True
