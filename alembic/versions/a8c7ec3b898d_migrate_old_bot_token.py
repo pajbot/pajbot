@@ -20,7 +20,7 @@ down_revision = "a8ad6e7fadd6"
 branch_labels = None
 depends_on = None
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("pajbot")
 
 
 def upgrade():
