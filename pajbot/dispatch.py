@@ -389,52 +389,6 @@ class Dispatch:
             bot.whisper(source.username, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
     @staticmethod
-    def set_game(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
-
-            try:
-                bot.twitch_v5_api.set_game(streamer_id, message, authorization=bot.bot_token_manager)
-            except HTTPError as e:
-                if e.response.status_code == 401:
-                    bot.say("Error (bot operator): The bot needs to be re-authenticated to be able to update the game.")
-                    return
-                elif e.response.status_code == 403:
-                    bot.say("Error: The bot is not a channel editor and was not able to update the game.")
-                    return
-                else:
-                    raise e
-
-            log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
-            bot.say(log_msg)
-            AdminLogManager.add_entry("Game set", source, log_msg)
-
-    @staticmethod
-    def set_title(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
-
-            try:
-                bot.twitch_v5_api.set_title(streamer_id, message, authorization=bot.bot_token_manager)
-            except HTTPError as e:
-                if e.response.status_code == 401:
-                    bot.say(
-                        "Error (bot operator): The bot needs to be re-authenticated to be able to update the title."
-                    )
-                    return
-                elif e.response.status_code == 403:
-                    bot.say("Error: The bot is not a channel editor and was not able to update the title.")
-                    return
-                else:
-                    raise e
-
-            log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
-            bot.say(log_msg)
-            AdminLogManager.add_entry("Title set", source, log_msg)
-
-    @staticmethod
     def ban_source(bot, source, message, event, args):
         if "filter" in args and "notify" in args:
             if args["notify"] == 1:
