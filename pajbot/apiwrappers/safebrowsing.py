@@ -4,7 +4,7 @@ from pajbot.apiwrappers.base import BaseApi
 
 class SafeBrowsingApi(BaseApi):
     def __init__(self, api_key):
-        super().__init__("https://safebrowsing.googleapis.com/v4/")
+        super().__init__(base_url="https://safebrowsing.googleapis.com/v4/")
         self.session.params["key"] = api_key
 
     def is_url_bad(self, url):
