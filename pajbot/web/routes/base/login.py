@@ -9,6 +9,7 @@ from flask import url_for
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 
+from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
@@ -102,7 +103,9 @@ def init(app):
 
         if me.data["name"].lower() == app.bot_config["main"]["nickname"].lower():
             redis = RedisManager.get()
-            redis.set("{}:token".format(app.bot_config["main"]["nickname"]), json.dumps(resp))
+            bot_id = me.data["_id"]
+            token_json = UserAccessToken.from_api_response(resp).jsonify()
+            redis.set("authentication:user-access-token:{}".format(bot_id), json.dumps(token_json))
 
         next_url = get_next_url(request, "state")
         return redirect(next_url)
