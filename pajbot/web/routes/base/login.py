@@ -24,7 +24,7 @@ def init(app):
         consumer_key=app.bot_config["twitchapi"]["client_id"],
         consumer_secret=app.bot_config["twitchapi"]["client_secret"],
         request_token_params={"scope": "user_read"},
-        base_url="https://api.twitch.tv/kraken",
+        base_url="https://api.twitch.tv/kraken/",
         request_token_url=None,
         access_token_method="POST",
         access_token_url="https://id.twitch.tv/oauth2/token",
@@ -89,7 +89,9 @@ def init(app):
             next_url = get_next_url(request, "state")
             return redirect(next_url)
         session["twitch_token"] = (resp["access_token"],)
-        me = twitch.get("user")
+        me = twitch.get("user", headers={
+            "Accept": "application/vnd.twitchtv.v5+json"
+        })
         level = 100
         with DBManager.create_session_scope() as db_session:
             db_user = db_session.query(User).filter_by(username=me.data["name"].lower()).one_or_none()
