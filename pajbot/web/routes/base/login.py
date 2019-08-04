@@ -52,7 +52,10 @@ def init(app):
         return twitch.authorize(
             callback=callback_url,
             state=state,
-            scope="user_read user:edit user:read:email channel:moderate chat:edit chat:read whispers:read whispers:edit",
+            scope=(
+                "user_read user:edit user:read:email channel:moderate chat:edit "
+                + "chat:read whispers:read whispers:edit channel_editor"
+            ),
             force_verify="true",
         )
 
