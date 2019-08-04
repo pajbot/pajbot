@@ -64,6 +64,10 @@ class BaseApi:
 
     @staticmethod
     def join_base_and_endpoint(base, endpoint):
+        # For use cases with no base and absolute endpoint URLs
+        if base is None:
+            return endpoint
+
         if isinstance(endpoint, list):
             return BaseApi.join_base_and_list(base, endpoint)
         else:

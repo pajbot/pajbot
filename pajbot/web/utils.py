@@ -19,6 +19,7 @@ from flask_scrypt import generate_password_hash
 import pajbot.exc
 import pajbot.managers
 from pajbot import utils
+from pajbot.apiwrappers.base import BaseApi
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
@@ -74,7 +75,7 @@ def download_logo(twitch_helix_api, streamer):
     logo_tn_path = "static/images/logo_{}_tn.png".format(streamer)
 
     # returns bytes
-    logo_image_bytes = twitch_helix_api.get_binary(logo_url, authorization=False)
+    logo_image_bytes = BaseApi(None).get_binary(logo_url)
 
     # write full-size image...
     with open(logo_raw_path, "wb") as logo_raw_file:
