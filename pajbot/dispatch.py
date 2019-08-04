@@ -1,6 +1,8 @@
 import logging
 import re
 
+from requests import HTTPError
+
 from pajbot.managers.adminlog import AdminLogManager
 
 log = logging.getLogger(__name__)
@@ -391,10 +393,18 @@ class Dispatch:
         # XXX: This should be a module
         if message:
             streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
-            bot.twitch_v5_api.set_game(streamer_id, message, authorization=bot.bot_token_manager)
+
+            try:
+                bot.twitch_v5_api.set_game(streamer_id, message, authorization=bot.bot_token_manager)
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    bot.say("Error: The bot is currently not authorized to change the game.")
+                    return
+                else:
+                    raise e
+
             log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
             bot.say(log_msg)
-
             AdminLogManager.add_entry("Game set", source, log_msg)
 
     @staticmethod
@@ -402,10 +412,18 @@ class Dispatch:
         # XXX: This should be a module
         if message:
             streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
-            bot.twitch_v5_api.set_title(streamer_id, message, authorization=bot.bot_token_manager)
+
+            try:
+                bot.twitch_v5_api.set_title(streamer_id, message, authorization=bot.bot_token_manager)
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    bot.say("Error: The bot is currently not authorized to change the title.")
+                    return
+                else:
+                    raise e
+
             log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
             bot.say(log_msg)
-
             AdminLogManager.add_entry("Title set", source, log_msg)
 
     @staticmethod
