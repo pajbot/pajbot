@@ -7,7 +7,7 @@ import logging
 from pajbot import utils
 from pajbot.models.emote import Emote
 
-log = logging.Logger("pajbot")
+log = logging.getLogger(__name__)
 
 
 class BaseJsonSerializer(ABC):
@@ -95,10 +95,10 @@ class ApiResponseCache:
         if not force_fetch:
             cache_result = self.redis.get(redis_key)
             if cache_result is not None:
-                print("Cache Hit: {}".format(redis_key))
+                log.debug("Cache Hit: %s", redis_key)
                 return serializer.deserialize(cache_result)
 
-        print("Cache Miss: {}".format(redis_key))
+        log.debug("Cache Miss: %s", redis_key)
         fetch_result = fetch_fn()
 
         if callable(expiry):
