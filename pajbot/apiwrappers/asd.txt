@@ -1,0 +1,10 @@
+follow_since as datetime or None        helix, v5
+stream_status as dict object            v5
+set_game (void)                         v5
+set_title (void)                        v5
+global emotes -> Emote[]                v5
+channel emotes -> Emote[]               legacy
+channel logo url -> str                 helix, v5
+broadcast videos (VODs) -> dict         v5
+
+caching????

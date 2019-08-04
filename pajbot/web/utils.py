@@ -19,7 +19,6 @@ from flask_scrypt import generate_password_hash
 import pajbot.exc
 import pajbot.managers
 from pajbot import utils
-from pajbot.apiwrappers.twitch_kraken_v3 import KrakenV3TwitchApi
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
@@ -67,15 +66,15 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(client_id, streamer):
-    api = KrakenV3TwitchApi(client_id)
-    logo_url = api.get_logo_url(streamer)
+def download_logo(twitch_helix_api, streamer):
+    streamer_id = twitch_helix_api.require_user_id(streamer)
+    logo_url = twitch_helix_api.fetch_profile_image_url(streamer_id)
 
     logo_raw_path = "static/images/logo_{}.png".format(streamer)
     logo_tn_path = "static/images/logo_{}_tn.png".format(streamer)
 
     # returns bytes
-    logo_image_bytes = api.get_binary(logo_url)
+    logo_image_bytes = twitch_helix_api.get_binary(logo_url, authorization=False)
 
     # write full-size image...
     with open(logo_raw_path, "wb") as logo_raw_file:

@@ -15,10 +15,13 @@ from pytz import timezone
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
-from pajbot.apiwrappers.twitch_kraken_v3 import KrakenV3TwitchApi
-from pajbot.apiwrappers.twitch_kraken_v5 import KrakenV5TwitchApi
-from pajbot.apiwrappers.twitch_legacy import LegacyTwitchApi
-from pajbot.managers.bottoken import BotToken
+from pajbot.apiwrappers.authentication.access_token import UserAccessToken
+from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
+from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
+from pajbot.apiwrappers.twitch.twitch_helix import TwitchHelixApi
+from pajbot.apiwrappers.twitch.twitch_id import TwitchIdApi
+from pajbot.apiwrappers.twitch.twitch_kraken_v5 import TwitchKrakenV5Api
+from pajbot.apiwrappers.twitch.twitch_legacy import TwitchLegacyApi
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -54,7 +57,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = "1.35"
+    version = pajbot.constants.VERSION
     date_fmt = "%H:%M"
     admin = None
     url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
@@ -73,23 +76,9 @@ class Bot:
 
         return parser.parse_args()
 
-    bot_token = None
-
     @property
     def password(self):
-        if "password" in self.config["main"]:
-            log.warning(
-                "DEPRECATED - Using bot password/oauth token from file. "
-                "You should authenticate in web gui using route /bot_login "
-                "and remove password from config file"
-            )
-            return self.config["main"]["password"]
-
-        if self.bot_token is None:
-            self.bot_token = BotToken(self.config)
-
-        t = self.bot_token.access_token()
-        return "oauth:{}".format(t)
+        return "oauth:{}".format(self.bot_token_manager.token.access_token)
 
     def load_config(self, config):
         self.config = config
@@ -184,21 +173,48 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
 
-        twitch_client_id = None
-        twitch_oauth = None
-        if "twitchapi" in self.config:
-            twitch_client_id = self.config["twitchapi"].get("client_id", None)
-            twitch_oauth = self.config["twitchapi"].get("oauth", None)
+        self.api_client_credentials = ClientCredentials(
+            self.config["twitchapi"]["client_id"],
+            self.config["twitchapi"]["client_secret"],
+            self.config["twitchapi"]["redirect_uri"],
+        )
 
-        # A client ID is required for the bot to work properly now, give an error for now
-        if twitch_client_id is None:
-            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
+        self.twitch_id_api = TwitchIdApi(self.api_client_credentials)
+        self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
+        self.twitch_helix_api = TwitchHelixApi(RedisManager.get(), self.app_token_manager)
 
-        self.twitch_api_v3 = KrakenV3TwitchApi(twitch_client_id, twitch_oauth)
-        self.twitch_api_v5 = KrakenV5TwitchApi(twitch_client_id, twitch_oauth)
-        self.twitch_api_legacy = LegacyTwitchApi(twitch_client_id, twitch_oauth)
+        self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
+        if self.bot_user_id is None:
+            raise ValueError("The bot nickname you entered unter [main] does not exist on twitch.")
 
-        self.emote_manager = EmoteManager(twitch_client_id)
+        if "password" in self.config["main"]:
+            log.warning(
+                "DEPRECATED - Using bot password/oauth token from file. "
+                "You should authenticate in web gui using route /bot_login "
+                "and remove password from config file"
+            )
+
+            access_token = self.config["main"]["password"]
+
+            if access_token.startswith("oauth:"):
+                access_token = access_token[6:]
+
+            self.bot_token_manager = UserAccessTokenManager(
+                api=None,
+                redis=None,
+                username=self.nickname,
+                user_id=self.bot_user_id,
+                token=UserAccessToken.from_implicit_auth_flow_token(access_token),
+            )
+        else:
+            self.bot_token_manager = UserAccessTokenManager(
+                api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
+            )
+
+        self.twitch_v5_api = TwitchKrakenV5Api(self.api_client_credentials, RedisManager.get())
+        self.twitch_legacy_api = TwitchLegacyApi(self.api_client_credentials, RedisManager.get())
+
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)

@@ -11,7 +11,8 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
 
 from pajbot import utils
-from pajbot.apiwrappers.twitch_common import BaseTwitchApi
+from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.twitch.base import BaseTwitchApi
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -35,7 +36,7 @@ class Stream(Base):
     def __init__(self, created_at, **options):
         self.id = None
         self.title = options.get("title", "NO TITLE")
-        self.stream_start = BaseTwitchApi.parse_datetime(created_at)
+        self.stream_start = BaseApi.parse_datetime(created_at)
         self.stream_end = None
         self.ended = False
 
@@ -83,7 +84,8 @@ class StreamManager:
         if self.online is False:
             return
 
-        data = self.bot.twitch_api_v3.get_vod_videos(StreamHelper.get_streamer())
+        streamer_id = self.bot.twitch_helix_api.require_user_id(StreamHelper.get_streamer())
+        data = self.bot.twitch_v5_api.get_vod_videos(streamer_id)
         self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])
 
     def fetch_video_url_stage2(self, data):
@@ -272,7 +274,8 @@ class StreamManager:
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
     def refresh_stream_status_stage1(self):
-        status = self.bot.twitch_api_v3.get_stream_status(self.bot.streamer)
+        streamer_id = self.bot.twitch_helix_api.require_user_id(StreamHelper.get_streamer())
+        status = self.bot.twitch_v5_api.get_stream_status(streamer_id)
         self.bot.mainthread_queue.add(self.refresh_stream_status_stage2, args=[status])
 
     def refresh_stream_status_stage2(self, status):

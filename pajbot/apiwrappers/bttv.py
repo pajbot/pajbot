@@ -1,16 +1,17 @@
-from pajbot.apiwrappers.common import BaseApi, fill_in_url_scheme
+from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.response_cache import ClassInstanceListSerializer
 from pajbot.models.emote import Emote
 
 
-class BTTVApi(BaseApi):
-    def __init__(self):
-        super().__init__(base_url="https://api.betterttv.net/2/")
+class BttvApi(BaseApi):
+    def __init__(self, redis):
+        super().__init__(base_url="https://api.betterttv.net/2/", redis=redis)
 
     @staticmethod
     def parse_emotes(api_response_data):
         # get with default fallback
         url_template = api_response_data.get("urlTemplate", "//cdn.betterttv.net/emote/{{id}}/{{image}}")
-        url_template = fill_in_url_scheme(url_template)
+        url_template = BttvApi.fill_in_url_scheme(url_template)
 
         def get_url(emote_hash, size):
             return url_template.replace("{{id}}", emote_hash).replace("{{image}}", size + "x")
@@ -28,10 +29,28 @@ class BTTVApi(BaseApi):
             )
         return emotes
 
-    def get_global_emotes(self):
+    def fetch_global_emotes(self):
         """Returns a list of global BTTV emotes in the standard Emote format."""
-        return self.parse_emotes(self.get("emotes"))
+        return self.parse_emotes(self.get("/emotes"))
 
-    def get_channel_emotes(self, channel_name):
+    def get_global_emotes(self, force_fetch=None):
+        return self.cache.cache_fetch_fn(
+            redis_key="api:bttv:global-emotes",
+            fetch_fn=lambda: self.fetch_global_emotes(),
+            serializer=ClassInstanceListSerializer(Emote),
+            expiry=60 * 60,
+            force_fetch=force_fetch,
+        )
+
+    def fetch_channel_emotes(self, channel_name):
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
-        return self.parse_emotes(self.get("channels/{}".format(self.quote_path_param(channel_name))))
+        return self.parse_emotes(self.get(["channels", channel_name]))
+
+    def get_channel_emotes(self, channel_name, force_fetch=None):
+        return self.cache.cache_fetch_fn(
+            redis_key="api:bttv:channel-emotes:{}".format(channel_name),
+            fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
+            serializer=ClassInstanceListSerializer(Emote),
+            expiry=60 * 60,
+            force_fetch=force_fetch,
+        )

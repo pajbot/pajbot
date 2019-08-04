@@ -2,6 +2,11 @@ import os
 
 from flask import Flask
 
+from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
+from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
+from pajbot.apiwrappers.twitch.twitch_helix import TwitchHelixApi
+from pajbot.apiwrappers.twitch.twitch_id import TwitchIdApi
+
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
@@ -42,6 +47,14 @@ def init(args):
     config = load_config(args.config)
     config.read("webconfig.ini")
 
+    api_client_credentials = ClientCredentials(
+        config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
+    )
+
+    id_api = TwitchIdApi(api_client_credentials)
+    app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
+    twitch_helix_api = TwitchHelixApi(RedisManager.get(), app_token_manager)
+
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
@@ -60,7 +73,7 @@ def init(args):
 
     if "logo" not in config["web"]:
         try:
-            download_logo(config["webtwitchapi"]["client_id"], config["main"]["streamer"])
+            download_logo(twitch_helix_api, config["main"]["streamer"])
             config.set("web", "logo", "set")
         except:
             log.exception("Error downloading logo")

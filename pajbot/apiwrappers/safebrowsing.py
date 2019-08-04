@@ -1,5 +1,5 @@
-from pajbot.apiwrappers.common import BaseApi
-from pajbot.bot import Bot
+from pajbot import constants
+from pajbot.apiwrappers.base import BaseApi
 
 
 class SafeBrowsingApi(BaseApi):
@@ -11,7 +11,7 @@ class SafeBrowsingApi(BaseApi):
         resp = self.post(
             "/threatMatches:find",
             json={
-                "client": {"clientId": "pajbot1", "clientVersion": Bot.version},
+                "client": {"clientId": "pajbot1", "clientVersion": constants.VERSION},
                 "threatInfo": {
                     "threatTypes": [
                         "THREAT_TYPE_UNSPECIFIED",

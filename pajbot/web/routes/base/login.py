@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 
 from flask import redirect
 from flask import render_template
@@ -20,15 +19,12 @@ log = logging.getLogger(__name__)
 def init(app):
     oauth = OAuth(app)
 
-    # enables the usage of 127.0.0.1:7221 over http for OAuth purposes.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
     twitch = oauth.remote_app(
         "twitch",
-        consumer_key=app.bot_config["webtwitchapi"]["client_id"],
-        consumer_secret=app.bot_config["webtwitchapi"]["client_secret"],
+        consumer_key=app.bot_config["twitchapi"]["client_id"],
+        consumer_secret=app.bot_config["twitchapi"]["client_secret"],
         request_token_params={"scope": "user_read"},
-        base_url="http://127.0.0.1:7221/kraken/",
+        base_url="https://api.twitch.tv/kraken",
         request_token_url=None,
         access_token_method="POST",
         access_token_url="https://id.twitch.tv/oauth2/token",
@@ -38,8 +34,8 @@ def init(app):
     @app.route("/login")
     def login():
         callback_url = (
-            app.bot_config["webtwitchapi"]["redirect_uri"]
-            if "redirect_uri" in app.bot_config["webtwitchapi"]
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
             else url_for("authorized", _external=True)
         )
         state = request.args.get("n") or request.referrer or None
@@ -48,8 +44,8 @@ def init(app):
     @app.route("/bot_login")
     def bot_login():
         callback_url = (
-            app.bot_config["webtwitchapi"]["redirect_uri"]
-            if "redirect_uri" in app.bot_config["webtwitchapi"]
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
             else url_for("authorized", _external=True)
         )
         state = request.args.get("n") or request.referrer or None
@@ -66,6 +62,7 @@ def init(app):
 
     @app.route("/login/authorized")
     def authorized():
+
         try:
             resp = twitch.authorized_response()
         except OAuthException:

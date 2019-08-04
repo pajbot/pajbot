@@ -390,7 +390,8 @@ class Dispatch:
     def set_game(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
-            bot.twitch_api_v3.set_game(bot.streamer, message)
+            streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
+            bot.twitch_v5_api.set_game(streamer_id, message, authorization=bot.bot_token_manager)
             log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
             bot.say(log_msg)
 
@@ -400,7 +401,8 @@ class Dispatch:
     def set_title(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
-            bot.twitch_api_v3.set_title(bot.streamer, message)
+            streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
+            bot.twitch_v5_api.set_title(streamer_id, message, authorization=bot.bot_token_manager)
             log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
             bot.say(log_msg)
 
