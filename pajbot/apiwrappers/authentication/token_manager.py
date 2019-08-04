@@ -3,7 +3,9 @@ import json
 from abc import abstractmethod, ABC
 
 from pajbot.apiwrappers.authentication.access_token import AppAccessToken
+import logging
 
+log = logging.getLogger(__name__)
 
 class RedisTokenStorage:
     def __init__(self, redis, cls, redis_key, expire):
@@ -42,6 +44,7 @@ class AccessTokenManager(ABC):
 
     def refresh(self):
         """called when the current token should be refreshed"""
+        log.debug("Refreshing OAuth token")
         new_token = self._token.refresh(self.api)
         self.storage.save(new_token)
         self._token = new_token
@@ -50,6 +53,7 @@ class AccessTokenManager(ABC):
     def fetch_new(self):
         """Attempts to create a new token if possible. Raises a NoTokenError if creating
         a new token is not possible."""
+        log.debug("No token present, trying to fetch new OAuth token")
         pass
 
     def initialize(self):
@@ -57,6 +61,7 @@ class AccessTokenManager(ABC):
         storage_result = self.storage.load()
 
         if storage_result is not None:
+            log.debug("Successfully loaded OAuth token from storage")
             self._token = storage_result
         else:
             self._token = self.fetch_new()
