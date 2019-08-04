@@ -452,7 +452,7 @@ class LinkCheckerModule(BaseModule):
         try:
             self._check_url(url, action)
         except:
-            log.exception("LinkChecker unhanled exception while _check_url")
+            log.exception("LinkChecker unhandled exception while _check_url")
 
     def _check_url(self, url, action):
         log.debug("LinkChecker: Checking url {0}".format(url.url))
