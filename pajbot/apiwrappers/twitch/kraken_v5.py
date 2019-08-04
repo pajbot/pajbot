@@ -1,6 +1,8 @@
 import logging
 
+from pajbot.apiwrappers.response_cache import ClassInstanceListSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchApi
+from pajbot.models.emote import Emote
 
 log = logging.getLogger(__name__)
 
@@ -64,9 +66,18 @@ class TwitchKrakenV5Api(BaseTwitchApi):
     def get_vod_videos(self, channel_name):
         return self.get(["channels", channel_name, "videos"], {"broadcast_type": "archive"})
 
-    def get_global_emotes(self):
+    def fetch_global_emotes(self):
         # circular import prevention
         from pajbot.managers.emote import EmoteManager
 
         resp = self.get("/chat/emoticon_images", params={"emotesets": "0"})
         return [EmoteManager.twitch_emote(data["id"], data["code"]) for data in resp["emoticon_sets"]["0"]]
+
+    def get_global_emotes(self, force_fetch=False):
+        return self.cache.cache_fetch_fn(
+            redis_key="api:twitch:kraken:v5:global-emotes",
+            fetch_fn=lambda: self.fetch_global_emotes(),
+            serializer=ClassInstanceListSerializer(Emote),
+            expiry=60 * 60,
+            force_fetch=force_fetch,
+        )
