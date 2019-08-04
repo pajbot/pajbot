@@ -18,10 +18,10 @@ from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
-from pajbot.apiwrappers.twitch.twitch_helix import TwitchHelixApi
-from pajbot.apiwrappers.twitch.twitch_id import TwitchIdApi
-from pajbot.apiwrappers.twitch.twitch_kraken_v5 import TwitchKrakenV5Api
-from pajbot.apiwrappers.twitch.twitch_legacy import TwitchLegacyApi
+from pajbot.apiwrappers.twitch.helix import TwitchHelixApi
+from pajbot.apiwrappers.twitch.id import TwitchIdApi
+from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5Api
+from pajbot.apiwrappers.twitch.legacy import TwitchLegacyApi
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager

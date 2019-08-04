@@ -4,8 +4,8 @@ from flask import Flask
 
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
-from pajbot.apiwrappers.twitch.twitch_helix import TwitchHelixApi
-from pajbot.apiwrappers.twitch.twitch_id import TwitchIdApi
+from pajbot.apiwrappers.twitch.helix import TwitchHelixApi
+from pajbot.apiwrappers.twitch.id import TwitchIdApi
 
 app = Flask(
     __name__,
