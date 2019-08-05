@@ -864,45 +864,6 @@ class Bot:
                 self._timeout(username, 3600)
                 return True
 
-            raw_m = event.arguments[0]
-            m = "".join(sorted(set(raw_m), key=raw_m.index))
-            m = "".join(ch for ch in m if ch.isalnum())
-            if "niqers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niqe3rs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niq3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niqurs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nigurs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nige3rs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nig3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nig3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nigger" in m:
-                self.timeout(username, 600)
-                return True
-
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         with self.users.get_user_context(username) as source:
             res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
