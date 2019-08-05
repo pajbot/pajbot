@@ -104,8 +104,8 @@ class Bot:
 
         try:
             RedisManager.get().ping()
-        except redis.exceptions.BusyLoadingError as e:
-            log.debug("Redis not done loading, waiting 2 seconds then exiting")
+        except redis.exceptions.BusyLoadingError:
+            log.warning("Redis not done loading, waiting 2 seconds then exiting")
             time.sleep(2)
             sys.exit(0)
 
