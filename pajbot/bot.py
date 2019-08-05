@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 import urllib
+import redis
 
 import irc.client
 import requests
@@ -100,6 +101,13 @@ class Bot:
             redis_options = dict(config.items("redis"))
 
         RedisManager.init(**redis_options)
+
+        try:
+            RedisManager.get().ping()
+        except redis.exceptions.BusyLoadingError as e:
+            log.debug("Redis not done loading, waiting 2 seconds then exiting")
+            time.sleep(2)
+            sys.exit(0)
 
         pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
