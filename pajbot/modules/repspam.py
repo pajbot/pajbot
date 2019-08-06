@@ -51,7 +51,7 @@ class SuffixTreeNode:
         self.edges[key] = child
         return child
 
-    def add_exisiting_node_as_child(self, key, node):
+    def add_existing_node_as_child(self, key, node):
         """
         Add an existing node as a child
         Args:
@@ -163,7 +163,7 @@ class SuffixTree:
                         self.input_string[active_edge], next_node.start, next_node.start + active_length
                     )
                     next_node.start += active_length
-                    split_node.add_exisiting_node_as_child(self.input_string[next_node.start], next_node)
+                    split_node.add_existing_node_as_child(self.input_string[next_node.start], next_node)
                     leaf_node = split_node.add_child(self.input_string[index], index, END_OF_STRING)
                     leaf_node.bit_vector = 1 << current_string_index
                     new_leaves.append(leaf_node)
