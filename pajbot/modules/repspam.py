@@ -125,4 +125,4 @@ class RepspamModule(BaseModule):
 
             # found a group of equally repeating words (a repeating spam) that repeats more than allowed
             self.bot.timeout_user_once(source, self.settings["timeout_length"], "No repetitive messages OMGScoods")
-            break
+            return False
