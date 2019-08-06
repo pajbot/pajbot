@@ -7,8 +7,8 @@ Create Date: 2015-12-13 03:41:30.735949
 """
 
 # revision identifiers, used by Alembic.
-revision = '5393671cca7'
-down_revision = '496dba8300a'
+revision = "5393671cca7"
+down_revision = "496dba8300a"
 branch_labels = None
 depends_on = None
 
@@ -21,20 +21,21 @@ Session = sessionmaker()
 
 Base = declarative_base()
 
-class CommandData(Base):
-    __tablename__ = 'tb_command_data'
 
-    command_id = sa.Column(sa.Integer, sa.ForeignKey('tb_command.id'), primary_key=True, autoincrement=False)
+class CommandData(Base):
+    __tablename__ = "tb_command_data"
+
+    command_id = sa.Column(sa.Integer, sa.ForeignKey("tb_command.id"), primary_key=True, autoincrement=False)
     num_uses = sa.Column(sa.Integer, nullable=False)
 
 
 class Command(Base):
-    __tablename__ = 'tb_command'
+    __tablename__ = "tb_command"
 
     id = sa.Column(sa.Integer, primary_key=True)
     level = sa.Column(sa.Integer, nullable=False, default=100)
-    action_json = sa.Column('action', sa.TEXT)
-    extra_extra_args = sa.Column('extra_args', sa.TEXT)
+    action_json = sa.Column("action", sa.TEXT)
+    extra_extra_args = sa.Column("extra_args", sa.TEXT)
     command = sa.Column(sa.TEXT, nullable=False)
     description = sa.Column(sa.TEXT, nullable=True)
     delay_all = sa.Column(sa.Integer, nullable=False, default=5)
@@ -51,11 +52,13 @@ def upgrade():
     bind = op.get_bind()
     session = Session(bind=bind)
 
-    op.create_table('tb_command_data',
-            sa.Column('command_id', sa.Integer(), autoincrement=False, nullable=False),
-            sa.Column('num_uses', sa.Integer(), nullable=False),
-            sa.ForeignKeyConstraint(['command_id'], ['tb_command.id'], ),
-            sa.PrimaryKeyConstraint('command_id'))
+    op.create_table(
+        "tb_command_data",
+        sa.Column("command_id", sa.Integer(), autoincrement=False, nullable=False),
+        sa.Column("num_uses", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(["command_id"], ["tb_command.id"]),
+        sa.PrimaryKeyConstraint("command_id"),
+    )
 
     for command in session.query(Command):
         data = CommandData()
@@ -77,4 +80,4 @@ def downgrade():
 
     session.commit()
 
-    op.drop_table('tb_command_data')
+    op.drop_table("tb_command_data")

@@ -9,7 +9,7 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__ + '/..')))
+sys.path.append(os.path.dirname(os.path.abspath(__file__ + "/..")))
 
 import pajbot.models.hsbet
 from pajbot.bot import Bot
@@ -21,18 +21,18 @@ from pajbot.utils import load_config
 tag = context.get_tag_argument()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', '-c',
-                    default='config.ini',
-                    help='Specify which config file to use '
-                            '(default: config.ini)')
+parser.add_argument(
+    "--config", "-c", default="config.ini", help="Specify which config file to use " "(default: config.ini)"
+)
 custom_args = None
 if tag is not None:
-    custom_args = tag.replace('"', '').split()
+    custom_args = tag.replace('"', "").split()
 args, unknown = parser.parse_known_args(args=custom_args)
 
 tb_config = load_config(args.config)
 
 from pajbot.managers.db import Base
+
 # from pajbot.models.user import User
 # from pajbot.models.command import Command
 # from pajbot.models import *
@@ -43,7 +43,7 @@ from pajbot.managers.db import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option('sqlalchemy.url', tb_config['main']['db'])
+config.set_main_option("sqlalchemy.url", tb_config["main"]["db"])
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -75,8 +75,7 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True)
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -90,19 +89,15 @@ def run_migrations_online():
 
     """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
+        config.get_section(config.config_ini_section), prefix="sqlalchemy.", poolclass=pool.NullPool
+    )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=False
-        )
+        context.configure(connection=connection, target_metadata=target_metadata, compare_type=False)
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
