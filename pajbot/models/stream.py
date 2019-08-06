@@ -94,7 +94,7 @@ class StreamManager:
                 base="http://127.0.0.1:7221/kraken/",
             )
 
-            self.execute_now(lambda: self.refresh_video_url_stage2(data))
+            self.bot.execute_now(lambda: self.refresh_video_url_stage2(data))
         except urllib.error.HTTPError as e:
             raw_data = e.read().decode("utf-8")
             log.exception("OMGScoots")
