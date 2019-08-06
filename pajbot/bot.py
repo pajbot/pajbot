@@ -345,11 +345,17 @@ class Bot:
         return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_epm(self, key, extra={}):
-        val = self.epm_manager.get_emote_epm(key)
-        if val is None:
+        epm = self.epm_manager.get_emote_epm(key)
+
+        # maybe we simply haven't seen this emote yet (during the bot runtime) but it's a valid emote?
+        if epm is None and self.emote_manager.match_word_to_emote(key) is not None:
+            epm = 0
+
+        if epm is None:
             return None
+
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return "{0:,.0f}".format(epm)
 
     def get_emote_epm_record(self, key, extra={}):
         val = self.epm_manager.get_emote_epm_record(key)
