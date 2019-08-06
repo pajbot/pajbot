@@ -1007,6 +1007,7 @@ def _filter_add(var, args):
     except:
         return ""
 
+
 def _filter_or_else(var, args):
     if var is None or len(var) <= 0:
         return args[0]
