@@ -40,7 +40,7 @@ class SuffixTreeNode:
     def add_child(self, key, start, end):
         """
         Create a new child node
-        Agrs:
+        Args:
             key: a char that will be used during active edge searching
             start, end: node's edge start and end indices
         Returns:
