@@ -179,7 +179,7 @@ class Bot:
 
         HandlerManager.init_handlers()
 
-        self.socket_manager = SocketManager(self.streamer)
+        self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
 
         StreamHelper.init_bot(self, self.stream_manager)
@@ -569,6 +569,9 @@ class Bot:
             return time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
+
+    def execute_now(self, function, arguments=()):
+        self.execute_delayed(0, function, arguments)
 
     def execute_at(self, at, function, arguments=()):
         self.reactor.scheduler.execute_at(at, lambda: function(*arguments))

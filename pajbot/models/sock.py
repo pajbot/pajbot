@@ -8,11 +8,12 @@ log = logging.getLogger(__name__)
 
 
 class SocketManager:
-    def __init__(self, streamer_name):
+    def __init__(self, streamer_name, callback):
         self.handlers = {}
         self.pubsub = RedisManager.get().pubsub()
         self.running = True
         self.streamer_name = streamer_name
+        self.callback = callback
 
         self.pubsub.subscribe("test")  # need this for keepalive? idk
 
@@ -48,7 +49,8 @@ class SocketManager:
                 continue
 
             for handler in self.handlers[message["channel"]]:
-                handler(parsed_data)
+                # invokes the handler on the bot's main thread (the IRC event loop)
+                self.callback(handler, (parsed_data))
 
         self.pubsub.close()
 
