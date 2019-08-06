@@ -263,13 +263,6 @@ class Bot:
         if self.silent:
             log.info("Silent mode enabled")
 
-        """
-        For actions that need to access the main thread,
-        we can use the mainthread_queue.
-        """
-        self.mainthread_queue = ActionQueue()
-        self.execute_every(1, self.mainthread_queue.parse_action)
-
         self.websocket_manager = WebSocketManager(self)
 
         try:
@@ -324,7 +317,7 @@ class Bot:
         log.info("Ended stage1 subscribers update")
         if subscribers:
             log.info("Got some subscribers, so we are pushing them to stage 2!")
-            self.mainthread_queue.add(self.update_subscribers_stage2, args=[subscribers])
+            self.execute_now(lambda: self.update_subscribers_stage2(subscribers))
             log.info("Pushed them now.")
 
     def update_subscribers_stage2(self, subscribers):
