@@ -949,6 +949,7 @@ class Bot:
             "join": _filter_join,
             "number_format": _filter_number_format,
             "add": _filter_add,
+            "or_else": _filter_or_else,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -1005,3 +1006,9 @@ def _filter_add(var, args):
         return str(int(var) + int(args[0]))
     except:
         return ""
+
+def _filter_or_else(var, args):
+    if var is None or len(var) <= 0:
+        return args[0]
+    else:
+        return var
