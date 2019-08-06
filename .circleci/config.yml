@@ -129,7 +129,8 @@ workflows:
           requires:
             - setup-37
   run-with-python35:
-    - setup-35
+    jobs:
+      - setup-35
       - test-35:
           requires:
             - setup-35
