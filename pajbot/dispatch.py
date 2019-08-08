@@ -421,27 +421,6 @@ class Dispatch:
         bot.ban(source.username)
 
     @staticmethod
-    def timeout_source(bot, source, message, event, args):
-        if "time" in args:
-            _time = int(args["time"])
-        else:
-            _time = 600
-
-        if "filter" in args and "notify" in args:
-            if args["notify"] == 1:
-                bot.whisper(
-                    source.username,
-                    'You have been timed out for {0} seconds because your message matched our "{1}"-filter.'.format(
-                        _time, args["filter"].name
-                    ),
-                )
-
-        log.debug(args)
-
-        log.debug("timeouting %s", source.username)
-        bot.timeout(source.username, _time, reason="Matched bad filter")
-
-    @staticmethod
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
             try:
