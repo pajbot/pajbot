@@ -480,18 +480,6 @@ class Dispatch:
             return False
 
     @staticmethod
-    def do_hex(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            hex_code = hex(ord(message[0]))
-            bot.say(hex_code)
-            return True
-        except:
-            return False
-
-    @staticmethod
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
