@@ -492,17 +492,6 @@ class Dispatch:
             return False
 
     @staticmethod
-    def hex_to_chr(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            bot.say(str(chr(int(message))))
-            return True
-        except:
-            return False
-
-    @staticmethod
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
