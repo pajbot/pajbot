@@ -468,18 +468,6 @@ class Dispatch:
         bot.execute_delayed(delay, bot.say, (extra_message,))
 
     @staticmethod
-    def ord(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            ord_code = ord(message[0])
-            bot.say(str(ord_code))
-            return True
-        except:
-            return False
-
-    @staticmethod
     def twitter_follow(bot, source, message, event, args):
         # XXX: This should be a module
         if message:
