@@ -21,17 +21,22 @@ $(args:0-1|urlencode) - urlencode the first parameter
 
 Available filters:
         available_filters = {
-                'strftime': _filter_strftime,
-                'lower': lambda var, args: var.lower(),
-                'upper': lambda var, args: var.upper(),
-                'time_since_minutes': lambda var, args: 'no time' if var == 0 else time_since(var * 60, 0, format='long'),
-                'time_since': lambda var, args: 'no time' if var == 0 else time_since(var, 0, format='long'),
-                'time_since_dt': _filter_time_since_dt,
-                'urlencode': _filter_urlencode,
-                'join': _filter_join,
-                'number_format': _filter_number_format,
-                'add': _filter_add,
-}
+            "strftime": _filter_strftime,
+            "lower": lambda var, args: var.lower(),
+            "upper": lambda var, args: var.upper(),
+            "time_since_minutes": lambda var, args: "no time"
+            if var == 0
+            else time_since(var * 60, 0, time_format="long"),
+            "time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),
+            "time_since_dt": _filter_time_since_dt,
+            "urlencode": _filter_urlencode,
+            "join": _filter_join,
+            "number_format": _filter_number_format,
+            "add": _filter_add,
+            "or_else": _filter_or_else,
+            "or_broadcaster": self._filter_or_broadcaster,
+            "or_streamer": self._filter_or_broadcaster,
+        }
 
 
 special substitutions:
