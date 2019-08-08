@@ -442,15 +442,6 @@ class Dispatch:
         bot.timeout(source.username, _time, reason="Matched bad filter")
 
     @staticmethod
-    def single_timeout_source(bot, source, message, event, args):
-        if "time" in args:
-            _time = int(args["time"])
-        else:
-            _time = 600
-
-        bot._timeout(source.username, _time)
-
-    @staticmethod
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
             try:
