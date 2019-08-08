@@ -407,20 +407,6 @@ class Dispatch:
             AdminLogManager.add_entry("Title set", source, log_msg)
 
     @staticmethod
-    def ban_source(bot, source, message, event, args):
-        if "filter" in args and "notify" in args:
-            if args["notify"] == 1:
-                bot.whisper(
-                    source.username,
-                    'You have been permanently banned because your message matched our "{0}"-filter.'.format(
-                        args["filter"].name
-                    ),
-                )
-
-        log.debug("banning %s", source.username)
-        bot.ban(source.username)
-
-    @staticmethod
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
             try:
