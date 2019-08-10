@@ -54,7 +54,6 @@ class AccessTokenManager(ABC):
     def fetch_new(self):
         """Attempts to create a new token if possible. Raises a NoTokenError if creating
         a new token is not possible."""
-        log.debug("No token present, trying to fetch new OAuth token")
         pass
 
     def initialize(self):
@@ -89,6 +88,7 @@ class AppAccessTokenManager(AccessTokenManager):
         self.scope = scope
 
     def fetch_new(self):
+        log.debug("No app access token present, trying to fetch new OAuth token")
         return self.api.get_app_access_token(self.scope)
 
 
