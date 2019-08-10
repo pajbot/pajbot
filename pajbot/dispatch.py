@@ -273,6 +273,12 @@ class Dispatch:
 
             command = bot.commands[existing_alias]
 
+            # error out on commands that are not from the DB, e.g. module commands like !8ball that cannot have
+            # aliases registered. (command.command and command.data are None on those commands)
+            if command.data is None or command.command is None:
+                bot.whisper(source.username, "That command cannot have aliases added to.")
+                return False
+
             for alias in set(new_aliases):
                 if alias in bot.commands:
                     already_used_aliases.append(alias)
@@ -317,6 +323,12 @@ class Dispatch:
                     continue
 
                 command = bot.commands[alias]
+
+                # error out on commands that are not from the DB, e.g. module commands like !8ball that cannot have
+                # aliases registered. (command.command and command.data are None on those commands)
+                if command.data is None or command.command is None:
+                    bot.whisper(source.username, "That command cannot have aliases removed from.")
+                    return False
 
                 current_aliases = command.command.split("|")
                 current_aliases.remove(alias)
