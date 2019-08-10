@@ -60,6 +60,21 @@ def init(app):
             force_verify="true",
         )
 
+    streamer_scopes = ["user_read", "channel:read:subscriptions"]
+    """Request these scopes on /streamer_login"""
+
+    @app.route("/streamer_login")
+    def streamer_login():
+        callback_url = (
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
+            else url_for("authorized", _external=True)
+        )
+        state = request.args.get("n") or request.referrer or None
+        return twitch.authorize(
+            callback=callback_url, state=state, scope=" ".join(streamer_scopes), force_verify="true"
+        )
+
     @app.route("/login/error")
     def login_error():
         return render_template("login_error.html")
@@ -105,6 +120,21 @@ def init(app):
             bot_id = me.data["_id"]
             token_json = UserAccessToken.from_api_response(resp).jsonify()
             redis.set("authentication:user-access-token:{}".format(bot_id), json.dumps(token_json))
+            log.info("Successfully updated bot token in redis")
+
+        # streamer login
+        if me.data["name"].lower() == app.bot_config["main"]["streamer"].lower():
+            # there's a good chance the streamer will later log in using the normal login button.
+            # we only update their access token if the returned scope containes the special scopes requested
+            # in /streamer_login
+            if set(resp["scope"]) != set(streamer_scopes):
+                log.info("Streamer logged in but not all scopes present, will not update streamer token")
+            else:
+                redis = RedisManager.get()
+                streamer_id = me.data["_id"]
+                token_json = UserAccessToken.from_api_response(resp).jsonify()
+                redis.set("authentication:user-access-token:{}".format(streamer_id), json.dumps(token_json))
+                log.info("Successfully updated streamer token in redis")
 
         next_url = get_next_url(request, "state")
         return redirect(next_url)
