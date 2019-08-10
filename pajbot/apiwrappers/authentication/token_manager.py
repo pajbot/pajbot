@@ -65,6 +65,7 @@ class AccessTokenManager(ABC):
             self._token = storage_result
         else:
             self._token = self.fetch_new()
+            self.storage.save(self._token)
 
     @property
     def token(self):
