@@ -1,8 +1,8 @@
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken, AppAccessToken
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 
 
-class TwitchIdApi(BaseApi):
+class TwitchIDAPI(BaseAPI):
     def __init__(self, client_credentials):
         super().__init__(base_url="https://id.twitch.tv")
         self.client_credentials = client_credentials

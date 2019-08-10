@@ -4,8 +4,8 @@ from flask import Flask
 
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
-from pajbot.apiwrappers.twitch.helix import TwitchHelixApi
-from pajbot.apiwrappers.twitch.id import TwitchIdApi
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 
 app = Flask(
     __name__,
@@ -57,9 +57,9 @@ def init(args):
 
     RedisManager.init(**redis_options)
 
-    id_api = TwitchIdApi(api_client_credentials)
+    id_api = TwitchIDAPI(api_client_credentials)
     app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
-    twitch_helix_api = TwitchHelixApi(RedisManager.get(), app_token_manager)
+    twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
 
     if "web" not in config:
         log.error("Missing [web] section in config.ini")

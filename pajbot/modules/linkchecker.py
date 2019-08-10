@@ -14,7 +14,7 @@ import pajbot.models
 import pajbot.utils
 from pajbot.actions import Action
 from pajbot.actions import ActionQueue
-from pajbot.apiwrappers.safebrowsing import SafeBrowsingApi
+from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
@@ -195,7 +195,7 @@ class LinkCheckerModule(BaseModule):
             # XXX: This should be loaded as a setting instead.
             # There needs to be a setting for settings to have them as "passwords"
             # so they're not displayed openly
-            self.safe_browsing_api = SafeBrowsingApi(bot.config["main"]["safebrowsingapi"])
+            self.safe_browsing_api = SafeBrowsingAPI(bot.config["main"]["safebrowsingapi"])
         else:
             self.safe_browsing_api = None
 

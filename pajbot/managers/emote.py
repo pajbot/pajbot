@@ -109,9 +109,9 @@ class FFZEmoteManager(GenericChannelEmoteManager):
     friendly_name = "FFZ"
 
     def __init__(self):
-        from pajbot.apiwrappers.ffz import FFZApi
+        from pajbot.apiwrappers.ffz import FFZAPI
 
-        self.api = FFZApi(RedisManager.get())
+        self.api = FFZAPI(RedisManager.get())
         super().__init__()
 
 
@@ -119,9 +119,9 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
     friendly_name = "BTTV"
 
     def __init__(self):
-        from pajbot.apiwrappers.bttv import BttvApi
+        from pajbot.apiwrappers.bttv import BTTVAPI
 
-        self.api = BttvApi(RedisManager.get())
+        self.api = BTTVAPI(RedisManager.get())
         super().__init__()
 
 

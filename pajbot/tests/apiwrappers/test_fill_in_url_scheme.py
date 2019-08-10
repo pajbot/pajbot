@@ -1,13 +1,13 @@
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 
 
 def test_fills_in_relative_url():
-    assert BaseApi.fill_in_url_scheme("//example.com") == "https://example.com"
+    assert BaseAPI.fill_in_url_scheme("//example.com") == "https://example.com"
 
 
 def test_respects_passed_scheme():
-    assert BaseApi.fill_in_url_scheme("//example.com", "wss") == "wss://example.com"
+    assert BaseAPI.fill_in_url_scheme("//example.com", "wss") == "wss://example.com"
 
 
 def test_does_not_change_non_relative_urls():
-    assert BaseApi.fill_in_url_scheme("http://example.com") == "http://example.com"
+    assert BaseAPI.fill_in_url_scheme("http://example.com") == "http://example.com"

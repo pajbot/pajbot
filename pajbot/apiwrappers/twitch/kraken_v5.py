@@ -1,12 +1,12 @@
 import logging
 
 from pajbot.apiwrappers.response_cache import EmoteListSerializer
-from pajbot.apiwrappers.twitch.base import BaseTwitchApi
+from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 
 log = logging.getLogger(__name__)
 
 
-class TwitchKrakenV5Api(BaseTwitchApi):
+class TwitchKrakenV5API(BaseTwitchAPI):
     authorization_header_prefix = "OAuth"
 
     def __init__(self, client_credentials, redis):

@@ -3,12 +3,12 @@ import logging
 from requests import HTTPError
 
 from pajbot.apiwrappers.response_cache import TwitchChannelEmotesSerializer
-from pajbot.apiwrappers.twitch.base import BaseTwitchApi
+from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 
 log = logging.getLogger(__name__)
 
 
-class TwitchLegacyApi(BaseTwitchApi):
+class TwitchLegacyAPI(BaseTwitchAPI):
     authorization_header_prefix = "OAuth"
 
     def __init__(self, client_credentials, redis):

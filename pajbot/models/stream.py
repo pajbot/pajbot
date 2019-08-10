@@ -11,8 +11,8 @@ from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
 
 from pajbot import utils
-from pajbot.apiwrappers.base import BaseApi
-from pajbot.apiwrappers.twitch.base import BaseTwitchApi
+from pajbot.apiwrappers.base import BaseAPI
+from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -36,7 +36,7 @@ class Stream(Base):
     def __init__(self, created_at, **options):
         self.id = None
         self.title = options.get("title", "NO TITLE")
-        self.stream_start = BaseApi.parse_datetime(created_at)
+        self.stream_start = BaseAPI.parse_datetime(created_at)
         self.stream_end = None
         self.ended = False
 
@@ -69,7 +69,7 @@ class StreamChunk(Base):
         self.broadcast_id = broadcast_id
         self.video_url = None
         self.video_preview_image_url = None
-        self.chunk_start = BaseTwitchApi.parse_datetime(created_at)
+        self.chunk_start = BaseTwitchAPI.parse_datetime(created_at)
         self.chunk_end = None
 
         self.stream = stream
@@ -94,7 +94,7 @@ class StreamManager:
             for video in data["videos"]:
                 if video["broadcast_type"] == "archive":
                     continue
-                recorded_at = BaseTwitchApi.parse_datetime(video["recorded_at"])
+                recorded_at = BaseTwitchAPI.parse_datetime(video["recorded_at"])
                 if stream_chunk is not None:
                     time_diff = stream_chunk.chunk_start - recorded_at
                     if abs(time_diff.total_seconds()) < 60 * 5:
