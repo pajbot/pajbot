@@ -5,6 +5,7 @@ import datetime
 from pajbot import utils
 from pajbot.apiwrappers.dubtrack import DubtrackAPI
 from pajbot.managers.redis import RedisManager
+from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -16,7 +17,8 @@ log = logging.getLogger(__name__)
 class DubtrackSongInfo:
     """Holds only the info relevant for displaying the song in chat."""
 
-    def __init__(self, song_name, song_link, requester_name):
+    def __init__(self, song_id, song_name, song_link, requester_name):
+        self.song_id = song_id
         self.song_name = song_name
         self.song_link = song_link
         self.requester_name = requester_name
@@ -84,6 +86,29 @@ class DubtrackModule(BaseModule):
             constraints={"min_str_len": 1, "max_str_len": 400},
         ),
         ModuleSetting(
+            key="new_song_auto_enable",
+            label="Automatically post a message in chat when a new song starts playing",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="new_song_online_chat_only",
+            label="Enable automatic new song message in online chat only",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="phrase_new_song",
+            label="New song message | Available arguments: {song_name}, {song_link}, {requester_name}",
+            type="text",
+            required=True,
+            placeholder="Now playing: {song_name}, link: {song_link} requested by {requester_name}",
+            default="Now playing: {song_name}, link: {song_link} requested by {requester_name}",
+            constraints={"min_str_len": 1, "max_str_len": 400},
+        ),
+        ModuleSetting(
             key="global_cd",
             label="Global cooldown (seconds)",
             type="number",
@@ -131,6 +156,13 @@ class DubtrackModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.api = DubtrackAPI(RedisManager.get())
+        self.scheduled_job = None
+
+        # allows us to differentiate between "no song -> a song starts playing" vs "module was unintialized
+        # (current song is also None) -> first fetch succeeds (which is not a condition where the new song
+        # message should be triggered)
+        self.is_first_automatic_fetch = True
+        self.last_seen_song_id = None
 
     def cmd_link(self, bot, **rest):
         bot.say(self.get_phrase("phrase_room_link", room_name=self.settings["room_name"]))
@@ -175,6 +207,50 @@ class DubtrackModule(BaseModule):
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
+    def on_scheduled_new_song_check(self):
+        def on_success(song_info):
+            if song_info is not None:
+                new_song_id = song_info.song_id
+            else:
+                new_song_id = None
+
+            # first fetch? then the "old song ID" is the new song ID
+            if self.is_first_automatic_fetch:
+                old_song_id = new_song_id
+                self.is_first_automatic_fetch = False
+            else:
+                old_song_id = self.last_seen_song_id
+
+            # remember the new song ID for the next scheduler invocation
+            self.last_seen_song_id = new_song_id
+
+            if new_song_id is None:
+                # new song is None, i.e. end of queue
+                return
+
+            if old_song_id == new_song_id:
+                # song is not new
+                return
+
+            if self.settings["new_song_online_chat_only"] and not self.bot.is_online:
+                # streamer is offline and settings forbids notify
+                return
+
+            # got a new song under song_info
+            auto_msg = self.get_phrase(
+                "phrase_new_song",
+                song_name=song_info.song_name,
+                song_link=song_info.song_link,
+                requester_name=song_info.requester_name,
+            )
+
+            self.bot.say(auto_msg)
+
+        def on_error(e):
+            log.exception("Automatic Dubtrack song polling failed", exc_info=e)
+
+        self.api_request_and_callback(self.get_current_song, on_success, on_error)
+
     def api_request_and_callback(self, api_fn, on_success, on_error):
         def action_queue_action():
             try:
@@ -207,7 +283,9 @@ class DubtrackModule(BaseModule):
         song_name = queue_song.song_name
         song_link = self.api.get_song_link(song_id)
 
-        return DubtrackSongInfo(song_name=song_name, song_link=song_link, requester_name=requester_name)
+        return DubtrackSongInfo(
+            song_id=song_id, song_name=song_name, song_link=song_link, requester_name=requester_name
+        )
 
     def get_current_song(self):
         room_id = self.api.get_room_id(self.settings["room_name"])
@@ -341,3 +419,20 @@ class DubtrackModule(BaseModule):
 
         if self.settings["if_lastsong_alias"]:
             self.commands["lastsong"] = commands["previous"]
+
+    def enable(self, bot):
+        if not bot:
+            return
+
+        if self.settings["new_song_auto_enable"]:
+            self.scheduled_job = ScheduleManager.execute_every(15, self.on_scheduled_new_song_check)
+
+    def disable(self, bot):
+        if not bot:
+            return
+
+        if self.scheduled_job is not None:
+            self.scheduled_job.cancel()  # TODO
+
+        self.is_first_automatic_fetch = True
+        self.last_seen_song_id = None
