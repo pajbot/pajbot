@@ -17,7 +17,6 @@ from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger("pajbot")
 
