@@ -257,8 +257,11 @@ class DubtrackModule(BaseModule):
                 result = api_fn()
                 self.bot.execute_now(lambda: on_success(result))
             except Exception as e:
-                lol = e
-                self.bot.execute_now(lambda: on_error(lol))
+                # I'm not sure why this is necessary,
+                # if i use on_error(e) directly it would throw this error:
+                # NameError: free variable 'e' referenced before assignment in enclosing scope
+                e_tmp = e
+                self.bot.execute_now(lambda: on_error(e_tmp))
 
         self.bot.action_queue.add(action_queue_action)
 
