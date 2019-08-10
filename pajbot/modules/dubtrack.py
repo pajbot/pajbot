@@ -126,10 +126,10 @@ class DubtrackModule(BaseModule):
             default=15,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(key="if_dt_alias", label="Allow !dt as !dubtrack", type="boolean", required=True, default=True),
+        ModuleSetting(key="if_dt_alias", label="Alias !dt to !dubtrack", type="boolean", required=True, default=True),
         ModuleSetting(
             key="if_short_alias",
-            label="Allow !dubtrack [s, l, u] as !dubtrack [song, link, update]",
+            label="Alias !dubtrack [s, l, u] to !dubtrack [song, link, update]",
             type="boolean",
             required=True,
             default=True,
