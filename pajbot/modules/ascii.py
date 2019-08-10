@@ -52,6 +52,9 @@ class AsciiProtectionModule(BaseModule):
 
     @staticmethod
     def check_message(message):
+        if len(message) <= 0:
+            return False
+
         non_alnum = sum(not c.isalnum() for c in message)
         ratio = non_alnum / len(message)
         log.debug(message)

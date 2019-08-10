@@ -5,7 +5,9 @@ import logging
 import re
 import subprocess
 import sys
+import time
 import urllib
+import redis
 
 import irc.client
 import requests
@@ -91,6 +93,13 @@ class Bot:
             redis_options = dict(config.items("redis"))
 
         RedisManager.init(**redis_options)
+
+        try:
+            RedisManager.get().ping()
+        except redis.exceptions.BusyLoadingError:
+            log.warning("Redis not done loading, waiting 2 seconds then exiting")
+            time.sleep(2)
+            sys.exit(0)
 
         pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
@@ -183,7 +192,7 @@ class Bot:
 
         HandlerManager.init_handlers()
 
-        self.socket_manager = SocketManager(self.streamer)
+        self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
 
         StreamHelper.init_bot(self, self.stream_manager)
@@ -280,13 +289,6 @@ class Bot:
         if self.silent:
             log.info("Silent mode enabled")
 
-        """
-        For actions that need to access the main thread,
-        we can use the mainthread_queue.
-        """
-        self.mainthread_queue = ActionQueue()
-        self.execute_every(1, self.mainthread_queue.parse_action)
-
         self.websocket_manager = WebSocketManager(self)
 
     def on_connect(self, sock):
@@ -303,11 +305,17 @@ class Bot:
         return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_epm(self, key, extra={}):
-        val = self.epm_manager.get_emote_epm(key)
-        if val is None:
+        epm = self.epm_manager.get_emote_epm(key)
+
+        # maybe we simply haven't seen this emote yet (during the bot runtime) but it's a valid emote?
+        if epm is None and self.emote_manager.match_word_to_emote(key) is not None:
+            epm = 0
+
+        if epm is None:
             return None
+
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return "{0:,.0f}".format(epm)
 
     def get_emote_epm_record(self, key, extra={}):
         val = self.epm_manager.get_emote_epm_record(key)
@@ -527,6 +535,9 @@ class Bot:
             return time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
+
+    def execute_now(self, function, arguments=()):
+        self.execute_delayed(0, function, arguments)
 
     def execute_at(self, at, function, arguments=()):
         self.reactor.scheduler.execute_at(at, lambda: function(*arguments))
@@ -822,45 +833,6 @@ class Bot:
                 self._timeout(username, 3600)
                 return True
 
-            raw_m = event.arguments[0]
-            m = "".join(sorted(set(raw_m), key=raw_m.index))
-            m = "".join(ch for ch in m if ch.isalnum())
-            if "niqers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niqe3rs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niq3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "niqurs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nigurs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nige3rs" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nig3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nig3ers" in m:
-                self.timeout(username, 600)
-                return True
-
-            if "nigger" in m:
-                self.timeout(username, 600)
-                return True
-
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
         with self.users.get_user_context(username) as source:
             res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
@@ -931,8 +903,7 @@ class Bot:
 
         sys.exit(0)
 
-    @staticmethod
-    def apply_filter(resp, f):
+    def apply_filter(self, resp, f):
         available_filters = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
@@ -946,10 +917,16 @@ class Bot:
             "join": _filter_join,
             "number_format": _filter_number_format,
             "add": _filter_add,
+            "or_else": _filter_or_else,
+            "or_broadcaster": self._filter_or_broadcaster,
+            "or_streamer": self._filter_or_broadcaster,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
         return resp
+
+    def _filter_or_broadcaster(self, var, args):
+        return _filter_or_else(var, self.streamer)
 
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
@@ -1002,3 +979,10 @@ def _filter_add(var, args):
         return str(int(var) + int(args[0]))
     except:
         return ""
+
+
+def _filter_or_else(var, args):
+    if var is None or len(var) <= 0:
+        return args[0]
+    else:
+        return var

@@ -85,7 +85,7 @@ class StreamManager:
             return
 
         data = self.bot.twitch_v5_api.get_vod_videos(self.bot.streamer_user_id)
-        self.bot.mainthread_queue.add(self.refresh_video_url_stage2, args=[data])
+        self.bot.execute_now(lambda: self.refresh_video_url_stage2(data))
 
     def fetch_video_url_stage2(self, data):
         stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
@@ -274,7 +274,7 @@ class StreamManager:
 
     def refresh_stream_status_stage1(self):
         status = self.bot.twitch_v5_api.get_stream_status(self.bot.streamer_user_id)
-        self.bot.mainthread_queue.add(self.refresh_stream_status_stage2, args=[status])
+        self.bot.execute_now(lambda: self.refresh_stream_status_stage2(status))
 
     def refresh_stream_status_stage2(self, status):
         redis = RedisManager.get()
