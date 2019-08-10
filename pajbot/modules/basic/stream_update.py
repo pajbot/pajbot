@@ -25,10 +25,8 @@ class StreamUpdateModule(BaseModule):
             bot.say("You must specify a {} to update to!".format(field))
             return
 
-        streamer_id = bot.twitch_helix_api.require_user_id(bot.streamer)
-
         try:
-            api_fn(streamer_id, message, authorization=bot.bot_token_manager)
+            api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
         except HTTPError as e:
             if e.response.status_code == 401:
                 bot.say(

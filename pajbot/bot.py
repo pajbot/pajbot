@@ -162,6 +162,10 @@ class Bot:
         if self.bot_user_id is None:
             raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
 
+        self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
+        if self.bot_user_id is None:
+            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+
         # Update the database (and partially redis) scheme if necessary using alembic
         # In case of errors, i.e. if the database is out of sync or the alembic
         # binary can't be called, we will shut down the bot.
