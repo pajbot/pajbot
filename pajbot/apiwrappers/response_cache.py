@@ -98,5 +98,8 @@ class APIResponseCache:
             # then expiry is a lambda that computes the expiry based upon the fetch result
             expiry = expiry(fetch_result)
 
-        self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
+        # expiry = 0 can be used to indicate the result should not be cached
+        # (Redis will raise an error if we try to SETEX with time = 0 so this check is done before calling Redis)
+        if expiry > 0:
+            self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
         return fetch_result
