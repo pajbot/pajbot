@@ -66,7 +66,6 @@ def init(app):
 
     @app.route("/login/authorized")
     def authorized():
-
         try:
             resp = twitch.authorized_response()
         except OAuthException:
