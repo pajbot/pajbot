@@ -64,6 +64,7 @@ from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.playsound import PlaysoundModule
 from pajbot.modules.showemote import ShowEmoteModule
+from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
@@ -81,6 +82,7 @@ available_modules = [
     BingoModule,
     CheckModModule,
     DBManageModule,
+    SubscriberFetchModule,
     DebugModule,
     DeckModule,
     DubtrackModule,
