@@ -1,9 +1,9 @@
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import EmoteListSerializer
 from pajbot.models.emote import Emote
 
 
-class BttvApi(BaseApi):
+class BTTVAPI(BaseAPI):
     def __init__(self, redis):
         super().__init__(base_url="https://api.betterttv.net/2/", redis=redis)
 
@@ -11,7 +11,7 @@ class BttvApi(BaseApi):
     def parse_emotes(api_response_data):
         # get with default fallback
         url_template = api_response_data.get("urlTemplate", "//cdn.betterttv.net/emote/{{id}}/{{image}}")
-        url_template = BttvApi.fill_in_url_scheme(url_template)
+        url_template = BTTVAPI.fill_in_url_scheme(url_template)
 
         def get_url(emote_hash, size):
             return url_template.replace("{{id}}", emote_hash).replace("{{image}}", size + "x")

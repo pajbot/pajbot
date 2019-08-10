@@ -1,8 +1,8 @@
 from pajbot.apiwrappers.response_cache import DateTimeSerializer
-from pajbot.apiwrappers.twitch.base import BaseTwitchApi
+from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 
 
-class TwitchHelixApi(BaseTwitchApi):
+class TwitchHelixAPI(BaseTwitchAPI):
     authorization_header_prefix = "Bearer"
 
     def __init__(self, redis, app_token_manager):

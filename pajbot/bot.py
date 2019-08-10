@@ -19,10 +19,10 @@ from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
-from pajbot.apiwrappers.twitch.helix import TwitchHelixApi
-from pajbot.apiwrappers.twitch.id import TwitchIdApi
-from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5Api
-from pajbot.apiwrappers.twitch.legacy import TwitchLegacyApi
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+from pajbot.apiwrappers.twitch.id import TwitchIDAPI
+from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
+from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -152,11 +152,11 @@ class Bot:
             self.config["twitchapi"]["redirect_uri"],
         )
 
-        self.twitch_id_api = TwitchIdApi(self.api_client_credentials)
+        self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
-        self.twitch_helix_api = TwitchHelixApi(RedisManager.get(), self.app_token_manager)
-        self.twitch_v5_api = TwitchKrakenV5Api(self.api_client_credentials, RedisManager.get())
-        self.twitch_legacy_api = TwitchLegacyApi(self.api_client_credentials, RedisManager.get())
+        self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
+        self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
+        self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:

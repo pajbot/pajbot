@@ -3,10 +3,10 @@ from requests import HTTPError
 from pajbot.apiwrappers.authentication.access_token import AccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AccessTokenManager
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 
 
-class BaseTwitchApi(BaseApi):
+class BaseTwitchAPI(BaseAPI):
     authorization_header_prefix = "Bearer"
 
     @property

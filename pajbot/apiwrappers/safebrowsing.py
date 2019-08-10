@@ -1,8 +1,8 @@
 from pajbot import constants
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 
 
-class SafeBrowsingApi(BaseApi):
+class SafeBrowsingAPI(BaseAPI):
     def __init__(self, api_key):
         super().__init__(base_url="https://safebrowsing.googleapis.com/v4/")
         self.session.params["key"] = api_key

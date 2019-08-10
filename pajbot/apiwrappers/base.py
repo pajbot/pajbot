@@ -6,12 +6,12 @@ import datetime
 from requests import Session
 
 from pajbot import constants
-from pajbot.apiwrappers.response_cache import ApiResponseCache
+from pajbot.apiwrappers.response_cache import APIResponseCache
 
 log = logging.getLogger(__name__)
 
 
-class BaseApi:
+class BaseAPI:
     def __init__(self, base_url, redis=None):
         self.base_url = base_url
 
@@ -22,7 +22,7 @@ class BaseApi:
         self.session.headers["User-Agent"] = "pajbot/{}".format(constants.VERSION)
 
         if redis is not None:
-            self.cache = ApiResponseCache(redis)
+            self.cache = APIResponseCache(redis)
 
     @staticmethod
     def quote_path_param(param):
@@ -52,7 +52,7 @@ class BaseApi:
         url = base
         for path_segment in path_segments:
             # str(endpoint) so numbers can be used as path segments too
-            url = BaseApi.join_base_and_string(url, BaseApi.quote_path_param(str(path_segment)))
+            url = BaseAPI.join_base_and_string(url, BaseAPI.quote_path_param(str(path_segment)))
 
         return url
 
@@ -69,9 +69,9 @@ class BaseApi:
             return endpoint
 
         if isinstance(endpoint, list):
-            return BaseApi.join_base_and_list(base, endpoint)
+            return BaseAPI.join_base_and_list(base, endpoint)
         else:
-            return BaseApi.join_base_and_string(base, endpoint)
+            return BaseAPI.join_base_and_string(base, endpoint)
 
     def request(self, method, endpoint, params, headers, json=None):
 

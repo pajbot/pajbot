@@ -81,7 +81,7 @@ class TwitchChannelEmotesSerializer(BaseJsonSerializer):
         return tuple([[Emote.from_json(e) for e in s] for s in cache_result])
 
 
-class ApiResponseCache:
+class APIResponseCache:
     def __init__(self, redis):
         self.redis = redis
 

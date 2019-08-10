@@ -1,9 +1,9 @@
-from pajbot.apiwrappers.base import BaseApi
+from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import EmoteListSerializer
 from pajbot.models.emote import Emote
 
 
-class FFZApi(BaseApi):
+class FFZAPI(BaseAPI):
     def __init__(self, redis):
         super().__init__(base_url="https://api.frankerfacez.com/v1/", redis=redis)
 
@@ -14,7 +14,7 @@ class FFZApi(BaseApi):
             for emote in emote_set["emoticons"]:
                 # FFZ returns relative URLs (e.g. //cdn.frankerfacez.com/...)
                 # so we fill in the scheme if it's missing :)
-                urls = {size: FFZApi.fill_in_url_scheme(url) for size, url in emote["urls"].items()}
+                urls = {size: FFZAPI.fill_in_url_scheme(url) for size, url in emote["urls"].items()}
                 emotes.append(Emote(code=emote["name"], provider="ffz", id=emote["id"], urls=urls))
 
         return emotes
