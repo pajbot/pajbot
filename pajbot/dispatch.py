@@ -419,50 +419,6 @@ class Dispatch:
             AdminLogManager.add_entry("Title set", source, log_msg)
 
     @staticmethod
-    def ban_source(bot, source, message, event, args):
-        if "filter" in args and "notify" in args:
-            if args["notify"] == 1:
-                bot.whisper(
-                    source.username,
-                    'You have been permanently banned because your message matched our "{0}"-filter.'.format(
-                        args["filter"].name
-                    ),
-                )
-
-        log.debug("banning %s", source.username)
-        bot.ban(source.username)
-
-    @staticmethod
-    def timeout_source(bot, source, message, event, args):
-        if "time" in args:
-            _time = int(args["time"])
-        else:
-            _time = 600
-
-        if "filter" in args and "notify" in args:
-            if args["notify"] == 1:
-                bot.whisper(
-                    source.username,
-                    'You have been timed out for {0} seconds because your message matched our "{1}"-filter.'.format(
-                        _time, args["filter"].name
-                    ),
-                )
-
-        log.debug(args)
-
-        log.debug("timeouting %s", source.username)
-        bot.timeout(source.username, _time, reason="Matched bad filter")
-
-    @staticmethod
-    def single_timeout_source(bot, source, message, event, args):
-        if "time" in args:
-            _time = int(args["time"])
-        else:
-            _time = 600
-
-        bot._timeout(source.username, _time)
-
-    @staticmethod
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
             try:
@@ -522,41 +478,6 @@ class Dispatch:
             )
         )
         bot.execute_delayed(delay, bot.say, (extra_message,))
-
-    @staticmethod
-    def ord(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            ord_code = ord(message[0])
-            bot.say(str(ord_code))
-            return True
-        except:
-            return False
-
-    @staticmethod
-    def do_hex(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            hex_code = hex(ord(message[0]))
-            bot.say(hex_code)
-            return True
-        except:
-            return False
-
-    @staticmethod
-    def hex_to_chr(bot, source, message, event, args):
-        if not message:
-            return False
-
-        try:
-            bot.say(str(chr(int(message))))
-            return True
-        except:
-            return False
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):
