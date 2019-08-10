@@ -934,8 +934,7 @@ class Bot:
 
         sys.exit(0)
 
-    @staticmethod
-    def apply_filter(resp, f):
+    def apply_filter(self, resp, f):
         available_filters = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
@@ -949,10 +948,16 @@ class Bot:
             "join": _filter_join,
             "number_format": _filter_number_format,
             "add": _filter_add,
+            "or_else": _filter_or_else,
+            "or_broadcaster": self._filter_or_broadcaster,
+            "or_streamer": self._filter_or_broadcaster,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
         return resp
+
+    def _filter_or_broadcaster(self, var, args):
+        return _filter_or_else(var, self.streamer)
 
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
@@ -1005,3 +1010,10 @@ def _filter_add(var, args):
         return str(int(var) + int(args[0]))
     except:
         return ""
+
+
+def _filter_or_else(var, args):
+    if var is None or len(var) <= 0:
+        return args[0]
+    else:
+        return var
