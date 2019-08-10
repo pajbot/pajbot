@@ -1,5 +1,5 @@
 # This was tested and written on a Debian 9.6.0 installation.
-# We will be install a pajbot1 instance for a channel called "KKonaTestBroadcaster" (display name),
+# We will be installing a pajbot1 instance for a channel called "KKonaTestBroadcaster" (display name),
 # with the twitch login name "kkonatestbroadcaster" (lowercase)
 # In this example, your own account is "KKonaTestAdmin" (login name "kkonatestadmin")
 # The bot will run on the account "KKonaTestBot" (login name "kkonatestbot")

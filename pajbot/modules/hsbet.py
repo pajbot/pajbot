@@ -133,7 +133,7 @@ class HSBetModule(BaseModule):
             log.error("No games found in the history.")
             return False
 
-        self.bot.mainthread_queue.add(self.poll_trackobot_stage2, args=[game_data])
+        self.bot.execute_now(lambda: self.poll_trackobot_stage2(game_data))
 
     def poll_trackobot_stage2(self, game_data):
         latest_game = game_data["history"][0]
