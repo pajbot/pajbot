@@ -24,14 +24,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
             return {"after": after_pagination_cursor}  # fetch results after this cursor
 
     @staticmethod
-    def fetch_all_pages(page_fetch_fn):
+    def fetch_all_pages(page_fetch_fn, *args, **kwargs):
         """Fetch all pages using a function that returns a list of responses and a pagination cursor
         as a tuple when called with the pagination cursor as an argument."""
         pagination_cursor = None
         responses = []
 
         while True:
-            response, pagination_cursor = page_fetch_fn(pagination_cursor)
+            response, pagination_cursor = page_fetch_fn(after_pagination_cursor=pagination_cursor, *args, **kwargs)
 
             # add this chunk's responses to the list of all responses
             responses.extend(response)
@@ -157,7 +157,4 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def fetch_all_subscribers(self, broadcaster_id, authorization):
         """Fetch a list of all subscriber usernames of a broadcaster."""
-        page_fetch_fn = lambda pagination_cursor: self.fetch_subscribers_page(
-            broadcaster_id, authorization, pagination_cursor
-        )
-        return self.fetch_all_pages(page_fetch_fn)
+        return self.fetch_all_pages(self.fetch_subscribers_page, broadcaster_id, authorization)
