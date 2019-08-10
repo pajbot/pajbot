@@ -116,7 +116,7 @@ class MassPingProtectionModule(BaseModule):
         # True if message is bad.
         return self.determine_timeout_length(message, source, emote_instances) > 0
 
-    def on_pubmsg(self, source, message, emote_instances, **rest):
+    def on_message(self, source, message, emote_instances, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
@@ -138,7 +138,7 @@ class MassPingProtectionModule(BaseModule):
         return False
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_message", self.on_pubmsg, priority=150)
+        HandlerManager.add_handler("on_message", self.on_message, priority=150)
 
     def disable(self, bot):
-        HandlerManager.remove_handler("on_message", self.on_pubmsg)
+        HandlerManager.remove_handler("on_message", self.on_message)
