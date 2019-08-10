@@ -48,10 +48,12 @@ class SubscriberFetchModule(BaseModule):
         self.bot.users.reset_subs()
         self.bot.users.update_subs(subscribers)
 
+        log.info("Successfully updated %s subscribers", len(subscribers))
+
     def enable(self, bot):
         # Web interface, nothing to do
         if not bot:
             return
 
-        # every 10 minutes
-        ScheduleManager.execute_every(10 * 60, self.update_subscribers_stage1)
+        # every 10 minutes, add the subscribers update to the action queue
+        ScheduleManager.execute_every(10 * 60, lambda: self.bot.action_queue.add(self.update_subscribers_stage1))
