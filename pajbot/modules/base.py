@@ -205,7 +205,9 @@ class BaseModule:
             return self.settings[key].format(**arguments)
         except (IndexError, ValueError, KeyError):
             log.warning(
-                'An error occured when formatting phrase "{}". Arguments: ({})'.format(self.settings[key], arguments)
+                'An error occured when formatting phrase "{}". Arguments: ({}) Will fall back to default phrase.'.format(
+                    self.settings[key], arguments
+                )
             )
 
         try:
