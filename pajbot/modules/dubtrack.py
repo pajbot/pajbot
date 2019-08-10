@@ -435,7 +435,7 @@ class DubtrackModule(BaseModule):
             return
 
         if self.scheduled_job is not None:
-            self.scheduled_job.cancel()  # TODO
+            self.scheduled_job.remove()
 
         self.is_first_automatic_fetch = True
         self.last_seen_song_id = None
