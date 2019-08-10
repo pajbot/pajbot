@@ -1,10 +1,6 @@
-import html
-import json
 import logging
-import re
 
 import datetime
-import requests
 
 from pajbot import utils
 from pajbot.apiwrappers.dubtrack import DubtrackAPI
