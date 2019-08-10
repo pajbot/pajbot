@@ -63,15 +63,12 @@ class ClassInstanceSerializer(BaseJsonSerializer):
         return self.cls.from_json(cache_result)
 
 
-class ClassInstanceListSerializer(BaseJsonSerializer):
-    def __init__(self, cls):
-        self.cls = cls
-
+class EmoteListSerializer(BaseJsonSerializer):
     def safe_serialize(self, fetch_result):
         return [e.jsonify() for e in fetch_result]
 
     def safe_deserialize(self, cache_result):
-        return [self.cls.from_json(c) for c in cache_result]
+        return [Emote.from_json(c) for c in cache_result]
 
 
 class TwitchChannelEmotesSerializer(BaseJsonSerializer):
