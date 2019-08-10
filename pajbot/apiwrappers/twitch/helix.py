@@ -14,7 +14,7 @@ class TwitchHelixApi(BaseTwitchApi):
         return self.app_token_manager
 
     def fetch_user_id(self, username):
-        """Fetches the twitch user ID as an int for the given twitch login name.
+        """Fetches the twitch user ID as a string for the given twitch login name.
         If the user is not found, None is returned."""
         response = self.get("/users", {"login": username})
 
@@ -39,7 +39,7 @@ class TwitchHelixApi(BaseTwitchApi):
         return response["data"][0]["id"]
 
     def get_user_id(self, username):
-        """Gets the twitch user ID as an int for the given twitch login name,
+        """Gets the twitch user ID as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
         If the user is not found, None is returned."""
 
