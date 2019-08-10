@@ -1,5 +1,5 @@
 from pajbot.apiwrappers.base import BaseAPI
-from pajbot.apiwrappers.response_cache import EmoteListSerializer
+from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
 
 
@@ -37,7 +37,7 @@ class BTTVAPI(BaseAPI):
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
-            serializer=EmoteListSerializer(),
+            serializer=ListSerializer(Emote),
             expiry=60 * 60,
             force_fetch=force_fetch,
         )
@@ -50,7 +50,7 @@ class BTTVAPI(BaseAPI):
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:channel-emotes:{}".format(channel_name),
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
-            serializer=EmoteListSerializer(),
+            serializer=ListSerializer(Emote),
             expiry=60 * 60,
             force_fetch=force_fetch,
         )
