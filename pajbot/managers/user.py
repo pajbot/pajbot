@@ -145,7 +145,8 @@ class UserManager:
         """
 
         with DBManager.create_session_scope() as db_session:
-            subs = set(subs)
+            # XXX: Currently users with moonrunes in their names won't be marked as subscribers
+            subs = set(sub.lower() for sub in subs)
             for user in db_session.query(User).filter(User.username.in_(subs)):
                 try:
                     subs.remove(user.username)
@@ -158,6 +159,8 @@ class UserManager:
                 # New user!
                 user = User(username=username)
                 user.subscriber = True
+
+                db_session.add(user)
 
     @staticmethod
     def bulk_load_user_models(usernames, db_session):
