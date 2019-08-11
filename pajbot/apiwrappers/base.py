@@ -73,23 +73,26 @@ class BaseAPI:
         else:
             return BaseAPI.join_base_and_string(base, endpoint)
 
-    def request(self, method, endpoint, params, headers, json=None):
+    def request(self, method, endpoint, params, headers, json=None, **request_options):
 
         full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
-            method, full_url, params=params, headers=headers, json=json, timeout=self.timeout
+            method, full_url, params=params, headers=headers, json=json, timeout=self.timeout, **request_options
         )
         response.raise_for_status()
         return response
 
-    def get(self, endpoint, params=None, headers=None):
-        return self.request("GET", endpoint, params, headers).json()
+    def get(self, endpoint, params=None, headers=None, **request_options):
+        return self.request("GET", endpoint, params, headers, **request_options).json()
 
-    def get_binary(self, endpoint, params=None, headers=None):
-        return self.request("GET", endpoint, params, headers).content
+    def get_response(self, endpoint, params=None, headers=None, **request_options):
+        return self.request("GET", endpoint, params, headers, **request_options)
 
-    def post(self, endpoint, params=None, headers=None, json=None):
-        return self.request("POST", endpoint, params, headers, json).json()
+    def get_binary(self, endpoint, params=None, headers=None, **request_options):
+        return self.request("GET", endpoint, params, headers, **request_options).content
 
-    def put(self, endpoint, params=None, headers=None, json=None):
-        return self.request("PUT", endpoint, params, headers, json).json()
+    def post(self, endpoint, params=None, headers=None, json=None, **request_options):
+        return self.request("POST", endpoint, params, headers, json, **request_options).json()
+
+    def put(self, endpoint, params=None, headers=None, json=None, **request_options):
+        return self.request("PUT", endpoint, params, headers, json, **request_options).json()

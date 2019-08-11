@@ -1,7 +1,8 @@
 import logging
 
-from pajbot.apiwrappers.response_cache import EmoteListSerializer
+from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
+from pajbot.models.emote import Emote
 
 log = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ class TwitchKrakenV5API(BaseTwitchAPI):
         return self.cache.cache_fetch_fn(
             redis_key="api:twitch:kraken:v5:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
-            serializer=EmoteListSerializer(),
+            serializer=ListSerializer(Emote),
             expiry=60 * 60,
             force_fetch=force_fetch,
         )

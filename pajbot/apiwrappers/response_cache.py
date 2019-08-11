@@ -63,12 +63,15 @@ class ClassInstanceSerializer(BaseJsonSerializer):
         return self.cls.from_json(cache_result)
 
 
-class EmoteListSerializer(BaseJsonSerializer):
+class ListSerializer(BaseJsonSerializer):
+    def __init__(self, cls):
+        self.cls = cls
+
     def safe_serialize(self, fetch_result):
         return [e.jsonify() for e in fetch_result]
 
     def safe_deserialize(self, cache_result):
-        return [Emote.from_json(c) for c in cache_result]
+        return [self.cls.from_json(c) for c in cache_result]
 
 
 class TwitchChannelEmotesSerializer(BaseJsonSerializer):
@@ -98,5 +101,8 @@ class APIResponseCache:
             # then expiry is a lambda that computes the expiry based upon the fetch result
             expiry = expiry(fetch_result)
 
-        self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
+        # expiry = 0 can be used to indicate the result should not be cached
+        # (Redis will raise an error if we try to SETEX with time = 0 so this check is done before calling Redis)
+        if expiry > 0:
+            self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
         return fetch_result
