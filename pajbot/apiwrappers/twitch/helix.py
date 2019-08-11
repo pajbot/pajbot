@@ -185,7 +185,6 @@ class TwitchHelixAPI(BaseTwitchAPI):
         subscribers = []
 
         for sub_data in response["data"]:
-            user_id = sub_data["user_id"]
             display_name = sub_data["user_name"]
 
             if self.NORMAL_DISPLAY_NAME_REGEX.match(display_name):
