@@ -159,8 +159,6 @@ class UserManager:
                 user = User(username=username)
                 user.subscriber = True
 
-                db_session.add(user)
-
     @staticmethod
     def bulk_load_user_models(usernames, db_session):
         users = db_session.query(User).filter(User.username.in_(usernames))
