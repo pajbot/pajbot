@@ -50,7 +50,7 @@ class SocketManager:
 
             for handler in self.handlers[message["channel"]]:
                 # invokes the handler on the bot's main thread (the IRC event loop)
-                self.callback(lambda: handler(parsed_data))
+                self.callback(handler, (parsed_data,))
 
         self.pubsub.close()
 
