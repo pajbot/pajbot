@@ -1,5 +1,12 @@
+import re
+
+import logging
+
 from pajbot.apiwrappers.response_cache import DateTimeSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
+
+
+log = logging.getLogger(__name__)
 
 
 class TwitchHelixAPI(BaseTwitchAPI):
@@ -84,6 +91,29 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise ValueError("Username {} does not exist on twitch".format(username))
         return user_id
 
+    def fetch_login_name(self, user_id):
+        """Fetches the twitch login name as a string for the given twitch login name.
+        If the user is not found, None is returned."""
+        response = self.get("/users", {"id": user_id})
+
+        if len(response["data"]) <= 0:
+            return None
+
+        # response is the same as for fetch_user_id
+
+        return response["data"][0]["login"]
+
+    def get_login_name(self, user_id):
+        """Gets the twitch login name as a string for the given twitch login name,
+        utilizing a cache or the twitch API on cache miss.
+        If the user is not found, None is returned."""
+
+        return self.cache.cache_fetch_fn(
+            redis_key="api:twitch:helix:login-name:{}".format(user_id),
+            fetch_fn=lambda: self.fetch_login_name(user_id),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
     def fetch_follow_since(self, from_id, to_id):
         response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
 
@@ -123,6 +153,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return response["data"][0]["profile_image_url"]
 
+    NORMAL_DISPLAY_NAME_REGEX = re.compile(r"^[a-zA-Z0-9_]+$")
+
     def fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
         """Fetch a list of subscriber usernames of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
@@ -150,7 +182,36 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #   }
         # }
 
-        subscribers = [sub_data["user_name"] for sub_data in response["data"]]
+        subscribers = []
+
+        for sub_data in response["data"]:
+            display_name = sub_data["user_name"]
+
+            if self.NORMAL_DISPLAY_NAME_REGEX.match(display_name):
+                # normal display name (just a capitalized variant of the login name)
+                # we can directly compute the login name by lowercasing the display name
+                login_name = display_name.lower()
+            else:
+                # hieroglyph display name, another API call is required to look up their login name from the user ID
+                user_id = sub_data["user_id"]
+                login_name = self.get_login_name(user_id)
+
+                if login_name is None:
+                    # user_id not found?!?!
+                    # can technically happen if user deletes account in the slim moment
+                    # between fetch of subscriber list and the user_id -> login_name lookup
+                    log.warning(
+                        "Just fetched %s (%s) to be a subscriber of %s but was not"
+                        " able to locate them as a user by their ID "
+                        "(user will not be counted as a subscriber)",
+                        login_name,
+                        user_id,
+                        broadcaster_id,
+                    )
+                    continue
+
+            subscribers.append(login_name)
+
         pagination_cursor = response["pagination"]["cursor"]
 
         return subscribers, pagination_cursor
