@@ -57,8 +57,6 @@ class AsciiProtectionModule(BaseModule):
 
         non_alnum = sum(not c.isalnum() for c in message)
         ratio = non_alnum / len(message)
-        log.debug(message)
-        log.debug(ratio)
         if (len(message) > 240 and ratio > 0.8) or ratio > 0.93:
             return True
         return False
