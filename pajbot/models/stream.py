@@ -17,7 +17,6 @@ from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger("pajbot")
 
@@ -84,8 +83,7 @@ class StreamManager:
         if self.online is False:
             return
 
-        streamer_id = self.bot.twitch_helix_api.require_user_id(StreamHelper.get_streamer())
-        data = self.bot.twitch_v5_api.get_vod_videos(streamer_id)
+        data = self.bot.twitch_v5_api.get_vod_videos(self.bot.streamer_user_id)
         self.bot.execute_now(lambda: self.refresh_video_url_stage2(data))
 
     def fetch_video_url_stage2(self, data):
@@ -274,8 +272,7 @@ class StreamManager:
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
     def refresh_stream_status_stage1(self):
-        streamer_id = self.bot.twitch_helix_api.require_user_id(StreamHelper.get_streamer())
-        status = self.bot.twitch_v5_api.get_stream_status(streamer_id)
+        status = self.bot.twitch_v5_api.get_stream_status(self.bot.streamer_user_id)
         self.bot.execute_now(lambda: self.refresh_stream_status_stage2(status))
 
     def refresh_stream_status_stage2(self, status):

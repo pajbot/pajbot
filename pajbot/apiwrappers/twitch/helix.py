@@ -13,6 +13,35 @@ class TwitchHelixAPI(BaseTwitchAPI):
     def default_authorization(self):
         return self.app_token_manager
 
+    @staticmethod
+    def with_pagination(after_pagination_cursor=None):
+        """Returns a dict with extra query parameters based on the given pagination cursor.
+        This makes a dict with the ?after=xxxx query parameter if a pagination cursor is present,
+        and if no pagination cursor is present, returns an empty dict."""
+        if after_pagination_cursor is None:
+            return {}  # no extra query parameters
+        else:
+            return {"after": after_pagination_cursor}  # fetch results after this cursor
+
+    @staticmethod
+    def fetch_all_pages(page_fetch_fn, *args, **kwargs):
+        """Fetch all pages using a function that returns a list of responses and a pagination cursor
+        as a tuple when called with the pagination cursor as an argument."""
+        pagination_cursor = None
+        responses = []
+
+        while True:
+            response, pagination_cursor = page_fetch_fn(after_pagination_cursor=pagination_cursor, *args, **kwargs)
+
+            # add this chunk's responses to the list of all responses
+            responses.extend(response)
+
+            # all pages iterated, done
+            if len(response) <= 0:
+                break
+
+        return responses
+
     def fetch_user_id(self, username):
         """Fetches the twitch user ID as a string for the given twitch login name.
         If the user is not found, None is returned."""
@@ -93,3 +122,39 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise ValueError("No user with ID {} found".format(user_id))
 
         return response["data"][0]["profile_image_url"]
+
+    def fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
+        """Fetch a list of subscriber usernames of a broadcaster + a pagination cursor as a tuple."""
+        response = self.get(
+            "/subscriptions",
+            {"broadcaster_id": broadcaster_id, **self.with_pagination(after_pagination_cursor)},
+            authorization=authorization,
+        )
+
+        # response =
+        # {
+        #   "data": [
+        #     {
+        #       "broadcaster_id": "123"
+        #       "broadcaster_name": "test_user"
+        #       "is_gift" true,
+        #       "tier": "1000",
+        #       "plan_name": "The Ninjas",
+        #       "user_id": "123",
+        #       "user_name": "snoirf",
+        #     },
+        #     …
+        #   ],
+        #   "pagination": {
+        #     "cursor": "xxxx"
+        #   }
+        # }
+
+        subscribers = [sub_data["user_name"] for sub_data in response["data"]]
+        pagination_cursor = response["pagination"]["cursor"]
+
+        return subscribers, pagination_cursor
+
+    def fetch_all_subscribers(self, broadcaster_id, authorization):
+        """Fetch a list of all subscriber usernames of a broadcaster."""
+        return self.fetch_all_pages(self.fetch_subscribers_page, broadcaster_id, authorization)
