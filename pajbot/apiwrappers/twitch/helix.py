@@ -151,7 +151,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         # }
 
         # XXX: Users with moonrunes in their names won't be included in this list
-        subscribers = [sub_data["user_name"].lower() for sub_data in response["data"] if not sub_data["user_name"].isalnum()]
+        subscribers = [sub_data["user_name"].lower() for sub_data in response["data"] if sub_data["user_name"].isalnum()]
         pagination_cursor = response["pagination"]["cursor"]
 
         return subscribers, pagination_cursor
