@@ -2,6 +2,7 @@ import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
+from pajbot.modules.base import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -11,7 +12,17 @@ class EmoteComboModule(BaseModule):
     NAME = "Emote Combo (web interface)"
     DESCRIPTION = "Shows emote combos in the web interface CLR thing"
     CATEGORY = "Feature"
-    SETTINGS = []  # TODO setting to configure equal emotes, e.g. monkaPickle and nymnPickle
+    SETTINGS = [
+        ModuleSetting(
+            key="min_emote_combo",
+            label="Minimum number of emotes required to trigger the combo",
+            type="number",
+            required=True,
+            placeholder="",
+            default=5,
+            constraints={"min_value": 2, "max_value": 100},
+        )
+    ]
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -20,7 +31,7 @@ class EmoteComboModule(BaseModule):
 
     def inc_emote_count(self):
         self.emote_count += 1
-        if self.emote_count >= 5:
+        if self.emote_count >= self.settings["min_emote_combo"]:
             self.bot.websocket_manager.emit(
                 "emote_combo", {"emote": self.current_emote.jsonify(), "count": self.emote_count}
             )
