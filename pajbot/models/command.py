@@ -446,15 +446,6 @@ class Command(Base):
     def autogenerate_examples(self):
         if not self.examples and self.id is not None and self.action and self.action.type == "message":
             examples = []
-            if self.can_execute_with_whisper is True:
-                example = CommandExample(self.id, "Default usage through whisper")
-                subtype = self.action.subtype if self.action.subtype != "reply" else "say"
-                example.add_chat_message("whisper", self.main_alias, "user", "bot")
-                if subtype in ("say", "me"):
-                    example.add_chat_message(subtype, self.action.response, "bot")
-                elif subtype == "whisper":
-                    example.add_chat_message(subtype, self.action.response, "bot", "user")
-                examples.append(example)
 
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
@@ -464,6 +455,16 @@ class Command(Base):
             elif subtype == "whisper":
                 example.add_chat_message(subtype, self.action.response, "bot", "user")
             examples.append(example)
+
+            if self.can_execute_with_whisper is True:
+                example = CommandExample(self.id, "Default usage through whisper")
+                subtype = self.action.subtype if self.action.subtype != "reply" else "say"
+                example.add_chat_message("whisper", self.main_alias, "user", "bot")
+                if subtype in ("say", "me"):
+                    example.add_chat_message(subtype, self.action.response, "bot")
+                elif subtype == "whisper":
+                    example.add_chat_message(subtype, self.action.response, "bot", "user")
+                examples.append(example)
             return examples
         return self.examples
 
