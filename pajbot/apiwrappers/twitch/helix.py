@@ -153,7 +153,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return response["data"][0]["profile_image_url"]
 
-    NORMAL_DISPLAY_NAME_REGEX = re.compile(r"^[a-zA-Z0-9_]+$")
+    CAPITALIZED_LOGIN_NAME_REGEX = re.compile(r"^[a-zA-Z0-9_]+$")
 
     def fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
         """Fetch a list of subscriber usernames of a broadcaster + a pagination cursor as a tuple."""
@@ -187,8 +187,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         for sub_data in response["data"]:
             display_name = sub_data["user_name"]
 
-            if self.NORMAL_DISPLAY_NAME_REGEX.match(display_name):
-                # normal display name (just a capitalized variant of the login name)
+            if self.CAPITALIZED_LOGIN_NAME_REGEX.match(display_name):
+                # "normal" display name (just a capitalized variant of the login name)
                 # we can directly compute the login name by lowercasing the display name
                 login_name = display_name.lower()
             else:
