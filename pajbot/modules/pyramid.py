@@ -1,6 +1,8 @@
 import logging
 import re
 
+from unidecode import unidecode
+
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -71,6 +73,9 @@ class PyramidModule(BaseModule):
     def on_pubmsg(self, source, message, **rest):
         if source.username == "twitchnotify":
             return
+
+        # remove the invisible Chatterino suffix
+        message = unidecode(message).strip()
 
         try:
             msg_parts = message.split(" ")
