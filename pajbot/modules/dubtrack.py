@@ -4,6 +4,7 @@ import datetime
 
 from pajbot import utils
 from pajbot.apiwrappers.dubtrack import DubtrackAPI
+from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
@@ -232,10 +233,6 @@ class DubtrackModule(BaseModule):
                 # song is not new
                 return
 
-            if self.settings["new_song_online_chat_only"] and not self.bot.is_online:
-                # streamer is offline and settings forbids notify
-                return
-
             # got a new song under song_info
             auto_msg = self.get_phrase(
                 "phrase_new_song",
@@ -423,19 +420,50 @@ class DubtrackModule(BaseModule):
         if self.settings["if_lastsong_alias"]:
             self.commands["lastsong"] = commands["previous"]
 
+    def enable_job(self):
+        if self.scheduled_job is not None:
+            log.debug("dubtrack: starting to poll for new songs")
+            self.scheduled_job.resume()
+
+    def disable_job(self):
+        if self.scheduled_job is not None:
+            log.debug("dubtrack: will no longer poll for new songs")
+            self.scheduled_job.pause()
+
+        self.is_first_automatic_fetch = True
+        self.last_seen_song_id = None
+
+    def on_stream_start(self):
+        self.enable_job()
+
+    def on_stream_stop(self):
+        if self.settings["new_song_online_chat_only"]:
+            self.disable_job()
+
     def enable(self, bot):
         if not bot:
             return
 
+        HandlerManager.add_handler("on_stream_start", self.on_stream_start)
+        HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
+
         if self.settings["new_song_auto_enable"]:
             self.scheduled_job = ScheduleManager.execute_every(15, self.on_scheduled_new_song_check)
+
+            if bot.is_online:
+                self.on_stream_start()
+            else:
+                self.on_stream_stop()
 
     def disable(self, bot):
         if not bot:
             return
 
+        HandlerManager.remove_handler("on_stream_start", self.on_stream_start)
+        HandlerManager.remove_handler("on_stream_stop", self.on_stream_stop)
+
+        self.disable_job()
+
         if self.scheduled_job is not None:
             self.scheduled_job.remove()
-
-        self.is_first_automatic_fetch = True
-        self.last_seen_song_id = None
+            self.scheduled_job = None
