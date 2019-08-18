@@ -236,25 +236,19 @@ In KKonaTestBot
 #
 # Some helpful commands to set you up:
 #
-# Give users higher levels:
+# Create various basic commands like !ping, !uptime or !points:
+!eval bot.eval_from_file(event, 'https://raw.githubusercontent.com/pajbot/pajbot/master/install-docs/debian9/basic-commands.txt')
+
+# Give other users higher levels:
 !level DankHelperUsername 250
 !level ModeratorUsername 500
 !level SuperModeratorOrBroadcaster 1000
 !level AdminUsername 1500
-# hightly discouraged to give others level 2000, since level 2000 users can use !eval
-# to run arbitrary python code on your server.
-#!level OwnerUsername 2000
-!add command ping @$(source:username_raw), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
-!add alias ping pb1ping
-!add funccommand settitle set_title --level 1000
-!add funccommand setgame set_game --level 1000
-!add command commands @$(source:username_raw), $(tb:bot_name) commands available here: https://bot.kkonatestbroadcaster.tv/commands
-!add alias commands help
-!add command ecount @$(source:username_raw), $(1) has been used $(ecount;1) times.
-!add command uptime @$(source:username_raw), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
-!add alias uptime downtime
-!add command userpoints @$(source:username_raw), $(usersource;1:username_raw) has $(usersource;1:points|number_format) points
-!add command whereisstreamer @$(source:username_raw), Latest tweet by KKonaTestBroadcaster: $(lasttweet:kkonatestbroadcastertwitterhandle)
-!add command apiproxy @$(source:username_raw), $(urlfetch http://127.0.0.1:7221/apiproxy/status) --level 250
+
+# If your streamer has a twitter account:
+!twitterfollow twitterusername
+!add command whereisstreamer @$(source:username_raw), Latest tweet by KKonaTestBroadcaster: $(lasttweet:twitterusername)
+
 # Also be sure to login into the admin panel under https://bot.kkonatestbroadcaster.tv
 # login at the bottom, afterwards click "Admin Panel" at the bottom
+# and explore the options available :)
