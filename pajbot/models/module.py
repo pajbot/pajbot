@@ -61,6 +61,8 @@ class ModuleManager:
             log.error("No module with the ID {} found.".format(module_id))
             return False
 
+        module.load()
+
         module.enable(self.bot)
 
         if module in self.modules:
@@ -68,8 +70,6 @@ class ModuleManager:
             return False
 
         self.modules.append(module)
-
-        module.load()
 
         return True
 
