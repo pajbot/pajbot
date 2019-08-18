@@ -41,7 +41,10 @@ class ActionQueue:
     def _action_parser(self):
         while True:
             action = self.queue.get()
-            action.run()
+            try:
+                action.run()
+            except:
+                log.exception("Logging an uncaught exception (ActionQueue)")
 
     # Run a single action in the queue if the queue is not empty.
 
