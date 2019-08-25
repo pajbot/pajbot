@@ -399,26 +399,6 @@ class Dispatch:
             bot.whisper(source.username, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
     @staticmethod
-    def set_game(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            bot.twitchapi.set_game(bot.streamer, message)
-            log_msg = '{} updated the game to "{}"'.format(source.username_raw, message)
-            bot.say(log_msg)
-
-            AdminLogManager.add_entry("Game set", source, log_msg)
-
-    @staticmethod
-    def set_title(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            bot.twitchapi.set_title(bot.streamer, message)
-            log_msg = '{0} updated the title to "{1}"'.format(source.username_raw, message)
-            bot.say(log_msg)
-
-            AdminLogManager.add_entry("Title set", source, log_msg)
-
-    @staticmethod
     def tweet(bot, source, message, event, args):
         if message and len(message) > 1:
             try:

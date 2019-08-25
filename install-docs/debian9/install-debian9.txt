@@ -53,37 +53,6 @@ sudo apt install git
 #
 
 #
-# Set up twitch-api-v3-proxy
-# This is required because pajbot1 uses the deprecated Twitch v3 API.
-# Note that you can also build this project on a different machine
-# and only install openjdk-8-jre-headless, if you prefer.
-# The build artifacts of the project are compatible with all platforms
-# and can be moved between machines without any issues.
-#
-# change into home directory to clone source code and build, we will move
-# only the build artifact to the /opt directory later.
-
-sudo apt install openjdk-8-jre-headless
-cd
-sudo mkdir /opt/twitch-api-v3-proxy
-wget -O - https://github.com/zwb3/twitch-api-v3-proxy/releases/download/release/twitch-api-v3-proxy-boot.tar | \
-  sudo tar xvf - -C /opt/twitch-api-v3-proxy --strip-components=1
-
-# Edit the applications.properties with your own Client-Id that you got when registering your application with twitch:
-# (Use the token thats supposed to be shared across all instances)
-# In this example, one would use: 0bb4b8517c0b20e0a72ddbfd88aa69
-sudo nano /opt/twitch-api-v3-proxy/application.properties
-
-# Install Service
-sudo wget "https://raw.githubusercontent.com/zwb3/twitch-api-v3-proxy/release/twitch-api-v3-proxy.service" \
-  -O "/etc/systemd/system/twitch-api-v3-proxy.service"
-sudo systemctl daemon-reload
-sudo systemctl enable twitch-api-v3-proxy
-sudo systemctl start twitch-api-v3-proxy
-# check the status
-sudo systemctl status twitch-api-v3-proxy
-
-#
 # Install python3 and dependencies for pip packages
 #
 sudo apt install libssl-dev python3 python3-pip python3-venv
@@ -255,6 +224,5 @@ In KKonaTestBot
 !add alias uptime downtime
 !add command userpoints @$(source:username_raw), $(usersource;1:username_raw) has $(usersource;1:points|number_format) points
 !add command whereisstreamer @$(source:username_raw), Latest tweet by KKonaTestBroadcaster: $(lasttweet:kkonatestbroadcastertwitterhandle)
-!add command apiproxy @$(source:username_raw), $(urlfetch http://127.0.0.1:7221/apiproxy/status) --level 250
 # Also be sure to login into the admin panel under https://bot.kkonatestbroadcaster.tv
 # login at the bottom, afterwards click "Admin Panel" at the bottom

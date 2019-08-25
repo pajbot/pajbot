@@ -6,6 +6,8 @@ import logging
 import urllib.parse
 from functools import update_wrapper
 from functools import wraps
+from io import BytesIO
+from PIL import Image
 
 from flask import abort
 from flask import make_response
@@ -17,6 +19,7 @@ from flask_scrypt import generate_password_hash
 import pajbot.exc
 import pajbot.managers
 from pajbot import utils
+from pajbot.apiwrappers.base import BaseAPI
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
@@ -64,33 +67,27 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(client_id, streamer):
-    import urllib
-    from pajbot.apiwrappers import TwitchAPI
+def download_logo(twitch_helix_api, streamer):
+    streamer_id = twitch_helix_api.require_user_id(streamer)
+    logo_url = twitch_helix_api.fetch_profile_image_url(streamer_id)
 
-    twitchapi = TwitchAPI(client_id)
-    try:
-        data = twitchapi.get(["users", streamer], base="http://127.0.0.1:7221/kraken/")
-        log.info(data)
-        if data:
-            logo_raw = "static/images/logo_{}.png".format(streamer)
-            logo_tn = "static/images/logo_{}_tn.png".format(streamer)
-            with urllib.request.urlopen(data["logo"]) as response, open(logo_raw, "wb") as out_file:
-                data = response.read()
-                out_file.write(data)
-                try:
-                    from PIL import Image
+    logo_raw_path = "static/images/logo_{}.png".format(streamer)
+    logo_tn_path = "static/images/logo_{}_tn.png".format(streamer)
 
-                    im = Image.open(logo_raw)
-                    im.thumbnail((64, 64), Image.ANTIALIAS)
-                    im.save(logo_tn, "png")
-                except:
-                    log.exception("Unhandled exception in download_logo PIL shit")
-            log.info("set logo")
-            return True
-    except:
-        log.exception("Unhandled exception in download_logo")
-    return False
+    # returns bytes
+    logo_image_bytes = BaseAPI(None).get_binary(logo_url)
+
+    # write full-size image...
+    with open(logo_raw_path, "wb") as logo_raw_file:
+        logo_raw_file.write(logo_image_bytes)
+
+    # decode downloaded image
+    read_stream = BytesIO(logo_image_bytes)
+    pil_image = Image.open(read_stream)
+
+    # downscale and save the thumbnail
+    pil_image.thumbnail((64, 64), Image.ANTIALIAS)
+    pil_image.save(logo_tn_path, "png")
 
 
 @time_nonclass_method

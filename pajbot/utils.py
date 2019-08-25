@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 def now():
     """
-    Returns a timzone-aware datetime object representing the current universal coordinated time (UTC).
+    Returns a timezone-aware datetime object representing the current universal coordinated time (UTC).
     E.g.: datetime.datetime(2019, 5, 31, 14, 36, 49, 861063, tzinfo=datetime.timezone.utc)
 
     A UTC unix timestamp (in seconds) can be obtained by calling .timestamp() on the object
@@ -26,16 +26,10 @@ def now():
     return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
 
-def alembic_upgrade():
-    import alembic.config
-
-    alembic_args = ["--raiseerr", "upgrade", "head", '--tag="{0}"'.format(" ".join(sys.argv[1:]))]
-
-    try:
-        alembic.config.main(argv=alembic_args)
-    except:
-        log.exception("xd")
-        sys.exit(1)
+def datetime_from_utc_milliseconds(ms):
+    """Make a new timezone-aware datetime instance representing the timestamp
+    `ms` milliseconds after the unix epoch at the UTC timezone (UTC milliseconds unix timestamp)."""
+    return datetime.datetime.fromtimestamp(ms / 1000, tz=datetime.timezone.utc)
 
 
 def time_method(f):
