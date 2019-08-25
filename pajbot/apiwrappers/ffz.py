@@ -47,7 +47,7 @@ class FFZAPI(BaseAPI):
         try:
             response = self.get(["room", channel_name])
         except HTTPError as e:
-            if e.status_code == 404:
+            if e.response.status_code == 404:
                 # user does not have any FFZ emotes
                 return []
             else:
