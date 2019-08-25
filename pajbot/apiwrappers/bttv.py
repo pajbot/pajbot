@@ -1,3 +1,5 @@
+from requests import HTTPError
+
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
@@ -44,7 +46,15 @@ class BTTVAPI(BaseAPI):
 
     def fetch_channel_emotes(self, channel_name):
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
-        return self.parse_emotes(self.get(["channels", channel_name]))
+        try:
+            response = self.get(["channels", channel_name])
+        except HTTPError as e:
+            if e.status_code == 404:
+                # user does not have any BTTV emotes
+                return []
+            else:
+                raise e
+        return self.parse_emotes(response)
 
     def get_channel_emotes(self, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
