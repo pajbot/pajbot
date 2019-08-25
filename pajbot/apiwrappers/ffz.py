@@ -23,7 +23,6 @@ class FFZAPI(BaseAPI):
 
     def fetch_global_emotes(self):
         """Returns a list of global FFZ emotes in the standard Emote format."""
-
         response = self.get("/set/global")
 
         # FFZ returns a number of global sets but only a subset of them should be available
