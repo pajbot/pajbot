@@ -24,13 +24,7 @@ class FFZAPI(BaseAPI):
     def fetch_global_emotes(self):
         """Returns a list of global FFZ emotes in the standard Emote format."""
 
-        try:
-            response = self.get("/set/global")
-        except HTTPError as e:
-            if e.status_code == 404:
-                return []
-            else:
-                raise e
+        response = self.get("/set/global")
 
         # FFZ returns a number of global sets but only a subset of them should be available
         # in all channels, those are available under "default_sets", e.g. a list of set IDs like this:
