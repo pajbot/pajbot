@@ -1,3 +1,5 @@
+from requests import HTTPError
+
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
@@ -42,7 +44,15 @@ class FFZAPI(BaseAPI):
 
     def fetch_channel_emotes(self, channel_name):
         """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
-        response = self.get(["room", channel_name])
+        try:
+            response = self.get(["room", channel_name])
+        except HTTPError as e:
+            if e.status_code == 404:
+                # user does not have any FFZ emotes
+                return []
+            else:
+                raise e
+
         return self.parse_sets(response["sets"])
 
     def get_channel_emotes(self, channel_name, force_fetch=False):
