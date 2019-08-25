@@ -6,6 +6,8 @@
   delete the old `[twitchapi]` config file entry. See
   [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian9/kkonatestbroadcaster.ini#L62)
   for example values.
+- Breaking: a `redirect_uri` is now always required under `[twitchapi]` in your
+  `config.ini`.
 - Breaking: If you want to continue fetching subscribers, you will need to have
   the streamer log in once with `/streamer_login`. Then the bot will
   automatically start fetching a list of subscribers regularly.
