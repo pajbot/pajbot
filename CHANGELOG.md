@@ -2,8 +2,8 @@
 
 ## v1.36
 
-- Breaking: Rename `[webtwitchapi]` to `[twitchapi]` and delete the old
-  `[twitchapi]` config file entry. See
+- Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
+  delete the old `[twitchapi]` config file entry. See
   [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian9/kkonatestbroadcaster.ini#L62)
   for example values.
 - Breaking: If you want to continue fetching subscribers, you will need to have
