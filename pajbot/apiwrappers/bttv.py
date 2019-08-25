@@ -49,7 +49,7 @@ class BTTVAPI(BaseAPI):
         try:
             response = self.get(["channels", channel_name])
         except HTTPError as e:
-            if e.status_code == 404:
+            if e.response.status_code == 404:
                 # user does not have any BTTV emotes
                 return []
             else:
