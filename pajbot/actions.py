@@ -10,8 +10,8 @@ class Action:
     args = []
     kwargs = {}
 
-    def __init__(self, f=None, args=[], kwargs={}):
-        self.func = f
+    def __init__(self, func=None, args=[], kwargs={}):
+        self.func = func
         self.args = args
         self.kwargs = kwargs
 
@@ -41,7 +41,10 @@ class ActionQueue:
     def _action_parser(self):
         while True:
             action = self.queue.get()
-            action.run()
+            try:
+                action.run()
+            except:
+                log.exception("Logging an uncaught exception (ActionQueue)")
 
     # Run a single action in the queue if the queue is not empty.
 
@@ -50,12 +53,8 @@ class ActionQueue:
             action = self.queue.get()
             action.run()
 
-    def add(self, f, args=[], kwargs={}):
-        action = Action()
-        action.func = f
-
-        action.args = args
-        action.kwargs = kwargs
+    def add(self, func, args=[], kwargs={}):
+        action = Action(func, args, kwargs)
         self._add(action)
 
     def _add(self, action):

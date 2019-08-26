@@ -8,7 +8,7 @@ from pajbot.modules import PlaysoundModule
 from pajbot.web.utils import requires_level
 
 
-class PlaysoundApi(Resource):
+class PlaysoundAPI(Resource):
     @requires_level(500)
     def put(self, playsound_name, **options):
         post_parser = RequestParser()
@@ -103,5 +103,5 @@ class PlayPlaysoundApi(Resource):
 
 
 def init(api):
-    api.add_resource(PlaysoundApi, "/playsound/<playsound_name>")
+    api.add_resource(PlaysoundAPI, "/playsound/<playsound_name>")
     api.add_resource(PlayPlaysoundApi, "/playsound/<playsound_name>/play")

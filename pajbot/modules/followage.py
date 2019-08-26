@@ -139,13 +139,22 @@ class FollowAgeModule(BaseModule):
 
     def check_follow_age(self, bot, source, username, streamer, event):
         streamer = bot.streamer if streamer is None else streamer.lower()
-        age = bot.twitchapi.get_follow_relationship(username, streamer)
+
+        user_id = self.bot.twitch_helix_api.get_user_id(username)
+        streamer_id = self.bot.twitch_helix_api.get_user_id(streamer)
+
+        if user_id is None or streamer_id is None:
+            # one of the users doesn't exist
+            follow_since = None
+        else:
+            follow_since = bot.twitch_helix_api.get_follow_since(user_id, streamer_id)
+
         is_self = source.username == username
         message = ""
 
-        if age:
+        if follow_since:
             # Following
-            human_age = time_since(utils.now().timestamp() - age.timestamp(), 0)
+            human_age = time_since(utils.now().timestamp() - follow_since.timestamp(), 0)
             suffix = "been following {} for {}".format(streamer, human_age)
             if is_self:
                 message = "You have " + suffix
@@ -163,7 +172,16 @@ class FollowAgeModule(BaseModule):
 
     def check_follow_since(self, bot, source, username, streamer, event):
         streamer = bot.streamer if streamer is None else streamer.lower()
-        follow_since = bot.twitchapi.get_follow_relationship(username, streamer)
+
+        user_id = self.bot.twitch_helix_api.get_user_id(username)
+        streamer_id = self.bot.twitch_helix_api.get_user_id(streamer)
+
+        if user_id is None or streamer_id is None:
+            # one of the users doesn't exist
+            follow_since = None
+        else:
+            follow_since = bot.twitch_helix_api.get_follow_since(user_id, streamer_id)
+
         is_self = source.username == username
         message = ""
 

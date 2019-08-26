@@ -2,6 +2,11 @@ import os
 
 from flask import Flask
 
+from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
+from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+from pajbot.apiwrappers.twitch.id import TwitchIDAPI
+
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
@@ -30,7 +35,6 @@ def init(args):
     from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
-    from pajbot.models.sock import SocketManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
@@ -42,6 +46,20 @@ def init(args):
 
     config = load_config(args.config)
     config.read("webconfig.ini")
+
+    api_client_credentials = ClientCredentials(
+        config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
+    )
+
+    redis_options = {}
+    if "redis" in config:
+        redis_options = dict(config["redis"])
+
+    RedisManager.init(**redis_options)
+
+    id_api = TwitchIDAPI(api_client_credentials)
+    app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
+    twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
 
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
@@ -60,18 +78,14 @@ def init(args):
         config.set("web", "secret_key", salt.decode("utf-8"))
 
     if "logo" not in config["web"]:
-        res = download_logo(config["webtwitchapi"]["client_id"], config["main"]["streamer"])
-        if res:
+        try:
+            download_logo(twitch_helix_api, config["main"]["streamer"])
             config.set("web", "logo", "set")
+        except:
+            log.exception("Error downloading logo")
 
     StreamHelper.init_web(config["main"]["streamer"])
     SocketClientManager.init(config["main"]["streamer"])
-
-    redis_options = {}
-    if "redis" in config:
-        redis_options = dict(config["redis"])
-
-    RedisManager.init(**redis_options)
 
     with open(args.config, "w") as configfile:
         config.write(configfile)

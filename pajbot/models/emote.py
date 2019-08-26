@@ -30,6 +30,10 @@ class Emote:
     def jsonify(self):
         return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls}
 
+    @staticmethod
+    def from_json(json_data):
+        return Emote(**json_data)
+
 
 class EmoteInstance:
     """A single instance of an emote in a string/message.
@@ -58,7 +62,7 @@ class EmoteInstance:
         return "{} @ {}-{}".format(self.emote, self.start, self.end)
 
     def jsonify(self):
-        return {"start": self.start, "end": self.end, "emote": self.emote}
+        return {"start": self.start, "end": self.end, "emote": self.emote.jsonify()}
 
 
 class EmoteInstanceCount:
@@ -91,4 +95,8 @@ class EmoteInstanceCount:
         return "{} @ [{}]".format(self.emote, ", ".join(indices))
 
     def jsonify(self):
-        return {"count": self.count, "emote": self.emote, "emote_instances": self.emote_instances}
+        return {
+            "count": self.count,
+            "emote": self.emote.jsonify(),
+            "emote_instances": [i.jsonify() for i in self.emote_instances],
+        }

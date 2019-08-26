@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 
 from flask import redirect
 from flask import render_template
@@ -10,6 +9,7 @@ from flask import url_for
 from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 
+from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
@@ -20,15 +20,12 @@ log = logging.getLogger(__name__)
 def init(app):
     oauth = OAuth(app)
 
-    # enables the usage of 127.0.0.1:7221 over http for OAuth purposes.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
     twitch = oauth.remote_app(
         "twitch",
-        consumer_key=app.bot_config["webtwitchapi"]["client_id"],
-        consumer_secret=app.bot_config["webtwitchapi"]["client_secret"],
+        consumer_key=app.bot_config["twitchapi"]["client_id"],
+        consumer_secret=app.bot_config["twitchapi"]["client_secret"],
         request_token_params={"scope": "user_read"},
-        base_url="http://127.0.0.1:7221/kraken/",
+        base_url="https://api.twitch.tv/kraken/",
         request_token_url=None,
         access_token_method="POST",
         access_token_url="https://id.twitch.tv/oauth2/token",
@@ -38,8 +35,8 @@ def init(app):
     @app.route("/login")
     def login():
         callback_url = (
-            app.bot_config["webtwitchapi"]["redirect_uri"]
-            if "redirect_uri" in app.bot_config["webtwitchapi"]
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
             else url_for("authorized", _external=True)
         )
         state = request.args.get("n") or request.referrer or None
@@ -48,16 +45,34 @@ def init(app):
     @app.route("/bot_login")
     def bot_login():
         callback_url = (
-            app.bot_config["webtwitchapi"]["redirect_uri"]
-            if "redirect_uri" in app.bot_config["webtwitchapi"]
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
             else url_for("authorized", _external=True)
         )
         state = request.args.get("n") or request.referrer or None
         return twitch.authorize(
             callback=callback_url,
             state=state,
-            scope="user_read user:edit user:read:email channel:moderate chat:edit chat:read whispers:read whispers:edit",
+            scope=(
+                "user_read user:edit user:read:email channel:moderate chat:edit "
+                + "chat:read whispers:read whispers:edit channel_editor"
+            ),
             force_verify="true",
+        )
+
+    streamer_scopes = ["user_read", "channel:read:subscriptions"]
+    """Request these scopes on /streamer_login"""
+
+    @app.route("/streamer_login")
+    def streamer_login():
+        callback_url = (
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
+            else url_for("authorized", _external=True)
+        )
+        state = request.args.get("n") or request.referrer or None
+        return twitch.authorize(
+            callback=callback_url, state=state, scope=" ".join(streamer_scopes), force_verify="true"
         )
 
     @app.route("/login/error")
@@ -92,7 +107,7 @@ def init(app):
             next_url = get_next_url(request, "state")
             return redirect(next_url)
         session["twitch_token"] = (resp["access_token"],)
-        me = twitch.get("user")
+        me = twitch.get("user", headers={"Accept": "application/vnd.twitchtv.v5+json"})
         level = 100
         with DBManager.create_session_scope() as db_session:
             db_user = db_session.query(User).filter_by(username=me.data["name"].lower()).one_or_none()
@@ -102,7 +117,24 @@ def init(app):
 
         if me.data["name"].lower() == app.bot_config["main"]["nickname"].lower():
             redis = RedisManager.get()
-            redis.set("{}:token".format(app.bot_config["main"]["nickname"]), json.dumps(resp))
+            bot_id = me.data["_id"]
+            token_json = UserAccessToken.from_api_response(resp).jsonify()
+            redis.set("authentication:user-access-token:{}".format(bot_id), json.dumps(token_json))
+            log.info("Successfully updated bot token in redis")
+
+        # streamer login
+        if me.data["name"].lower() == app.bot_config["main"]["streamer"].lower():
+            # there's a good chance the streamer will later log in using the normal login button.
+            # we only update their access token if the returned scope containes the special scopes requested
+            # in /streamer_login
+            if set(resp["scope"]) != set(streamer_scopes):
+                log.info("Streamer logged in but not all scopes present, will not update streamer token")
+            else:
+                redis = RedisManager.get()
+                streamer_id = me.data["_id"]
+                token_json = UserAccessToken.from_api_response(resp).jsonify()
+                redis.set("authentication:user-access-token:{}".format(streamer_id), json.dumps(token_json))
+                log.info("Successfully updated streamer token in redis")
 
         next_url = get_next_url(request, "state")
         return redirect(next_url)

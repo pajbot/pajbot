@@ -1,4 +1,3 @@
-import json
 import logging
 
 import random
@@ -15,7 +14,6 @@ log = logging.getLogger(__name__)
 class GenericChannelEmoteManager:
     # to be implemented
     api = None
-    redis_name = None
     friendly_name = None
 
     def __init__(self):
@@ -27,15 +25,6 @@ class GenericChannelEmoteManager:
 
         self.load_global_emotes()
         self.load_channel_emotes()
-
-    @property
-    def channel_emote_redis_key(self):
-        streamer = StreamHelper.get_streamer()
-        return "{}:emotes:{}_channel_emotes".format(streamer, self.redis_name)
-
-    @property
-    def global_emote_redis_key(self):
-        return "global:emotes:{}_global_emotes".format(self.redis_name)
 
     @property
     def global_emotes(self):
@@ -55,53 +44,21 @@ class GenericChannelEmoteManager:
         self._channel_emotes = value
         self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
-    @staticmethod
-    def load_cached_emotes(redis_key):
-        try:
-            redis = RedisManager.get()
-            redis_result = redis.get(redis_key)
-            if redis_result is None:
-                return None
-            return [Emote(**args) for args in json.loads(redis_result)]
-        except:
-            log.exception("Failed to get emotes from key {} from redis".format(redis_key))
-            return []
-
-    @staticmethod
-    def save_cached_emotes(redis_key, emotes):
-        try:
-            redis = RedisManager.get()
-            # emotes expire after 1 hour
-            redis.setex(redis_key, 60 * 60, json.dumps([emote.jsonify() for emote in emotes]))
-        except:
-            log.exception("Error saving emotes to redis key {}".format(redis_key))
-
     def load_global_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.global_emotes = self.load_cached_emotes(self.global_emote_redis_key)
-
-        # no channel emotes in cache? load from API and save to cache.
-        if self.global_emotes is None:
-            self.update_global_emotes()
+        self.global_emotes = self.api.get_global_emotes()
 
     def update_global_emotes(self):
-        self.global_emotes = self.api.get_global_emotes()
-        self.save_cached_emotes(self.global_emote_redis_key, self.global_emotes)
-        log.info("Successfully updated {} global emotes".format(self.friendly_name))
+        self.global_emotes = self.api.get_global_emotes(force_fetch=True)
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.load_cached_emotes(self.channel_emote_redis_key)
-
-        # no channel emotes in cache? load from API and save to cache.
-        if self.channel_emotes is None:
-            self.update_channel_emotes()
+        streamer = StreamHelper.get_streamer()
+        self.channel_emotes = self.api.get_channel_emotes(streamer)
 
     def update_channel_emotes(self):
         streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer)
-        self.save_cached_emotes(self.channel_emote_redis_key, self.channel_emotes)
-        log.info("Successfully updated {} channel emotes".format(self.friendly_name))
+        self.channel_emotes = self.api.get_channel_emotes(streamer, force_fetch=True)
 
     def update_all(self):
         self.update_global_emotes()
@@ -119,13 +76,11 @@ class GenericChannelEmoteManager:
 
 
 class TwitchEmoteManager(GenericChannelEmoteManager):
-    redis_name = "twitch"
     friendly_name = "Twitch"
 
-    def __init__(self, client_id):
-        from pajbot.apiwrappers import TwitchAPI
-
-        self.api = TwitchAPI(client_id)
+    def __init__(self, twitch_v5_api, twitch_legacy_api):
+        self.api = twitch_v5_api
+        self.legacy_api = twitch_legacy_api
 
         self.tier_one_emotes = []
         self.tier_two_emotes = []
@@ -137,74 +92,42 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def channel_emotes(self):
         return self.tier_one_emotes
 
+    def load_channel_emotes(self):
+        streamer = StreamHelper.get_streamer()
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.legacy_api.get_channel_emotes(
+            streamer
+        )
+
     def update_channel_emotes(self):
         streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(streamer)
-        self.save_cached_subemotes(
-            self.channel_emote_redis_key, self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.legacy_api.get_channel_emotes(
+            streamer, force_fetch=True
         )
-        log.info("Successfully updated {} channel emotes".format(self.friendly_name))
-
-    def load_channel_emotes(self):
-        """Load channel emotes from the cache if available, or else, query the API."""
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.load_cached_subemotes(
-            self.channel_emote_redis_key
-        )
-
-        # no channel emotes in cache? load from API and save to cache.
-        if self.tier_one_emotes is None or self.tier_two_emotes is None or self.tier_three_emotes is None:
-            self.update_channel_emotes()
-
-    @staticmethod
-    def load_cached_subemotes(redis_key):
-        try:
-            redis = RedisManager.get()
-            redis_result = redis.get(redis_key)
-            if redis_result is None:
-                return None, None, None
-            obj = {key: [Emote(**args) for args in value] for key, value in json.loads(redis_result).items()}
-            return obj["1"], obj["2"], obj["3"]
-        except:
-            log.exception("Failed to get subemotes from key {} from redis".format(redis_key))
-            return [], [], []
-
-    @staticmethod
-    def save_cached_subemotes(redis_key, tier_one, tier_two, tier_three):
-        try:
-            redis = RedisManager.get()
-            # emotes expire after 1 hour
-            dict = {"1": tier_one, "2": tier_two, "3": tier_three}
-            dict = {key: [emote.jsonify() for emote in emotes] for key, emotes in dict.items()}
-            redis.setex(redis_key, 60 * 60, json.dumps(dict))
-        except:
-            log.exception("Error saving subemotes to redis key {}".format(redis_key))
 
 
 class FFZEmoteManager(GenericChannelEmoteManager):
-    redis_name = "ffz"
     friendly_name = "FFZ"
 
     def __init__(self):
-        from pajbot.apiwrappers import FFZApi
+        from pajbot.apiwrappers.ffz import FFZAPI
 
-        self.api = FFZApi()
+        self.api = FFZAPI(RedisManager.get())
         super().__init__()
 
 
 class BTTVEmoteManager(GenericChannelEmoteManager):
-    redis_name = "bttv"
     friendly_name = "BTTV"
 
     def __init__(self):
-        from pajbot.apiwrappers import BTTVApi
+        from pajbot.apiwrappers.bttv import BTTVAPI
 
-        self.api = BTTVApi()
+        self.api = BTTVAPI(RedisManager.get())
         super().__init__()
 
 
 class EmoteManager:
-    def __init__(self, twitch_client_id):
-        self.twitch_emote_manager = TwitchEmoteManager(twitch_client_id)
+    def __init__(self, twitch_v5_api, twitch_legacy_api):
+        self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api, twitch_legacy_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
 

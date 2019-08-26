@@ -14,11 +14,17 @@ import requests
 from numpy import random
 from pytz import timezone
 
+import pajbot.db_migration
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
-from pajbot.apiwrappers import TwitchAPI
-from pajbot.managers.bottoken import BotToken
+from pajbot.apiwrappers.authentication.access_token import UserAccessToken
+from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
+from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+from pajbot.apiwrappers.twitch.id import TwitchIDAPI
+from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
+from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -54,7 +60,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = "1.35"
+    version = pajbot.constants.VERSION
     date_fmt = "%H:%M"
     admin = None
     url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
@@ -73,23 +79,9 @@ class Bot:
 
         return parser.parse_args()
 
-    bot_token = None
-
     @property
     def password(self):
-        if "password" in self.config["main"]:
-            log.warning(
-                "DEPRECATED - Using bot password/oauth token from file. "
-                "You should authenticate in web gui using route /bot_login "
-                "and remove password from config file"
-            )
-            return self.config["main"]["password"]
-
-        if self.bot_token is None:
-            self.bot_token = BotToken(self.config)
-
-        t = self.bot_token.access_token()
-        return "oauth:{}".format(t)
+        return "oauth:{}".format(self.bot_token_manager.token.access_token)
 
     def load_config(self, config):
         self.config = config
@@ -162,10 +154,31 @@ class Bot:
         # StreamManager accesses the DB)
         StreamHelper.init_streamer(self.streamer)
 
+        # do this earlier since alembic upgrade can depend on the helix api
+        self.api_client_credentials = ClientCredentials(
+            self.config["twitchapi"]["client_id"],
+            self.config["twitchapi"]["client_secret"],
+            self.config["twitchapi"]["redirect_uri"],
+        )
+
+        self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
+        self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
+        self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
+        self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
+        self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
+
+        self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
+        if self.bot_user_id is None:
+            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+
+        self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
+        if self.bot_user_id is None:
+            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+
         # Update the database (and partially redis) scheme if necessary using alembic
         # In case of errors, i.e. if the database is out of sync or the alembic
         # binary can't be called, we will shut down the bot.
-        pajbot.utils.alembic_upgrade()
+        pajbot.db_migration.run_alembic_upgrade(self)
         log.debug("ran db upgrade")
 
         # Actions in this queue are run in a separate thread.
@@ -191,18 +204,31 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
 
-        twitch_client_id = None
-        twitch_oauth = None
-        if "twitchapi" in self.config:
-            twitch_client_id = self.config["twitchapi"].get("client_id", None)
-            twitch_oauth = self.config["twitchapi"].get("oauth", None)
+        if "password" in self.config["main"]:
+            log.warning(
+                "DEPRECATED - Using bot password/oauth token from file. "
+                "You should authenticate in web gui using route /bot_login "
+                "and remove password from config file"
+            )
 
-        # A client ID is required for the bot to work properly now, give an error for now
-        if twitch_client_id is None:
-            log.error('MISSING CLIENT ID, SET "client_id" VALUE UNDER [twitchapi] SECTION IN CONFIG FILE')
+            access_token = self.config["main"]["password"]
 
-        self.twitchapi = TwitchAPI(twitch_client_id, twitch_oauth)
-        self.emote_manager = EmoteManager(twitch_client_id)
+            if access_token.startswith("oauth:"):
+                access_token = access_token[6:]
+
+            self.bot_token_manager = UserAccessTokenManager(
+                api=None,
+                redis=None,
+                username=self.nickname,
+                user_id=self.bot_user_id,
+                token=UserAccessToken.from_implicit_auth_flow_token(access_token),
+            )
+        else:
+            self.bot_token_manager = UserAccessTokenManager(
+                api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
+            )
+
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
@@ -265,67 +291,8 @@ class Bot:
 
         self.websocket_manager = WebSocketManager(self)
 
-        try:
-            if self.config["twitchapi"]["update_subscribers"] == "1":
-                self.execute_every(30 * 60, self.action_queue.add, (self.update_subscribers_stage1,))
-        except:
-            pass
-
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
-
-    def update_subscribers_stage1(self):
-        limit = 25
-        offset = 0
-        subscribers = []
-        log.info("Starting stage1 subscribers update")
-
-        try:
-            retry_same = 0
-            while True:
-                log.debug("Beginning sub request limit=%s offset=%s", limit, offset)
-                subs, retry_same, error = self.twitchapi.get_subscribers(
-                    self.streamer, 0, offset, 0 if retry_same is False else retry_same
-                )
-                log.debug("got em!")
-
-                if error is True:
-                    log.error("Too many attempts, aborting")
-                    return False
-
-                if retry_same is False:
-                    offset += limit
-                    if not subs:
-                        # We don't need to retry, and the last query finished propery
-                        # Break out of the loop and start fiddling with the subs!
-                        log.debug("Done!")
-                        break
-
-                    log.debug("Fetched %d subs", len(subs))
-                    subscribers.extend(subs)
-
-                if retry_same is not False:
-                    # In case the next attempt is a retry, wait for 3 seconds
-                    log.debug("waiting for 3 seconds...")
-                    time.sleep(3)
-                    log.debug("waited enough!")
-            log.debug("Finished with the while True loop!")
-        except:
-            log.exception("Caught an exception while trying to get subscribers")
-            return None
-
-        log.info("Ended stage1 subscribers update")
-        if subscribers:
-            log.info("Got some subscribers, so we are pushing them to stage 2!")
-            self.execute_now(lambda: self.update_subscribers_stage2(subscribers))
-            log.info("Pushed them now.")
-
-    def update_subscribers_stage2(self, subscribers):
-        self.kvi["active_subs"].set(len(subscribers) - 1)
-
-        self.users.reset_subs()
-
-        self.users.update_subs(subscribers)
 
     def start(self):
         """Start the IRC client."""
