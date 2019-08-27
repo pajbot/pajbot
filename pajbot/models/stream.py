@@ -1,14 +1,11 @@
 import json
 import logging
 
-from sqlalchemy import Boolean
+from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.dialects.mysql import BIGINT
 from sqlalchemy.orm import relationship
+from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
 from pajbot.apiwrappers.base import BaseAPI
@@ -22,13 +19,13 @@ log = logging.getLogger("pajbot")
 
 
 class Stream(Base):
-    __tablename__ = "tb_stream"
+    __tablename__ = "stream"
 
-    id = Column(Integer, primary_key=True)
-    title = Column(String(256), nullable=False)
-    stream_start = Column(DateTime, nullable=False)
-    stream_end = Column(DateTime, nullable=True)
-    ended = Column(Boolean, nullable=False, default=False)
+    id = Column(INT, primary_key=True)
+    title = Column(TEXT, nullable=False)
+    stream_start = Column(UtcDateTime(), nullable=False)
+    stream_end = Column(UtcDateTime(), nullable=True)
+    ended = Column(BOOLEAN, nullable=False, default=False)
 
     stream_chunks = relationship("StreamChunk", backref="stream", cascade="save-update, merge, expunge", lazy="joined")
 
@@ -52,15 +49,15 @@ class Stream(Base):
 
 
 class StreamChunk(Base):
-    __tablename__ = "tb_stream_chunk"
+    __tablename__ = "stream_chunk"
 
-    id = Column(Integer, primary_key=True)
-    stream_id = Column(Integer, ForeignKey("tb_stream.id"), nullable=False)
-    broadcast_id = Column(BIGINT(unsigned=True), nullable=False)
-    video_url = Column(String(128), nullable=True)
-    video_preview_image_url = Column(String(256), nullable=True)
-    chunk_start = Column(DateTime, nullable=False)
-    chunk_end = Column(DateTime, nullable=True)
+    id = Column(INT, primary_key=True)
+    stream_id = Column(INT, ForeignKey("stream.id"), nullable=False)
+    broadcast_id = Column(BIGINT, nullable=False)
+    video_url = Column(TEXT, nullable=True)
+    video_preview_image_url = Column(TEXT, nullable=True)
+    chunk_start = Column(UtcDateTime(), nullable=False)
+    chunk_end = Column(UtcDateTime(), nullable=True)
 
     def __init__(self, stream, broadcast_id, created_at, **options):
         self.id = None

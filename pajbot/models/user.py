@@ -4,10 +4,8 @@ import logging
 from contextlib import contextmanager
 
 import requests
-from sqlalchemy import Boolean
+from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
 
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
@@ -26,16 +24,16 @@ class Config:
 
 
 class User(Base):
-    __tablename__ = "tb_user"
+    __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(32), nullable=False, index=True, unique=True)
-    username_raw = Column(String(32))
-    level = Column(Integer, nullable=False, default=100)
-    points = Column(Integer, nullable=False, default=0, index=True)
-    subscriber = Column(Boolean, nullable=False, default=False)
-    minutes_in_chat_online = Column(Integer, nullable=False, default=0)
-    minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
+    id = Column(INT, primary_key=True)
+    username = Column(TEXT, nullable=False, index=True, unique=True)
+    username_raw = Column(TEXT)
+    level = Column(INT, nullable=False, default=100)
+    points = Column(INT, nullable=False, default=0, index=True)
+    subscriber = Column(BOOLEAN, nullable=False, default=False)
+    minutes_in_chat_online = Column(INT, nullable=False, default=0)
+    minutes_in_chat_offline = Column(INT, nullable=False, default=0)
 
     def __init__(self, username):
         self.id = None

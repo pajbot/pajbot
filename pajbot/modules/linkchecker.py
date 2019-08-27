@@ -4,10 +4,7 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy import Column, INT, TEXT
 
 import pajbot.managers
 import pajbot.models
@@ -122,12 +119,12 @@ class LinkCheckerLink:
 
 
 class BlacklistedLink(Base, LinkCheckerLink):
-    __tablename__ = "tb_link_blacklist"
+    __tablename__ = "link_blacklist"
 
-    id = Column(Integer, primary_key=True)
-    domain = Column(String(256))
+    id = Column(INT, primary_key=True)
+    domain = Column(TEXT)
     path = Column(TEXT)
-    level = Column(Integer)
+    level = Column(INT)
 
     def __init__(self, domain, path, level):
         self.id = None
@@ -137,10 +134,10 @@ class BlacklistedLink(Base, LinkCheckerLink):
 
 
 class WhitelistedLink(LinkCheckerLink, Base):
-    __tablename__ = "tb_link_whitelist"
+    __tablename__ = "link_whitelist"
 
-    id = Column(Integer, primary_key=True)
-    domain = Column(String(256))
+    id = Column(INT, primary_key=True)
+    domain = Column(TEXT)
     path = Column(TEXT)
 
     def __init__(self, domain, path):

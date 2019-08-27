@@ -1,11 +1,9 @@
 import logging
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
+from sqlalchemy import Column, INT, TEXT
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
 from sqlalchemy.orm import relationship
+from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
 from pajbot.managers.db import Base
@@ -15,15 +13,15 @@ log = logging.getLogger("pajbot")
 
 
 class PleblistSong(Base):
-    __tablename__ = "tb_pleblist_song"
+    __tablename__ = "pleblist_song"
 
-    id = Column(Integer, primary_key=True)
-    stream_id = Column(Integer, ForeignKey("tb_stream.id"), index=True, nullable=False)
-    user_id = Column(Integer, nullable=True)
-    youtube_id = Column(String(64, collation="utf8mb4_bin"), index=True, nullable=False)
-    date_added = Column(DateTime, nullable=False)
-    date_played = Column(DateTime, nullable=True)
-    skip_after = Column(Integer, nullable=True)
+    id = Column(INT, primary_key=True)
+    stream_id = Column(INT, ForeignKey("stream.id"), index=True, nullable=False)
+    user_id = Column(INT, nullable=True)
+    youtube_id = Column(TEXT, index=True, nullable=False)
+    date_added = Column(UtcDateTime(), nullable=False)
+    date_played = Column(UtcDateTime(), nullable=True)
+    skip_after = Column(INT, nullable=True)
     song_info = relationship(
         "PleblistSongInfo",
         uselist=False,
@@ -60,12 +58,12 @@ class PleblistSong(Base):
 
 
 class PleblistSongInfo(Base):
-    __tablename__ = "tb_pleblist_song_info"
+    __tablename__ = "pleblist_song_info"
 
-    pleblist_song_youtube_id = Column(String(64, collation="utf8mb4_bin"), primary_key=True, autoincrement=False)
-    title = Column(String(128), nullable=False)
-    duration = Column(Integer, nullable=False)
-    default_thumbnail = Column(String(256), nullable=False)
+    pleblist_song_youtube_id = Column(TEXT, primary_key=True, autoincrement=False)
+    title = Column(TEXT, nullable=False)
+    duration = Column(INT, nullable=False)
+    default_thumbnail = Column(TEXT, nullable=False)
 
     def __init__(self, youtube_id, title, duration, default_thumbnail):
         self.pleblist_song_youtube_id = youtube_id

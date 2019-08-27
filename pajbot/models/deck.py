@@ -1,9 +1,8 @@
 import logging
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Column, INT, TEXT
+
+from sqlalchemy_utc import UtcDateTime
 
 from pajbot.managers.db import Base
 from pajbot.utils import time_ago
@@ -12,15 +11,15 @@ log = logging.getLogger(__name__)
 
 
 class Deck(Base):
-    __tablename__ = "tb_deck"
+    __tablename__ = "deck"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(128))
-    deck_class = Column("class", String(128))
-    link = Column(String(256), nullable=False)
-    first_used = Column(DateTime, nullable=False)
-    last_used = Column(DateTime, nullable=False)
-    times_used = Column(Integer, nullable=False, default=1)
+    id = Column(INT, primary_key=True)
+    name = Column(TEXT)
+    deck_class = Column("class", TEXT)
+    link = Column(TEXT, nullable=False)
+    first_used = Column(UtcDateTime(), nullable=False)
+    last_used = Column(UtcDateTime(), nullable=False)
+    times_used = Column(INT, nullable=False, default=1)
 
     def __init__(self):
         self.id = None
