@@ -75,14 +75,14 @@ python3 -m pip install -r requirements.txt
 sudo adduser --system --group pajbot
 
 #
-# install redis and mysql for pajbot1
+# install redis and postgresql for pajbot1
 #
-sudo apt install mariadb-server redis-server
-sudo mysql
-# > CREATE DATABASE pajbot_kkonatestbroadcaster CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-# this line only needs to be done once (for the first pajbot install):
-# > CREATE USER pajbot@localhost IDENTIFIED VIA unix_socket;
-# > GRANT ALL PRIVILEGES ON pajbot_kkonatestbroadcaster.* TO pajbot@localhost;
+sudo apt install postgresql redis-server
+sudo -u postgres psql
+# > CREATE USER pajbot;
+# > CREATE DATABASE pajbot OWNER pajbot;
+# > \c pajbot
+# > CREATE SCHEMA pajbot1_kkonatestbroadcaster;
 
 #
 # create your domain
