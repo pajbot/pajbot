@@ -100,7 +100,7 @@ jobs:
           python_version: "3.7"
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --target-version py35 --check --diff pajbot alembic scripts
+          command: ./venv/bin/black --target-version py35 --check --diff pajbot scripts
   check-format-37:
     executor: pajbot-37
     steps:
@@ -108,7 +108,7 @@ jobs:
           python_version: "3.7"
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --target-version py37 --check --diff pajbot alembic scripts
+          command: ./venv/bin/black --target-version py37 --check --diff pajbot scripts
 
 # add one workflow that runs all jobs in parallel
 workflows:

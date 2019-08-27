@@ -156,7 +156,7 @@ class Bot:
         # StreamManager accesses the DB)
         StreamHelper.init_streamer(self.streamer)
 
-        # do this earlier since alembic upgrade can depend on the helix api
+        # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
             self.config["twitchapi"]["client_id"],
             self.config["twitchapi"]["client_secret"],
