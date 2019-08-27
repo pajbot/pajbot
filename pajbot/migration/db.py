@@ -10,7 +10,7 @@ class DatabaseMigratable:
         with self.conn.cursor() as cursor:
             # begins a transaction automatically
 
-            cursor.execute("CREATE TABLE IF NOT EXISTS schema_version(revision_id INTEGER)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS schema_version(revision_id INT NOT NULL)")
 
             yield cursor
 
