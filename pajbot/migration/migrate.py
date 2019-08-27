@@ -10,8 +10,9 @@ MODULE_NAME_REGEX = re.compile("^(\d*)(?:\D(.+))?$")
 
 log = logging.getLogger("pajbot")
 
+
 class Migration:
-    def __init__(self, migratable, revisions_package, context = None):
+    def __init__(self, migratable, revisions_package, context=None):
         self.migratable = migratable
         self.revisions_package = revisions_package
         self.context = context
