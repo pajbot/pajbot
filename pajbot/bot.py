@@ -14,7 +14,7 @@ import requests
 from numpy import random
 from pytz import timezone
 
-import pajbot.db_migration
+import pajbot.migration_revisions.db
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
@@ -38,6 +38,8 @@ from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
 from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
+from pajbot.migration.db import DatabaseMigratable
+from pajbot.migration.migrate import Migration
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
@@ -175,11 +177,10 @@ class Bot:
         if self.bot_user_id is None:
             raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
 
-        # Update the database (and partially redis) scheme if necessary using alembic
-        # In case of errors, i.e. if the database is out of sync or the alembic
-        # binary can't be called, we will shut down the bot.
-        pajbot.db_migration.run_alembic_upgrade(self)
-        log.debug("ran db upgrade")
+        sql_conn = DBManager.engine.connect().connection
+        sql_migratable = DatabaseMigratable(sql_conn)
+        sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
+        sql_migration.run()
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
@@ -228,7 +229,7 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
