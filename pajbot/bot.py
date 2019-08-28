@@ -68,7 +68,6 @@ class Bot:
     """
 
     version = pajbot.constants.VERSION
-    date_fmt = "%H:%M"
 
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
@@ -379,7 +378,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.datetime.now(tz).strftime(self.date_fmt)
+            return datetime.datetime.now(tz).strftime("%H:%M")
         except:
             log.exception("Unhandled exception in get_time_value")
 
