@@ -14,6 +14,7 @@ from numpy import random
 from pytz import timezone
 
 import pajbot.migration_revisions.db
+import pajbot.models
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
@@ -77,7 +78,54 @@ class Bot:
 
         self.admin = None
 
-        self.load_config(config)
+        self.config = config
+
+        DBManager.init(self.config["main"]["db"])
+
+        redis_options = {}
+
+        if "redis" in config:
+            redis_options = dict(config.items("redis"))
+
+        RedisManager.init(**redis_options)
+
+        try:
+            RedisManager.get().ping()
+        except redis.exceptions.BusyLoadingError:
+            log.warning("Redis not done loading, waiting 2 seconds then exiting")
+            time.sleep(2)
+            sys.exit(0)
+
+        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
+        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
+
+        self.domain = config["web"].get("domain", "localhost")
+        self.nickname = config["main"].get("nickname", "pajbot")
+        self.timezone = config["main"].get("timezone", "UTC")
+
+        if config["main"].getboolean("verified", False):
+            TMI.promote_to_verified()
+        self.trusted_mods = config.getboolean("main", "trusted_mods")
+        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
+        if "phrases" in config:
+            phrases = config["phrases"]
+            if "welcome" in phrases:
+                self.phrases["welcome"] = phrases["welcome"].splitlines()
+            if "quit" in phrases:
+                self.phrases["quit"] = phrases["quit"].splitlines()
+        TimeManager.init_timezone(self.timezone)
+        if "streamer" in config["main"]:
+            self.streamer = config["main"]["streamer"]
+            self.channel = "#" + self.streamer
+        elif "target" in config["main"]:
+            self.channel = config["main"]["target"]
+            self.streamer = self.channel[1:]
+        StreamHelper.init_streamer(self.streamer)
+        self.silent = False
+        self.dev = False
+        if "flags" in config:
+            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
+            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
         log.debug("Loaded config")
 
         # streamer is additionally initialized here so streamer can be accessed by the DB migrations
@@ -239,65 +287,6 @@ class Bot:
     @property
     def password(self):
         return "oauth:{}".format(self.bot_token_manager.token.access_token)
-
-    def load_config(self, config):
-        self.config = config
-
-        DBManager.init(self.config["main"]["db"])
-
-        redis_options = {}
-        if "redis" in config:
-            redis_options = dict(config.items("redis"))
-
-        RedisManager.init(**redis_options)
-
-        try:
-            RedisManager.get().ping()
-        except redis.exceptions.BusyLoadingError:
-            log.warning("Redis not done loading, waiting 2 seconds then exiting")
-            time.sleep(2)
-            sys.exit(0)
-
-        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
-        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
-
-        self.domain = config["web"].get("domain", "localhost")
-
-        self.nickname = config["main"].get("nickname", "pajbot")
-
-        self.timezone = config["main"].get("timezone", "UTC")
-
-        if config["main"].getboolean("verified", False):
-            TMI.promote_to_verified()
-
-        self.trusted_mods = config.getboolean("main", "trusted_mods")
-
-        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
-
-        if "phrases" in config:
-            phrases = config["phrases"]
-            if "welcome" in phrases:
-                self.phrases["welcome"] = phrases["welcome"].splitlines()
-            if "quit" in phrases:
-                self.phrases["quit"] = phrases["quit"].splitlines()
-
-        TimeManager.init_timezone(self.timezone)
-
-        if "streamer" in config["main"]:
-            self.streamer = config["main"]["streamer"]
-            self.channel = "#" + self.streamer
-        elif "target" in config["main"]:
-            self.channel = config["main"]["target"]
-            self.streamer = self.channel[1:]
-
-        StreamHelper.init_streamer(self.streamer)
-
-        self.silent = False
-        self.dev = False
-
-        if "flags" in config:
-            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
-            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
