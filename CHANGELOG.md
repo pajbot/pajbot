@@ -4,7 +4,7 @@
 
 - Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
   delete the old `[twitchapi]` config file entry. See
-  [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian9/kkonatestbroadcaster.ini#L62)
+  [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian10/kkonatestbroadcaster.ini#L62)
   for example values.
 - Breaking: a `redirect_uri` is now always required under `[twitchapi]` in your
   `config.ini`.
