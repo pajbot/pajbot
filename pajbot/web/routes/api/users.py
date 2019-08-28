@@ -1,8 +1,6 @@
 from flask_restful import Resource
 
-from pajbot.managers.redis import RedisManager
 from pajbot.managers.user import UserManager
-from pajbot.streamhelper import StreamHelper
 
 
 class APIUser(Resource):
