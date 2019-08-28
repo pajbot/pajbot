@@ -38,16 +38,16 @@ class UserManager:
         return user
 
     @contextmanager
-    def get_user_context(self, username):
+    def get_user_context(self, username, db_session=None, user_model=None, redis=None):
+        user = None
         try:
-            user = UserCombined(username)
-            user.load(**self.data.get(username, {}))
-
+            user = self.get_user(username, db_session, user_model, redis)
             yield user
         except:
             log.exception("Uncaught exception in UserManager::get_user({})".format(username))
         finally:
-            self.save(user)
+            if user is not None:
+                self.save(user)
 
     def __getitem__(self, username):
         return self.get_user(username)
