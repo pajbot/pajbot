@@ -54,13 +54,14 @@ class UserManager:
 
     @contextmanager
     def find_context(self, username, db_session=None):
+        user = None
         try:
             user = self.find(username, db_session=db_session)
             yield user
         except:
             log.exception("Uncaught exception in UserManager::find_context({})".format(username))
         finally:
-            if user:
+            if user is not None:
                 self.save(user)
 
     @staticmethod
