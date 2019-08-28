@@ -56,6 +56,11 @@ from pajbot.utils import time_since
 
 log = logging.getLogger(__name__)
 
+URL_REGEX = re.compile(
+    r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?",
+    re.IGNORECASE,
+)
+
 
 class Bot:
     """
@@ -65,7 +70,6 @@ class Bot:
     version = pajbot.constants.VERSION
     date_fmt = "%H:%M"
     admin = None
-    url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
 
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
@@ -199,7 +203,6 @@ class Bot:
 
         self.data = {}
         self.data_cb = {}
-        self.url_regex = re.compile(self.url_regex_str, re.IGNORECASE)
 
         self.data["broadcaster"] = self.streamer
         self.data["version"] = self.version
@@ -932,7 +935,7 @@ class Bot:
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
 
-        return find_unique_urls(self.url_regex, message)
+        return find_unique_urls(URL_REGEX, message)
 
 
 def _filter_time_since_dt(var, args):
