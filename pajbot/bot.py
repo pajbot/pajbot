@@ -1,4 +1,3 @@
-import argparse
 import cgi
 import datetime
 import logging
@@ -69,16 +68,14 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def __init__(self, config, args=None):
-        # Load various configuration variables from the given config object
-        # The config object that should be passed through should
-        # come from pajbot.utils.load_config
+    def __init__(self, config, args):
+        self.config = config
+
         self.last_ping = pajbot.utils.now()
         self.last_pong = pajbot.utils.now()
 
         self.admin = None
 
-        self.config = config
 
         DBManager.init(self.config["main"]["db"])
 
@@ -272,17 +269,6 @@ class Bot:
             log.info("Silent mode enabled")
 
         self.websocket_manager = WebSocketManager(self)
-
-    @staticmethod
-    def parse_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
-        )
-        parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
-        # TODO: Add a log level argument.
-
-        return parser.parse_args()
 
     @property
     def password(self):
