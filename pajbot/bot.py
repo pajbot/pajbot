@@ -70,80 +70,6 @@ class Bot:
     last_ping = pajbot.utils.now()
     last_pong = pajbot.utils.now()
 
-    @staticmethod
-    def parse_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
-        )
-        parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
-        # TODO: Add a log level argument.
-
-        return parser.parse_args()
-
-    @property
-    def password(self):
-        return "oauth:{}".format(self.bot_token_manager.token.access_token)
-
-    def load_config(self, config):
-        self.config = config
-
-        DBManager.init(self.config["main"]["db"])
-
-        redis_options = {}
-        if "redis" in config:
-            redis_options = dict(config.items("redis"))
-
-        RedisManager.init(**redis_options)
-
-        try:
-            RedisManager.get().ping()
-        except redis.exceptions.BusyLoadingError:
-            log.warning("Redis not done loading, waiting 2 seconds then exiting")
-            time.sleep(2)
-            sys.exit(0)
-
-        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
-        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
-
-        self.domain = config["web"].get("domain", "localhost")
-
-        self.nickname = config["main"].get("nickname", "pajbot")
-
-        self.timezone = config["main"].get("timezone", "UTC")
-
-        if config["main"].getboolean("verified", False):
-            TMI.promote_to_verified()
-
-        self.trusted_mods = config.getboolean("main", "trusted_mods")
-
-        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
-
-        if "phrases" in config:
-            phrases = config["phrases"]
-            if "welcome" in phrases:
-                self.phrases["welcome"] = phrases["welcome"].splitlines()
-            if "quit" in phrases:
-                self.phrases["quit"] = phrases["quit"].splitlines()
-
-        TimeManager.init_timezone(self.timezone)
-
-        if "streamer" in config["main"]:
-            self.streamer = config["main"]["streamer"]
-            self.channel = "#" + self.streamer
-        elif "target" in config["main"]:
-            self.channel = config["main"]["target"]
-            self.streamer = self.channel[1:]
-
-        StreamHelper.init_streamer(self.streamer)
-
-        self.silent = False
-        self.dev = False
-
-        if "flags" in config:
-            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
-            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
-
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
         # The config object that should be passed through should
@@ -291,6 +217,80 @@ class Bot:
             log.info("Silent mode enabled")
 
         self.websocket_manager = WebSocketManager(self)
+
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
+        )
+        parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
+        # TODO: Add a log level argument.
+
+        return parser.parse_args()
+
+    @property
+    def password(self):
+        return "oauth:{}".format(self.bot_token_manager.token.access_token)
+
+    def load_config(self, config):
+        self.config = config
+
+        DBManager.init(self.config["main"]["db"])
+
+        redis_options = {}
+        if "redis" in config:
+            redis_options = dict(config.items("redis"))
+
+        RedisManager.init(**redis_options)
+
+        try:
+            RedisManager.get().ping()
+        except redis.exceptions.BusyLoadingError:
+            log.warning("Redis not done loading, waiting 2 seconds then exiting")
+            time.sleep(2)
+            sys.exit(0)
+
+        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
+        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
+
+        self.domain = config["web"].get("domain", "localhost")
+
+        self.nickname = config["main"].get("nickname", "pajbot")
+
+        self.timezone = config["main"].get("timezone", "UTC")
+
+        if config["main"].getboolean("verified", False):
+            TMI.promote_to_verified()
+
+        self.trusted_mods = config.getboolean("main", "trusted_mods")
+
+        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
+
+        if "phrases" in config:
+            phrases = config["phrases"]
+            if "welcome" in phrases:
+                self.phrases["welcome"] = phrases["welcome"].splitlines()
+            if "quit" in phrases:
+                self.phrases["quit"] = phrases["quit"].splitlines()
+
+        TimeManager.init_timezone(self.timezone)
+
+        if "streamer" in config["main"]:
+            self.streamer = config["main"]["streamer"]
+            self.channel = "#" + self.streamer
+        elif "target" in config["main"]:
+            self.channel = config["main"]["target"]
+            self.streamer = self.channel[1:]
+
+        StreamHelper.init_streamer(self.streamer)
+
+        self.silent = False
+        self.dev = False
+
+        if "flags" in config:
+            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
+            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
