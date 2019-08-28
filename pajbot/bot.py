@@ -67,13 +67,13 @@ class Bot:
     admin = None
     url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
 
-    last_ping = pajbot.utils.now()
-    last_pong = pajbot.utils.now()
-
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
         # The config object that should be passed through should
         # come from pajbot.utils.load_config
+        self.last_ping = pajbot.utils.now()
+        self.last_pong = pajbot.utils.now()
+
         self.load_config(config)
         log.debug("Loaded config")
 
