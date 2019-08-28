@@ -3,7 +3,6 @@ import cgi
 import datetime
 import logging
 import re
-import subprocess
 import sys
 import time
 import urllib
@@ -17,7 +16,6 @@ from pytz import timezone
 import pajbot.migration_revisions.db
 import pajbot.models.user
 import pajbot.utils
-import pajbot.constants
 from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -26,6 +24,7 @@ from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
+from pajbot.constants import VERSION
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -54,6 +53,7 @@ from pajbot.utils import clean_up_message
 from pajbot.utils import time_ago
 from pajbot.utils import time_method
 from pajbot.utils import time_since
+from pajbot.utils.extend_version_with_git_data import extend_version_if_possible
 
 log = logging.getLogger(__name__)
 
@@ -67,8 +67,6 @@ class Bot:
     """
     Main class for the twitch bot
     """
-
-    version = pajbot.constants.VERSION
 
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
@@ -189,7 +187,10 @@ class Bot:
             with self.users.get_user_context(self.admin) as user:
                 user.level = 2000
 
-        self.parse_version()
+        if self.dev:
+            self.version_long = extend_version_if_possible(VERSION)
+        else:
+            self.version_long = VERSION
 
         self.irc = IRCManager(self)
 
@@ -202,18 +203,20 @@ class Bot:
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
 
-        self.data = {}
-        self.data_cb = {}
+        self.data = {
+            "broadcaster": self.streamer,
+            "version": self.version_long,
+            "version_brief": VERSION,
+            "bot_name": self.nickname,
+        }
 
-        self.data["broadcaster"] = self.streamer
-        self.data["version"] = self.version
-        self.data["version_brief"] = self.version_brief
-        self.data["bot_name"] = self.nickname
-        self.data_cb["status_length"] = self.c_status_length
-        self.data_cb["stream_status"] = self.c_stream_status
-        self.data_cb["bot_uptime"] = self.c_uptime
-        self.data_cb["current_time"] = self.c_current_time
-        self.data_cb["molly_age_in_years"] = self.c_molly_age_in_years
+        self.data_cb = {
+            "status_length": self.c_status_length,
+            "stream_status": self.c_stream_status,
+            "bot_uptime": self.c_uptime,
+            "current_time": self.c_current_time,
+            "molly_age_in_years": self.c_molly_age_in_years,
+        }
 
         self.silent = True if args.silent else self.silent
 
@@ -660,23 +663,6 @@ class Bot:
 
     def me(self, message, channel=None):
         self.say(".me " + message[:500], channel=channel)
-
-    def parse_version(self):
-        self.version = self.version
-        self.version_brief = self.version
-
-        if self.dev:
-            try:
-                current_branch = (
-                    subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
-                )
-                latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
-                commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
-                self.version = "{0} DEV ({1}, {2}, commit {3})".format(
-                    self.version, current_branch, latest_commit, commit_number
-                )
-            except:
-                log.exception("hmm")
 
     def on_welcome(self, chatconn, event):
         return self.irc.on_welcome(chatconn, event)
