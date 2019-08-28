@@ -90,7 +90,6 @@ class Bot:
         pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
-        self.domain = config["web"].get("domain", "localhost")
         self.nickname = config["main"].get("nickname", "pajbot")
         self.timezone = config["main"].get("timezone", "UTC")
 
