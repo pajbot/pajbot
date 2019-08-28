@@ -12,14 +12,6 @@ class APIUser(Resource):
         if not user:
             return {"error": "Not found"}, 404
 
-        redis = RedisManager.get()
-        key = "{streamer}:users:num_lines".format(streamer=StreamHelper.get_streamer())
-        rank = redis.zrevrank(key, user.username)
-        if rank is None:
-            rank = redis.zcard(key)
-        else:
-            rank = rank + 1
-
         return user.jsonify()
 
 
