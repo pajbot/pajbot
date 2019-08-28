@@ -213,9 +213,6 @@ class Bot:
 
         HandlerManager.trigger("on_managers_loaded")
 
-        # Reloadable managers
-        self.reloadable = {}
-
         # Commitable managers
         self.commitable = {"commands": self.commands, "banphrases": self.banphrase_manager}
 
@@ -806,15 +803,6 @@ class Bot:
                 return False
 
             self.parse_message(event.arguments[0], source, event, tags=event.tags)
-
-    @time_method
-    def reload_all(self):
-        log.info("Reloading all...")
-        for key, manager in self.reloadable.items():
-            log.debug("Reloading %s", key)
-            manager.reload()
-            log.debug("Done with %s", key)
-        log.info("ok!")
 
     @time_method
     def commit_all(self):
