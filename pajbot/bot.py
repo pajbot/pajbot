@@ -11,6 +11,7 @@ import irc.client
 import requests
 from numpy import random
 from pytz import timezone
+from redis import BusyLoadingError
 
 import pajbot.migration_revisions.db
 import pajbot.models
@@ -54,6 +55,7 @@ from pajbot.utils import time_ago
 from pajbot.utils import time_method
 from pajbot.utils import time_since
 from pajbot.utils.extend_version_with_git_data import extend_version_if_possible
+from pajbot.utils.wait_for_redis_data_loaded import wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
 
@@ -77,20 +79,14 @@ class Bot:
 
         DBManager.init(self.config["main"]["db"])
 
+        # redis
         redis_options = {}
-
         if "redis" in config:
             redis_options = dict(config.items("redis"))
-
         RedisManager.init(**redis_options)
+        wait_for_redis_data_loaded(RedisManager.get())
 
-        try:
-            RedisManager.get().ping()
-        except redis.exceptions.BusyLoadingError:
-            log.warning("Redis not done loading, waiting 2 seconds then exiting")
-            time.sleep(2)
-            sys.exit(0)
-
+        # Pepega SE points sync
         pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
