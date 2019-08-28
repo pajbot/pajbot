@@ -75,11 +75,6 @@ class UserManager:
         Returns a user object if the user already existed, otherwise return None
         """
 
-        # from pajbot.utils import print_traceback
-        # print_traceback()
-
-        # log.debug('UserManager::find({})'.format(username))
-
         # Return None if the username is an empty string!
         if username == "":
             return None
