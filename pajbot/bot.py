@@ -69,7 +69,6 @@ class Bot:
 
     version = pajbot.constants.VERSION
     date_fmt = "%H:%M"
-    admin = None
 
     def __init__(self, config, args=None):
         # Load various configuration variables from the given config object
@@ -77,6 +76,8 @@ class Bot:
         # come from pajbot.utils.load_config
         self.last_ping = pajbot.utils.now()
         self.last_pong = pajbot.utils.now()
+
+        self.admin = None
 
         self.load_config(config)
         log.debug("Loaded config")
