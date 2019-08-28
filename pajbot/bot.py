@@ -95,7 +95,6 @@ class Bot:
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
-        self.trusted_mods = config.getboolean("main", "trusted_mods")
         self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
         if "phrases" in config:
             phrases = config["phrases"]

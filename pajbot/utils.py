@@ -199,7 +199,7 @@ def load_config(path):
     import os
 
     config = configparser.ConfigParser()
-    config.read_dict({"main": {"trusted_mods": "0"}, "web": {"deck_tab_images": "1"}})
+    config.read_dict({"web": {"deck_tab_images": "1"}})
 
     res = config.read(os.path.realpath(path))
 
