@@ -116,10 +116,6 @@ class Bot:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
         StreamHelper.init_streamer(self.streamer)
-        self.dev = False
-
-        if "flags" in config:
-            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
 
         log.debug("Loaded config")
 
@@ -229,6 +225,15 @@ class Bot:
             with self.users.get_user_context(admin) as user:
                 user.level = 2000
 
+        # silent mode
+        self.silent = (
+            "flags" in config and "silent" in config["flags"] and config["flags"]["silent"] == "1"
+        ) or args.silent
+        if self.silent:
+            log.info("Silent mode enabled")
+
+        # dev mode
+        self.dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
         if self.dev:
             self.version_long = extend_version_if_possible(VERSION)
         else:
@@ -259,13 +264,6 @@ class Bot:
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
         }
-
-        # silent mode
-        self.silent = (
-            "flags" in config and "silent" in config["flags"] and config["flags"]["silent"] == "1"
-        ) or args.silent
-        if self.silent:
-            log.info("Silent mode enabled")
 
         self.websocket_manager = WebSocketManager(self)
 
