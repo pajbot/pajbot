@@ -70,12 +70,10 @@ class Bot:
 
     def __init__(self, config, args):
         self.config = config
+        self.args = args
 
         self.last_ping = pajbot.utils.now()
         self.last_pong = pajbot.utils.now()
-
-        self.admin = None
-
 
         DBManager.init(self.config["main"]["db"])
 
@@ -224,12 +222,14 @@ class Bot:
         self.execute_every(10 * 60, self.commit_all)
         self.execute_every(1, self.do_tick)
 
+        # promote the admin to level 2000
+        admin = None
         try:
-            self.admin = self.config["main"]["admin"]
+            admin = self.config["main"]["admin"]
         except KeyError:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
-        if self.admin:
-            with self.users.get_user_context(self.admin) as user:
+        if admin is not None:
+            with self.users.get_user_context(admin) as user:
                 user.level = 2000
 
         if self.dev:
