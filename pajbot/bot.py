@@ -116,11 +116,11 @@ class Bot:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
         StreamHelper.init_streamer(self.streamer)
-        self.silent = False
         self.dev = False
+
         if "flags" in config:
-            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
             self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
+
         log.debug("Loaded config")
 
         # streamer is additionally initialized here so streamer can be accessed by the DB migrations
@@ -260,8 +260,10 @@ class Bot:
             "molly_age_in_years": self.c_molly_age_in_years,
         }
 
-        self.silent = True if args.silent else self.silent
-
+        # silent mode
+        self.silent = (
+            "flags" in config and "silent" in config["flags"] and config["flags"]["silent"] == "1"
+        ) or args.silent
         if self.silent:
             log.info("Silent mode enabled")
 
