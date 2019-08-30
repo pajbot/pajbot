@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import sys, os
+import sys
+import os
 
 # add /opt/pajbot (parent directory) to the PYTHONPATH
 # so we can import from pajbot.migration, etc..
