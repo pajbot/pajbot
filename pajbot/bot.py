@@ -48,9 +48,7 @@ from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
-from pajbot.utils import time_method
-from pajbot.utils.extend_version_with_git_data import extend_version_if_possible
-from pajbot.utils.wait_for_redis_data_loaded import wait_for_redis_data_loaded
+from pajbot.utils import time_method, extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ import signal
 import sys
 
 from pajbot.bot import Bot
-from pajbot.utils.parse_args import parse_args
+from pajbot.utils import parse_args
 
 try:
     basestring

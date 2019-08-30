@@ -7,7 +7,7 @@ from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManage
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
-from pajbot.utils.extend_version_with_git_data import extend_version_if_possible
+from pajbot.utils import extend_version_if_possible
 
 app = Flask(
     __name__,
