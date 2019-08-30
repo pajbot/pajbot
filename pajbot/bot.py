@@ -3,15 +3,12 @@ import datetime
 import logging
 import re
 import sys
-import time
 import urllib
-import redis
 
 import irc.client
 import requests
 from numpy import random
 from pytz import timezone
-from redis import BusyLoadingError
 
 import pajbot.migration_revisions.db
 import pajbot.models
@@ -50,10 +47,8 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
-from pajbot.utils import clean_up_message
-from pajbot.utils import time_ago
+from pajbot import utils
 from pajbot.utils import time_method
-from pajbot.utils import time_since
 from pajbot.utils.extend_version_with_git_data import extend_version_if_possible
 from pajbot.utils.wait_for_redis_data_loaded import wait_for_redis_data_loaded
 
@@ -74,8 +69,8 @@ class Bot:
         self.config = config
         self.args = args
 
-        self.last_ping = pajbot.utils.now()
-        self.last_pong = pajbot.utils.now()
+        self.last_ping = utils.now()
+        self.last_pong = utils.now()
 
         DBManager.init(self.config["main"]["db"])
 
@@ -150,7 +145,7 @@ class Bot:
         self.action_queue.start()
 
         self.reactor = irc.client.Reactor(self.on_connect)
-        self.start_time = pajbot.utils.now()
+        self.start_time = utils.now()
         ActionParser.bot = self
 
         HandlerManager.init_handlers()
@@ -191,7 +186,7 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
@@ -481,16 +476,16 @@ class Bot:
         return self.irc.privmsg(message, channel, increase_message=increase_message)
 
     def c_uptime(self):
-        return time_ago(self.start_time)
+        return utils.time_ago(self.start_time)
 
     @staticmethod
     def c_current_time():
-        return pajbot.utils.now()
+        return utils.now()
 
     @staticmethod
     def c_molly_age_in_years():
         molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
-        now = pajbot.utils.now()
+        now = utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
@@ -503,10 +498,10 @@ class Bot:
 
     def c_status_length(self):
         if self.stream_manager.online:
-            return time_ago(self.stream_manager.current_stream.stream_start)
+            return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
         if self.stream_manager.last_stream is not None:
-            return time_ago(self.stream_manager.last_stream.stream_end)
+            return utils.time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
 
@@ -612,7 +607,7 @@ class Bot:
         if not self.silent:
             message = separator.join(messages).strip()
 
-            message = clean_up_message(message)
+            message = utils.clean_up_message(message)
             if not message:
                 return False
 
@@ -697,8 +692,8 @@ class Bot:
         if res is False:
             return False
 
-        source.last_seen = pajbot.utils.now()
-        source.last_active = pajbot.utils.now()
+        source.last_seen = utils.now()
+        source.last_active = utils.now()
 
         if source.ignored:
             return False
@@ -727,13 +722,13 @@ class Bot:
 
     def on_ping(self, chatconn, event):
         # self.say('Received a ping. Last ping received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_ping.timestamp())))
-        log.info("Received a ping. Last ping received %s ago", time_ago(self.last_ping))
-        self.last_ping = pajbot.utils.now()
+        log.info("Received a ping. Last ping received %s ago", utils.time_ago(self.last_ping))
+        self.last_ping = utils.now()
 
     def on_pong(self, chatconn, event):
         # self.say('Received a pong. Last pong received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_pong.timestamp())))
-        log.info("Received a pong. Last pong received %s ago", time_ago(self.last_pong))
-        self.last_pong = pajbot.utils.now()
+        log.info("Received a pong. Last pong received %s ago", utils.time_ago(self.last_pong))
+        self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
@@ -858,8 +853,8 @@ class Bot:
             "upper": lambda var, args: var.upper(),
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
-            else time_since(var * 60, 0, time_format="long"),
-            "time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),
+            else utils.time_since(var * 60, 0, time_format="long"),
+            "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
             "urlencode": _filter_urlencode,
             "join": _filter_join,
@@ -884,7 +879,7 @@ class Bot:
 
 def _filter_time_since_dt(var, args):
     try:
-        ts = time_since(pajbot.utils.now().timestamp(), var.timestamp())
+        ts = utils.time_since(utils.now().timestamp(), var.timestamp())
         if ts:
             return ts
 
