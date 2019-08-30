@@ -117,8 +117,15 @@ def init(args):
 
     version = extend_version_if_possible(VERSION)
 
+    try:
+        last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
+    except:
+        log.exception("Failed to get last_commit, will not show last commit")
+        last_commit = None
+
     default_variables = {
         "version": version,
+        "last_commit": last_commit,
         "bot": {"name": config["main"]["nickname"]},
         "site": {
             "domain": config["web"]["domain"],
