@@ -279,7 +279,7 @@ class LinkCheckerModule(BaseModule):
             # First we perform a basic check
             if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
                 # If the basic check returns no relevant data, we queue up a proper check on the URL
-                self.action_queue.add(self.check_url, args=[url, action])
+                self.action_queue.add(self.check_url, url, action)
 
     def on_commit(self, **rest):
         if self.db_session is not None:
