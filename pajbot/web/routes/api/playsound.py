@@ -87,7 +87,7 @@ class PlaysoundAPI(Resource):
             return "OK", 200
 
 
-class PlayPlaysoundApi(Resource):
+class PlayPlaysoundAPI(Resource):
     @requires_level(500)
     def post(self, playsound_name, **options):
         with DBManager.create_session_scope() as db_session:
@@ -104,4 +104,4 @@ class PlayPlaysoundApi(Resource):
 
 def init(api):
     api.add_resource(PlaysoundAPI, "/playsound/<playsound_name>")
-    api.add_resource(PlayPlaysoundApi, "/playsound/<playsound_name>/play")
+    api.add_resource(PlayPlaysoundAPI, "/playsound/<playsound_name>/play")
