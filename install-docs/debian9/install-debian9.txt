@@ -29,10 +29,10 @@ sudo reboot
 sudo apt install git
 
 #
-# Register a twitch application client-id
+# Register a twitch application
 #
-# Make sure you are logged into twitch with the KKonaTestAdmin account and follow these instructions:
-# Go to https://dev.twitch.tv/console/apps/create and register a new application:
+# Make sure you are logged into twitch with your own account (e.g. KKonaTestAdmin),
+# go to https://dev.twitch.tv/console/apps/create and register a new application:
 #
 # Name: KKonaTestBot - KKonaTestBroadcaster
 # OAuth Redirect URL: https://bot.kkonatestbroadcaster.tv/login/authorized
