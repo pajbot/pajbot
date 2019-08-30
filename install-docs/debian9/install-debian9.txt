@@ -64,7 +64,7 @@ cd
 git clone https://github.com/pajlada/pajbot.git
 cd pajbot
 # create virtual environment "venv"
-./install/venvinstall.sh
+./scripts/venvinstall.sh
 source venv/bin/activate
 
 #
