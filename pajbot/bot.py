@@ -827,7 +827,7 @@ class Bot:
     def quit_bot(self, **options):
         self.commit_all()
         HandlerManager.trigger("on_quit")
-        phrase_data = {"nickname": self.nickname, "version": self.version}
+        phrase_data = {"nickname": self.nickname, "version": self.version_long}
 
         try:
             ScheduleManager.base_scheduler.print_jobs()
