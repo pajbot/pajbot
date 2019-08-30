@@ -64,10 +64,8 @@ cd
 git clone https://github.com/pajlada/pajbot.git
 cd pajbot
 # create virtual environment "venv"
-python3 -m venv venv
-source ./venv/bin/activate
-python3 -m pip install wheel
-python3 -m pip install -r requirements.txt
+./install/venvinstall.sh
+source venv/bin/activate
 
 #
 # create pajbot system user

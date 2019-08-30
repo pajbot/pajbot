@@ -17,5 +17,9 @@ python3 -m venv venv
 # Upgrade pip
 pip install pip --upgrade
 
+# Install wheel (missing on debian, apparently, and useful
+# for installation of some packages in requirements.txt)
+pip install wheel
+
 # Install requirements.txt
 pip install -r requirements.txt
