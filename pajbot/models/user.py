@@ -385,10 +385,8 @@ class UserRedis:
         if self.save_to_redis:
             # Set redis value
             if value != 0:
-                self.redis.zincrby(
-                    "{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()),
-                    value=self.username,
-                    amount=float(value),
+                self.redis.zadd(
+                    "{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()), self.username, float(value)
                 )
             else:
                 self.redis.zrem("{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()), self.username)
