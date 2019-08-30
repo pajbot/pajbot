@@ -2,13 +2,13 @@
 
 set -euo pipefail
 
-if ! pip -V; then
+if ! pip -V >/dev/null 2>&1; then
   >&2 echo "$0"': not inside virtual environment. Try `source venv/bin/activate` or `./install/venvinstall.sh`'
   exit 1
 fi
 
 pip install mysqlclient==1.4.4
 
-python ./migrate-mysql-to-postgresql.py
+python ./scripts/migrate-mysql-to-postgresql.py
 
 pip uninstall mysqlclient

@@ -12,6 +12,8 @@ Remember to bring your dependencies up to date with
   `./scripts/migrate-mysql-to-postgresql` and the updated example config/install
   instructions for how to create databases, users and schemas, and for the new
   DB URL schema.
+- Feature: Added `!namechange <oldusername> <newusername>` command for migrating
+  users that changed their twitch name. (Level 2000 only)
 - Minor: Removed `!reload` command since it did nothing.
 - Bugfix: A series of bugs (including the `!laststream` command sometimes not
   working) caused by a mismatch of datetime-aware and datetime-naive objects.
@@ -20,6 +22,9 @@ Remember to bring your dependencies up to date with
 - Bugfix: `/api/v1/user/:username` no longer fetches `nl_rank` from redis twice.
 - Bugfix: If no git data is available, web interface will no longer show
   `Last commit:`, instead last commit will be omitted altogether
+- Bugfix: Fixed a series of bugs (including the `!laststream` command sometimes
+  not working) caused by a mismatch of datetime-aware and datetime-naive
+  objects.
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
 

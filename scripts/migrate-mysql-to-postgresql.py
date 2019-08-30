@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+import sys, os
+
+# add /opt/pajbot (parent directory) to the PYTHONPATH
+# so we can import from pajbot.migration, etc..
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 import MySQLdb
 import datetime
 
@@ -61,7 +67,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     def copy_table(destination_table_name, columns, coercions={}):
         source_table_name = "tb_" + destination_table_name
 
-        print("{}: Querying MySQL... ".format(source_table_name), end="")
+        print("Transfer table contents: {}: Querying MySQL... ".format(source_table_name), end="")
 
         mysql.execute("SELECT {} FROM {}".format(",".join(columns), source_table_name))
         rows = mysql.fetchall()
@@ -82,6 +88,38 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
 
         print("done.")
 
+    def copy_auto_increment(destination_table_name, column_name):
+        source_table_name = "tb_" + destination_table_name
+
+        print("Transfer AUTO_INCREMENT: {}.{}: Querying MySQL... ".format(source_table_name, column_name), end="")
+
+        mysql.execute(
+            "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE "
+            "TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{}';".format(source_table_name)
+        )
+        row = mysql.fetchone()
+        if row is None:
+            raise ValueError("error copying autoincrement for {}: table not found".format(source_table_name))
+
+        # mysql gives us the next value
+        # in PostgreSQL, we have to set the current (last) value
+        increment_value = row[0]
+
+        print("Updating in PostgreSQL... ", end="")
+
+        # pg_get_serial_sequence(): https://www.postgresql.org/docs/current/functions-info.html
+        # Gets the sequence name associated with a table/column combination
+        # (e.g. for "banphrase" and "id" returns "banphrase_id_seq")
+        # setval(): https://www.postgresql.org/docs/current/functions-sequence.html
+        # setval(<sequence name>, <value>, false) will set the sequence to return <value> on next call/usage
+        # (That is what MySQL returns us - the value upon next invocation)
+        psql.execute(
+            "SELECT setval(pg_get_serial_sequence(%(table_name)s, %(column_name)s), %(increment_value)s, false)",
+            {"table_name": destination_table_name, "column_name": column_name, "increment_value": increment_value},
+        )
+
+        print("done.")
+
     copy_table(
         "user",
         [
@@ -96,6 +134,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
         ],
         {"subscriber": coerce_to_boolean},
     )
+    copy_auto_increment("user", "id")
 
     copy_table(
         "banphrase",
@@ -123,6 +162,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
             "remove_accents": coerce_to_boolean,
         },
     )
+    copy_auto_increment("banphrase", "id")
 
     copy_table("banphrase_data", ["banphrase_id", "num_uses", "added_by", "edited_by"])
 
@@ -153,6 +193,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
             "run_through_banphrases": coerce_to_boolean,
         },
     )
+    copy_auto_increment("command", "id")
 
     copy_table(
         "command_data",
@@ -161,26 +202,33 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     )
 
     copy_table("command_example", ["id", "command_id", "title", "chat", "description"])
+    copy_auto_increment("command_example", "id")
 
     copy_table(
         "deck",
         ["id", "name", "class", "link", "first_used", "last_used", "times_used"],
         {"first_used": coerce_to_utc_time, "last_used": coerce_to_utc_time},
     )
+    copy_auto_increment("deck", "id")
 
     copy_table("hsbet_game", ["id", "internal_id", "outcome"])
+    copy_auto_increment("hsbet_game", "id")
 
     copy_table("hsbet_bet", ["id", "game_id", "user_id", "outcome", "points", "profit"])
+    copy_auto_increment("hsbet_bet", "id")
 
     copy_table("link_blacklist", ["id", "domain", "path", "level"])
+    copy_auto_increment("link_blacklist", "id")
 
     copy_table("link_whitelist", ["id", "domain", "path"])
+    copy_auto_increment("link_whitelist", "id")
 
     copy_table(
         "link_data",
         ["id", "url", "times_linked", "first_linked", "last_linked"],
         {"first_linked": coerce_to_utc_time, "last_linked": coerce_to_utc_time},
     )
+    copy_auto_increment("link_data", "id")
 
     copy_table("module", ["id", "enabled", "settings"], {"enabled": coerce_to_boolean})
 
@@ -191,6 +239,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
         ["id", "stream_id", "youtube_id", "date_added", "date_played", "skip_after", "user_id"],
         {"date_added": coerce_to_utc_time, "date_played": coerce_to_utc_time},
     )
+    copy_auto_increment("pleblist_song", "id")
 
     copy_table("pleblist_song_info", ["pleblist_song_youtube_id", "title", "duration", "default_thumbnail"])
 
@@ -199,30 +248,37 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
         ["id", "winner_id", "started", "ended", "open", "type"],
         {"started": coerce_to_utc_time, "ended": coerce_to_utc_time},
     )
+    copy_auto_increment("prediction_run", "id")
 
     copy_table("prediction_run_entry", ["id", "prediction_run_id", "user_id", "prediction"])
+    copy_auto_increment("prediction_run_entry", "id")
 
     copy_table("roulette", ["id", "user_id", "created_at", "points"], {"created_at": coerce_to_utc_time})
+    copy_auto_increment("roulette", "id")
 
     copy_table(
         "stream",
         ["id", "title", "stream_start", "stream_end", "ended"],
         {"stream_start": coerce_to_utc_time, "stream_end": coerce_to_utc_time, "ended": coerce_to_boolean},
     )
+    copy_auto_increment("stream", "id")
 
     copy_table(
         "stream_chunk",
         ["id", "stream_id", "broadcast_id", "video_url", "chunk_start", "chunk_end", "video_preview_image_url"],
         {"chunk_start": coerce_to_utc_time, "chunk_end": coerce_to_utc_time},
     )
+    copy_auto_increment("stream_chunk", "id")
 
     copy_table(
         "timer",
         ["id", "name", "action", "interval_online", "interval_offline", "enabled"],
         {"enabled": coerce_to_boolean},
     )
+    copy_auto_increment("timer", "id")
 
     copy_table("twitter_following", ["id", "username"])
+    copy_auto_increment("twitter_following", "id")
 
     copy_table(
         "user_duel_stats",
@@ -241,6 +297,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     )
 
     copy_table("web_content", ["id", "page", "content"])
+    copy_auto_increment("web_content", "id")
 
 print("mysql: rollback transaction... ", end="")
 mysql_conn.rollback()
