@@ -1,8 +1,20 @@
 # Changelog
 
+<!-- reformat this file with `npx prettier --prose-wrap=always --write CHANGELOG.md` -->
+
 ## Unreleased
 
+Remember to bring your dependencies up to date with
+`pip install -r requirements.txt` when updating to this version!
+
+- Breaking: pajbot now uses PostgreSQL instead of MySQL as its preferred
+  database engine. To migrate your existing databases, see
+  `./scripts/migrate-mysql-to-postgresql` and the updated example config/install
+  instructions for how to create databases, users and schemas, and for the new
+  DB URL schema.
 - Minor: Removed `!reload` command since it did nothing.
+- Bugfix: A series of bugs (including the `!laststream` command sometimes not
+  working) caused by a mismatch of datetime-aware and datetime-naive objects.
 - Bugfix: If redis is busy loading data, the bot no longer exists, and waits for
   completion instead.
 - Bugfix: `/api/v1/user/:username` no longer fetches `nl_rank` from redis twice.
@@ -12,6 +24,8 @@
   body
 
 <!--
+- Internal: New (stupider) migrations system that directly uses SQL, and can additionally
+  also migrate redis and other resources.
 - Internal: Removed last remnants of highlight system (`bot.trusted_mods` and
   `trusted_mods` config option)
 - Internal: Made `Bot` initialization clearer by moving everything into

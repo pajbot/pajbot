@@ -2,18 +2,13 @@
 
 set -euo pipefail
 
-if [ -d venv ]; then
-  >&2 echo "$0"': A `venv` folder was found in your working directory. Please make sure you run this script from the `scripts` directory, not the pajbot root folder.'
+if ! pip -V; then
+  >&2 echo "$0"': not inside virtual environment. Try `source venv/bin/activate` or `./install/venvinstall.sh`'
   exit 1
 fi
 
-python3 -m venv venv
-source venv/bin/activate
-
-pip install -r ../requirements.txt
 pip install mysqlclient==1.4.4
 
 python ./migrate-mysql-to-postgresql.py
 
-deactivate
-rm -r venv
+pip uninstall mysqlclient
