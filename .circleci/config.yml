@@ -25,7 +25,7 @@ commands:
           key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
       - run:
           name: Install virtual environment
-          command: ./install/venvinstall.sh
+          command: ./scripts/venvinstall.sh
       - run:
           name: Install black if supported
           command: ./.circleci/install-black.py

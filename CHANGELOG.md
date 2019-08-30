@@ -12,8 +12,12 @@ Remember to bring your dependencies up to date with
   `./scripts/migrate-mysql-to-postgresql` and the updated example config/install
   instructions for how to create databases, users and schemas, and for the new
   DB URL schema.
+- Breaking (if you rely on it in an automatic way somehow): `venvinstall.sh` has
+  been moved from `./install` into `./scripts`, where all other shell scripts
+  also reside.
 - Feature: Added `!namechange <oldusername> <newusername>` command for migrating
-  users that changed their twitch name. (Level 2000 only)
+  users that changed their twitch name. (Level 2000 only).
+  `./scripts/transfer-{all,sql,redis}` scripts have been removed.
 - Minor: Removed `!reload` command since it did nothing.
 - Bugfix: A series of bugs (including the `!laststream` command sometimes not
   working) caused by a mismatch of datetime-aware and datetime-naive objects.
