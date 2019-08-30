@@ -90,6 +90,8 @@ class Bot:
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
+
+        # phrases
         self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
         if "phrases" in config:
             phrases = config["phrases"]
@@ -97,21 +99,19 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
+
         TimeManager.init_timezone(self.timezone)
+
+        # streamer
         if "streamer" in config["main"]:
             self.streamer = config["main"]["streamer"]
             self.channel = "#" + self.streamer
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
-        StreamHelper.init_streamer(self.streamer)
+        StreamHelper.init_bot(self, self.stream_manager)
 
         log.debug("Loaded config")
-
-        # streamer is additionally initialized here so streamer can be accessed by the DB migrations
-        # before StreamHelper.init_bot() is called later (which depends on an upgraded DB because
-        # StreamManager accesses the DB)
-        StreamHelper.init_streamer(self.streamer)
 
         # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
@@ -128,12 +128,13 @@ class Bot:
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+            raise ValueError("The bot login name you entered under [main] does not exist on twitch.")
 
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
-        if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+        if self.streamer_user_id is None:
+            raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
 
+        # SQL migrations
         sql_conn = DBManager.engine.connect().connection
         sql_migratable = DatabaseMigratable(sql_conn)
         sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
@@ -153,15 +154,14 @@ class Bot:
         self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
 
-        StreamHelper.init_bot(self, self.stream_manager)
         ScheduleManager.init()
-
         self.users = UserManager()
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
 
+        # bot access token
         if "password" in self.config["main"]:
             log.warning(
                 "DEPRECATED - Using bot password/oauth token from file. "
@@ -190,11 +190,11 @@ class Bot:
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
-
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
+        self.websocket_manager = WebSocketManager(self)
 
         HandlerManager.trigger("on_managers_loaded")
 
@@ -253,8 +253,6 @@ class Bot:
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
         }
-
-        self.websocket_manager = WebSocketManager(self)
 
     @property
     def password(self):
