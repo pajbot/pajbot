@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+- Minor: Removed `!reload` command since it did nothing.
+- Bugfix: If redis is busy loading data, the bot no longer exists, and waits for
+  completion instead.
+- Bugfix: `/api/v1/user/:username` no longer fetches `nl_rank` from redis twice.
+- Bugfix: If no git data is available, web interface will no longer show
+  `Last commit:`, instead last commit will be omitted altogether
+- Documentation Bugfix: `$(urlfetch)` returns the response body, not request
+  body
+
+<!--
+- Internal: Removed last remnants of highlight system (`bot.trusted_mods` and
+  `trusted_mods` config option)
+- Internal: Made `Bot` initialization clearer by moving everything into
+  `__init__`
+- Internal: Each utility is in its own file now
+- Internal: Removed dead code/comments in various places
+- Internal: Removed duplication in `UserManager` and with git version fetching
+- Internal: `ActionManager` now accepts `*args` and `**kwargs` instead of a list
+  and a dict. (Easier to use)
+-->
+
 ## v1.36
 
 - Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
