@@ -3,8 +3,8 @@
 set -e
 
 # Ensure this script is called from the correct folder
-if [ ! -d install ]; then
-    echo "This script needs to be called from the root folder, i.e. ./scripts/venvinstall.sh"
+if [ ! -d scripts ]; then
+    >&2 echo "$0: This script needs to be called from the root folder, i.e. ./scripts/venvinstall.sh"
     exit 1
 fi
 
