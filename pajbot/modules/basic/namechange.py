@@ -4,7 +4,7 @@ from sqlalchemy import update
 
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.banphrase import Banphrase, BanphraseData
+from pajbot.models.banphrase import BanphraseData
 from pajbot.models.command import Command, CommandExample, CommandData
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.hsbet import HSBetBet
