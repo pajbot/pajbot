@@ -1,5 +1,25 @@
 # Changelog
 
+<!-- reformat this file with `npx prettier --prose-wrap=always --write CHANGELOG.md` -->
+
+## Unreleased
+
+Remember to bring your dependencies up to date with
+`pip install -r requirements.txt` when updating to this version!
+
+- Breaking: pajbot now uses PostgreSQL instead of MySQL as its preferred
+  database engine. To migrate your existing databases, see
+  `./scripts/migrate-mysql-to-postgresql` and the updated example config/install
+  instructions for how to create databases, users and schemas, and for the new
+  DB URL schema.
+- Bugfix: A series of bugs (including the `!laststream` command sometimes not
+  working) caused by a mismatch of datetime-aware and datetime-naive objects.
+
+<!--
+- Internal: New (stupider) migrations system that directly uses SQL, and can additionally
+  also migrate redis and other resources.
+-->
+
 ## v1.36
 
 - Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
