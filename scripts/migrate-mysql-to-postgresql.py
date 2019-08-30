@@ -15,9 +15,9 @@ from psycopg2.extras import execute_values
 # so we can import from pajbot.migration, etc..
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-import pajbot.migration_revisions.db # noqa E402 module level import not at top of file
-from pajbot.migration.db import DatabaseMigratable # noqa E402 module level import not at top of file
-from pajbot.migration.migrate import Migration # noqa E402 module level import not at top of file
+import pajbot.migration_revisions.db  # noqa E402 module level import not at top of file
+from pajbot.migration.db import DatabaseMigratable  # noqa E402 module level import not at top of file
+from pajbot.migration.migrate import Migration  # noqa E402 module level import not at top of file
 
 
 print("MySQL: connecting... ", end="")
