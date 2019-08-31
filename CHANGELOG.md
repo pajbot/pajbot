@@ -18,13 +18,32 @@ Remember to bring your dependencies up to date with
 - Feature: Added `!namechange <oldusername> <newusername>` command for migrating
   users that changed their twitch name. (Level 2000 only).
   `./scripts/transfer-{all,sql,redis}` scripts have been removed.
+- Minor: Removed `!reload` command since it did nothing.
+- Bugfix: A series of bugs (including the `!laststream` command sometimes not
+  working) caused by a mismatch of datetime-aware and datetime-naive objects.
+- Bugfix: If redis is busy loading data, the bot no longer exists, and waits for
+  completion instead.
+- Bugfix: `/api/v1/user/:username` no longer fetches `nl_rank` from redis twice.
+- Bugfix: If no git data is available, web interface will no longer show
+  `Last commit:`, instead last commit will be omitted altogether
 - Bugfix: Fixed a series of bugs (including the `!laststream` command sometimes
   not working) caused by a mismatch of datetime-aware and datetime-naive
   objects.
+- Documentation Bugfix: `$(urlfetch)` returns the response body, not request
+  body
 
 <!--
 - Internal: New (stupider) migrations system that directly uses SQL, and can additionally
   also migrate redis and other resources.
+- Internal: Removed last remnants of highlight system (`bot.trusted_mods` and
+  `trusted_mods` config option)
+- Internal: Made `Bot` initialization clearer by moving everything into
+  `__init__`
+- Internal: Each utility is in its own file now
+- Internal: Removed dead code/comments in various places
+- Internal: Removed duplication in `UserManager` and with git version fetching
+- Internal: `ActionManager` now accepts `*args` and `**kwargs` instead of a list
+  and a dict. (Easier to use)
 -->
 
 ## v1.36

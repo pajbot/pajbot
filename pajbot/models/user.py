@@ -50,21 +50,6 @@ class User(Base):
 
         self.timed_out = False
 
-    @classmethod
-    def test_user(cls, username):
-        user = cls()
-
-        user.id = 123
-        user.username = username.lower()
-        user.username_raw = username
-        user.level = 2000
-        user.subscriber = True
-        user.points = 1234
-        user.minutes_in_chat_online = 5
-        user.minutes_in_chat_offline = 15
-
-        return user
-
 
 class NoCacheHit(Exception):
     pass

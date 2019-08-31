@@ -41,7 +41,7 @@ Available filters:
 
 special substitutions:
 ======================
-$(urlfetch <url>) - HTTP GET the given URL, and returns the body of the request.
+$(urlfetch <url>) - HTTP GET the given URL, and returns the body of the response.
 Some useful "customapi" resources are:
 
 All resources from https://customapi.aidenwallis.co.uk/
