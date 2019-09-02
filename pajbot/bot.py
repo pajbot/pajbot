@@ -107,7 +107,7 @@ class Bot:
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
-        StreamHelper.init_bot(self, self.stream_manager)
+        StreamHelper.init_streamer(self.streamer)
 
         log.debug("Loaded config")
 
@@ -152,7 +152,9 @@ class Bot:
         self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
 
+        StreamHelper.init_bot(self, self.stream_manager)
         ScheduleManager.init()
+
         self.users = UserManager()
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
