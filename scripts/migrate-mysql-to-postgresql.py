@@ -19,6 +19,11 @@ import pajbot.migration_revisions.db  # noqa E402 module level import not at top
 from pajbot.migration.db import DatabaseMigratable  # noqa E402 module level import not at top of file
 from pajbot.migration.migrate import Migration  # noqa E402 module level import not at top of file
 
+# python buffers full lines by default
+# to make sure we see the progress as-it-is-created
+# we make each call to print() use the flush=True parameter by default like this
+import functools
+print = functools.partial(print, flush=True)
 
 print("MySQL: connecting... ", end="")
 mysql_conn = MySQLdb.connect(unix_socket="/var/run/mysqld/mysqld.sock", database="pajbot_test", charset="utf8mb4")
