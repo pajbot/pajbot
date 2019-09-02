@@ -112,7 +112,7 @@ def up(cursor, context):
 
     cursor.execute(
         """
-    CREATE TYPE hsbet_outcome AS ENUM('win', 'lose');
+    CREATE TYPE hsbet_outcome AS ENUM('win', 'loss');
     """
     )
 
