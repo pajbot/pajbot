@@ -20,7 +20,7 @@ Remember to bring your dependencies up to date with
   - Stop pajbot:
     `sudo systemctl stop pajbot@streamername pajbot-web@streamername`
   - Backup your data:
-    `sudo mysqldump --single-transaction pajbot_streamername > mysql-dump-streamername.sql`
+    `sudo mysqldump --single-transaction --result-file=mysql-dump-streamername.sql pajbot_streamername`
   - Activate the python virtualenv: `source venv/bin/activate`
   - Run `./scripts/migrate-mysql-to-postgresql` to move the data
   - Update the `sql` connection string in your bot config (see the updated
