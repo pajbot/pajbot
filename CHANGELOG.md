@@ -15,7 +15,7 @@ Remember to bring your dependencies up to date with
   - Create the pajbot PostgreSQL user, a database and optionally a schema for
     the bot to use. (see the updated SQL section of
     [the install docs](./install-docs/debian9/install-debian9.txt))
-  - Edit `./scripts/migrate-mysql-to-postgresql` with a connection string for
+  - Edit `./scripts/migrate-mysql-to-postgresql.py` with a connection string for
     the old MySQL database, and your new PostgreSQL database.
   - Stop pajbot:
     `sudo systemctl stop pajbot@streamername pajbot-web@streamername`
