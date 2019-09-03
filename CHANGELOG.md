@@ -7,8 +7,8 @@
 Remember to bring your dependencies up to date with
 `pip install -r requirements.txt` when updating to this version!
 
-- Breaking: pajbot now uses PostgreSQL instead of MySQL as its preferred
-  database engine.  
+- Breaking: pajbot now uses PostgreSQL instead of MySQL as its supported
+  database engine. It is not possible to continue to use MySQL.  
   To migrate your existing database(s):
 
   - Install and start PostgreSQL, if you have not done so already
