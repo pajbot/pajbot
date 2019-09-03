@@ -23,14 +23,18 @@ from pajbot.migration.migrate import Migration  # noqa E402 module level import 
 # to make sure we see the progress as-it-is-created
 # we make each call to print() use the flush=True parameter by default like this
 import functools
+
 print = functools.partial(print, flush=True)
 
 print("MySQL: connecting... ", end="")
-mysql_conn = MySQLdb.connect(unix_socket="/var/run/mysqld/mysqld.sock", database="pajbot_test", charset="utf8mb4")
+# https://pymysql.readthedocs.io/en/latest/modules/connections.html#pymysql.connections.Connection
+mysql_conn = MySQLdb.connect(unix_socket="/var/run/mysqld/mysqld.sock", database="pajbot_streamer", charset="utf8mb4")
 print("done.")
 
 print("PostgreSQL: connecting... ", end="")
-psql_conn = psycopg2.connect("dbname=pajbot options='-c search_path=pajbot1_test'")
+# http://initd.org/psycopg/docs/module.html#psycopg2.connect
+# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+psql_conn = psycopg2.connect("dbname=pajbot options='-c search_path=pajbot1_streamer'")
 print("done.")
 
 
@@ -65,9 +69,6 @@ db_migration.run()
 print("done.")
 
 
-# https://pymysql.readthedocs.io/en/latest/modules/connections.html#pymysql.connections.Connection
-# http://initd.org/psycopg/docs/module.html#psycopg2.connect
-# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
 with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
 
     def copy_table(destination_table_name, columns, coercions={}):
