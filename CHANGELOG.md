@@ -8,10 +8,32 @@ Remember to bring your dependencies up to date with
 `pip install -r requirements.txt` when updating to this version!
 
 - Breaking: pajbot now uses PostgreSQL instead of MySQL as its preferred
-  database engine. To migrate your existing databases, see
-  `./scripts/migrate-mysql-to-postgresql` and the updated example config/install
-  instructions for how to create databases, users and schemas, and for the new
-  DB URL schema.
+  database engine.  
+  To migrate your existing database(s):
+
+  - Install and start PostgreSQL, if you have not done so already
+  - Create the pajbot PostgreSQL user, a database and optionally a schema for
+    the bot to use. (see the updated SQL section of
+    [the install docs](./install-docs/debian9/install-debian9.txt))
+  - Edit `./scripts/migrate-mysql-to-postgresql` with a connection string for
+    the old MySQL database, and your new PostgreSQL database.
+  - Stop pajbot:
+    `sudo systemctl stop pajbot@streamername pajbot-web@streamername`
+  - Backup your data:
+    `sudo mysqldump --single-transaction pajbot_streamername > mysql-dump-streamername.sql`
+  - Activate the python virtualenv: `source venv/bin/activate`
+  - Run `./scripts/migrate-mysql-to-postgresql` to move the data
+  - Update the `sql` connection string in your bot config (see the updated
+    [example config](./install-docs/debian9/kkonatestbroadcaster.ini) for
+    examples)
+  - Start pajbot again:
+    `sudo systemctl start pajbot@streamername pajbot-web@streamername`
+  - Drop the old MySQL database:
+    `sudo mysql -e "DROP DATABASE pajbot_streamername"`
+
+  The procedure for new bot installations is described in the
+  [install documentation](./install-docs).
+
 - Breaking (if you rely on it in an automatic way somehow): `venvinstall.sh` has
   been moved from `./install` into `./scripts`, where all other shell scripts
   also reside.

@@ -79,7 +79,8 @@ sudo apt install postgresql redis-server
 sudo -u postgres psql
 # > CREATE USER pajbot;
 # > CREATE DATABASE pajbot OWNER pajbot;
-# > \c pajbot
+
+sudo -u pajbot psql pajbot
 # > CREATE SCHEMA pajbot1_kkonatestbroadcaster;
 
 #
