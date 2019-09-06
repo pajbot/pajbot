@@ -23,7 +23,6 @@ from pajbot.migration.migrate import Migration  # noqa E402 module level import 
 # python buffers full lines by default
 # to make sure we see the progress as-it-is-created
 # we make each call to print() use the flush=True parameter by default like this
-
 print = functools.partial(print, flush=True)
 
 print("MySQL: connecting... ", end="")
