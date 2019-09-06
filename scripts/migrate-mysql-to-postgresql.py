@@ -101,7 +101,8 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
 
         mysql.execute(
             "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE "
-            "TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{}';".format(source_table_name)
+            "TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+            (source_table_name,),
         )
         row = mysql.fetchone()
         if row is None:
