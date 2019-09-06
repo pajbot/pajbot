@@ -16,7 +16,7 @@ def up(cursor, context):
 
     cursor.execute(
         """
-    CREATE INDEX ON "user" (username)
+    CREATE UNIQUE INDEX ON "user" (username)
     """
     )
 
