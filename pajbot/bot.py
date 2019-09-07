@@ -25,6 +25,7 @@ from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
+from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -166,6 +167,7 @@ class Bot:
         self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
         self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
+        self.twitch_tmi_api = TwitchTMIAPI(self.api_client_credentials, RedisManager.get())
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
