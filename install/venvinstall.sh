@@ -11,11 +11,18 @@ fi
 # Create virtual environment
 python3 -m venv venv
 
-# Activate virtual environment
-. ./venv/bin/activate
-
 # Upgrade pip
-pip install pip --upgrade
+./venv/bin/pip install pip --upgrade
 
 # Install requirements.txt
-pip install -r requirements.txt
+./venv/bin/pip install -r requirements.txt
+
+if [ $CIRCLECI ]; then
+    # Install dev deps inside CircleCI
+    ./venv/bin/pip install flake8 pytest
+fi
+
+if [ $1 = "--dev" ]; then
+    # Install dev deps
+    ./venv/bin/pip install -r requirements-dev.txt
+fi
