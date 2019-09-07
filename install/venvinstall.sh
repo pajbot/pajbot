@@ -25,7 +25,7 @@ if [ $CIRCLECI ]; then
     ./venv/bin/pip install flake8 pytest
 fi
 
-if [ "$1" == "--dev" ]; then
+if [ "$1" = "--dev" ]; then
     # Install dev deps
     ./venv/bin/pip install -r requirements-dev.txt
 fi
