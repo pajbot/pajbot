@@ -109,12 +109,12 @@ def init(page):
                     banphrase.set(**options)
                     banphrase.data.set(edited_by=options["edited_by"])
                     log.info("Updated banphrase ID {} by user ID {}".format(banphrase.id, options["edited_by"]))
-                    AdminLogManager.post("Banphrase edited", user, banphrase.phrase)
+                    AdminLogManager.post("Banphrase edited", user, banphrase.id, banphrase.phrase)
                 else:
                     db_session.add(banphrase)
                     db_session.add(banphrase.data)
                     log.info("Added a new banphrase by user ID {}".format(options["added_by"]))
-                    AdminLogManager.post("Banphrase added", user, banphrase.phrase)
+                    AdminLogManager.post("Banphrase added", user, banphrase.id, banphrase.phrase)
 
             SocketClientManager.send("banphrase.update", {"id": banphrase.id})
             if id is None:

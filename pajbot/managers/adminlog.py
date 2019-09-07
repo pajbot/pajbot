@@ -19,10 +19,10 @@ class LogEntryTemplate:
 class AdminLogManager:
     KEY = None
     TEMPLATES = {
-        "Banphrase added": LogEntryTemplate('Added banphrase "{}"'),
-        "Banphrase edited": LogEntryTemplate('Edited banphrase from "{}"'),
-        "Banphrase removed": LogEntryTemplate('Removed banphrase "{}"'),
-        "Banphrase toggled": LogEntryTemplate('{} banphrase "{}"'),
+        "Banphrase added": LogEntryTemplate('Added banphrase #{} "{}"'),
+        "Banphrase edited": LogEntryTemplate('Edited banphrase #{} from "{}"'),
+        "Banphrase removed": LogEntryTemplate('Removed banphrase #{} "{}"'),
+        "Banphrase toggled": LogEntryTemplate('{} banphrase #{} "{}"'),
         "Blacklist link added": LogEntryTemplate('Added blacklist link "{}"'),
         "Blacklist link removed": LogEntryTemplate('Removed blacklisted link "{}"'),
         "Module edited": LogEntryTemplate('Edited module "{}"'),
