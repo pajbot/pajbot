@@ -25,13 +25,5 @@ fi
 
 # Install dev dependencies
 if [ "$1" = "--dev" ]; then
-    if ./venv/bin/python -c "import sys; sys.exit(0 if sys.version_info >= (3, 6) else 1)"; then
-        # Python 3.6 or above, we can install all dev dependencies
-        echo "You have python >=3.6, all dev dependencies will be installed"
-        ./venv/bin/pip install -r requirements-dev.txt
-    else
-        # Python version is older than 3.6, cannot install some dependencies (filtered out via grep)
-        echo "You have python <3.6, some dev dependencies incompatible with your python version will not be installed"
-        ./venv/bin/pip install -r <(grep -v black requirements-dev.txt)
-    fi
+    ./venv/bin/pip install -r requirements-dev.txt
 fi
