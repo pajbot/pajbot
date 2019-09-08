@@ -22,21 +22,18 @@ commands:
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
-          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
+          key: v2-python<< parameters.python_version >>-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
       - run:
-          name: Install virtual environment
-          command: ./install/venvinstall.sh
-      - run:
-          name: Install black if supported
-          command: ./.circleci/install-black.py
+          name: Install virtual environment and dependencies
+          command: ./install/venvinstall --dev
       - save_cache:
           name: Save virtual environment to cache
-          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
+          key: v2-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
             - ./venv
       - save_cache:
           name: Save created project dir to cache for other jobs to use
-          key: v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
+          key: v2-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             # working directory (entire project directory)
             - .
@@ -48,7 +45,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
+            - v2-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
 
 jobs:
   setup-35:
