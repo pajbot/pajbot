@@ -13,21 +13,23 @@ executors:
     working_directory: ~/pajbot
 
 commands:
+  apt_install:
+    description: "Install apt dependencies"
+  steps:
+      - run:
+          name: Update apt database
+          command: apt-get update
+      - run:
+          name: Install python and dependencies for python packages
+          command: apt-get install git python3 python3-pip python3-venv libssl-dev ca-certificates -y
+
   create_setup:
     description: "Install virtual environment and requirements"
     parameters:
       python_version:
         type: string
     steps:
-      - run:
-          name: Update apt database
-          command: apt-get update
-      - run:
-          name: Install git
-          command: apt-get install git -y
-      - run:
-          name: Install python and dependencies for python packages
-          command: apt-get install python3 python3-pip python3-venv libssl-dev -y
+      - apt_install
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
