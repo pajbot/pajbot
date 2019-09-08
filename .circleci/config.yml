@@ -24,7 +24,7 @@ commands:
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
       - run:
           name: Install virtual environment and dependencies
-          command: ./install/venvinstall --dev
+          command: ./install/venvinstall.sh --dev
       - save_cache:
           name: Save virtual environment to cache
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
