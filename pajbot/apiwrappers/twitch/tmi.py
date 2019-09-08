@@ -6,8 +6,8 @@ log = logging.getLogger(__name__)
 
 
 class TwitchTMIAPI(BaseTwitchAPI):
-    def __init__(self, client_credentials, redis):
-        super().__init__(base_url="https://tmi.twitch.tv/", redis=redis)
+    def __init__(self, client_credentials):
+        super().__init__(base_url="https://tmi.twitch.tv/")
         self.session.headers["Accept"] = "application/vnd.twitchtv.v5+json"
 
     def fetch_chatters(self, streamer):
@@ -16,6 +16,6 @@ class TwitchTMIAPI(BaseTwitchAPI):
         chatters = []
         
         for chatter_category in chatters:
-            chatters.append(chatter_category)
+            chatters.extend(chatter_category)
 
         return chatters
