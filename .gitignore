@@ -27,3 +27,4 @@ userdispatch.py
 venv/
 
 .idea/
+.vscode/
