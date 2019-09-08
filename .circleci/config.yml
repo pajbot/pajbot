@@ -52,6 +52,7 @@ commands:
       python_version:
         type: string
     steps:
+      - run: apt-get update && apt-get install ca-certificates -y
       - attach_workspace:
           at: ~/pajbot
 
