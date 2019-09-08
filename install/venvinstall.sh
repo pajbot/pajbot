@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eo pipefail
+set -e
 
 # Ensure this script is called from the correct folder
 if [ ! -d install ]; then
