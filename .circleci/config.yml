@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
-  check-format:
+  check_format:
     executor: pajbot
     steps:
       - create_setup
