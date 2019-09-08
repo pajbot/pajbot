@@ -371,7 +371,8 @@ class UserRedis:
             # Set redis value
             if value != 0:
                 self.redis.zadd(
-                        "{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()), {self.username: float(value)}
+                    "{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()),
+                    {self.username: float(value)},
                 )
             else:
                 self.redis.zrem("{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()), self.username)
