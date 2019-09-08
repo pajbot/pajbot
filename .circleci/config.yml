@@ -40,21 +40,20 @@ commands:
           key: v2-python<< parameters.python_version >>-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
           paths:
             - ./venv
-      - save_cache:
-          name: Save created project dir to cache for other jobs to use
-          key: v2-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
+      - persist_to_workspace:
+          root: ~/pajbot
           paths:
             # working directory (entire project directory)
             - .
+
   load_setup:
     description: "Load the cache that the \"setup\" job produced."
     parameters:
       python_version:
         type: string
     steps:
-      - restore_cache:
-          keys:
-            - v2-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
+      - attach_workspace:
+          at: ~/pajbot
 
 jobs:
   setup-35:
