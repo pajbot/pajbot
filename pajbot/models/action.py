@@ -448,7 +448,7 @@ class MessageAction(BaseAction):
             resp = resp.replace(needle, value)
             log.debug("Replacing {0} with {1}".format(needle, value))
 
-        if "command" in extra and "source" in extra:
+        if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
             if not is_message_good(bot, resp, extra):
                 return None
 
@@ -485,7 +485,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             return False
         message = message.replace(needle, value)
 
-    if "command" in extra and "source" in extra:
+    if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
         if not is_message_good(bot, message, extra):
             return None
 

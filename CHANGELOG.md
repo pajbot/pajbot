@@ -1,5 +1,10 @@
 # Changelog
 
+## Unversioned
+
+- Bugfix: Commands are now only checked against banphrases, ascii and massping
+  checks if you enabled `run_through_banphrases` (e.g. via `--checkmsg`) (#478)
+
 ## v1.36
 
 - Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
