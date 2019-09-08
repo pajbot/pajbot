@@ -5,7 +5,6 @@ from numpy import random
 
 import pajbot.exc
 import pajbot.models
-import pajbot.utils
 from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -170,7 +169,7 @@ class RouletteModule(BaseModule):
 
         msg_split = message.split(" ")
         try:
-            bet = pajbot.utils.parse_points_amount(user, msg_split[0])
+            bet = utils.parse_points_amount(user, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
             bot.whisper(user.username, str(e))
             return False

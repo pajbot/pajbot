@@ -552,7 +552,6 @@ class Bot:
         self.privmsg(".ban {0} {1}".format(username, reason), increase_message=False)
 
     def ban(self, username, reason=""):
-        log.debug("Banning %s", username)
         self._timeout(username, 30, reason)
         self.execute_delayed(1, self._ban, (username, reason))
 
@@ -567,7 +566,6 @@ class Bot:
         self.privmsg(".timeout {0} {1} {2}".format(username, duration, reason), increase_message=False)
 
     def timeout(self, username, duration, reason=""):
-        log.debug("Timing out %s for %d seconds", username, duration)
         self._timeout(username, duration, reason)
         self.execute_delayed(1, self._timeout, (username, duration, reason))
 
@@ -641,8 +639,6 @@ class Bot:
             message = clean_up_message(message)
             if not message:
                 return False
-
-            log.info("Sending message: %s", message)
 
             self.privmsg(message[:510], channel)
 
@@ -724,8 +720,6 @@ class Bot:
 
         urls = self.find_unique_urls(message)
 
-        log.debug("{2}{0}: {1}".format(source.username, message, "<w>" if whisper else ""))
-
         res = HandlerManager.trigger(
             "on_message",
             source=source,
@@ -769,13 +763,9 @@ class Bot:
             self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
-        # self.say('Received a ping. Last ping received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_ping.timestamp())))
-        log.info("Received a ping. Last ping received %s ago", time_ago(self.last_ping))
         self.last_ping = pajbot.utils.now()
 
     def on_pong(self, chatconn, event):
-        # self.say('Received a pong. Last pong received {} ago'.format(time_since(pajbot.utils.now().timestamp(), self.last_pong.timestamp())))
-        log.info("Received a pong. Last pong received %s ago", time_ago(self.last_pong))
         self.last_pong = pajbot.utils.now()
 
     def on_usernotice(self, chatconn, event):
@@ -843,21 +833,13 @@ class Bot:
 
     @time_method
     def reload_all(self):
-        log.info("Reloading all...")
         for key, manager in self.reloadable.items():
-            log.debug("Reloading %s", key)
             manager.reload()
-            log.debug("Done with %s", key)
-        log.info("ok!")
 
     @time_method
     def commit_all(self):
-        log.info("Commiting all...")
         for key, manager in self.commitable.items():
-            log.info("Commiting %s", key)
             manager.commit()
-            log.info("Done with %s", key)
-        log.info("ok!")
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 

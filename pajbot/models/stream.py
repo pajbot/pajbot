@@ -304,6 +304,7 @@ class StreamManager:
             self.first_offline = None
         else:
             if self.online is True:
+                self.num_offlines += 1
                 log.info("Offline. {0}".format(self.num_offlines))
                 if self.first_offline is None:
                     self.first_offline = utils.now()
@@ -311,7 +312,6 @@ class StreamManager:
                 if self.num_offlines >= self.NUM_OFFLINES_REQUIRED:
                     log.info("Switching to offline state!")
                     self.go_offline()
-                self.num_offlines += 1
 
     def refresh_video_url_stage1(self):
         self.fetch_video_url_stage1()

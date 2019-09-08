@@ -138,7 +138,6 @@ class PaidTimeoutModule(BaseModule):
                 )
                 num_seconds = int((victim.timeout_end - now).total_seconds())
                 bot._timeout(victim.username, num_seconds, reason="Timed out by {}".format(source.username_raw))
-            # songs = session.query(PleblistSong, func.count(PleblistSong.song_info).label('total')).group_by(PleblistSong.youtube_id).order_by('total DESC')
             else:
                 bot.whisper(
                     source.username,
