@@ -26,8 +26,8 @@ commands:
           name: Install git
           command: apt-get install git -y
       - run:
-          name: Install python
-          command: apt-get install python3 python3-pip python3-venv -y
+          name: Install python and dependencies for python packages
+          command: apt-get install python3 python3-pip python3-venv libssl-dev -y
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
