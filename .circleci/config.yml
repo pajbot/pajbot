@@ -52,7 +52,7 @@ jobs:
       - create_setup
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --target-version py35 --check --diff pajbot alembic scripts
+          command: ./venv/bin/black --check --diff pajbot alembic scripts
 
 # add one workflow that runs all jobs in parallel
 workflows:
