@@ -28,7 +28,7 @@ commands:
           command: ./install/venvinstall --dev
       - save_cache:
           name: Save virtual environment to cache
-          key: v2-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: v2-python<< parameters.python_version >>-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
           paths:
             - ./venv
       - save_cache:
