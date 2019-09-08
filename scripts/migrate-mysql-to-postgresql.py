@@ -253,7 +253,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     copy_table(
         "prediction_run",
         ["id", "winner_id", "started", "ended", "open", "type"],
-        {"started": coerce_to_utc_time, "ended": coerce_to_utc_time},
+        {"started": coerce_to_utc_time, "ended": coerce_to_utc_time, "open": coerce_to_boolean},
     )
     copy_auto_increment("prediction_run", "id")
 
