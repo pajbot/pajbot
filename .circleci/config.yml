@@ -5,11 +5,11 @@ version: 2.1
 executors:
   pajbot-37:
     docker:
-      - image: circleci/python:3.7
+      - image: debian:buster
     working_directory: ~/pajbot
   pajbot-35:
     docker:
-      - image: circleci/python:3.5
+      - image: debian:stretch
     working_directory: ~/pajbot
 
 commands:
@@ -19,6 +19,15 @@ commands:
       python_version:
         type: string
     steps:
+      - run:
+          name: Update apt database
+          command: apt-get update
+      - run:
+          name: Install git
+          command: apt-get install git -y
+      - run:
+          name: Install python
+          command: apt-get install python3 -y
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
