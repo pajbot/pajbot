@@ -4,7 +4,7 @@ set -e
 
 # Ensure this script is called from the correct folder
 if [ ! -d install ]; then
-    echo "This script needs to be called from the root folder, i.e. ./install/venvinstall.sh"
+    >&2 echo "$0: This script needs to be called from the root folder, i.e. ./install/venvinstall"
     exit 1
 fi
 
@@ -17,15 +17,13 @@ fi
 # Upgrade pip
 ./venv/bin/pip install pip --upgrade
 
-# Install requirements.txt
+# Install wheel (missing on debian python installations, for example)
+./venv/bin/pip install wheel
+
+# Install production dependencies
 ./venv/bin/pip install -r requirements.txt
 
-if [ "$CI" ]; then
-    # Install dev deps inside CircleCI
-    ./venv/bin/pip install flake8 pytest
-fi
-
+# Install dev dependencies
 if [ "$1" = "--dev" ]; then
-    # Install dev deps
     ./venv/bin/pip install -r requirements-dev.txt
 fi

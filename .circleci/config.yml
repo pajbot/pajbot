@@ -2,138 +2,63 @@
 # see: https://circleci.com/docs/2.0/configuration-reference/
 
 version: 2.1
+
 executors:
-  pajbot-37:
+  pajbot:
     docker:
-      - image: circleci/python:3.7
-    working_directory: ~/pajbot
-  pajbot-35:
-    docker:
-      - image: circleci/python:3.5
+      - image: debian:buster
     working_directory: ~/pajbot
 
 commands:
   create_setup:
-    description: "Install virtual environment and requirements"
-    parameters:
-      python_version:
-        type: string
     steps:
+      - run:
+          name: Update apt database
+          command: apt-get update
+      - run:
+          name: Install python and dependencies for python packages
+          command: apt-get install git python3 python3-pip python3-venv libssl-dev -y
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
-          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
+          key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
       - run:
-          name: Install virtual environment
-          command: ./install/venvinstall.sh
-      - run:
-          name: Install black if supported
-          command: ./.circleci/install-black.py
+          name: Install virtual environment and dependencies
+          command: ./install/venvinstall.sh --dev
       - save_cache:
           name: Save virtual environment to cache
-          key: v1-python<< parameters.python_version >>-requirements-{{ checksum "requirements.txt" }}
+          key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
           paths:
             - ./venv
-      - save_cache:
-          name: Save created project dir to cache for other jobs to use
-          key: v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
-          paths:
-            # working directory (entire project directory)
-            - .
-  load_setup:
-    description: "Load the cache that the \"setup\" job produced."
-    parameters:
-      python_version:
-        type: string
-    steps:
-      - restore_cache:
-          keys:
-            - v1-python<< parameters.python_version >>-setup-{{ .Environment.CIRCLE_SHA1 }}
 
 jobs:
-  setup-35:
-    executor: pajbot-35
+  test:
+    executor: pajbot
     steps:
-      - create_setup:
-          python_version: "3.5"
-  setup-37:
-    executor: pajbot-37
-    steps:
-      - create_setup:
-          python_version: "3.7"
-  test-35:
-    executor: pajbot-35
-    steps:
-      - load_setup:
-          python_version: "3.5"
+      - create_setup
       - run:
           name: Run tests
           command: ./venv/bin/pytest
-  test-37:
-    executor: pajbot-37
+  lint:
+    executor: pajbot
     steps:
-      - load_setup:
-          python_version: "3.7"
-      - run:
-          name: Run tests
-          command: ./venv/bin/pytest
-  lint-35:
-    executor: pajbot-35
-    steps:
-      - load_setup:
-          python_version: "3.5"
+      - create_setup
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
-  lint-37:
-    executor: pajbot-37
+  check_format:
+    executor: pajbot
     steps:
-      - load_setup:
-          python_version: "3.7"
-      - run:
-          name: Run flake8 (lint)
-          command: ./venv/bin/flake8
-  check-format-35:
-    executor: pajbot-37
-    steps:
-      - load_setup:
-          python_version: "3.7"
+      - create_setup
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --target-version py35 --check --diff pajbot alembic scripts
-  check-format-37:
-    executor: pajbot-37
-    steps:
-      - load_setup:
-          python_version: "3.7"
-      - run:
-          name: Run black in check mode
-          command: ./venv/bin/black --target-version py37 --check --diff pajbot alembic scripts
+          command: ./venv/bin/black --check --diff pajbot alembic scripts
 
 # add one workflow that runs all jobs in parallel
 workflows:
   version: 2
-  run-with-python37:
+  build:
     jobs:
-      - setup-37
-      - test-37:
-          requires:
-            - setup-37
-      - lint-37:
-          requires:
-            - setup-37
-      - check-format-35:
-          requires:
-            - setup-37 # this is intentional
-      - check-format-37:
-          requires:
-            - setup-37
-  run-with-python35:
-    jobs:
-      - setup-35
-      - test-35:
-          requires:
-            - setup-35
-      - lint-35:
-          requires:
-            - setup-35
+      - test
+      - lint
+      - check_format
