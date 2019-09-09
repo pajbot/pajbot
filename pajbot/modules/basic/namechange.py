@@ -144,7 +144,12 @@ class NamechangeModule(BaseModule):
         # num_lines, tokens
         for key in UserRedis.SS_KEYS:
             redis_key = "{streamer}:users:{key}".format(streamer=StreamHelper.get_streamer(), key=key)
-            redis.zincrby(redis_key, redis.zscore(redis_key, old_username), new_username)
+            current_value = redis.zscore(redis_key, old_username)
+            if current_value is not None:
+                # TODO: The UserRedis implementation currently ZREMs the value
+                #   if the value would be 0,
+                #   this implementation here can/would create mappings with score = 0 too
+                redis.zincrby(redis_key, current_value, new_username)
 
         # last_seen, last_active, username_raw, ignored, banned
         for key in UserRedis.HASH_KEYS:
