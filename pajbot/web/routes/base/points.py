@@ -3,6 +3,7 @@ import logging
 import markdown
 from flask import Markup
 from flask import render_template
+from sqlalchemy import text
 
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
@@ -23,17 +24,9 @@ def init(app):
                 except:
                     log.exception("Unhandled exception in def index")
 
-            rank = 1
-            index = 1
-            last_user_points = -13333337
-            rankings = []
-            for user in db_session.query(User).order_by(User.points.desc()).limit(30):
-                if user.points != last_user_points:
-                    rank = index
-
-                rankings.append((rank, user))
-
-                index += 1
-                last_user_points = user.points
+            # rankings is a list of (User, int) tuples (user with their rank)
+            rankings = db_session.query(User, "rank").from_statement(text("""
+            SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30;
+            """))
 
             return render_template("points.html", top_30_users=rankings, custom_content=custom_content)
