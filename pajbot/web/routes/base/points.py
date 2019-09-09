@@ -25,6 +25,18 @@ def init(app):
                     log.exception("Unhandled exception in def index")
 
             # rankings is a list of (User, int) tuples (user with their rank)
+            # note on the efficiency of this query: takes approx. 0.3-0.4 milliseconds on a 5 million user DB
+            #
+            # pajbot=# EXPLAIN ANALYZE SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30;
+            #                                                                         QUERY PLAN
+            # ----------------------------------------------------------------------------------------------------------------------------------------------------------
+            #  Limit  (cost=0.43..2.03 rows=30 width=49) (actual time=0.020..0.069 rows=30 loops=1)
+            #    ->  WindowAgg  (cost=0.43..181912.19 rows=4197554 width=49) (actual time=0.020..0.065 rows=30 loops=1)
+            #          ->  Index Scan Backward using user_points_idx on "user"  (cost=0.43..118948.88 rows=4197554 width=41) (actual time=0.012..0.037 rows=31 loops=1)
+            #  Planning Time: 0.080 ms
+            #  Execution Time: 0.089 ms
+            #
+            # (see also the extensive comment on migration revision ID 2, 0002_create_index_on_user_points.py)
             rankings = db_session.query(User, "rank").from_statement(
                 text(
                     'SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30'
