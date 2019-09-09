@@ -193,8 +193,8 @@ class NamechangeModule(BaseModule):
         # minutes the user spent watching that stream
         personal_uptimes_redis_key = "{streamer}:viewer_data".format(streamer=StreamHelper.get_streamer())
         all_personal_uptimes = redis.hgetall(personal_uptimes_redis_key)
-        for stream_id, personal_uptimes_raw in all_personal_uptimes.items():
-            personal_uptimes = json.loads(personal_uptimes_raw)
+        for stream_id, raw_personal_uptimes in all_personal_uptimes.items():
+            personal_uptimes = json.loads(raw_personal_uptimes)
             if new_username not in personal_uptimes:
                 continue  # no need to update this stream's viewer data
 
