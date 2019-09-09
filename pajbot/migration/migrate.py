@@ -17,7 +17,7 @@ class Migration:
         self.revisions_package = revisions_package
         self.context = context
 
-    def run(self):
+    def run(self, target_revision_id=None):
         with self.migratable.create_resource() as resource:
             revisions = self.get_revisions()
             current_revision_id = self.migratable.get_current_revision(resource)
@@ -27,6 +27,10 @@ class Migration:
                 revisions_to_run = [rev for rev in revisions if rev.id > current_revision_id]
             else:
                 revisions_to_run = revisions
+
+            # don't run all revisions, only up to the specified revision_id
+            if target_revision_id is not None:
+                revisions_to_run = [rev for rev in revisions_to_run if rev.id <= target_revision_id]
 
             log.debug("migrate: %s revisions to run", len(revisions_to_run))
 

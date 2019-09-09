@@ -64,7 +64,9 @@ logging.basicConfig(level=logging.DEBUG)
 print("PostgreSQL: Creating schema... ", end="")
 db_migratable = DatabaseMigratable(psql_conn)
 db_migration = Migration(db_migratable, pajbot.migration_revisions.db)
-db_migration.run()
+# only run the initial migration (=up to ID 1),
+# keeps this script compatible with future incompatible DB schema changes
+db_migration.run(target_revision_id=1)
 print("done.")
 
 
