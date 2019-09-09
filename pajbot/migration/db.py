@@ -8,11 +8,13 @@ class DatabaseMigratable:
     @contextmanager
     def create_resource(self):
         with self.conn.cursor() as cursor:
-            # begins a transaction automatically
-
-            cursor.execute("CREATE TABLE IF NOT EXISTS schema_version(revision_id INT NOT NULL)")
-
-            yield cursor
+            try:
+                cursor.execute("CREATE TABLE IF NOT EXISTS schema_version(revision_id INT NOT NULL)")
+                yield cursor
+                cursor.execute("COMMIT")
+            except:
+                cursor.execute("ROLLBACK")
+                raise
 
     def get_current_revision(self, cursor):
         cursor.execute("SELECT revision_id FROM schema_version")
