@@ -43,7 +43,7 @@ class SubscriberFetchModule(BaseModule):
     @time_method
     def update_subscribers_stage2(self, subscribers):
         # remove broadcaster from sub count
-        self.bot.kvi["active_sub"].set(len(subscribers) - 1)
+        self.bot.kvi["active_subs"].set(len(subscribers) - 1)
 
         self.bot.users.reset_subs()
         self.bot.users.update_subs(subscribers)

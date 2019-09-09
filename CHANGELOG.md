@@ -37,6 +37,8 @@ Remember to bring your dependencies up to date with
 - Breaking (if you rely on it in an automatic way somehow): `venvinstall.sh` has
   been moved from `./install` into `./scripts`, where all other shell scripts
   also reside.
+- Major: Official support for python 3.5 has been removed. Only python 3.6 or
+  above will be supported from this release on.
 - Feature: Added `!namechange <oldusername> <newusername>` command for migrating
   users that changed their twitch name. (Level 2000 only).
   `./scripts/transfer-{all,sql,redis}` scripts have been removed.
@@ -53,6 +55,7 @@ Remember to bring your dependencies up to date with
   objects.
 - Bugfix: Commands are now only checked against banphrases, ascii and massping
   checks if you enabled `run_through_banphrases` (e.g. via `--checkmsg`) (#478)
+- Bugfix: Subscribers refresh now correctly sets the `active_subs` KVI value.
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
 

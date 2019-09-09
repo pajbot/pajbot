@@ -20,12 +20,7 @@ fi
 # Install requirements.txt
 ./venv/bin/pip install -r requirements.txt
 
-if [ "$CI" ]; then
-    # Install dev deps inside CircleCI
-    ./venv/bin/pip install flake8 pytest
-fi
-
+# Install dev dependencies
 if [ "$1" = "--dev" ]; then
-    # Install dev deps
     ./venv/bin/pip install -r requirements-dev.txt
 fi
