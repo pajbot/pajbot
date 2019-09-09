@@ -196,7 +196,7 @@ class NamechangeModule(BaseModule):
         for stream_id, personal_uptimes_raw in all_personal_uptimes.items():
             personal_uptimes = json.loads(personal_uptimes_raw)
             if not new_username in personal_uptimes:
-                continue # no need to update this stream's viewer data
+                continue  # no need to update this stream's viewer data
 
             personal_uptimes[old_username] = personal_uptimes.get(old_username, 0) + personal_uptimes[new_username]
             del personal_uptimes[new_username]
