@@ -2,7 +2,7 @@
 
 <!-- reformat this file with `npx prettier --prose-wrap=always --write CHANGELOG.md` -->
 
-## Unreleased
+## Unversioned
 
 Remember to bring your dependencies up to date with
 `pip install -r requirements.txt` when updating to this version!
@@ -51,6 +51,8 @@ Remember to bring your dependencies up to date with
 - Bugfix: Fixed a series of bugs (including the `!laststream` command sometimes
   not working) caused by a mismatch of datetime-aware and datetime-naive
   objects.
+- Bugfix: Commands are now only checked against banphrases, ascii and massping
+  checks if you enabled `run_through_banphrases` (e.g. via `--checkmsg`) (#478)
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
 
