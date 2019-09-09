@@ -4,18 +4,26 @@ set -e
 
 # Ensure this script is called from the correct folder
 if [ ! -d install ]; then
-    echo "This script needs to be called from the root folder, i.e. ./install/venvinstall.sh"
+    >&2 echo "$0: This script needs to be called from the root folder, i.e. ./install/venvinstall"
     exit 1
 fi
 
-# Create virtual environment
-python3 -m venv venv
-
-# Activate virtual environment
-. ./venv/bin/activate
+if [ ! -d venv ]; then
+    # Create virtual environment
+    echo "Creating python venv"
+    python3 -m venv venv
+fi
 
 # Upgrade pip
-pip install pip --upgrade
+./venv/bin/pip install pip --upgrade
 
-# Install requirements.txt
-pip install -r requirements.txt
+# Install wheel (missing on debian python installations, for example)
+./venv/bin/pip install wheel
+
+# Install production dependencies
+./venv/bin/pip install -r requirements.txt
+
+# Install dev dependencies
+if [ "$1" = "--dev" ]; then
+    ./venv/bin/pip install -r requirements-dev.txt
+fi

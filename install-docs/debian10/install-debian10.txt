@@ -29,27 +29,17 @@ sudo reboot
 sudo apt install git
 
 #
-# Register a twitch application client-id
+# Register a twitch application
 #
-# Make sure you are logged into twitch with the KKonaTestAdmin account and follow these instructions:
-# Go to https://glass.twitch.tv/console/apps/create and register two applications:
+# Make sure you are logged into twitch with your own account (e.g. KKonaTestAdmin),
+# go to https://dev.twitch.tv/console/apps/create and register a new application:
 #
-# "KKonaTestAdmin - pajbot1 - shared" - note the client-id of this application.
-# For this application, put "https://twitchapps.com/tmi/" as the redirect URL.
-# In our example, the client ID will be: 0bb4b8517c0b20e0a72ddbfd88aa69
+# Name: KKonaTestBot - KKonaTestBroadcaster
+# OAuth Redirect URL: https://bot.kkonatestbroadcaster.tv/login/authorized
+# Category: Chat Bot
 #
-# "KKonaTestBot" - note the client-id and a client secret of this application.
-# For this application, put "https://twitchapps.com/tmi/" as the redirect URL.
-# After you are done setting up your config (when you have authorized your bot 
-# and broadcaster accounts), you must go back to this application and set
-# this redirect URL: "https://bot.kkonatestbroadcaster.tv/login/authorized"
 # In this example, the client ID will be: 0f958ce6bf20ba8ea84a21e43ebba1
 # The client secret will be: cdaa2b0832ccd5b1f053f2faffc37f
-#
-# Choose "Chat Bot" as the category for both applications.
-# The first application will be shared across all pajbot instances, should you have multiple.
-# The second application is specific to this pajbot1 instance, which is local to one broadcaster
-# and one bot account (KKonaTestBroadcaster/KKonaTestBot)
 #
 
 #
