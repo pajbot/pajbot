@@ -43,6 +43,8 @@ class NamechangeModule(BaseModule):
 
         # DB Updates
         with DBManager.create_session_scope() as db_session:
+            db_session.execute("SET CONSTRAINTS ALL DEFERRED")
+
             old_user = db_session.query(User).filter(User.username == old_username).one_or_none()
             new_user = db_session.query(User).filter(User.username == new_username).one_or_none()
 
