@@ -43,8 +43,6 @@ class NamechangeModule(BaseModule):
 
         # DB Updates
         with DBManager.create_session_scope() as db_session:
-            db_session.execute("SET CONSTRAINTS ALL DEFERRED")
-
             new_user = db_session.query(User).filter(User.username == new_username).one_or_none()
             old_user = db_session.query(User).filter(User.username == old_username).one_or_none()
 
@@ -56,7 +54,8 @@ class NamechangeModule(BaseModule):
                 bot.whisper(source.username, "User {} was not found".format(new_username))
                 return False
 
-            # we will migrate
+            # we will migrate data created on the new user into the old user, and delete the new user
+            # so the user will effectively "keep" their old ID
             db_session.delete(new_user)
             db_session.flush()
 
