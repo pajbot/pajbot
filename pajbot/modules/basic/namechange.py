@@ -1,5 +1,6 @@
 import logging
 
+import json
 from sqlalchemy import update
 
 from pajbot.managers.db import DBManager
@@ -41,6 +42,10 @@ class NamechangeModule(BaseModule):
         old_username = message_split[0].lower()
         new_username = message_split[1].lower()
 
+        # used later for redis, but we have to figure it out via SQL
+        old_user_id = None
+        new_user_id = None
+
         # DB Updates
         with DBManager.create_session_scope() as db_session:
             old_user = db_session.query(User).filter(User.username == old_username).one_or_none()
@@ -53,6 +58,9 @@ class NamechangeModule(BaseModule):
             if new_user is None:
                 bot.whisper(source.username, "User {} was not found".format(new_username))
                 return False
+
+            old_user_id = old_user.id
+            new_user_id = new_user.id
 
             # we will migrate data created on the new user into the old user, and delete the new user
             # so the user will effectively "keep" their old ID
@@ -170,6 +178,29 @@ class NamechangeModule(BaseModule):
                 redis.hdel(redis_key, new_username)
 
             redis.hdel(redis_key, old_username)
+
+        # admin logs
+        admin_logs_key = "{streamer}:logs:admin".format(streamer=StreamHelper.get_streamer())
+        all_admin_logs = redis.lrange(admin_logs_key, 0, -1)
+        for idx, raw_log_entry in enumerate(all_admin_logs):
+            log_entry = json.loads(raw_log_entry)
+            if log_entry["user_id"] == new_user_id:
+                log_entry["user_id"] = old_user_id
+                redis.lset(admin_logs_key, idx, json.dumps(log_entry))
+
+        # personal uptime
+        # all_personal_uptimes maps a string stream ID (e.g. "115") to a string json blob mapping username to
+        # minutes the user spent watching that stream
+        personal_uptimes_redis_key = "{streamer}:viewer_data".format(streamer=StreamHelper.get_streamer())
+        all_personal_uptimes = redis.hgetall(personal_uptimes_redis_key)
+        for stream_id, personal_uptimes_raw in all_personal_uptimes.items():
+            personal_uptimes = json.loads(personal_uptimes_raw)
+            if not new_username in personal_uptimes:
+                continue # no need to update this stream's viewer data
+
+            personal_uptimes[old_username] = personal_uptimes.get(old_username, 0) + personal_uptimes[new_username]
+            del personal_uptimes[new_username]
+            redis.hset(personal_uptimes_redis_key, stream_id, json.dumps(personal_uptimes))
 
         bot.whisper(source.username, "Successfully migrated all data from {} to {}".format(old_username, new_username))
 
