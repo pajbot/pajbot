@@ -58,6 +58,7 @@ class NamechangeModule(BaseModule):
 
             # we will migrate
             db_session.delete(new_user)
+            db_session.flush()
 
             old_user.level = max(old_user.level, new_user.level)
             old_user.points += new_user.points
