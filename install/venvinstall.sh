@@ -10,7 +10,7 @@ fi
 
 if [ ! -d venv ]; then
     # Create virtual environment
-    echo "$0: Creating python venv"
+    echo "Creating python venv"
     python3 -m venv venv
 fi
 
