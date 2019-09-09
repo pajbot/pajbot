@@ -25,8 +25,10 @@ def init(app):
                     log.exception("Unhandled exception in def index")
 
             # rankings is a list of (User, int) tuples (user with their rank)
-            rankings = db_session.query(User, "rank").from_statement(text("""
-            SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30;
-            """))
+            rankings = db_session.query(User, "rank").from_statement(
+                text(
+                    'SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30'
+                )
+            )
 
             return render_template("points.html", top_30_users=rankings, custom_content=custom_content)
