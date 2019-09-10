@@ -14,7 +14,7 @@ class TwitchTMIAPI(BaseTwitchAPI):
         response = self.get(["group", "user", streamer, "chatters"])
         ch = response["chatters"]
         chatters = []
-        
+
         for chatter_category in chatters:
             chatters.extend(chatter_category)
 
