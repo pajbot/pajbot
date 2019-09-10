@@ -67,7 +67,7 @@ jobs:
           command: apt-get install nodejs -y
       - run:
           name: Check markdown style with prettier
-          command: npx prettier@^1.18.2 --check --prose-wrap=always ./**/*.md
+          command: npx prettier@^1.18.2 --check --prose-wrap=always **/*.md
 
 # add one workflow that runs all jobs in parallel
 workflows:
