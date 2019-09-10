@@ -1,4 +1,3 @@
-import json
 import logging
 
 from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT
