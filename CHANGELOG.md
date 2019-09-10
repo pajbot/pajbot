@@ -4,6 +4,7 @@
 
 - Major: Official support for python 3.5 has been removed. Only python 3.6 or
   above will be supported from this release on.
+- The `!myuptime` command/feature has been removed, as it violated Twitch Developer TOS.
 - Bugfix: Commands are now only checked against banphrases, ascii and massping
   checks if you enabled `run_through_banphrases` (e.g. via `--checkmsg`) (#478)
 - Bugfix: Subscribers refresh now correctly sets the `active_subs` KVI value.
