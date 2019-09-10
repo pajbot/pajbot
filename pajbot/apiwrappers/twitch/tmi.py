@@ -6,7 +6,7 @@ log = logging.getLogger(__name__)
 
 
 class TwitchTMIAPI(BaseTwitchAPI):
-    def __init__(self, client_credentials):
+    def __init__(self):
         super().__init__(base_url="https://tmi.twitch.tv/")
         self.session.headers["Accept"] = "application/vnd.twitchtv.v5+json"
 
