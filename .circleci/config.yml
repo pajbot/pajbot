@@ -57,6 +57,9 @@ jobs:
     executor: pajbot
     steps:
       - run:
+          name: Install curl
+          command: apt-get update && apt-get install curl -y
+      - run:
           name: Install apt repository for Node.js 12
           command: curl -sL https://deb.nodesource.com/setup_12.x | bash -
       - run:
