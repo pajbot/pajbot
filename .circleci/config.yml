@@ -52,7 +52,7 @@ jobs:
       - create_python_setup
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --check --diff pajbot alembic scripts
+          command: source venv/bin/activate && ./scripts/reformat-python.sh --check
   check_markdown_format:
     executor: pajbot
     steps:
@@ -68,7 +68,7 @@ jobs:
       - checkout
       - run:
           name: Check markdown style with prettier
-          command: npx prettier@^1.18.2 --check --prose-wrap=always **/*.md
+          command: ./scripts/reformat-markdown.sh --check
 
 # add one workflow that runs all jobs in parallel
 workflows:
