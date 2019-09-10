@@ -29,3 +29,4 @@ venv/
 
 .idea/
 .vscode/
+/.github/pull_request_template.md

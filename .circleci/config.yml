@@ -10,7 +10,7 @@ executors:
     working_directory: ~/pajbot
 
 commands:
-  create_setup:
+  create_python_setup:
     steps:
       - run:
           name: Update apt database
@@ -35,24 +35,40 @@ jobs:
   test:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run tests
           command: ./venv/bin/pytest
   lint:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
-  check_format:
+  check_python_format:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --check --diff pajbot alembic scripts
+          command: source venv/bin/activate && ./scripts/reformat-python.sh --check
+  check_markdown_format:
+    executor: pajbot
+    steps:
+      - run:
+          name: Install curl
+          command: apt-get update && apt-get install curl -y
+      - run:
+          name: Install apt repository for Node.js 12
+          command: curl -sL https://deb.nodesource.com/setup_12.x | bash -
+      - run:
+          name: Install Node.js 12
+          command: apt-get install nodejs -y
+      - checkout
+      - run:
+          name: Check markdown style with prettier
+          command: ./scripts/reformat-markdown.sh --check
 
 # add one workflow that runs all jobs in parallel
 workflows:
@@ -61,4 +77,5 @@ workflows:
     jobs:
       - test
       - lint
-      - check_format
+      - check_python_format
+      - check_markdown_format
