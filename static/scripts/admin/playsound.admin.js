@@ -230,7 +230,7 @@ $(window).load(function () {
             doSave();
         });
 
-        $(form).closest('td').find('.play-in-browser-wrapper').each(function (index, wrapper) {
+        $(form).closest('tr').find('.play-in-browser-wrapper').each(function (index, wrapper) {
             let playButton = $(wrapper).find('.play-on-stream');
 
             $(playButton).click(() => {
