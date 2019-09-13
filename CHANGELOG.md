@@ -1,7 +1,5 @@
 # Changelog
 
-<!-- reformat this file with `npx prettier --prose-wrap=always --write CHANGELOG.md` -->
-
 ## Unversioned
 
 Remember to bring your dependencies up to date with
@@ -34,6 +32,9 @@ Remember to bring your dependencies up to date with
   The procedure for new bot installations is described in the
   [install documentation](./install-docs).
 
+- Breaking: If you were using the
+  [chatters microservice](https://github.com/pajbot/chatters), you must update
+  it to be able to use it after the PostgreSQL update.
 - Breaking (if you rely on it in an automatic way somehow): `venvinstall.sh` has
   been moved from `./install` into `./scripts`, where all other shell scripts
   also reside.
