@@ -65,7 +65,7 @@ class GivePointsModule(BaseModule):
             return False
 
         try:
-            num_points = utils.parse_points_amount(msg_split[1])
+            num_points = utils.parse_points_amount(source, msg_split[1])
         except InvalidPointAmount as e:
             bot.whisper(
                 source.username,
