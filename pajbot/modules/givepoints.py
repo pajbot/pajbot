@@ -51,7 +51,6 @@ class GivePointsModule(BaseModule):
             # The user did not supply any arguments
             return False
 
-
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
