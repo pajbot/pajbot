@@ -9,6 +9,8 @@ Remember to bring your dependencies up to date with
   database engine. It is not possible to continue to use MySQL.  
   To migrate your existing database(s):
 
+  - Install new requirements from apt: `sudo apt-get install libpq-dev`
+  - Bring your installed dependencies up-to-date with `pip install -r requirements.txt`
   - Install and start PostgreSQL, if you have not done so already
   - Create the pajbot PostgreSQL user, a database and optionally a schema for
     the bot to use. (see the updated SQL section of
