@@ -72,7 +72,7 @@ class BanphraseModule(BaseModule):
 
             if new_banphrase is True:
                 bot.whisper(source.username, "Added your banphrase (ID: {banphrase.id})".format(banphrase=banphrase))
-                AdminLogManager.post("Banphrase added", source, phrase)
+                AdminLogManager.post("Banphrase added", source, banphrase.id, banphrase.phrase)
                 return True
 
             banphrase.set(**options)
@@ -85,7 +85,7 @@ class BanphraseModule(BaseModule):
                     banphrase=banphrase, what=", ".join([key for key in options if key != "added_by"])
                 ),
             )
-            AdminLogManager.post("Banphrase edited", source, phrase)
+            AdminLogManager.post("Banphrase edited", source, banphrase.id, banphrase.phrase)
 
     @staticmethod
     def remove_banphrase(**options):
@@ -106,7 +106,7 @@ class BanphraseModule(BaseModule):
                 bot.whisper(source.username, "No banphrase with the given parameters found")
                 return False
 
-            AdminLogManager.post("Banphrase removed", source, banphrase.phrase)
+            AdminLogManager.post("Banphrase removed", source, banphrase.id, banphrase.phrase)
             bot.whisper(source.username, "Successfully removed banphrase with id {0}".format(banphrase.id))
             bot.banphrase_manager.remove_banphrase(banphrase)
         else:
