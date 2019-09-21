@@ -1,11 +1,8 @@
 import json
 import logging
 
-from sqlalchemy import Boolean
+from sqlalchemy import INT, BOOLEAN, TEXT
 from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.dialects.mysql import TEXT
 from sqlalchemy.orm import reconstructor
 
 from pajbot.managers.db import Base
@@ -17,14 +14,14 @@ log = logging.getLogger("pajbot")
 
 
 class Timer(Base):
-    __tablename__ = "tb_timer"
+    __tablename__ = "timer"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(256), nullable=False)
+    id = Column(INT, primary_key=True)
+    name = Column(TEXT, nullable=False)
     action_json = Column("action", TEXT, nullable=False)
-    interval_online = Column(Integer, nullable=False)
-    interval_offline = Column(Integer, nullable=False)
-    enabled = Column(Boolean, nullable=False, default=True)
+    interval_online = Column(INT, nullable=False)
+    interval_offline = Column(INT, nullable=False)
+    enabled = Column(BOOLEAN, nullable=False, default=True)
 
     def __init__(self, **options):
         self.id = None

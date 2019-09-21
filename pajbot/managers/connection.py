@@ -81,7 +81,7 @@ class ConnectionManager:
         try:
             self.make_new_connection()
 
-            phrase_data = {"nickname": self.bot.nickname, "version": self.bot.version}
+            phrase_data = {"nickname": self.bot.nickname, "version": self.bot.version_long}
 
             for p in self.bot.phrases["welcome"]:
                 self.bot.privmsg(p.format(**phrase_data))

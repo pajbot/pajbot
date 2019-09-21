@@ -1,10 +1,10 @@
 import logging
 from urllib.parse import urlsplit
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import Integer
-from sqlalchemy.dialects.mysql import TEXT
+from sqlalchemy_utc import UtcDateTime
+
+
+from sqlalchemy import Column, INT, TEXT
 
 from pajbot import utils
 from pajbot.managers.db import Base
@@ -16,13 +16,13 @@ log = logging.getLogger(__name__)
 
 
 class LinkTrackerLink(Base):
-    __tablename__ = "tb_link_data"
+    __tablename__ = "link_data"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(INT, primary_key=True)
     url = Column(TEXT)
-    times_linked = Column(Integer)
-    first_linked = Column(DateTime)
-    last_linked = Column(DateTime)
+    times_linked = Column(INT)
+    first_linked = Column(UtcDateTime())
+    last_linked = Column(UtcDateTime())
 
     def __init__(self, url):
         self.id = None
