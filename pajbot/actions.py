@@ -6,11 +6,7 @@ log = logging.getLogger(__name__)
 
 
 class Action:
-    func = None
-    args = []
-    kwargs = {}
-
-    def __init__(self, func=None, args=[], kwargs={}):
+    def __init__(self, func=None, *args, **kwargs):
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -46,16 +42,5 @@ class ActionQueue:
             except:
                 log.exception("Logging an uncaught exception (ActionQueue)")
 
-    # Run a single action in the queue if the queue is not empty.
-
-    def parse_action(self):
-        if not self.queue.empty():
-            action = self.queue.get()
-            action.run()
-
-    def add(self, func, args=[], kwargs={}):
-        action = Action(func, args, kwargs)
-        self._add(action)
-
-    def _add(self, action):
-        self.queue.put(action)
+    def add(self, func, *args, **kwargs):
+        self.queue.put(Action(func, *args, **kwargs))

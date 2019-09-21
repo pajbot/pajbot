@@ -12,7 +12,7 @@ def init(page):
     @requires_level(500)
     def playsounds(**options):
         with DBManager.create_session_scope() as session:
-            playsounds = session.query(Playsound).all()
+            playsounds = session.query(Playsound).order_by(Playsound.name).all()
             playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one_or_none()
 
             enabled = False

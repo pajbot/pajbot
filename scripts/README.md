@@ -26,3 +26,9 @@ source venv/bin/activate
 # and reformat it afterwards.
 black pajbot
 ```
+
+## migrate-mysql-to-postgresql
+
+Edit `migrate-mysql-to-postgresql.py` with your connection parameters. Then run `./migrate-mysql-to-postgresql`.
+
+The script takes a fresh PostgreSQL database/schema, creates the database schema, and then copies all data from a MySQL database to the PostgreSQL one.

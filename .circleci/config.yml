@@ -17,14 +17,14 @@ commands:
           command: apt-get update
       - run:
           name: Install python and dependencies for python packages
-          command: apt-get install git python3 python3-pip python3-venv libssl-dev -y
+          command: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
       - run:
           name: Install virtual environment and dependencies
-          command: ./install/venvinstall.sh --dev
+          command: ./scripts/venvinstall.sh --dev
       - save_cache:
           name: Save virtual environment to cache
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}

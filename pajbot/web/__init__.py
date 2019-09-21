@@ -6,6 +6,8 @@ from pajbot.apiwrappers.authentication.client_credentials import ClientCredentia
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
+from pajbot.constants import VERSION
+from pajbot.utils import extend_version_if_possible
 
 app = Flask(
     __name__,
@@ -29,7 +31,7 @@ def init(args):
     import pajbot.utils
     import pajbot.web.common
     import pajbot.web.routes
-    from pajbot.bot import Bot
+    from pajbot import constants
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
     from pajbot.managers.time import TimeManager
@@ -113,22 +115,17 @@ def init(args):
     errors.init(app, config)
     pajbot.web.routes.clr.config = config
 
-    version = Bot.version
-    last_commit = ""
-    commit_number = 0
+    version = extend_version_if_possible(VERSION)
+
     try:
-        current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
-        latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
-        commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
         last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
-        version = "{0} DEV ({1}, {2}, commit {3})".format(version, current_branch, latest_commit, commit_number)
     except:
-        pass
+        log.exception("Failed to get last_commit, will not show last commit")
+        last_commit = None
 
     default_variables = {
         "version": version,
         "last_commit": last_commit,
-        "commit_number": commit_number,
         "bot": {"name": config["main"]["nickname"]},
         "site": {
             "domain": config["web"]["domain"],

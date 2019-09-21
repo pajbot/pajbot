@@ -30,27 +30,24 @@ def test_is_same_url():
 
 def test_find_unique_urls():
     from pajbot.modules.linkchecker import find_unique_urls
-    from pajbot.bot import Bot
-    import re
+    from pajbot.bot import URL_REGEX
 
-    regex = re.compile(Bot.url_regex_str, re.IGNORECASE)
-
-    assert find_unique_urls(regex, "pajlada.se test http://pajlada.se") == {"http://pajlada.se"}
-    assert find_unique_urls(regex, "pajlada.se pajlada.com foobar.se") == {
+    assert find_unique_urls(URL_REGEX, "pajlada.se test http://pajlada.se") == {"http://pajlada.se"}
+    assert find_unique_urls(URL_REGEX, "pajlada.se pajlada.com foobar.se") == {
         "http://pajlada.se",
         "http://pajlada.com",
         "http://foobar.se",
     }
-    assert find_unique_urls(regex, "foobar.com foobar.com") == {"http://foobar.com"}
-    assert find_unique_urls(regex, "foobar.com foobar.se"), {"http://foobar.com" == "http://foobar.se"}
-    assert find_unique_urls(regex, "www.foobar.com foobar.se"), {"http://www.foobar.com" == "http://foobar.se"}
+    assert find_unique_urls(URL_REGEX, "foobar.com foobar.com") == {"http://foobar.com"}
+    assert find_unique_urls(URL_REGEX, "foobar.com foobar.se"), {"http://foobar.com" == "http://foobar.se"}
+    assert find_unique_urls(URL_REGEX, "www.foobar.com foobar.se"), {"http://www.foobar.com" == "http://foobar.se"}
 
     # TODO: Edge case, this behaviour should probably be changed. These URLs should be considered the same.
     # Use is_same_url method?
-    assert find_unique_urls(regex, "pajlada.se/ pajlada.se"), {"http://pajlada.se/" == "http://pajlada.se"}
+    assert find_unique_urls(URL_REGEX, "pajlada.se/ pajlada.se"), {"http://pajlada.se/" == "http://pajlada.se"}
 
     # TODO: The protocol of a URL is entirely thrown away, this behaviour should probably be changed.
-    assert find_unique_urls(regex, "https://pajlada.se/ https://pajlada.se") == {
+    assert find_unique_urls(URL_REGEX, "https://pajlada.se/ https://pajlada.se") == {
         "https://pajlada.se/",
         "https://pajlada.se",
     }
