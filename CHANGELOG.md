@@ -59,6 +59,7 @@ Remember to bring your dependencies up to date with
 - Bugfix: Commands are now only checked against banphrases, ascii and massping
   checks if you enabled `run_through_banphrases` (e.g. via `--checkmsg`) (#478)
 - Bugfix: Subscribers refresh now correctly sets the `active_subs` KVI value.
+- Bugfix: You can no longer ignore yourself
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
 
