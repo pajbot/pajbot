@@ -125,7 +125,7 @@ class MathModule(BaseModule):
         if expr_res is None:
             return False
 
-        emote = "Kappa"
+        emote = "PogChamp"
         try:
             if int(expr_res) == 69 or expr_res == 69.69:
                 emote = "Kreygasm"
