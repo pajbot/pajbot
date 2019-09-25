@@ -63,6 +63,7 @@ Remember to bring your dependencies up to date with
 - Bugfix: You can now use the same phrases (1k, "all", etc.) with the `!givepoints` command.
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
+  Minor: Changed Math function Emote from Kappa to PogChamp
 
 <!--
 - Internal: New (stupider) migrations system that directly uses SQL, and can additionally
