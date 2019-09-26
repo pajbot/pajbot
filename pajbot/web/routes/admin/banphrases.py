@@ -114,6 +114,7 @@ def init(page):
                 else:
                     db_session.add(banphrase)
                     db_session.add(banphrase.data)
+                    db_session.flush()
                     log.info("Added a new banphrase by user ID {}".format(options["added_by"]))
                     AdminLogManager.post("Banphrase added", user, banphrase.id, banphrase.phrase)
 
