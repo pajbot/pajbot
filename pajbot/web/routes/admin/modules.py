@@ -36,7 +36,12 @@ def init(page):
         user = options["user"]
 
         if user.level < current_module.CONFIGURE_LEVEL:
-            return render_template("errors/403.html", extra_message="You do not have permission to configure this module."), 403
+            return (
+                render_template(
+                    "errors/403.html", extra_message="You do not have permission to configure this module."
+                ),
+                403,
+            )
 
         if current_module is None:
             return render_template("admin/module_404.html"), 404
