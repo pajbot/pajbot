@@ -8,7 +8,7 @@ set -e
 # if any file does not match the code style.
 
 if ! command -v black >/dev/null; then
-  >&2 echo "$0: The black command line tool is not available. (tip: try ./install/venvinstall.sh, then source venv/bin/activate)"
+  >&2 echo "$0: The black command line tool is not available. (tip: try ./scripts/venvinstall.sh --dev, then source venv/bin/activate)"
   exit 1
 fi
 
