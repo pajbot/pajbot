@@ -27,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for rank, user in top_30_users %}
+            {% for user, rank in top_30_users %}
                 {% include 'list/user.html' %}
             {% endfor %}
         </tbody>

@@ -25,7 +25,7 @@ from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
-from pajbot.utils import time_nonclass_method
+from pajbot.utils import time_method
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ def download_logo(twitch_helix_api, streamer):
     pil_image.save(logo_tn_path, "png")
 
 
-@time_nonclass_method
+@time_method
 def get_cached_commands():
     CACHE_TIME = 30  # seconds
 

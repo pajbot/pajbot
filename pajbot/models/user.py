@@ -4,10 +4,8 @@ import logging
 from contextlib import contextmanager
 
 import requests
-from sqlalchemy import Boolean
+from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
 
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
@@ -26,16 +24,16 @@ class Config:
 
 
 class User(Base):
-    __tablename__ = "tb_user"
+    __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(32), nullable=False, index=True, unique=True)
-    username_raw = Column(String(32))
-    level = Column(Integer, nullable=False, default=100)
-    points = Column(Integer, nullable=False, default=0, index=True)
-    subscriber = Column(Boolean, nullable=False, default=False)
-    minutes_in_chat_online = Column(Integer, nullable=False, default=0)
-    minutes_in_chat_offline = Column(Integer, nullable=False, default=0)
+    id = Column(INT, primary_key=True)
+    username = Column(TEXT, nullable=False, index=True, unique=True)
+    username_raw = Column(TEXT)
+    level = Column(INT, nullable=False, default=100)
+    points = Column(INT, nullable=False, default=0, index=True)
+    subscriber = Column(BOOLEAN, nullable=False, default=False)
+    minutes_in_chat_online = Column(INT, nullable=False, default=0)
+    minutes_in_chat_offline = Column(INT, nullable=False, default=0)
 
     def __init__(self, username):
         self.id = None
@@ -51,21 +49,6 @@ class User(Base):
         self.debts = []
 
         self.timed_out = False
-
-    @classmethod
-    def test_user(cls, username):
-        user = cls()
-
-        user.id = 123
-        user.username = username.lower()
-        user.username_raw = username
-        user.level = 2000
-        user.subscriber = True
-        user.points = 1234
-        user.minutes_in_chat_online = 5
-        user.minutes_in_chat_offline = 15
-
-        return user
 
 
 class NoCacheHit(Exception):
@@ -387,10 +370,9 @@ class UserRedis:
         if self.save_to_redis:
             # Set redis value
             if value != 0:
-                self.redis.zincrby(
+                self.redis.zadd(
                     "{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()),
-                    value=self.username,
-                    amount=float(value),
+                    {self.username: float(value)},
                 )
             else:
                 self.redis.zrem("{streamer}:users:tokens".format(streamer=StreamHelper.get_streamer()), self.username)

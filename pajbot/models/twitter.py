@@ -1,15 +1,13 @@
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
+from sqlalchemy import Column, INT, TEXT
 
 from pajbot.managers.db import Base
 
 
 class TwitterUser(Base):
-    __tablename__ = "tb_twitter_following"
+    __tablename__ = "twitter_following"
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(32))
+    id = Column(INT, primary_key=True)
+    username = Column(TEXT)
 
     def __init__(self, username):
         self.username = username

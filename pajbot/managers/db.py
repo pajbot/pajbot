@@ -40,6 +40,10 @@ def check_connection(dbapi_con, _con_record, _con_proxy):
 
 
 class DBManager:
+    engine = None
+    Session = None
+    ScopedSession = None
+
     @staticmethod
     def init(url):
         DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)

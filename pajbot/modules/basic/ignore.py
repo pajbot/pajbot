@@ -27,6 +27,11 @@ class IgnoreModule(BaseModule):
 
         if message:
             username = message.split(" ")[0].strip().lower()
+
+            if username == source.username:
+                bot.whisper(source.username, "You cannot ignore yourself")
+                return False
+
             with bot.users.find_context(username) as user:
                 if not user:
                     bot.whisper(source.username, "No user with that name found.")

@@ -38,29 +38,30 @@ class UserManager:
         return user
 
     @contextmanager
-    def get_user_context(self, username):
+    def get_user_context(self, username, db_session=None, user_model=None, redis=None):
+        user = None
         try:
-            user = UserCombined(username)
-            user.load(**self.data.get(username, {}))
-
+            user = self.get_user(username, db_session, user_model, redis)
             yield user
         except:
             log.exception("Uncaught exception in UserManager::get_user({})".format(username))
         finally:
-            self.save(user)
+            if user is not None:
+                self.save(user)
 
     def __getitem__(self, username):
         return self.get_user(username)
 
     @contextmanager
     def find_context(self, username, db_session=None):
+        user = None
         try:
             user = self.find(username, db_session=db_session)
             yield user
         except:
             log.exception("Uncaught exception in UserManager::find_context({})".format(username))
         finally:
-            if user:
+            if user is not None:
                 self.save(user)
 
     @staticmethod
@@ -73,11 +74,6 @@ class UserManager:
 
         Returns a user object if the user already existed, otherwise return None
         """
-
-        # from pajbot.utils import print_traceback
-        # print_traceback()
-
-        # log.debug('UserManager::find({})'.format(username))
 
         # Return None if the username is an empty string!
         if username == "":
@@ -105,11 +101,6 @@ class UserManager:
 
         Returns a user object if the user already existed, otherwise return None
         """
-
-        # from pajbot.utils import print_traceback
-        # print_traceback()
-
-        # log.debug('UserManager::find({})'.format(username))
 
         # Return None if the username is an empty string!
         if username == "":

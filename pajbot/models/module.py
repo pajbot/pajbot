@@ -2,10 +2,8 @@ import json
 import logging
 
 import sqlalchemy
-from sqlalchemy import Boolean
+from sqlalchemy import BOOLEAN, TEXT
 from sqlalchemy import Column
-from sqlalchemy import String
-from sqlalchemy.dialects.mysql import TEXT
 
 from pajbot.managers.db import Base
 from pajbot.managers.db import DBManager
@@ -15,10 +13,10 @@ log = logging.getLogger("pajbot")
 
 
 class Module(Base):
-    __tablename__ = "tb_module"
+    __tablename__ = "module"
 
-    id = Column(String(64), primary_key=True)
-    enabled = Column(Boolean, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
+    id = Column(TEXT, primary_key=True)
+    enabled = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
     settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
 
     def __init__(self, module_id, **options):
