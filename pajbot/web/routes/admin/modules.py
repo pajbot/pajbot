@@ -33,6 +33,16 @@ def init(page):
         module_manager = ModuleManager(None).load(do_reload=False)
         current_module = find(lambda m: m.ID == module_id, module_manager.all_modules)
 
+        user = options["user"]
+
+        if user.level < current_module.CONFIGURE_LEVEL:
+            return (
+                render_template(
+                    "errors/403.html", extra_message="You do not have permission to configure this module."
+                ),
+                403,
+            )
+
         if current_module is None:
             return render_template("admin/module_404.html"), 404
 
@@ -80,6 +90,6 @@ def init(page):
 
             SocketClientManager.send("module.update", payload)
 
-            AdminLogManager.post("Module edited", options["user"], current_module.NAME)
+            AdminLogManager.post("Module edited", user, current_module.NAME)
 
             return render_template("admin/configure_module.html", module=current_module, sub_modules=sub_modules)
