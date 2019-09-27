@@ -1,4 +1,4 @@
-def up(cursor, context):
+def up(cursor, bot):
     # the index on user(points) caches/indexes the table, ordered by points
     # so queries like the top 30 point farmers can skip sorting the entire
     # user table by points, and just instead use the sorting given by the

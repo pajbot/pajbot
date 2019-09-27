@@ -1,4 +1,4 @@
-def up(cursor, context):
+def up(cursor, bot):
     cursor.execute(
         """
     CREATE TABLE "user" (
