@@ -31,5 +31,5 @@ class RedisMigratable:
         redis.set(self.namespace + ":schema_version", id)
 
     @staticmethod
-    def resource_type_name():
+    def describe_resource():
         return "redis"
