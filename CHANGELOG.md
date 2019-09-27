@@ -61,7 +61,6 @@ Remember to bring your dependencies up to date with
 - Bugfix: Subscribers refresh now correctly sets the `active_subs` KVI value.
 - Bugfix: You can no longer ignore yourself
 - Bugfix: You can now use the same phrases (1k, "all", etc.) with the `!givepoints` command.
-- Bugfix: Banphrases added from web interface now properly displays the banphrase ID. #494
 - Documentation Bugfix: `$(urlfetch)` returns the response body, not request
   body
 
