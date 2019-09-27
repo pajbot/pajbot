@@ -211,7 +211,7 @@ class FollowAgeModule(BaseModule):
 
         username, streamer = self.parse_message(bot, source, message)
 
-        self.action_queue.add(self.check_follow_age, args=[bot, source, username, streamer, event])
+        self.action_queue.add(self.check_follow_age, bot, source, username, streamer, event)
 
     def follow_since(self, **options):
         bot = options["bot"]
@@ -221,7 +221,7 @@ class FollowAgeModule(BaseModule):
 
         username, streamer = self.parse_message(bot, source, message)
 
-        self.action_queue.add(self.check_follow_since, args=[bot, source, username, streamer, event])
+        self.action_queue.add(self.check_follow_since, bot, source, username, streamer, event)
 
     @staticmethod
     def parse_message(bot, source, message):

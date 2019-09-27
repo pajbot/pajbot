@@ -10,21 +10,21 @@ executors:
     working_directory: ~/pajbot
 
 commands:
-  create_setup:
+  create_python_setup:
     steps:
       - run:
           name: Update apt database
           command: apt-get update
       - run:
           name: Install python and dependencies for python packages
-          command: apt-get install git python3 python3-pip python3-venv libssl-dev -y
+          command: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
       - checkout
       - restore_cache:
           name: Restore cached virtual environment
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
       - run:
           name: Install virtual environment and dependencies
-          command: ./install/venvinstall.sh --dev
+          command: ./scripts/venvinstall.sh --dev
       - save_cache:
           name: Save virtual environment to cache
           key: v1-requirements-prod@{{ checksum "requirements.txt" }}-dev@{{ checksum "requirements-dev.txt" }}
@@ -35,24 +35,40 @@ jobs:
   test:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run tests
           command: ./venv/bin/pytest
   lint:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run flake8 (lint)
           command: ./venv/bin/flake8
-  check_format:
+  check_python_format:
     executor: pajbot
     steps:
-      - create_setup
+      - create_python_setup
       - run:
           name: Run black in check mode
-          command: ./venv/bin/black --check --diff pajbot alembic scripts
+          command: source venv/bin/activate && ./scripts/reformat-python.sh --check
+  check_markdown_format:
+    executor: pajbot
+    steps:
+      - run:
+          name: Install curl
+          command: apt-get update && apt-get install curl -y
+      - run:
+          name: Install apt repository for Node.js 12
+          command: curl -sL https://deb.nodesource.com/setup_12.x | bash -
+      - run:
+          name: Install Node.js 12
+          command: apt-get install nodejs -y
+      - checkout
+      - run:
+          name: Check markdown style with prettier
+          command: ./scripts/reformat-markdown.sh --check
 
 # add one workflow that runs all jobs in parallel
 workflows:
@@ -61,4 +77,5 @@ workflows:
     jobs:
       - test
       - lint
-      - check_format
+      - check_python_format
+      - check_markdown_format

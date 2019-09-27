@@ -5,8 +5,10 @@ pajbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).
 
 ## Quick install
 
-1. Install library requirements by typing `pip install -r requirements.txt` in the root folder
-2. Copy `./install-docs/debian10/kkonatestbroadcaster.ini` to `./config.ini` and change the relevant lines in the file.
+1. Install library requirements by typing `pip install -r requirements.txt` in
+   the root folder
+2. Copy `./install-docs/debian10/kkonatestbroadcaster.ini` to `./config.ini` and
+   change the relevant lines in the file.
 3. Run the bot! `./main.py`
 
 ## Detailed install

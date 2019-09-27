@@ -23,9 +23,6 @@ class GenericChannelEmoteManager:
         self.global_lookup_table = {}
         self.channel_lookup_table = {}
 
-        self.load_global_emotes()
-        self.load_channel_emotes()
-
     @property
     def global_emotes(self):
         return self._global_emotes
@@ -63,6 +60,10 @@ class GenericChannelEmoteManager:
     def update_all(self):
         self.update_global_emotes()
         self.update_channel_emotes()
+
+    def load_all(self):
+        self.load_global_emotes()
+        self.load_channel_emotes()
 
     def match_channel_emote(self, word):
         """Attempts to find a matching emote equaling the given word from the channel emotes known to this manager.
@@ -126,7 +127,8 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
 
 class EmoteManager:
-    def __init__(self, twitch_v5_api, twitch_legacy_api):
+    def __init__(self, twitch_v5_api, twitch_legacy_api, action_queue):
+        self.action_queue = action_queue
         self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api, twitch_legacy_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
@@ -137,12 +139,22 @@ class EmoteManager:
             # every 1 hour
             # note: whenever emotes are refreshed (cache is saved to redis), the key is additionally set to expire
             # in one hour. This is to prevent emotes from never refreshing if the bot restarts in less than an hour.
-            # (In practice, this means that the bot will never have emotes older than 2 hours at maximum)
-            ScheduleManager.execute_every(1 * 60 * 60, self.bttv_emote_manager.update_all)
-            ScheduleManager.execute_every(1 * 60 * 60, self.ffz_emote_manager.update_all)
-            ScheduleManager.execute_every(1 * 60 * 60, self.twitch_emote_manager.update_all)
+            # (This also means that the bot will never have emotes older than 2 hours)
+            ScheduleManager.execute_every(1 * 60 * 60, self.update_all_emotes)
         except:
             log.exception("Something went wrong trying to initialize automatic emote refresh")
+
+        self.load_all_emotes()
+
+    def update_all_emotes(self):
+        self.action_queue.add(self.bttv_emote_manager.update_all)
+        self.action_queue.add(self.ffz_emote_manager.update_all)
+        self.action_queue.add(self.twitch_emote_manager.update_all)
+
+    def load_all_emotes(self):
+        self.action_queue.add(self.bttv_emote_manager.load_all)
+        self.action_queue.add(self.ffz_emote_manager.load_all)
+        self.action_queue.add(self.twitch_emote_manager.load_all)
 
     @staticmethod
     def twitch_emote_url(emote_id, size):

@@ -17,7 +17,6 @@
 {% endassets %}
 </head>
 <body class="main body">
-    <!--<h3>fixing website atm <img src="https://pbs.twimg.com/profile_images/612293854511919104/__arQ929.jpg"/></h3>-->
 {% set active_page = active_page|default('home') %}
 <header class="main header">
 {% block menu %}
@@ -88,7 +87,7 @@
       </div>
       <div class="row">
        <div class="column"><br />
-        <em style="color: #ccc;">Version: {{ version }}</em> &mdash; <em style="color: #ccc;">Last commit: {{ last_commit }}</em>
+        <em style="color: #ccc;">Version: {{ version }}</em>{% if last_commit is not none %} &mdash; <em style="color: #ccc;">Last commit: {{ last_commit }}</em>{% endif %}
        </div>
     </div>
   </div>

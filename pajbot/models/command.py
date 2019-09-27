@@ -3,15 +3,13 @@ import json
 import logging
 import re
 
-from sqlalchemy import Boolean
+from sqlalchemy import INT, BOOLEAN, TEXT
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.dialects.mysql import TEXT
 from sqlalchemy.orm import reconstructor
 from sqlalchemy.orm import relationship
+
+from sqlalchemy_utc import UtcDateTime
 
 import pajbot.utils
 from pajbot.exc import FailedCommand
@@ -75,14 +73,14 @@ def parse_command_for_web(alias, command, list):
 
 
 class CommandData(Base):
-    __tablename__ = "tb_command_data"
+    __tablename__ = "command_data"
 
-    command_id = Column(Integer, ForeignKey("tb_command.id"), primary_key=True, autoincrement=False)
-    num_uses = Column(Integer, nullable=False, default=0)
+    command_id = Column(INT, ForeignKey("command.id"), primary_key=True, autoincrement=False)
+    num_uses = Column(INT, nullable=False, default=0)
 
-    added_by = Column(Integer, nullable=True)
-    edited_by = Column(Integer, nullable=True)
-    _last_date_used = Column("last_date_used", DateTime, nullable=True, default=None)
+    added_by = Column(INT, nullable=True)
+    edited_by = Column(INT, nullable=True)
+    _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
 
     user = relationship(
         "User",
@@ -138,13 +136,13 @@ class CommandData(Base):
 
 
 class CommandExample(Base):
-    __tablename__ = "tb_command_example"
+    __tablename__ = "command_example"
 
-    id = Column(Integer, primary_key=True)
-    command_id = Column(Integer, ForeignKey("tb_command.id"), nullable=False)
-    title = Column(String(256), nullable=False)
+    id = Column(INT, primary_key=True)
+    command_id = Column(INT, ForeignKey("command.id"), nullable=False)
+    title = Column(TEXT, nullable=False)
     chat = Column(TEXT, nullable=False)
-    description = Column(String(512), nullable=False)
+    description = Column(TEXT, nullable=False)
 
     def __init__(self, command_id, title, chat="", description=""):
         self.id = None
@@ -184,23 +182,23 @@ class CommandExample(Base):
 
 
 class Command(Base):
-    __tablename__ = "tb_command"
+    __tablename__ = "command"
 
-    id = Column(Integer, primary_key=True)
-    level = Column(Integer, nullable=False, default=100)
-    action_json = Column("action", TEXT)
+    id = Column(INT, primary_key=True)
+    level = Column(INT, nullable=False, default=100)
+    action_json = Column("action", TEXT, nullable=False)
     extra_extra_args = Column("extra_args", TEXT)
     command = Column(TEXT, nullable=False)
     description = Column(TEXT, nullable=True)
-    delay_all = Column(Integer, nullable=False, default=5)
-    delay_user = Column(Integer, nullable=False, default=15)
-    enabled = Column(Boolean, nullable=False, default=True)
-    cost = Column(Integer, nullable=False, default=0)
-    tokens_cost = Column(Integer, nullable=False, default=0, server_default="0")
-    can_execute_with_whisper = Column(Boolean)
-    sub_only = Column(Boolean, nullable=False, default=False)
-    mod_only = Column(Boolean, nullable=False, default=False)
-    run_through_banphrases = Column(Boolean, nullable=False, default=False, server_default="0")
+    delay_all = Column(INT, nullable=False, default=5)
+    delay_user = Column(INT, nullable=False, default=15)
+    enabled = Column(BOOLEAN, nullable=False, default=True)
+    cost = Column(INT, nullable=False, default=0)
+    tokens_cost = Column(INT, nullable=False, default=0, server_default="0")
+    can_execute_with_whisper = Column(BOOLEAN)
+    sub_only = Column(BOOLEAN, nullable=False, default=False)
+    mod_only = Column(BOOLEAN, nullable=False, default=False)
+    run_through_banphrases = Column(BOOLEAN, nullable=False, default=False, server_default="0")
     long_description = ""
 
     data = relationship("CommandData", uselist=False, cascade="", lazy="joined")

@@ -1,20 +1,17 @@
-import argparse
 import cgi
 import datetime
 import logging
 import re
-import subprocess
 import sys
-import time
 import urllib
-import redis
 
 import irc.client
 import requests
 from numpy import random
 from pytz import timezone
 
-import pajbot.db_migration
+import pajbot.migration_revisions.db
+import pajbot.models
 import pajbot.models.user
 import pajbot.utils
 from pajbot.actions import ActionQueue
@@ -25,6 +22,7 @@ from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
+from pajbot.constants import VERSION
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -38,6 +36,8 @@ from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
 from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
+from pajbot.migration.db import DatabaseMigratable
+from pajbot.migration.migrate import Migration
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
@@ -47,12 +47,15 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
-from pajbot.utils import clean_up_message
-from pajbot.utils import time_ago
-from pajbot.utils import time_method
-from pajbot.utils import time_since
+from pajbot import utils
+from pajbot.utils import time_method, extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
+
+URL_REGEX = re.compile(
+    r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?",
+    re.IGNORECASE,
+)
 
 
 class Bot:
@@ -60,63 +63,34 @@ class Bot:
     Main class for the twitch bot
     """
 
-    version = pajbot.constants.VERSION
-    date_fmt = "%H:%M"
-    admin = None
-    url_regex_str = r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?"
-
-    last_ping = pajbot.utils.now()
-    last_pong = pajbot.utils.now()
-
-    @staticmethod
-    def parse_args():
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
-        )
-        parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
-        # TODO: Add a log level argument.
-
-        return parser.parse_args()
-
-    @property
-    def password(self):
-        return "oauth:{}".format(self.bot_token_manager.token.access_token)
-
-    def load_config(self, config):
+    def __init__(self, config, args):
         self.config = config
+        self.args = args
+
+        self.last_ping = utils.now()
+        self.last_pong = utils.now()
 
         DBManager.init(self.config["main"]["db"])
 
+        # redis
         redis_options = {}
         if "redis" in config:
             redis_options = dict(config.items("redis"))
-
         RedisManager.init(**redis_options)
+        wait_for_redis_data_loaded(RedisManager.get())
 
-        try:
-            RedisManager.get().ping()
-        except redis.exceptions.BusyLoadingError:
-            log.warning("Redis not done loading, waiting 2 seconds then exiting")
-            time.sleep(2)
-            sys.exit(0)
-
+        # Pepega SE points sync
         pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
         pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
-        self.domain = config["web"].get("domain", "localhost")
-
         self.nickname = config["main"].get("nickname", "pajbot")
-
         self.timezone = config["main"].get("timezone", "UTC")
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
 
-        self.trusted_mods = config.getboolean("main", "trusted_mods")
-
+        # phrases
         self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
-
         if "phrases" in config:
             phrases = config["phrases"]
             if "welcome" in phrases:
@@ -126,35 +100,18 @@ class Bot:
 
         TimeManager.init_timezone(self.timezone)
 
+        # streamer
         if "streamer" in config["main"]:
             self.streamer = config["main"]["streamer"]
             self.channel = "#" + self.streamer
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
-
         StreamHelper.init_streamer(self.streamer)
 
-        self.silent = False
-        self.dev = False
-
-        if "flags" in config:
-            self.silent = True if "silent" in config["flags"] and config["flags"]["silent"] == "1" else self.silent
-            self.dev = True if "dev" in config["flags"] and config["flags"]["dev"] == "1" else self.dev
-
-    def __init__(self, config, args=None):
-        # Load various configuration variables from the given config object
-        # The config object that should be passed through should
-        # come from pajbot.utils.load_config
-        self.load_config(config)
         log.debug("Loaded config")
 
-        # streamer is additionally initialized here so streamer can be accessed by the DB migrations
-        # before StreamHelper.init_bot() is called later (which depends on an upgraded DB because
-        # StreamManager accesses the DB)
-        StreamHelper.init_streamer(self.streamer)
-
-        # do this earlier since alembic upgrade can depend on the helix api
+        # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
             self.config["twitchapi"]["client_id"],
             self.config["twitchapi"]["client_secret"],
@@ -169,17 +126,17 @@ class Bot:
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+            raise ValueError("The bot login name you entered under [main] does not exist on twitch.")
 
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
-        if self.bot_user_id is None:
-            raise ValueError("The bot nickname you entered under [main] does not exist on twitch.")
+        if self.streamer_user_id is None:
+            raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
 
-        # Update the database (and partially redis) scheme if necessary using alembic
-        # In case of errors, i.e. if the database is out of sync or the alembic
-        # binary can't be called, we will shut down the bot.
-        pajbot.db_migration.run_alembic_upgrade(self)
-        log.debug("ran db upgrade")
+        # SQL migrations
+        sql_conn = DBManager.engine.connect().connection
+        sql_migratable = DatabaseMigratable(sql_conn)
+        sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
+        sql_migration.run()
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.
@@ -187,7 +144,7 @@ class Bot:
         self.action_queue.start()
 
         self.reactor = irc.client.Reactor(self.on_connect)
-        self.start_time = pajbot.utils.now()
+        self.start_time = utils.now()
         ActionParser.bot = self
 
         HandlerManager.init_handlers()
@@ -204,6 +161,7 @@ class Bot:
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
 
+        # bot access token
         if "password" in self.config["main"]:
             log.warning(
                 "DEPRECATED - Using bot password/oauth token from file. "
@@ -228,20 +186,17 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api)
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
-
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
+        self.websocket_manager = WebSocketManager(self)
 
         HandlerManager.trigger("on_managers_loaded")
-
-        # Reloadable managers
-        self.reloadable = {}
 
         # Commitable managers
         self.commitable = {"commands": self.commands, "banphrases": self.banphrase_manager}
@@ -249,15 +204,29 @@ class Bot:
         self.execute_every(10 * 60, self.commit_all)
         self.execute_every(1, self.do_tick)
 
+        # promote the admin to level 2000
+        admin = None
         try:
-            self.admin = self.config["main"]["admin"]
+            admin = self.config["main"]["admin"]
         except KeyError:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
-        if self.admin:
-            with self.users.get_user_context(self.admin) as user:
+        if admin is not None:
+            with self.users.get_user_context(admin) as user:
                 user.level = 2000
 
-        self.parse_version()
+        # silent mode
+        self.silent = (
+            "flags" in config and "silent" in config["flags"] and config["flags"]["silent"] == "1"
+        ) or args.silent
+        if self.silent:
+            log.info("Silent mode enabled")
+
+        # dev mode
+        self.dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
+        if self.dev:
+            self.version_long = extend_version_if_possible(VERSION)
+        else:
+            self.version_long = VERSION
 
         self.irc = IRCManager(self)
 
@@ -270,26 +239,24 @@ class Bot:
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
 
-        self.data = {}
-        self.data_cb = {}
-        self.url_regex = re.compile(self.url_regex_str, re.IGNORECASE)
+        self.data = {
+            "broadcaster": self.streamer,
+            "version": self.version_long,
+            "version_brief": VERSION,
+            "bot_name": self.nickname,
+        }
 
-        self.data["broadcaster"] = self.streamer
-        self.data["version"] = self.version
-        self.data["version_brief"] = self.version_brief
-        self.data["bot_name"] = self.nickname
-        self.data_cb["status_length"] = self.c_status_length
-        self.data_cb["stream_status"] = self.c_stream_status
-        self.data_cb["bot_uptime"] = self.c_uptime
-        self.data_cb["current_time"] = self.c_current_time
-        self.data_cb["molly_age_in_years"] = self.c_molly_age_in_years
+        self.data_cb = {
+            "status_length": self.c_status_length,
+            "stream_status": self.c_stream_status,
+            "bot_uptime": self.c_uptime,
+            "current_time": self.c_current_time,
+            "molly_age_in_years": self.c_molly_age_in_years,
+        }
 
-        self.silent = True if args.silent else self.silent
-
-        if self.silent:
-            log.info("Silent mode enabled")
-
-        self.websocket_manager = WebSocketManager(self)
+    @property
+    def password(self):
+        return "oauth:{}".format(self.bot_token_manager.token.access_token)
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
@@ -374,7 +341,7 @@ class Bot:
     def get_time_value(self, key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.datetime.now(tz).strftime(self.date_fmt)
+            return datetime.datetime.now(tz).strftime("%H:%M")
         except:
             log.exception("Unhandled exception in get_time_value")
 
@@ -507,16 +474,16 @@ class Bot:
         return self.irc.privmsg(message, channel, increase_message=increase_message)
 
     def c_uptime(self):
-        return time_ago(self.start_time)
+        return utils.time_ago(self.start_time)
 
     @staticmethod
     def c_current_time():
-        return pajbot.utils.now()
+        return utils.now()
 
     @staticmethod
     def c_molly_age_in_years():
         molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
-        now = pajbot.utils.now()
+        now = utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
@@ -529,10 +496,10 @@ class Bot:
 
     def c_status_length(self):
         if self.stream_manager.online:
-            return time_ago(self.stream_manager.current_stream.stream_start)
+            return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
         if self.stream_manager.last_stream is not None:
-            return time_ago(self.stream_manager.last_stream.stream_end)
+            return utils.time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
 
@@ -636,7 +603,7 @@ class Bot:
         if not self.silent:
             message = separator.join(messages).strip()
 
-            message = clean_up_message(message)
+            message = utils.clean_up_message(message)
             if not message:
                 return False
 
@@ -651,23 +618,6 @@ class Bot:
 
     def me(self, message, channel=None):
         self.say(".me " + message[:500], channel=channel)
-
-    def parse_version(self):
-        self.version = self.version
-        self.version_brief = self.version
-
-        if self.dev:
-            try:
-                current_branch = (
-                    subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
-                )
-                latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
-                commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
-                self.version = "{0} DEV ({1}, {2}, commit {3})".format(
-                    self.version, current_branch, latest_commit, commit_number
-                )
-            except:
-                log.exception("hmm")
 
     def on_welcome(self, chatconn, event):
         return self.irc.on_welcome(chatconn, event)
@@ -734,8 +684,8 @@ class Bot:
         if res is False:
             return False
 
-        source.last_seen = pajbot.utils.now()
-        source.last_active = pajbot.utils.now()
+        source.last_seen = utils.now()
+        source.last_active = utils.now()
 
         if source.ignored:
             return False
@@ -763,10 +713,10 @@ class Bot:
             self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
 
     def on_ping(self, chatconn, event):
-        self.last_ping = pajbot.utils.now()
+        self.last_ping = utils.now()
 
     def on_pong(self, chatconn, event):
-        self.last_pong = pajbot.utils.now()
+        self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
         # We use .lower() in case twitch ever starts sending non-lowercased usernames
@@ -832,11 +782,6 @@ class Bot:
             self.parse_message(event.arguments[0], source, event, tags=event.tags)
 
     @time_method
-    def reload_all(self):
-        for key, manager in self.reloadable.items():
-            manager.reload()
-
-    @time_method
     def commit_all(self):
         for key, manager in self.commitable.items():
             manager.commit()
@@ -866,7 +811,7 @@ class Bot:
     def quit_bot(self, **options):
         self.commit_all()
         HandlerManager.trigger("on_quit")
-        phrase_data = {"nickname": self.nickname, "version": self.version}
+        phrase_data = {"nickname": self.nickname, "version": self.version_long}
 
         try:
             ScheduleManager.base_scheduler.print_jobs()
@@ -892,8 +837,8 @@ class Bot:
             "upper": lambda var, args: var.upper(),
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
-            else time_since(var * 60, 0, time_format="long"),
-            "time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),
+            else utils.time_since(var * 60, 0, time_format="long"),
+            "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
             "urlencode": _filter_urlencode,
             "join": _filter_join,
@@ -913,12 +858,12 @@ class Bot:
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
 
-        return find_unique_urls(self.url_regex, message)
+        return find_unique_urls(URL_REGEX, message)
 
 
 def _filter_time_since_dt(var, args):
     try:
-        ts = time_since(pajbot.utils.now().timestamp(), var.timestamp())
+        ts = utils.time_since(utils.now().timestamp(), var.timestamp())
         if ts:
             return ts
 

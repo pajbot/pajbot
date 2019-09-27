@@ -5,6 +5,7 @@ import signal
 import sys
 
 from pajbot.bot import Bot
+from pajbot.utils import parse_args
 
 try:
     basestring
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGUSR1, on_sigusr1)
     sys.excepthook = handle_exceptions
 
-    args = Bot.parse_args()
+    args = parse_args()
 
     init_logging("pajbot")
     run(args)

@@ -1,12 +1,11 @@
 import logging
 
 import sqlalchemy
-from sqlalchemy import Boolean
+from sqlalchemy import BOOLEAN, INT
 from sqlalchemy import Column
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
 from sqlalchemy.orm import relationship
+from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
 from pajbot.managers.db import Base
@@ -19,14 +18,14 @@ log = logging.getLogger(__name__)
 
 
 class PredictionRun(Base):
-    __tablename__ = "tb_prediction_run"
+    __tablename__ = "prediction_run"
 
-    id = Column(Integer, primary_key=True)
-    type = Column(Integer, nullable=False, server_default="0")
-    winner_id = Column(Integer, nullable=True)
-    started = Column(DateTime, nullable=False)
-    ended = Column(DateTime, nullable=True)
-    open = Column(Boolean, nullable=False, default=True, server_default=sqlalchemy.sql.expression.true())
+    id = Column(INT, primary_key=True)
+    type = Column(INT, nullable=False, server_default="0")
+    winner_id = Column(INT, nullable=True)
+    started = Column(UtcDateTime(), nullable=False)
+    ended = Column(UtcDateTime(), nullable=True)
+    open = Column(BOOLEAN, nullable=False, default=True, server_default=sqlalchemy.sql.expression.true())
 
     def __init__(self, type):
         self.id = None
@@ -37,12 +36,12 @@ class PredictionRun(Base):
 
 
 class PredictionRunEntry(Base):
-    __tablename__ = "tb_prediction_run_entry"
+    __tablename__ = "prediction_run_entry"
 
-    id = Column(Integer, primary_key=True)
-    prediction_run_id = Column(Integer, ForeignKey("tb_prediction_run.id"), nullable=False)
-    user_id = Column(Integer, nullable=False)
-    prediction = Column(Integer, nullable=False)
+    id = Column(INT, primary_key=True)
+    prediction_run_id = Column(INT, ForeignKey("prediction_run.id"), nullable=False)
+    user_id = Column(INT, nullable=False)
+    prediction = Column(INT, nullable=False)
 
     user = relationship(
         "User",

@@ -1,5 +1,7 @@
 import logging
 
+from pajbot import utils
+from pajbot.exc import InvalidPointAmount
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -62,20 +64,14 @@ class GivePointsModule(BaseModule):
             # The username specified was too short. ;-)
             return False
 
-        if msg_split[1].lower() == "all":
-            num_points = source.points_available()
-        else:
-            try:
-                num_points = int(msg_split[1])
-            except (ValueError, TypeError):
-                # The user did not specify a valid integer for points
-                bot.whisper(
-                    source.username,
-                    "Invalid amount of points. Usage: !{command_name} USERNAME POINTS".format(
-                        command_name=self.command_name
-                    ),
-                )
-                return False
+        try:
+            num_points = utils.parse_points_amount(source, msg_split[1])
+        except InvalidPointAmount as e:
+            bot.whisper(
+                source.username,
+                "{error}. Usage: !{command_name} USERNAME POINTS".format(error=e, command_name=self.command_name),
+            )
+            return False
 
         if num_points <= 0:
             # The user tried to specify a negative amount of points

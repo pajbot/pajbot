@@ -1,12 +1,11 @@
 import logging
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
+from sqlalchemy import Column, INT
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
+from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
 from pajbot.managers.db import Base
@@ -16,17 +15,17 @@ log = logging.getLogger(__name__)
 
 
 class UserDuelStats(Base):
-    __tablename__ = "tb_user_duel_stats"
+    __tablename__ = "user_duel_stats"
 
-    user_id = Column(Integer, ForeignKey("tb_user.id"), primary_key=True, autoincrement=False)
-    duels_won = Column(Integer, nullable=False, default=0)
-    duels_total = Column(Integer, nullable=False, default=0)
-    points_won = Column(Integer, nullable=False, default=0)
-    points_lost = Column(Integer, nullable=False, default=0)
-    last_duel = Column(DateTime, nullable=True)
-    current_streak = Column(Integer, nullable=False, default=0)
-    longest_winstreak = Column(Integer, nullable=False, default=0)
-    longest_losestreak = Column(Integer, nullable=False, default=0)
+    user_id = Column(INT, ForeignKey("user.id"), primary_key=True, autoincrement=False)
+    duels_won = Column(INT, nullable=False, default=0)
+    duels_total = Column(INT, nullable=False, default=0)
+    points_won = Column(INT, nullable=False, default=0)
+    points_lost = Column(INT, nullable=False, default=0)
+    last_duel = Column(UtcDateTime(), nullable=True)
+    current_streak = Column(INT, nullable=False, default=0)
+    longest_winstreak = Column(INT, nullable=False, default=0)
+    longest_losestreak = Column(INT, nullable=False, default=0)
 
     user = relationship(
         "User", cascade="", uselist=False, backref=backref("duel_stats", uselist=False, cascade="", lazy="select")
