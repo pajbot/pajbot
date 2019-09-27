@@ -141,9 +141,7 @@ class Bot:
         sql_migration.run()
 
         # Redis migrations
-        redis_migratable = RedisMigratable(
-            RedisManager.get(), self.streamer  # streamer for the namespace (e.g. forsen:schema_version)
-        )
+        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
