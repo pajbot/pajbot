@@ -21,9 +21,7 @@ class Migration:
         with self.migratable.create_resource() as resource:
             revisions = self.get_revisions()
             current_revision_id = self.migratable.get_current_revision(resource)
-            log.debug(
-                "migrate %s: current revision ID is %s", self.migratable.describe_resource(), current_revision_id
-            )
+            log.debug("migrate %s: current revision ID is %s", self.migratable.describe_resource(), current_revision_id)
 
             if current_revision_id is not None:
                 revisions_to_run = [rev for rev in revisions if rev.id > current_revision_id]
@@ -37,9 +35,7 @@ class Migration:
             log.debug("migrate %s: %s revisions to run", self.migratable.describe_resource(), len(revisions_to_run))
 
             for rev in revisions_to_run:
-                log.debug(
-                    "migrate %s: running migration %s: %s", self.migratable.describe_resource(), rev.id, rev.name
-                )
+                log.debug("migrate %s: running migration %s: %s", self.migratable.describe_resource(), rev.id, rev.name)
                 rev.up_action(resource, self.context)
                 self.migratable.set_revision(resource, rev.id)
 
