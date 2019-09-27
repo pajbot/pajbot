@@ -17,7 +17,6 @@ from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
-from pajbot.modules.blackjack import BlackjackModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
