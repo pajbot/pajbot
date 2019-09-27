@@ -29,5 +29,5 @@ class DatabaseMigratable:
         cursor.execute("INSERT INTO schema_version(revision_id) VALUES (%s)", (id,))
 
     @staticmethod
-    def resource_type_name():
+    def describe_resource():
         return "db"
