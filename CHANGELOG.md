@@ -1,6 +1,6 @@
 # Changelog
 
-## Unversioned
+## v1.37
 
 Remember to bring your dependencies up to date with
 `pip install -r requirements.txt` when updating to this version!
