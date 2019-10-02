@@ -29,7 +29,7 @@
                     {% endif %}
                 </td>
                 <td class="right aligned collapsing">
-                <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>
+                <button class="ui compact button edit-row" {{- 'disabled' if session.user.level < row.CONFIGURE_LEVEL else '' -}}><i class="icon setting"></i>Configure</button></td>
             </tr>
 {% endfor %}
         </tbody>

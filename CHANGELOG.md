@@ -14,7 +14,7 @@ Remember to bring your dependencies up to date with
   - Install and start PostgreSQL, if you have not done so already
   - Create the pajbot PostgreSQL user, a database and optionally a schema for
     the bot to use. (see the updated SQL section of
-    [the install docs](./install-docs/debian9/install-debian9.txt))
+    [the install docs](./install-docs/debian10/install-debian10.txt))
   - Edit `./scripts/migrate-mysql-to-postgresql.py` with a connection string for
     the old MySQL database, and your new PostgreSQL database.
   - Stop pajbot:
@@ -24,7 +24,7 @@ Remember to bring your dependencies up to date with
   - Activate the python virtualenv: `source venv/bin/activate`
   - Run `./scripts/migrate-mysql-to-postgresql` to move the data
   - Update the `sql` connection string in your bot config (see the updated
-    [example config](./install-docs/debian9/kkonatestbroadcaster.ini) for
+    [example config](./install-docs/debian10/kkonatestbroadcaster.ini) for
     examples)
   - Start pajbot again:
     `sudo systemctl start pajbot@streamername pajbot-web@streamername`
@@ -47,6 +47,7 @@ Remember to bring your dependencies up to date with
   `./scripts/transfer-{all,sql,redis}` scripts have been removed.
 - Minor: Removed `!reload` command since it did nothing.
 - Minor: Removed "Personal Uptime" module.
+- Minor: Modules can now be configured to only allow users above a certain level to configure them. #108
 - Bugfix: A series of bugs (including the `!laststream` command sometimes not
   working) caused by a mismatch of datetime-aware and datetime-naive objects.
 - Bugfix: If redis is busy loading data, the bot no longer exists, and waits for
@@ -83,7 +84,7 @@ Remember to bring your dependencies up to date with
 
 - Breaking: In your `config.ini`, rename `[webtwitchapi]` to `[twitchapi]` and
   delete the old `[twitchapi]` config file entry. See
-  [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian9/kkonatestbroadcaster.ini#L62)
+  [the example config](https://github.com/pajbot/pajbot/blob/677651d416fa60c80ef939df8666bf554237ae0d/install-docs/debian10/kkonatestbroadcaster.ini#L62)
   for example values.
 - Breaking: a `redirect_uri` is now always required under `[twitchapi]` in your
   `config.ini`.

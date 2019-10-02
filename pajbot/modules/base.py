@@ -110,6 +110,7 @@ class BaseModule:
     CATEGORY = "Uncategorized"
     HIDDEN = False
     MODULE_TYPE = ModuleType.TYPE_NORMAL
+    CONFIGURE_LEVEL = 500
 
     def __init__(self, bot):
         """ Initialize any dictionaries the module might or might not use. """

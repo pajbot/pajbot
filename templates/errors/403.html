@@ -4,4 +4,7 @@
 {% block body %}
 <h1>403</h1>
 <p>You shouldn't be here.</p>
+{% if extra_message %}
+<p>{{ extra_message }}</p>
+{% endif %}
 {% endblock %}

@@ -60,7 +60,7 @@ source venv/bin/activate
 #
 # create pajbot system user
 #
-sudo adduser --system --group pajbot
+sudo adduser --system --group pajbot --home /opt/pajbot
 
 #
 # install redis and postgresql for pajbot1
@@ -100,10 +100,8 @@ sudo -u pajbot psql pajbot
 # at the bottom, under API keys, click on "View" for the "Global API Key". Note the value down (but somewhere safe).
 #
 # On the server run:
-echo "deb http://ftp.debian.org/debian stretch-backports main" | sudo tee /etc/apt/sources.list.d/stretch-backports.list
-sudo apt update
 sudo apt install nginx-extras
-sudo apt -t stretch-backports install certbot python3-certbot-dns-cloudflare
+sudo apt install certbot python3-certbot-dns-cloudflare
 
 # you must now put your CloudFlare credentials in a file for certbot to look into:
 sudo mkdir -p /etc/letsencrypt/secrets
@@ -194,7 +192,7 @@ In KKonaTestBot
 # Some helpful commands to set you up:
 #
 # Create various basic commands like !ping, !uptime or !points:
-!eval bot.eval_from_file(event, 'https://raw.githubusercontent.com/pajbot/pajbot/master/install-docs/debian9/basic-commands.txt')
+!eval bot.eval_from_file(event, 'https://raw.githubusercontent.com/pajbot/pajbot/master/install-docs/debian10/basic-commands.txt')
 
 # Give other users higher levels:
 !level DankHelperUsername 250
