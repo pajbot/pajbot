@@ -11,6 +11,7 @@ from numpy import random
 from pytz import timezone
 
 import pajbot.migration_revisions.db
+import pajbot.migration_revisions.redis
 import pajbot.models
 import pajbot.models.user
 import pajbot.utils
@@ -38,6 +39,7 @@ from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
+from pajbot.migration.redis import RedisMigratable
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
@@ -137,6 +139,11 @@ class Bot:
         sql_migratable = DatabaseMigratable(sql_conn)
         sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
         sql_migration.run()
+
+        # Redis migrations
+        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
+        redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
+        redis_migration.run()
 
         # Actions in this queue are run in a separate thread.
         # This means actions should NOT access any database-related stuff.

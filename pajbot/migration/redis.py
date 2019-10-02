@@ -29,3 +29,7 @@ class RedisMigratable:
 
     def set_revision(self, redis, id):
         redis.set(self.namespace + ":schema_version", id)
+
+    @staticmethod
+    def describe_resource():
+        return "redis"

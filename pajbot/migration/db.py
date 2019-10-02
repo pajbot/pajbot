@@ -27,3 +27,7 @@ class DatabaseMigratable:
     def set_revision(self, cursor, id):
         cursor.execute("DELETE FROM schema_version")
         cursor.execute("INSERT INTO schema_version(revision_id) VALUES (%s)", (id,))
+
+    @staticmethod
+    def describe_resource():
+        return "db"
