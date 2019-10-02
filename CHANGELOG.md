@@ -46,7 +46,7 @@ Remember to bring your dependencies up to date with
   users that changed their twitch name. (Level 2000 only).
   `./scripts/transfer-{all,sql,redis}` scripts have been removed.
 - Minor: Removed `!reload` command since it did nothing.
-- Minor: The `!myuptime` command/feature has been removed, as it violated Twitch Developer TOS.
+- Minor: Removed "Personal Uptime" module.
 - Bugfix: A series of bugs (including the `!laststream` command sometimes not
   working) caused by a mismatch of datetime-aware and datetime-naive objects.
 - Bugfix: If redis is busy loading data, the bot no longer exists, and waits for
