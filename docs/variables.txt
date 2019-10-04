@@ -205,11 +205,6 @@ strictargs
 ==========
 Same as args, but if this substitution would return an empty string, the command is not executed.
 
-notify
-======
-notify:
-idk what you can do with this
-
 command
 =======
 Data about this command
