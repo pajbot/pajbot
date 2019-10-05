@@ -139,7 +139,7 @@ class SubAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_sub"]
-        self.bot.say(f"{user.username_raw} was given {self.settings['grant_points_on_sub']} points for subscribing! FeelsAmazingMan")
+        self.bot.say(f"{user} was given {self.settings['grant_points_on_sub']} points for subscribing! FeelsAmazingMan")
 
     def on_new_sub(self, user, sub_type, gifted_by=None):
         """
@@ -152,7 +152,7 @@ class SubAlertModule(BaseModule):
 
         self.bot.kvi["active_subs"].inc()
 
-        payload = {"username": user.username_raw, "gifted_by": gifted_by}
+        payload = {"username": user.name, "gifted_by": gifted_by}
         self.bot.websocket_manager.emit("new_sub", payload)
 
         if self.settings["chat_message"] is True:
@@ -177,10 +177,10 @@ class SubAlertModule(BaseModule):
 
         self.on_sub_shared(user)
 
-        payload = {"username": user.username_raw, "num_months": num_months, "gifted_by": gifted_by}
+        payload = {"username": user.name, "num_months": num_months, "gifted_by": gifted_by}
         if substreak_count and substreak_count > 0:
             payload["substreak_string"] = self.get_phrase(
-                "substreak_string", username=user.username_raw, num_months=substreak_count, gifted_by=gifted_by
+                "substreak_string", username=user.name, num_months=substreak_count, gifted_by=gifted_by
             )
         else:
             payload["substreak_string"] = ""

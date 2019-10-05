@@ -82,7 +82,7 @@ class QuestModule(BaseModule):
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
     def get_user_tokens(self, bot, event, source, **rest):
-        message_tokens = f"{source.username_raw}, you have {source.tokens} tokens."
+        message_tokens = f"{source}, you have {source.tokens} tokens."
         # todo use bot.send_message_to_user or similar
 
         if self.settings["action_tokens"] == "say":

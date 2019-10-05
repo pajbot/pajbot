@@ -114,11 +114,7 @@ class PlaysoundModule(BaseModule):
     def reset_global_cd(self):
         self.global_cooldown = False
 
-    def play_sound(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def play_sound(self, bot, source, message, **rest):
         if not message:
             return
 
@@ -272,7 +268,7 @@ class PlaysoundModule(BaseModule):
             playsound.enabled = parsed_options["enabled"]
         return True
 
-    def add_playsound_command(self, **options):
+    def add_playsound_command(self, bot, source, message, **rest):
         """Method for creating playsounds.
         Usage: !add playsound PLAYSOUNDNAME LINK [options]
         Multiple options available:
@@ -280,9 +276,6 @@ class PlaysoundModule(BaseModule):
         --cooldown COOLDOWN
         --enabled/--disabled
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
 
         options, name, link = self.parse_playsound_arguments(message)
 
@@ -324,7 +317,7 @@ class PlaysoundModule(BaseModule):
             session.add(playsound)
             bot.whisper(source, "Successfully added your playsound.")
 
-    def edit_playsound_command(self, **options):
+    def edit_playsound_command(self, bot, source, message, **rest):
         """Method for editing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME [LINK] [options]
         Multiple options available:
@@ -332,9 +325,6 @@ class PlaysoundModule(BaseModule):
         --cooldown COOLDOWN
         --enabled/--disabled
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
 
         options, name, link = self.parse_playsound_arguments(message)
 
@@ -372,14 +362,10 @@ class PlaysoundModule(BaseModule):
             bot.whisper(source, "Successfully edited your playsound.")
 
     @staticmethod
-    def remove_playsound_command(**options):
+    def remove_playsound_command(bot, source, message, **rest):
         """Method for removing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:
@@ -397,14 +383,10 @@ class PlaysoundModule(BaseModule):
             bot.whisper(source, "Successfully deleted your playsound.")
 
     @staticmethod
-    def debug_playsound_command(**options):
+    def debug_playsound_command(bot, source, message, **rest):
         """Method for debugging (printing info about) playsounds.
         Usage: !debug playsound PLAYSOUNDNAME
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:

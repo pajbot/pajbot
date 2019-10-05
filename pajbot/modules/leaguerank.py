@@ -91,16 +91,12 @@ class LeagueRankModule(BaseModule):
         self.commands["ranklol"] = self.commands["lolrank"]
         self.commands["leaguerank"] = self.commands["lolrank"]
 
-    def league_rank(self, **options):
+    def league_rank(self, bot, source, message, **rest):
         try:
             from riotwatcher import RiotWatcher, LoLException
         except ImportError:
             log.error("Missing required module for League Rank module: riotwatcher")
             return False
-
-        source = options["source"]
-        message = options["message"]
-        bot = options["bot"]
 
         riot_api_key = self.settings["riot_api_key"]
         summoner_name = self.settings["default_summoner"]

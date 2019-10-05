@@ -2,8 +2,10 @@ import logging
 
 from pajbot import utils
 from pajbot.exc import InvalidPointAmount
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -42,11 +44,7 @@ class GivePointsModule(BaseModule):
         ),
     ]
 
-    def give_points(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def give_points(self, bot, source, message, **rest):
         if message is None or len(message) == 0:
             # The user did not supply any arguments
             return False
@@ -57,10 +55,7 @@ class GivePointsModule(BaseModule):
             bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
             return False
 
-        username = msg_split[0]
-        if len(username) < 2:
-            # The username specified was too short. ;-)
-            return False
+        input = msg_split[0]
 
         try:
             num_points = utils.parse_points_amount(source, msg_split[1])
@@ -78,7 +73,8 @@ class GivePointsModule(BaseModule):
             bot.whisper(source, f"You cannot give away more points than you have. You have {source.points} points.")
             return False
 
-        with bot.users.find_context(username) as target:
+        with DBManager.create_session_scope() as db_session:
+            target = User.find_by_user_input(db_session, input)
             if target is None:
                 # The user tried donating points to someone who doesn't exist in our database
                 bot.whisper(source, "This user does not exist FailFish")

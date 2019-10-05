@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 def generate_winner_list(winners):
     """ Takes a list of winners, and combines them into a string. """
-    return ", ".join([winner.username_raw for winner in winners])
+    return ", ".join(winners)
 
 
 class RaffleModule(BaseModule):
@@ -232,13 +232,9 @@ class RaffleModule(BaseModule):
         else:
             self.commands["raffle"] = self.commands["singleraffle"]
 
-    def raffle(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source.username_raw}, a raffle is already running OMGScoots")
+            bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         self.raffle_users = []
@@ -284,8 +280,7 @@ class RaffleModule(BaseModule):
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
-    def join(self, **options):
-        source = options["source"]
+    def join(self, source, **rest):
         if not self.raffle_running:
             return False
 
@@ -312,9 +307,9 @@ class RaffleModule(BaseModule):
 
         if self.settings["show_on_clr"]:
             self.bot.websocket_manager.emit(
-                "notification", {"message": f"{winner.username_raw} won {self.raffle_points} points in the raffle!"}
+                "notification", {"message": f"{winner} won {self.raffle_points} points in the raffle!"}
             )
-            self.bot.me(f"The raffle has finished! {winner.username_raw} won {self.raffle_points} points! PogChamp")
+            self.bot.me(f"The raffle has finished! {winner} won {self.raffle_points} points! PogChamp")
 
         winner.points += self.raffle_points
 
@@ -359,13 +354,9 @@ class RaffleModule(BaseModule):
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 
-    def multi_raffle(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def multi_raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source.username_raw}, a raffle is already running OMGScoots")
+            bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         points = 100

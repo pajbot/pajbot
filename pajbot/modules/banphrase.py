@@ -45,7 +45,7 @@ class BanphraseModule(BaseModule):
             return False
 
     @staticmethod
-    def add_banphrase(**options):
+    def add_banphrase(bot, source, message, **rest):
         """Method for creating and editing banphrases.
         Usage: !add banphrase BANPHRASE [options]
         Multiple options available:
@@ -53,10 +53,6 @@ class BanphraseModule(BaseModule):
         --perma/--no-perma
         --notify/--no-notify
         """
-
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
 
         if message:
             options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
@@ -80,38 +76,32 @@ class BanphraseModule(BaseModule):
             DBManager.session_add_expunge(banphrase)
             bot.banphrase_manager.commit()
             bot.whisper(
-                source.username,
-                "Updated your banphrase (ID: {banphrase.id}) with ({what})".format(
-                    banphrase=banphrase, what=", ".join([key for key in options if key != "added_by"])
-                ),
+                source,
+                f"Updated your banphrase (ID: {banphrase.id}) with ({', '.join([key for key in options if key != 'added_by'])})",
             )
             AdminLogManager.post("Banphrase edited", source, banphrase.id, banphrase.phrase)
 
     @staticmethod
-    def remove_banphrase(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        if message:
-            banphrase_id = None
-            try:
-                banphrase_id = int(message)
-            except ValueError:
-                pass
-
-            banphrase = bot.banphrase_manager.find_match(message=message, banphrase_id=banphrase_id)
-
-            if banphrase is None:
-                bot.whisper(source.username, "No banphrase with the given parameters found")
-                return False
-
-            AdminLogManager.post("Banphrase removed", source, banphrase.id, banphrase.phrase)
-            bot.whisper(source.username, "Successfully removed banphrase with id {0}".format(banphrase.id))
-            bot.banphrase_manager.remove_banphrase(banphrase)
-        else:
-            bot.whisper(source.username, "Usage: !remove banphrase (BANPHRASE_ID)")
+    def remove_banphrase(bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !remove banphrase (BANPHRASE_ID)")
             return False
+
+        banphrase_id = None
+        try:
+            banphrase_id = int(message)
+        except ValueError:
+            pass
+
+        banphrase = bot.banphrase_manager.find_match(message=message, banphrase_id=banphrase_id)
+
+        if banphrase is None:
+            bot.whisper(source, "No banphrase with the given parameters found")
+            return False
+
+        AdminLogManager.post("Banphrase removed", source, banphrase.id, banphrase.phrase)
+        bot.whisper(source, f"Successfully removed banphrase with id {banphrase.id}")
+        bot.banphrase_manager.remove_banphrase(banphrase)
 
     def load_commands(self, **options):
         self.commands["add"] = Command.multiaction_command(

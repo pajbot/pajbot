@@ -218,7 +218,7 @@ class MultiAction(BaseAction):
             if source.level >= cmd.level:
                 return cmd.run(bot, source, extra_msg, event, args)
 
-            log.info(f"User {source.username} tried running a sub-command he had no access to ({command}).")
+            log.info(f"User {source} tried running a sub-command he had no access to ({command}).")
 
         return None
 
@@ -456,7 +456,7 @@ class MessageAction(BaseAction):
 
     @staticmethod
     def get_extra_data(source, message, args):
-        return {"source": source.username, "message": message, **args}
+        return {"source": source, "message": message, **args}
 
     def run(self, bot, source, message, event={}, args={}):
         raise NotImplementedError("Please implement the run method.")
@@ -565,7 +565,7 @@ class WhisperAction(MessageAction):
             urlfetch_msg,
             args=[],
             kwargs={
-                "args": [source.username],
+                "args": [source],
                 "kwargs": {},
                 "method": bot.whisper,
                 "bot": bot,
@@ -611,7 +611,7 @@ class ReplyAction(MessageAction):
             urlfetch_msg,
             args=[],
             kwargs={
-                "args": [source.username],
+                "args": [source],
                 "kwargs": {},
                 "method": bot.whisper,
                 "bot": bot,

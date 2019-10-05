@@ -113,7 +113,7 @@ class EightBallModule(BaseModule):
 
         phrase = random.choice(self.phrases)
         emote = random.choice(self.emotes)
-        bot.me(f"{source.username_raw}, the 8-ball says... {phrase} {emote}")
+        bot.me(f"{source}, the 8-ball says... {phrase} {emote}")
 
     def load_commands(self, **options):
         self.commands["8ball"] = Command.raw_command(

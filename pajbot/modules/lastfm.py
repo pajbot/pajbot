@@ -53,14 +53,12 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, **options):
+    def song(self, bot, **rest):
         try:
             import pylast
         except ImportError:
             log.error("Missing required library for the LastFM Module: pylast")
             return False
-
-        bot = options["bot"]
 
         API_KEY = self.settings["api_key"]
         lastfmname = self.settings["username"]

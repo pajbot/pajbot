@@ -47,7 +47,7 @@ class TypeEmoteQuestModule(BaseQuest):
         user_progress = self.get_user_progress(source, default=0) + 1
 
         if user_progress > self.get_limit():
-            log.debug(f"{source.username} has already completed the quest. Moving along.")
+            log.debug(f"{source} has already completed the quest. Moving along.")
             # no need to do more
             return
 

@@ -106,7 +106,7 @@ class WolframModule(BaseModule):
             res = requests.get("https://api.wolframalpha.com/v2/query", params=query_parameters)
             answer = res.json()["queryresult"]
 
-            base_reply = f"{source.username_raw}, "
+            base_reply = f"{source}, "
 
             is_error = answer["error"]
             is_success = answer["success"]

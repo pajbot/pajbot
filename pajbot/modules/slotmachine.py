@@ -264,7 +264,7 @@ class SlotMachineModule(BaseModule):
         arguments = {
             "bet": bet,
             "result": points,
-            "user": source.username_raw,
+            "user": source.name,
             "points": source.points_available(),
             "win": points > 0,
             "emotes": " ".join(randomized_emotes),

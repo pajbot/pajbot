@@ -1,7 +1,9 @@
 import logging
 
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule
 
@@ -17,11 +19,7 @@ class PointsResetModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def points_reset(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
+    def points_reset(bot, source, message, **options):
         if message is None or len(message) == 0:
             return
 
@@ -29,7 +27,8 @@ class PointsResetModule(BaseModule):
         if len(username) < 2:
             return
 
-        with bot.users.find_context(username) as victim:
+        with DBManager.create_session_scope() as db_session:
+            victim = User.find_by_user_input(db_session, username)
             if victim is None:
                 bot.whisper(source, "This user does not exist FailFish")
                 return

@@ -17,7 +17,7 @@ class Dispatch:
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi["br_wins"].inc()
-        bot.me(f"{source.username} added a BR win!")
+        bot.me(f"{source} added a BR win!")
 
     @staticmethod
     def add_command(bot, source, message, event, args):
@@ -240,7 +240,7 @@ class Dispatch:
     def remove_win(bot, source, message, event, args):
         # XXX: This is also ugly as fuck
         bot.kvi["br_wins"].dec()
-        bot.me(f"{source.username} removed a BR win!")
+        bot.me(f"{source} removed a BR win!")
 
     @staticmethod
     def add_alias(bot, source, message, event, args):
@@ -434,9 +434,9 @@ class Dispatch:
 
         delay = int(parts[0])
         reminder_text = " ".join(parts[1:]).strip()
-        extra_message = f"{source.username_raw}, your reminder from {delay} seconds ago is over: {reminder_text}"
+        extra_message = f"{source}, your reminder from {delay} seconds ago is over: {reminder_text}"
 
-        bot.say(f"{source.username_raw}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
+        bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
         bot.execute_delayed(delay, bot.say, extra_message)
 
     @staticmethod
