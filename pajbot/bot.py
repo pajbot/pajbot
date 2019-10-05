@@ -631,37 +631,23 @@ class Bot:
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
 
-        emote_tag = None
-        msg_id = None
+        emote_tag = tags["emotes"]
+        msg_id = tags.get("id", None)  # None on whispers!
 
-        for tag in tags:
-            if tag["key"] == "subscriber" and event.target == self.channel:
-                source.subscriber = tag["value"] == "1"
-            elif tag["key"] == "emotes":
-                emote_tag = tag["value"]
-            elif tag["key"] == "display-name" and tag["value"]:
-                source.username_raw = tag["value"]
-            elif tag["key"] == "user-type":
-                source.moderator = tag["value"] == "mod" or source.username == self.streamer
-            elif tag["key"] == "id":
-                msg_id = tag["value"]
+        if not whisper and event.target == self.channel:
+            source.moderator = tags["mod"] == "1"
+            source.subscriber = tags["subscriber"] == "1"
 
-        # source.num_lines += 1
-
-        if source is None:
-            log.error("No valid user passed to parse_message")
+        if not whisper and source.banned:
+            self.ban(source.login)
             return False
-
-        if source.banned:
-            self.ban(source.username)
-            return False
-
-        # If a user types when timed out, we assume he's been unbanned for a good reason and remove his flag.
-        if source.timed_out is True:
-            source.timed_out = False
 
         # Parse emotes in the message
         emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
+
+        now = utils.now()
+        source.last_seen = now
+        source.last_active = now
 
         if not whisper:
             # increment epm and ecount
@@ -684,9 +670,6 @@ class Bot:
         if res is False:
             return False
 
-        source.last_seen = utils.now()
-        source.last_active = utils.now()
-
         if source.ignored:
             return False
 
@@ -706,11 +689,15 @@ class Bot:
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        username = event.source.user.lower()
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
-        with self.users.get_user_context(username) as source:
-            self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
+        id = tags["user-id"]
+        login = event.source.user
+        name = tags["display-name"]
+
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
+            self.parse_message(event.arguments[0], source, event, tags, whisper=True)
 
     def on_ping(self, chatconn, event):
         self.last_ping = utils.now()
@@ -719,34 +706,39 @@ class Bot:
         self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        tags = {}
-        for d in event.tags:
-            tags[d["key"]] = d["value"]
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
-        if "login" not in tags:
-            return
+        id = tags["user-id"]
+        login = tags["login"]
+        name = tags["display-name"]
 
-        username = tags["login"]
-
-        with self.users.get_user_context(username) as source:
-            msg = ""
-            if event.arguments:
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
+            if event.arguments and len(event.arguments) > 0:
                 msg = event.arguments[0]
+            else:
+                msg = None  # e.g. user didn't type an extra message to share with the streamer
             HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
+
+            if msg is not None:
+                self.parse_message(msg, source, event, tags)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
     def on_pubmsg(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        id = tags["user-id"]
+        login = event.source.user
+        name = tags["display-name"]
+
         if event.source.user == self.nickname:
             return False
 
-        username = event.source.user.lower()
-
         if self.streamer == "forsen":
-            if "zonothene" in username:
-                self._ban(username)
+            if "zonothene" in login:
+                self._ban(login)
                 return True
 
             raw_m = event.arguments[0].lower()
@@ -765,21 +757,21 @@ class Bot:
                     return True
 
         if self.streamer == "nymn":
-            if "hades_k" in username:
-                self._timeout(username, 3600)
+            if "hades_k" in login:
+                self.timeout_login(login, 3600, reason="Bad username")
                 return True
 
-            if "hades_b" in username:
-                self._timeout(username, 3600)
+            if "hades_b" in login:
+                self.timeout_login(login, 3600, reason="Bad username")
                 return True
 
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        with self.users.get_user_context(username) as source:
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
             res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
             if res is False:
                 return False
 
-            self.parse_message(event.arguments[0], source, event, tags=event.tags)
+            self.parse_message(event.arguments[0], source, event, tags=tags)
 
     @time_method
     def commit_all(self):

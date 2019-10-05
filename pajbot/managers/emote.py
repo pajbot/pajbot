@@ -179,7 +179,7 @@ class EmoteManager:
 
     @staticmethod
     def parse_twitch_emotes_tag(tag, message):
-        if tag is None:
+        if len(tag) <= 0:
             return []
 
         emote_instances = []
