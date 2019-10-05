@@ -8,7 +8,7 @@ from pajbot.migration.revision import Revision
 
 MODULE_NAME_REGEX = re.compile(r"^(\d*)(?:\D(.+))?$")
 
-log = logging.getLogger("pajbot")
+log = logging.getLogger(__name__)
 
 
 class Migration:

@@ -51,7 +51,6 @@ def run(args):
         pajbot.start()
     except KeyboardInterrupt:
         pajbot.quit_bot()
-        pass
 
 
 def handle_exceptions(exctype, value, tb):

@@ -16,9 +16,7 @@ class RedisManager:
 
     @staticmethod
     def init(**options):
-        default_options = {"decode_responses": True}
-        default_options.update(options)
-        RedisManager.redis = redis.Redis(**default_options)
+        RedisManager.redis = redis.Redis(**{"decode_responses": True, **options})
 
     @staticmethod
     def get():

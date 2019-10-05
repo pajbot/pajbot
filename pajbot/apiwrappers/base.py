@@ -74,7 +74,6 @@ class BaseAPI:
             return BaseAPI.join_base_and_string(base, endpoint)
 
     def request(self, method, endpoint, params, headers, json=None, **request_options):
-
         full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
             method, full_url, params=params, headers=headers, json=json, timeout=self.timeout, **request_options

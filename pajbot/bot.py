@@ -599,7 +599,7 @@ class Bot:
         # Check for banphrases
         res = self.banphrase_manager.check_message(message, None)
         if res is not False:
-            self.privmsg("filtered message ({})".format(res.id), channel, increase_message)
+            self.privmsg(f"filtered message ({res.id})", channel, increase_message)
             return
 
         self.privmsg(message, channel, increase_message)

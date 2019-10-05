@@ -45,7 +45,7 @@ class BaseTwitchAPI(BaseAPI):
         try:
             return super().request(method, endpoint, params, headers, json)
         except HTTPError as e:
-            if not (
+            if (
                 # we got a WWW-Authenticate and status 401 back
                 e.response.status_code == 401
                 and "WWW-Authenticate" in e.response.headers
@@ -53,13 +53,12 @@ class BaseTwitchAPI(BaseAPI):
                 and isinstance(authorization, AccessTokenManager)
                 and authorization.can_refresh()
             ):
+                # refresh...
+                authorization.refresh()
+                # then retry once.
+                return super().request(method, endpoint, params, headers, json)
+            else:
                 raise e
-
-            # refresh...
-            authorization.refresh()
-
-            # then retry once.
-            return super().request(method, endpoint, params, headers, json)
 
     def get(self, endpoint, params=None, headers=None, authorization=None):
         return self.request("GET", endpoint, params, headers, authorization).json()

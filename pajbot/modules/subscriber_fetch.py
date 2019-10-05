@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class SubscriberFetchModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Subscriber fetch"
     DESCRIPTION = "Fetches a list of subscribers and updates the database"

@@ -122,7 +122,6 @@ def json_serial(obj):
     except:
         log.exception("Unable to serialize object with `jsonify`")
         raise
-    raise TypeError("Type {} is not serializable".format(type(obj)))
 
 
 def init_json_serializer(api):

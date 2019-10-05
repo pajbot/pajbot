@@ -456,9 +456,7 @@ class MessageAction(BaseAction):
 
     @staticmethod
     def get_extra_data(source, message, args):
-        ret = {"user": source.username if source else None, "source": source, "message": message}
-        ret.update(args)
-        return ret
+        return {"source": source.username, "message": message, **args}
 
     def run(self, bot, source, message, event={}, args={}):
         raise NotImplementedError("Please implement the run method.")
