@@ -58,14 +58,14 @@ class CaseCheckerModule(BaseModule):
             return True
 
         if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
-            self.bot.timeout_user_once(
-                source, self.settings["timeout_duration"], reason="no uppercase characters allowed"
+            self.bot.timeout(
+                source, self.settings["timeout_duration"], reason="no uppercase characters allowed", once=True
             )
             return False
 
         if self.settings["timeout_lowercase"] and any(c.islower() for c in message):
-            self.bot.timeout_user_once(
-                source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED"
+            self.bot.timeout(
+                source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED", once=True
             )
             return False
 

@@ -65,11 +65,11 @@ class QuestModule(BaseModule):
             quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
-                bot.whisper(source.username, "You have completed todays quest!")
+                bot.whisper(source, "You have completed todays quest!")
             elif quest_progress is not False:
-                bot.whisper(source.username, f"Your current quest progress is {quest_progress}")
+                bot.whisper(source, f"Your current quest progress is {quest_progress}")
             else:
-                bot.whisper(source.username, "You have no progress on the current quest.")
+                bot.whisper(source, "You have no progress on the current quest.")
         else:
             bot.say(f"{source.username_raw}, There is no quest active right now.")
 
@@ -88,14 +88,14 @@ class QuestModule(BaseModule):
         if self.settings["action_tokens"] == "say":
             bot.say(message_tokens)
         elif self.settings["action_tokens"] == "whisper":
-            bot.whisper(source.username, message_tokens)
+            bot.whisper(source, message_tokens)
         elif self.settings["action_tokens"] == "me":
             bot.me(message_tokens)
         elif self.settings["action_tokens"] == "reply":
             if event.type in ["action", "pubmsg"]:
                 bot.say(message_tokens)
             elif event.type == "whisper":
-                bot.whisper(source.username, message_tokens)
+                bot.whisper(source, message_tokens)
 
     def load_commands(self, **options):
         self.commands["myprogress"] = Command.raw_command(

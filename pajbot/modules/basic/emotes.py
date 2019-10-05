@@ -48,7 +48,7 @@ class EmotesModule(BaseModule):
         reload_msg = f"Reloading {manager.friendly_name} emotes..."
 
         def do_reload(bot, source, **rest):
-            bot.whisper(source.username, reload_msg)
+            bot.whisper(source, reload_msg)
             self.bot.action_queue.submit(manager.update_all)
 
         return Command.raw_command(

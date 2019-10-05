@@ -62,7 +62,7 @@ class BanphraseModule(BaseModule):
             options, phrase = bot.banphrase_manager.parse_banphrase_arguments(message)
 
             if options is False:
-                bot.whisper(source.username, "Invalid banphrase")
+                bot.whisper(source, "Invalid banphrase")
                 return False
 
             options["added_by"] = source.id
@@ -71,7 +71,7 @@ class BanphraseModule(BaseModule):
             banphrase, new_banphrase = bot.banphrase_manager.create_banphrase(phrase, **options)
 
             if new_banphrase is True:
-                bot.whisper(source.username, f"Added your banphrase (ID: {banphrase.id})")
+                bot.whisper(source, f"Added your banphrase (ID: {banphrase.id})")
                 AdminLogManager.post("Banphrase added", source, banphrase.id, banphrase.phrase)
                 return True
 

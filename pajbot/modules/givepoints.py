@@ -54,7 +54,7 @@ class GivePointsModule(BaseModule):
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source.username, f"Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
             return False
 
         username = msg_split[0]
@@ -65,40 +65,40 @@ class GivePointsModule(BaseModule):
         try:
             num_points = utils.parse_points_amount(source, msg_split[1])
         except InvalidPointAmount as e:
-            bot.whisper(source.username, f"{e}. Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"{e}. Usage: !{self.command_name} USERNAME POINTS")
             return False
 
         if num_points <= 0:
             # The user tried to specify a negative amount of points
-            bot.whisper(source.username, "You cannot give away negative points OMGScoots")
+            bot.whisper(source, "You cannot give away negative points OMGScoots")
             return True
 
         if not source.can_afford(num_points):
             # The user tried giving away more points than he owns
-            bot.whisper(source.username, f"You cannot give away more points than you have. You have {source.points} points.")
+            bot.whisper(source, f"You cannot give away more points than you have. You have {source.points} points.")
             return False
 
         with bot.users.find_context(username) as target:
             if target is None:
                 # The user tried donating points to someone who doesn't exist in our database
-                bot.whisper(source.username, "This user does not exist FailFish")
+                bot.whisper(source, "This user does not exist FailFish")
                 return False
 
             if target == source:
                 # The user tried giving points to themselves
-                bot.whisper(source.username, "You can't give points to yourself OMGScoots")
+                bot.whisper(source, "You can't give points to yourself OMGScoots")
                 return True
 
             if self.settings["target_requires_sub"] is True and target.subscriber is False:
                 # Settings indicate that the target must be a subscriber, which he isn't
-                bot.whisper(source.username, "Your target must be a subscriber.")
+                bot.whisper(source, "Your target must be a subscriber.")
                 return False
 
             source.points -= num_points
             target.points += num_points
 
-            bot.whisper(source.username, f"Successfully gave away {num_points} points to {target}")
-            bot.whisper(target.username, f"{source.username_raw} just gave you {num_points} points! You should probably thank them ;-)")
+            bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
+            bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
 
     def load_commands(self, **options):
         self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")

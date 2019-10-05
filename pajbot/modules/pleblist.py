@@ -98,12 +98,12 @@ class PleblistModule(BaseModule):
                     PleblistManager.init(bot.config["youtube"]["developer_key"])
                 except:
                     log.error("No youtube key set up.")
-                    bot.whisper(source.username, "No youtube key set up")
+                    bot.whisper(source, "No youtube key set up")
                     return False
 
                 song_info = PleblistManager.create_pleblist_song_info(youtube_id)
                 if song_info is False:
-                    bot.whisper(source.username, "Invalid song given (or the YouTube API is down)")
+                    bot.whisper(source, "Invalid song given (or the YouTube API is down)")
                     return False
 
                 db_session.merge(song_info)
@@ -116,7 +116,7 @@ class PleblistModule(BaseModule):
                 .one()[0]
             )
             if num_unplayed_songs_requested >= self.settings["max_songs_per_user"] and not force:
-                bot.whisper(source.username, f"You can only request {num_unplayed_songs_requested} songs at the same time!")
+                bot.whisper(source, f"You can only request {num_unplayed_songs_requested} songs at the same time!")
                 return False
 
             # Add the song request

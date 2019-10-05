@@ -164,22 +164,22 @@ class RouletteModule(BaseModule):
         bot = options["bot"]
 
         if message is None:
-            bot.whisper(user.username, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
+            bot.whisper(user, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
             return False
 
         msg_split = message.split(" ")
         try:
             bet = utils.parse_points_amount(user, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
-            bot.whisper(user.username, str(e))
+            bot.whisper(user, str(e))
             return False
 
         if not user.can_afford(bet):
-            bot.whisper(source.username, f"You don't have enough points to do a roulette for {bet} points :(")
+            bot.whisper(user, f"You don't have enough points to do a roulette for {bet} points :(")
             return False
 
         if bet < self.settings["min_roulette_amount"]:
-            bot.whisper(user.username, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
+            bot.whisper(user, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
             return False
 
         # Calculating the result
@@ -206,7 +206,7 @@ class RouletteModule(BaseModule):
         if self.settings["options_output"] == "1. Show results in chat":
             bot.me(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
-            bot.whisper(user.username, out_message)
+            bot.whisper(user, out_message)
         if (
             self.settings["options_output"]
             == "3. Show results in chat if it's over X points else it will be whispered."
@@ -214,7 +214,7 @@ class RouletteModule(BaseModule):
             if abs(points) >= self.settings["min_show_points"]:
                 bot.me(out_message)
             else:
-                bot.whisper(user.username, out_message)
+                bot.whisper(user, out_message)
 
         HandlerManager.trigger("on_roulette_finish", user=user, points=points)
 

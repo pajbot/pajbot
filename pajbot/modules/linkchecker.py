@@ -257,7 +257,7 @@ class LinkCheckerModule(BaseModule):
                             whitelisted = True
                             break
                     if whitelisted is False:
-                        self.bot.timeout(source.username, 30, reason=ban_reason)
+                        self.bot.timeout(source, 30, reason=ban_reason)
                         if source.minutes_in_chat_online > 60:
                             self.bot.whisper(source.username, whisper_reason)
                         return False
@@ -696,14 +696,14 @@ class LinkCheckerModule(BaseModule):
                     if len(link) > 1:
                         self.blacklist_url(link, **options)
                         AdminLogManager.post("Blacklist link added", source, link)
-                bot.whisper(source.username, "Successfully added your links")
+                bot.whisper(source, "Successfully added your links")
                 return True
             except:
                 log.exception("Unhandled exception in add_link_blacklist")
-                bot.whisper(source.username, "Some error occurred while adding your links")
+                bot.whisper(source, "Some error occurred while adding your links")
                 return False
         else:
-            bot.whisper(source.username, "Usage: !add link blacklist LINK")
+            bot.whisper(source, "Usage: !add link blacklist LINK")
             return False
 
     def add_link_whitelist(self, **options):

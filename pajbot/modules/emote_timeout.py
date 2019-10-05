@@ -62,7 +62,7 @@ class EmoteTimeoutModule(BaseModule):
         if self.settings["moderation_action"] == "Delete":
             self.bot.delete_message(msg_id)
         elif self.settings["moderation_action"] == "Timeout":
-            self.bot.timeout_user_once(user, self.settings["timeout_duration"], reason)
+            self.bot.timeout(user, self.settings["timeout_duration"], reason, once=True)
 
     def on_message(self, source, message, emote_instances, msg_id, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:

@@ -31,17 +31,17 @@ class PointsResetModule(BaseModule):
 
         with bot.users.find_context(username) as victim:
             if victim is None:
-                bot.whisper(source.username, "This user does not exist FailFish")
+                bot.whisper(source, "This user does not exist FailFish")
                 return
 
             if victim.points >= 0:
-                bot.whisper(source.username, f"{victim} doesn't have negative points FailFish")
+                bot.whisper(source, f"{victim} doesn't have negative points FailFish")
                 return
 
             if victim.points <= -1:
                 old_points = victim.points
                 victim.points = 0
-                bot.whisper(source.username, f"You changed the points for {victim} from {old_points} to {victim.points} points")
+                bot.whisper(source, f"You changed the points for {victim} from {old_points} to {victim.points} points")
 
     def load_commands(self, **options):
         self.commands["pointsreset"] = Command.raw_command(

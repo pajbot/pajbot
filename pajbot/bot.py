@@ -475,10 +475,10 @@ class Bot:
                 cloned_event.arguments = [msg]
                 # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
-            self.whisper(event.source.user.lower(), f"Successfully evaluated {len(lines)} lines")
+            self.whisper_login(event.source.user.lower(), f"Successfully evaluated {len(lines)} lines")
         except:
             log.exception("BabyRage")
-            self.whisper(event.source.user.lower(), "Exception BabyRage")
+            self.whisper_login(event.source.user.lower(), "Exception BabyRage")
 
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
@@ -528,70 +528,64 @@ class Bot:
     def execute_every(self, period, function, *args, **kwargs):
         self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
-    def _ban(self, username, reason=""):
-        self.privmsg(".ban {0} {1}".format(username, reason), increase_message=False)
+    def _ban(self, login, reason=None):
+        message = f"/ban {login}"
+        if reason is not None:
+            message += f" {reason}"
+        self.privmsg(message)
 
-    def ban(self, username, reason=""):
-        self._timeout(username, 30, reason)
-        self.execute_delayed(1, self._ban, (username, reason))
+    def ban(self, user, reason=None):
+        self.timeout(user, 30, reason, once=True)
+        self.execute_delayed(1, self._ban, user.username, reason)
 
-    def ban_user(self, user, reason=""):
-        self._timeout(user.username, 30, reason)
-        self.execute_delayed(1, self._ban, (user.username, reason))
+    def unban(self, user):
+        self.privmsg(f"/unban {user.username}")
 
-    def unban(self, username):
-        self.privmsg(".unban {0}".format(username), increase_message=False)
+    def untimeout(self, user):
+        self.privmsg(f"/untimeout {user.username}")
 
-    def _timeout(self, username, duration, reason=""):
-        self.privmsg(".timeout {0} {1} {2}".format(username, duration, reason), increase_message=False)
+    def _timeout(self, login, duration, reason=None):
+        message = f"/timeout {login} {duration}"
+        if reason is not None:
+            message += f" {reason}"
+        self.privmsg(message)
 
-    def timeout(self, username, duration, reason=""):
-        self._timeout(username, duration, reason)
-        self.execute_delayed(1, self._timeout, (username, duration, reason))
+    def timeout(self, user, duration, reason=None, once=False):
+        self._timeout(user.username, duration, reason)
+        if not once:
+            self.execute_delayed(1, self._timeout, user.username, duration, reason)
 
-    def timeout_warn(self, user, duration, reason=""):
+    def timeout_login(self, login, duration, reason=None, once=False):
+        self._timeout(login, duration, reason)
+        if not once:
+            self.execute_delayed(1, self._timeout, login, duration, reason)
+
+    def timeout_warn(self, user, duration, reason=None):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
-        self.timeout(user.username, duration, reason)
+        self.timeout(user, duration, reason)
         return (duration, punishment)
 
-    def timeout_user(self, user, duration, reason=""):
-        self._timeout(user.username, duration, reason)
-        self.execute_delayed(1, self._timeout, (user.username, duration, reason))
-
-    def timeout_user_once(self, user, duration, reason):
-        self._timeout(user.username, duration, reason)
-
-    def _timeout_user(self, user, duration, reason=""):
-        self._timeout(user.username, duration, reason)
-
     def delete_message(self, msg_id):
-        self.privmsg(".delete {0}".format(msg_id))
+        self.privmsg(f"/delete {msg_id}")
 
-    def whisper(self, username, *messages, separator=". ", **rest):
-        """
-        Takes a sequence of strings and concatenates them with separator.
-        Then sends that string as a whisper to username
-        """
+    def whisper(self, user, message):
+        return self.irc.whisper(user.username, message)
 
-        if len(messages) < 0:
-            return False
-
-        message = separator.join(messages)
-
+    def whisper_login(self, username, message):
         return self.irc.whisper(username, message)
 
-    def send_message_to_user(self, user, message, event, separator=". ", method="say"):
+    def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
-            self.say(user.username + ", " + lowercase_first_letter(message), separator=separator)
+            self.say(user.username_raw + ", " + lowercase_first_letter(message))
         elif method == "whisper":
-            self.whisper(user.username, message, separator=separator)
+            self.whisper(user, message)
         elif method == "me":
             self.me(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
-                self.say(message, separator=separator)
+                self.say(message)
             elif event.type == "whisper":
-                self.whisper(user.username, message, separator=separator)
+                self.whisper(user, message)
         else:
             log.warning("Unknown send_message method: %s", method)
 
@@ -604,23 +598,16 @@ class Bot:
 
         self.privmsg(message, channel, increase_message)
 
-    def say(self, *messages, channel=None, separator=". "):
-        """
-        Takes a sequence of strings and concatenates them with separator.
-        Then sends that string to the given channel.
-        """
+    def say(self, message, channel=None):
+        if message is None:
+            log.warning("message=None passed to Bot::say()")
+            return
 
-        if len(messages) < 0:
-            return False
+        if self.silent:
+            return
 
-        if not self.silent:
-            message = separator.join(messages).strip()
-
-            message = utils.clean_up_message(message)
-            if not message:
-                return False
-
-            self.privmsg(message[:510], channel)
+        message = utils.clean_up_message(message)
+        self.privmsg(message[:510], channel)
 
     def is_bad_message(self, message):
         return self.banphrase_manager.check_message(message, None) is not False
@@ -630,7 +617,7 @@ class Bot:
             self.me(message, channel)
 
     def me(self, message, channel=None):
-        self.say(".me " + message[:500], channel=channel)
+        self.say("/me " + message[:500], channel=channel)
 
     def on_welcome(self, chatconn, event):
         return self.irc.on_welcome(chatconn, event)

@@ -106,7 +106,7 @@ class AdminCommandsModule(BaseModule):
             except (ValueError, TypeError):
                 # The user did not specify a valid integer for points
                 bot.whisper(
-                    source.username,
+                    source,
                     f"You cannot change the level of someone who is the same or higher level than you. You are level {source.level}, and {username} is level {user.level}",
                 )
                 return False
@@ -119,7 +119,7 @@ class AdminCommandsModule(BaseModule):
                 user.points = num_points
 
                 bot.whisper(
-                    source.username, "Successfully set {}'s points to {}.".format(user.username_raw, num_points)
+                    source, "Successfully set {}'s points to {}.".format(user.username_raw, num_points)
                 )
 
     @staticmethod
@@ -175,7 +175,7 @@ class AdminCommandsModule(BaseModule):
         else:
             bot.silent = True
             bot.whisper(
-                source.username,
+                source,
                 "The bot is now silent. Use !unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts",
             )
 
@@ -185,10 +185,10 @@ class AdminCommandsModule(BaseModule):
         source = options["source"]
 
         if not bot.silent:
-            bot.whisper(source.username, "The bot can already talk")
+            bot.whisper(source, "The bot can already talk")
         else:
             bot.silent = False
-            bot.whisper(source.username, "The bot can now talk again")
+            bot.whisper(source, "The bot can now talk again")
 
     @staticmethod
     def cmd_module(bot, source, message, **options):

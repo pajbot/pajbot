@@ -115,23 +115,19 @@ class DeckModule(BaseModule):
         )
 
     @staticmethod
-    def set_deck(**options):
+    def set_deck(bot, source, message, **rest):
         """Dispatch method for setting the current deck.
         The command takes a link as its argument.
         If the link is an already-added deck, the deck should be set as the current deck
         and its last use date should be set to now.
         Usage: !setdeck imgur.com/abcdefgh"""
 
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
         if message:
             deck, new_deck = bot.decks.set_current_deck(message)
             if new_deck is True:
-                bot.whisper(source.username, f"This deck is a new deck. Its ID is {deck.id}")
+                bot.whisper(source, f"This deck is a new deck. Its ID is {deck.id}")
             else:
-                bot.whisper(source.username, f"Updated an already-existing deck. Its ID is {deck.id}")
+                bot.whisper(source, f"Updated an already-existing deck. Its ID is {deck.id}")
 
             bot.say("Successfully updated the latest deck.")
             return True
@@ -207,17 +203,17 @@ class DeckModule(BaseModule):
             deck = bot.decks.find(id=id, link=message)
 
             if deck is None:
-                bot.whisper(source.username, "No deck matching your parameters found.")
+                bot.whisper(source, "No deck matching your parameters found.")
                 return False
 
             try:
                 bot.decks.remove_deck(deck)
-                bot.whisper(source.username, "Successfully removed the deck.")
+                bot.whisper(source, "Successfully removed the deck.")
             except:
                 log.exception("An exception occured while attempting to remove the deck")
-                bot.whisper(source.username, "An error occured while removing your deck.")
+                bot.whisper(source, "An error occured while removing your deck.")
                 return False
             return True
         else:
-            bot.whisper(source.username, "Usage example: !removedeck http://imgur.com/abc")
+            bot.whisper(source, "Usage example: !removedeck http://imgur.com/abc")
             return False

@@ -125,11 +125,11 @@ class MassPingProtectionModule(BaseModule):
         if timeout_duration <= 0:
             return
 
-        self.bot.timeout_user(source, timeout_duration, reason="Too many users pinged in message")
+        self.bot.timeout(source, timeout_duration, reason="Too many users pinged in message")
 
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
-                source.username,
+                source,
                 f"You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
             )
 

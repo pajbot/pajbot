@@ -19,12 +19,8 @@ class DBManageModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
 
     @staticmethod
-    def commit(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        bot.whisper(source.username, "Committing cached things to db...")
+    def commit(bot, source, message, **rest):
+        bot.whisper(source, "Committing cached things to db...")
 
         if message and message in bot.commitable:
             bot.commitable[message].commit()

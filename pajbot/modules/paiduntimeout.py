@@ -68,21 +68,15 @@ class PaidUntimeoutModule(BaseModule):
     ]
 
     @staticmethod
-    def untimeout_source(**options):
-        bot = options["bot"]
-        source = options["source"]
-
-        bot.privmsg(".timeout {0} 1".format(source.username))
-        bot.whisper(source.username, "You have been unbanned.")
+    def untimeout_source(bot, source, **rest):
+        bot.untimeout(source)
+        bot.whisper(source, "You have been unbanned.")
         source.timed_out = False
 
     @staticmethod
-    def unban_source(**options):
-        bot = options["bot"]
-        source = options["source"]
-
-        bot.privmsg(".unban {0}".format(source.username))
-        bot.whisper(source.username, "You have been unbanned.")
+    def unban_source(bot, source, **rest):
+        bot.unban(source)
+        bot.whisper(source, "You have been unbanned.")
         source.timed_out = False
 
     def load_commands(self, **options):

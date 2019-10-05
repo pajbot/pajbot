@@ -323,7 +323,7 @@ class BanphraseManager:
         if banphrase.permanent is True:
             # Permanently ban user
             punishment = "permanently banned"
-            self.bot.ban(user.username, reason=reason)
+            self.bot.ban(user, reason=reason)
         else:
             # Timeout user
             timeout_length, punishment = user.timeout(
@@ -331,14 +331,14 @@ class BanphraseManager:
             )
 
             # Finally, time out the user for whatever timeout length was required.
-            self.bot.timeout(user.username, timeout_length, reason=reason)
+            self.bot.timeout(user, timeout_length, reason=reason)
 
         if banphrase.notify is True and user.minutes_in_chat_online > 60:
             # Notify the user why he has been timed out if the banphrase wishes it.
             notification_msg = (
                 f'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'
             )
-            self.bot.whisper(user.username, notification_msg)
+            self.bot.whisper(user, notification_msg)
 
     def check_message(self, message, user):
         matched_banphrase = None

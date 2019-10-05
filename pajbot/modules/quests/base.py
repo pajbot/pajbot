@@ -44,7 +44,7 @@ class BaseQuest(BaseModule):
             message = (
                 "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
             )
-            self.bot.whisper(user.username, message)
+            self.bot.whisper(user, message)
             return
 
         # Mark the current stream ID has finished
@@ -59,7 +59,7 @@ class BaseQuest(BaseModule):
 
         # Notify the user that they've finished today's quest
         message = f"You finished todays quest! You have been awarded with {reward_amount} {reward_type}."
-        self.bot.whisper(user.username, message)
+        self.bot.whisper(user, message)
 
         user.save()
 

@@ -559,7 +559,7 @@ class WhisperAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.whisper(source.username, resp)
+            return bot.whisper(source, resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -605,7 +605,7 @@ class ReplyAction(MessageAction):
             )
 
         if self.num_urlfetch_subs == 0:
-            return bot.whisper(source.username, resp)
+            return bot.whisper(source, resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,

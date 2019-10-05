@@ -121,7 +121,7 @@ class LeagueRankModule(BaseModule):
 
             if region not in region_list:
                 bot.whisper(
-                    source.username,
+                    source,
                     f"Region is not valid. Please enter a valid region, region is optional and the default region is {def_region.upper()}",
                 )
                 return False

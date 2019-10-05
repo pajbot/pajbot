@@ -393,7 +393,7 @@ class Command(Base):
         if self.cost > 0 and not source.can_afford(self.cost):
             if self.notify_on_error:
                 bot.whisper(
-                    source.username,
+                    source,
                     f"You do not have the required {self.cost} points to execute this command. (You have {source.points_available()} points)",
                 )
             # User does not have enough points to use the command
@@ -402,7 +402,7 @@ class Command(Base):
         if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
             if self.notify_on_error:
                 bot.whisper(
-                    source.username,
+                    source,
                     f"You do not have the required {self.tokens_cost} tokens to execute this command. (You have {source.tokens} tokens)",
                 )
             # User does not have enough tokens to use the command

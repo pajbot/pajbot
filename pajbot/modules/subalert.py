@@ -164,7 +164,7 @@ class SubAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user.username, self.get_phrase("new_sub_whisper", **payload)
+                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("new_sub_whisper", **payload)
             )
 
     def on_resub(self, user, num_months, sub_type, gifted_by=None, substreak_count=0):
@@ -195,7 +195,7 @@ class SubAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user.username, self.get_phrase("resub_whisper", **payload)
+                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("resub_whisper", **payload)
             )
 
     def on_usernotice(self, source, tags, **rest):
