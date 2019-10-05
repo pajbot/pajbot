@@ -318,8 +318,6 @@ class RaffleModule(BaseModule):
 
         winner.points += self.raffle_points
 
-        winner.save()
-
         HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
 
     def multi_start_raffle(self, points, length):
