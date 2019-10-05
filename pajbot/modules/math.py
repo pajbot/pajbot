@@ -128,16 +128,12 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.say(f"{source.username_raw}, {expr_res} {emote}")
+        bot.say(f"{source}, {expr_res} {emote}")
 
-    def math(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
-        if source.username == "karl_kons":
-            bot.say("{}, 8 Kappa".format(source.username_raw))
-            return True
+    def math(self, bot, source, message, **rest):
+        if source.id == "68706331":  # Karl_Kons
+            bot.say(f"{source}, 8 Kappa")
+            return
 
         if message:
             message = message.replace("pi", str(math.pi))
