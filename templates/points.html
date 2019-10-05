@@ -38,7 +38,7 @@
 <script type="text/javascript">
 $('#check_points .submit.button')
 .api({
-    action: 'get_user',
+    action: 'get_user_from_user_input',
     beforeSend: function(settings) {
         settings.urlData = {
             username: $('#check_points div.field.username input').val()

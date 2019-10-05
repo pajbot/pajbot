@@ -1,5 +1,6 @@
 $.fn.api.settings.api = {
     'get_user': '/api/v1/users/{username}',
+    'get_user_from_user_input': '/api/v1/users/{username}?user_input=true',
     'pleblist_add_song': '/api/v1/pleblist/add',
     'pleblist_validate': '/api/v1/pleblist/validate',
     'pleblist_next_song': '/api/v1/pleblist/next',
