@@ -116,10 +116,10 @@ class StreamManager:
         self.title = "Loading..."
 
         self.bot.execute_every(
-            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_stream_status_stage1,)
+            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_stream_status_stage1
         )
         self.bot.execute_every(
-            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_video_url_stage1,)
+            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_video_url_stage1
         )
 
         # This will load the latest stream so we can post an accurate "time since last online" figure.

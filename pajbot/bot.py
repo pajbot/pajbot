@@ -4,6 +4,7 @@ import logging
 import re
 import sys
 import urllib
+from concurrent.futures.thread import ThreadPoolExecutor
 
 import irc.client
 import requests
@@ -15,7 +16,6 @@ import pajbot.migration_revisions.redis
 import pajbot.models
 import pajbot.models.user
 import pajbot.utils
-from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
@@ -145,10 +145,8 @@ class Bot:
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
-        # Actions in this queue are run in a separate thread.
-        # This means actions should NOT access any database-related stuff.
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
+        # Thread pool executor for async actions
+        self.action_queue = ThreadPoolExecutor()
 
         self.reactor = irc.client.Reactor(self.on_connect)
         self.start_time = utils.now()

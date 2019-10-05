@@ -147,14 +147,14 @@ class EmoteManager:
         self.load_all_emotes()
 
     def update_all_emotes(self):
-        self.action_queue.add(self.bttv_emote_manager.update_all)
-        self.action_queue.add(self.ffz_emote_manager.update_all)
-        self.action_queue.add(self.twitch_emote_manager.update_all)
+        self.action_queue.submit(self.bttv_emote_manager.update_all)
+        self.action_queue.submit(self.ffz_emote_manager.update_all)
+        self.action_queue.submit(self.twitch_emote_manager.update_all)
 
     def load_all_emotes(self):
-        self.action_queue.add(self.bttv_emote_manager.load_all)
-        self.action_queue.add(self.ffz_emote_manager.load_all)
-        self.action_queue.add(self.twitch_emote_manager.load_all)
+        self.action_queue.submit(self.bttv_emote_manager.load_all)
+        self.action_queue.submit(self.ffz_emote_manager.load_all)
+        self.action_queue.submit(self.twitch_emote_manager.load_all)
 
     @staticmethod
     def twitch_emote_url(emote_id, size):

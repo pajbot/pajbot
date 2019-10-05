@@ -49,7 +49,7 @@ class EmotesModule(BaseModule):
 
         def do_reload(bot, source, **rest):
             bot.whisper(source.username, reload_msg)
-            self.bot.action_queue.add(manager.update_all)
+            self.bot.action_queue.submit(manager.update_all)
 
         return Command.raw_command(
             do_reload,

@@ -260,7 +260,7 @@ class DubtrackModule(BaseModule):
                 e_tmp = e
                 self.bot.execute_now(lambda: on_error(e_tmp))
 
-        self.bot.action_queue.add(action_queue_action)
+        self.bot.action_queue.submit(action_queue_action)
 
     def process_queue_song_to_song_info(self, queue_song):
         """Processes a DubtrackQueueSong instance (from the API) into a DubtrackSongInfo object (for output to chat)"""

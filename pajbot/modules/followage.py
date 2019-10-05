@@ -1,7 +1,6 @@
 import logging
 
 from pajbot import utils
-from pajbot.actions import ActionQueue
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -53,11 +52,6 @@ class FollowAgeModule(BaseModule):
             constraints={"min_value": 0, "max_value": 240},
         ),
     ]
-
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
 
     def load_commands(self, **options):
         # TODO: Have delay modifiable in settings
@@ -211,7 +205,7 @@ class FollowAgeModule(BaseModule):
 
         username, streamer = self.parse_message(bot, source, message)
 
-        self.action_queue.add(self.check_follow_age, bot, source, username, streamer, event)
+        self.bot.action_queue.add(self.check_follow_age, bot, source, username, streamer, event)
 
     def follow_since(self, **options):
         bot = options["bot"]
@@ -221,7 +215,7 @@ class FollowAgeModule(BaseModule):
 
         username, streamer = self.parse_message(bot, source, message)
 
-        self.action_queue.add(self.check_follow_since, bot, source, username, streamer, event)
+        self.bot.action_queue.add(self.check_follow_since, bot, source, username, streamer, event)
 
     @staticmethod
     def parse_message(bot, source, message):
