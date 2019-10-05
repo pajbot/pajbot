@@ -1,5 +1,6 @@
 import logging
 
+from datetime import timedelta
 from numpy import random
 
 from pajbot import utils
@@ -7,7 +8,8 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.duel import DuelManager
+from pajbot.models.duel import UserDuelStats
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -47,6 +49,15 @@ class DuelModule(BaseModule):
             placeholder="{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points",
             default="{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points",
             constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="duel_tax",
+            label="Duel tax (deduct this percent value from the win)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=30,
+            constraints={"min_value": 0, "max_value": 100},
         ),
         ModuleSetting(
             key="online_global_cd",
@@ -115,19 +126,14 @@ class DuelModule(BaseModule):
         self.duel_request_price = {}
         self.duel_targets = {}
 
-    def initiate_duel(self, **options):
+    def initiate_duel(self, bot, source, message, **rest):
         """
         Initiate a duel with a user.
         You can also bet points on the winner.
         By default, the maximum amount of points you can spend is 420.
 
-        How to add: !add funccommand duel initiate_duel --cd 0 --usercd 5
         How to use: !duel USERNAME POINTS_TO_BET
         """
-
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
 
         if message is None:
             return False
@@ -135,246 +141,210 @@ class DuelModule(BaseModule):
         max_pot = self.settings["max_pot"]
 
         msg_split = message.split()
-        username = msg_split[0]
-        user = bot.users.find(username)
-        duel_price = 0
-        if user is None:
-            # No user was found with this username
-            return False
+        input = msg_split[0]
 
-        if len(msg_split) > 1:
-            try:
-                duel_price = int(msg_split[1])
-                if duel_price < 0:
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, input)
+            if user is None:
+                # No user was found with this username
+                return False
+
+            duel_price = 0
+            if len(msg_split) > 1:
+                try:
+                    duel_price = int(msg_split[1])
+                    if duel_price < 0:
+                        return False
+
+                    if duel_price > max_pot:
+                        duel_price = max_pot
+                except ValueError:
+                    pass
+
+            if source.id in self.duel_requests:
+                currently_duelling = User.find_by_id(db_session, self.duel_requests[source.id])
+                if currently_duelling is None:
+                    del self.duel_requests[source.id]
                     return False
 
-                if duel_price > max_pot:
-                    duel_price = max_pot
-            except ValueError:
-                pass
+                bot.whisper(
+                    source,
+                    f"You already have a duel request active with {currently_duelling}. Type !cancelduel to cancel your duel request.",
+                )
+                return False
 
-        if source.username in self.duel_requests:
+            if user == source:
+                # You cannot duel yourself
+                return False
+
+            if user.last_active is None or (utils.now() - user._last_active) > timedelta(minutes=5):
+                bot.whisper(
+                    source,
+                    "This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge",
+                )
+                return False
+
+            if not user.can_afford(duel_price) or not source.can_afford(duel_price):
+                bot.whisper(
+                    source,
+                    f"You or your target do not have more than {duel_price} points, therefore you cannot duel for that amount.",
+                )
+                return False
+
+            if user.id in self.duel_targets:
+                challenged_by = User.find_by_id(db_session, self.duel_requests[user.id])
+                bot.whisper(
+                    source,
+                    f"This person is already being challenged by {challenged_by}. Ask them to answer the offer by typing !deny or !accept",
+                )
+                return False
+
+            self.duel_targets[user.id] = source.id
+            self.duel_requests[source.id] = user.id
+            self.duel_request_price[source.id] = duel_price
             bot.whisper(
-                source.username,
-                "You already have a duel request active with {}. Type !cancelduel to cancel your duel request.".format(
-                    self.duel_requests[source.username]
-                ),
+                user,
+                f"You have been challenged to a duel by {source} for {duel_price} points. You can either !accept or !deny this challenge.",
             )
-            return False
+            bot.whisper(source, f"You have challenged {user} for {duel_price} points")
 
-        if user == source:
-            # You cannot duel yourself
-            return False
-
-        if user.last_active is None or (utils.now() - user._last_active).total_seconds() > 5 * 60:
-            bot.whisper(
-                source.username,
-                "This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge",
-            )
-            return False
-
-        if not user.can_afford(duel_price) or not source.can_afford(duel_price):
-            bot.whisper(
-                source.username,
-                "You or your target do not have more than {} points, therefore you cannot duel for that amount.".format(
-                    duel_price
-                ),
-            )
-            return False
-
-        if user.username in self.duel_targets:
-            bot.whisper(
-                source.username,
-                "This person is already being challenged by {}. Ask them to answer the offer by typing !deny or !accept".format(
-                    self.duel_targets[user.username]
-                ),
-            )
-            return False
-
-        self.duel_targets[user.username] = source.username
-        self.duel_requests[source.username] = user.username
-        self.duel_request_price[source.username] = duel_price
-        bot.whisper(
-            user.username,
-            "You have been challenged to a duel by {} for {} points. You can either !accept or !deny this challenge.".format(
-                source.username_raw, duel_price
-            ),
-        )
-        bot.whisper(source.username, "You have challenged {} for {} points".format(user.username_raw, duel_price))
-
-    def cancel_duel(self, **options):
+    def cancel_duel(self, bot, source, **rest):
         """
         Cancel any duel requests you've sent.
 
-        How to add: !add funccomand cancelduel|duelcancel cancel_duel --cd 0 --usercd 10
         How to use: !cancelduel
         """
 
-        bot = options["bot"]
-        source = options["source"]
-
-        if source.username not in self.duel_requests:
-            bot.whisper(source.username, "You have not sent any duel requests")
+        if source.id not in self.duel_requests:
+            bot.whisper(source, "You have not sent any duel requests")
             return
 
-        bot.whisper(source.username, "You have cancelled the duel vs {}".format(self.duel_requests[source.username]))
+        with DBManager.create_session_scope() as db_session:
+            challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+            bot.whisper(source, f"You have cancelled the duel vs {challenged}")
 
-        del self.duel_targets[self.duel_requests[source.username]]
-        del self.duel_requests[source.username]
+        del self.duel_targets[self.duel_requests[source.id]]
+        del self.duel_requests[source.id]
 
-    def accept_duel(self, **options):
+    def accept_duel(self, bot, source, **rest):
         """
         Accepts any active duel requests you've received.
 
-        How to add: !add funccommand accept accept_duel --cd 0 --usercd 0
         How to use: !accept
         """
 
-        bot = options["bot"]
-        source = options["source"]
-        duel_tax = 0.3  # 30% tax
-
-        if source.username not in self.duel_targets:
-            bot.whisper(source.username, "You are not being challenged to a duel by anyone.")
+        if source.id not in self.duel_targets:
+            bot.whisper(source, "You are not being challenged to a duel by anyone.")
             return
 
-        requestor = bot.users[self.duel_targets[source.username]]
-        duel_price = self.duel_request_price[self.duel_targets[source.username]]
+        with DBManager.create_session_scope() as db_session:
+            requestor = User.find_by_id(db_session, self.duel_targets[source.id])
+            duel_price = self.duel_request_price[self.duel_targets[source.id]]
 
-        if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
-            bot.whisper(
-                source.username,
-                "Your duel request with {} was cancelled due to one of you not having enough points.".format(
-                    requestor.username_raw
-                ),
-            )
-            bot.whisper(
-                requestor.username,
-                "Your duel request with {} was cancelled due to one of you not having enough points.".format(
-                    source.username_raw
-                ),
-            )
-
-            del self.duel_requests[self.duel_targets[source.username]]
-            del self.duel_targets[source.username]
-
-            return False
-
-        source.points -= duel_price
-        requestor.points -= duel_price
-        winning_pot = int(duel_price * (1.0 - duel_tax))
-        participants = [source, requestor]
-        winner = random.choice(participants)
-        participants.remove(winner)
-        loser = participants.pop()
-        winner.points += duel_price
-        winner.points += winning_pot
-
-        winner.save()
-        loser.save()
-
-        DuelManager.user_won(winner, winning_pot)
-        DuelManager.user_lost(loser, duel_price)
-
-        arguments = {
-            "winner": winner.username,
-            "loser": loser.username,
-            "total_pot": duel_price,
-            "extra_points": winning_pot,
-        }
-
-        if duel_price > 0:
-            message = self.get_phrase("message_won_points", **arguments)
-            if duel_price >= 500 and self.settings["show_on_clr"]:
-                bot.websocket_manager.emit(
-                    "notification", {"message": "{} won the duel vs {}".format(winner.username_raw, loser.username_raw)}
+            if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
+                bot.whisper(
+                    source,
+                    f"Your duel request with {requestor} was cancelled due to one of you not having enough points.",
                 )
-        else:
-            message = self.get_phrase("message_won", **arguments)
-        bot.say(message)
+                bot.whisper(
+                    requestor,
+                    f"Your duel request with {source} was cancelled due to one of you not having enough points.",
+                )
 
-        del self.duel_requests[self.duel_targets[source.username]]
-        del self.duel_targets[source.username]
+                del self.duel_requests[self.duel_targets[source.id]]
+                del self.duel_targets[source.id]
 
-        HandlerManager.trigger(
-            "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
-        )
+                return False
 
-    def decline_duel(self, **options):
+            source.points -= duel_price
+            requestor.points -= duel_price
+            winning_pot = int(duel_price * (1.0 - self.settings["duel_tax"] / 100))
+            participants = [source, requestor]
+            winner = random.choice(participants)
+            participants.remove(winner)
+            loser = participants.pop()
+            winner.points += duel_price
+            winner.points += winning_pot
+
+            UserDuelStats.for_user(db_session, winner).win(winning_pot)
+            UserDuelStats.for_user(db_session, loser).win(duel_price)
+
+            arguments = {
+                "winner": winner.name,
+                "loser": loser.name,
+                "total_pot": duel_price,
+                "extra_points": winning_pot,
+            }
+
+            if duel_price > 0:
+                message = self.get_phrase("message_won_points", **arguments)
+                if duel_price >= 500 and self.settings["show_on_clr"]:
+                    bot.websocket_manager.emit("notification", {"message": f"{winner} won the duel vs {loser}"})
+            else:
+                message = self.get_phrase("message_won", **arguments)
+            bot.say(message)
+
+            del self.duel_requests[self.duel_targets[source.id]]
+            del self.duel_targets[source.id]
+
+            HandlerManager.trigger(
+                "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
+            )
+
+    def decline_duel(self, bot, source, **options):
         """
         Declines any active duel requests you've received.
 
-        How to add: !add funccommand deny|decline decline_duel --cd 0 --usercd 0
         How to use: !decline
         """
 
-        bot = options["bot"]
-        source = options["source"]
-
-        if source.username not in self.duel_targets:
-            bot.whisper(source.username, "You are not being challenged to a duel")
+        if source.id not in self.duel_targets:
+            bot.whisper(source, "You are not being challenged to a duel")
             return False
 
-        requestor_username = self.duel_targets[source.username]
+        with DBManager.create_session_scope() as db_session:
+            requestor = User.find_by_id(db_session, self.duel_targets[source.id])
 
-        bot.whisper(source.username, "You have declined the duel vs {}".format(requestor_username))
-        bot.whisper(requestor_username, "{} declined the duel challenge with you.".format(source.username_raw))
+            bot.whisper(source, f"You have declined the duel vs {requestor}")
+            bot.whisper(requestor, f"{source} declined the duel challenge with you.")
 
-        del self.duel_targets[source.username]
-        del self.duel_requests[requestor_username]
+            del self.duel_targets[source.id]
+            del self.duel_requests[requestor.id]
 
-    def status_duel(self, **options):
+    def status_duel(self, bot, source, **rest):
         """
         Whispers you the current status of your active duel requests/duel targets
 
-        How to add: !add funccommand duelstatus|statusduel status_duel --cd 0 --usercd 5
         How to use: !duelstatus
         """
 
-        bot = options["bot"]
-        source = options["source"]
+        with DBManager.create_session_scope() as db_session:
+            msg = []
+            if source.id in self.duel_requests:
+                duelling = User.find_by_id(db_session, self.duel_requests[source.id])
+                msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
 
-        msg = []
-        if source.username in self.duel_requests:
-            msg.append(
-                "You have a duel request for {} points by {}".format(
-                    self.duel_request_price[source.username], self.duel_requests[source.username]
+            if source.id in self.duel_targets:
+                challenger = User.find_by_id(db_session, self.duel_targets[source.id])
+                msg.append(
+                    f"You have a pending duel request from {challenger} for {self.duel_request_price[self.duel_targets[source.id]]} points"
                 )
-            )
 
-        if source.username in self.duel_targets:
-            msg.append(
-                "You have a pending duel request from {} for {} points".format(
-                    self.duel_targets[source.username], self.duel_request_price[self.duel_targets[source.username]]
-                )
-            )
-
-        if len(msg) > 0:
-            bot.whisper(source.username, ". ".join(msg))
-        else:
-            bot.whisper(
-                source.username, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!"
-            )
+            if len(msg) > 0:
+                bot.whisper(source, ". ".join(msg))
+            else:
+                bot.whisper(source, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!")
 
     @staticmethod
-    def get_duel_stats(**options):
+    def get_duel_stats(bot, source, **rest):
         """
         Whispers the users duel winratio to the user
         """
+        if source.duel_stats is None:
+            bot.whisper(source, "You have no recorded duels.")
+            return True
 
-        bot = options["bot"]
-        source = options["source"]
-
-        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            db_session.add(source.user_model)
-
-            if source.duel_stats is None:
-                bot.whisper(source.username, "You have no recorded duels.")
-                return True
-
-            bot.whisper(
-                source.username,
-                "duels: {ds.duels_total} winrate: {ds.winrate:.2f}% streak: {ds.current_streak} profit: {ds.profit}".format(
-                    ds=source.duel_stats
-                ),
-            )
+        bot.whisper(
+            source,
+            f"duels: {source.duel_stats.duels_total} winrate: {source.duel_stats.winrate:.2f}% streak: {source.duel_stats.current_streak} profit: {source.duel_stats.profit}",
+        )
