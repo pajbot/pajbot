@@ -326,9 +326,10 @@ class Bot:
 
     def get_user_value(self, key, extra={}):
         try:
-            user = self.users.find(extra["argument"])
-            if user:
-                return getattr(user, key)
+            with DBManager.create_session_scope() as db_session:
+                user = User.find_by_user_input(db_session, extra["argument"])
+                if user is not None:
+                    return getattr(user, key)
         except:
             log.exception("Caught exception in get_source_value")
 
@@ -345,9 +346,10 @@ class Bot:
 
     def get_usersource_value(self, key, extra={}):
         try:
-            user = self.users.find(extra["argument"])
-            if user:
-                return getattr(user, key)
+            with DBManager.create_session_scope() as db_session:
+                user = User.find_by_user_input(db_session, extra["argument"])
+                if user is not None:
+                    return getattr(user, key)
 
             return getattr(extra["source"], key)
         except:
