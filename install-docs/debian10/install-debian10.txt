@@ -202,7 +202,7 @@ In KKonaTestBot
 
 # If your streamer has a twitter account:
 !twitterfollow twitterusername
-!add command whereisstreamer @$(source:username_raw), Latest tweet by KKonaTestBroadcaster: $(lasttweet:twitterusername)
+!add command whereisstreamer @$(source:name), Latest tweet by KKonaTestBroadcaster: $(lasttweet:twitterusername)
 
 # Also be sure to login into the admin panel under https://bot.kkonatestbroadcaster.tv
 # login at the bottom, afterwards click "Admin Panel" at the bottom
