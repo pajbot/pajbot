@@ -1,6 +1,5 @@
 import datetime
 import logging
-import math
 
 from pajbot import utils
 from pajbot.managers.handler import HandlerManager
@@ -215,52 +214,3 @@ class PaidTimeoutModule(BaseModule):
                 ],
             )
 
-
-class PaidTimeoutDiscountModule(BaseModule):
-
-    ID = "paidtimeoutdiscount"
-    NAME = "Paid Timeout Discount"
-    DESCRIPTION = "Allows user to time out other users with points"
-    CATEGORY = "Feature"
-    PARENT_MODULE = PaidTimeoutModule
-    # No settings to add yet. would like to have the message customizeable
-    # would also like to have the discounts customizeable
-    SETTINGS = []
-
-    def on_paid_timeout(self, source, victim, cost, **rest):
-        log.info("PAID TIMEOUT OCCURED")
-        # Discounts here!
-        discounts = {
-            "athenelive_sub": (0.1, "Athene (90%)"),
-            "lolnostam_sub": (0.4, "Nostam (60%)"),
-            "massansc_sub": (0.0, "Massan (100%)"),
-            "p4wnyhof_sub": (0.4, "P4wnyhof (60%)"),
-            "reynad27_sub": (0.8, "Reynad (20%)"),
-            "trumpsc_sub": (0.5, "Trump (50%)"),
-        }
-
-        added_discount = 1.0
-        whisper_msg = []
-        for tag, data in discounts.items():
-            discount, text = data
-            if tag in victim.get_tags():
-                whisper_msg.append(text)
-                added_discount *= discount
-
-        if len(whisper_msg) > 0:
-            actual_discount = 1.0 - added_discount
-            refund = math.trunc(cost * actual_discount)
-            if refund > 0:
-                source.points += refund
-                self.bot.whisper(
-                    source.username,
-                    "You have been refunded {refund} points courtesy of TheMysil, because the user you timed out matched the following discounts: {discount_str}".format(
-                        refund=refund, discount_str=", ".join(whisper_msg)
-                    ),
-                )
-
-    def enable(self, bot):
-        HandlerManager.add_handler("on_paid_timeout", self.on_paid_timeout)
-
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_paid_timeout", self.on_paid_timeout)

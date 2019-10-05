@@ -40,7 +40,6 @@ from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
-from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.paiduntimeout import PaidUntimeoutModule
 from pajbot.modules.pleblist import PleblistModule
@@ -106,7 +105,6 @@ available_modules = [
     CaseCheckerModule,
     EmoteTimeoutModule,
     PaidSubmodeModule,
-    PaidTimeoutDiscountModule,
     PaidTimeoutModule,
     PaidUntimeoutModule,
     PermabanModule,
