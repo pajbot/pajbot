@@ -35,6 +35,7 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
+from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
@@ -152,6 +153,9 @@ class Bot:
 
         # Thread pool executor for async actions
         self.action_queue = ThreadPoolExecutor()
+
+        # refresh points_rank and num_lines_rank regularly
+        UserRanksRefreshManager.start(self.action_queue)
 
         self.reactor = irc.client.Reactor(self.on_connect)
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
