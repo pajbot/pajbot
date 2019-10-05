@@ -217,14 +217,19 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        admin = None
-        try:
-            admin = self.config["main"]["admin"]
-        except KeyError:
+        admin = self.config["main"].get("admin", None)
+        if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
-        if admin is not None:
-            with self.users.get_user_context(admin) as user:
-                user.level = 2000
+        else:
+            with DBManager.create_session_scope() as db_session:
+                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, admin)
+                if admin_user is None:
+                    log.warning(
+                        "The login name you entered for the admin user does not exist on twitch. "
+                        "No admin user has been created."
+                    )
+                else:
+                    admin_user.level = 2000
 
         # silent mode
         self.silent = (
