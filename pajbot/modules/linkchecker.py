@@ -683,11 +683,7 @@ class LinkCheckerModule(BaseModule):
             },
         )
 
-    def add_link_blacklist(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def add_link_blacklist(self, bot, source, message, **rest):
         options, new_links = self.parse_link_blacklist_arguments(message)
 
         if new_links:
@@ -707,11 +703,7 @@ class LinkCheckerModule(BaseModule):
             bot.whisper(source, "Usage: !add link blacklist LINK")
             return False
 
-    def add_link_whitelist(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def add_link_whitelist(self, bot, source, message, **rest):
         parts = message.split(" ")
         try:
             for link in parts:
@@ -719,66 +711,58 @@ class LinkCheckerModule(BaseModule):
                 AdminLogManager.post("Whitelist link added", source, link)
         except:
             log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
+            bot.whisper(source, "Some error occurred white adding your links")
             return False
 
-        bot.whisper(source.username, "Successfully added your links")
+        bot.whisper(source, "Successfully added your links")
 
-    def remove_link_blacklist(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def remove_link_blacklist(self, bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !remove link blacklist ID")
+            return False
 
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
+        id = None
+        try:
+            id = int(message)
+        except ValueError:
+            pass
 
-            link = self.db_session.query(BlacklistedLink).filter_by(id=id).one_or_none()
+        link = self.db_session.query(BlacklistedLink).filter_by(id=id).one_or_none()
 
-            if link:
-                self.blacklisted_links.remove(link)
-                self.db_session.delete(link)
-                self.db_session.commit()
-            else:
-                bot.whisper(source.username, "No link with the given id found")
-                return False
-
-            AdminLogManager.post("Blacklist link removed", source, link.domain)
-            bot.whisper(source.username, "Successfully removed blacklisted link with id {0}".format(link.id))
+        if link:
+            self.blacklisted_links.remove(link)
+            self.db_session.delete(link)
+            self.db_session.commit()
         else:
-            bot.whisper(source.username, "Usage: !remove link blacklist ID")
+            bot.whisper(source, "No link with the given id found")
             return False
 
-    def remove_link_whitelist(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+        AdminLogManager.post("Blacklist link removed", source, link.domain)
+        bot.whisper(source, f"Successfully removed blacklisted link with id {link.id}")
 
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
+    def remove_link_whitelist(self, bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !remove link whitelist ID")
+            return False
 
-            link = self.db_session.query(WhitelistedLink).filter_by(id=id).one_or_none()
+        id = None
+        try:
+            id = int(message)
+        except ValueError:
+            pass
 
-            if link:
-                self.whitelisted_links.remove(link)
-                self.db_session.delete(link)
-                self.db_session.commit()
-            else:
-                bot.whisper(source.username, "No link with the given id found")
-                return False
+        link = self.db_session.query(WhitelistedLink).filter_by(id=id).one_or_none()
 
-            AdminLogManager.post("Whitelist link removed", source, link.domain)
-            bot.whisper(source.username, "Successfully removed whitelisted link with id {0}".format(link.id))
+        if link:
+            self.whitelisted_links.remove(link)
+            self.db_session.delete(link)
+            self.db_session.commit()
         else:
-            bot.whisper(source.username, "Usage: !remove link whitelist ID")
+            bot.whisper(source, "No link with the given id found")
             return False
+
+        AdminLogManager.post("Whitelist link removed", source, link.domain)
+        bot.whisper(source, f"Successfully removed whitelisted link with id {link.id}")
 
     @staticmethod
     def parse_link_blacklist_arguments(message):
