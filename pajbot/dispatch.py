@@ -2,6 +2,8 @@ import logging
 import re
 
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
+from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -31,50 +33,50 @@ class Dispatch:
         --cost COST
         """
 
-        if message:
-            # Make sure we got both an alias and a response
-            message_parts = message.split()
-            if len(message_parts) < 2:
-                bot.whisper(source.username, "Usage: !add command ALIAS [options] RESPONSE")
-                return False
-
-            options, response = bot.commands.parse_command_arguments(message_parts[1:])
-
-            options["added_by"] = source.id
-
-            if options is False:
-                bot.whisper(source.username, "Invalid command")
-                return False
-
-            alias_str = message_parts[0].replace("!", "").lower()
-            type = "say"
-            if options["whisper"] is True:
-                type = "whisper"
-            elif options["reply"] is True:
-                type = "reply"
-            elif response.startswith("/me") or response.startswith(".me"):
-                type = "me"
-                response = " ".join(response.split(" ")[1:])
-            elif options["whisper"] is False or options["reply"] is False:
-                type = "say"
-            action = {"type": type, "message": response}
-
-            command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
-            if new_command is True:
-                bot.whisper(source.username, "Added your command (ID: {command.id})".format(command=command))
-
-                log_msg = "The !{} command has been created".format(command.command.split("|")[0])
-                AdminLogManager.add_entry("Command created", source, log_msg)
-                return True
-
-            # At least one alias is already in use, notify the user to use !edit command instead
-            bot.whisper(
-                source.username,
-                "The alias {} is already in use. To edit that command, use !edit command instead of !add command.".format(
-                    alias_matched
-                ),
-            )
+        if not message:
             return False
+
+        # Make sure we got both an alias and a response
+        message_parts = message.split()
+        if len(message_parts) < 2:
+            bot.whisper(source, "Usage: !add command ALIAS [options] RESPONSE")
+            return False
+
+        options, response = bot.commands.parse_command_arguments(message_parts[1:])
+
+        if options is False:
+            bot.whisper(source, "Invalid command")
+            return False
+
+        options["added_by"] = source.id
+
+        alias_str = message_parts[0].replace("!", "").lower()
+        type = "say"
+        if options["whisper"] is True:
+            type = "whisper"
+        elif options["reply"] is True:
+            type = "reply"
+        elif response.startswith("/me") or response.startswith(".me"):
+            type = "me"
+            response = " ".join(response.split(" ")[1:])
+        elif options["whisper"] is False or options["reply"] is False:
+            type = "say"
+        action = {"type": type, "message": response}
+
+        command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
+        if new_command is True:
+            bot.whisper(source, f"Added your command (ID: {command.id})")
+
+            log_msg = f"The !{command.command.split('|')[0]} command has been created"
+            AdminLogManager.add_entry("Command created", source, log_msg)
+            return True
+
+        # At least one alias is already in use, notify the user to use !edit command instead
+        bot.whisper(
+            source,
+            f"The alias {alias_matched} is already in use. To edit that command, use !edit command instead of !add command.",
+        )
+        return False
 
     @staticmethod
     def edit_command(bot, source, message, event, args):
