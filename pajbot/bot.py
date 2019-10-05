@@ -13,8 +13,6 @@ from pytz import timezone
 
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-import pajbot.models
-import pajbot.models.user
 import pajbot.utils
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -36,7 +34,6 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
-from pajbot.managers.user import UserManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
@@ -48,6 +45,7 @@ from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
+from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
@@ -81,10 +79,6 @@ class Bot:
             redis_options = dict(config.items("redis"))
         RedisManager.init(**redis_options)
         wait_for_redis_data_loaded(RedisManager.get())
-
-        # Pepega SE points sync
-        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
-        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
         self.nickname = config["main"].get("nickname", "pajbot")
         self.timezone = config["main"].get("timezone", "UTC")
@@ -174,7 +168,6 @@ class Bot:
         StreamHelper.init_bot(self, self.stream_manager)
         ScheduleManager.init()
 
-        self.users = UserManager()
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
@@ -536,13 +529,13 @@ class Bot:
 
     def ban(self, user, reason=None):
         self.timeout(user, 30, reason, once=True)
-        self.execute_delayed(1, self._ban, user.username, reason)
+        self.execute_delayed(1, self._ban, user.login, reason)
 
     def unban(self, user):
-        self.privmsg(f"/unban {user.username}")
+        self.privmsg(f"/unban {user.login}")
 
     def untimeout(self, user):
-        self.privmsg(f"/untimeout {user.username}")
+        self.privmsg(f"/untimeout {user.login}")
 
     def _timeout(self, login, duration, reason=None):
         message = f"/timeout {login} {duration}"
@@ -551,9 +544,9 @@ class Bot:
         self.privmsg(message)
 
     def timeout(self, user, duration, reason=None, once=False):
-        self._timeout(user.username, duration, reason)
+        self._timeout(user.login, duration, reason)
         if not once:
-            self.execute_delayed(1, self._timeout, user.username, duration, reason)
+            self.execute_delayed(1, self._timeout, user.login, duration, reason)
 
     def timeout_login(self, login, duration, reason=None, once=False):
         self._timeout(login, duration, reason)
@@ -569,14 +562,14 @@ class Bot:
         self.privmsg(f"/delete {msg_id}")
 
     def whisper(self, user, message):
-        return self.irc.whisper(user.username, message)
+        return self.irc.whisper(user.login, message)
 
-    def whisper_login(self, username, message):
-        return self.irc.whisper(username, message)
+    def whisper_login(self, login, message):
+        return self.irc.whisper(login, message)
 
     def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
-            self.say(user.username_raw + ", " + lowercase_first_letter(message))
+            self.say(user.name + ", " + lowercase_first_letter(message))
         elif method == "whisper":
             self.whisper(user, message)
         elif method == "me":
