@@ -158,13 +158,9 @@ class TriviaModule(BaseModule):
             self.step = 0
             self.last_question = utils.now()
 
-    def command_start(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def command_start(self, bot, source, message, **rest):
         if self.trivia_running:
-            bot.safe_me(f"{source.username_raw}, a trivia is already running")
+            bot.safe_me(f"{source}, a trivia is already running")
             return
 
         self.trivia_running = True
@@ -186,12 +182,9 @@ class TriviaModule(BaseModule):
 
         HandlerManager.add_handler("on_message", self.on_message)
 
-    def command_stop(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def command_stop(self, bot, source, **rest):
         if not self.trivia_running:
-            bot.safe_me(f"{source.username_raw}, no trivia is active right now")
+            bot.safe_me(f"{source}, no trivia is active right now")
             return
 
         self.job.pause()
@@ -218,12 +211,12 @@ class TriviaModule(BaseModule):
             if correct:
                 if self.point_bounty > 0:
                     self.bot.safe_me(
-                        f"{source.username_raw} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp"
+                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp"
                     )
                     source.points += self.point_bounty
                 else:
                     self.bot.safe_me(
-                        f"{source.username_raw} got the answer right! The answer was {self.question['answer']} FeelsGoodMan"
+                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan"
                     )
 
                 self.question = None
