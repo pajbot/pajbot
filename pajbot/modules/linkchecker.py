@@ -4,6 +4,7 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
+from datetime import timedelta
 from sqlalchemy import Column, INT, TEXT
 
 import pajbot.managers
@@ -258,8 +259,8 @@ class LinkCheckerModule(BaseModule):
                             break
                     if whitelisted is False:
                         self.bot.timeout(source, 30, reason=ban_reason)
-                        if source.minutes_in_chat_online > 60:
-                            self.bot.whisper(source.username, whisper_reason)
+                        if source.time_in_chat_online >= timedelta(hours=1):
+                            self.bot.whisper(source, whisper_reason)
                         return False
 
         for url in urls:

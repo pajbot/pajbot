@@ -3,6 +3,7 @@ import logging
 import re
 
 import sqlalchemy
+from datetime import timedelta
 from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -333,7 +334,7 @@ class BanphraseManager:
             # Finally, time out the user for whatever timeout length was required.
             self.bot.timeout(user, timeout_length, reason=reason)
 
-        if banphrase.notify is True and user.minutes_in_chat_online > 60:
+        if banphrase.notify is True and user.time_in_chat_online >= timedelta(hours=1):
             # Notify the user why he has been timed out if the banphrase wishes it.
             notification_msg = (
                 f'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'
