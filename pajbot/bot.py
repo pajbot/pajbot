@@ -136,7 +136,15 @@ class Bot:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
 
         # SQL migrations
-        sql_conn = DBManager.engine.connect().connection
+        # engine.connect() returns a SQLAlchemy `Connection` object.
+        # engine.connect().connection returns a SQLAlchemy `_ConnectionFairy` object.
+        # engine.connect().connection.connection is the underlying psycopg2 connection.
+        # we need the psycopg2 connection, so we can do transaction control using the connection as a context manager
+        # e.g. (from the implementation of DatabaseMigratable):
+        # with self.conn:  # transaction control, does NOT close the connection
+        #     with self.conn.cursor() as cursor:  # auto resource release of cursor
+        #         cursor.execute("SOME SQL")
+        sql_conn = DBManager.engine.connect().connection.connection
         sql_migratable = DatabaseMigratable(sql_conn)
         sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
         sql_migration.run()
