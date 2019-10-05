@@ -135,63 +135,48 @@ class DeckModule(BaseModule):
         return False
 
     @staticmethod
-    def update_deck(**options):
+    def update_deck(bot, source, message, **rest):
         """Dispatch method for updating a deck.
         By default this will update things for the current deck, but you can update
         any deck assuming you know its ID.
         Usage: !updatedeck --name Midrange Secret --class paladin
         """
 
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        if message:
-            options, response = bot.decks.parse_update_arguments(message)
-            if options is False:
-                bot.whisper(source.username, "Invalid update deck command")
-                return False
-
-            if "id" in options:
-                deck = bot.decks.find(id=options["id"])
-                # We remove id from options here so we can tell the user what
-                # they have updated.
-                del options["id"]
-            else:
-                deck = bot.decks.current_deck
-
-            if deck is None:
-                bot.whisper(source.username, "No valid deck to update.")
-                return False
-
-            if len(options) == 0:
-                bot.whisper(source.username, "You have given me nothing to update with the deck!")
-                return False
-
-            bot.decks.update_deck(deck, **options)
-            bot.whisper(
-                source.username,
-                "Updated deck with ID {deck.id}. Updated {list}".format(
-                    deck=deck, list=", ".join([key for key in options])
-                ),
-            )
-
-            return True
-        else:
-            bot.whisper(source.username, "Usage example: !updatedeck --name Midrange Secret --class paladin")
+        if not message:
+            bot.whisper(source, "Usage example: !updatedeck --name Midrange Secret --class paladin")
             return False
 
+        options, response = bot.decks.parse_update_arguments(message)
+        if options is False:
+            bot.whisper(source, "Invalid update deck command")
+            return False
+
+        if "id" in options:
+            deck = bot.decks.find(id=options["id"])
+            # We remove id from options here so we can tell the user what
+            # they have updated.
+            del options["id"]
+        else:
+            deck = bot.decks.current_deck
+
+        if deck is None:
+            bot.whisper(source, "No valid deck to update.")
+            return False
+
+        if len(options) == 0:
+            bot.whisper(source, "You have given me nothing to update with the deck!")
+            return False
+
+        bot.decks.update_deck(deck, **options)
+        bot.whisper(source, f"Updated deck with ID {deck.id}. Updated {', '.join([key for key in options])}")
+
     @staticmethod
-    def remove_deck(**options):
+    def remove_deck(bot, source, message, **rest):
         """Dispatch method for removing a deck.
         Usage: !removedeck imgur.com/abcdef
         OR
         !removedeck 123
         """
-
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
 
         if message:
             id = None
