@@ -406,18 +406,19 @@ class Dispatch:
     @staticmethod
     def check_sub(bot, source, message, event, args):
         if message:
-            username = message.split(" ")[0].strip().lower()
-            user = bot.users.find(username)
+            input = message.split(" ")[0]
+            with DBManager.create_session_scope() as db_session:
+                user = User.find_by_user_input(db_session, input)
+
+                if user is None:
+                    bot.say(f"That user was not found in the user database")
         else:
             user = source
 
-        if user:
-            if user.subscriber:
-                bot.say("{0} is a subscriber PogChamp".format(user.username))
-            else:
-                bot.say("{0} is not a subscriber FeelsBadMan".format(user.username))
+        if user.subscriber:
+            bot.say(f"{user} is a subscriber PogChamp")
         else:
-            bot.say("{0} was not found in the user database".format(username))
+            bot.say(f"{user} is not a subscriber FeelsBadMan")
 
     @staticmethod
     def remindme(bot, source, message, event, args):
