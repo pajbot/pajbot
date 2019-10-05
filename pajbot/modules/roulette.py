@@ -152,46 +152,42 @@ class RouletteModule(BaseModule):
     def rigged_random_result(self):
         return random.randint(1, 100) > self.settings["rigged_percentage"]
 
-    def roulette(self, **options):
+    def roulette(self, bot, source, message, **rest):
         if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
                 return False
             if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_roulette_time"]):
                 return False
 
-        message = options["message"]
-        user = options["source"]
-        bot = options["bot"]
-
         if message is None:
-            bot.whisper(user, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
+            bot.whisper(source, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
             return False
 
         msg_split = message.split(" ")
         try:
-            bet = utils.parse_points_amount(user, msg_split[0])
+            bet = utils.parse_points_amount(source, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
-            bot.whisper(user, str(e))
+            bot.whisper(source, str(e))
             return False
 
-        if not user.can_afford(bet):
-            bot.whisper(user, f"You don't have enough points to do a roulette for {bet} points :(")
+        if not source.can_afford(bet):
+            bot.whisper(source, f"You don't have enough points to do a roulette for {bet} points :(")
             return False
 
         if bet < self.settings["min_roulette_amount"]:
-            bot.whisper(user, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
+            bot.whisper(source, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
             return False
 
         # Calculating the result
         result = self.rigged_random_result()
         points = bet if result else -bet
-        user.points += points
+        source.points += points
 
         with DBManager.create_session_scope() as db_session:
-            r = Roulette(user.id, points)
+            r = Roulette(source.id, points)
             db_session.add(r)
 
-        arguments = {"bet": bet, "user": user.username_raw, "points": user.points_available(), "win": points > 0}
+        arguments = {"bet": bet, "user": source.name, "points": source.points_available(), "win": points > 0}
 
         if points > 0:
             out_message = self.get_phrase("message_won", **arguments)
@@ -206,7 +202,7 @@ class RouletteModule(BaseModule):
         if self.settings["options_output"] == "1. Show results in chat":
             bot.me(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
-            bot.whisper(user, out_message)
+            bot.whisper(source, out_message)
         if (
             self.settings["options_output"]
             == "3. Show results in chat if it's over X points else it will be whispered."
@@ -214,9 +210,9 @@ class RouletteModule(BaseModule):
             if abs(points) >= self.settings["min_show_points"]:
                 bot.me(out_message)
             else:
-                bot.whisper(user, out_message)
+                bot.whisper(source, out_message)
 
-        HandlerManager.trigger("on_roulette_finish", user=user, points=points)
+        HandlerManager.trigger("on_roulette_finish", user=source, points=points)
 
     def on_tick(self, **rest):
         if self.output_buffer == "":
