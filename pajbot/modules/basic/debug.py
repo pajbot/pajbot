@@ -1,9 +1,10 @@
 import collections
-import datetime
 import logging
 
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -22,118 +23,85 @@ class DebugModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def debug_command(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        if message and len(message) > 0:
-            try:
-                command_id = int(message)
-            except Exception:
-                command_id = -1
-
-            command = False
-
-            if command_id == -1:
-                potential_cmd = "".join(message.split(" ")[:1]).lower()
-                if potential_cmd in bot.commands:
-                    command = bot.commands[potential_cmd]
-            else:
-                for _, potential_cmd in bot.commands.items():
-                    if potential_cmd.id == command_id:
-                        command = potential_cmd
-                        break
-
-            if not command:
-                bot.whisper(source.username, "No command found with the given parameters.")
-                return False
-
-            data = collections.OrderedDict()
-            data["id"] = command.id
-            data["level"] = command.level
-            data["type"] = command.action.type if command.action is not None else "???"
-            data["cost"] = command.cost
-            data["cd_all"] = command.delay_all
-            data["cd_user"] = command.delay_user
-            data["mod_only"] = command.mod_only
-
-            if data["type"] == "message":
-                data["response"] = command.action.response
-            elif data["type"] == "func" or data["type"] == "rawfunc":
-                data["cb"] = command.action.cb.__name__
-
-            bot.whisper(source.username, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
-        else:
-            bot.whisper(source.username, "Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)")
+    def debug_command(bot, source, message, **rest):
+        if not message or len(message) <= 0:
+            bot.whisper(source, "Usage: !debug command (COMMAND_ID|COMMAND_ALIAS)")
             return False
 
-    @staticmethod
-    def debug_user(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+        try:
+            command_id = int(message)
+        except ValueError:
+            command_id = -1
 
-        if message and len(message) > 0:
-            username = message.split(" ")[0].strip().lower()
-            user = bot.users.find(username)
+        command = None
+
+        if command_id == -1:
+            potential_cmd = "".join(message.split(" ")[:1]).lower()
+            if potential_cmd in bot.commands:
+                command = bot.commands[potential_cmd]
+        else:
+            for _, potential_cmd in bot.commands.items():
+                if potential_cmd.id == command_id:
+                    command = potential_cmd
+                    break
+
+        if command is None:
+            bot.whisper(source, "No command found with the given parameters.")
+            return False
+
+        data = collections.OrderedDict()
+        data["id"] = command.id
+        data["level"] = command.level
+        data["type"] = command.action.type if command.action is not None else "???"
+        data["cost"] = command.cost
+        data["cd_all"] = command.delay_all
+        data["cd_user"] = command.delay_user
+        data["mod_only"] = command.mod_only
+
+        if data["type"] == "message":
+            data["response"] = command.action.response
+        elif data["type"] == "func" or data["type"] == "rawfunc":
+            data["cb"] = command.action.cb.__name__
+
+        bot.whisper(source, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
+
+    @staticmethod
+    def debug_user(bot, source, message, **options):
+        if not message or len(message) <= 0:
+            bot.whisper(source, "Usage: !debug user USERNAME")
+            return False
+
+        username = message.split(" ")[0]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
 
             if user is None:
-                bot.whisper(source.username, "No user with this username found.")
+                bot.whisper(source, "No user with this username found.")
                 return False
 
             data = collections.OrderedDict()
             data["id"] = user.id
+            data["login"] = user.login
+            data["name"] = user.name
             data["level"] = user.level
             data["num_lines"] = user.num_lines
             data["points"] = user.points
-            data["last_seen"] = user.last_seen.strftime("%Y-%m-%d %H:%M:%S %Z")
-            try:
-                data["last_active"] = user.last_active.strftime("%Y-%m-%d %H:%M:%S %Z")
-            except:
-                pass
-            data["ignored"] = user.ignored
-            data["banned"] = user.banned
             data["tokens"] = user.tokens
 
-            bot.whisper(source.username, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
-        else:
-            bot.whisper(source.username, "Usage: !debug user USERNAME")
-            return False
-
-    @staticmethod
-    def debug_tags(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        if message and len(message) > 0:
-            username = message.split(" ")[0].strip().lower()
-            user = bot.users.find(username)
-
-            if user is None:
-                bot.whisper(source.username, "No user with this username found.")
-                return False
-
-            data = collections.OrderedDict()
-            user_tags = user.get_tags()
-
-            if len(user_tags) == 0:
-                bot.whisper(source.username, "This user does not have any tags")
+            if user.last_seen is not None:
+                data["last_seen"] = user.last_seen.strftime("%Y-%m-%d %H:%M:%S %Z")
             else:
-                for tag in user_tags:
-                    data[tag] = datetime.datetime.fromtimestamp(user_tags[tag], tz=datetime.timezone.utc).strftime(
-                        "%Y-%m-%d"
-                    )
+                data["last_seen"] = None
 
-                bot.whisper(
-                    source.username,
-                    "{} has the following tags: ".format(user.username_raw)
-                    + ", ".join(["%s until %s" % (key, value) for (key, value) in data.items()]),
-                )
-        else:
-            bot.whisper(source.username, "Usage: !debug user USERNAME")
-            return False
+            if user.last_active is not None:
+                data["last_active"] = user.last_active.strftime("%Y-%m-%d %H:%M:%S %Z")
+            else:
+                data["last_active"] = None
+
+            data["ignored"] = user.ignored
+            data["banned"] = user.banned
+
+            bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
 
     def load_commands(self, **options):
         self.commands["debug"] = Command.multiaction_command(
@@ -165,23 +133,7 @@ class DebugModule(BaseModule):
                             None,
                             "Debug a user",
                             chat="user:!debug user snusbot\n"
-                            "bot>user: id=123, level=100, num_lines=45, points=225,  last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False, tokens=0",
-                            description="",
-                        ).parse()
-                    ],
-                ),
-                "tags": Command.raw_command(
-                    self.debug_tags,
-                    level=100,
-                    delay_all=0,
-                    delay_user=5,
-                    description="Debug tags for a user",
-                    examples=[
-                        CommandExample(
-                            None,
-                            "Debug tags for a user",
-                            chat="user:!debug tags pajbot\n"
-                            "bot>user: pajbot has the following tags: pajlada_sub until 2016-04-28",
+                            "bot>user: id=123, login=snusbot, name=Snusbot, level=100, num_lines=45, points=225, tokens=0, last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False",
                             description="",
                         ).parse()
                     ],
