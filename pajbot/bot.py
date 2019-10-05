@@ -24,6 +24,7 @@ from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
 from pajbot.constants import VERSION
+from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -149,6 +150,11 @@ class Bot:
         self.action_queue = ThreadPoolExecutor()
 
         self.reactor = irc.client.Reactor(self.on_connect)
+        # SafeDefaultScheduler makes the bot not exit on exception in the main thread
+        # e.g. on actions via bot.execute_now, etc.
+        self.reactor.scheduler_class = SafeDefaultScheduler
+        self.reactor.scheduler = SafeDefaultScheduler()
+
         self.start_time = utils.now()
         ActionParser.bot = self
 
