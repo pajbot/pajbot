@@ -3,7 +3,6 @@ from flask_restful import Api
 import pajbot.web.routes.api.banphrases
 import pajbot.web.routes.api.commands
 import pajbot.web.routes.api.common
-import pajbot.web.routes.api.email
 import pajbot.web.routes.api.modules
 import pajbot.web.routes.api.pleblist
 import pajbot.web.routes.api.social
@@ -32,9 +31,6 @@ def init(app):
 
     # /pleblist
     pajbot.web.routes.api.pleblist.init(api)
-
-    # /email
-    pajbot.web.routes.api.email.init(api)
 
     # /social
     pajbot.web.routes.api.social.init(api)
