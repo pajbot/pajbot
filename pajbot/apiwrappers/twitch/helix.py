@@ -20,6 +20,19 @@ class TwitchHelixAPI(BaseTwitchAPI):
     def default_authorization(self):
         return self.app_token_manager
 
+    def request(self, method, endpoint, params, headers, authorization=None, json=None):
+        try:
+            return super().request(method, endpoint, params, headers, authorization, json)
+        except HTTPError as e:
+            if e.response.status_code == 429:
+                # retry once after rate limit resets...
+                rate_limit_reset = datetime.fromtimestamp(int(e.response.headers["Ratelimit-Reset"]), tz=timezone.utc)
+                time_to_wait = rate_limit_reset - utils.now()
+                time.sleep(math.ceil(time_to_wait.total_seconds()))
+                return super().request(method, endpoint, params, headers, authorization, json)
+            else:
+                raise e
+
     @staticmethod
     def with_pagination(after_pagination_cursor=None):
         """Returns a dict with extra query parameters based on the given pagination cursor.
