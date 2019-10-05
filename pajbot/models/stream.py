@@ -51,7 +51,7 @@ class StreamChunk(Base):
     __tablename__ = "stream_chunk"
 
     id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id"), nullable=False)
+    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), nullable=False)
     broadcast_id = Column(BIGINT, nullable=False)
     video_url = Column(TEXT, nullable=True)
     video_preview_image_url = Column(TEXT, nullable=True)

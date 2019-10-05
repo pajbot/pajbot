@@ -39,8 +39,8 @@ class PredictionRunEntry(Base):
     __tablename__ = "prediction_run_entry"
 
     id = Column(INT, primary_key=True)
-    prediction_run_id = Column(INT, ForeignKey("prediction_run.id"), nullable=False)
-    user_id = Column(INT, nullable=False)
+    prediction_run_id = Column(INT, ForeignKey("prediction_run.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     prediction = Column(INT, nullable=False)
 
     user = relationship(

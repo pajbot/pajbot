@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 class UserDuelStats(Base):
     __tablename__ = "user_duel_stats"
 
-    user_id = Column(INT, ForeignKey("user.id"), primary_key=True, autoincrement=False)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
     duels_won = Column(INT, nullable=False, default=0)
     duels_total = Column(INT, nullable=False, default=0)
     points_won = Column(INT, nullable=False, default=0)

@@ -26,7 +26,7 @@ class HSBetBet(Base):
 
     id = Column(INT, primary_key=True)
     game_id = Column(INT, ForeignKey("hsbet_game.id"), nullable=False, index=True)
-    user_id = Column(INT, nullable=False, index=True)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
     outcome = Column(Enum("win", "loss", name="hsbet_outcome"), nullable=False)
     points = Column(INT, nullable=False)
     profit = Column(INT, nullable=False)

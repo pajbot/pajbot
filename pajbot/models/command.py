@@ -75,11 +75,11 @@ def parse_command_for_web(alias, command, list):
 class CommandData(Base):
     __tablename__ = "command_data"
 
-    command_id = Column(INT, ForeignKey("command.id"), primary_key=True, autoincrement=False)
+    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
     num_uses = Column(INT, nullable=False, default=0)
 
-    added_by = Column(INT, nullable=True)
-    edited_by = Column(INT, nullable=True)
+    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
 
     user = relationship(
@@ -139,7 +139,7 @@ class CommandExample(Base):
     __tablename__ = "command_example"
 
     id = Column(INT, primary_key=True)
-    command_id = Column(INT, ForeignKey("command.id"), nullable=False)
+    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), nullable=False)
     title = Column(TEXT, nullable=False)
     chat = Column(TEXT, nullable=False)
     description = Column(TEXT, nullable=False)

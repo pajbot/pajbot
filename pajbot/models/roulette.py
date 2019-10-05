@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Column, INT
+from sqlalchemy import Column, INT, ForeignKey
 from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
@@ -13,7 +13,7 @@ class Roulette(Base):
     __tablename__ = "roulette"
 
     id = Column(INT, primary_key=True)
-    user_id = Column(INT, index=True, nullable=False)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), index=True, nullable=False)
     created_at = Column(UtcDateTime(), nullable=False)
     points = Column(INT, nullable=False)
 

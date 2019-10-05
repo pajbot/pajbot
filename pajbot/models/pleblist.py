@@ -16,8 +16,8 @@ class PleblistSong(Base):
     __tablename__ = "pleblist_song"
 
     id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id"), index=True, nullable=False)
-    user_id = Column(INT, nullable=True)
+    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     youtube_id = Column(TEXT, index=True, nullable=False)
     date_added = Column(UtcDateTime(), nullable=False)
     date_played = Column(UtcDateTime(), nullable=True)
