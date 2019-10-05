@@ -71,9 +71,6 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(" +")
 
     def on_pubmsg(self, source, message, **rest):
-        if source.username == "twitchnotify":
-            return
-
         # remove the invisible Chatterino suffix
         message = unidecode(message).strip()
 
@@ -108,7 +105,7 @@ class PyramidModule(BaseModule):
                                     if len(x) > peak_length:
                                         peak_length = len(x)
 
-                                arguments = {"emote": pyramid_thing, "user": source.username_raw, "width": peak_length}
+                                arguments = {"emote": pyramid_thing, "user": source.name, "width": peak_length}
 
                                 if peak_length > 2:
                                     if peak_length < 5:
