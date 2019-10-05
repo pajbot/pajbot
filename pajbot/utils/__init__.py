@@ -4,6 +4,7 @@ from .dump_threads import dump_threads
 from .extend_version_with_git_data import extend_version_with_git_data, extend_version_if_possible
 from .find import find
 from .get_class_that_defined_method import get_class_that_defined_method
+from .iterate_in_chunks import iterate_in_chunks
 from .init_logging import init_logging
 from .iterate_split_with_index import iterate_split_with_index
 from .load_config import load_config

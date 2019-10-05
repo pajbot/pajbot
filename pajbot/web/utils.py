@@ -69,7 +69,7 @@ def nocache(view):
 
 def download_logo(twitch_helix_api, streamer):
     streamer_id = twitch_helix_api.require_user_id(streamer)
-    logo_url = twitch_helix_api.fetch_profile_image_url(streamer_id)
+    logo_url = twitch_helix_api.get_profile_image_url(streamer_id)
 
     logo_raw_path = f"static/images/logo_{streamer}.png"
     logo_tn_path = f"static/images/logo_{streamer}_tn.png"

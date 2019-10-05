@@ -106,3 +106,53 @@ class APIResponseCache:
         if expiry > 0:
             self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
         return fetch_result
+
+    def cache_bulk_fetch_fn(
+        self, input_data, redis_key_fn, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=False
+    ):
+        # results contains the wanted results, already in the correct list index (e.g. if we had a cache
+        # hit for the third element (index 2),
+        # then the cache result for the third element will be in this list, at index 2)
+        results = []
+
+        # to_fetch contains is a list of tuples (idx, input_entry) of input entries (with their index)
+        # that did not have a cache hit, and that need to be fetched. After successful fetch, the result
+        # should be inserted into `results` at `idx`.
+        to_fetch = []
+
+        # redis MGET (Multi-GET) to check all at once quickly
+        if not force_fetch:
+            cache_results = self.redis.mget([redis_key_fn(input_entry) for input_entry in input_data])
+            for idx, cache_result in enumerate(cache_results):
+                if cache_result is not None:
+                    results.insert(idx, serializer.deserialize(cache_result))
+                else:
+                    to_fetch.append((idx, input_data[idx]))
+        else:
+            # yields a list zipping [(0, first_element), (1, second_element)] which is what we need in to_fetch
+            to_fetch = enumerate(input_data)
+
+        # https://stackoverflow.com/a/19343/4464702
+        # unzip [(0, 'first'), (1, 'second'), (4, 'fourtf')] to
+        #   to_fetch_indexes = (0, 1, 4) and
+        #   to_fetch_values = ('first', 'second', 'fourtf')
+        # except that zip() returns an iterator, not a list (so the extra call to tuple() is needed)
+
+        # the check for length is needed, because tuple(zip(*[])) returns () (an empty tuple),
+        # not a tuple with two empty lists.
+        if len(to_fetch) > 0:
+            to_fetch_indexes, to_fetch_values = tuple(zip(*to_fetch))
+            fetch_results = fetch_fn(to_fetch_values)
+            for idx, fetch_result in zip(to_fetch_indexes, fetch_results):
+                results.insert(idx, fetch_result)
+
+                if callable(expiry):
+                    # then expiry is a lambda that computes the expiry based upon the fetch result
+                    expiry_value = expiry(fetch_result)
+                else:
+                    expiry_value = expiry
+
+                if expiry_value > 0:
+                    self.redis.setex(redis_key_fn(input_data[idx]), expiry_value, serializer.serialize(fetch_result))
+
+        return results
