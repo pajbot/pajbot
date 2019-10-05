@@ -384,10 +384,10 @@ class Command(Base):
             log.debug(f"Command was run {time_since_last_run:.2f} seconds ago, waiting...")
             return False
 
-        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.username, 0)) / cd_modifier
+        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.id, 0)) / cd_modifier
 
         if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
-            log.debug(f"{source.username} ran command {time_since_last_run_user:.2f} seconds ago, waiting...")
+            log.debug(f"{source} ran command {time_since_last_run_user:.2f} seconds ago, waiting...")
             return False
 
         if self.cost > 0 and not source.can_afford(self.cost):
@@ -431,7 +431,7 @@ class Command(Base):
 
             # TODO: Will this be an issue?
             self.last_run = cur_time
-            self.last_run_by_user[source.username] = cur_time
+            self.last_run_by_user[source.id] = cur_time
 
     def autogenerate_examples(self):
         if not self.examples and self.id is not None and self.action and self.action.type == "message":
