@@ -85,7 +85,7 @@ def init(app):
                     "biggest_winstreak": biggest_winstreak,
                     "biggest_losestreak": biggest_losestreak,
                     "winrate": winrate,
-                    "winrate_str": "{:.2f}%".format(winrate * 100),
+                    "winrate_str": f"{winrate * 100:.2f}%",
                     "roulette_base_winrate": roulette_base_winrate,
                 }
 

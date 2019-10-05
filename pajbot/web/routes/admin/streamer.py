@@ -17,7 +17,7 @@ def init(page):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
         keys = StreamHelper.social_keys
-        streamer_info_keys = ["{streamer}:{key}".format(streamer=streamer, key=key) for key in keys.keys()]
+        streamer_info_keys = [f"{streamer}:{key}" for key in keys.keys()]
         log.info(streamer_info_keys)
         streamer_info_list = redis.hmget("streamer_info", streamer_info_keys)
         streamer_info = collections.OrderedDict()

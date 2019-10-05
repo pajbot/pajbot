@@ -83,7 +83,7 @@ class Banphrase(Base):
         return self.phrase
 
     def refresh_operator(self):
-        self.predicate = getattr(self, "predicate_{}".format(self.operator), None)
+        self.predicate = getattr(self, f"predicate_{self.operator}", None)
 
         self.compiled_regex = None
         if self.operator == "regex":
@@ -93,7 +93,7 @@ class Banphrase(Base):
                 else:
                     self.compiled_regex = re.compile(self.phrase, flags=re.IGNORECASE)
             except Exception:
-                log.exception("Unable to compile regex: {}".format(self.phrase))
+                log.exception(f"Unable to compile regex: {self.phrase}")
 
     def predicate_contains(self, message):
         return self.get_phrase() in self.format_message(message)
@@ -319,7 +319,7 @@ class BanphraseManager:
         if banphrase.data is not None:
             banphrase.data.num_uses += 1
 
-        reason = "Banned phrase {} ({})".format(banphrase.id, banphrase.name)
+        reason = f"Banned phrase {banphrase.id} ({banphrase.name})"
         if banphrase.permanent is True:
             # Permanently ban user
             punishment = "permanently banned"
@@ -335,8 +335,8 @@ class BanphraseManager:
 
         if banphrase.notify is True and user.minutes_in_chat_online > 60:
             # Notify the user why he has been timed out if the banphrase wishes it.
-            notification_msg = 'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'.format(
-                punishment=punishment, banphrase=banphrase
+            notification_msg = (
+                f'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'
             )
             self.bot.whisper(user.username, notification_msg)
 

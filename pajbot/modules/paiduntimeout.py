@@ -99,9 +99,8 @@ class PaidUntimeoutModule(BaseModule):
                 examples=[
                     CommandExample(
                         None,
-                        "Untimeout yourself for {0} points".format(self.settings["untimeout_cost"]),
-                        chat="user>bot:!{0}\n"
-                        "bot>user: You have been unbanned.".format(self.settings["untimeout_command_name"]),
+                        f"Untimeout yourself for {self.settings['untimeout_cost']} points",
+                        chat=f"user>bot:!{self.settings['untimeout_command_name']}\nbot>user: You have been unbanned.",
                         description="",
                     ).parse()
                 ],
@@ -119,9 +118,8 @@ class PaidUntimeoutModule(BaseModule):
                 examples=[
                     CommandExample(
                         None,
-                        "Unban yourself for {0} points".format(self.settings["unban_cost"]),
-                        chat="user>bot:!{0}\n"
-                        "bot>user: You have been unbanned.".format(self.settings["unban_command_name"]),
+                        f"Unban yourself for {self.settings['unban_cost']} points",
+                        chat=f"user>bot:!{self.settings['unban_command_name']}\nbot>user: You have been unbanned.",
                         description="",
                     ).parse()
                 ],

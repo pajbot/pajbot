@@ -79,28 +79,26 @@ class Migration:
 
             if id is None:
                 raise ValueError(
-                    "Module {} does not specify ID= and ".format(modname)
-                    + "its filename does not begin with a number. Cannot proceed."
+                    f"Module {modname} does not specify ID= and its filename does not begin with a number. Cannot proceed."
                 )
 
             if name is None:
                 raise ValueError(
-                    "Module {} does not specify NAME= and ".format(modname)
-                    + "its filename does not specify a name. Cannot proceed."
+                    f"Module {modname} does not specify NAME= and its filename does not specify a name. Cannot proceed."
                 )
 
             if up_action is None:
-                raise ValueError("Module {} does not specify `def up()`. Cannot proceed. ".format(modname))
+                raise ValueError(f"Module {modname} does not specify `def up()`. Cannot proceed.")
 
             if any(rev.id == id for rev in revisions):
-                raise ValueError("ID {} was defined twice. Cannot proceed.".format(id))
+                raise ValueError(f"ID {id} was defined twice. Cannot proceed.")
 
             revision = Revision(id, name, up_action)
 
             revisions.append(revision)
 
         if len(revisions) <= 0:
-            raise ValueError("No revisions found under {}.".format(package.__path__))
+            raise ValueError(f"No revisions found under {package.__path__}.")
 
         revisions.sort(key=lambda rev: rev.id)
 

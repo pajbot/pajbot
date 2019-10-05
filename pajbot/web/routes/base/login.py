@@ -93,11 +93,7 @@ def init(app):
 
         if resp is None:
             if "error" in request.args and "error_description" in request.args:
-                log.warning(
-                    "Access denied: reason={}, error={}".format(
-                        request.args["error"], request.args["error_description"]
-                    )
-                )
+                log.warning(f"Access denied: reason={request.args['error']}, error={request.args['error_description']}")
             next_url = get_next_url(request, "state")
             return redirect(next_url)
         elif type(resp) is OAuthException:
@@ -133,7 +129,7 @@ def init(app):
                 redis = RedisManager.get()
                 streamer_id = me.data["_id"]
                 token_json = UserAccessToken.from_api_response(resp).jsonify()
-                redis.set("authentication:user-access-token:{}".format(streamer_id), json.dumps(token_json))
+                redis.set(f"authentication:user-access-token:{streaner_id}", json.dumps(token_json))
                 log.info("Successfully updated streamer token in redis")
 
         next_url = get_next_url(request, "state")

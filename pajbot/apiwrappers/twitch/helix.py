@@ -80,7 +80,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         If the user is not found, None is returned."""
 
         return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:user-id:{}".format(username),
+            redis_key=f"api:twitch:helix:user-id:{username}",
             fetch_fn=lambda: self.fetch_user_id(username),
             expiry=lambda response: 30 if response is None else 300,
         )
@@ -109,7 +109,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         If the user is not found, None is returned."""
 
         return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:login-name:{}".format(user_id),
+            redis_key=f"api:twitch:helix:login-name:{user_id}",
             fetch_fn=lambda: self.fetch_login_name(user_id),
             expiry=lambda response: 30 if response is None else 300,
         )
@@ -124,7 +124,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def get_follow_since(self, from_id, to_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:follow-since:{}:{}".format(from_id, to_id),
+            redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
             serializer=DateTimeSerializer(),
             fetch_fn=lambda: self.fetch_follow_since(from_id, to_id),
             expiry=lambda response: 30 if response is None else 300,

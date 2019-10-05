@@ -82,7 +82,7 @@ class AccessTokenManager(ABC):
 
 class AppAccessTokenManager(AccessTokenManager):
     def __init__(self, api, redis, scope=[], token=None):
-        redis_key = "authentication:app-access-token:{}:{}".format(api.client_credentials.client_id, json.dumps(scope))
+        redis_key = f"authentication:app-access-token:{api.client_credentials.client_id}:{json.dumps(scope)}"
         storage = RedisTokenStorage(redis, AppAccessToken, redis_key, expire=True)
 
         super().__init__(api, storage, token)
@@ -95,7 +95,7 @@ class AppAccessTokenManager(AccessTokenManager):
 
 class UserAccessTokenManager(AccessTokenManager):
     def __init__(self, api, redis, username, user_id, token=None):
-        redis_key = "authentication:user-access-token:{}".format(user_id)
+        redis_key = f"authentication:user-access-token:{user_id}"
         storage = RedisTokenStorage(redis, UserAccessToken, redis_key, expire=False)
 
         super().__init__(api, storage, token)
@@ -103,6 +103,4 @@ class UserAccessTokenManager(AccessTokenManager):
         self.user_id = user_id
 
     def fetch_new(self):
-        raise NoTokenError(
-            "No authentication token found for user {} ({}) in redis".format(self.username, self.user_id)
-        )
+        raise NoTokenError(f"No authentication token found for user {self.username} ({self.user_id}) in redis")

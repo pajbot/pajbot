@@ -137,11 +137,7 @@ class SubAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_sub"]
-        self.bot.say(
-            "{} was given {} points for subscribing! FeelsAmazingMan".format(
-                user.username_raw, self.settings["grant_points_on_sub"]
-            )
-        )
+        self.bot.say(f"{user.username_raw} was given {self.settings['grant_points_on_sub']} points for subscribing! FeelsAmazingMan")
 
     def on_new_sub(self, user, sub_type, gifted_by=None):
         """
@@ -181,8 +177,9 @@ class SubAlertModule(BaseModule):
 
         payload = {"username": user.username_raw, "num_months": num_months, "gifted_by": gifted_by}
         if substreak_count and substreak_count > 0:
-            xd = {"username": user.username_raw, "num_months": substreak_count, "gifted_by": gifted_by}
-            payload["substreak_string"] = self.get_phrase("substreak_string", **xd)
+            payload["substreak_string"] = self.get_phrase(
+                "substreak_string", username=user.username_raw, num_months=substreak_count, gifted_by=gifted_by
+            )
         else:
             payload["substreak_string"] = ""
         self.bot.websocket_manager.emit("resub", payload)
@@ -220,7 +217,7 @@ class SubAlertModule(BaseModule):
                     substreak_count = 0
 
             if "msg-param-sub-plan" not in tags:
-                log.debug("subalert msg-id is resub, but missing msg-param-sub-plan: {}".format(tags))
+                log.debug(f"subalert msg-id is resub, but missing msg-param-sub-plan: {tags}")
                 return
 
             # log.debug('msg-id resub tags: {}'.format(tags))
@@ -243,7 +240,7 @@ class SubAlertModule(BaseModule):
                     substreak_count = 0
 
             if "display-name" not in tags:
-                log.debug("subalert msg-id is subgift, but missing display-name: {}".format(tags))
+                log.debug(f"subalert msg-id is subgift, but missing display-name: {tags}")
                 return
 
             with self.bot.users.get_user_context(tags["msg-param-recipient-user-name"]) as receiver:
@@ -259,13 +256,13 @@ class SubAlertModule(BaseModule):
                     HandlerManager.trigger("on_user_sub", user=receiver)
         elif tags["msg-id"] == "sub":
             if "msg-param-sub-plan" not in tags:
-                log.debug("subalert msg-id is sub, but missing msg-param-sub-plan: {}".format(tags))
+                log.debug(f"subalert msg-id is sub, but missing msg-param-sub-plan: {tags}")
                 return
 
             self.on_new_sub(source, tags["msg-param-sub-plan"])
             HandlerManager.trigger("on_user_sub", user=source)
         else:
-            log.debug("Unhandled msg-id: {} - tags: {}".format(tags["msg-id"], tags))
+            log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
     def enable(self, bot):
         HandlerManager.add_handler("on_usernotice", self.on_usernotice)

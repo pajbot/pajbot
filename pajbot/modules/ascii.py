@@ -79,10 +79,7 @@ class AsciiProtectionModule(BaseModule):
         one hour watching the stream. """
         if self.settings["whisper_offenders"] and duration > 0 and source.minutes_in_chat_online > 60:
             self.bot.whisper(
-                source.username,
-                "You have been {punishment} because your message contained too many ascii characters.".format(
-                    punishment=punishment
-                ),
+                source.username, f"You have been {punishment} because your message contained too many ascii characters."
             )
 
         return False

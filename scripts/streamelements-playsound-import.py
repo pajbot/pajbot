@@ -10,7 +10,7 @@ def get_se_channel(twitch_channel):
     json = response.json()
     display_name = json["displayName"]
     se_channel = json["_id"]
-    print("Found channel {} with StreamElements channel ID {}".format(display_name, se_channel))
+    print(f"Found channel {display_name} with StreamElements channel ID {se_channel}")
     return se_channel
 
 
@@ -22,7 +22,7 @@ def main():
     twitch_channel = args.channel
     se_channel = get_se_channel(twitch_channel)
 
-    request = requests.get("https://api.streamelements.com/kappa/v2/store/{}/items".format(se_channel))
+    request = requests.get(f"https://api.streamelements.com/kappa/v2/store/{se_channel}/items")
     request.raise_for_status()
     se_playsounds = request.json()
 
@@ -37,11 +37,7 @@ def main():
         cooldown = se_playsound["cooldown"]["user"]
         enabled = se_playsound["enabled"]
 
-        print(
-            "!add playsound {name} {link} --volume {volume} --cooldown {cooldown}{disabled}".format(
-                name=name, link=link, volume=volume, cooldown=cooldown, disabled="" if enabled else " --disabled"
-            )
-        )
+        print(f"!add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}")
 
     print()
     print()

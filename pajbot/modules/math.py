@@ -128,7 +128,7 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.say("{}, {} {}".format(source.username_raw, expr_res, emote))
+        bot.say(f"{source.username_raw}, {expr_res} {emote}")
 
     def math(self, **options):
         bot = options["bot"]

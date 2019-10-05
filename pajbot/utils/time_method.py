@@ -10,14 +10,14 @@ def time_method(f):
     def wrap(*args, **kwargs):
         defining_class = get_class_that_defined_method(f)
         if defining_class is not None:
-            fn_description = "{0.__name__}::{1.__name__}".format(defining_class, f)
+            fn_description = f"{defining_class.__name__}::{f.__name__}"
         else:
             fn_description = f.__name__
 
         time1 = now().timestamp()
         ret = f(*args, **kwargs)
         time2 = now().timestamp()
-        log.debug("{0} function took {1:.3f} ms".format(fn_description, (time2 - time1) * 1000.0))
+        log.debug(f"{fn_description} function took {(time2 - time1) * 1000.0:.3f} ms")
         return ret
 
     return wrap

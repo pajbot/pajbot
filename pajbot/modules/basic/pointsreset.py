@@ -35,18 +35,13 @@ class PointsResetModule(BaseModule):
                 return
 
             if victim.points >= 0:
-                bot.whisper(source.username, "{0} doesn't have negative points FailFish".format(victim.username_raw))
+                bot.whisper(source.username, f"{victim} doesn't have negative points FailFish")
                 return
 
             if victim.points <= -1:
                 old_points = victim.points
                 victim.points = 0
-                bot.whisper(
-                    source.username,
-                    "You changed the points for {0} from {1} to {2} points".format(
-                        victim.username_raw, old_points, victim.points
-                    ),
-                )
+                bot.whisper(source.username, f"You changed the points for {victim} from {old_points} to {victim.points} points")
 
     def load_commands(self, **options):
         self.commands["pointsreset"] = Command.raw_command(

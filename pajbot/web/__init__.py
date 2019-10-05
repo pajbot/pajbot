@@ -130,9 +130,7 @@ def init(args):
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
-            "websocket": {
-                "host": config["websocket"].get("host", "wss://{}/clrsocket".format(config["web"]["domain"]))
-            },
+            "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": config["web"]["streamer_name"], "full_name": config["main"]["streamer"]},
         "modules": app.bot_modules,

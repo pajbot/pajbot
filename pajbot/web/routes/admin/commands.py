@@ -159,7 +159,7 @@ def init(page):
 
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id, **options)
-        log_msg = "The !{} command has been created".format(command.command.split("|")[0])
+        log_msg = f"The !{command.command.split('|')[0]} command has been created"
         AdminLogManager.add_entry("Command created", user, log_msg)
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             db_session.add(command)

@@ -56,7 +56,7 @@ class ModuleManager:
     def enable_module(self, module_id):
         module = self.get_module(module_id)
         if module is None:
-            log.error("No module with the ID {} found.".format(module_id))
+            log.error(f"No module with the ID {module_id} found.")
             return False
 
         module.load()
@@ -74,13 +74,13 @@ class ModuleManager:
     def disable_module(self, module_id):
         module = self.get_module(module_id)
         if not module:
-            log.error("No module with the ID {} found.".format(module_id))
+            log.error(f"No module with the ID {module_id} found.")
             return False
 
         module.disable(self.bot)
 
         if module not in self.modules:
-            log.error("Module {} is not in the list of enabled modules pajaW".format(module_id))
+            log.error(f"Module {module_id} is not in the list of enabled modules pajaW")
             return False
 
         self.modules.remove(module)
@@ -100,7 +100,7 @@ class ModuleManager:
             for module in self.all_modules:
                 mod = find(lambda db_module, registered_module=module: db_module.id == registered_module.ID, db_modules)
                 if mod is None:
-                    log.info("Creating row in DB for module {}".format(module.ID))
+                    log.info(f"Creating row in DB for module {module.ID}")
                     mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
                     db_session.add(mod)
 

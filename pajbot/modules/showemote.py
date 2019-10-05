@@ -117,7 +117,7 @@ class ShowEmoteModule(BaseModule):
         )
 
         if self.settings["success_whisper"]:
-            bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote.code))
+            bot.whisper(source.username, f"Successfully sent the emote {first_emote.code} to the stream!")
 
     def load_commands(self, **options):
         self.commands["#showemote"] = Command.raw_command(

@@ -129,9 +129,9 @@ class DeckModule(BaseModule):
         if message:
             deck, new_deck = bot.decks.set_current_deck(message)
             if new_deck is True:
-                bot.whisper(source.username, "This deck is a new deck. Its ID is {deck.id}".format(deck=deck))
+                bot.whisper(source.username, f"This deck is a new deck. Its ID is {deck.id}")
             else:
-                bot.whisper(source.username, "Updated an already-existing deck. Its ID is {deck.id}".format(deck=deck))
+                bot.whisper(source.username, f"Updated an already-existing deck. Its ID is {deck.id}")
 
             bot.say("Successfully updated the latest deck.")
             return True

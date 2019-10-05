@@ -19,7 +19,7 @@ class BaseAPI:
         self.timeout = 20
 
         # e.g. pajbot1/1.35
-        self.session.headers["User-Agent"] = "pajbot/{}".format(constants.VERSION)
+        self.session.headers["User-Agent"] = f"pajbot/{constants.VERSION}"
 
         if redis is not None:
             self.cache = APIResponseCache(redis)

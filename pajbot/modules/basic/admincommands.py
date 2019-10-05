@@ -107,9 +107,7 @@ class AdminCommandsModule(BaseModule):
                 # The user did not specify a valid integer for points
                 bot.whisper(
                     source.username,
-                    "Invalid amount of points. Usage: !{command_name} USERNAME POINTS".format(
-                        command_name=self.command_name
-                    ),
+                    f"You cannot change the level of someone who is the same or higher level than you. You are level {source.level}, and {username} is level {user.level}",
                 )
                 return False
 
@@ -221,15 +219,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say("No module with the id {} found".format(module_id))
+                bot.say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say("Unable to disable module {}".format(module_id))
+                bot.say(f"Unable to disable module {module_id}")
                 return
 
             if not module_manager.disable_module(module_id):
-                bot.say("Unable to disable module {}, maybe it's not enabled?".format(module_id))
+                bot.say(f"Unable to disable module {module_id}, maybe it's not enabled?")
                 return
 
             # Rebuild command cache
@@ -241,7 +239,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Disabled", module_id)
 
-            bot.say("Disabled module {}".format(module_id))
+            bot.say(f"Disabled module {module_id}")
 
         elif sub_command == "enable":
             if len(msg_args) < 2:
@@ -250,15 +248,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say("No module with the id {} found".format(module_id))
+                bot.say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say("Unable to enable module {}".format(module_id))
+                bot.say(f"Unable to enable module {module_id}")
                 return
 
             if not module_manager.enable_module(module_id):
-                bot.say("Unable to enable module {}, maybe it's already enabled?".format(module_id))
+                bot.say(f"Unable to enable module {module_id}, maybe it's already enabled?")
                 return
 
             # Rebuild command cache
@@ -270,7 +268,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Enabled", module_id)
 
-            bot.say("Enabled module {}".format(module_id))
+            bot.say(f"Enabled module {module_id}")
 
     def load_commands(self, **options):
         self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")

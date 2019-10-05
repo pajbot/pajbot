@@ -234,13 +234,11 @@ class SlotMachineModule(BaseModule):
             return False
 
         if not source.can_afford(bet):
-            bot.whisper(
-                source.username, "You don't have enough points to do a slot machine pull for {} points :(".format(bet)
-            )
+            bot.whisper(source.username, f"You don't have enough points to do a slot machine pull for {bet} points :(")
             return False
 
         if bet < self.settings["min_bet"]:
-            bot.whisper(source.username, "You have to bet at least {} point! :(".format(self.settings["min_bet"]))
+            bot.whisper(source.username, f"You have to bet at least {self.settings['min_bet']} point! :(")
             return False
 
         # how much of the users point they're expected to get back (basically how much the house yoinks)
@@ -322,18 +320,11 @@ class SlotMachineModule(BaseModule):
         lose_emote = "forsenSWA"
         for arg in self.output_buffer_args:
             parts.append(
-                "{} {} {}{}".format(
-                    win_emote if arg["win"] else lose_emote, arg["user"], "+" if arg["win"] else "-", arg["bet"]
-                )
+                f"{win_emote if arg['win'] else lose_emote} {arg['user']} {'+' if arg['win'] else '-'}{arg['bet']}"
             )
 
         parts.append(
-            "{} {} {}{}".format(
-                win_emote if arguments["win"] else lose_emote,
-                arguments["user"],
-                "+" if arguments["win"] else "-",
-                arguments["bet"],
-            )
+            f"{win_emote if arguments['win'] else lose_emote} {arguments['user']} {'+' if arguments['win'] else '-'}{arguments['bet']}"
         )
 
         log.debug(parts)

@@ -186,11 +186,8 @@ class PaidTimeoutModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Timeout someone for {0} seconds".format(self.settings["timeout_length"]),
-                    chat="user:!{0} paja\n"
-                    "bot>user: You just used {1} points to time out paja for an additional {2} seconds.".format(
-                        self.settings["command_name"], self.settings["cost"], self.settings["timeout_length"]
-                    ),
+                    f"Timeout someone for {self.settings['timeout_length']} seconds",
+                    chat=f"user:!{self.settings['command_name']} paja\nbot>user: You just used {self.settings['cost']} points to time out paja for an additional {self.settings['timeout_length']} seconds.",
                     description="",
                 ).parse()
             ],

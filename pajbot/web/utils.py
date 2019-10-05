@@ -71,8 +71,8 @@ def download_logo(twitch_helix_api, streamer):
     streamer_id = twitch_helix_api.require_user_id(streamer)
     logo_url = twitch_helix_api.fetch_profile_image_url(streamer_id)
 
-    logo_raw_path = "static/images/logo_{}.png".format(streamer)
-    logo_tn_path = "static/images/logo_{}_tn.png".format(streamer)
+    logo_raw_path = f"static/images/logo_{streamer}.png"
+    logo_tn_path = f"static/images/logo_{streamer}_tn.png"
 
     # returns bytes
     logo_image_bytes = BaseAPI(None).get_binary(logo_url)
@@ -95,7 +95,7 @@ def get_cached_commands():
     CACHE_TIME = 30  # seconds
 
     redis = RedisManager.get()
-    commands_key = "{streamer}:cache:commands".format(streamer=StreamHelper.get_streamer())
+    commands_key = f"{StreamHelper.get_streamer()}:cache:commands"
     commands = redis.get(commands_key)
     if commands is None:
         log.debug("Updating commands...")
@@ -231,6 +231,6 @@ def format_tb(tb, limit=None):
 
     ret = ""
     for stack in stacktrace:
-        ret += "*{}*:{} ({}): {}\n".format(stack[0], stack[1], stack[2], stack[3])
+        ret += f"*{stack[0]}*:{stack[1]} ({stack[2]}): {stack[3]}\n"
 
     return ret

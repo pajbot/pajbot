@@ -122,9 +122,7 @@ class LeagueRankModule(BaseModule):
             if region not in region_list:
                 bot.whisper(
                     source.username,
-                    "Region is not valid. Please enter a valid region, region is optional and the default region is {}".format(
-                        def_region.upper()
-                    ),
+                    f"Region is not valid. Please enter a valid region, region is optional and the default region is {def_region.upper()}",
                 )
                 return False
             else:
@@ -147,13 +145,13 @@ class LeagueRankModule(BaseModule):
 
         except LoLException as e:
             if e == error_429:
-                bot.say("Too many requests. Try again in {} seconds".format(e.headers["Retry-After"]))
+                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
                 return False
             elif e == error_404:
                 bot.say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
                 return False
             else:
-                log.info("Something unknown went wrong: {}".format(e))
+                log.info(f"Something unknown went wrong: {e}")
                 return False
 
         try:
@@ -164,20 +162,14 @@ class LeagueRankModule(BaseModule):
             league_points = summoner_league[summoner_id][0]["entries"][0]["leaguePoints"]
 
             bot.say(
-                "The Summoner {} on region {} is currently in {} {} with {} LP 4Head".format(
-                    summoner_name, region.upper(), tier, division, league_points
-                )
+                f"The Summoner {summoner_name} on region {region.upper()} is currently in {tier} {division} with {league_points} LP 4Head"
             )
         except LoLException as e:
             if e == error_429:
-                bot.say("Too many requests. Try again in {} seconds".format(e.headers["Retry-After"]))
+                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
                 return False
             elif e == error_404:
-                bot.say(
-                    "The Summoner {} on region {} is currently UNRANKED.. FeelsBadMan".format(
-                        summoner_name, region.upper()
-                    )
-                )
+                bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
                 return False
             else:
                 bot.say("Trouble fetching summoner rank.. Kappa Try again later!")

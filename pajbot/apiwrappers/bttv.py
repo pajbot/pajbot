@@ -58,7 +58,7 @@ class BTTVAPI(BaseAPI):
 
     def get_channel_emotes(self, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key="api:bttv:channel-emotes:{}".format(channel_name),
+            redis_key=f"api:bttv:channel-emotes:{channel_name}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
             serializer=ListSerializer(Emote),
             expiry=60 * 60,

@@ -59,7 +59,7 @@ class CommandManager(UserDict):
 
         self.load_by_id(command_id)
 
-        log.debug("Reloaded command with id {}".format(command_id))
+        log.debug(f"Reloaded command with id {command_id}")
 
         self.rebuild()
 
@@ -78,7 +78,7 @@ class CommandManager(UserDict):
         self.db_session.expunge(command.data)
         self.remove_command_aliases(command)
 
-        log.debug("Remove command with id {}".format(command_id))
+        log.debug(f"Remove command with id {command_id}")
 
         self.rebuild()
 
@@ -335,7 +335,7 @@ class CommandManager(UserDict):
             if alias in self.db_commands:
                 del self.db_commands[alias]
             else:
-                log.warning("For some reason, {0} was not in the list of commands when we removed it.".format(alias))
+                log.warning(f"For some reason, {alias} was not in the list of commands when we removed it.")
 
     def remove_command(self, command):
         self.remove_command_aliases(command)
@@ -375,7 +375,7 @@ class CommandManager(UserDict):
             self.add_db_command_aliases(command)
             self.db_session.expunge(command)
             if command.data is None:
-                log.info("Creating command data for {}".format(command.command))
+                log.info(f"Creating command data for {command.command}")
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
 
@@ -432,7 +432,7 @@ class CommandManager(UserDict):
             self.add_db_command_aliases(command)
             self.db_session.expunge(command)
             if command.data is None:
-                log.info("Creating command data for {}".format(command.command))
+                log.info(f"Creating command data for {command.command}")
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
 

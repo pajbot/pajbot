@@ -82,7 +82,7 @@ class HandlerManager:
             HandlerManager.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
-            log.error("add_handler No handler for {} found.".format(event))
+            log.error(f"add_handler No handler for {event} found.")
 
     @staticmethod
     def method_matches(h, method):
@@ -97,12 +97,12 @@ class HandlerManager:
                 HandlerManager.handlers[event].remove(handler)
         except KeyError:
             # No handlers for this event found
-            log.error("remove_handler No handler for {} found.".format(event))
+            log.error(f"remove_handler No handler for {event} found.")
 
     @staticmethod
     def trigger(event_name, stop_on_false=True, *args, **kwargs):
         if event_name not in HandlerManager.handlers:
-            log.error("No handler set for event {}".format(event_name))
+            log.error(f"No handler set for event {event_name}")
             return False
 
         for handler, _ in HandlerManager.handlers[event_name]:
@@ -110,7 +110,7 @@ class HandlerManager:
             try:
                 res = handler(*args, **kwargs)
             except:
-                log.exception("Unhandled exception from {} in {}".format(handler, event_name))
+                log.exception(f"Unhandled exception from {handler} in {event_name}")
 
             if res is False and stop_on_false is True:
                 # Abort if handler returns false and stop_on_false is enabled

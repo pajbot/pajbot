@@ -20,7 +20,7 @@ class WinRaffleQuestModule(BaseQuest):
 
     @staticmethod
     def on_paid_timeout(source, victim, cost):
-        log.warning("{} just timed out {} for {} points".format(source, victim, cost))
+        log.warning(f"{source} just timed out {victim} for {cost} points")
 
     def winraffle_progress_quest(self, winner):
         user_progress = self.get_user_progress(winner.username, 0) + 1

@@ -34,11 +34,11 @@ def init(app):
         with DBManager.create_session_scope() as session:
             current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
             if current_stream is not None:
-                return redirect("/pleblist/history/{}/".format(current_stream.id), 303)
+                return redirect(f"/pleblist/history/{current_stream.id}/", 303)
 
             last_stream = session.query(Stream).filter_by(ended=True).order_by(Stream.stream_start.desc()).first()
             if last_stream is not None:
-                return redirect("/pleblist/history/{}/".format(last_stream.id), 303)
+                return redirect(f"/pleblist/history/{last_stream.id}/", 303)
 
             return render_template("pleblist_history_no_stream.html"), 404
 
@@ -84,9 +84,7 @@ def init(app):
                         vodtime_in_seconds = (song.date_played - stream_chunk.chunk_start).total_seconds() - data[
                             "song_duration"
                         ]
-                        data["vod_url"] = "{}?t={}".format(
-                            stream_chunk.video_url, seconds_to_vodtime(vodtime_in_seconds)
-                        )
+                        data["vod_url"] = f"{stream_chunk.video_url}?t={seconds_to_vodtime(vodtime_in_seconds)}"
 
                 songs.append((data, song))
 

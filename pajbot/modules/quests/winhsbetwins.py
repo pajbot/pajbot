@@ -64,4 +64,4 @@ class WinHsBetWinsQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
 
     def get_objective(self):
-        return "Bet the right outcome on {} Hearthstone games.".format(self.get_limit())
+        return f"Bet the right outcome on {self.get_limit()} Hearthstone games."

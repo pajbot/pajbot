@@ -54,7 +54,7 @@ class PleblistSong(Base):
 
     @property
     def link(self):
-        return "youtu.be/{}".format(self.youtube_id)
+        return f"youtu.be/{self.youtube_id}"
 
 
 class PleblistSongInfo(Base):
@@ -120,7 +120,7 @@ class PleblistManager:
             return False
 
         if not video_response.get("items", []):
-            log.warning("Got no valid responses for {}".format(youtube_id))
+            log.warning(f"Got no valid responses for {youtube_id}")
             return False
 
         video = video_response["items"][0]

@@ -17,7 +17,7 @@ class GetTimedOutQuestModule(BaseQuest):
 
     @staticmethod
     def on_paid_timeout(source, victim, cost, **rest):
-        log.warning("{} just timed out {} for {} points".format(source, victim, cost))
+        log.warning(f"{source} just timed out {victim} for {cost} points")
 
     def enable(self, bot):
         HandlerManager.add_handler("on_paid_timeout", self.on_paid_timeout)

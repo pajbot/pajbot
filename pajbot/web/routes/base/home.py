@@ -18,12 +18,12 @@ def init(app):
         streamer = StreamHelper.get_streamer()
 
         keys = ("online", "viewers", "game")
-        stream_data_keys = ["{streamer}:{key}".format(streamer=streamer, key=key) for key in keys]
+        stream_data_keys = [f"{streamer}:{key}" for key in keys]
         stream_data_list = redis.hmget("stream_data", stream_data_keys)
         stream_data = {keys[x]: stream_data_list[x] for x in range(0, len(keys))}
 
         keys = StreamHelper.social_keys
-        streamer_info_keys = ["{streamer}:{key}".format(streamer=streamer, key=key) for key in keys.keys()]
+        streamer_info_keys = [f"{streamer}:{key}" for key in keys.keys()]
         log.info(streamer_info_keys)
         streamer_info_list = redis.hmget("streamer_info", streamer_info_keys)
         streamer_info = collections.OrderedDict()
@@ -36,7 +36,7 @@ def init(app):
                     "format": keys[key]["format"],
                 }
 
-        current_quest_key = "{streamer}:current_quest".format(streamer=StreamHelper.get_streamer())
+        current_quest_key = f"{StreamHelper.get_streamer()}:current_quest"
         current_quest_id = redis.get(current_quest_key)
         if current_quest_id is not None:
             current_quest = app.module_manager[current_quest_id]

@@ -14,8 +14,8 @@ class BaseQuest(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.progress = {}
-        self.progress_key = "{streamer}:current_quest_progress".format(streamer=StreamHelper.get_streamer())
-        self.quest_finished_key = "{streamer}:quests:finished".format(streamer=StreamHelper.get_streamer())
+        self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
+        self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
         self.quest_module = None
 
     # TODO remove redis parameter
@@ -58,7 +58,7 @@ class BaseQuest(BaseModule):
             user.points += reward_amount
 
         # Notify the user that they've finished today's quest
-        message = "You finished todays quest! You have been awarded with {} {}.".format(reward_amount, reward_type)
+        message = f"You finished todays quest! You have been awarded with {reward_amount} {reward_type}."
         self.bot.whisper(user.username, message)
 
         user.save()

@@ -221,9 +221,7 @@ class LinkCheckerModule(BaseModule):
 
     def reload(self):
 
-        log.info(
-            "Loaded {0} bad links and {1} good links".format(len(self.blacklisted_links), len(self.whitelisted_links))
-        )
+        log.info(f"Loaded {len(self.blacklisted_links)} bad links and {len(self.whitelisted_links)} good links")
         return self
 
     super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
@@ -290,7 +288,7 @@ class LinkCheckerModule(BaseModule):
         self.bot.execute_delayed(20, self.delete_from_cache, url)
 
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
-        log.debug("LinkChecker: BAD URL FOUND {0}".format(url.url))
+        log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
             action.run()
         if want_to_cache:
@@ -503,11 +501,11 @@ class LinkCheckerModule(BaseModule):
                 html += str(chunk)
 
         except requests.exceptions.ConnectTimeout:
-            log.warning("Connection timed out while checking {0}".format(url.url))
+            log.warning(f"Connection timed out while checking {url.url}")
             self.cache_url(url.url, True)
             return
         except requests.exceptions.ReadTimeout:
-            log.warning("Reading timed out while checking {0}".format(url.url))
+            log.warning(f"Reading timed out while checking {url.url}")
             self.cache_url(url.url, True)
             return
         except:
@@ -564,7 +562,7 @@ class LinkCheckerModule(BaseModule):
                     continue
 
             if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
-                log.debug("Evil sublink {0} by google API".format(url))
+                log.debug(f"Evil sublink {url} by google API")
                 self.counteract_bad_url(original_url, action)
                 self.counteract_bad_url(original_redirected_url)
                 self.counteract_bad_url(url)

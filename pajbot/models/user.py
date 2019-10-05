@@ -573,9 +573,7 @@ class UserCombined(UserRedis, UserSQL):
     def get_warning_keys(self, total_chances, prefix):
         """ Returns a list of keys that are used to store the users warning status in redis.
         Example: ['pajlada_warning1', 'pajlada_warning2'] """
-        return [
-            self.WARNING_SYNTAX.format(prefix=prefix, username=self.username, id=id) for id in range(0, total_chances)
-        ]
+        return [f"warnings:{prefix}:{self.username}:{warning_id}" for warning_id in range(0, total_chances)]
 
     @staticmethod
     def get_warnings(redis, warning_keys):
@@ -614,7 +612,7 @@ class UserCombined(UserRedis, UserSQL):
         The punishment string is used to clarify whether this was a warning or the real deal.
         """
 
-        punishment = "timed out for {} seconds".format(timeout_length)
+        punishment = f"timed out for {timeout_length} seconds"
 
         if use_warnings and warning_module is not None:
             redis = RedisManager.get()

@@ -53,12 +53,12 @@ class DubtrackAPI(BaseAPI):
 
     def fetch_room_id(self, room_name):
         response = self.get(["room", room_name])
-        # if room is not found the API responds with status code 404 (error is be raised)
+        # if room is not found the API responds with status code 404 (an error will be raised)
         return response["data"]["_id"]
 
     def get_room_id(self, room_name):
         return self.cache.cache_fetch_fn(
-            redis_key="api:dubtrack:room-id:{}".format(room_name),
+            redis_key=f"api:dubtrack:room-id:{room_name}",
             fetch_fn=lambda: self.fetch_room_id(room_name),
             expiry=1 * 60 * 60,  # 1 hour
         )
@@ -69,7 +69,7 @@ class DubtrackAPI(BaseAPI):
 
     def get_user_name(self, user_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:dubtrack:user-name:{}".format(user_id),
+            redis_key=f"api:dubtrack:user-name:{user_id}",
             fetch_fn=lambda: self.fetch_user_name(user_id),
             expiry=10 * 60,  # 10 minutes
         )
@@ -80,7 +80,7 @@ class DubtrackAPI(BaseAPI):
 
     def get_song_link(self, song_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:dubtrack:song-link:{}".format(song_id),
+            redis_key=f"api:dubtrack:song-link:{song_id}",
             fetch_fn=lambda: self.fetch_song_link(song_id),
             expiry=1 * 60 * 60,  # 1 hour
         )
@@ -112,7 +112,7 @@ class DubtrackAPI(BaseAPI):
 
     def get_current_song(self, room_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:dubtrack:current-song:{}".format(room_id),
+            redis_key=f"api:dubtrack:current-song:{room_id}",
             fetch_fn=lambda: self.fetch_current_song(room_id),
             serializer=ClassInstanceSerializer(DubtrackQueueSong),
             expiry=lambda response: 0 if response is None else 5,
@@ -142,7 +142,7 @@ class DubtrackAPI(BaseAPI):
 
     def get_past_songs(self, room_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:dubtrack:past-songs:{}".format(room_id),
+            redis_key=f"api:dubtrack:past-songs:{room_id}",
             fetch_fn=lambda: self.fetch_past_songs(room_id),
             serializer=ListSerializer(DubtrackQueueSong),
             expiry=5,

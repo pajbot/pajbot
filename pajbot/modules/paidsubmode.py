@@ -62,7 +62,7 @@ class PaidSubmodeModule(BaseModule):
         bot.privmsg(".subscribers")
         bot.execute_delayed(0.2, bot.privmsg, ".subscribers")
 
-        bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
+        bot.whisper(source.username, f"You just used {_cost} points to put the chat into subscribers mode!")
 
     def paid_suboff(self, **options):
         bot = options["bot"]
@@ -74,7 +74,7 @@ class PaidSubmodeModule(BaseModule):
         bot.privmsg(".subscribersoff")
         bot.execute_delayed(0.2, bot.privmsg, ".subscribersoff")
 
-        bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
+        bot.whisper(source.username, f"You just used {_cost} points to put the chat into subscribers mode!")
 
     def load_commands(self, **options):
         self.commands[

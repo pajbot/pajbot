@@ -39,7 +39,7 @@ def clean_up_message(message):
 
     if command is not None and payload is not None:
         # we have command and payload (e.g. ".me asd" or ". .timeout")
-        return "{} {}".format(command, payload)
+        return f"{command} {payload}"
 
     if command is not None:
         # we have command and NO payload (e.g. ".me")

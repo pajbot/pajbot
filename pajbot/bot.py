@@ -275,7 +275,7 @@ class Bot:
 
     @property
     def password(self):
-        return "oauth:{}".format(self.bot_token_manager.token.access_token)
+        return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
@@ -301,21 +301,21 @@ class Bot:
             return None
 
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(epm)
+        return f"{epm:,.0f}"
 
     def get_emote_epm_record(self, key, extra={}):
         val = self.epm_manager.get_emote_epm_record(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return f"{val:,.0f}"
 
     def get_emote_count(self, key, extra={}):
         val = self.ecount_manager.get_emote_count(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return f"{val:,.0f}"
 
     @staticmethod
     def get_source_value(key, extra={}):
@@ -475,7 +475,7 @@ class Bot:
                 cloned_event.arguments = [msg]
                 # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
-            self.whisper(event.source.user.lower(), "Successfully evaluated {0} lines".format(len(lines)))
+            self.whisper(event.source.user.lower(), f"Successfully evaluated {len(lines)} lines")
         except:
             log.exception("BabyRage")
             self.whisper(event.source.user.lower(), "Exception BabyRage")
@@ -809,7 +809,7 @@ class Bot:
         quit_chub = self.config["main"].get("control_hub", None)
         quit_delay = 0
 
-        if quit_chub is not None and event.target == ("#{}".format(quit_chub)):
+        if quit_chub is not None and event.target == f"#{quit_chub}":
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -896,7 +896,7 @@ def _filter_join(var, args):
 
 def _filter_number_format(var, args):
     try:
-        return "{0:,d}".format(int(var))
+        return f"{int(var):,d}"
     except:
         log.exception("asdasd")
     return var

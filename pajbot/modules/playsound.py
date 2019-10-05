@@ -100,7 +100,7 @@ class PlaysoundModule(BaseModule):
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
 
             if playsound is None:
-                log.warning("Web UI tried to play invalid playsound. Ignoring.")
+                log.warning(f'Web UI tried to play invalid playsound "{playsound_name}". Ignoring.')
                 return
 
             payload = {
@@ -108,7 +108,7 @@ class PlaysoundModule(BaseModule):
                 "volume": int(round(playsound.volume * self.settings["global_volume"] / 100)),
             }
 
-            log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
+            log.debug(f"Playsound module is emitting payload: {json.dumps(payload)}")
             self.bot.websocket_manager.emit("play_sound", payload)
 
     def reset_global_cd(self):
@@ -131,8 +131,7 @@ class PlaysoundModule(BaseModule):
             if playsound is None:
                 bot.whisper(
                     source.username,
-                    "The playsound you gave does not exist. Check out all the valid playsounds here: "
-                    "https://{}/playsounds".format(self.bot.config["web"]["domain"]),
+                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
                 )
                 return False
 
@@ -140,8 +139,7 @@ class PlaysoundModule(BaseModule):
                 if self.settings["global_cd_whisper"]:
                     bot.whisper(
                         source.username,
-                        "Another user played a sample too recently. Please try again after the global cooldown "
-                        + "of {} seconds has run out.".format(self.settings["global_cd"]),
+                        f"Another user played a sample too recently. Please try again after the global cooldown of {self.settings['global_cd']} seconds has run out.",
                     )
                 return False
 
@@ -152,16 +150,14 @@ class PlaysoundModule(BaseModule):
             if playsound_name in self.sample_cooldown:
                 bot.whisper(
                     source.username,
-                    "The playsound {0} was played too recently. ".format(playsound.name)
-                    + "Please wait until its cooldown of {} seconds has run out.".format(cooldown),
+                    f"The playsound {playsound.name} was played too recently. Please wait until its cooldown of {cooldown} seconds has run out.",
                 )
                 return False
 
             if not playsound.enabled:
                 bot.whisper(
                     source.username,
-                    "The playsound you gave is disabled. Check out all the valid playsounds here: "
-                    "https://{}/playsounds".format(self.bot.config["web"]["domain"]),
+                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
                 )
                 return False
 
@@ -170,11 +166,11 @@ class PlaysoundModule(BaseModule):
                 "volume": int(round(playsound.volume * self.settings["global_volume"] / 100)),
             }
 
-            log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
+            log.debug(f"Playsound module is emitting payload: {json.dumps(payload)}")
             bot.websocket_manager.emit("play_sound", payload)
 
             if self.settings["confirmation_whisper"]:
-                bot.whisper(source.username, "Successfully played the sound {} on stream!".format(playsound_name))
+                bot.whisper(source.username, f"Successfully played the sound {playsound_name} on stream!")
 
             self.global_cooldown = True
             self.sample_cooldown.append(playsound.name)
@@ -230,8 +226,7 @@ class PlaysoundModule(BaseModule):
         if link is not None:
             if not self.validate_link(link):
                 bot.whisper(
-                    source.username,
-                    "Error: Invalid link. Valid links must start with https:// " "and cannot contain spaces",
+                    source.username, "Error: Invalid link. Valid links must start with https:// " "and cannot contain spaces"
                 )
                 return False
             playsound.link = link
@@ -425,9 +420,7 @@ class PlaysoundModule(BaseModule):
 
             bot.whisper(
                 source.username,
-                "name={}, link={}, volume={}, cooldown={}, enabled={}".format(
-                    playsound.name, playsound.link, playsound.volume, playsound.cooldown, playsound.enabled
-                ),
+                f"name={playsound.name}, link={playsound.link}, volume={playsound.volume}, cooldown={playsound.cooldown}, enabled={playsound.enabled}",
             )
 
     def load_commands(self, **options):

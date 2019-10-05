@@ -116,10 +116,7 @@ class PleblistModule(BaseModule):
                 .one()[0]
             )
             if num_unplayed_songs_requested >= self.settings["max_songs_per_user"] and not force:
-                bot.whisper(
-                    source.username,
-                    "You can only request {} songs at the same time!".format(num_unplayed_songs_requested),
-                )
+                bot.whisper(source.username, f"You can only request {num_unplayed_songs_requested} songs at the same time!")
                 return False
 
             # Add the song request

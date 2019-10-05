@@ -31,7 +31,7 @@ def init(app, config):
 
     @app.errorhandler(500)
     def internal_server_errors(e):
-        slack_alert("500 error on {}:\n{}".format(request.url, e))
+        slack_alert(f"500 error on {request.url}:\n{e}")
         return render_template("errors/500.html"), 500
 
     @app.errorhandler(403)
@@ -41,7 +41,5 @@ def init(app, config):
     @app.errorhandler(Exception)
     def all_exception_handler(error):
         log.exception("Unhandled exception")
-        slack_alert(
-            "*Unhandled exception* on {}\n{}\n{}\n\n".format(request.url, error, format_tb(error.__traceback__))
-        )
+        slack_alert(f"*Unhandled exception* on {request.url}\n{error}\n{format_tb(error.__traceback__)}\n\n")
         return render_template("errors/500_unhandled.html"), 500

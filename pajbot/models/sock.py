@@ -25,7 +25,7 @@ class SocketManager:
         self.running = False
 
     def add_handler(self, topic, method):
-        topic = "{}:{}".format(self.streamer_name, topic)
+        topic = f"{self.streamer_name}:{topic}"
 
         if topic not in self.handlers:
             self.handlers[topic] = [method]
@@ -67,6 +67,6 @@ class SocketClientManager:
         if cls.streamer_name is None:
             raise ValueError("streamer_name not set in SocketClientManager")
 
-        topic = "{}:{}".format(cls.streamer_name, topic)
+        topic = f"{cls.streamer_name}:{topic}"
 
         RedisManager.publish(topic, json.dumps(data))

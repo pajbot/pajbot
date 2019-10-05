@@ -130,9 +130,7 @@ class MassPingProtectionModule(BaseModule):
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
                 source.username,
-                (
-                    "You have been timed out for {} seconds because your message mentioned too many users at once."
-                ).format(timeout_duration),
+                f"You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
             )
 
         return False

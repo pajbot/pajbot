@@ -15,7 +15,7 @@ class Dispatch:
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi["br_wins"].inc()
-        bot.me("{0} added a BR win!".format(source.username))
+        bot.me(f"{source.username} added a BR win!")
 
     @staticmethod
     def add_command(bot, source, message, event, args):
@@ -123,9 +123,7 @@ class Dispatch:
             if command is None:
                 bot.whisper(
                     source.username,
-                    "No command found with the alias {}. Did you mean to create the command? If so, use !add command instead.".format(
-                        alias
-                    ),
+                    f"No command found with the alias {alias}. Did you mean to create the command? If so, use !add command instead.",
                 )
                 return False
 
@@ -139,14 +137,12 @@ class Dispatch:
             elif not type == command.action.subtype:
                 options["action"] = {"type": type, "message": command.action.response}
             bot.commands.edit_command(command, **options)
-            bot.whisper(source.username, "Updated the command (ID: {command.id})".format(command=command))
+            bot.whisper(source.username, f"Updated the command (ID: {command.id})")
 
             if len(new_message) > 0:
-                log_msg = 'The !{} command has been updated from "{}" to "{}"'.format(
-                    command.command.split("|")[0], old_message, new_message
-                )
+                log_msg = f'The !{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
             else:
-                log_msg = "The !{} command has been updated".format(command.command.split("|")[0])
+                log_msg = f"The !{command.command.split('|')[0]} command has been updated"
 
             AdminLogManager.add_entry(
                 "Command edited", source, log_msg, data={"old_message": old_message, "new_message": new_message}
@@ -184,15 +180,13 @@ class Dispatch:
 
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
-                bot.whisper(source.username, "Added your command (ID: {command.id})".format(command=command))
+                bot.whisper(source.username, f"Added your command (ID: {command.id})")
                 return True
 
             # At least one alias is already in use, notify the user to use !edit command instead
             bot.whisper(
                 source.username,
-                "The alias {} is already in use. To edit that command, use !edit command instead of !add funccommand.".format(
-                    alias_matched
-                ),
+                f"The alias {alias_matched} is already in use. To edit that command, use !edit command instead of !add funccommand.",
             )
             return False
 
@@ -231,22 +225,20 @@ class Dispatch:
             if command is None:
                 bot.whisper(
                     source.username,
-                    "No command found with the alias {}. Did you mean to create the command? If so, use !add funccommand instead.".format(
-                        alias
-                    ),
+                    f"No command found with the alias {alias}. Did you mean to create the command? If so, use !add funccommand instead.",
                 )
                 return False
 
             if len(action["cb"]) > 0:
                 options["action"] = action
             bot.commands.edit_command(command, **options)
-            bot.whisper(source.username, "Updated the command (ID: {command.id})".format(command=command))
+            bot.whisper(source.username, f"Updated the command (ID: {command.id})")
 
     @staticmethod
     def remove_win(bot, source, message, event, args):
         # XXX: This is also ugly as fuck
         bot.kvi["br_wins"].dec()
-        bot.me("{0} removed a BR win!".format(source.username))
+        bot.me(f"{source.username} removed a BR win!")
 
     @staticmethod
     def add_alias(bot, source, message, event, args):
@@ -268,7 +260,7 @@ class Dispatch:
             already_used_aliases = []
 
             if existing_alias not in bot.commands:
-                bot.whisper(source.username, 'No command called "{0}" found'.format(existing_alias))
+                bot.whisper(source.username, f'No command called "{existing_alias}" found')
                 return False
 
             command = bot.commands[existing_alias]
@@ -287,20 +279,14 @@ class Dispatch:
                     bot.commands[alias] = command
 
             if len(added_aliases) > 0:
-                new_aliases = "{}|{}".format(command.command, "|".join(added_aliases))
+                new_aliases = f"{command.command}|{'|'.join(added_aliases)}"
                 bot.commands.edit_command(command, command=new_aliases)
 
-                bot.whisper(
-                    source.username,
-                    "Successfully added the aliases {0} to {1}".format(", ".join(added_aliases), existing_alias),
-                )
-                log_msg = "The aliases {0} has been added to {1}".format(", ".join(added_aliases), existing_alias)
+                bot.whisper(source.username, f"Successfully added the aliases {', '.join(added_aliases)} to {existing_alias}")
+                log_msg = f"The aliases {', '.join(added_aliases)} has been added to {existing_alias}"
                 AdminLogManager.add_entry("Alias added", source, log_msg)
             if len(already_used_aliases) > 0:
-                bot.whisper(
-                    source.username,
-                    "The following aliases were already in use: {0}".format(", ".join(already_used_aliases)),
-                )
+                bot.whisper(source.username, f"The following aliases were already in use: {', '.join(already_used_aliases)}")
         else:
             bot.whisper(source.username, "Usage: !add alias existingalias newalias")
 
@@ -334,10 +320,7 @@ class Dispatch:
                 current_aliases.remove(alias)
 
                 if len(current_aliases) == 0:
-                    bot.whisper(
-                        source.username,
-                        "{0} is the only remaining alias for this command and can't be removed.".format(alias),
-                    )
+                    bot.whisper(source.username, f"{alias} is the only remaining alias for this command and can't be removed.")
                     continue
 
                 new_aliases = "|".join(current_aliases)
@@ -345,14 +328,14 @@ class Dispatch:
 
                 num_removed += 1
                 del bot.commands[alias]
-                log_msg = "The alias {0} has been removed from {1}".format(alias, new_aliases.split("|")[0])
+                log_msg = f"The alias {alias} has been removed from {new_aliases.split('|')[0]}"
                 AdminLogManager.add_entry("Alias removed", source, log_msg)
 
             whisper_str = ""
             if num_removed > 0:
-                whisper_str = "Successfully removed {0} aliases.".format(num_removed)
+                whisper_str = f"Successfully removed {num_removed} aliases."
             if len(commands_not_found) > 0:
-                whisper_str += " Aliases {0} not found".format(", ".join(commands_not_found))
+                whisper_str += f" Aliases {', '.join(commands_not_found)} not found"
             if len(whisper_str) > 0:
                 bot.whisper(source.username, whisper_str)
         else:
@@ -391,8 +374,8 @@ class Dispatch:
                     bot.whisper(source.username, "That command is not a normal command, it cannot be removed by you.")
                     return False
 
-            bot.whisper(source.username, "Successfully removed command with id {0}".format(command.id))
-            log_msg = "The !{} command has been removed".format(command.command.split("|")[0])
+            bot.whisper(source.username, f"Successfully removed command with id {command.id}")
+            log_msg = f"The !{command.command.split('|')[0]} command has been removed"
             AdminLogManager.add_entry("Command removed", source, log_msg)
             bot.commands.remove_command(command)
         else:
@@ -448,15 +431,9 @@ class Dispatch:
 
         delay = int(parts[0])
         reminder_text = " ".join(parts[1:]).strip()
-        extra_message = "{0}, your reminder from {1} seconds ago is over: {2}".format(
-            source.username_raw, delay, reminder_text
-        )
+        extra_message = f"{source.username_raw}, your reminder from {delay} seconds ago is over: {reminder_text}"
 
-        bot.say(
-            "{0}, I will remind you of '{2}' in {1} seconds. SeemsGood".format(
-                source.username_raw, delay, reminder_text
-            )
-        )
+        bot.say(f"{source.username_raw}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
         bot.execute_delayed(delay, bot.say, extra_message)
 
     @staticmethod
@@ -465,13 +442,11 @@ class Dispatch:
         if message:
             username = message.split(" ")[0].strip().lower()
             if bot.twitter_manager.follow_user(username):
-                bot.whisper(source.username, "Now following {}".format(username))
+                bot.whisper(source.username, f"Now following {username}")
             else:
                 bot.whisper(
                     source.username,
-                    "An error occured while attempting to follow {}, perhaps we are already following this person?".format(
-                        username
-                    ),
+                    f"An error occured while attempting to follow {username}, perhaps we are already following this person?",
                 )
 
     @staticmethod
@@ -480,11 +455,9 @@ class Dispatch:
         if message:
             username = message.split(" ")[0].strip().lower()
             if bot.twitter_manager.unfollow_user(username):
-                bot.whisper(source.username, "No longer following {}".format(username))
+                bot.whisper(source.username, f"No longer following {username}")
             else:
                 bot.whisper(
                     source.username,
-                    "An error occured while attempting to unfollow {}, perhaps we are not following this person?".format(
-                        username
-                    ),
+                    f"An error occured while attempting to unfollow {username}, perhaps we are not following this person?",
                 )

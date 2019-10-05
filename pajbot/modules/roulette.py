@@ -175,13 +175,11 @@ class RouletteModule(BaseModule):
             return False
 
         if not user.can_afford(bet):
-            bot.whisper(user.username, "You don't have enough points to do a roulette for {} points :(".format(bet))
+            bot.whisper(source.username, f"You don't have enough points to do a roulette for {bet} points :(")
             return False
 
         if bet < self.settings["min_roulette_amount"]:
-            bot.whisper(
-                user.username, "You have to bet at least {} point! :(".format(self.settings["min_roulette_amount"])
-            )
+            bot.whisper(user.username, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
             return False
 
         # Calculating the result
@@ -245,18 +243,11 @@ class RouletteModule(BaseModule):
         lose_emote = "forsenSWA"
         for arg in self.output_buffer_args:
             parts.append(
-                "{} {} {}{}".format(
-                    win_emote if arg["win"] else lose_emote, arg["user"], "+" if arg["win"] else "-", arg["bet"]
-                )
+                f"{win_emote if arg['win'] else lose_emote} {arg['user']} {'+' if arg['win'] else '-'}{arg['bet']}"
             )
 
         parts.append(
-            "{} {} {}{}".format(
-                win_emote if arguments["win"] else lose_emote,
-                arguments["user"],
-                "+" if arguments["win"] else "-",
-                arguments["bet"],
-            )
+            f"{win_emote if arguments['win'] else lose_emote} {arguments['user']} {'+' if arguments['win'] else '-'}{arguments['bet']}"
         )
 
         log.debug(parts)
@@ -275,16 +266,12 @@ class RouletteModule(BaseModule):
     def on_user_sub(self, **rest):
         self.last_sub = utils.now()
         if self.settings["only_roulette_after_sub"]:
-            self.bot.say(
-                "Rouletting is now allowed for {} seconds! PogChamp".format(self.settings["after_sub_roulette_time"])
-            )
+            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
 
     def on_user_resub(self, **rest):
         self.last_sub = utils.now()
         if self.settings["only_roulette_after_sub"]:
-            self.bot.say(
-                "Rouletting is now allowed for {} seconds! PogChamp".format(self.settings["after_sub_roulette_time"])
-            )
+            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
 
     def enable(self, bot):
         HandlerManager.add_handler("on_user_sub", self.on_user_sub)

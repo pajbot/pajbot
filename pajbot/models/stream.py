@@ -135,7 +135,7 @@ class StreamManager:
                     .order_by(StreamChunk.chunk_start.desc())
                     .first()
                 )
-                log.info("Set current stream chunk here to {0}".format(self.current_stream_chunk))
+                log.info(f"Set current stream chunk here to {self.current_stream_chunk}")
             db_session.expunge_all()
 
     @property
@@ -261,7 +261,7 @@ class StreamManager:
         else:
             if self.online is True:
                 self.num_offlines += 1
-                log.info("Offline. {0}".format(self.num_offlines))
+                log.info(f"Offline. {self.num_offlines}")
                 if self.first_offline is None:
                     self.first_offline = utils.now()
 
@@ -279,14 +279,14 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        log.info("Attempting to fetch video url for broadcast {0}".format(self.current_stream_chunk.broadcast_id))
+        log.info(f"Attempting to fetch video url for broadcast {self.current_stream_chunk.broadcast_id}")
         video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
 
         if video_url is None:
             log.info("No video for broadcast found")
             return
 
-        log.info("Successfully fetched a video url: {0}".format(video_url))
+        log.info(f"Successfully fetched a video url: {video_url}")
         if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 self.current_stream_chunk.video_url = video_url

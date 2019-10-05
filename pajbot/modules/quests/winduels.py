@@ -63,4 +63,4 @@ class WinDuelsQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
 
     def get_objective(self):
-        return "Win {} duels and make profit in every duel.".format(self.get_limit())
+        return f"Win {self.get_limit()} duels and make profit in every duel."

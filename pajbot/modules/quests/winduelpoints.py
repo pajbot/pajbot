@@ -43,9 +43,7 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.points_required_key = "{streamer}:current_quest_points_required".format(
-            streamer=StreamHelper.get_streamer()
-        )
+        self.points_required_key = f"{StreamHelper.get_streamer()}:current_quest_points_required"
         # The points_required variable is randomized at the start of the quest.
         # It will be a value between settings['min_value'] and settings['max_value']
         self.points_required = None
@@ -111,4 +109,4 @@ class WinDuelPointsQuestModule(BaseQuest):
         redis.delete(self.points_required_key)
 
     def get_objective(self):
-        return "Make a profit of {} or more points in one or multiple duels.".format(self.points_required)
+        return f"Make a profit of {self.points_required} or more points in one or multiple duels."

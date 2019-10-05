@@ -76,9 +76,9 @@ class LastfmModule(BaseModule):
             currentTrack = user.get_now_playing()
 
             if currentTrack is None:
-                bot.me("{} isn't playing music right now.. FeelsBadMan".format(bot.streamer))
+                bot.me(f"{bot.streamer} isn't playing music right now.. FeelsBadMan")
             else:
-                bot.me("Current Song is \u2669\u266a\u266b {0} \u266c\u266b\u2669".format(currentTrack))
+                bot.me(f"Current Song is \u2669\u266a\u266b {currentTrack} \u266c\u266b\u2669")
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:

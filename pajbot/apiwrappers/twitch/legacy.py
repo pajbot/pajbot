@@ -30,7 +30,7 @@ class TwitchLegacyAPI(BaseTwitchAPI):
             resp = self.get(["channels", channel_name, "product"])
             plans = resp["plans"]
             if len(plans) <= 0:
-                log.warning("No subscription plans found for channel {}".format(channel_name))
+                log.warning(f"No subscription plans found for channel {channel_name}")
                 return [], [], []
 
             # plans[0] is tier 1
@@ -53,14 +53,14 @@ class TwitchLegacyAPI(BaseTwitchAPI):
 
         except HTTPError as e:
             if e.response.status_code == 404:
-                log.warning("No sub emotes found for channel {}".format(channel_name))
+                log.warning(f"No sub emotes found for channel {channel_name}")
                 return [], [], []
             else:
                 raise e
 
     def get_channel_emotes(self, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:legacy:channel-emotes:{}".format(channel_name),
+            redis_key=f"api:twitch:legacy:channel-emotes:{channel_name}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
             serializer=TwitchChannelEmotesSerializer(),
             expiry=60 * 60,

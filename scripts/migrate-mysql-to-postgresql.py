@@ -75,9 +75,9 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     def copy_table(destination_table_name, columns, coercions={}):
         source_table_name = "tb_" + destination_table_name
 
-        print("Transfer table contents: {}: Querying MySQL... ".format(source_table_name), end="")
+        print(f"Transfer table contents: {source_table_name}: Querying MySQL... ", end="")
 
-        mysql.execute("SELECT {} FROM {}".format(",".join(columns), source_table_name))
+        mysql.execute(f"SELECT {','.join(columns)} FROM {source_table_name}")
         rows = mysql.fetchall()
 
         print("Applying coercions in-memory... ", end="")
@@ -99,7 +99,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     def copy_auto_increment(destination_table_name, column_name):
         source_table_name = "tb_" + destination_table_name
 
-        print("Transfer AUTO_INCREMENT: {}.{}: Querying MySQL... ".format(source_table_name, column_name), end="")
+        print(f"Transfer AUTO_INCREMENT: {source_table_name}.{column_name}: Querying MySQL... ", end="")
 
         mysql.execute(
             "SELECT `AUTO_INCREMENT` FROM INFORMATION_SCHEMA.TABLES WHERE "
@@ -108,7 +108,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
         )
         row = mysql.fetchone()
         if row is None:
-            raise ValueError("error copying autoincrement for {}: table not found".format(source_table_name))
+            raise ValueError(f"error copying autoincrement for {source_table_name}: table not found")
 
         # mysql gives us the next value
         # in PostgreSQL, we have to set the current (last) value

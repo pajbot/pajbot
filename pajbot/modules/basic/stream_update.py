@@ -22,28 +22,24 @@ class StreamUpdateModule(BaseModule):
 
     def generic_update(self, bot, source, message, field, api_fn):
         if not message:
-            bot.say("You must specify a {} to update to!".format(field))
+            bot.say(f"You must specify a {field} to update to!")
             return
 
         try:
             api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
         except HTTPError as e:
             if e.response.status_code == 401:
-                bot.say(
-                    "Error (bot operator): The bot needs to be re-authenticated to be able to update the {}.".format(
-                        field
-                    )
-                )
+                bot.say(f"Error (bot operator): The bot needs to be re-authenticated to be able to update the {field}.")
                 return
             elif e.response.status_code == 403:
-                bot.say("Error: The bot is not a channel editor and was not able to update the {}.".format(field))
+                bot.say(f"Error: The bot is not a channel editor and was not able to update the {field}.")
                 return
             else:
                 raise e
 
-        log_msg = '{} updated the {} to "{}"'.format(source.username_raw, field, message)
+        log_msg = f'{source} updated the {field} to "{message}"'
         bot.say(log_msg)
-        AdminLogManager.add_entry("{} set".format(field.capitalize()), source, log_msg)
+        AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
 
     def update_game(self, bot, source, message, **rest):
         self.generic_update(bot, source, message, "game", self.bot.twitch_v5_api.set_game)

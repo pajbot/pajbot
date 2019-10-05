@@ -44,7 +44,7 @@ class WinHsBetPointsQuestModule(BaseQuest):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.hsbet_points_key = "{streamer}:current_quest_hsbet_points".format(streamer=StreamHelper.get_streamer())
+        self.hsbet_points_key = f"{StreamHelper.get_streamer()}:current_quest_hsbet_points"
         self.hsbet_points_required = None
         self.progress = {}
 
@@ -100,6 +100,4 @@ class WinHsBetPointsQuestModule(BaseQuest):
         redis.delete(self.hsbet_points_key)
 
     def get_objective(self):
-        return "Make a profit of {} or more points in one or multiple hearthstone bets.".format(
-            self.hsbet_points_required
-        )
+        return f"Make a profit of {self.hsbet_points_required} or more points in one or multiple hearthstone bets."

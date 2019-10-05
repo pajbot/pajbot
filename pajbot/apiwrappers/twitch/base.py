@@ -31,13 +31,9 @@ class BaseTwitchAPI(BaseAPI):
         if isinstance(authorization, ClientCredentials):
             auth_headers = {"Client-ID": authorization.client_id}
         elif isinstance(authorization, AccessTokenManager):
-            auth_headers = {
-                "Authorization": "{} {}".format(self.authorization_header_prefix, authorization.token.access_token)
-            }
+            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}"}
         elif isinstance(authorization, AccessToken):
-            auth_headers = {
-                "Authorization": "{} {}".format(self.authorization_header_prefix, authorization.access_token)
-            }
+            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.access_token}"}
         else:
             auth_headers = {}
 
