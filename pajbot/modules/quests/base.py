@@ -27,7 +27,7 @@ class BaseQuest(BaseModule):
         stream_id = StreamHelper.get_current_stream_id()
 
         # Load user's finished quest status
-        val = redis.hget(self.quest_finished_key, user.username)
+        val = redis.hget(self.quest_finished_key, user.id)
         if val:
             quests_finished = json.loads(val)
         else:
@@ -49,7 +49,7 @@ class BaseQuest(BaseModule):
 
         # Mark the current stream ID has finished
         quests_finished.append(stream_id)
-        redis.hset(self.quest_finished_key, user.username, json.dumps(quests_finished, separators=(",", ":")))
+        redis.hset(self.quest_finished_key, user.id, json.dumps(quests_finished, separators=(",", ":")))
 
         # Award the user appropriately
         if reward_type == "tokens":
@@ -72,15 +72,15 @@ class BaseQuest(BaseModule):
         """ This method is ONLY called when the stream is stopped. """
         log.error("No stop quest implemented for this quest.")
 
-    def get_user_progress(self, username, default=False):
-        return self.progress.get(username, default)
+    def get_user_progress(self, user, default=False):
+        return self.progress.get(user.id, default)
 
     # TODO remove redis parameter
-    def set_user_progress(self, username, new_progress, redis=None):
+    def set_user_progress(self, user, new_progress, redis=None):
         if redis is None:
             redis = RedisManager.get()
-        redis.hset(self.progress_key, username, new_progress)
-        self.progress[username] = new_progress
+        redis.hset(self.progress_key, user.id, new_progress)
+        self.progress[user.id] = new_progress
 
     # TODO remove redis parameter
     def load_progress(self, redis=None):
@@ -88,9 +88,9 @@ class BaseQuest(BaseModule):
             redis = RedisManager.get()
         self.progress = {}
         old_progress = redis.hgetall(self.progress_key)
-        for user, progress in old_progress.items():
+        for user_id, progress in old_progress.items():
             try:
-                self.progress[user] = int(progress)
+                self.progress[user_id] = int(progress)
             except (TypeError, ValueError):
                 pass
 

@@ -61,7 +61,7 @@ class QuestModule(BaseModule):
 
     def my_progress(self, bot, source, **rest):
         if self.current_quest is not None:
-            quest_progress = self.current_quest.get_user_progress(source.username)
+            quest_progress = self.current_quest.get_user_progress(source)
             quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
@@ -71,7 +71,7 @@ class QuestModule(BaseModule):
             else:
                 bot.whisper(source, "You have no progress on the current quest.")
         else:
-            bot.say(f"{source.username_raw}, There is no quest active right now.")
+            bot.say(f"{source}, There is no quest active right now.")
 
     def get_current_quest(self, bot, event, source, **rest):
         if self.current_quest:

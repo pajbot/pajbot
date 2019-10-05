@@ -44,7 +44,7 @@ class TypeEmoteQuestModule(BaseQuest):
         if self.current_emote not in typed_emotes:
             return
 
-        user_progress = self.get_user_progress(source.username, default=0) + 1
+        user_progress = self.get_user_progress(source, default=0) + 1
 
         if user_progress > self.get_limit():
             log.debug(f"{source.username} has already completed the quest. Moving along.")
@@ -56,7 +56,7 @@ class TypeEmoteQuestModule(BaseQuest):
         if user_progress == self.get_limit():
             self.finish_quest(redis, source)
 
-        self.set_user_progress(source.username, user_progress, redis=redis)
+        self.set_user_progress(source, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)

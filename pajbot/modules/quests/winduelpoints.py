@@ -55,7 +55,7 @@ class WinDuelPointsQuestModule(BaseQuest):
             # That means it's entirely irrelevant to us
             return
 
-        total_points_won = self.get_user_progress(winner.username, default=0)
+        total_points_won = self.get_user_progress(winner, default=0)
         if total_points_won >= self.points_required:
             # The user has already won enough points, and been rewarded already.
             return
@@ -71,7 +71,7 @@ class WinDuelPointsQuestModule(BaseQuest):
             self.finish_quest(redis, winner)
 
         # Save the users "points won" progress
-        self.set_user_progress(winner.username, total_points_won, redis=redis)
+        self.set_user_progress(winner, total_points_won, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
