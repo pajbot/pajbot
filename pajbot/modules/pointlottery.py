@@ -104,11 +104,7 @@ class PointLotteryModule(BaseModule):
             "1 ticket costs 1 point"
         )
 
-    def process_join(self, **options):
-        source = options["source"]
-        message = options["message"]
-        bot = options["bot"]
-
+    def process_join(self, bot, source, message, **rest):
         if not self.lottery_running:
             log.debug("No lottery running")
             return False
@@ -123,26 +119,24 @@ class PointLotteryModule(BaseModule):
                 tickets = int(message.split(" ")[1])
 
             if not source.can_afford(tickets):
-                bot.me(f"Sorry, {source.username_raw}, you don't have enough points! FeelsBadMan")
+                bot.me(f"Sorry, {source}, you don't have enough points! FeelsBadMan")
                 return False
 
             if tickets <= 0:
-                bot.me(f"Sorry, {source.username_raw}, you have to buy at least 1 ticket! FeelsBadMan")
+                bot.me(f"Sorry, {source}, you have to buy at least 1 ticket! FeelsBadMan")
                 return False
 
             source.points -= tickets
             self.lottery_points += tickets
             log.info(f"Lottery points is now at {self.lottery_points}")
         except (ValueError, TypeError, AttributeError):
-            bot.me(f"Sorry, {source.username_raw}, I didn't recognize your command! FeelsBadMan")
+            bot.me(f"Sorry, {source}, I didn't recognize your command! FeelsBadMan")
             return False
 
         # Added user to the lottery
         self.lottery_users.append((source, tickets))
 
-    def process_end(self, **options):
-        bot = options["bot"]
-
+    def process_end(self, bot, **rest):
         if not self.lottery_running:
             return False
 
@@ -157,19 +151,15 @@ class PointLotteryModule(BaseModule):
         log.info(f"at end, lottery points is now at {self.lottery_points}")
 
         bot.websocket_manager.emit(
-            "notification", {"message": f"{winner.username_raw} won {self.lottery_points} points in the lottery!"}
+            "notification", {"message": f"{winner} won {self.lottery_points} points in the lottery!"}
         )
-        bot.me(f"The lottery has finished! {winner.username_raw} won {self.lottery_points} points! PogChamp")
+        bot.me(f"The lottery has finished! {winner} won {self.lottery_points} points! PogChamp")
 
         winner.points += self.lottery_points
 
-        winner.save()
-
         self.lottery_users = []
 
-    def process_status(self, **options):
-        bot = options["bot"]
-
+    def process_status(self, bot, **rest):
         if not self.lottery_running:
             return False
 
