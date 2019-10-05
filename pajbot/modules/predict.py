@@ -237,13 +237,7 @@ class PredictModule(BaseModule):
         else:
             max_wins = self.settings["mini_max_wins"]
         example_wins = round(max_wins / 2)
-        bad_command_message = f"{source.username_raw}, Missing or invalid argument to command. Valid argument could be {example_wins} where {example_wins} is a number between 0 and {max_wins} (inclusive)."
-
-        if source.id is None:
-            log.warning("Source ID is NONE, attempting to salvage by commiting users to the database.")
-            log.info("New ID is: {}".format(source.id))
-            bot.whisper(source.username, "uuh, please try the command again :D")
-            return False
+        bad_command_message = f"{source}, Missing or invalid argument to command. Valid argument could be {example_wins} where {example_wins} is a number between 0 and {max_wins} (inclusive)."
 
         prediction_number = None
 
@@ -268,7 +262,7 @@ class PredictModule(BaseModule):
             )
             if current_prediction_run is None:
                 bot.say(
-                    f"{source.username_raw}, There is no {self.settings['challenge_name']} run active that accepts predictions right now."
+                    f"{source}, There is no {self.settings['challenge_name']} run active that accepts predictions right now."
                 )
                 return True
 
@@ -281,13 +275,13 @@ class PredictModule(BaseModule):
                 old_prediction_num = user_entry.prediction
                 user_entry.prediction = prediction_number
                 bot.say(
-                    f"{source.username_raw}, Updated your prediction for run {current_prediction_run.id} from {old_prediction_num} to {prediction_number}"
+                    f"{source}, Updated your prediction for run {current_prediction_run.id} from {old_prediction_num} to {prediction_number}"
                 )
             else:
                 user_entry = PredictionRunEntry(current_prediction_run.id, source.id, prediction_number)
                 db_session.add(user_entry)
                 bot.say(
-                    f"{source.username_raw}, Your prediction for {prediction_number} wins in run {current_prediction_run.id} has been submitted."
+                    f"{source}, Your prediction for {prediction_number} wins in run {current_prediction_run.id} has been submitted."
                 )
 
     @staticmethod
@@ -299,7 +293,7 @@ class PredictModule(BaseModule):
             )
             if current_prediction_run is not None:
                 bot.say(
-                    f"{source.username_raw}, There is already a prediction run accepting submissions, close it before you can start a new run."
+                    f"{source}, There is already a prediction run accepting submissions, close it before you can start a new run."
                 )
                 return True
 
@@ -316,7 +310,7 @@ class PredictModule(BaseModule):
             # Check if there is a non-ended, but closed prediction run we can end
             predictions = db_session.query(PredictionRun).filter_by(ended=None, open=False, type=type).all()
             if len(predictions) == 0:
-                bot.say(f"{source.username_raw}, There is no closed prediction runs we can end right now.")
+                bot.say(f"{source}, There is no closed prediction runs we can end right now.")
                 return True
 
             for prediction in predictions:
@@ -331,50 +325,32 @@ class PredictModule(BaseModule):
                 db_session.query(PredictionRun).filter_by(ended=None, open=True, type=type).one_or_none()
             )
             if current_prediction_run is None:
-                bot.say(f"{source.username_raw}, There is no open prediction runs we can close right now.")
+                bot.say(f"{source}, There is no open prediction runs we can close right now.")
                 return True
 
             current_prediction_run.open = False
-            bot.say(f"{source.username_raw}, Predictions are no longer accepted for prediction run {current_prediction_run.id}")
+            bot.say(f"{source}, Predictions are no longer accepted for prediction run {current_prediction_run.id}")
 
-    def predict(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
+    def predict(self, bot, source, message, **rest):
         self.shared_predict(bot, source, message, 0)
 
-    def mini_predict(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
+    def mini_predict(self, bot, source, message, **rest):
         self.shared_predict(bot, source, message, 1)
 
-    def new_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def new_predict(self, bot, source, **rest):
         self.shared_new_predict(bot, source, 0)
 
-    def mini_new_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def mini_new_predict(self, bot, source, **rest):
         self.shared_new_predict(bot, source, 1)
 
-    def end_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def end_predict(self, bot, source, **rest):
         self.shared_end_predict(bot, source, 0)
 
-    def mini_end_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def mini_end_predict(self, bot, source, **rest):
         self.shared_end_predict(bot, source, 1)
 
-    def close_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def close_predict(self, bot, source, **rest):
         self.shared_close_predict(bot, source, 0)
 
-    def mini_close_predict(self, **options):
-        bot = options["bot"]
-        source = options["source"]
+    def mini_close_predict(self, bot, source, **rest):
         self.shared_close_predict(bot, source, 1)
