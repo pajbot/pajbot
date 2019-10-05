@@ -289,7 +289,7 @@ class LinkCheckerModule(BaseModule):
 
         log.debug("LinkChecker: Caching url {0} as {1}".format(url, "SAFE" if safe is True else "UNSAFE"))
         self.cache[url] = safe
-        self.bot.execute_delayed(20, self.delete_from_cache, (url,))
+        self.bot.execute_delayed(20, self.delete_from_cache, url)
 
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug("LinkChecker: BAD URL FOUND {0}".format(url.url))

@@ -439,7 +439,7 @@ class Bot:
                 if i == 0:
                     self.privmsg_arr(lines[:per_chunk], target)
                 else:
-                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk], target))
+                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, lines[:per_chunk], target)
 
                 del lines[:per_chunk]
 
@@ -508,17 +508,17 @@ class Bot:
 
         return "No recorded stream FeelsBadMan "
 
-    def execute_now(self, function, arguments=()):
-        self.execute_delayed(0, function, arguments)
+    def execute_now(self, function, *args, **kwargs):
+        self.execute_delayed(0, function, *args, **kwargs)
 
-    def execute_at(self, at, function, arguments=()):
-        self.reactor.scheduler.execute_at(at, lambda: function(*arguments))
+    def execute_at(self, at, function, *args, **kwargs):
+        self.reactor.scheduler.execute_at(at, lambda: function(*args, **kwargs))
 
-    def execute_delayed(self, delay, function, arguments=()):
-        self.reactor.scheduler.execute_after(delay, lambda: function(*arguments))
+    def execute_delayed(self, delay, function, *args, **kwargs):
+        self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
 
-    def execute_every(self, period, function, arguments=()):
-        self.reactor.scheduler.execute_every(period, lambda: function(*arguments))
+    def execute_every(self, period, function, *args, **kwargs):
+        self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
     def _ban(self, username, reason=""):
         self.privmsg(".ban {0} {1}".format(username, reason), increase_message=False)

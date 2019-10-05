@@ -457,7 +457,7 @@ class Dispatch:
                 source.username_raw, delay, reminder_text
             )
         )
-        bot.execute_delayed(delay, bot.say, (extra_message,))
+        bot.execute_delayed(delay, bot.say, extra_message)
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):

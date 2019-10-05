@@ -60,7 +60,7 @@ class PaidSubmodeModule(BaseModule):
 
         # Test this a bit. Make sure twitch doesn't bug out
         bot.privmsg(".subscribers")
-        bot.execute_delayed(0.2, bot.privmsg, (".subscribers",))
+        bot.execute_delayed(0.2, bot.privmsg, ".subscribers")
 
         bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
 
@@ -72,7 +72,7 @@ class PaidSubmodeModule(BaseModule):
 
         # Test this a bit. Make sure twitch doesn't bug out
         bot.privmsg(".subscribersoff")
-        bot.execute_delayed(0.2, bot.privmsg, (".subscribersoff",))
+        bot.execute_delayed(0.2, bot.privmsg, ".subscribersoff")
 
         bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
 

@@ -98,7 +98,7 @@ class PointLotteryModule(BaseModule):
 
         bot.websocket_manager.emit("notification", {"message": "A lottery has been started!"})
         bot.execute_delayed(
-            0.75, bot.websocket_manager.emit, ("notification", {"message": "Type !pointlottery join to enter!"})
+            0.75, bot.websocket_manager.emit, "notification", {"message": "Type !pointlottery join to enter!"}
         )
 
         bot.me(

@@ -178,8 +178,8 @@ class PlaysoundModule(BaseModule):
 
             self.global_cooldown = True
             self.sample_cooldown.append(playsound.name)
-            bot.execute_delayed(cooldown, self.sample_cooldown.remove, (playsound.name,))
-            bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd, ())
+            bot.execute_delayed(cooldown, self.sample_cooldown.remove, playsound.name)
+            bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd)
 
     @staticmethod
     def parse_playsound_arguments(message):

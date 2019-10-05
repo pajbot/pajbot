@@ -56,7 +56,7 @@ class VanishModule(BaseModule):
     def vanish_command(**options):
         source = options["source"]
         bot = options["bot"]
-        bot.execute_delayed(0.5, bot._timeout, (source.username, 1))
+        bot.execute_delayed(0.5, bot._timeout, source.username, 1)
 
     def load_commands(self, **options):
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
