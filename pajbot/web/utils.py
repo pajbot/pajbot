@@ -37,7 +37,7 @@ def requires_level(level):
             if "user" not in session:
                 abort(403)
             with DBManager.create_session_scope() as db_session:
-                user = db_session.query(User).filter_by(username=session["user"]["username"]).one_or_none()
+                user = db_session.query(User).filter_by(id=session["user"]["id"]).one_or_none()
                 if user is None:
                     abort(403)
 
