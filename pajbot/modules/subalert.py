@@ -1,6 +1,8 @@
 import logging
 
+from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -243,7 +245,12 @@ class SubAlertModule(BaseModule):
                 log.debug(f"subalert msg-id is subgift, but missing display-name: {tags}")
                 return
 
-            with self.bot.users.get_user_context(tags["msg-param-recipient-user-name"]) as receiver:
+            with DBManager.create_session_scope() as db_session:
+                receiver_id = tags["msg-param-recipient-id"]
+                receiver_login = tags["msg-param-recipient-user-name"]
+                receiver_name = tags["msg-param-recipient-display-name"]
+                receiver = User.from_basics(db_session, UserBasics(receiver_id, receiver_login, receiver_name))
+
                 if num_months > 1:
                     # Resub
                     self.on_resub(
