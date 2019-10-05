@@ -400,12 +400,6 @@ class Bot:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
 
-    def get_notify_value(self, key, extra={}):
-        payload = {"message": extra["message"] or "", "trigger": extra["trigger"], "user": extra["source"].username_raw}
-        self.websocket_manager.emit("notify", payload)
-
-        return ""
-
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]

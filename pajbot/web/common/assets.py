@@ -62,11 +62,6 @@ def init(app):
     assets.register("admin_create_row", admin_create_row)
     assets.register("admin_edit_command", admin_edit_command)
 
-    notifications_base = Bundle(
-        "scripts/notifications/base.js", filters="jsmin", output="gen/scripts/notifications/base.%(version)s.js"
-    )
-    assets.register("notifications_base", notifications_base)
-
     notifications_subscribers = Bundle(
         "scripts/notifications/subscribers.js",
         filters="jsmin",

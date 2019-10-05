@@ -352,7 +352,6 @@ def get_substitutions(string, bot):
         method_mapping["current_song"] = bot.get_current_song_value
         method_mapping["args"] = bot.get_args_value
         method_mapping["strictargs"] = bot.get_strictargs_value
-        method_mapping["notify"] = bot.get_notify_value
         method_mapping["command"] = bot.get_command_value
     except AttributeError:
         pass
