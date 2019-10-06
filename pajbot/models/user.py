@@ -14,6 +14,7 @@ from pajbot import utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.redis import RedisManager
+from pajbot.models.duel import UserDuelStats
 
 log = logging.getLogger(__name__)
 
@@ -106,6 +107,10 @@ class User(Base):
         self.timeout_end = None
 
         super().__init__(*args, **kwargs)
+
+    duel_stats = relationship(
+        UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
+    )
 
     @hybrid_property
     def username(self):

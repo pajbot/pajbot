@@ -3,7 +3,6 @@ import logging
 from sqlalchemy import Column, INT
 from sqlalchemy import ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
@@ -38,9 +37,7 @@ class UserDuelStats(Base):
 
         super().__init__(*args, **kwargs)
 
-    user = relationship(
-        "User", cascade="", uselist=False, backref=backref("duel_stats", uselist=False, cascade="", lazy="select")
-    )
+    user = relationship("User", cascade="save-update, merge", back_populates="duel_stats")
 
     @hybrid_property
     def duels_lost(self):
