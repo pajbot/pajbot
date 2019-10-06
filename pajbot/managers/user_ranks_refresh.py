@@ -9,7 +9,7 @@ class UserRanksRefreshManager:
     @staticmethod
     def start(action_queue):
         action_queue.submit(UserRanksRefreshManager._refresh)
-        ScheduleManager.execute_every(5 * 60, action_queue.submit, UserRanksRefreshManager._refresh)
+        ScheduleManager.execute_every(5 * 60, lambda: action_queue.submit(UserRanksRefreshManager._refresh))
 
     @staticmethod
     @time_method
