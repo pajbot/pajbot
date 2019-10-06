@@ -27,12 +27,12 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Minor: Small improvement made to the efficiency of caching data from the Twitch API.
 - Minor: Added the `points_rank` user property back.
 - Minor: Added a dump/restore utility for redis data to the `scripts` directory.
+- Minor: Removed some unfinished test code related to notifications.
+- Minor: Placed reasonable minimum/maximum limits on the `Seconds until betting closes` setting for the HSBet module.
 - Bugfix: Errors in the main thread no longer exit the bot (#443)
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Link checker module now prints far less debug info about itself.
 - Bugfix: Removed unfinished "email tag" API.
-- Bugfix: Removed some unfinished test code related to notifications.
-- Bugfix: Placed reasonable minimum/maximum limits on the `Seconds until betting closes` setting for the HSBet module.
 - Bugfix: If the bot is restarted during an active HSBet game, bets will no longer be lost.
 
 ## v1.37
