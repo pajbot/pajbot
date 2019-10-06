@@ -17,14 +17,26 @@ class UserDuelStats(Base):
     __tablename__ = "user_duel_stats"
 
     user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
-    duels_won = Column(INT, nullable=False, default=0)
-    duels_total = Column(INT, nullable=False, default=0)
-    points_won = Column(INT, nullable=False, default=0)
-    points_lost = Column(INT, nullable=False, default=0)
+    duels_won = Column(INT, nullable=False)
+    duels_total = Column(INT, nullable=False)
+    points_won = Column(INT, nullable=False)
+    points_lost = Column(INT, nullable=False)
     last_duel = Column(UtcDateTime(), nullable=True)
-    current_streak = Column(INT, nullable=False, default=0)
-    longest_winstreak = Column(INT, nullable=False, default=0)
-    longest_losestreak = Column(INT, nullable=False, default=0)
+    current_streak = Column(INT, nullable=False)
+    longest_winstreak = Column(INT, nullable=False)
+    longest_losestreak = Column(INT, nullable=False)
+
+    def __init__(self, *args, **kwargs):
+        self.duels_won = 0
+        self.duels_total = 0
+        self.points_won = 0
+        self.points_lost = 0
+        self.last_duel = None
+        self.current_streak = 0
+        self.longest_winstreak = 0
+        self.longest_losestreak = 0
+
+        super().__init__(*args, **kwargs)
 
     user = relationship(
         "User", cascade="", uselist=False, backref=backref("duel_stats", uselist=False, cascade="", lazy="select")
