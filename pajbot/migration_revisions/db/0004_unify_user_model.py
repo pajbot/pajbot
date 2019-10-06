@@ -19,8 +19,9 @@ def up(cursor, bot):
 
     # username -> login
     cursor.execute('ALTER TABLE "user" RENAME COLUMN username TO login')
-    cursor.execute("ALTER INDEX user_username_idx RENAME TO user_login_idx")
-    cursor.execute('ALTER TABLE "user" DROP CONSTRAINT user_username_key')  # UNIQUE constraint
+    cursor.execute("DROP INDEX user_username_idx")  # UNIQUE
+    cursor.execute('ALTER TABLE "user" DROP CONSTRAINT user_username_key')  # PRIMARY KEY
+    cursor.execute('CREATE INDEX ON "user"(login)')  # create a new index, non-unique
 
     # username_raw -> name
     cursor.execute('ALTER TABLE "user" RENAME COLUMN username_raw TO name')
@@ -91,7 +92,7 @@ def up(cursor, bot):
     for login in redis.hkeys(f"{bot.streamer}:users:banned"):
         cursor.execute('UPDATE "user" SET banned = TRUE WHERE login = %s', (login,))
 
-    # note: username_raw is not migrated in from redis, since the username_raw data will be freshed
+    # note: username_raw is not migrated in from redis, since the username_raw data will be fetched
     # fresh from the Twitch API below anyways.
 
     # migrate users to ID
