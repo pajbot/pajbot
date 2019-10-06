@@ -134,6 +134,16 @@ class User(Base):
             # on next refresh, they will be included.
             return 1337
 
+    @property
+    def minutes_in_chat_online(self):
+        # retained for backwards compatibility with commands that still use this property
+        return int(self.time_in_chat_online.total_seconds() / 60)
+
+    @property
+    def minutes_in_chat_offline(self):
+        # retained for backwards compatibility with commands that still use this property
+        return int(self.time_in_chat_offline.total_seconds() / 60)
+
     @hybrid_property
     def timed_out(self):
         return self.timeout_end is not None and self.timeout_end > utils.now()
