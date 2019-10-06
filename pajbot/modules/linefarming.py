@@ -23,9 +23,7 @@ class LineFarmingModule(BaseModule):
 
     def on_pubmsg(self, source, **rest):
         if self.bot.is_online or self.settings["count_offline"] is True:
-            # this funky syntax makes SQLAlchemy increment
-            # the num_lines atomically with SET num_lines=("user".num_lines + 1)
-            source.num_lines = User.num_lines + 1
+            source.num_lines += 1
 
     def enable(self, bot):
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
