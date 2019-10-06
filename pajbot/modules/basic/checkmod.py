@@ -29,7 +29,7 @@ class CheckModModule(BaseModule):
         else:
             user = source
 
-        if user.subscriber:
+        if user.moderator:
             bot.say(f"{user} is a moderator PogChamp")
         else:
             bot.say(f"{user} is not a moderator FeelsBadMan (or has not typed in chat) FeelsBadMan")
