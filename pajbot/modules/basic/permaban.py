@@ -30,6 +30,10 @@ class PermabanModule(BaseModule):
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_user_input(db_session, username)
+            if not user:
+                bot.whisper(source, "No user with that name found.")
+                return False
+
             if user.banned:
                 bot.whisper(source, "User is already permabanned.")
                 return False
