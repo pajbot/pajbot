@@ -123,31 +123,27 @@ def up(cursor, bot):
     # update admin logs to primary-key by Twitch ID.
     admin_logs_key = f"{bot.streamer}:logs:admin"
     all_admin_logs = redis.lrange(admin_logs_key, 0, -1)
-    # all_admin_logs and kept_log_entries are in newest -> oldest order
-    kept_log_entries = []
+    # all_admin_logs and new_log_entries are in newest -> oldest order
+    new_log_entries = []
     for idx, raw_log_entry in enumerate(all_admin_logs):
         log_entry = json.loads(raw_log_entry)
         old_internal_id = log_entry["user_id"]
         cursor.execute('SELECT twitch_id FROM "user" WHERE id = %s', (old_internal_id,))
         row = cursor.fetchone()
-        if row is None:
-            continue
-
-        new_twitch_id = row[0]
-        if new_twitch_id is None:
-            continue
-
-        log_entry["user_id"] = new_twitch_id
-        kept_log_entries.append(log_entry)
+        if row is not None and row[0] is not None:
+            log_entry["user_id"] = row[0]
+        else:
+            log_entry["user_id"] = None
+        new_log_entries.append(log_entry)
 
     with RedisManager.pipeline_context() as redis_pipeline:
         redis_pipeline.delete(admin_logs_key)
         # LPUSH prepends a list value (not append)
         # To get the admin log entries in the same order that they were in previously (newest -> oldest),
         # we first reverse the list that we want to insert
-        kept_log_entries.reverse()
-        if len(kept_log_entries) > 0:
-            redis_pipeline.lpush(admin_logs_key, *[json.dumps(entry) for entry in kept_log_entries])
+        new_log_entries.reverse()
+        if len(new_log_entries) > 0:
+            redis_pipeline.lpush(admin_logs_key, *[json.dumps(entry) for entry in new_log_entries])
 
     @contextmanager
     def also_move_pkey(table, column):

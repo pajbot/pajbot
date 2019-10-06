@@ -24,7 +24,7 @@ class AdminLogEntry(Base):
 
     id = Column(INT, primary_key=True)
     type = Column(TEXT, nullable=False)
-    user_id = Column(TEXT, ForeignKey("user.id"), nullable=False)
+    user_id = Column(TEXT, ForeignKey("user.id", ondelete="SET NULL"))
     message = Column(TEXT, nullable=False)
     created_at = Column(UtcDateTime(), nullable=False, index=True)
     data = Column(JSONB, nullable=False)

@@ -11,7 +11,7 @@
         {% for log_entry in latest_logs %}
         {% set user = log_entry.user %}
         <tr>
-            <td class="collapsing">{% include 'user/username_link_nobadge.html' %}</td>
+            <td class="collapsing">{% if user is not none %}{% include 'user/username_link_nobadge.html' %}{% else %}<i>Deleted user</i>{% endif %}</td>
             <td class="collapsing">{{ log_entry.created_at }}</td>
             <td style="word-break: break-all;">{{ log_entry.message }}</td>
         </tr>
