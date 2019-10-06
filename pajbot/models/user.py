@@ -14,6 +14,7 @@ from pajbot import utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.redis import RedisManager
+from pajbot.models.duel import UserDuelStats
 
 log = logging.getLogger(__name__)
 
@@ -107,6 +108,10 @@ class User(Base):
 
         super().__init__(*args, **kwargs)
 
+    _duel_stats = relationship(
+        UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
+    )
+
     @hybrid_property
     def username(self):
         # retained for backwards compatibility with commands that still use $(source:username) (and similar)
@@ -170,6 +175,12 @@ class User(Base):
         if timed_out is not False:
             raise ValueError("Only `False` may be assigned to User.timed_out")
         self.timeout_end = None
+
+    @property
+    def duel_stats(self):
+        if self._duel_stats is None:
+            self._duel_stats = UserDuelStats()
+        return self._duel_stats
 
     def can_afford(self, points_to_spend):
         return self.points >= points_to_spend
