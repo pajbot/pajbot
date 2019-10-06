@@ -22,16 +22,29 @@ def up(cursor, bot):
     )
     cursor.execute("CREATE INDEX ON admin_log_entry(created_at)")
 
+    def safe_get_time(time_raw):
+        try:
+            # Attempt #1: 2016-04-13 19:42:19 UTC
+            return datetime.datetime.strptime(time_raw, "%Y-%m-%d %H:%M:%S %Z")
+        except ValueError:
+            pass
+
+        try:
+            # Attempt #2: 2016-04-13 19:42:19 UTC+00:00
+            return datetime.datetime.strptime(time_raw, "%Y-%m-%d %H:%M:%S %Z%z")
+        except ValueError:
+            pass
+
+        # Attempt 3: 2016-04-13 19:42:19.908536
+        return datetime.datetime.strptime(time_raw, "%Y-%m-%d %H:%M:%S.%f")
+
     redis = RedisManager.get()
     redis_list_raw = redis.lrange(f"{bot.streamer}:logs:admin", 0, -1)  # 0
     redis_list = [json.loads(raw_entry) for raw_entry in redis_list_raw]
 
     def redis_to_db_row(redis_entry):
         created_at_raw = redis_entry["created_at"]
-        created_at_raw = created_at_raw.rstrip("+00:00")
-        created_at = datetime.datetime.strptime(created_at_raw, "%Y-%m-%d %H:%M:%S %Z").replace(
-            tzinfo=datetime.timezone.utc
-        )
+        created_at = safe_get_time(created_at_raw).replace(tzinfo=datetime.timezone.utc)
         return (
             redis_entry["type"],
             redis_entry["user_id"],
