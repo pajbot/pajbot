@@ -44,12 +44,25 @@ def up(cursor, bot):
     # new: num_lines
     cursor.execute('ALTER TABLE "user" ADD COLUMN num_lines BIGINT NOT NULL DEFAULT 0')
     cursor.execute('CREATE INDEX ON "user"(num_lines)')  # same reason as in 0002_create_index_on_user_points.py
-    for login, num_lines in redis.zscan_iter(f"{bot.streamer}:users:num_lines", score_cast_func=int):
+
+    def safe_to_int(input):
+        try:
+            return int(input)
+        except ValueError:
+            return None
+
+    for login, num_lines in redis.zscan_iter(f"{bot.streamer}:users:num_lines", score_cast_func=safe_to_int):
+        if num_lines is None:
+            # invalid amount in redis, skip
+            continue
         cursor.execute('UPDATE "user" SET num_lines = %s WHERE login = %s', (num_lines, login))
 
     # new: tokens
     cursor.execute('ALTER TABLE "user" ADD COLUMN tokens INT NOT NULL DEFAULT 0')
-    for login, tokens in redis.zscan_iter(f"{bot.streamer}:users:tokens", score_cast_func=int):
+    for login, tokens in redis.zscan_iter(f"{bot.streamer}:users:tokens", score_cast_func=safe_to_int):
+        if tokens is None:
+            # invalid amount in redis, skip
+            continue
         cursor.execute('UPDATE "user" SET tokens = %s WHERE login = %s', (tokens, login))
 
     # new: last_seen
