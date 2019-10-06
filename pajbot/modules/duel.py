@@ -266,8 +266,8 @@ class DuelModule(BaseModule):
             winner.points += duel_price
             winner.points += winning_pot
 
-            UserDuelStats.for_user(db_session, winner).win(winning_pot)
-            UserDuelStats.for_user(db_session, loser).win(duel_price)
+            UserDuelStats.for_user(db_session, winner).won(winning_pot)
+            UserDuelStats.for_user(db_session, loser).lost(duel_price)
 
             arguments = {
                 "winner": winner.name,
