@@ -177,7 +177,7 @@ class DuelModule(BaseModule):
                 # You cannot duel yourself
                 return False
 
-            if user.last_active is None or (utils.now() - user._last_active) > timedelta(minutes=5):
+            if user.last_active is None or (utils.now() - user.last_active) > timedelta(minutes=5):
                 bot.whisper(
                     source,
                     "This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge",

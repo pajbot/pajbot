@@ -106,7 +106,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source, "This user does not exist FailFish")
                 return False
 
-            if victim.last_active is None or (utils.now() - victim._last_active) > datetime.timedelta(minutes=10):
+            if victim.last_active is None or (utils.now() - victim.last_active) > datetime.timedelta(minutes=10):
                 bot.whisper(source, "This user has not been active in chat within the last 10 minutes.")
                 return False
 
