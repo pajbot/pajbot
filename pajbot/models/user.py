@@ -190,8 +190,11 @@ class User(Base):
 
     @contextmanager
     def spend_currency_context(self, points, tokens):
-        with self._spend_currency_context(points, "points"), self._spend_currency_context(tokens, "tokens"):
-            yield
+        try:
+            with self._spend_currency_context(points, "points"), self._spend_currency_context(tokens, "tokens"):
+                yield
+        except FailedCommand:
+            pass
 
     @contextmanager
     def _spend_currency_context(self, amount, currency):
@@ -200,10 +203,6 @@ class User(Base):
 
         try:
             yield
-        except FailedCommand:
-            log.debug(f"Returning {amount} {currency} to {self}")
-            setattr(self, currency, getattr(self, currency) + amount)
-            # no raise
         except:
             log.debug(f"Returning {amount} {currency} to {self}")
             setattr(self, currency, getattr(self, currency) + amount)
