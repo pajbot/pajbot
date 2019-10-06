@@ -1,4 +1,7 @@
 def up(cursor, bot):
+    # Useful query for deleting duplicate games:
+    # DELETE FROM hsbet_game a WHERE a.ctid <> (SELECT min(b.ctid) FROM hsbet_game b WHERE a.internal_id = b.internal_id);
+
     # hsbet_game.internal_id -> trackobot_id, +UNIQUE, -NOT NULL
     cursor.execute("ALTER TABLE hsbet_game RENAME COLUMN internal_id TO trackobot_id")
     cursor.execute("ALTER TABLE hsbet_game ALTER COLUMN trackobot_id DROP NOT NULL")
