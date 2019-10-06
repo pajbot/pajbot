@@ -37,7 +37,7 @@ class UserDuelStats(Base):
 
         super().__init__(*args, **kwargs)
 
-    user = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="duel_stats")
+    user = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats")
 
     @hybrid_property
     def duels_lost(self):
