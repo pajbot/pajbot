@@ -147,18 +147,18 @@ class EmoteManager:
         self.load_all_emotes()
 
     def update_all_emotes(self):
-        self.action_queue.add(self.bttv_emote_manager.update_all)
-        self.action_queue.add(self.ffz_emote_manager.update_all)
-        self.action_queue.add(self.twitch_emote_manager.update_all)
+        self.action_queue.submit(self.bttv_emote_manager.update_all)
+        self.action_queue.submit(self.ffz_emote_manager.update_all)
+        self.action_queue.submit(self.twitch_emote_manager.update_all)
 
     def load_all_emotes(self):
-        self.action_queue.add(self.bttv_emote_manager.load_all)
-        self.action_queue.add(self.ffz_emote_manager.load_all)
-        self.action_queue.add(self.twitch_emote_manager.load_all)
+        self.action_queue.submit(self.bttv_emote_manager.load_all)
+        self.action_queue.submit(self.ffz_emote_manager.load_all)
+        self.action_queue.submit(self.twitch_emote_manager.load_all)
 
     @staticmethod
     def twitch_emote_url(emote_id, size):
-        return "https://static-cdn.jtvnw.net/emoticons/v1/{}/{}".format(emote_id, size)
+        return f"https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/{size}"
 
     @staticmethod
     def twitch_emote(emote_id, code):
@@ -179,7 +179,7 @@ class EmoteManager:
 
     @staticmethod
     def parse_twitch_emotes_tag(tag, message):
-        if tag is None:
+        if len(tag) <= 0:
             return []
 
         emote_instances = []
@@ -338,7 +338,7 @@ end
 
     def save_epm_record(self, code, count):
         streamer = StreamHelper.get_streamer()
-        self.redis_zadd_if_higher(keys=["{streamer}:emotes:epmrecord".format(streamer=streamer), count], args=[code])
+        self.redis_zadd_if_higher(keys=[f"{streamer}:emotes:epmrecord", count], args=[code])
 
     def get_emote_epm(self, emote_code):
         """Returns the current "emote per minute" usage of the given emote code,
@@ -349,7 +349,7 @@ end
     def get_emote_epm_record(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
-        return redis.zscore("{streamer}:emotes:epmrecord".format(streamer=streamer), emote_code)
+        return redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
 
 
 class EcountManager:
@@ -357,7 +357,7 @@ class EcountManager:
     def handle_emotes(emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         streamer = StreamHelper.get_streamer()
-        redis_key = "{streamer}:emotes:count".format(streamer=streamer)
+        redis_key = f"{streamer}:emotes:count"
         with RedisManager.pipeline_context() as redis:
             for emote_code, instance_counts in emote_counts.items():
                 redis.zincrby(redis_key, instance_counts.count, emote_code)
@@ -366,7 +366,7 @@ class EcountManager:
     def get_emote_count(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
-        emote_count = redis.zscore("{streamer}:emotes:count".format(streamer=streamer), emote_code)
+        emote_count = redis.zscore(f"{streamer}:emotes:count", emote_code)
         if emote_count is None:
             return None
         return int(emote_count)

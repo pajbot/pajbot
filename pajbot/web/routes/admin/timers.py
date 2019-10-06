@@ -96,11 +96,9 @@ def init(page):
                 timer.set(**options)
 
                 if old_message and old_message != new_message:
-                    log_msg = 'Timer "{0}" has been updated from "{1}" to "{2}"'.format(
-                        timer.name, old_message, new_message
-                    )
+                    log_msg = f'Timer "{timer.name}" has been updated from "{old_message}" to "{new_message}"'
                 else:
-                    log_msg = 'Timer "{0}" has been updated'.format(timer.name)
+                    log_msg = f'Timer "{timer.name}" has been updated'
 
                 AdminLogManager.add_entry(
                     "Timer edited", user, log_msg, data={"old_message": old_message, "new_message": new_message}

@@ -1,5 +1,4 @@
 import logging
-from contextlib import contextmanager
 
 import redis
 
@@ -17,27 +16,15 @@ class RedisManager:
 
     @staticmethod
     def init(**options):
-        default_options = {"decode_responses": True}
-        default_options.update(options)
-        RedisManager.redis = redis.Redis(**default_options)
+        RedisManager.redis = redis.Redis(**{"decode_responses": True, **options})
 
     @staticmethod
     def get():
         return RedisManager.redis
 
     @staticmethod
-    @contextmanager
     def pipeline_context():
-        pipeline = None
-        try:
-            pipeline = RedisManager.get().pipeline()
-            yield pipeline
-        except:
-            log.exception("Exception caught during RedisManager::pipeline_context")
-            if pipeline is not None:
-                pipeline.reset()
-        finally:
-            pipeline.execute()
+        return redis.utils.pipeline(RedisManager.get())
 
     @classmethod
     def publish(cls, channel, message):

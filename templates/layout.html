@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="four wide column">{% if session.user %}
-          <h4 class="ui inverted header">Hello {{ session.user.username_raw }}</h4>
+          <h4 class="ui inverted header">Hello {{ session.user.name }}</h4>
           <div class="ui inverted link list">
            {% if not session.user.level or session.user.level >= 500 %}
              <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>

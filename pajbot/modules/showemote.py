@@ -97,7 +97,7 @@ class ShowEmoteModule(BaseModule):
 
         if len(emote_instances) <= 0:
             # No emotes in the given message
-            bot.whisper(source.username, "No valid emotes were found in your message.")
+            bot.whisper(source, "No valid emotes were found in your message.")
             return False
 
         first_emote = emote_instances[0].emote
@@ -117,7 +117,7 @@ class ShowEmoteModule(BaseModule):
         )
 
         if self.settings["success_whisper"]:
-            bot.whisper(source.username, "Successfully sent the emote {} to the stream!".format(first_emote.code))
+            bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
 
     def load_commands(self, **options):
         self.commands["#showemote"] = Command.raw_command(

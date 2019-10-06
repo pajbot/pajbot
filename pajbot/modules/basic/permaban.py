@@ -1,8 +1,10 @@
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -21,48 +23,48 @@ class PermabanModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def permaban_command(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def permaban_command(bot, source, message, **rest):
+        if not message:
+            return
 
-        if message:
-            username = message.split(" ")[0].strip().lower()
-            with bot.users.get_user_context(username) as user:
-                if user.banned:
-                    bot.whisper(source.username, "User is already permabanned.")
-                    return False
+        username = message.split(" ")[0]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
+            if not user:
+                bot.whisper(source, "No user with that name found.")
+                return False
 
-                user.banned = True
-                message = message.lower()
-                log_msg = "{} has been permabanned".format(user.username_raw)
-                bot.whisper(source.username, log_msg)
+            if user.banned:
+                bot.whisper(source, "User is already permabanned.")
+                return False
 
-                AdminLogManager.add_entry("Permaban added", source, log_msg)
+            user.banned = True
+            log_msg = f"{user} has been permabanned"
+            bot.whisper(source, log_msg)
+
+            AdminLogManager.add_entry("Permaban added", source, log_msg)
 
     @staticmethod
-    def unpermaban_command(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def unpermaban_command(bot, source, message, **rest):
+        if not message:
+            return
 
-        if message:
-            username = message.split(" ")[0].strip().lower()
-            with bot.users.find_context(username) as user:
-                if not user:
-                    bot.whisper(source.username, "No user with that name found.")
-                    return False
+        username = message.split(" ")[0]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
+            if not user:
+                bot.whisper(source, "No user with that name found.")
+                return False
 
-                if user.banned is False:
-                    bot.whisper(source.username, "User is not permabanned.")
-                    return False
+            if user.banned is False:
+                bot.whisper(source, "User is not permabanned.")
+                return False
 
-                user.banned = False
-                message = message.lower()
-                log_msg = "{} is no longer permabanned".format(user.username_raw)
-                bot.whisper(source.username, log_msg)
+            user.banned = False
+            log_msg = f"{user} is no longer permabanned"
+            bot.whisper(source, log_msg)
 
-                AdminLogManager.add_entry("Permaban remove", source, log_msg)
+            AdminLogManager.add_entry("Permaban remove", source, log_msg)
 
     def load_commands(self, **options):
         self.commands["permaban"] = Command.raw_command(

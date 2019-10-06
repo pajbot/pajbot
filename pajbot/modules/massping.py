@@ -1,15 +1,18 @@
 import logging
 import re
 
+from sqlalchemy import or_
+from sqlalchemy.sql.functions import count, func
+
+from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
-from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
-username_in_message_pattern = re.compile("[A-Za-z0-9_]{4,}")
+USERNAME_IN_MESSAGE_PATTERN = re.compile("[A-Za-z0-9_]{4,}")
 
 
 class MassPingProtectionModule(BaseModule):
@@ -64,19 +67,23 @@ class MassPingProtectionModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
-        super().__init__(bot)
-
     @staticmethod
-    def is_known_user(username):
-        streamer = StreamHelper.get_streamer()
-        return RedisManager.get().hexists("{streamer}:users:last_seen".format(streamer=streamer), username)
+    def count_known_users(usernames):
+        if len(usernames) < 1:
+            return 0
+        with DBManager.create_session_scope() as db_session:
+            return (
+                db_session.query(User)
+                .with_entities(count())
+                .filter(or_(User.login.in_(usernames), func.lower(User.name).in_(usernames)))
+                .scalar()
+            )
 
     @staticmethod
     def count_pings(message, source, emote_instances):
-        pings = set()
+        potential_users = set()
 
-        for match in username_in_message_pattern.finditer(message):
+        for match in USERNAME_IN_MESSAGE_PATTERN.finditer(message):
             matched_part = match.group()
             start_idx = match.start()
             end_idx = match.end()
@@ -89,16 +96,13 @@ class MassPingProtectionModule(BaseModule):
             matched_part = matched_part.lower()
 
             # this is the sending user. We allow people to "ping" themselves
-            if matched_part == source.username or matched_part == source.username_raw.lower():
+            if matched_part == source.login or matched_part == source.name.lower():
                 continue
 
-            # check that this word is a known user (we have seen this username before)
-            if not MassPingProtectionModule.is_known_user(matched_part):
-                continue
+            potential_users.add(matched_part)
 
-            pings.add(matched_part)
-
-        return len(pings)
+        # check how many words a known user (we have seen this username before)
+        return MassPingProtectionModule.count_known_users(potential_users)
 
     def determine_timeout_length(self, message, source, emote_instances):
         ping_count = MassPingProtectionModule.count_pings(message, source, emote_instances)
@@ -125,14 +129,12 @@ class MassPingProtectionModule(BaseModule):
         if timeout_duration <= 0:
             return
 
-        self.bot.timeout_user(source, timeout_duration, reason="Too many users pinged in message")
+        self.bot.timeout(source, timeout_duration, reason="Too many users pinged in message")
 
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
-                source.username,
-                (
-                    "You have been timed out for {} seconds because your message mentioned too many users at once."
-                ).format(timeout_duration),
+                source,
+                f"You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
             )
 
         return False

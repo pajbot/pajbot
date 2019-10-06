@@ -86,10 +86,7 @@ class PleblistModule(BaseModule):
         ),
     ]
 
-    def bg_pleblist_add_song(self, stream_id, youtube_id, force, **options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def bg_pleblist_add_song(self, stream_id, youtube_id, force, bot, source):
         with DBManager.create_session_scope() as db_session:
             song_info = PleblistManager.get_song_info(youtube_id, db_session)
             if song_info is None or force:
@@ -98,12 +95,12 @@ class PleblistModule(BaseModule):
                     PleblistManager.init(bot.config["youtube"]["developer_key"])
                 except:
                     log.error("No youtube key set up.")
-                    bot.whisper(source.username, "No youtube key set up")
+                    bot.whisper(source, "No youtube key set up")
                     return False
 
                 song_info = PleblistManager.create_pleblist_song_info(youtube_id)
                 if song_info is False:
-                    bot.whisper(source.username, "Invalid song given (or the YouTube API is down)")
+                    bot.whisper(source, "Invalid song given (or the YouTube API is down)")
                     return False
 
                 db_session.merge(song_info)
@@ -116,10 +113,7 @@ class PleblistModule(BaseModule):
                 .one()[0]
             )
             if num_unplayed_songs_requested >= self.settings["max_songs_per_user"] and not force:
-                bot.whisper(
-                    source.username,
-                    "You can only request {} songs at the same time!".format(num_unplayed_songs_requested),
-                )
+                bot.whisper(source, f"You can only request {num_unplayed_songs_requested} songs at the same time!")
                 return False
 
             # Add the song request
@@ -132,37 +126,35 @@ class PleblistModule(BaseModule):
 
             db_session.add(song_request)
 
-            bot.say('{} just requested the song "{}" to be played KKona'.format(source.username_raw, song_info.title))
+            bot.say(f'{source} just requested the song "{song_info.title}" to be played KKona')
 
-    def pleblist_add_song(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def pleblist_add_song(self, bot, source, message, **rest):
+        if not message:
+            return False
 
-        if message:
-            # 1. Find youtube ID in message
-            msg_split = message.split(" ")
-            youtube_id = find_youtube_id_in_string(msg_split[0])
+        # 1. Find youtube ID in message
+        msg_split = message.split(" ")
+        youtube_id = find_youtube_id_in_string(msg_split[0])
 
-            force = False
+        force = False
 
-            try:
-                if msg_split[1] == "force" and source.level >= 500:
-                    force = True
-            except:
-                pass
+        try:
+            if msg_split[1] == "force" and source.level >= 500:
+                force = True
+        except:
+            pass
 
-            if youtube_id is False:
-                bot.whisper(source.username, "Could not find a valid youtube ID in your argument.")
-                return False
+        if youtube_id is False:
+            bot.whisper(source, "Could not find a valid youtube ID in your argument.")
+            return False
 
-            # 2. Make sure the stream is live
-            stream_id = StreamHelper.get_current_stream_id()
-            if stream_id is None or stream_id is False:
-                bot.whisper(source.username, "You cannot request songs while the stream is offline.")
-                return False
+        # 2. Make sure the stream is live
+        stream_id = StreamHelper.get_current_stream_id()
+        if stream_id is None or stream_id is False:
+            bot.whisper(source, "You cannot request songs while the stream is offline.")
+            return False
 
-            ScheduleManager.execute_now(self.bg_pleblist_add_song, args=[stream_id, youtube_id, force], kwargs=options)
+        ScheduleManager.execute_now(self.bg_pleblist_add_song, args=[stream_id, youtube_id, force, bot, source])
 
     def load_commands(self, **options):
         if self.settings["songrequest_command"]:

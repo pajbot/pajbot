@@ -22,8 +22,8 @@ class EmotesModule(BaseModule):
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
         messages = split_into_chunks_with_prefix(
-            [{"prefix": "{} emotes:".format(manager.friendly_name), "parts": [e.code for e in emotes]}],
-            default="No {} Emotes active in this chat :(".format(manager.friendly_name),
+            [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
+            default=f"No {manager.friendly_name} Emotes active in this chat :(",
         )
 
         for message in messages:
@@ -37,7 +37,7 @@ class EmotesModule(BaseModule):
                 {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
                 {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
             ],
-            default="Looks like {} has no subscriber emotes! :(".format(StreamHelper.get_streamer()),
+            default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
         )
 
         for message in messages:
@@ -45,11 +45,11 @@ class EmotesModule(BaseModule):
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
-        reload_msg = "Reloading {} emotes...".format(manager.friendly_name)
+        reload_msg = f"Reloading {manager.friendly_name} emotes..."
 
         def do_reload(bot, source, **rest):
-            bot.whisper(source.username, reload_msg)
-            self.bot.action_queue.add(manager.update_all)
+            bot.whisper(source, reload_msg)
+            self.bot.action_queue.submit(manager.update_all)
 
         return Command.raw_command(
             do_reload,
@@ -59,9 +59,8 @@ class EmotesModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Reload all active {} emotes for this channel.".format(manager.friendly_name),
-                    chat="user: !{}emotes reload\n".format(manager.friendly_name.lower())
-                    + "bot>user: {}".format(reload_msg),
+                    f"Reload all active {manager.friendly_name} emotes for this channel.",
+                    chat=f"user: !{manager.friendly_name.lower()}emotes reload\n" + f"bot>user: {reload_msg}",
                 ).parse()
             ],
         )
@@ -78,9 +77,9 @@ class EmotesModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Show all active {} emotes for this channel.".format(manager.friendly_name),
-                    chat="user: !{}emotes\n".format(manager.friendly_name.lower())
-                    + "bot: {} emotes: {}".format(manager.friendly_name, examples),
+                    f"Show all active {manager.friendly_name} emotes for this channel.",
+                    chat=f"user: !{manager.friendly_name.lower()}emotes\n"
+                    + f"bot: {manager.friendly_name} emotes: {examples}",
                 ).parse()
             ],
         )
@@ -94,7 +93,7 @@ class EmotesModule(BaseModule):
             examples=[
                 CommandExample(
                     None,
-                    "Show all active sub emotes for {}.".format(StreamHelper.get_streamer()),
+                    f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
                     chat="user: !subemotes\n"
                     "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
                     "Tier 2: forsenSnus Tier 3: forsen2499",

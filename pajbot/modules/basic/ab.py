@@ -49,23 +49,20 @@ class AbCommandModule(BaseModule):
     ]
 
     @staticmethod
-    def ab(**options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
+    def ab(bot, source, message, **rest):
+        if not message:
+            return False
 
-        if message:
-            """ check if there is a link in the message """
-            check_message = find_unique_urls(URL_REGEX, message)
-            if check_message == set():
-                msg_parts = message.split(" ")
-                if len(msg_parts) >= 2:
-                    outer_str = msg_parts[0]
-                    inner_str = " {} ".format(outer_str).join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
-                    bot.say("{0}, {1} {2} {1}".format(source.username_raw, outer_str, inner_str))
-                    return True
+        # check if there is a link in the message
+        check_message = find_unique_urls(URL_REGEX, message)
+        if len(check_message) > 0:
+            return False
 
-        return
+        msg_parts = message.split(" ")
+        if len(msg_parts) >= 2:
+            outer_str = msg_parts[0]
+            inner_str = f" {outer_str} ".join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
+            bot.say(f"{source}, {outer_str} {inner_str} {outer_str}")
 
     def load_commands(self, **options):
         self.commands["ab"] = Command.raw_command(

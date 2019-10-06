@@ -1,6 +1,6 @@
-!add command ping|pb1ping --reply @$(source:username_raw), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
-!add command commands|help --reply @$(source:username_raw), $(tb:bot_name) commands available here: https://bot.kkonatestbroadcaster.tv/commands
-!add command ecount --reply @$(source:username_raw), $(1) has been used $(ecount;1) times.
-!add command epm --reply @$(source:username_raw), $(1) is currently being used $(epm;1) times per minute.
-!add command uptime|downtime --reply @$(source:username_raw), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
-!add command p|points|userpoints --reply @$(source:username_raw), $(usersource;1:username_raw) has $(usersource;1:points|number_format) points
+!add command ping|pb1ping --reply @$(source:name), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
+!add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://bot.kkonatestbroadcaster.tv/commands
+!add command ecount --reply @$(source:name), $(1) has been used $(ecount;1) times.
+!add command epm --reply @$(source:name), $(1) is currently being used $(epm;1) times per minute.
+!add command uptime|downtime --reply @$(source:name), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
+!add command p|points|userpoints --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points

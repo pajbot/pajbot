@@ -1,7 +1,9 @@
 import logging
 
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -20,51 +22,49 @@ class IgnoreModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def ignore_command(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def ignore_command(bot, source, message, **rest):
+        if not message:
+            return False
 
-        if message:
-            username = message.split(" ")[0].strip().lower()
+        with DBManager.create_session_scope() as db_session:
+            username = message.split(" ")[0]
+            user = User.find_by_user_input(db_session, username)
 
-            if username == source.username:
-                bot.whisper(source.username, "You cannot ignore yourself")
+            if user == source:
+                bot.whisper(source, "You cannot ignore yourself")
                 return False
 
-            with bot.users.find_context(username) as user:
-                if not user:
-                    bot.whisper(source.username, "No user with that name found.")
-                    return False
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
+            if user is None:
+                bot.whisper(source, "No user with that name found.")
+                return False
 
-                if user.ignored:
-                    bot.whisper(source.username, "User is already ignored.")
-                    return False
+            if user.ignored:
+                bot.whisper(source, "User is already ignored.")
+                return False
 
-                user.ignored = True
-                message = message.lower()
-                bot.whisper(source.username, "Now ignoring {0}".format(user.username))
+            user.ignored = True
+            bot.whisper(source, f"Now ignoring {user}")
 
     @staticmethod
-    def unignore_command(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def unignore_command(bot, source, message, **rest):
+        if not message:
+            return
 
-        if message:
-            username = message.split(" ")[0].strip().lower()
-            with bot.users.find_context(username) as user:
-                if not user:
-                    bot.whisper(source.username, "No user with that name found.")
-                    return False
+        username = message.split(" ")[0]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
+            if not user:
+                bot.whisper(source, "No user with that name found.")
+                return False
 
-                if user.ignored is False:
-                    bot.whisper(source.username, "User is not ignored.")
-                    return False
+            if user.ignored is False:
+                bot.whisper(source, "User is not ignored.")
+                return False
 
-                user.ignored = False
-                message = message.lower()
-                bot.whisper(source.username, "No longer ignoring {0}".format(user.username))
+            user.ignored = False
+            bot.whisper(source, f"No longer ignoring {user}")
 
     def load_commands(self, **options):
         self.commands["ignore"] = Command.raw_command(

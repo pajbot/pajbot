@@ -5,7 +5,6 @@ import operator as op
 
 import pajbot.exc
 import pajbot.models
-from pajbot.actions import ActionQueue
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -84,11 +83,6 @@ class MathModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
-        super().__init__(bot)
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
-
     def load_commands(self, **options):
         self.commands["math"] = Command.raw_command(
             self.math,
@@ -134,16 +128,12 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.say("{}, {} {}".format(source.username_raw, expr_res, emote))
+        bot.say(f"{source}, {expr_res} {emote}")
 
-    def math(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
-        if source.username == "karl_kons":
-            bot.say("{}, 8 Kappa".format(source.username_raw))
-            return True
+    def math(self, bot, source, message, **rest):
+        if source.id == "68706331":  # Karl_Kons
+            bot.say(f"{source}, 8 Kappa")
+            return
 
         if message:
             message = message.replace("pi", str(math.pi))

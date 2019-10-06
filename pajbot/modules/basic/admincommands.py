@@ -5,6 +5,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.models.module import Module
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
@@ -23,174 +24,137 @@ class AdminCommandsModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def whisper(**options):
-        message = options["message"]
-        bot = options["bot"]
+    def whisper(bot, message, **rest):
+        if not message:
+            return False
 
-        if message:
-            msg_args = message.split(" ")
-            if len(msg_args) > 1:
-                username = msg_args[0]
-                rest = " ".join(msg_args[1:])
-                bot.whisper(username, rest)
+        msg_args = message.split(" ")
+        if len(msg_args) > 1:
+            username = msg_args[0]
+            rest = " ".join(msg_args[1:])
+            bot.whisper_login(username, rest)
 
-    def edit_points(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def edit_points(self, bot, source, message, **rest):
+        if not message:
+            return False
 
-        if message:
-            msg_split = message.split(" ")
-            if len(msg_split) < 2:
-                # The user did not supply enough arguments
-                bot.whisper(
-                    source.username, "Usage: !{command_name} USERNAME POINTS".format(command_name=self.command_name)
-                )
+        msg_split = message.split(" ")
+        if len(msg_split) < 2:
+            # The user did not supply enough arguments
+            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
+            return False
+
+        username_input = msg_split[0]
+
+        try:
+            num_points = int(msg_split[1])
+        except (ValueError, TypeError):
+            # The user did not specify a valid integer for points
+            bot.whisper(source, f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS")
+            return False
+
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username_input)
+            if not user:
+                bot.whisper(source, "This user does not exist FailFish")
                 return False
 
-            username = msg_split[0]
-            if len(username) < 2:
-                # The username specified was too short. ;-)
+            user.points += num_points
+
+            if num_points >= 0:
+                bot.whisper(source, f"Successfully gave {user} {num_points} points.")
+            else:
+                bot.whisper(source, f"Successfully removed {abs(num_points)} points from {user}.")
+
+    def set_points(self, bot, source, message, **rest):
+        if not message:
+            return False
+
+        msg_split = message.split(" ")
+        if len(msg_split) < 2:
+            # The user did not supply enough arguments
+            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
+            return False
+
+        username = msg_split[0]
+        if len(username) < 2:
+            # The username specified was too short. ;-)
+            return False
+
+        try:
+            num_points = int(msg_split[1])
+        except (ValueError, TypeError):
+            # The user did not specify a valid integer for points
+            bot.whisper(source, f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS")
+            return False
+
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_user_input(db_session, username)
+            if not user:
+                bot.whisper(source, "This user does not exist FailFish")
                 return False
 
-            try:
-                num_points = int(msg_split[1])
-            except (ValueError, TypeError):
-                # The user did not specify a valid integer for points
-                bot.whisper(
-                    source.username,
-                    "Invalid amount of points. Usage: !{command_name} USERNAME POINTS".format(
-                        command_name=self.command_name
-                    ),
-                )
-                return False
+            user.points = num_points
 
-            with bot.users.find_context(username) as user:
-                if not user:
-                    bot.whisper(source.username, "This user does not exist FailFish")
-                    return False
-
-                user.points += num_points
-
-                if num_points >= 0:
-                    bot.whisper(
-                        source.username, "Successfully gave {} {} points.".format(user.username_raw, num_points)
-                    )
-                else:
-                    bot.whisper(
-                        source.username,
-                        "Successfully removed {} points from {}.".format(abs(num_points), user.username_raw),
-                    )
-
-    def set_points(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
-        if message:
-            msg_split = message.split(" ")
-            if len(msg_split) < 2:
-                # The user did not supply enough arguments
-                bot.whisper(
-                    source.username, "Usage: !{command_name} USERNAME POINTS".format(command_name=self.command_name)
-                )
-                return False
-
-            username = msg_split[0]
-            if len(username) < 2:
-                # The username specified was too short. ;-)
-                return False
-
-            try:
-                num_points = int(msg_split[1])
-            except (ValueError, TypeError):
-                # The user did not specify a valid integer for points
-                bot.whisper(
-                    source.username,
-                    "Invalid amount of points. Usage: !{command_name} USERNAME POINTS".format(
-                        command_name=self.command_name
-                    ),
-                )
-                return False
-
-            with bot.users.find_context(username) as user:
-                if not user:
-                    bot.whisper(source.username, "This user does not exist FailFish")
-                    return False
-
-                user.points = num_points
-
-                bot.whisper(
-                    source.username, "Successfully set {}'s points to {}.".format(user.username_raw, num_points)
-                )
+            bot.whisper(source, f"Successfully set {user}'s points to {num_points}.")
 
     @staticmethod
-    def level(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def level(bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !level USERNAME NEW_LEVEL")
+            return False
 
-        if message:
-            msg_args = message.split(" ")
-            if len(msg_args) > 1:
-                username = msg_args[0].lower()
-                new_level = int(msg_args[1])
-                if new_level >= source.level:
-                    bot.whisper(
-                        source.username,
-                        "You cannot promote someone to the same or higher level as you ({0}).".format(source.level),
-                    )
-                    return False
+        msg_args = message.split(" ")
+        if len(msg_args) < 2:
+            return False
 
-                # We create the user if the user didn't already exist in the database.
-                with bot.users.get_user_context(username) as user:
-                    if user.level >= source.level:
-                        bot.whisper(
-                            source.username,
-                            "You cannot change the level of someone who is the same or higher level than you. You are level {}, and {} is level {}".format(
-                                source.level, username, user.level
-                            ),
-                        )
-                        return False
+        username = msg_args[0].lower()
+        new_level = int(msg_args[1])
+        if new_level >= source.level:
+            bot.whisper(source, f"You cannot promote someone to the same or higher level as you ({source.level}).")
+            return False
 
-                    old_level = user.level
-                    user.level = new_level
+        # We create the user if the user didn't already exist in the database.
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, username)
+            if user is None:
+                bot.whisper(source, f'A user with the name "{username}" could not be found.')
+                return False
 
-                    log_msg = "{}'s user level changed from {} to {}".format(user.username_raw, old_level, new_level)
+            if user.level >= source.level:
+                bot.whisper(
+                    source,
+                    f"You cannot change the level of someone who is the same or higher level than you. You are level {source.level}, and {username} is level {user.level}",
+                )
+                return False
 
-                    bot.whisper(source.username, log_msg)
+            old_level = user.level
+            user.level = new_level
 
-                    AdminLogManager.add_entry("Userlevel edited", source, log_msg)
+            log_msg = f"{user}'s user level changed from {old_level} to {new_level}"
 
-                    return True
+            bot.whisper(source, log_msg)
 
-        bot.whisper(source.username, "Usage: !level USERNAME NEW_LEVEL")
-        return False
+            AdminLogManager.add_entry("Userlevel edited", source, log_msg)
 
     @staticmethod
-    def cmd_silence(**options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def cmd_silence(bot, source, **rest):
         if bot.silent:
-            bot.whisper(source.username, "The bot is already silent")
+            bot.whisper(source, "The bot is already silent")
         else:
             bot.silent = True
             bot.whisper(
-                source.username,
+                source,
                 "The bot is now silent. Use !unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts",
             )
 
     @staticmethod
-    def cmd_unsilence(**options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def cmd_unsilence(bot, source, **rest):
         if not bot.silent:
-            bot.whisper(source.username, "The bot can already talk")
+            bot.whisper(source, "The bot can already talk")
         else:
             bot.silent = False
-            bot.whisper(source.username, "The bot can now talk again")
+            bot.whisper(source, "The bot can now talk again")
 
     @staticmethod
     def cmd_module(bot, source, message, **options):
@@ -221,15 +185,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say("No module with the id {} found".format(module_id))
+                bot.say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say("Unable to disable module {}".format(module_id))
+                bot.say(f"Unable to disable module {module_id}")
                 return
 
             if not module_manager.disable_module(module_id):
-                bot.say("Unable to disable module {}, maybe it's not enabled?".format(module_id))
+                bot.say(f"Unable to disable module {module_id}, maybe it's not enabled?")
                 return
 
             # Rebuild command cache
@@ -241,7 +205,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Disabled", module_id)
 
-            bot.say("Disabled module {}".format(module_id))
+            bot.say(f"Disabled module {module_id}")
 
         elif sub_command == "enable":
             if len(msg_args) < 2:
@@ -250,15 +214,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say("No module with the id {} found".format(module_id))
+                bot.say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say("Unable to enable module {}".format(module_id))
+                bot.say(f"Unable to enable module {module_id}")
                 return
 
             if not module_manager.enable_module(module_id):
-                bot.say("Unable to enable module {}, maybe it's already enabled?".format(module_id))
+                bot.say(f"Unable to enable module {module_id}, maybe it's already enabled?")
                 return
 
             # Rebuild command cache
@@ -270,7 +234,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Enabled", module_id)
 
-            bot.say("Enabled module {}".format(module_id))
+            bot.say(f"Enabled module {module_id}")
 
     def load_commands(self, **options):
         self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")

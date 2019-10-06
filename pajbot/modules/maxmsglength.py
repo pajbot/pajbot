@@ -1,5 +1,7 @@
 import logging
 
+from datetime import timedelta
+
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -65,11 +67,8 @@ class MaxMsgLengthModule(BaseModule):
                 )
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
-                if duration > 0 and source.minutes_in_chat_online > 60:
-                    self.bot.whisper(
-                        source.username,
-                        "You have been {punishment} because your message was too long.".format(punishment=punishment),
-                    )
+                if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
+                    self.bot.whisper(source, f"You have been {punishment} because your message was too long.")
                 return False
         else:
             if len(message) > self.settings["max_msg_length_offline"]:
@@ -78,11 +77,8 @@ class MaxMsgLengthModule(BaseModule):
                 )
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
-                if duration > 0 and source.minutes_in_chat_online > 60:
-                    self.bot.whisper(
-                        source.username,
-                        "You have been {punishment} because your message was too long.".format(punishment=punishment),
-                    )
+                if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
+                    self.bot.whisper(source, f"You have been {punishment} because your message was too long.")
                 return False
 
     def enable(self, bot):

@@ -19,7 +19,7 @@ class BaseAPI:
         self.timeout = 20
 
         # e.g. pajbot1/1.35
-        self.session.headers["User-Agent"] = "pajbot/{}".format(constants.VERSION)
+        self.session.headers["User-Agent"] = f"pajbot/{constants.VERSION}"
 
         if redis is not None:
             self.cache = APIResponseCache(redis)
@@ -74,7 +74,6 @@ class BaseAPI:
             return BaseAPI.join_base_and_string(base, endpoint)
 
     def request(self, method, endpoint, params, headers, json=None, **request_options):
-
         full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
             method, full_url, params=params, headers=headers, json=json, timeout=self.timeout, **request_options

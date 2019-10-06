@@ -51,7 +51,7 @@ class StreamChunk(Base):
     __tablename__ = "stream_chunk"
 
     id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id"), nullable=False)
+    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), nullable=False)
     broadcast_id = Column(BIGINT, nullable=False)
     video_url = Column(TEXT, nullable=True)
     video_preview_image_url = Column(TEXT, nullable=True)
@@ -80,7 +80,7 @@ class StreamManager:
             return
 
         data = self.bot.twitch_v5_api.get_vod_videos(self.bot.streamer_user_id)
-        self.bot.execute_now(lambda: self.refresh_video_url_stage2(data))
+        self.bot.execute_now(self.refresh_video_url_stage2, data)
 
     def fetch_video_url_stage2(self, data):
         stream_chunk = self.current_stream_chunk if self.current_stream_chunk.video_url is None else None
@@ -116,10 +116,10 @@ class StreamManager:
         self.title = "Loading..."
 
         self.bot.execute_every(
-            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_stream_status_stage1,)
+            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_stream_status_stage1
         )
         self.bot.execute_every(
-            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.add, (self.refresh_video_url_stage1,)
+            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_video_url_stage1
         )
 
         # This will load the latest stream so we can post an accurate "time since last online" figure.
@@ -135,7 +135,7 @@ class StreamManager:
                     .order_by(StreamChunk.chunk_start.desc())
                     .first()
                 )
-                log.info("Set current stream chunk here to {0}".format(self.current_stream_chunk))
+                log.info(f"Set current stream chunk here to {self.current_stream_chunk}")
             db_session.expunge_all()
 
     @property
@@ -229,7 +229,7 @@ class StreamManager:
 
     def refresh_stream_status_stage1(self):
         status = self.bot.twitch_v5_api.get_stream_status(self.bot.streamer_user_id)
-        self.bot.execute_now(lambda: self.refresh_stream_status_stage2(status))
+        self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
     def refresh_stream_status_stage2(self, status):
         redis = RedisManager.get()
@@ -261,7 +261,7 @@ class StreamManager:
         else:
             if self.online is True:
                 self.num_offlines += 1
-                log.info("Offline. {0}".format(self.num_offlines))
+                log.info(f"Offline. {self.num_offlines}")
                 if self.first_offline is None:
                     self.first_offline = utils.now()
 
@@ -279,14 +279,14 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        log.info("Attempting to fetch video url for broadcast {0}".format(self.current_stream_chunk.broadcast_id))
+        log.info(f"Attempting to fetch video url for broadcast {self.current_stream_chunk.broadcast_id}")
         video_url, video_preview_image_url, video_recorded_at = self.fetch_video_url_stage2(data)
 
         if video_url is None:
             log.info("No video for broadcast found")
             return
 
-        log.info("Successfully fetched a video url: {0}".format(video_url))
+        log.info(f"Successfully fetched a video url: {video_url}")
         if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 self.current_stream_chunk.video_url = video_url

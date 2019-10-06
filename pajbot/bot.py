@@ -4,6 +4,7 @@ import logging
 import re
 import sys
 import urllib
+from concurrent.futures.thread import ThreadPoolExecutor
 
 import irc.client
 import requests
@@ -12,10 +13,7 @@ from pytz import timezone
 
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-import pajbot.models
-import pajbot.models.user
 import pajbot.utils
-from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
@@ -23,7 +21,9 @@ from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
+from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
 from pajbot.constants import VERSION
+from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
@@ -35,7 +35,7 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
-from pajbot.managers.user import UserManager
+from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
@@ -47,6 +47,7 @@ from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
+from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
@@ -80,10 +81,6 @@ class Bot:
             redis_options = dict(config.items("redis"))
         RedisManager.init(**redis_options)
         wait_for_redis_data_loaded(RedisManager.get())
-
-        # Pepega SE points sync
-        pajbot.models.user.Config.se_sync_token = config["main"].get("se_sync_token", None)
-        pajbot.models.user.Config.se_channel = config["main"].get("se_channel", None)
 
         self.nickname = config["main"].get("nickname", "pajbot")
         self.timezone = config["main"].get("timezone", "UTC")
@@ -121,6 +118,7 @@ class Bot:
         )
 
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
+        self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
@@ -135,7 +133,15 @@ class Bot:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
 
         # SQL migrations
-        sql_conn = DBManager.engine.connect().connection
+        # engine.connect() returns a SQLAlchemy `Connection` object.
+        # engine.connect().connection returns a SQLAlchemy `_ConnectionFairy` object.
+        # engine.connect().connection.connection is the underlying psycopg2 connection.
+        # we need the psycopg2 connection, so we can do transaction control using the connection as a context manager
+        # e.g. (from the implementation of DatabaseMigratable):
+        # with self.conn:  # transaction control, does NOT close the connection
+        #     with self.conn.cursor() as cursor:  # auto resource release of cursor
+        #         cursor.execute("SOME SQL")
+        sql_conn = DBManager.engine.connect().connection.connection
         sql_migratable = DatabaseMigratable(sql_conn)
         sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
         sql_migration.run()
@@ -145,12 +151,18 @@ class Bot:
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
-        # Actions in this queue are run in a separate thread.
-        # This means actions should NOT access any database-related stuff.
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
+        # Thread pool executor for async actions
+        self.action_queue = ThreadPoolExecutor()
+
+        # refresh points_rank and num_lines_rank regularly
+        UserRanksRefreshManager.start(self.action_queue)
 
         self.reactor = irc.client.Reactor(self.on_connect)
+        # SafeDefaultScheduler makes the bot not exit on exception in the main thread
+        # e.g. on actions via bot.execute_now, etc.
+        self.reactor.scheduler_class = SafeDefaultScheduler
+        self.reactor.scheduler = SafeDefaultScheduler()
+
         self.start_time = utils.now()
         ActionParser.bot = self
 
@@ -162,7 +174,6 @@ class Bot:
         StreamHelper.init_bot(self, self.stream_manager)
         ScheduleManager.init()
 
-        self.users = UserManager()
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
@@ -212,14 +223,19 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        admin = None
-        try:
-            admin = self.config["main"]["admin"]
-        except KeyError:
+        admin = self.config["main"].get("admin", None)
+        if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
-        if admin is not None:
-            with self.users.get_user_context(admin) as user:
-                user.level = 2000
+        else:
+            with DBManager.create_session_scope() as db_session:
+                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, admin)
+                if admin_user is None:
+                    log.warning(
+                        "The login name you entered for the admin user does not exist on twitch. "
+                        "No admin user has been created."
+                    )
+                else:
+                    admin_user.level = 2000
 
         # silent mode
         self.silent = (
@@ -263,7 +279,7 @@ class Bot:
 
     @property
     def password(self):
-        return "oauth:{}".format(self.bot_token_manager.token.access_token)
+        return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def on_connect(self, sock):
         return self.irc.on_connect(sock)
@@ -289,21 +305,21 @@ class Bot:
             return None
 
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(epm)
+        return f"{epm:,.0f}"
 
     def get_emote_epm_record(self, key, extra={}):
         val = self.epm_manager.get_emote_epm_record(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return f"{val:,.0f}"
 
     def get_emote_count(self, key, extra={}):
         val = self.ecount_manager.get_emote_count(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
-        return "{0:,.0f}".format(val)
+        return f"{val:,.0f}"
 
     @staticmethod
     def get_source_value(key, extra={}):
@@ -316,9 +332,10 @@ class Bot:
 
     def get_user_value(self, key, extra={}):
         try:
-            user = self.users.find(extra["argument"])
-            if user:
-                return getattr(user, key)
+            with DBManager.create_session_scope() as db_session:
+                user = User.find_by_user_input(db_session, extra["argument"])
+                if user is not None:
+                    return getattr(user, key)
         except:
             log.exception("Caught exception in get_source_value")
 
@@ -335,9 +352,10 @@ class Bot:
 
     def get_usersource_value(self, key, extra={}):
         try:
-            user = self.users.find(extra["argument"])
-            if user:
-                return getattr(user, key)
+            with DBManager.create_session_scope() as db_session:
+                user = User.find_by_user_input(db_session, extra["argument"])
+                if user is not None:
+                    return getattr(user, key)
 
             return getattr(extra["source"], key)
         except:
@@ -402,12 +420,6 @@ class Bot:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
 
-    def get_notify_value(self, key, extra={}):
-        payload = {"message": extra["message"] or "", "trigger": extra["trigger"], "user": extra["source"].username_raw}
-        self.websocket_manager.emit("notify", payload)
-
-        return ""
-
     def get_value(self, key, extra={}):
         if key in extra:
             return extra[key]
@@ -441,7 +453,7 @@ class Bot:
                 if i == 0:
                     self.privmsg_arr(lines[:per_chunk], target)
                 else:
-                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, (lines[:per_chunk], target))
+                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, lines[:per_chunk], target)
 
                 del lines[:per_chunk]
 
@@ -469,10 +481,10 @@ class Bot:
                 cloned_event.arguments = [msg]
                 # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
-            self.whisper(event.source.user.lower(), "Successfully evaluated {0} lines".format(len(lines)))
+            self.whisper_login(event.source.user.lower(), f"Successfully evaluated {len(lines)} lines")
         except:
             log.exception("BabyRage")
-            self.whisper(event.source.user.lower(), "Exception BabyRage")
+            self.whisper_login(event.source.user.lower(), "Exception BabyRage")
 
     def privmsg(self, message, channel=None, increase_message=True):
         if channel is None:
@@ -510,82 +522,76 @@ class Bot:
 
         return "No recorded stream FeelsBadMan "
 
-    def execute_now(self, function, arguments=()):
-        self.execute_delayed(0, function, arguments)
+    def execute_now(self, function, *args, **kwargs):
+        self.execute_delayed(0, function, *args, **kwargs)
 
-    def execute_at(self, at, function, arguments=()):
-        self.reactor.scheduler.execute_at(at, lambda: function(*arguments))
+    def execute_at(self, at, function, *args, **kwargs):
+        self.reactor.scheduler.execute_at(at, lambda: function(*args, **kwargs))
 
-    def execute_delayed(self, delay, function, arguments=()):
-        self.reactor.scheduler.execute_after(delay, lambda: function(*arguments))
+    def execute_delayed(self, delay, function, *args, **kwargs):
+        self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
 
-    def execute_every(self, period, function, arguments=()):
-        self.reactor.scheduler.execute_every(period, lambda: function(*arguments))
+    def execute_every(self, period, function, *args, **kwargs):
+        self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
-    def _ban(self, username, reason=""):
-        self.privmsg(".ban {0} {1}".format(username, reason), increase_message=False)
+    def _ban(self, login, reason=None):
+        message = f"/ban {login}"
+        if reason is not None:
+            message += f" {reason}"
+        self.privmsg(message)
 
-    def ban(self, username, reason=""):
-        self._timeout(username, 30, reason)
-        self.execute_delayed(1, self._ban, (username, reason))
+    def ban(self, user, reason=None):
+        self.timeout(user, 30, reason, once=True)
+        self.execute_delayed(1, self._ban, user.login, reason)
 
-    def ban_user(self, user, reason=""):
-        self._timeout(user.username, 30, reason)
-        self.execute_delayed(1, self._ban, (user.username, reason))
+    def unban(self, user):
+        self.privmsg(f"/unban {user.login}")
 
-    def unban(self, username):
-        self.privmsg(".unban {0}".format(username), increase_message=False)
+    def untimeout(self, user):
+        self.privmsg(f"/untimeout {user.login}")
 
-    def _timeout(self, username, duration, reason=""):
-        self.privmsg(".timeout {0} {1} {2}".format(username, duration, reason), increase_message=False)
+    def _timeout(self, login, duration, reason=None):
+        message = f"/timeout {login} {duration}"
+        if reason is not None:
+            message += f" {reason}"
+        self.privmsg(message)
 
-    def timeout(self, username, duration, reason=""):
-        self._timeout(username, duration, reason)
-        self.execute_delayed(1, self._timeout, (username, duration, reason))
+    def timeout(self, user, duration, reason=None, once=False):
+        self._timeout(user.login, duration, reason)
+        if not once:
+            self.execute_delayed(1, self._timeout, user.login, duration, reason)
 
-    def timeout_warn(self, user, duration, reason=""):
+    def timeout_login(self, login, duration, reason=None, once=False):
+        self._timeout(login, duration, reason)
+        if not once:
+            self.execute_delayed(1, self._timeout, login, duration, reason)
+
+    def timeout_warn(self, user, duration, reason=None):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
-        self.timeout(user.username, duration, reason)
+        self.timeout(user, duration, reason)
         return (duration, punishment)
 
-    def timeout_user(self, user, duration, reason=""):
-        self._timeout(user.username, duration, reason)
-        self.execute_delayed(1, self._timeout, (user.username, duration, reason))
-
-    def timeout_user_once(self, user, duration, reason):
-        self._timeout(user.username, duration, reason)
-
-    def _timeout_user(self, user, duration, reason=""):
-        self._timeout(user.username, duration, reason)
-
     def delete_message(self, msg_id):
-        self.privmsg(".delete {0}".format(msg_id))
+        self.privmsg(f"/delete {msg_id}")
 
-    def whisper(self, username, *messages, separator=". ", **rest):
-        """
-        Takes a sequence of strings and concatenates them with separator.
-        Then sends that string as a whisper to username
-        """
+    def whisper(self, user, message):
+        return self.irc.whisper(user.login, message)
 
-        if len(messages) < 0:
-            return False
+    def whisper_login(self, login, message):
+        return self.irc.whisper(login, message)
 
-        message = separator.join(messages)
-
-        return self.irc.whisper(username, message)
-
-    def send_message_to_user(self, user, message, event, separator=". ", method="say"):
+    def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
-            self.say(user.username + ", " + lowercase_first_letter(message), separator=separator)
+            self.say(user.name + ", " + lowercase_first_letter(message))
         elif method == "whisper":
-            self.whisper(user.username, message, separator=separator)
+            self.whisper(user, message)
         elif method == "me":
             self.me(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
-                self.say(message, separator=separator)
+                self.say(message)
             elif event.type == "whisper":
-                self.whisper(user.username, message, separator=separator)
+                self.whisper(user, message)
         else:
             log.warning("Unknown send_message method: %s", method)
 
@@ -593,28 +599,21 @@ class Bot:
         # Check for banphrases
         res = self.banphrase_manager.check_message(message, None)
         if res is not False:
-            self.privmsg("filtered message ({})".format(res.id), channel, increase_message)
+            self.privmsg(f"filtered message ({res.id})", channel, increase_message)
             return
 
         self.privmsg(message, channel, increase_message)
 
-    def say(self, *messages, channel=None, separator=". "):
-        """
-        Takes a sequence of strings and concatenates them with separator.
-        Then sends that string to the given channel.
-        """
+    def say(self, message, channel=None):
+        if message is None:
+            log.warning("message=None passed to Bot::say()")
+            return
 
-        if len(messages) < 0:
-            return False
+        if self.silent:
+            return
 
-        if not self.silent:
-            message = separator.join(messages).strip()
-
-            message = utils.clean_up_message(message)
-            if not message:
-                return False
-
-            self.privmsg(message[:510], channel)
+        message = utils.clean_up_message(message)
+        self.privmsg(message[:510], channel)
 
     def is_bad_message(self, message):
         return self.banphrase_manager.check_message(message, None) is not False
@@ -624,7 +623,7 @@ class Bot:
             self.me(message, channel)
 
     def me(self, message, channel=None):
-        self.say(".me " + message[:500], channel=channel)
+        self.say("/me " + message[:500], channel=channel)
 
     def on_welcome(self, chatconn, event):
         return self.irc.on_welcome(chatconn, event)
@@ -638,37 +637,23 @@ class Bot:
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
 
-        emote_tag = None
-        msg_id = None
+        emote_tag = tags["emotes"]
+        msg_id = tags.get("id", None)  # None on whispers!
 
-        for tag in tags:
-            if tag["key"] == "subscriber" and event.target == self.channel:
-                source.subscriber = tag["value"] == "1"
-            elif tag["key"] == "emotes":
-                emote_tag = tag["value"]
-            elif tag["key"] == "display-name" and tag["value"]:
-                source.username_raw = tag["value"]
-            elif tag["key"] == "user-type":
-                source.moderator = tag["value"] == "mod" or source.username == self.streamer
-            elif tag["key"] == "id":
-                msg_id = tag["value"]
+        if not whisper and event.target == self.channel:
+            source.moderator = tags["mod"] == "1"
+            source.subscriber = tags["subscriber"] == "1"
 
-        # source.num_lines += 1
-
-        if source is None:
-            log.error("No valid user passed to parse_message")
+        if not whisper and source.banned:
+            self.ban(source.login)
             return False
-
-        if source.banned:
-            self.ban(source.username)
-            return False
-
-        # If a user types when timed out, we assume he's been unbanned for a good reason and remove his flag.
-        if source.timed_out is True:
-            source.timed_out = False
 
         # Parse emotes in the message
         emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
+
+        now = utils.now()
+        source.last_seen = now
+        source.last_active = now
 
         if not whisper:
             # increment epm and ecount
@@ -691,9 +676,6 @@ class Bot:
         if res is False:
             return False
 
-        source.last_seen = utils.now()
-        source.last_active = utils.now()
-
         if source.ignored:
             return False
 
@@ -713,11 +695,15 @@ class Bot:
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
 
     def on_whisper(self, chatconn, event):
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        username = event.source.user.lower()
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
-        with self.users.get_user_context(username) as source:
-            self.parse_message(event.arguments[0], source, event, whisper=True, tags=event.tags)
+        id = tags["user-id"]
+        login = event.source.user
+        name = tags["display-name"]
+
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
+            self.parse_message(event.arguments[0], source, event, tags, whisper=True)
 
     def on_ping(self, chatconn, event):
         self.last_ping = utils.now()
@@ -726,34 +712,39 @@ class Bot:
         self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        tags = {}
-        for d in event.tags:
-            tags[d["key"]] = d["value"]
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
-        if "login" not in tags:
-            return
+        id = tags["user-id"]
+        login = tags["login"]
+        name = tags["display-name"]
 
-        username = tags["login"]
-
-        with self.users.get_user_context(username) as source:
-            msg = ""
-            if event.arguments:
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
+            if event.arguments and len(event.arguments) > 0:
                 msg = event.arguments[0]
+            else:
+                msg = None  # e.g. user didn't type an extra message to share with the streamer
             HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
+
+            if msg is not None:
+                self.parse_message(msg, source, event, tags)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
 
     def on_pubmsg(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        id = tags["user-id"]
+        login = event.source.user
+        name = tags["display-name"]
+
         if event.source.user == self.nickname:
             return False
 
-        username = event.source.user.lower()
-
         if self.streamer == "forsen":
-            if "zonothene" in username:
-                self._ban(username)
+            if "zonothene" in login:
+                self._ban(login)
                 return True
 
             raw_m = event.arguments[0].lower()
@@ -772,21 +763,21 @@ class Bot:
                     return True
 
         if self.streamer == "nymn":
-            if "hades_k" in username:
-                self._timeout(username, 3600)
+            if "hades_k" in login:
+                self.timeout_login(login, 3600, reason="Bad username")
                 return True
 
-            if "hades_b" in username:
-                self._timeout(username, 3600)
+            if "hades_b" in login:
+                self.timeout_login(login, 3600, reason="Bad username")
                 return True
 
-        # We use .lower() in case twitch ever starts sending non-lowercased usernames
-        with self.users.get_user_context(username) as source:
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            source = User.from_basics(db_session, UserBasics(id, login, name))
             res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
             if res is False:
                 return False
 
-            self.parse_message(event.arguments[0], source, event, tags=event.tags)
+            self.parse_message(event.arguments[0], source, event, tags=tags)
 
     @time_method
     def commit_all(self):
@@ -803,7 +794,7 @@ class Bot:
         quit_chub = self.config["main"].get("control_hub", None)
         quit_delay = 0
 
-        if quit_chub is not None and event.target == ("#{}".format(quit_chub)):
+        if quit_chub is not None and event.target == f"#{quit_chub}":
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -890,7 +881,7 @@ def _filter_join(var, args):
 
 def _filter_number_format(var, args):
     try:
-        return "{0:,d}".format(int(var))
+        return f"{int(var):,d}"
     except:
         log.exception("asdasd")
     return var

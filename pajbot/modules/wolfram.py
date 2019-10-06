@@ -106,7 +106,7 @@ class WolframModule(BaseModule):
             res = requests.get("https://api.wolframalpha.com/v2/query", params=query_parameters)
             answer = res.json()["queryresult"]
 
-            base_reply = "{0}, ".format(source.username_raw)
+            base_reply = f"{source}, "
 
             is_error = answer["error"]
             is_success = answer["success"]
@@ -144,7 +144,7 @@ class WolframModule(BaseModule):
                 subpods = pod["subpods"]
                 stringified_subpods = map(stringify_subpod, subpods)
                 all_subpods = " / ".join(stringified_subpods)
-                return "{0}: {1}".format(pod["title"], all_subpods)
+                return f"{pod['title']}: {all_subpods}"
 
             # find the right pods to print to chat.
             # if there is an "Input" and "Result" pod, choose those two.

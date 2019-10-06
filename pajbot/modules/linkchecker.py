@@ -4,13 +4,12 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
+from datetime import timedelta
 from sqlalchemy import Column, INT, TEXT
 
 import pajbot.managers
 import pajbot.models
 import pajbot.utils
-from pajbot.actions import Action
-from pajbot.actions import ActionQueue
 from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base
@@ -185,9 +184,6 @@ class LinkCheckerModule(BaseModule):
 
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
 
-        self.action_queue = ActionQueue()
-        self.action_queue.start()
-
         if bot and "safebrowsingapi" in bot.config["main"]:
             # XXX: This should be loaded as a setting instead.
             # There needs to be a setting for settings to have them as "passwords"
@@ -226,9 +222,7 @@ class LinkCheckerModule(BaseModule):
 
     def reload(self):
 
-        log.info(
-            "Loaded {0} bad links and {1} good links".format(len(self.blacklisted_links), len(self.whitelisted_links))
-        )
+        log.info(f"Loaded {len(self.blacklisted_links)} bad links and {len(self.whitelisted_links)} good links")
         return self
 
     super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
@@ -264,22 +258,20 @@ class LinkCheckerModule(BaseModule):
                             whitelisted = True
                             break
                     if whitelisted is False:
-                        self.bot.timeout(source.username, 30, reason=ban_reason)
-                        if source.minutes_in_chat_online > 60:
-                            self.bot.whisper(source.username, whisper_reason)
+                        self.bot.timeout(source, 30, reason=ban_reason)
+                        if source.time_in_chat_online >= timedelta(hours=1):
+                            self.bot.whisper(source, whisper_reason)
                         return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
-            action = Action(
-                self.bot.timeout,
-                args=[source.username, self.settings["timeout_length"]],
-                kwargs={"reason": "Banned link"},
-            )
+            def action():
+                self.bot.timeout(source, self.settings["timeout_length"], reason="Banned link")
+
             # First we perform a basic check
             if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
                 # If the basic check returns no relevant data, we queue up a proper check on the URL
-                self.action_queue.add(self.check_url, url, action)
+                self.bot.action_queue.submit(self.check_url, url, action)
 
     def on_commit(self, **rest):
         if self.db_session is not None:
@@ -287,19 +279,17 @@ class LinkCheckerModule(BaseModule):
 
     def delete_from_cache(self, url):
         if url in self.cache:
-            log.debug("LinkChecker: Removing url {0} from cache".format(url))
             del self.cache[url]
 
     def cache_url(self, url, safe):
         if url in self.cache and self.cache[url] == safe:
             return
 
-        log.debug("LinkChecker: Caching url {0} as {1}".format(url, "SAFE" if safe is True else "UNSAFE"))
         self.cache[url] = safe
-        self.bot.execute_delayed(20, self.delete_from_cache, (url,))
+        self.bot.execute_delayed(20, self.delete_from_cache, url)
 
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
-        log.debug("LinkChecker: BAD URL FOUND {0}".format(url.url))
+        log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
             action.run()
         if want_to_cache:
@@ -412,21 +402,16 @@ class LinkCheckerModule(BaseModule):
         0 = Link needs further analysis
         """
         if url.url in self.cache:
-            log.debug("LinkChecker: Url {0} found in cache".format(url.url))
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
                 return self.RET_BAD_LINK
             return self.RET_GOOD_LINK
 
-        log.info("Checking if link is blacklisted...")
         if self.is_blacklisted(url.url, url.parsed, sublink):
-            log.debug("LinkChecker: Url {0} is blacklisted".format(url.url))
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             return self.RET_BAD_LINK
 
-        log.info("Checking if link is whitelisted...")
         if self.is_whitelisted(url.url, url.parsed):
-            log.debug("LinkChecker: Url {0} allowed by the whitelist".format(url.url))
             self.cache_url(url.url, True)
             return self.RET_GOOD_LINK
 
@@ -452,8 +437,6 @@ class LinkCheckerModule(BaseModule):
             log.exception("LinkChecker unhandled exception while _check_url")
 
     def _check_url(self, url, action):
-        log.debug("LinkChecker: Checking url {0}".format(url.url))
-
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
         if res == self.RET_GOOD_LINK:
@@ -519,11 +502,11 @@ class LinkCheckerModule(BaseModule):
                 html += str(chunk)
 
         except requests.exceptions.ConnectTimeout:
-            log.warning("Connection timed out while checking {0}".format(url.url))
+            log.warning(f"Connection timed out while checking {url.url}")
             self.cache_url(url.url, True)
             return
         except requests.exceptions.ReadTimeout:
-            log.warning("Reading timed out while checking {0}".format(url.url))
+            log.warning(f"Reading timed out while checking {url.url}")
             self.cache_url(url.url, True)
             return
         except:
@@ -554,7 +537,6 @@ class LinkCheckerModule(BaseModule):
                 # log.debug('Skipping because internal link')
                 continue
 
-            log.debug("Checking sublink {0}".format(url.url))
             res = self.basic_check(url, action, sublink=True)
             if res == self.RET_BAD_LINK:
                 self.counteract_bad_url(url)
@@ -581,7 +563,7 @@ class LinkCheckerModule(BaseModule):
                     continue
 
             if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
-                log.debug("Evil sublink {0} by google API".format(url))
+                log.debug(f"Evil sublink {url} by google API")
                 self.counteract_bad_url(original_url, action)
                 self.counteract_bad_url(original_redirected_url)
                 self.counteract_bad_url(url)
@@ -701,11 +683,7 @@ class LinkCheckerModule(BaseModule):
             },
         )
 
-    def add_link_blacklist(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def add_link_blacklist(self, bot, source, message, **rest):
         options, new_links = self.parse_link_blacklist_arguments(message)
 
         if new_links:
@@ -715,21 +693,17 @@ class LinkCheckerModule(BaseModule):
                     if len(link) > 1:
                         self.blacklist_url(link, **options)
                         AdminLogManager.post("Blacklist link added", source, link)
-                bot.whisper(source.username, "Successfully added your links")
+                bot.whisper(source, "Successfully added your links")
                 return True
             except:
                 log.exception("Unhandled exception in add_link_blacklist")
-                bot.whisper(source.username, "Some error occurred while adding your links")
+                bot.whisper(source, "Some error occurred while adding your links")
                 return False
         else:
-            bot.whisper(source.username, "Usage: !add link blacklist LINK")
+            bot.whisper(source, "Usage: !add link blacklist LINK")
             return False
 
-    def add_link_whitelist(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def add_link_whitelist(self, bot, source, message, **rest):
         parts = message.split(" ")
         try:
             for link in parts:
@@ -737,66 +711,58 @@ class LinkCheckerModule(BaseModule):
                 AdminLogManager.post("Whitelist link added", source, link)
         except:
             log.exception("Unhandled exception in add_link")
-            bot.whisper(source.username, "Some error occurred white adding your links")
+            bot.whisper(source, "Some error occurred white adding your links")
             return False
 
-        bot.whisper(source.username, "Successfully added your links")
+        bot.whisper(source, "Successfully added your links")
 
-    def remove_link_blacklist(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+    def remove_link_blacklist(self, bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !remove link blacklist ID")
+            return False
 
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
+        id = None
+        try:
+            id = int(message)
+        except ValueError:
+            pass
 
-            link = self.db_session.query(BlacklistedLink).filter_by(id=id).one_or_none()
+        link = self.db_session.query(BlacklistedLink).filter_by(id=id).one_or_none()
 
-            if link:
-                self.blacklisted_links.remove(link)
-                self.db_session.delete(link)
-                self.db_session.commit()
-            else:
-                bot.whisper(source.username, "No link with the given id found")
-                return False
-
-            AdminLogManager.post("Blacklist link removed", source, link.domain)
-            bot.whisper(source.username, "Successfully removed blacklisted link with id {0}".format(link.id))
+        if link:
+            self.blacklisted_links.remove(link)
+            self.db_session.delete(link)
+            self.db_session.commit()
         else:
-            bot.whisper(source.username, "Usage: !remove link blacklist ID")
+            bot.whisper(source, "No link with the given id found")
             return False
 
-    def remove_link_whitelist(self, **options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
+        AdminLogManager.post("Blacklist link removed", source, link.domain)
+        bot.whisper(source, f"Successfully removed blacklisted link with id {link.id}")
 
-        if message:
-            id = None
-            try:
-                id = int(message)
-            except ValueError:
-                pass
+    def remove_link_whitelist(self, bot, source, message, **rest):
+        if not message:
+            bot.whisper(source, "Usage: !remove link whitelist ID")
+            return False
 
-            link = self.db_session.query(WhitelistedLink).filter_by(id=id).one_or_none()
+        id = None
+        try:
+            id = int(message)
+        except ValueError:
+            pass
 
-            if link:
-                self.whitelisted_links.remove(link)
-                self.db_session.delete(link)
-                self.db_session.commit()
-            else:
-                bot.whisper(source.username, "No link with the given id found")
-                return False
+        link = self.db_session.query(WhitelistedLink).filter_by(id=id).one_or_none()
 
-            AdminLogManager.post("Whitelist link removed", source, link.domain)
-            bot.whisper(source.username, "Successfully removed whitelisted link with id {0}".format(link.id))
+        if link:
+            self.whitelisted_links.remove(link)
+            self.db_session.delete(link)
+            self.db_session.commit()
         else:
-            bot.whisper(source.username, "Usage: !remove link whitelist ID")
+            bot.whisper(source, "No link with the given id found")
             return False
+
+        AdminLogManager.post("Whitelist link removed", source, link.domain)
+        bot.whisper(source, f"Successfully removed whitelisted link with id {link.id}")
 
     @staticmethod
     def parse_link_blacklist_arguments(message):

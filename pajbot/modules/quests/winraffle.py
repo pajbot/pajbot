@@ -20,10 +20,10 @@ class WinRaffleQuestModule(BaseQuest):
 
     @staticmethod
     def on_paid_timeout(source, victim, cost):
-        log.warning("{} just timed out {} for {} points".format(source, victim, cost))
+        log.warning(f"{source} just timed out {victim} for {cost} points")
 
     def winraffle_progress_quest(self, winner):
-        user_progress = self.get_user_progress(winner.username, 0) + 1
+        user_progress = self.get_user_progress(winner, 0) + 1
         if user_progress > 1:
             # User has already finished this quest
             return
@@ -32,7 +32,7 @@ class WinRaffleQuestModule(BaseQuest):
 
         self.finish_quest(redis, winner)
 
-        self.set_user_progress(winner.username, user_progress, redis=redis)
+        self.set_user_progress(winner, user_progress, redis=redis)
 
     def on_raffle_win(self, winner, **rest):
         self.winraffle_progress_quest(winner)

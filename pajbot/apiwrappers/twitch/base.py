@@ -31,13 +31,9 @@ class BaseTwitchAPI(BaseAPI):
         if isinstance(authorization, ClientCredentials):
             auth_headers = {"Client-ID": authorization.client_id}
         elif isinstance(authorization, AccessTokenManager):
-            auth_headers = {
-                "Authorization": "{} {}".format(self.authorization_header_prefix, authorization.token.access_token)
-            }
+            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}"}
         elif isinstance(authorization, AccessToken):
-            auth_headers = {
-                "Authorization": "{} {}".format(self.authorization_header_prefix, authorization.access_token)
-            }
+            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.access_token}"}
         else:
             auth_headers = {}
 
@@ -49,7 +45,7 @@ class BaseTwitchAPI(BaseAPI):
         try:
             return super().request(method, endpoint, params, headers, json)
         except HTTPError as e:
-            if not (
+            if (
                 # we got a WWW-Authenticate and status 401 back
                 e.response.status_code == 401
                 and "WWW-Authenticate" in e.response.headers
@@ -57,13 +53,12 @@ class BaseTwitchAPI(BaseAPI):
                 and isinstance(authorization, AccessTokenManager)
                 and authorization.can_refresh()
             ):
+                # refresh...
+                authorization.refresh()
+                # then retry once.
+                return super().request(method, endpoint, params, headers, json)
+            else:
                 raise e
-
-            # refresh...
-            authorization.refresh()
-
-            # then retry once.
-            return super().request(method, endpoint, params, headers, json)
 
     def get(self, endpoint, params=None, headers=None, authorization=None):
         return self.request("GET", endpoint, params, headers, authorization).json()

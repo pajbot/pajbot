@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 def generate_winner_list(winners):
     """ Takes a list of winners, and combines them into a string. """
-    return ", ".join([winner.username_raw for winner in winners])
+    return ", ".join(winners)
 
 
 class RaffleModule(BaseModule):
@@ -232,13 +232,9 @@ class RaffleModule(BaseModule):
         else:
             self.commands["raffle"] = self.commands["singleraffle"]
 
-    def raffle(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say("{0}, a raffle is already running OMGScoots".format(source.username_raw))
+            bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         self.raffle_users = []
@@ -271,21 +267,20 @@ class RaffleModule(BaseModule):
 
         if self.settings["show_on_clr"]:
             bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
-            bot.execute_delayed(0.75, bot.websocket_manager.emit, ("notification", {"message": "Type !join to enter!"}))
+            bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         bot.say(self.get_phrase("message_start", **arguments))
         arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.25, bot.say, (self.get_phrase("message_running", **arguments),))
+        bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
         arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.50, bot.say, (self.get_phrase("message_running", **arguments),))
+        bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
         arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.75, bot.say, (self.get_phrase("message_running", **arguments),))
+        bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
-    def join(self, **options):
-        source = options["source"]
+    def join(self, source, **rest):
         if not self.raffle_running:
             return False
 
@@ -312,16 +307,11 @@ class RaffleModule(BaseModule):
 
         if self.settings["show_on_clr"]:
             self.bot.websocket_manager.emit(
-                "notification",
-                {"message": "{} won {} points in the raffle!".format(winner.username_raw, self.raffle_points)},
+                "notification", {"message": f"{winner} won {self.raffle_points} points in the raffle!"}
             )
-            self.bot.me(
-                "The raffle has finished! {0} won {1} points! PogChamp".format(winner.username_raw, self.raffle_points)
-            )
+            self.bot.me(f"The raffle has finished! {winner} won {self.raffle_points} points! PogChamp")
 
         winner.points += self.raffle_points
-
-        winner.save()
 
         HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
 
@@ -344,33 +334,29 @@ class RaffleModule(BaseModule):
         if self.settings["show_on_clr"]:
             self.bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
             self.bot.execute_delayed(
-                0.75, self.bot.websocket_manager.emit, ("notification", {"message": "Type !join to enter!"})
+                0.75, self.bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"}
             )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         self.bot.say(self.get_phrase("message_start_multi", **arguments))
         arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.25, self.bot.say, (self.get_phrase("message_running_multi", **arguments),)
+            self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
         arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.50, self.bot.say, (self.get_phrase("message_running_multi", **arguments),)
+            self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
         arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.75, self.bot.say, (self.get_phrase("message_running_multi", **arguments),)
+            self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 
-    def multi_raffle(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def multi_raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say("{0}, a raffle is already running OMGScoots".format(source.username_raw))
+            bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         points = 100
@@ -415,12 +401,12 @@ class RaffleModule(BaseModule):
         negative = self.raffle_points < 0
 
         # Decide how we should pick the winners
-        log.info("Num participants: {}".format(num_participants))
+        log.info(f"Num participants: {num_participants}")
         for winner_percentage in [x * 0.01 for x in range(1, 26)]:
-            log.info("Winner percentage: {}".format(winner_percentage))
+            log.info(f"Winner percentage: {winner_percentage}")
             num_winners = math.ceil(num_participants * winner_percentage)
             points_per_user = math.ceil(abs_points / num_winners)
-            log.info("nw: {}, ppu: {}".format(num_winners, points_per_user))
+            log.info(f"nw: {num_winners}, ppu: {points_per_user}")
 
             if num_winners > max_winners:
                 num_winners = max_winners
@@ -431,18 +417,14 @@ class RaffleModule(BaseModule):
                 points_per_user = math.ceil(abs_points / num_winners)
                 break
 
-        log.info("k done. got {} winners".format(num_winners))
+        log.info(f"k done. got {num_winners} winners")
         winners = self.raffle_users[:num_winners]
         self.raffle_users = []
 
         if negative:
             points_per_user *= -1
 
-        self.bot.me(
-            "The multi-raffle has finished! {0} users won {1} points each! PogChamp".format(
-                len(winners), points_per_user
-            )
-        )
+        self.bot.me(f"The multi-raffle has finished! {len(winners)} users won {points_per_user} points each! PogChamp")
 
         winners_arr = []
         for winner in winners:
@@ -451,14 +433,12 @@ class RaffleModule(BaseModule):
 
             winners_str = generate_winner_list(winners_arr)
             if len(winners_str) > 300:
-                self.bot.me("{} won {} points each!".format(winners_str, points_per_user))
+                self.bot.me(f"{winners_str} won {points_per_user} points each!")
                 winners_arr = []
-
-            winner.save()
 
         if len(winners_arr) > 0:
             winners_str = generate_winner_list(winners_arr)
-            self.bot.me("{} won {} points each!".format(winners_str, points_per_user))
+            self.bot.me(f"{winners_str} won {points_per_user} points each!")
 
         HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 

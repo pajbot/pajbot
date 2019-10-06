@@ -52,29 +52,23 @@ class PaidSubmodeModule(BaseModule):
         ),
     ]
 
-    def paid_subon(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def paid_subon(self, bot, source, **rest):
         _cost = self.settings["subon_cost"]
 
         # Test this a bit. Make sure twitch doesn't bug out
         bot.privmsg(".subscribers")
-        bot.execute_delayed(0.2, bot.privmsg, (".subscribers",))
+        bot.execute_delayed(0.2, bot.privmsg, ".subscribers")
 
-        bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
+        bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
 
-    def paid_suboff(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-
+    def paid_suboff(self, bot, source, **rest):
         _cost = self.settings["suboff_cost"]
 
         # Test this a bit. Make sure twitch doesn't bug out
         bot.privmsg(".subscribersoff")
-        bot.execute_delayed(0.2, bot.privmsg, (".subscribersoff",))
+        bot.execute_delayed(0.2, bot.privmsg, ".subscribersoff")
 
-        bot.whisper(source.username, "You just used {} points to put the chat into subscribers mode!".format(_cost))
+        bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
 
     def load_commands(self, **options):
         self.commands[

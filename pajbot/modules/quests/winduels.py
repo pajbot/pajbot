@@ -35,7 +35,7 @@ class WinDuelsQuestModule(BaseQuest):
         if points_won < 1:
             return
 
-        user_progress = self.get_user_progress(winner.username, default=0)
+        user_progress = self.get_user_progress(winner, default=0)
         if user_progress >= self.get_limit():
             return
 
@@ -46,7 +46,7 @@ class WinDuelsQuestModule(BaseQuest):
         if user_progress == self.get_limit():
             self.finish_quest(redis, winner)
 
-        self.set_user_progress(winner.username, user_progress, redis=redis)
+        self.set_user_progress(winner, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
@@ -63,4 +63,4 @@ class WinDuelsQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
 
     def get_objective(self):
-        return "Win {} duels and make profit in every duel.".format(self.get_limit())
+        return f"Win {self.get_limit()} duels and make profit in every duel."

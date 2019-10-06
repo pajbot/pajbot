@@ -1,5 +1,41 @@
 # Changelog
 
+## Unversioned
+
+Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!
+
+- Major: User data is not stored in redis anymore. Relevant data will automatically be migrated.
+- Major: Added automatic support for Twitch name changes. (`!namechange` command has been removed.)
+
+  This includes a potentially quite large (might take long on large databases) automatic migration that will:
+
+  - Query the Twitch API for the User ID of all your current existing users, and
+  - Delete data about the users that don't exist on Twitch anymore.
+
+  For this reason, a database backup for your old data is recommended before this upgrade:
+
+  ```bash
+  sudo -u pajbot pg_dump --file=sql_dump_streamer.sql --schema=pajbot1_streamer pajbot
+  sudo -u pajbot pg_dump --file=sql_dump_all.sql pajbot
+  ```
+
+- Feature: Added module to fetch current chatters and update the database back to the bot (was previously [a microservice](https://github.com/pajbot/chatters)). Includes a new `!reload chatters` command.
+- Feature: Added `!reload subscribers` command to force refresh of subscriber status in the DB.
+- Minor: Added `?user_input=true` optional parameter to `/api/v1/users/:login` endpoint to query for usernames more fuzzily.
+- Minor: Added `/api/v1/users/id/:id` to look up users by ID.
+- Minor: Removed system to synchronize points updates to StreamElements.
+- Minor: Small improvement made to the efficiency of caching data from the Twitch API.
+- Minor: Added the `points_rank` user property back.
+- Minor: Added a dump/restore utility for redis data to the `scripts` directory.
+- Minor: Removed some unfinished test code related to notifications.
+- Minor: Placed reasonable minimum/maximum limits on the `Seconds until betting closes` setting for the HSBet module.
+- Minor: Added setting to adjust points tax for the duel module
+- Minor: Link checker module now prints far less debug info about itself.
+- Bugfix: Errors in the main thread no longer exit the bot (#443)
+- Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
+- Bugfix: Removed unfinished "email tag" API.
+- Bugfix: If the bot is restarted during an active HSBet game, bets will no longer be lost.
+
 ## v1.37
 
 Remember to bring your dependencies up to date with

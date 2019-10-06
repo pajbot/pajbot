@@ -3,6 +3,7 @@ import logging
 import re
 
 import sqlalchemy
+from datetime import timedelta
 from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -83,7 +84,7 @@ class Banphrase(Base):
         return self.phrase
 
     def refresh_operator(self):
-        self.predicate = getattr(self, "predicate_{}".format(self.operator), None)
+        self.predicate = getattr(self, f"predicate_{self.operator}", None)
 
         self.compiled_regex = None
         if self.operator == "regex":
@@ -93,7 +94,7 @@ class Banphrase(Base):
                 else:
                     self.compiled_regex = re.compile(self.phrase, flags=re.IGNORECASE)
             except Exception:
-                log.exception("Unable to compile regex: {}".format(self.phrase))
+                log.exception(f"Unable to compile regex: {self.phrase}")
 
     def predicate_contains(self, message):
         return self.get_phrase() in self.format_message(message)
@@ -174,8 +175,8 @@ class BanphraseData(Base):
 
     banphrase_id = Column(INT, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False)
     num_uses = Column(INT, nullable=False, default=0)
-    added_by = Column(INT, nullable=True)
-    edited_by = Column(INT, nullable=True)
+    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship(
         "User",
@@ -319,11 +320,11 @@ class BanphraseManager:
         if banphrase.data is not None:
             banphrase.data.num_uses += 1
 
-        reason = "Banned phrase {} ({})".format(banphrase.id, banphrase.name)
+        reason = f"Banned phrase {banphrase.id} ({banphrase.name})"
         if banphrase.permanent is True:
             # Permanently ban user
             punishment = "permanently banned"
-            self.bot.ban(user.username, reason=reason)
+            self.bot.ban(user, reason=reason)
         else:
             # Timeout user
             timeout_length, punishment = user.timeout(
@@ -331,14 +332,14 @@ class BanphraseManager:
             )
 
             # Finally, time out the user for whatever timeout length was required.
-            self.bot.timeout(user.username, timeout_length, reason=reason)
+            self.bot.timeout(user, timeout_length, reason=reason)
 
-        if banphrase.notify is True and user.minutes_in_chat_online > 60:
+        if banphrase.notify is True and user.time_in_chat_online >= timedelta(hours=1):
             # Notify the user why he has been timed out if the banphrase wishes it.
-            notification_msg = 'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'.format(
-                punishment=punishment, banphrase=banphrase
+            notification_msg = (
+                f'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'
             )
-            self.bot.whisper(user.username, notification_msg)
+            self.bot.whisper(user, notification_msg)
 
     def check_message(self, message, user):
         matched_banphrase = None

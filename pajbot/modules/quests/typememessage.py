@@ -46,7 +46,7 @@ class TypeMeMessageQuestModule(BaseQuest):
         if len(message) < self.get_quest_message_length() or event.type != "action":
             return
 
-        user_progress = self.get_user_progress(source.username, default=0)
+        user_progress = self.get_user_progress(source, default=0)
 
         if user_progress >= self.get_limit():
             return
@@ -58,7 +58,7 @@ class TypeMeMessageQuestModule(BaseQuest):
         if user_progress == self.get_limit():
             self.finish_quest(redis, source)
 
-        self.set_user_progress(source.username, user_progress, redis=redis)
+        self.set_user_progress(source, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)
@@ -75,6 +75,4 @@ class TypeMeMessageQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
 
     def get_objective(self):
-        return "Type {0} /me messages with a length of minimum {1} letters KappaPride ".format(
-            self.get_limit(), self.get_quest_message_length()
-        )
+        return f"Type {self.get_limit()} /me messages with a length of minimum {self.get_quest_message_length()} letters KappaPride "

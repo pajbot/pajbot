@@ -23,7 +23,8 @@ class APISocialSet(Resource):
         if social_key not in StreamHelper.valid_social_keys:
             return {"error": "invalid social key"}, 400
 
-        key = "{streamer}:{key}".format(streamer=streamer, key=social_key)
+        # TODO key by streamer ID?
+        key = f"{streamer}:{social_key}"
         redis = RedisManager.get()
 
         if len(args["value"]) == 0:

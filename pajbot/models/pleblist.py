@@ -16,8 +16,8 @@ class PleblistSong(Base):
     __tablename__ = "pleblist_song"
 
     id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id"), index=True, nullable=False)
-    user_id = Column(INT, nullable=True)
+    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     youtube_id = Column(TEXT, index=True, nullable=False)
     date_added = Column(UtcDateTime(), nullable=False)
     date_played = Column(UtcDateTime(), nullable=True)
@@ -54,7 +54,7 @@ class PleblistSong(Base):
 
     @property
     def link(self):
-        return "youtu.be/{}".format(self.youtube_id)
+        return f"youtu.be/{self.youtube_id}"
 
 
 class PleblistSongInfo(Base):
@@ -120,7 +120,7 @@ class PleblistManager:
             return False
 
         if not video_response.get("items", []):
-            log.warning("Got no valid responses for {}".format(youtube_id))
+            log.warning(f"Got no valid responses for {youtube_id}")
             return False
 
         video = video_response["items"][0]

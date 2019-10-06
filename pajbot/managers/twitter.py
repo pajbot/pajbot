@@ -66,13 +66,13 @@ class TwitterManager:
             return False
 
         if username in self.listener.relevant_users:
-            log.warning("Already following {0}".format(username))
+            log.warning(f"Already following {username}")
             return False
 
         with DBManager.create_session_scope() as db_session:
             db_session.add(TwitterUser(username))
             self.listener.relevant_users.append(username)
-            log.info("Now following {0}".format(username))
+            log.info(f"Now following {username}")
 
         return True
 
@@ -83,7 +83,7 @@ class TwitterManager:
             return False
 
         if username not in self.listener.relevant_users:
-            log.warning("Trying to unfollow someone we are not following (2) {0}".format(username))
+            log.warning(f"Trying to unfollow someone we are not following (2) {username}")
             return False
 
         self.listener.relevant_users.remove(username)
@@ -95,7 +95,7 @@ class TwitterManager:
                 return False
 
             db_session.delete(user)
-            log.info("No longer following {0}".format(username))
+            log.info(f"No longer following {username}")
 
         return True
 
@@ -110,12 +110,14 @@ class TwitterManager:
 
                 def on_status(self, status):
                     log.debug("On status from tweepy: %s", status.text)
-                    if status.user.screen_name.lower() in self.relevant_users:
-                        if not status.text.startswith("RT ") and status.in_reply_to_screen_name is None:
-                            tw = tweet_prettify_urls(status)
-                            self.bot.say(
-                                "B) New cool tweet from {0}: {1}".format(status.user.screen_name, tw.replace("\n", " "))
-                            )
+                    if (
+                        status.user.screen_name.lower() in self.relevant_users
+                        and not status.text.startswith("RT ")
+                        and status.in_reply_to_screen_name is None
+                    ):
+                        tw = tweet_prettify_urls(status)
+                        tweet_message = tw.replace("\n", " ")
+                        self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
 
                 def on_error(self, status_code):
                     log.warning("Unhandled in twitter stream: %s", status_code)
@@ -171,10 +173,8 @@ class TwitterManager:
                         # Tweepy returns naive datetime object (but it's always UTC)
                         # .replace() makes it timezone-aware :)
                         created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
-                        return "{0} ({1} ago)".format(
-                            tw.replace("\n", " "),
-                            time_since(utils.now().timestamp(), created_at.timestamp(), time_format="short"),
-                        )
+                        tweet_message = tw.replace("\n", " ")
+                        return f"{tweet_message} ({time_since(utils.now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
             except Exception:
                 log.exception("Exception caught while getting last tweet")
                 return "FeelsBadMan"

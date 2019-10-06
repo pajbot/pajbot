@@ -1,5 +1,7 @@
 import logging
 
+from datetime import timedelta
+
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
@@ -77,12 +79,9 @@ class AsciiProtectionModule(BaseModule):
 
         """ We only send a notification to the user if he has spent more than
         one hour watching the stream. """
-        if self.settings["whisper_offenders"] and duration > 0 and source.minutes_in_chat_online > 60:
+        if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
             self.bot.whisper(
-                source.username,
-                "You have been {punishment} because your message contained too many ascii characters.".format(
-                    punishment=punishment
-                ),
+                source, f"You have been {punishment} because your message contained too many ascii characters."
             )
 
         return False

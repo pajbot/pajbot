@@ -1,16 +1,16 @@
 from flask import render_template
 
 from pajbot.managers.db import DBManager
-from pajbot.managers.user import UserManager
 from pajbot.models.roulette import Roulette
+from pajbot.models.user import User
 
 
 def init(app):
-    @app.route("/user/<username>")
-    def user_profile(username):
+    @app.route("/user/<login>")
+    def user_profile(login):
         with DBManager.create_session_scope() as db_session:
-            user = UserManager.find_static(username, db_session=db_session)
-            if not user:
+            user = User.find_by_user_input(db_session, login)
+            if user is None:
                 return render_template("no_user.html"), 404
 
             roulettes = db_session.query(Roulette).filter_by(user_id=user.id).order_by(Roulette.created_at.desc()).all()
@@ -85,7 +85,7 @@ def init(app):
                     "biggest_winstreak": biggest_winstreak,
                     "biggest_losestreak": biggest_losestreak,
                     "winrate": winrate,
-                    "winrate_str": "{:.2f}%".format(winrate * 100),
+                    "winrate_str": f"{winrate * 100:.2f}%",
                     "roulette_base_winrate": roulette_base_winrate,
                 }
 

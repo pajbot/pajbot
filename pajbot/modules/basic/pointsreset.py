@@ -1,7 +1,9 @@
 import logging
 
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule
 
@@ -17,11 +19,7 @@ class PointsResetModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
 
     @staticmethod
-    def points_reset(**options):
-        message = options["message"]
-        bot = options["bot"]
-        source = options["source"]
-
+    def points_reset(bot, source, message, **options):
         if message is None or len(message) == 0:
             return
 
@@ -29,24 +27,20 @@ class PointsResetModule(BaseModule):
         if len(username) < 2:
             return
 
-        with bot.users.find_context(username) as victim:
+        with DBManager.create_session_scope() as db_session:
+            victim = User.find_by_user_input(db_session, username)
             if victim is None:
-                bot.whisper(source.username, "This user does not exist FailFish")
+                bot.whisper(source, "This user does not exist FailFish")
                 return
 
             if victim.points >= 0:
-                bot.whisper(source.username, "{0} doesn't have negative points FailFish".format(victim.username_raw))
+                bot.whisper(source, f"{victim} doesn't have negative points FailFish")
                 return
 
             if victim.points <= -1:
                 old_points = victim.points
                 victim.points = 0
-                bot.whisper(
-                    source.username,
-                    "You changed the points for {0} from {1} to {2} points".format(
-                        victim.username_raw, old_points, victim.points
-                    ),
-                )
+                bot.whisper(source, f"You changed the points for {victim} from {old_points} to {victim.points} points")
 
     def load_commands(self, **options):
         self.commands["pointsreset"] = Command.raw_command(

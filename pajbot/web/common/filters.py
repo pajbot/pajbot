@@ -54,13 +54,18 @@ def init(app):
     def time_ago(t, time_format="long"):
         return pajbot.utils.time_ago(t, time_format=time_format)
 
+    @app.template_filter("format_timedelta")
+    def format_timedelta(t, time_format="long"):
+        v = pajbot.utils.time_since(t.total_seconds(), 0, time_format=time_format)
+        return "None" if len(v) == 0 else v
+
     @app.template_filter("time_diff")
     def time_diff(t1, t2, time_format="long"):
         return pajbot.utils.time_since(t1.timestamp(), t2.timestamp(), time_format=time_format)
 
     @app.template_filter("time_ago_timespan_seconds")
     def time_ago_timespan_seconds(t, time_format="long"):
-        v = pajbot.utils.time_since(t, 0, time_format=format)
+        v = pajbot.utils.time_since(t, 0, time_format=time_format)
         return "None" if len(v) == 0 else v
 
     @app.template_filter("seconds_to_vodtime")

@@ -182,8 +182,6 @@ class TimerManager:
         self.redistribute_timers()
 
         log.info(
-            "Loaded {} timers ({} online/{} offline)".format(
-                len(self.timers), len(self.online_timers), len(self.offline_timers)
-            )
+            f"Loaded {len(self.timers)} timers ({len(self.online_timers)} online/{len(self.offline_timers)} offline)"
         )
         return self

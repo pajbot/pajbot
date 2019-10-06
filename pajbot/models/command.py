@@ -75,11 +75,11 @@ def parse_command_for_web(alias, command, list):
 class CommandData(Base):
     __tablename__ = "command_data"
 
-    command_id = Column(INT, ForeignKey("command.id"), primary_key=True, autoincrement=False)
+    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
     num_uses = Column(INT, nullable=False, default=0)
 
-    added_by = Column(INT, nullable=True)
-    edited_by = Column(INT, nullable=True)
+    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
 
     user = relationship(
@@ -139,7 +139,7 @@ class CommandExample(Base):
     __tablename__ = "command_example"
 
     id = Column(INT, primary_key=True)
-    command_id = Column(INT, ForeignKey("command.id"), nullable=False)
+    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), nullable=False)
     title = Column(TEXT, nullable=False)
     chat = Column(TEXT, nullable=False)
     description = Column(TEXT, nullable=False)
@@ -276,7 +276,7 @@ class Command(Base):
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
 
     def __str__(self):
-        return "Command(!{})".format(self.command)
+        return f"Command(!{self.command})"
 
     @reconstructor
     def init_on_load(self):
@@ -290,9 +290,7 @@ class Command(Base):
                 self.extra_args.update(json.loads(self.extra_extra_args))
             except:
                 log.exception(
-                    "Unhandled exception caught while loading Command extra arguments ({0})".format(
-                        self.extra_extra_args
-                    )
+                    f"Unhandled exception caught while loading Command extra arguments ({self.extra_extra_args})"
                 )
 
     @classmethod
@@ -383,24 +381,20 @@ class Command(Base):
         time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
         if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
-            log.debug("Command was run {0:.2f} seconds ago, waiting...".format(time_since_last_run))
+            log.debug(f"Command was run {time_since_last_run:.2f} seconds ago, waiting...")
             return False
 
-        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.username, 0)) / cd_modifier
+        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.id, 0)) / cd_modifier
 
         if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
-            log.debug(
-                "{0} ran command {1:.2f} seconds ago, waiting...".format(source.username, time_since_last_run_user)
-            )
+            log.debug(f"{source} ran command {time_since_last_run_user:.2f} seconds ago, waiting...")
             return False
 
         if self.cost > 0 and not source.can_afford(self.cost):
             if self.notify_on_error:
                 bot.whisper(
-                    source.username,
-                    "You do not have the required {} points to execute this command. (You have {} points)".format(
-                        self.cost, source.points_available()
-                    ),
+                    source,
+                    f"You do not have the required {self.cost} points to execute this command. (You have {source.points_available()} points)",
                 )
             # User does not have enough points to use the command
             return False
@@ -408,17 +402,15 @@ class Command(Base):
         if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
             if self.notify_on_error:
                 bot.whisper(
-                    source.username,
-                    "You do not have the required {} tokens to execute this command. (You have {} tokens)".format(
-                        self.tokens_cost, source.tokens
-                    ),
+                    source,
+                    f"You do not have the required {self.tokens_cost} tokens to execute this command. (You have {source.tokens} tokens)",
                 )
             # User does not have enough tokens to use the command
             return False
 
         args.update(self.extra_args)
         if self.run_in_thread:
-            log.debug("Running {} in a thread".format(self))
+            log.debug(f"Running {self} in a thread")
             ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
         else:
             self.run_action(bot, source, message, event, args)
@@ -439,7 +431,7 @@ class Command(Base):
 
             # TODO: Will this be an issue?
             self.last_run = cur_time
-            self.last_run_by_user[source.username] = cur_time
+            self.last_run_by_user[source.id] = cur_time
 
     def autogenerate_examples(self):
         if not self.examples and self.id is not None and self.action and self.action.type == "message":

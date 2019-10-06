@@ -43,13 +43,13 @@ class ModuleSetting:
         So for example, calling validate('50') on a number setting would return (True, 50)
         """
 
-        validator = getattr(self, "validate_{}".format(self.type), None)
+        validator = getattr(self, f"validate_{self.type}", None)
         if validator is None:
-            log.info("No validator available for type {}".format(type))
+            log.info(f"No validator available for type {type}")
             return True, value
 
         if not callable(validator):
-            log.error("Validator is not callable {}".format(type))
+            log.error(f"Validator is not callable {type}")
             return True, value
 
         return validator(value)
@@ -58,9 +58,9 @@ class ModuleSetting:
         """ Validate a text value """
         value = value.strip()
         if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
-            return (False, "needs to be at least {} characters long".format(self.constraints["min_str_len"]))
+            return (False, f"needs to be at least {self.constraints['min_str_len']} characters long")
         if "max_str_len" in self.constraints and len(value) > self.constraints["max_str_len"]:
-            return (False, "needs to be at most {} characters long".format(self.constraints["max_str_len"]))
+            return (False, f"needs to be at most {self.constraints['max_str_len']} characters long")
         return True, value
 
     def validate_number(self, value):
@@ -71,9 +71,9 @@ class ModuleSetting:
             return False, "Not a valid integer"
 
         if "min_value" in self.constraints and value < self.constraints["min_value"]:
-            return (False, "needs to have a value that is at least {}".format(self.constraints["min_value"]))
+            return (False, f"needs to have a value that is at least {self.constraints['min_value']}")
         if "max_value" in self.constraints and value > self.constraints["max_value"]:
-            return (False, "needs to have a value that is at most {}".format(self.constraints["max_value"]))
+            return (False, f"needs to have a value that is at most {self.constraints['max_value']}")
         return True, value
 
     @staticmethod
@@ -171,7 +171,7 @@ class BaseModule:
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False
-            log.debug("{}: {}".format(key, value))
+            log.debug(f"{key}: {value}")
             res, new_value = setting.validate(value)
             if res is False:
                 # Something went wrong when validating one of the settings
@@ -206,16 +206,12 @@ class BaseModule:
             return self.settings[key].format(**arguments)
         except (IndexError, ValueError, KeyError):
             log.warning(
-                'An error occured when formatting phrase "{}". Arguments: ({}) Will fall back to default phrase.'.format(
-                    self.settings[key], arguments
-                )
+                f'An error occured when formatting phrase "{self.settings[key]}". Arguments: ({arguments}) Will fall back to default phrase.'
             )
 
         try:
             return self.default_settings[key].format(**arguments)
         except:
-            log.exception(
-                "ABORT - The default phrase {} is BAD. Arguments: ({})".format(self.default_settings[key], arguments)
-            )
+            log.exception(f"ABORT - The default phrase {self.default_settings[key]} is BAD. Arguments: ({arguments})")
 
         return "FatalError in get_phrase"

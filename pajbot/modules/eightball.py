@@ -107,21 +107,13 @@ class EightBallModule(BaseModule):
             "LUL",
         ]
 
-    def eightball_command(self, **options):
-        source = options["source"]
-        bot = options["bot"]
-        message = options["message"]
-
-        if message and len(message) > 0:
-            phrase = random.choice(self.phrases)
-            emote = random.choice(self.emotes)
-            bot.me(
-                "{source.username_raw}, the 8-ball says... {phrase} {emote}".format(
-                    source=source, phrase=phrase, emote=emote
-                )
-            )
-        else:
+    def eightball_command(self, bot, source, message, **rest):
+        if not message or len(message) <= 0:
             return False
+
+        phrase = random.choice(self.phrases)
+        emote = random.choice(self.emotes)
+        bot.me(f"{source}, the 8-ball says... {phrase} {emote}")
 
     def load_commands(self, **options):
         self.commands["8ball"] = Command.raw_command(

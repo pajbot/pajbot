@@ -22,9 +22,9 @@ def time_since(t1, t2, time_format="long"):
     while i < 2 and j < 6:
         if num[j] > 0:
             if time_format == "long":
-                time_arr.append("{0:g} {1}{2}".format(num[j], num_dict[j], "s" if num[j] > 1 else ""))
+                time_arr.append(f"{num[j]:g} {num_dict[j]}{'s' if num[j] > 1 else ''}")
             else:
-                time_arr.append("{}{}".format(num[j], num_dict[j]))
+                time_arr.append(f"{num[j]}{num_dict[j]}")
             i += 1
         j += 1
 

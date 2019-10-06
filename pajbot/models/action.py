@@ -43,12 +43,12 @@ class ActionParser:
             try:
                 action = FuncAction(getattr(Dispatch, data["cb"]))
             except AttributeError as e:
-                log.error('AttributeError caught when parsing action for action "{}": {}'.format(command, e))
+                log.error(f'AttributeError caught when parsing action for action "{command}": {e}')
                 return None
         elif data["type"] == "multi":
             action = MultiAction(data["args"], data["default"])
         else:
-            raise Exception("Unknown action type: {0}".format(data["type"]))
+            raise Exception(f"Unknown action type: {data['type']}")
 
         return action
 
@@ -164,7 +164,7 @@ class MultiAction(BaseAction):
                 if alias not in self.commands:
                     self.commands[alias] = cmd
                 else:
-                    log.error("Alias {0} for this multiaction is already in use.".format(alias))
+                    log.error(f"Alias {alias} for this multiaction is already in use.")
 
         import copy
 
@@ -218,7 +218,7 @@ class MultiAction(BaseAction):
             if source.level >= cmd.level:
                 return cmd.run(bot, source, extra_msg, event, args)
 
-            log.info("User {0} tried running a sub-command he had no access to ({1}).".format(source.username, command))
+            log.info(f"User {source} tried running a sub-command he had no access to ({command}).")
 
         return None
 
@@ -352,7 +352,6 @@ def get_substitutions(string, bot):
         method_mapping["current_song"] = bot.get_current_song_value
         method_mapping["args"] = bot.get_args_value
         method_mapping["strictargs"] = bot.get_strictargs_value
-        method_mapping["notify"] = bot.get_notify_value
         method_mapping["command"] = bot.get_command_value
     except AttributeError:
         pass
@@ -404,7 +403,7 @@ def is_message_good(bot, message, extra):
         # apply the check fn
         # only if the result is False the check was successful
         if check_fn() is not False:
-            log.info('Not sending message "{}" because check "{}" failed.'.format(message, check_name))
+            log.info(f'Not sending message "{message}" because check "{check_name}" failed.')
             return False
 
     return True
@@ -447,7 +446,7 @@ class MessageAction(BaseAction):
             needle = sub.needle
             value = str(MessageAction.get_argument_value(extra["message"], sub.argument - 1))
             resp = resp.replace(needle, value)
-            log.debug("Replacing {0} with {1}".format(needle, value))
+            log.debug(f"Replacing {needle} with {value}")
 
         if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
             if not is_message_good(bot, resp, extra):
@@ -457,9 +456,7 @@ class MessageAction(BaseAction):
 
     @staticmethod
     def get_extra_data(source, message, args):
-        ret = {"user": source.username if source else None, "source": source, "message": message}
-        ret.update(args)
-        return ret
+        return {"source": source, "message": message, **args}
 
     def run(self, bot, source, message, event={}, args={}):
         raise NotImplementedError("Please implement the run method.")
@@ -469,7 +466,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
     urlfetch_subs = get_urlfetch_substitutions(message)
 
     if len(urlfetch_subs) > num_urlfetch_subs:
-        log.error("HIJACK ATTEMPT {}".format(message))
+        log.error(f"HIJACK ATTEMPT {message}")
         return False
 
     for needle, url in urlfetch_subs.items():
@@ -477,7 +474,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             headers = {
                 "Accept": "text/plain",
                 "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
-                "User-Agent": "pajbot1/{} ({})".format(VERSION, bot.nickname),
+                "User-Agent": f"pajbot1/{VERSION} ({bot.nickname})",
             }
             r = requests.get(url, allow_redirects=True, headers=headers)
             r.raise_for_status()
@@ -562,13 +559,13 @@ class WhisperAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.whisper(source.username, resp)
+            return bot.whisper(source, resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
             args=[],
             kwargs={
-                "args": [source.username],
+                "args": [source],
                 "kwargs": {},
                 "method": bot.whisper,
                 "bot": bot,
@@ -608,13 +605,13 @@ class ReplyAction(MessageAction):
             )
 
         if self.num_urlfetch_subs == 0:
-            return bot.whisper(source.username, resp)
+            return bot.whisper(source, resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
             args=[],
             kwargs={
-                "args": [source.username],
+                "args": [source],
                 "kwargs": {},
                 "method": bot.whisper,
                 "bot": bot,

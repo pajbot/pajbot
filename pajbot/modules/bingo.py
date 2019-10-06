@@ -28,12 +28,12 @@ def two_word_variations(word1, word2, value):
     # bttvglobal
     # globalbttv
     variations = [
-        "{}_{}".format(word1, word2),
-        "{}_{}".format(word2, word1),
-        "{}-{}".format(word1, word2),
-        "{}-{}".format(word2, word1),
-        "{}{}".format(word1, word2),
-        "{}{}".format(word2, word1),
+        f"{word1}_{word2}",
+        f"{word2}_{word1}",
+        f"{word1}-{word2}",
+        f"{word2}-{word1}",
+        f"{word1}{word2}",
+        f"{word2}{word1}",
     ]
 
     return {key: value for key in variations}
@@ -133,12 +133,9 @@ class BingoModule(BaseModule):
     @staticmethod
     def make_bttv_ffz_sets(manager):
         friendly_name = manager.friendly_name
-        channel_emotes = ("Channel {} emotes".format(friendly_name), manager.channel_emotes)
-        global_emotes = ("Global {} emotes".format(friendly_name), manager.global_emotes)
-        all_emotes = (
-            "Global + Channel {} emotes".format(friendly_name),
-            manager.channel_emotes + manager.global_emotes,
-        )
+        channel_emotes = (f"Channel {friendly_name} emotes", manager.channel_emotes)
+        global_emotes = (f"Global {friendly_name} emotes", manager.global_emotes)
+        all_emotes = (f"Global + Channel {friendly_name} emotes", manager.channel_emotes + manager.global_emotes)
 
         key = friendly_name.lower()
         return {
@@ -168,7 +165,7 @@ class BingoModule(BaseModule):
 
     def bingo_start(self, bot, source, message, event, args):
         if self.bingo_running:
-            bot.say("{}, a bingo is already running FailFish".format(source.username_raw))
+            bot.say(f"{source}, a bingo is already running FailFish")
             return False
 
         emote_instances = args["emote_instances"]
@@ -180,11 +177,7 @@ class BingoModule(BaseModule):
 
         words_in_message = [s for s in message.split(" ") if len(s) > 0]
         if len(words_in_message) <= 0:
-            bot.say(
-                "{}, You must at least give me some emote sets or emotes to choose from! FailFish".format(
-                    source.username_raw
-                )
-            )
+            bot.say(f"{source}, You must at least give me some emote sets or emotes to choose from! FailFish")
             return False
 
         emote_index_offset = len("!bingo start ")
@@ -227,7 +220,7 @@ class BingoModule(BaseModule):
         if len(unparsed_options) > 0:
             bot.say(
                 "{}, I don't know what to do with the argument{} {} BabyRage".format(
-                    source.username_raw,
+                    source,
                     "" if len(unparsed_options) == 1 else "s",  # pluralization
                     join_to_sentence(['"' + s + '"' for s in unparsed_options]),
                 )
@@ -241,29 +234,24 @@ class BingoModule(BaseModule):
         max_points = self.settings["max_points"]
         if points_reward > max_points:
             bot.say(
-                "{}, You can't start a bingo with that many points. FailFish ".format(source.username_raw)
-                + "{} are allowed at most.".format(max_points)
+                f"{source}, You can't start a bingo with that many points. FailFish {max_points} are allowed at most."
             )
             return False
 
         allow_negative_bingo = self.settings["allow_negative_bingo"]
         if points_reward < 0 and not allow_negative_bingo:
-            bot.say("{}, You can't start a bingo with negative points. FailFish".format(source.username_raw))
+            bot.say(f"{source}, You can't start a bingo with negative points. FailFish")
             return False
 
         min_points = -self.settings["max_negative_points"]
         if points_reward < min_points:
             bot.say(
-                "{}, You can't start a bingo with that many negative points. FailFish ".format(source.username_raw)
-                + "{} are allowed at most.".format(min_points)
+                f"{source}, You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most."
             )
             return False
 
         if len(selected_sets) <= 0:
-            bot.say(
-                "{}, You must at least give me some "
-                "emotes or emote sets to choose from! FailFish".format(source.username_raw)
-            )
+            bot.say(f"{source}, You must at least give me some emotes or emote sets to choose from! FailFish")
             return False
 
         selected_set_names = []
@@ -284,48 +272,45 @@ class BingoModule(BaseModule):
 
         if len(selected_discrete_emote_codes) > 0:
             # the space at the end is so the ! from the below message doesn't stop the last emote from showing up in chat
-            user_messages.append("these emotes: {} ".format(" ".join(selected_discrete_emote_codes)))
+            user_messages.append(f"these emotes: {' '.join(selected_discrete_emote_codes)} ")
 
         bot.me(
-            "A bingo has started! ThunBeast Guess the right emote to win {} points! B) ".format(points_reward)
-            + "Only one emote per message! Select from {}!".format(" and ".join(user_messages))
+            f"A bingo has started! ThunBeast Guess the right emote to win {points_reward} points! B) Only one emote per message! Select from {' and '.join(user_messages)}!"
         )
 
-        log.info("A Bingo game has begun for {} points, correct emote is {}".format(points_reward, correct_emote))
+        log.info(f"A Bingo game has begun for {points_reward} points, correct emote is {correct_emote}")
         self.active_game = BingoGame(correct_emote, points_reward)
 
     def bingo_cancel(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            bot.say(f"{source}, no bingo is running FailFish")
             return False
 
         self.active_game = None
-        bot.me("Bingo cancelled by {} FeelsBadMan".format(source.username_raw))
+        bot.me(f"Bingo cancelled by {source} FeelsBadMan")
 
     def bingo_help_random(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            bot.say(f"{source}, no bingo is running FailFish")
             return False
 
         correct_emote_code = self.active_game.correct_emote.code
         random_letter = random.choice(correct_emote_code)
 
         bot.me(
-            "A bingo for {} points is still running. ".format(self.active_game.points_reward)
-            + "You should maybe use {0} {0} {0} {0} {0} for the target".format(random_letter)
+            f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {random_letter} {random_letter} {random_letter} {random_letter} {random_letter} for the target"
         )
 
     def bingo_help_first(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say("{}, no bingo is running FailFish".format(source.username_raw))
+            bot.say(f"{source}, no bingo is running FailFish")
             return False
 
         correct_emote_code = self.active_game.correct_emote.code
         first_letter = correct_emote_code[0]
 
         bot.me(
-            "A bingo for {} points is still running. ".format(self.active_game.points_reward)
-            + "You should use {0} {0} {0} {0} {0} as the first letter for the target".format(first_letter)
+            f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {first_letter} {first_letter} {first_letter} {first_letter} {first_letter} for the target"
         )
 
     def on_message(self, source, message, emote_instances, **rest):
@@ -360,9 +345,7 @@ class BingoModule(BaseModule):
         self.active_game = None
 
         self.bot.me(
-            "{} won the bingo! ".format(source.username_raw)
-            + "{} was the target. ".format(correct_emote_code)
-            + "Congrats, {} points to you PogChamp".format(points_reward)
+            f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp"
         )
 
     def load_commands(self, **options):

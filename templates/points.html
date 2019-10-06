@@ -38,7 +38,7 @@
 <script type="text/javascript">
 $('#check_points .submit.button')
 .api({
-    action: 'get_user',
+    action: 'get_user_from_user_input',
     beforeSend: function(settings) {
         settings.urlData = {
             username: $('#check_points div.field.username input').val()
@@ -52,7 +52,7 @@ $('#check_points .submit.button')
         var el = $('#check_points .response');
         el.addClass('message green');
         el.removeClass('red');
-        el.html('User <a href="/user/' + response.username + '"><strong class="username">' + response.username + '</strong></a> has <strong class="points">' + response.points + '</strong> points and is ranked <strong class="rank">' + response.points_rank + '</strong>.');
+        el.html('User <a href="/user/' + response.login + '"><strong class="username">' + response.name + '</strong></a> has <strong class="points">' + response.points + '</strong> points and is ranked <strong class="rank">' + response.points_rank + '</strong>.');
         if (el.hasClass('hidden')) {
             el.transition({
                 animation: 'slide down',

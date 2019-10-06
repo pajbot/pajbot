@@ -252,15 +252,11 @@ class DubtrackModule(BaseModule):
         def action_queue_action():
             try:
                 result = api_fn()
-                self.bot.execute_now(lambda: on_success(result))
+                self.bot.execute_now(on_success, result)
             except Exception as e:
-                # I'm not sure why this is necessary,
-                # if i use on_error(e) directly it would throw this error:
-                # NameError: free variable 'e' referenced before assignment in enclosing scope
-                e_tmp = e
-                self.bot.execute_now(lambda: on_error(e_tmp))
+                self.bot.execute_now(on_error, e)
 
-        self.bot.action_queue.add(action_queue_action)
+        self.bot.action_queue.submit(action_queue_action)
 
     def process_queue_song_to_song_info(self, queue_song):
         """Processes a DubtrackQueueSong instance (from the API) into a DubtrackSongInfo object (for output to chat)"""

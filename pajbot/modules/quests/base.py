@@ -14,8 +14,8 @@ class BaseQuest(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.progress = {}
-        self.progress_key = "{streamer}:current_quest_progress".format(streamer=StreamHelper.get_streamer())
-        self.quest_finished_key = "{streamer}:quests:finished".format(streamer=StreamHelper.get_streamer())
+        self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
+        self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
         self.quest_module = None
 
     # TODO remove redis parameter
@@ -27,7 +27,7 @@ class BaseQuest(BaseModule):
         stream_id = StreamHelper.get_current_stream_id()
 
         # Load user's finished quest status
-        val = redis.hget(self.quest_finished_key, user.username)
+        val = redis.hget(self.quest_finished_key, user.id)
         if val:
             quests_finished = json.loads(val)
         else:
@@ -44,12 +44,12 @@ class BaseQuest(BaseModule):
             message = (
                 "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
             )
-            self.bot.whisper(user.username, message)
+            self.bot.whisper(user, message)
             return
 
         # Mark the current stream ID has finished
         quests_finished.append(stream_id)
-        redis.hset(self.quest_finished_key, user.username, json.dumps(quests_finished, separators=(",", ":")))
+        redis.hset(self.quest_finished_key, user.id, json.dumps(quests_finished, separators=(",", ":")))
 
         # Award the user appropriately
         if reward_type == "tokens":
@@ -58,10 +58,8 @@ class BaseQuest(BaseModule):
             user.points += reward_amount
 
         # Notify the user that they've finished today's quest
-        message = "You finished todays quest! You have been awarded with {} {}.".format(reward_amount, reward_type)
-        self.bot.whisper(user.username, message)
-
-        user.save()
+        message = f"You finished todays quest! You have been awarded with {reward_amount} {reward_type}."
+        self.bot.whisper(user, message)
 
     def start_quest(self):
         """ This method is triggered by either the stream starting, or the bot loading up
@@ -72,15 +70,15 @@ class BaseQuest(BaseModule):
         """ This method is ONLY called when the stream is stopped. """
         log.error("No stop quest implemented for this quest.")
 
-    def get_user_progress(self, username, default=False):
-        return self.progress.get(username, default)
+    def get_user_progress(self, user, default=False):
+        return self.progress.get(user.id, default)
 
     # TODO remove redis parameter
-    def set_user_progress(self, username, new_progress, redis=None):
+    def set_user_progress(self, user, new_progress, redis=None):
         if redis is None:
             redis = RedisManager.get()
-        redis.hset(self.progress_key, username, new_progress)
-        self.progress[username] = new_progress
+        redis.hset(self.progress_key, user.id, new_progress)
+        self.progress[user.id] = new_progress
 
     # TODO remove redis parameter
     def load_progress(self, redis=None):
@@ -88,9 +86,9 @@ class BaseQuest(BaseModule):
             redis = RedisManager.get()
         self.progress = {}
         old_progress = redis.hgetall(self.progress_key)
-        for user, progress in old_progress.items():
+        for user_id, progress in old_progress.items():
             try:
-                self.progress[user] = int(progress)
+                self.progress[user_id] = int(progress)
             except (TypeError, ValueError):
                 pass
 

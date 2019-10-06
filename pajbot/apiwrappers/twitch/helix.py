@@ -1,10 +1,16 @@
-import re
-
 import logging
+import time
 
+from datetime import datetime, timezone
+
+import math
+from requests import HTTPError
+
+from pajbot import utils
 from pajbot.apiwrappers.response_cache import DateTimeSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
-
+from pajbot.models.user import UserBasics
+from pajbot.utils import iterate_in_chunks
 
 log = logging.getLogger(__name__)
 
@@ -20,8 +26,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
     def default_authorization(self):
         return self.app_token_manager
 
+    def request(self, method, endpoint, params, headers, authorization=None, json=None):
+        try:
+            return super().request(method, endpoint, params, headers, authorization, json)
+        except HTTPError as e:
+            if e.response.status_code == 429:
+                # retry once after rate limit resets...
+                rate_limit_reset = datetime.fromtimestamp(int(e.response.headers["Ratelimit-Reset"]), tz=timezone.utc)
+                time_to_wait = rate_limit_reset - utils.now()
+                time.sleep(math.ceil(time_to_wait.total_seconds()))
+                return super().request(method, endpoint, params, headers, authorization, json)
+            else:
+                raise e
+
     @staticmethod
-    def with_pagination(after_pagination_cursor=None):
+    def _with_pagination(after_pagination_cursor=None):
         """Returns a dict with extra query parameters based on the given pagination cursor.
         This makes a dict with the ?after=xxxx query parameter if a pagination cursor is present,
         and if no pagination cursor is present, returns an empty dict."""
@@ -31,7 +50,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             return {"after": after_pagination_cursor}  # fetch results after this cursor
 
     @staticmethod
-    def fetch_all_pages(page_fetch_fn, *args, **kwargs):
+    def _fetch_all_pages(page_fetch_fn, *args, **kwargs):
         """Fetch all pages using a function that returns a list of responses and a pagination cursor
         as a tuple when called with the pagination cursor as an argument."""
         pagination_cursor = None
@@ -49,70 +68,57 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return responses
 
-    def fetch_user_id(self, username):
-        """Fetches the twitch user ID as a string for the given twitch login name.
-        If the user is not found, None is returned."""
-        response = self.get("/users", {"login": username})
-
-        # response =
-        # {
-        #   "data": [{
-        #     "id": "44322889",
-        #     "login": "dallas",
-        #     "display_name": "dallas",
-        #     "type": "staff",
-        #     "broadcaster_type": "",
-        #     "description": "Just a gamer playing games and chatting. :)",
-        #     "profile_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png",
-        #     "offline_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-channel_offline_image-1a2c906ee2c35f12-1920x1080.png",
-        #     "view_count": 191836881
-        #   }]
-        # }
+    def _fetch_user_data_by_login(self, login):
+        response = self.get("/users", {"login": login})
 
         if len(response["data"]) <= 0:
             return None
 
-        return response["data"][0]["id"]
+        return response["data"][0]
 
-    def get_user_id(self, username):
-        """Gets the twitch user ID as a string for the given twitch login name,
-        utilizing a cache or the twitch API on cache miss.
-        If the user is not found, None is returned."""
-
-        return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:user-id:{}".format(username),
-            fetch_fn=lambda: self.fetch_user_id(username),
-            expiry=lambda response: 30 if response is None else 300,
-        )
-
-    def require_user_id(self, username):
-        user_id = self.get_user_id(username)
-        if user_id is None:
-            raise ValueError("Username {} does not exist on twitch".format(username))
-        return user_id
-
-    def fetch_login_name(self, user_id):
-        """Fetches the twitch login name as a string for the given twitch login name.
-        If the user is not found, None is returned."""
+    def _fetch_user_data_by_id(self, user_id):
         response = self.get("/users", {"id": user_id})
 
         if len(response["data"]) <= 0:
             return None
 
-        # response is the same as for fetch_user_id
+        return response["data"][0]
 
-        return response["data"][0]["login"]
+    def _get_user_data_by_login(self, login):
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:user:by-login:{login}",
+            fetch_fn=lambda: self._fetch_user_data_by_login(login),
+            expiry=lambda response: 30 if response is None else 300,
+        )
 
-    def get_login_name(self, user_id):
+    def _get_user_data_by_id(self, user_id):
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:user:by-id:{user_id}",
+            fetch_fn=lambda: self._fetch_user_data_by_id(user_id),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
+    def get_user_id(self, login):
+        """Gets the twitch user ID as a string for the given twitch login name,
+        utilizing a cache or the twitch API on cache miss.
+        If the user is not found, None is returned."""
+
+        user_data = self._get_user_data_by_login(login)
+        return user_data["id"] if user_data is not None else None
+
+    def require_user_id(self, login):
+        user_id = self.get_user_id(login)
+        if user_id is None:
+            raise ValueError(f'No user found under login name "{login}" on Twitch')
+        return user_id
+
+    def get_login(self, user_id):
         """Gets the twitch login name as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
         If the user is not found, None is returned."""
 
-        return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:login-name:{}".format(user_id),
-            fetch_fn=lambda: self.fetch_login_name(user_id),
-            expiry=lambda response: 30 if response is None else 300,
-        )
+        user_data = self._get_user_data_by_id(user_id)
+        return user_data["login"] if user_data is not None else None
 
     def fetch_follow_since(self, from_id, to_id):
         response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
@@ -124,42 +130,27 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def get_follow_since(self, from_id, to_id):
         return self.cache.cache_fetch_fn(
-            redis_key="api:twitch:helix:follow-since:{}:{}".format(from_id, to_id),
+            redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
             serializer=DateTimeSerializer(),
             fetch_fn=lambda: self.fetch_follow_since(from_id, to_id),
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def fetch_profile_image_url(self, user_id):
-        response = self.get("/users", {"id": user_id})
+    def get_profile_image_url(self, user_id):
+        user_data = self._get_user_data_by_id(user_id)
+        return user_data["profile_image_url"] if user_data is not None else None
 
-        # response =
-        # {
-        #   "data": [{
-        #     "id": "44322889",
-        #     "login": "dallas",
-        #     "display_name": "dallas",
-        #     "type": "staff",
-        #     "broadcaster_type": "",
-        #     "description": "Just a gamer playing games and chatting. :)",
-        #     "profile_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-profile_image-1a2c906ee2c35f12-300x300.png",
-        #     "offline_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-channel_offline_image-1a2c906ee2c35f12-1920x1080.png",
-        #     "view_count": 191836881
-        #   }]
-        # }
+    def get_user_basics_by_login(self, login):
+        user_data = self._get_user_data_by_login(login)
+        if user_data is None:
+            return None
+        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-        if len(response["data"]) < 0:
-            raise ValueError("No user with ID {} found".format(user_id))
-
-        return response["data"][0]["profile_image_url"]
-
-    CAPITALIZED_LOGIN_NAME_REGEX = re.compile(r"^[a-zA-Z0-9_]+$")
-
-    def fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
-        """Fetch a list of subscriber usernames of a broadcaster + a pagination cursor as a tuple."""
+    def _fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
+        """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
-            {"broadcaster_id": broadcaster_id, **self.with_pagination(after_pagination_cursor)},
+            {"broadcaster_id": broadcaster_id, **self._with_pagination(after_pagination_cursor)},
             authorization=authorization,
         )
 
@@ -182,40 +173,63 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #   }
         # }
 
-        subscribers = []
-
-        for sub_data in response["data"]:
-            display_name = sub_data["user_name"]
-
-            if self.CAPITALIZED_LOGIN_NAME_REGEX.match(display_name):
-                # "normal" display name (just a capitalized variant of the login name)
-                # we can directly compute the login name by lowercasing the display name
-                login_name = display_name.lower()
-            else:
-                # hieroglyph display name, another API call is required to look up their login name from the user ID
-                user_id = sub_data["user_id"]
-                login_name = self.get_login_name(user_id)
-
-                if login_name is None:
-                    # user_id not found?!?!
-                    # can technically happen if user deletes account in the slim moment
-                    # between fetch of subscriber list and the user_id -> login_name lookup
-                    log.warning(
-                        "Just fetched %s (%s) to be a subscriber of %s but was not"
-                        " able to locate them as a user by their ID "
-                        "(user will not be counted as a subscriber)",
-                        login_name,
-                        user_id,
-                        broadcaster_id,
-                    )
-                    continue
-
-            subscribers.append(login_name)
-
+        subscribers = [entry["user_id"] for entry in response["data"]]
         pagination_cursor = response["pagination"]["cursor"]
 
         return subscribers, pagination_cursor
 
     def fetch_all_subscribers(self, broadcaster_id, authorization):
-        """Fetch a list of all subscriber usernames of a broadcaster."""
-        return self.fetch_all_pages(self.fetch_subscribers_page, broadcaster_id, authorization)
+        """Fetch a list of all subscribers (user IDs) of a broadcaster."""
+        return self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+
+    def _bulk_fetch_user_data(self, key_type, lookup_keys):
+        all_entries = []
+
+        # We can fetch a maximum of 100 users on each helix request
+        # so we do it in chunks of 100
+        for lookup_keys_chunk in iterate_in_chunks(lookup_keys, 100):
+            response = self.get("/users", {key_type: lookup_keys_chunk})
+
+            # using a response map means we don't rely on twitch returning the data entries in the exact
+            # order we requested them
+            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+
+            # then fill in the gaps with None
+            for lookup_key in lookup_keys_chunk:
+                all_entries.append(response_map.get(lookup_key, None))
+
+        return all_entries
+
+    def bulk_get_user_data_by_id(self, user_ids):
+        return self.cache.cache_bulk_fetch_fn(
+            user_ids,
+            redis_key_fn=lambda user_id: f"api:twitch:helix:user:by-id:{user_id}",
+            fetch_fn=lambda user_ids: self._bulk_fetch_user_data("id", user_ids),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
+    def bulk_get_user_data_by_login(self, logins):
+        return self.cache.cache_bulk_fetch_fn(
+            logins,
+            redis_key_fn=lambda login: f"api:twitch:helix:user:by-login:{login}",
+            fetch_fn=lambda logins: self._bulk_fetch_user_data("login", logins),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
+    def bulk_get_user_basics_by_id(self, user_ids):
+        bulk_user_data = self.bulk_get_user_data_by_id(user_ids)
+        return [
+            UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+            if user_data is not None
+            else None
+            for user_data in bulk_user_data
+        ]
+
+    def bulk_get_user_basics_by_login(self, logins):
+        bulk_user_data = self.bulk_get_user_data_by_login(logins)
+        return [
+            UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+            if user_data is not None
+            else None
+            for user_data in bulk_user_data
+        ]

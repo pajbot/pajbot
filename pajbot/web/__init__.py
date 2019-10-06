@@ -1,5 +1,6 @@
 import os
 
+import logging
 from flask import Flask
 
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -17,10 +18,10 @@ app = Flask(
 
 app.url_map.strict_slashes = False
 
+log = logging.getLogger(__name__)
+
 
 def init(args):
-    import configparser
-    import logging
     import subprocess
     import sys
 
@@ -31,7 +32,6 @@ def init(args):
     import pajbot.utils
     import pajbot.web.common
     import pajbot.web.routes
-    from pajbot import constants
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
     from pajbot.managers.time import TimeManager
@@ -42,12 +42,7 @@ def init(args):
     from pajbot.web.models import errors
     from pajbot.web.utils import download_logo
 
-    log = logging.getLogger(__name__)
-
-    config = configparser.ConfigParser()
-
     config = load_config(args.config)
-    config.read("webconfig.ini")
 
     api_client_credentials = ClientCredentials(
         config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
@@ -130,9 +125,7 @@ def init(args):
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
-            "websocket": {
-                "host": config["websocket"].get("host", "wss://{}/clrsocket".format(config["web"]["domain"]))
-            },
+            "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": config["web"]["streamer_name"], "full_name": config["main"]["streamer"]},
         "modules": app.bot_modules,

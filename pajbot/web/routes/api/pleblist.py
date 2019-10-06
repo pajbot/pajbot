@@ -115,7 +115,7 @@ class APIPleblistAdd(Resource):
 
             skip_after = args["skip_after"]
 
-            log.info("Request song youtube ID: {}".format(youtube_id))
+            log.info(f"Request song youtube ID: {youtube_id}")
             song_requested = PleblistSong(current_stream.id, youtube_id, skip_after=skip_after)
             session.add(song_requested)
             song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
@@ -180,7 +180,7 @@ class APIPleblistValidate(Resource):
 
         with DBManager.create_session_scope() as session:
             youtube_id = args["youtube_id"]
-            log.info("Validating youtube ID {}".format(youtube_id))
+            log.info(f"Validating youtube ID {youtube_id}")
             song_info = session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).first()
             if song_info is not None:
                 return {"message": "success", "song_info": song_info.jsonify()}

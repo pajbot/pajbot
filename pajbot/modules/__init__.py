@@ -12,11 +12,11 @@ from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
 from pajbot.modules.basic.ignore import IgnoreModule
-from pajbot.modules.basic.namechange import NamechangeModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
+from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
@@ -40,7 +40,6 @@ from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
-from pajbot.modules.paidtimeout import PaidTimeoutDiscountModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.paiduntimeout import PaidUntimeoutModule
 from pajbot.modules.pleblist import PleblistModule
@@ -80,6 +79,7 @@ available_modules = [
     BasicCommandsModule,
     BingoModule,
     CheckModModule,
+    ChattersRefreshModule,
     DBManageModule,
     SubscriberFetchModule,
     DebugModule,
@@ -95,7 +95,6 @@ available_modules = [
     GivePointsModule,
     HSBetModule,
     IgnoreModule,
-    NamechangeModule,
     LastfmModule,
     LeagueRankModule,
     LineFarmingModule,
@@ -106,7 +105,6 @@ available_modules = [
     CaseCheckerModule,
     EmoteTimeoutModule,
     PaidSubmodeModule,
-    PaidTimeoutDiscountModule,
     PaidTimeoutModule,
     PaidUntimeoutModule,
     PermabanModule,

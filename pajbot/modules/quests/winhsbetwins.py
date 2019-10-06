@@ -36,7 +36,7 @@ class WinHsBetWinsQuestModule(BaseQuest):
         # if points_reward < 1:
         #    return
 
-        user_progress = self.get_user_progress(user.username, default=0)
+        user_progress = self.get_user_progress(user, default=0)
         if user_progress >= self.get_limit():
             return
 
@@ -47,7 +47,7 @@ class WinHsBetWinsQuestModule(BaseQuest):
         if user_progress == self.get_limit():
             self.finish_quest(redis, user)
 
-        self.set_user_progress(user.username, user_progress, redis=redis)
+        self.set_user_progress(user, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_user_win_hs_bet", self.on_user_win_hs_bet)
@@ -64,4 +64,4 @@ class WinHsBetWinsQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
 
     def get_objective(self):
-        return "Bet the right outcome on {} Hearthstone games.".format(self.get_limit())
+        return f"Bet the right outcome on {self.get_limit()} Hearthstone games."

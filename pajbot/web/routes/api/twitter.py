@@ -57,7 +57,7 @@ class APITwitterUnfollow(Resource):
 
             SocketClientManager.send("twitter.unfollow", {"username": args["username"]})
 
-            return {"message": "Successfully unfollowed {}".format(args["username"])}, 200
+            return {"message": f"Successfully unfollowed {args['username']}"}, 200
 
 
 class APITwitterFollow(Resource):
@@ -72,7 +72,7 @@ class APITwitterFollow(Resource):
         with DBManager.create_session_scope() as db_session:
             twitter_user = db_session.query(TwitterUser).filter_by(username=args["username"]).one_or_none()
             if twitter_user is not None:
-                return {"message": "We are already following {}".format(args["username"])}, 409
+                return {"message": f"We are already following {args['username']}"}, 409
 
             twitter_user = TwitterUser(args["username"].lower())
 
@@ -82,7 +82,7 @@ class APITwitterFollow(Resource):
 
             SocketClientManager.send("twitter.follow", {"username": args["username"]})
 
-            return {"message": "Successfully followed {}".format(args["username"])}, 200
+            return {"message": f"Successfully followed {args['username']}"}, 200
 
 
 def init(api):

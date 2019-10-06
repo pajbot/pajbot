@@ -61,40 +61,41 @@ class QuestModule(BaseModule):
 
     def my_progress(self, bot, source, **rest):
         if self.current_quest is not None:
-            quest_progress = self.current_quest.get_user_progress(source.username)
+            quest_progress = self.current_quest.get_user_progress(source)
             quest_limit = self.current_quest.get_limit()
 
             if quest_limit is not None and quest_progress >= quest_limit:
-                bot.whisper(source.username, "You have completed todays quest!")
+                bot.whisper(source, "You have completed todays quest!")
             elif quest_progress is not False:
-                bot.whisper(source.username, "Your current quest progress is {}".format(quest_progress))
+                bot.whisper(source, f"Your current quest progress is {quest_progress}")
             else:
-                bot.whisper(source.username, "You have no progress on the current quest.")
+                bot.whisper(source, "You have no progress on the current quest.")
         else:
-            bot.say("{}, There is no quest active right now.".format(source.username_raw))
+            bot.say(f"{source}, There is no quest active right now.")
 
     def get_current_quest(self, bot, event, source, **rest):
         if self.current_quest:
-            message_quest = "the current quest active is {}.".format(self.current_quest.get_objective())
+            message_quest = f"the current quest active is {self.current_quest.get_objective()}."
         else:
             message_quest = "there is no quest active right now."
 
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
     def get_user_tokens(self, bot, event, source, **rest):
-        message_tokens = "{0}, you have {1} tokens.".format(source.username_raw, source.tokens)
+        message_tokens = f"{source}, you have {source.tokens} tokens."
+        # todo use bot.send_message_to_user or similar
 
         if self.settings["action_tokens"] == "say":
             bot.say(message_tokens)
         elif self.settings["action_tokens"] == "whisper":
-            bot.whisper(source.username, message_tokens)
+            bot.whisper(source, message_tokens)
         elif self.settings["action_tokens"] == "me":
             bot.me(message_tokens)
         elif self.settings["action_tokens"] == "reply":
             if event.type in ["action", "pubmsg"]:
                 bot.say(message_tokens)
             elif event.type == "whisper":
-                bot.whisper(source.username, message_tokens)
+                bot.whisper(source, message_tokens)
 
     def load_commands(self, **options):
         self.commands["myprogress"] = Command.raw_command(
@@ -128,7 +129,7 @@ class QuestModule(BaseModule):
         redis.set(self.current_quest_key, self.current_quest.ID)
 
         self.bot.say("Stream started, new quest has been chosen!")
-        self.bot.say("Current quest objective: {}".format(self.current_quest.get_objective()))
+        self.bot.say(f"Current quest objective: {self.current_quest.get_objective()}")
 
         return True
 
@@ -172,7 +173,7 @@ class QuestModule(BaseModule):
 
         current_quest_id = redis.get(self.current_quest_key)
 
-        log.info("Try to load submodule with ID {}".format(current_quest_id))
+        log.info(f"Try to load submodule with ID {current_quest_id}")
 
         if not current_quest_id:
             # No "current quest" was chosen by an above manager
@@ -188,11 +189,11 @@ class QuestModule(BaseModule):
         self.current_quest = quest
         self.current_quest.quest_module = self
         self.current_quest.start_quest()
-        log.info("Resumed quest {}".format(quest.get_objective()))
+        log.info(f"Resumed quest {quest.get_objective()}")
 
     def enable(self, bot):
         if self.bot:
-            self.current_quest_key = "{streamer}:current_quest".format(streamer=self.bot.streamer)
+            self.current_quest_key = f"{self.bot.streamer}:current_quest"
 
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)

@@ -100,7 +100,7 @@ class PlaysoundModule(BaseModule):
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
 
             if playsound is None:
-                log.warning("Web UI tried to play invalid playsound. Ignoring.")
+                log.warning(f'Web UI tried to play invalid playsound "{playsound_name}". Ignoring.')
                 return
 
             payload = {
@@ -108,17 +108,13 @@ class PlaysoundModule(BaseModule):
                 "volume": int(round(playsound.volume * self.settings["global_volume"] / 100)),
             }
 
-            log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
+            log.debug(f"Playsound module is emitting payload: {json.dumps(payload)}")
             self.bot.websocket_manager.emit("play_sound", payload)
 
     def reset_global_cd(self):
         self.global_cooldown = False
 
-    def play_sound(self, **options):
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
+    def play_sound(self, bot, source, message, **rest):
         if not message:
             return
 
@@ -126,22 +122,20 @@ class PlaysoundModule(BaseModule):
 
         with DBManager.create_session_scope() as session:
             # load playsound from the database
-            playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
+            playsound = session.query(Playsound).filter_by(name=playsound_name).one_or_none()
 
             if playsound is None:
                 bot.whisper(
-                    source.username,
-                    "The playsound you gave does not exist. Check out all the valid playsounds here: "
-                    "https://{}/playsounds".format(self.bot.config["web"]["domain"]),
+                    source,
+                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
                 )
                 return False
 
             if self.global_cooldown:
                 if self.settings["global_cd_whisper"]:
                     bot.whisper(
-                        source.username,
-                        "Another user played a sample too recently. Please try again after the global cooldown "
-                        + "of {} seconds has run out.".format(self.settings["global_cd"]),
+                        source,
+                        f"Another user played a sample too recently. Please try again after the global cooldown of {self.settings['global_cd']} seconds has run out.",
                     )
                 return False
 
@@ -151,17 +145,15 @@ class PlaysoundModule(BaseModule):
 
             if playsound_name in self.sample_cooldown:
                 bot.whisper(
-                    source.username,
-                    "The playsound {0} was played too recently. ".format(playsound.name)
-                    + "Please wait until its cooldown of {} seconds has run out.".format(cooldown),
+                    source,
+                    f"The playsound {playsound.name} was played too recently. Please wait until its cooldown of {cooldown} seconds has run out.",
                 )
                 return False
 
             if not playsound.enabled:
                 bot.whisper(
-                    source.username,
-                    "The playsound you gave is disabled. Check out all the valid playsounds here: "
-                    "https://{}/playsounds".format(self.bot.config["web"]["domain"]),
+                    source,
+                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
                 )
                 return False
 
@@ -170,16 +162,16 @@ class PlaysoundModule(BaseModule):
                 "volume": int(round(playsound.volume * self.settings["global_volume"] / 100)),
             }
 
-            log.debug("Playsound module is emitting payload: {}".format(json.dumps(payload)))
+            log.debug(f"Playsound module is emitting payload: {json.dumps(payload)}")
             bot.websocket_manager.emit("play_sound", payload)
 
             if self.settings["confirmation_whisper"]:
-                bot.whisper(source.username, "Successfully played the sound {} on stream!".format(playsound_name))
+                bot.whisper(source, f"Successfully played the sound {playsound_name} on stream!")
 
             self.global_cooldown = True
             self.sample_cooldown.append(playsound.name)
-            bot.execute_delayed(cooldown, self.sample_cooldown.remove, (playsound.name,))
-            bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd, ())
+            bot.execute_delayed(cooldown, self.sample_cooldown.remove, playsound.name)
+            bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd)
 
     @staticmethod
     def parse_playsound_arguments(message):
@@ -230,8 +222,7 @@ class PlaysoundModule(BaseModule):
         if link is not None:
             if not self.validate_link(link):
                 bot.whisper(
-                    source.username,
-                    "Error: Invalid link. Valid links must start with https:// " "and cannot contain spaces",
+                    source, "Error: Invalid link. Valid links must start with https:// " "and cannot contain spaces"
                 )
                 return False
             playsound.link = link
@@ -244,7 +235,7 @@ class PlaysoundModule(BaseModule):
     def update_volume(self, bot, source, playsound, parsed_options):
         if "volume" in parsed_options:
             if not self.validate_volume(parsed_options["volume"]):
-                bot.whisper(source.username, "Error: Volume must be between 0 and 100.")
+                bot.whisper(source, "Error: Volume must be between 0 and 100.")
                 return False
             playsound.volume = parsed_options["volume"]
         return True
@@ -261,11 +252,11 @@ class PlaysoundModule(BaseModule):
                 try:
                     cooldown_int = int(parsed_options["cooldown"])
                 except ValueError:
-                    bot.whisper(source.username, 'Error: Cooldown must be a number or the string "none".')
+                    bot.whisper(source, 'Error: Cooldown must be a number or the string "none".')
                     return False
 
             if not self.validate_cooldown(cooldown_int):
-                bot.whisper(source.username, "Error: Cooldown must be positive.")
+                bot.whisper(source, "Error: Cooldown must be positive.")
                 return False
 
             playsound.cooldown = cooldown_int
@@ -277,7 +268,7 @@ class PlaysoundModule(BaseModule):
             playsound.enabled = parsed_options["enabled"]
         return True
 
-    def add_playsound_command(self, **options):
+    def add_playsound_command(self, bot, source, message, **rest):
         """Method for creating playsounds.
         Usage: !add playsound PLAYSOUNDNAME LINK [options]
         Multiple options available:
@@ -285,9 +276,6 @@ class PlaysoundModule(BaseModule):
         --cooldown COOLDOWN
         --enabled/--disabled
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
 
         options, name, link = self.parse_playsound_arguments(message)
 
@@ -296,7 +284,7 @@ class PlaysoundModule(BaseModule):
         # for being None here.
         if options is False or name is False or link is False or link is None:
             bot.whisper(
-                source.username,
+                source,
                 "Invalid usage. Correct syntax: !add playsound <name> <link> "
                 + "[--volume 0-100] [--cooldown 60/none] [--enabled/--disabled]",
             )
@@ -306,7 +294,7 @@ class PlaysoundModule(BaseModule):
             count = session.query(Playsound).filter(Playsound.name == name).count()
             if count > 0:
                 bot.whisper(
-                    source.username,
+                    source,
                     "A Playsound with that name already exists. Use !edit playsound "
                     + "or !remove playsound to edit or delete it.",
                 )
@@ -327,9 +315,9 @@ class PlaysoundModule(BaseModule):
                 return
 
             session.add(playsound)
-            bot.whisper(source.username, "Successfully added your playsound.")
+            bot.whisper(source, "Successfully added your playsound.")
 
-    def edit_playsound_command(self, **options):
+    def edit_playsound_command(self, bot, source, message, **rest):
         """Method for editing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME [LINK] [options]
         Multiple options available:
@@ -337,15 +325,12 @@ class PlaysoundModule(BaseModule):
         --cooldown COOLDOWN
         --enabled/--disabled
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
 
         options, name, link = self.parse_playsound_arguments(message)
 
         if options is False or name is False or link is False:
             bot.whisper(
-                source.username,
+                source,
                 "Invalid usage. Correct syntax: !edit playsound <name> [link] "
                 + "[--volume 0-100] [--cooldown 60/none] [--enabled/--disabled]",
             )
@@ -355,7 +340,7 @@ class PlaysoundModule(BaseModule):
             playsound = session.query(Playsound).filter(Playsound.name == name).one_or_none()
             if playsound is None:
                 bot.whisper(
-                    source.username,
+                    source,
                     "No playsound with that name exists. You can create playsounds with "
                     "!add playsound <name> <link> [options].",
                 )
@@ -374,60 +359,50 @@ class PlaysoundModule(BaseModule):
                 return
 
             session.add(playsound)
-            bot.whisper(source.username, "Successfully edited your playsound.")
+            bot.whisper(source, "Successfully edited your playsound.")
 
     @staticmethod
-    def remove_playsound_command(**options):
+    def remove_playsound_command(bot, source, message, **rest):
         """Method for removing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:
-            bot.whisper(source.username, "Invalid usage. Correct syntax: !remove playsound <name>")
+            bot.whisper(source, "Invalid usage. Correct syntax: !remove playsound <name>")
             return
 
         with DBManager.create_session_scope() as session:
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
 
             if playsound is None:
-                bot.whisper(source.username, "No playsound with that name exists.")
+                bot.whisper(source, "No playsound with that name exists.")
                 return
 
             session.delete(playsound)
-            bot.whisper(source.username, "Successfully deleted your playsound.")
+            bot.whisper(source, "Successfully deleted your playsound.")
 
     @staticmethod
-    def debug_playsound_command(**options):
+    def debug_playsound_command(bot, source, message, **rest):
         """Method for debugging (printing info about) playsounds.
         Usage: !debug playsound PLAYSOUNDNAME
         """
-        bot = options["bot"]
-        message = options["message"]
-        source = options["source"]
-
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:
-            bot.whisper(source.username, "Invalid usage. Correct syntax: !debug playsound <name>")
+            bot.whisper(source, "Invalid usage. Correct syntax: !debug playsound <name>")
             return
 
         with DBManager.create_session_scope() as session:
             playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
 
             if playsound is None:
-                bot.whisper(source.username, "No playsound with that name exists.")
+                bot.whisper(source, "No playsound with that name exists.")
                 return
 
             bot.whisper(
-                source.username,
-                "name={}, link={}, volume={}, cooldown={}, enabled={}".format(
-                    playsound.name, playsound.link, playsound.volume, playsound.cooldown, playsound.enabled
-                ),
+                source,
+                f"name={playsound.name}, link={playsound.link}, volume={playsound.volume}, cooldown={playsound.cooldown}, enabled={playsound.enabled}",
             )
 
     def load_commands(self, **options):

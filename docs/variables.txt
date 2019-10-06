@@ -52,7 +52,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more
 things without expanding the python code itself.
 
 !rq command with justlog:
-$(usersource;1:username): $(urlfetch https://api.gempir.com/channel/pajlada/user/$(usersource;1:username)/random)
+$(usersource;1:name): $(urlfetch https://api.gempir.com/channel/pajlada/userid/$(usersource;1:id)/random)
 
 
 
@@ -109,20 +109,18 @@ epmrecord:<emote> - String - "103232" (highest ever epm value)
 
 source
 ======
-source:<thing> - pajbot.models.user.UserCombined - same as tb:source
-source:id - int - Internal ID (not twitch user ID!)
-source:username - String - login name
-source:username_raw - String - display name
+source:<thing> - pajbot.models.user.User - same as tb:source
+source:id - String - Twitch User ID
+source:login - String - Twitch user login name
+source:name - String - Twitch user display name
 source:level - int - 100 (pajbot level)
 source:points - int - 0 (pajbot points)
 source:subscriber - boolean - True if channel subscriber, False otherwise
-source:minutes_in_chat_online - int
-source:minutes_in_chat_offline - int
+source:time_in_chat_online - datetime.timedelta
+source:time_in_chat_offline - datetime.timedelta
 source:num_lines - int
-source:_last_seen - datetime.datetime
-source:_last_active - datetime.datetime
-source:last_seen - String - "4 minutes and 2 seconds"
-source:last_active - String - "4 minutes and 2 seconds"
+source:last_seen - datetime.datetime
+source:last_active - datetime.datetime
 source:ignored - boolean - True if the bot ignores commands by this user
 source:banned - boolean - True if permabanned on the bot
 source:tokens - int
@@ -204,11 +202,6 @@ args:3 - String - (joins args 3 and all args until the end together, e.g. '!args
 strictargs
 ==========
 Same as args, but if this substitution would return an empty string, the command is not executed.
-
-notify
-======
-notify:
-idk what you can do with this
 
 command
 =======

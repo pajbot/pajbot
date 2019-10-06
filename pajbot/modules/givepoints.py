@@ -2,8 +2,10 @@ import logging
 
 from pajbot import utils
 from pajbot.exc import InvalidPointAmount
+from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
@@ -42,11 +44,7 @@ class GivePointsModule(BaseModule):
         ),
     ]
 
-    def give_points(self, **options):
-        bot = options["bot"]
-        source = options["source"]
-        message = options["message"]
-
+    def give_points(self, bot, source, message, **rest):
         if message is None or len(message) == 0:
             # The user did not supply any arguments
             return False
@@ -54,69 +52,49 @@ class GivePointsModule(BaseModule):
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(
-                source.username, "Usage: !{command_name} USERNAME POINTS".format(command_name=self.command_name)
-            )
+            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
             return False
 
-        username = msg_split[0]
-        if len(username) < 2:
-            # The username specified was too short. ;-)
-            return False
+        input = msg_split[0]
 
         try:
             num_points = utils.parse_points_amount(source, msg_split[1])
         except InvalidPointAmount as e:
-            bot.whisper(
-                source.username,
-                "{error}. Usage: !{command_name} USERNAME POINTS".format(error=e, command_name=self.command_name),
-            )
+            bot.whisper(source, f"{e}. Usage: !{self.command_name} USERNAME POINTS")
             return False
 
         if num_points <= 0:
             # The user tried to specify a negative amount of points
-            bot.whisper(source.username, "You cannot give away negative points OMGScoots")
+            bot.whisper(source, "You cannot give away negative points OMGScoots")
             return True
 
         if not source.can_afford(num_points):
             # The user tried giving away more points than he owns
-            bot.whisper(
-                source.username,
-                "You cannot give away more points than you have. You have {} points.".format(source.points),
-            )
+            bot.whisper(source, f"You cannot give away more points than you have. You have {source.points} points.")
             return False
 
-        with bot.users.find_context(username) as target:
+        with DBManager.create_session_scope() as db_session:
+            target = User.find_by_user_input(db_session, input)
             if target is None:
                 # The user tried donating points to someone who doesn't exist in our database
-                bot.whisper(source.username, "This user does not exist FailFish")
+                bot.whisper(source, "This user does not exist FailFish")
                 return False
 
             if target == source:
                 # The user tried giving points to themselves
-                bot.whisper(source.username, "You can't give points to yourself OMGScoots")
+                bot.whisper(source, "You can't give points to yourself OMGScoots")
                 return True
 
             if self.settings["target_requires_sub"] is True and target.subscriber is False:
                 # Settings indicate that the target must be a subscriber, which he isn't
-                bot.whisper(source.username, "Your target must be a subscriber.")
+                bot.whisper(source, "Your target must be a subscriber.")
                 return False
 
             source.points -= num_points
             target.points += num_points
 
-            bot.whisper(
-                source.username,
-                "Successfully gave away {num_points} points to {target.username_raw}".format(
-                    num_points=num_points, target=target
-                ),
-            )
-            bot.whisper(
-                target.username,
-                "{source.username_raw} just gave you {num_points} points! You should probably thank them ;-)".format(
-                    num_points=num_points, source=source
-                ),
-            )
+            bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
+            bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
 
     def load_commands(self, **options):
         self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
@@ -130,8 +108,8 @@ class GivePointsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give points to a user.",
-                    chat="user:!{0} pajapaja 4444\n"
-                    "bot>user: Successfully gave away 4444 points to pajapaja".format(self.command_name),
+                    chat=f"user:!{self.command_name} pajapaja 4444\n"
+                    "bot>user: Successfully gave away 4444 points to pajapaja",
                     description="",
                 ).parse()
             ],

@@ -158,10 +158,10 @@ class DBManager:
     def debug(raw_object):
         try:
             inspected_object = inspect(raw_object)
-            log.debug("Object:     {0}".format(raw_object))
-            log.debug("Transient:  {0.transient}".format(inspected_object))
-            log.debug("Pending:    {0.pending}".format(inspected_object))
-            log.debug("Persistent: {0.persistent}".format(inspected_object))
-            log.debug("Detached:   {0.detached}".format(inspected_object))
+            log.debug(f"Object:     {raw_object}")
+            log.debug(f"Transient:  {inspected_object.transient}")
+            log.debug(f"Pending:    {inspected_object.pending}")
+            log.debug(f"Persistent: {inspected_object.persistent}")
+            log.debug(f"Detached:   {inspected_object.detached}")
         except:
             log.exception("Uncaught exception in DBManager.debug")

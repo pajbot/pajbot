@@ -1,11 +1,18 @@
 # Scripts
 
-## transfer-\*.sh
+## redis-dump.py
 
-`transfer-sql.sh` needs to be configured, modify the `mysql_command` variable at
-the top to fit your setup.  
-`tranfer-all.sh` needs to have the `streamer_db` function modified to translate
-streamer names to their databases.
+```bash
+# if you haven't done so already:
+./scripts/venvinstall.sh
+source venv/bin/activate
+
+# then:
+./scripts/dump_all_redis.py streamer > redis_dump_streamer.bin
+
+# and restore:
+redis-cli --pipe < redis_dump_streamer.bin
+```
 
 ## emoji-generate
 

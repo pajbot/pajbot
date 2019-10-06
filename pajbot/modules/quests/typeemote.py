@@ -32,7 +32,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.current_emote_key = "{streamer}:current_quest_emote".format(streamer=StreamHelper.get_streamer())
+        self.current_emote_key = f"{StreamHelper.get_streamer()}:current_quest_emote"
         self.current_emote = None
         self.progress = {}
 
@@ -44,10 +44,10 @@ class TypeEmoteQuestModule(BaseQuest):
         if self.current_emote not in typed_emotes:
             return
 
-        user_progress = self.get_user_progress(source.username, default=0) + 1
+        user_progress = self.get_user_progress(source, default=0) + 1
 
         if user_progress > self.get_limit():
-            log.debug("{} has already completed the quest. Moving along.".format(source.username))
+            log.debug(f"{source} has already completed the quest. Moving along.")
             # no need to do more
             return
 
@@ -56,7 +56,7 @@ class TypeEmoteQuestModule(BaseQuest):
         if user_progress == self.get_limit():
             self.finish_quest(redis, source)
 
-        self.set_user_progress(source.username, user_progress, redis=redis)
+        self.set_user_progress(source, user_progress, redis=redis)
 
     def start_quest(self):
         HandlerManager.add_handler("on_message", self.on_message)
@@ -91,4 +91,4 @@ class TypeEmoteQuestModule(BaseQuest):
         redis.delete(self.current_emote_key)
 
     def get_objective(self):
-        return "Use the {} emote {} times".format(self.current_emote.code, self.get_limit())
+        return f"Use the {self.current_emote.code} emote {self.get_limit()} times"

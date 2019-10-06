@@ -53,14 +53,12 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, **options):
+    def song(self, bot, **rest):
         try:
             import pylast
         except ImportError:
             log.error("Missing required library for the LastFM Module: pylast")
             return False
-
-        bot = options["bot"]
 
         API_KEY = self.settings["api_key"]
         lastfmname = self.settings["username"]
@@ -76,9 +74,9 @@ class LastfmModule(BaseModule):
             currentTrack = user.get_now_playing()
 
             if currentTrack is None:
-                bot.me("{} isn't playing music right now.. FeelsBadMan".format(bot.streamer))
+                bot.me(f"{bot.streamer} isn't playing music right now.. FeelsBadMan")
             else:
-                bot.me("Current Song is \u2669\u266a\u266b {0} \u266c\u266b\u2669".format(currentTrack))
+                bot.me(f"Current Song is \u2669\u266a\u266b {currentTrack} \u266c\u266b\u2669")
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:

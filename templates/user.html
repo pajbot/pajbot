@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% set active_page = 'stats' %}
-{% block title %}Profile - {{ user.username_raw}}{% endblock %}
+{% block title %}Profile - {{ user }}{% endblock %}
 {% block body %}
 <div id="userprofile">
-    <h2>User Profile - {{ user.username_raw }}</h2>
+    <h2>User Profile - {{ user }}</h2>
     <div class="mediumtable">
         <table class="ui very basic table celled">
             <tbody>
@@ -39,7 +39,7 @@
                 </tr>
                 <tr>
                     <td><strong>Messages sent</strong></td>
-                    <td>{{ user.num_lines }}</td>
+                    <td>{{ user.num_lines }} (Rank {{ user.num_lines_rank }})</td>
                 </tr>
                 <tr>
                     <td><strong>Last seen</strong></td>
@@ -53,26 +53,26 @@
                 <tr>
                     <td><strong>Last active in chat</strong></td>
                     {% if user.last_active %}
-                    <td>{{ user.last_active|strftime('%Y-%m-%d %H:%M:%S') }} &emsp; <a href="https://ttv.overrustlelogs.net/{{ streamer.full_name }}/{{ user.username_raw }}">logs</a></td>
+                    <td>{{ user.last_active|strftime('%Y-%m-%d %H:%M:%S') }} &emsp; <a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">logs</a></td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
                 </tr>
                 <tr>
                     <td><strong>Time spent watching the stream</strong></td>
-                    <td>{{ (user.minutes_in_chat_online * 60)|time_ago_timespan_seconds }}</td>
+                    <td>{{ user.time_in_chat_online|format_timedelta }}</td>
                 </tr>
                 <tr>
                     <td><strong>Time spent in offline chat</strong></td>
-                    {% if user.minutes_in_chat_offline > user.minutes_in_chat_online * 2 %}
-                    <td class="pemote">{{ (user.minutes_in_chat_offline * 60)|time_ago_timespan_seconds }} NotLikeThis</td>
+                    {% if user.time_in_chat_offline > user.time_in_chat_online * 2 %}
+                    <td class="pemote">{{ user.time_in_chat_offline|format_timedelta }} NotLikeThis</td>
                     {% else %}
-                    <td>{{ (user.minutes_in_chat_offline * 60)|time_ago_timespan_seconds }}</td>
+                    <td>{{ user.time_in_chat_offline|format_timedelta }}</td>
                     {% endif %}
                 </tr>
                 <tr>
                     <td><strong>Permabanned on {{ bot.name }}</strong></td>
-                    <td>{%if user.banned == 1 %}Yes{% else %}No{% endif %}</td>
+                    <td>{%if user.banned %}Yes{% else %}No{% endif %}</td>
                 </tr>
             </tbody>
         </table>
