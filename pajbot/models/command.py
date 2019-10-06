@@ -394,7 +394,7 @@ class Command(Base):
             if self.notify_on_error:
                 bot.whisper(
                     source,
-                    f"You do not have the required {self.cost} points to execute this command. (You have {source.points_available()} points)",
+                    f"You do not have the required {self.cost} points to execute this command. (You have {source.points} points)",
                 )
             # User does not have enough points to use the command
             return False

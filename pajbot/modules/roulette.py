@@ -187,7 +187,7 @@ class RouletteModule(BaseModule):
             r = Roulette(source.id, points)
             db_session.add(r)
 
-        arguments = {"bet": bet, "user": source.name, "points": source.points_available(), "win": points > 0}
+        arguments = {"bet": bet, "user": source.name, "points": source.points, "win": points > 0}
 
         if points > 0:
             out_message = self.get_phrase("message_won", **arguments)
