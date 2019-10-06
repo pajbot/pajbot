@@ -104,7 +104,6 @@ def init(app):
             return redirect(next_url)
         session["twitch_token"] = (resp["access_token"],)
 
-        # TODO check usages of session["user"], that they will work with this
         me_api_response = twitch.get("users")
         if len(me_api_response.data["data"]) < 1:
             return render_template("login_error.html")
