@@ -48,7 +48,10 @@ class IRCManager:
 
     def _dispatcher(self, connection, event):
         method = getattr(self.bot, "on_" + event.type, do_nothing)
-        method(connection, event)
+        try:
+            method(connection, event)
+        except:
+            log.exception("Logging an uncaught exception (IRC event handler)")
 
     def on_welcome(self, conn, event):
         log.info("Successfully connected and authenticated with IRC")
