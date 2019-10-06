@@ -1,7 +1,6 @@
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
