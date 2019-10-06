@@ -37,7 +37,7 @@ class UserDuelStats(Base):
 
         super().__init__(*args, **kwargs)
 
-    user = relationship("User", cascade="save-update, merge", back_populates="duel_stats")
+    user = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="duel_stats")
 
     @hybrid_property
     def duels_lost(self):
@@ -50,13 +50,6 @@ class UserDuelStats(Base):
     @hybrid_property
     def profit(self):
         return self.points_won - self.points_lost
-
-    @staticmethod
-    def for_user(db_session, user):
-        if user.duel_stats is None:
-            user.duel_stats = UserDuelStats(user_id=user.id)
-            db_session.add(user.duel_stats)
-        return user.duel_stats
 
     def won(self, points_won):
         self.duels_won += 1

@@ -8,7 +8,6 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
-from pajbot.models.duel import UserDuelStats
 from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -266,8 +265,9 @@ class DuelModule(BaseModule):
             winner.points += duel_price
             winner.points += winning_pot
 
-            UserDuelStats.for_user(db_session, winner).won(winning_pot)
-            UserDuelStats.for_user(db_session, loser).lost(duel_price)
+            # Persist duel statistics
+            winner.duel_stats.won(winning_pot)
+            winner.duel_stats.lost(duel_price)
 
             arguments = {
                 "winner": winner.name,
