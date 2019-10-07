@@ -77,7 +77,7 @@
             </tbody>
         </table>
 
-        {% if user.duel_stats %}
+        {% if user.duel_stats.duels_total > 0 %}
         <h3>Duel stats</h3>
         <table class="ui very basic table celled">
             <tbody>
