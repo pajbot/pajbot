@@ -31,6 +31,7 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Minor: Placed reasonable minimum/maximum limits on the `Seconds until betting closes` setting for the HSBet module.
 - Minor: Added setting to adjust points tax for the duel module
 - Minor: Link checker module now prints far less debug info about itself.
+- Minor: Added possibility to modify command token cost using `--tokens-cost` in `!add command`/`!edit command` commands.
 - Bugfix: Errors in the main thread no longer exit the bot (#443)
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Removed unfinished "email tag" API.
