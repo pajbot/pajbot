@@ -18,8 +18,7 @@ class SafeInvokeScheduler(Scheduler):
         try:
             command.target()
         except Exception:
-            # we do "exception Exception" to not catch KeyboardInterrupt and SystemExit
-            # (so the bot can properly quit)
+            # we do "except Exception" to not catch KeyboardInterrupt and SystemExit (so the bot can properly quit)
             log.exception("Logging an uncaught exception (main thread)")
 
 
