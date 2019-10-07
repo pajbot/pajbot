@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import urllib
-from concurrent.futures.thread import ThreadPoolExecutor
 
 import irc.client
 import requests
@@ -14,6 +13,7 @@ from pytz import timezone
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
 import pajbot.utils
+from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
@@ -152,7 +152,7 @@ class Bot:
         redis_migration.run()
 
         # Thread pool executor for async actions
-        self.action_queue = ThreadPoolExecutor()
+        self.action_queue = ActionQueue()
 
         # refresh points_rank and num_lines_rank regularly
         UserRanksRefreshManager.start(self.action_queue)
