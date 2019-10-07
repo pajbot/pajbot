@@ -23,14 +23,7 @@ class Dispatch:
     def add_command(bot, source, message, event, args):
         """Dispatch method for creating commands.
         Usage: !add command ALIAS [options] RESPONSE
-        Multiple options available:
-        --whisper/--no-whisper
-        --reply/--no-reply
-        --modonly/--no-modonly
-        --cd CD
-        --usercd USERCD
-        --level LEVEL
-        --cost COST
+        See pajbot/managers/command.py parse_command_arguments for available options
         """
 
         if not message:
@@ -82,14 +75,7 @@ class Dispatch:
     def edit_command(bot, source, message, event, args):
         """Dispatch method for editing commands.
         Usage: !edit command ALIAS [options] RESPONSE
-        Multiple options available:
-        --whisper/--no-whisper
-        --reply/--no-reply
-        --modonly/--no-modonly
-        --cd CD
-        --usercd USERCD
-        --level LEVEL
-        --cost COST
+        See pajbot/managers/command.py parse_command_arguments for available options
         """
 
         if message:
@@ -154,12 +140,7 @@ class Dispatch:
     def add_funccommand(bot, source, message, event, args):
         """Dispatch method for creating function commands.
         Usage: !add funccommand ALIAS [options] CALLBACK
-        Multiple options available:
-        --cd CD
-        --usercd USERCD
-        --level LEVEL
-        --cost COST
-        --modonly/--no-modonly
+        See pajbot/managers/command.py parse_command_arguments for available options
         """
 
         if message:
@@ -196,12 +177,7 @@ class Dispatch:
     def edit_funccommand(bot, source, message, event, args):
         """Dispatch method for editing function commands.
         Usage: !edit funccommand ALIAS [options] CALLBACK
-        Multiple options available:
-        --cd CD
-        --usercd USERCD
-        --level LEVEL
-        --cost COST
-        --modonly/--no-modonly
+        See pajbot/managers/command.py parse_command_arguments for available options
         """
 
         if message:

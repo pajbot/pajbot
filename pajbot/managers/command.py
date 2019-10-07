@@ -455,6 +455,7 @@ class CommandManager(UserDict):
         parser.add_argument("--usercd", type=int, dest="delay_user")
         parser.add_argument("--level", type=int, dest="level")
         parser.add_argument("--cost", type=int, dest="cost")
+        parser.add_argument("--tokens-cost", type=int, dest="tokens_cost")
         parser.add_argument("--modonly", dest="mod_only", action="store_true")
         parser.add_argument("--no-modonly", dest="mod_only", action="store_false")
         parser.add_argument("--subonly", dest="sub_only", action="store_true")
@@ -476,5 +477,7 @@ class CommandManager(UserDict):
 
         if "cost" in options:
             options["cost"] = abs(options["cost"])
+        if "tokens_cost" in options:
+            options["tokens_cost"] = abs(options["tokens_cost"])
 
         return options, response
