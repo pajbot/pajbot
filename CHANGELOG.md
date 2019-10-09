@@ -32,6 +32,7 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Minor: Added setting to adjust points tax for the duel module
 - Minor: Link checker module now prints far less debug info about itself.
 - Minor: Added possibility to modify command token cost using `--tokens-cost` in `!add command`/`!edit command` commands.
+- Minor: Added two pluralization cases for when only a single user wins a multi-raffle.
 - Bugfix: Errors in the main thread no longer exit the bot (#443)
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Removed unfinished "email tag" API.

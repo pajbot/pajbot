@@ -1,7 +1,6 @@
 import logging
 import math
-
-from numpy import random
+import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command
@@ -19,6 +18,10 @@ def generate_winner_list(winners):
 
 
 class RaffleModule(BaseModule):
+
+    MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT = 100
+    MULTI_RAFFLE_MAX_WINNERS_RATIO = 0.26
+    MULTI_RAFFLE_MAX_WINNERS_AMOUNT = 200
 
     ID = __name__.split(".")[-1]
     NAME = "Raffle"
@@ -389,42 +392,37 @@ class RaffleModule(BaseModule):
             self.bot.me("Wow, no one joined the raffle DansGame")
             return False
 
-        # Shuffle the list of participants
-        random.shuffle(self.raffle_users)
-
         num_participants = len(self.raffle_users)
 
-        abs_points = abs(self.raffle_points)
+        # start out with the theoretical maximum: everybody wins
+        num_winners = num_participants
 
-        max_winners = min(num_participants, 200)
-        min_point_award = 100
-        negative = self.raffle_points < 0
+        # we want to impose three limits on the winner picking:
+        # - a winner should get 100 points at minimum,
+        num_winners = min(num_winners, math.floor(abs(self.raffle_points) / self.MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT))
 
-        # Decide how we should pick the winners
-        log.info(f"Num participants: {num_participants}")
-        for winner_percentage in [x * 0.01 for x in range(1, 26)]:
-            log.info(f"Winner percentage: {winner_percentage}")
-            num_winners = math.ceil(num_participants * winner_percentage)
-            points_per_user = math.ceil(abs_points / num_winners)
-            log.info(f"nw: {num_winners}, ppu: {points_per_user}")
+        # - winner percentage should not be higher than 26%,
+        num_winners = min(num_winners, math.floor(num_participants * self.MULTI_RAFFLE_MAX_WINNERS_RATIO))
 
-            if num_winners > max_winners:
-                num_winners = max_winners
-                points_per_user = math.ceil(abs_points / num_winners)
-                break
-            elif points_per_user < min_point_award:
-                num_winners = max(1, min(math.floor(abs_points / min_point_award), num_participants))
-                points_per_user = math.ceil(abs_points / num_winners)
-                break
+        # - and we don't want to have more than 200 winners.
+        num_winners = min(num_winners, self.MULTI_RAFFLE_MAX_WINNERS_AMOUNT)
 
-        log.info(f"k done. got {num_winners} winners")
-        winners = self.raffle_users[:num_winners]
+        # we at least want one person to win (some of these restrictions might calculate a maximum of 0...)
+        num_winners = max(num_winners, 1)
+
+        # now we can figure out how much each participant should win
+        points_per_user = int(round(self.raffle_points / num_winners))
+
+        # and we can pick the winners!
+        winners = random.sample(self.raffle_users, num_winners)
         self.raffle_users = []
 
-        if negative:
-            points_per_user *= -1
-
-        self.bot.me(f"The multi-raffle has finished! {len(winners)} users won {points_per_user} points each! PogChamp")
+        if num_winners == 1:
+            self.bot.me(f"The multi-raffle has finished! 1 user won {points_per_user} points! PogChamp")
+        else:
+            self.bot.me(
+                f"The multi-raffle has finished! {num_winners} users won {points_per_user} points each! PogChamp"
+            )
 
         winners_arr = []
         for winner in winners:
@@ -433,12 +431,18 @@ class RaffleModule(BaseModule):
 
             winners_str = generate_winner_list(winners_arr)
             if len(winners_str) > 300:
-                self.bot.me(f"{winners_str} won {points_per_user} points each!")
+                if len(winners_arr) == 1:
+                    self.bot.me(f"{winners_str} won {points_per_user} points!")
+                else:
+                    self.bot.me(f"{winners_str} won {points_per_user} points each!")
                 winners_arr = []
 
         if len(winners_arr) > 0:
             winners_str = generate_winner_list(winners_arr)
-            self.bot.me(f"{winners_str} won {points_per_user} points each!")
+            if len(winners_arr) == 1:
+                self.bot.me(f"{winners_str} won {points_per_user} points!")
+            else:
+                self.bot.me(f"{winners_str} won {points_per_user} points each!")
 
         HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 
