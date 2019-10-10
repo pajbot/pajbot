@@ -56,6 +56,7 @@ class DBManager:
     def init(url):
         DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)
 
+        # https://docs.sqlalchemy.org/en/13/core/events.html#sqlalchemy.events.PoolEvents.connect
         @event.listens_for(DBManager.engine, "connect")
         def on_connect(dbapi_connection, connection_record):
             # http://initd.org/psycopg/docs/connection.html#connection.notices
