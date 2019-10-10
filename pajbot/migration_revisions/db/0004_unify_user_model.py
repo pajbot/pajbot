@@ -149,15 +149,6 @@ def up(cursor, bot):
             log_entry["user_id"] = None
         new_log_entries.append(log_entry)
 
-    with RedisManager.pipeline_context() as redis_pipeline:
-        redis_pipeline.delete(admin_logs_key)
-        # LPUSH prepends a list value (not append)
-        # To get the admin log entries in the same order that they were in previously (newest -> oldest),
-        # we first reverse the list that we want to insert
-        new_log_entries.reverse()
-        if len(new_log_entries) > 0:
-            redis_pipeline.lpush(admin_logs_key, *[json.dumps(entry) for entry in new_log_entries])
-
     @contextmanager
     def also_move_pkey(table, column):
         cursor.execute(f"ALTER TABLE {table} DROP CONSTRAINT {table}_pkey")
@@ -278,16 +269,22 @@ def up(cursor, bot):
     """
     )
 
-    # finally delete what we moved in from redis
-    redis.delete(
-        f"{bot.streamer}:users:num_lines",
-        f"{bot.streamer}:users:tokens",
-        f"{bot.streamer}:users:last_seen",
-        f"{bot.streamer}:users:last_active",
-        f"{bot.streamer}:users:username_raw",
-        f"{bot.streamer}:users:ignored",
-        f"{bot.streamer}:users:banned",
-    )
+    with RedisManager.pipeline_context() as redis_pipeline:
+        # Overwrite admin logs
+        redis_pipeline.delete(admin_logs_key)
+        if len(new_log_entries) > 0:
+            redis_pipeline.rpush(admin_logs_key, *[json.dumps(entry) for entry in new_log_entries])
+
+        # Delete data that was moved in
+        redis_pipeline.delete(
+            f"{bot.streamer}:users:num_lines",
+            f"{bot.streamer}:users:tokens",
+            f"{bot.streamer}:users:last_seen",
+            f"{bot.streamer}:users:last_active",
+            f"{bot.streamer}:users:username_raw",
+            f"{bot.streamer}:users:ignored",
+            f"{bot.streamer}:users:banned",
+        )
 
     # at the end of this migration, we are left with this users table:
     # pajbot=# \d+ user
