@@ -22,6 +22,9 @@ class HandlerManager:
         # on_usernotice(source, message, tags)
         HandlerManager.create_handler("on_usernotice")
 
+        # on_pubnotice(channel, msg_id, message)
+        HandlerManager.create_handler("on_pubnotice")
+
         # on_commit()
         HandlerManager.create_handler("on_commit")
 
