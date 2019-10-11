@@ -34,6 +34,7 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Minor: Added possibility to modify command token cost using `--tokens-cost` in `!add command`/`!edit command` commands.
 - Minor: Added two pluralization cases for when only a single user wins a multi-raffle.
 - Minor: Added logging output for notices received from the SQL server.
+- Minor: Added a lot more data to the output message of the `!debug user` command.
 - Bugfix: Errors in the main thread no longer exit the bot (#443)
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Removed unfinished "email tag" API.

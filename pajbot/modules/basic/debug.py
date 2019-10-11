@@ -79,27 +79,9 @@ class DebugModule(BaseModule):
                 bot.whisper(source, "No user with this username found.")
                 return False
 
-            data = collections.OrderedDict()
-            data["id"] = user.id
-            data["login"] = user.login
-            data["name"] = user.name
-            data["level"] = user.level
-            data["num_lines"] = user.num_lines
-            data["points"] = user.points
-            data["tokens"] = user.tokens
-
-            if user.last_seen is not None:
-                data["last_seen"] = user.last_seen.strftime("%Y-%m-%d %H:%M:%S %Z")
-            else:
-                data["last_seen"] = None
-
-            if user.last_active is not None:
-                data["last_active"] = user.last_active.strftime("%Y-%m-%d %H:%M:%S %Z")
-            else:
-                data["last_active"] = None
-
-            data["ignored"] = user.ignored
-            data["banned"] = user.banned
+            # TODO the time_in_chat_ properties could be displayed in a more user-friendly way
+            #  current output format is time_in_chat_online=673800.0, time_in_chat_offline=7651200.0
+            data = user.jsonify()
 
             bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
 
