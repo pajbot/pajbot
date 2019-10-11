@@ -37,7 +37,6 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Removed unfinished "email tag" API.
 - Bugfix: If the bot is restarted during an active HSBet game, bets will no longer be lost.
-- Bugfix: Fixed a bug with the automatic subscriber update that made most subscribers incorrectly be marked as non-subscribers
 
 ## v1.37
 
