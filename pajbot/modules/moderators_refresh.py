@@ -32,7 +32,7 @@ class ModeratorsRefreshModule(BaseModule):
         # TODO if you wanted to improve this: Provide the user with feedback
         #   whether the update succeeded, and if yes, how many users were updated
         bot.whisper(source, "Reloading list of moderators...")
-        bot.action_queue.submit(self._update_moderators)
+        self._update_moderators()
 
     def _update_moderators(self):
         self.bot.privmsg("/mods")
@@ -138,9 +138,9 @@ WHERE
 
         HandlerManager.add_handler("on_pubnotice", self._on_pubnotice)
 
-        # every 10 minutes, add the chatters update to the action queue
+        # every 10 minutes, send the /mods command (response is received via _on_pubnotice)
         self.scheduled_job = ScheduleManager.execute_every(
-            self.UPDATE_INTERVAL * 60, lambda: self.bot.action_queue.submit(self._update_moderators)
+            self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_moderators)
         )
 
     def disable(self, bot):
