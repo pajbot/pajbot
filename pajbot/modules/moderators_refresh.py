@@ -1,6 +1,5 @@
 import logging
 
-from datetime import timedelta
 from sqlalchemy import text
 
 from pajbot.managers.db import DBManager
