@@ -56,30 +56,45 @@ class SubscriberFetchModule(BaseModule):
         self.bot.kvi["active_subs"].set(len(user_basics) - 1)
 
         with DBManager.create_session_scope() as db_session:
+            db_session.execute(
+                text(
+                    """
+CREATE TEMPORARY TABLE subscribers(
+    id TEXT PRIMARY KEY NOT NULL,
+    login TEXT NOT NULL,
+    name TEXT NOT NULL
+)
+ON COMMIT DROP"""
+                )
+            )
+
+            db_session.execute(
+                text("INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"),
+                [basics.jsonify() for basics in user_basics],
+            )
+
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login
             # if we only had one value for :login)
             db_session.execute(
                 text(
                     """
-            WITH updated_users AS (
-                INSERT INTO "user"(id, login, name, subscriber)
-                    VALUES (:id, :login, :name, TRUE)
-                ON CONFLICT (id) DO UPDATE SET
-                    login = excluded.login,
-                    name = excluded.name,
-                    subscriber = TRUE
-                RETURNING id
-            )
-            UPDATE "user"
-            SET
-                subscriber = FALSE
-            WHERE
-                id NOT IN (SELECT * FROM updated_users) AND
-                subscriber IS TRUE
-            """
-                ),
-                [basics.jsonify() for basics in user_basics],
+WITH updated_users AS (
+    INSERT INTO "user"(id, login, name, subscriber)
+        SELECT id, login, name, TRUE FROM subscribers
+    ON CONFLICT (id) DO UPDATE SET
+        login = excluded.login,
+        name = excluded.name,
+        subscriber = TRUE
+    RETURNING id
+)
+UPDATE "user"
+SET
+    subscriber = FALSE
+WHERE
+    id NOT IN (SELECT * FROM updated_users) AND
+    subscriber IS TRUE"""
+                )
             )
 
         log.info(f"Successfully updated {len(user_basics)} subscribers")
