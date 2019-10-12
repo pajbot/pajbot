@@ -35,6 +35,7 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Minor: Added two pluralization cases for when only a single user wins a multi-raffle.
 - Minor: Added logging output for notices received from the SQL server.
 - Minor: The bot automatically now additionally refreshes who is a moderator and who isn't (This data was previously only updated when the user typed a message). A `!reload moderators` command has been added to trigger this update manually.
+- Minor: Added a lot more data to the output message of the `!debug user` command.
 - Bugfix: Errors in the main thread no longer exit the bot (#443)
 - Bugfix: Several places in the bot and Web UI now correctly show the user display name instead of login name
 - Bugfix: Removed unfinished "email tag" API.
