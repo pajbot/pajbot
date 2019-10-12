@@ -110,6 +110,8 @@ WHERE
                 )
             )
 
+        log.info(f"Successfully updated {len(moderator_basics)} moderators")
+
     def load_commands(self, **options):
         self.commands["reload"] = Command.multiaction_command(
             command="reload",
