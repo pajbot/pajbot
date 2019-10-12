@@ -109,12 +109,12 @@ class TwitterManager:
                     self.bot = bot
 
                 def on_status(self, status):
-                    log.debug("On status from tweepy: %s", status.text)
                     if (
                         status.user.screen_name.lower() in self.relevant_users
                         and not status.text.startswith("RT ")
                         and status.in_reply_to_screen_name is None
                     ):
+                        log.debug("On status from tweepy: %s", status.text)
                         tw = tweet_prettify_urls(status)
                         tweet_message = tw.replace("\n", " ")
                         self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
