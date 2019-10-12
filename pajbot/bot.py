@@ -779,6 +779,16 @@ class Bot:
 
             self.parse_message(event.arguments[0], source, event, tags=tags)
 
+    def on_pubnotice(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        HandlerManager.trigger(
+            "on_pubnotice",
+            stop_on_false=False,
+            channel=event.target[1:],
+            msg_id=tags["msg-id"],
+            message=event.arguments[0],
+        )
+
     @time_method
     def commit_all(self):
         for key, manager in self.commitable.items():
