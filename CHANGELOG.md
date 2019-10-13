@@ -20,6 +20,8 @@ Remember to bring your dependencies up to date with `pip install -r requirements
   sudo -u pajbot ./scripts/redis-dump.py streamer > redis_dump_streamer.bin
   ```
 
+  When migrating a bot you probably want to either disable the chatters microservice entirely, or remove that bot's entry from the chatters `config.json`.
+
 - Feature: Added module to fetch current chatters and update the database back to the bot (was previously [a microservice](https://github.com/pajbot/chatters)). Includes a new `!reload chatters` command.
 - Feature: Added `!reload subscribers` command to force refresh of subscriber status in the DB.
 - Minor: Added `?user_input=true` optional parameter to `/api/v1/users/:login` endpoint to query for usernames more fuzzily.

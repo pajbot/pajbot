@@ -5,7 +5,13 @@ def up(cursor, bot):
     cursor.execute('ALTER TABLE banphrase_data ADD FOREIGN KEY (edited_by) REFERENCES "user"(id) ON DELETE SET NULL')
 
     # command_data
+    # In case you run into issues where this foreign key cannot be added because a referenced user does not exist, you can run the following query:
+    #   UPDATE command_data SET added_by = NULL WHERE NOT EXISTS( SELECT 1 FROM "user" WHERE command_data.added_by = "user".id  );
+    # It will update all rows where added_by references a non-exitant user and set the added_by value to NULL
     cursor.execute('ALTER TABLE command_data ADD FOREIGN KEY (added_by) REFERENCES "user"(id) ON DELETE SET NULL')
+    # In case you run into issues where this foreign key cannot be added because a referenced user does not exist, you can run the following query:
+    #   UPDATE command_data SET edited_by = NULL WHERE NOT EXISTS( SELECT 1 FROM "user" WHERE command_data.edited_by = "user".id  );
+    # It will update all rows where edited_by references a non-exitant user and set the added_by value to NULL
     cursor.execute('ALTER TABLE command_data ADD FOREIGN KEY (edited_by) REFERENCES "user"(id) ON DELETE SET NULL')
 
     # pleblist_song
@@ -19,6 +25,9 @@ def up(cursor, bot):
     cursor.execute('ALTER TABLE prediction_run_entry ADD FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE')
 
     # roulette
+    # In case you run into issues where this foreign key cannot be added because a referenced user does not exist, you can run the following query:
+    #   DELETE FROM roulette WHERE NOT EXISTS( SELECT 1 FROM "user" WHERE roulette.user_id = "user".id  );
+    # It will delete all roulette stats for users that don't exist
     cursor.execute('ALTER TABLE roulette ADD FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE')
 
     # stream_chunk
