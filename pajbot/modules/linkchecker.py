@@ -193,6 +193,9 @@ class LinkCheckerModule(BaseModule):
             self.safe_browsing_api = None
 
     def enable(self, bot):
+        if not bot:
+            return
+
         HandlerManager.add_handler("on_message", self.on_message, priority=100)
         HandlerManager.add_handler("on_commit", self.on_commit)
 
@@ -210,6 +213,9 @@ class LinkCheckerModule(BaseModule):
             self.whitelisted_links.append(link)
 
     def disable(self, bot):
+        if not bot:
+            return
+
         pajbot.managers.handler.HandlerManager.remove_handler("on_message", self.on_message)
         pajbot.managers.handler.HandlerManager.remove_handler("on_commit", self.on_commit)
 
