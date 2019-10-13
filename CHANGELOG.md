@@ -17,6 +17,7 @@ Remember to bring your dependencies up to date with `pip install -r requirements
   ```bash
   sudo -u pajbot pg_dump --file=sql_dump_streamer.sql --schema=pajbot1_streamer pajbot
   sudo -u pajbot pg_dump --file=sql_dump_all.sql pajbot
+  sudo -u pajbot ./scripts/redis-dump.py streamer > redis_dump_streamer.bin
   ```
 
 - Feature: Added module to fetch current chatters and update the database back to the bot (was previously [a microservice](https://github.com/pajbot/chatters)). Includes a new `!reload chatters` command.
