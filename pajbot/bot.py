@@ -641,7 +641,8 @@ class Bot:
         msg_id = tags.get("id", None)  # None on whispers!
 
         if not whisper and event.target == self.channel:
-            source.moderator = tags["mod"] == "1"
+            # Moderator or broadcaster, both count
+            source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
             source.subscriber = tags["subscriber"] == "1"
 
         if not whisper and source.banned:
