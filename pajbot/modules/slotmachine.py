@@ -1,7 +1,7 @@
 import logging
 from collections import Counter
 
-from numpy import random
+import random
 
 import pajbot.exc
 import pajbot.models
@@ -24,7 +24,7 @@ def pull_lol(low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltb
     for e in high_tier_emotes:
         slot_options += [e]
 
-    randomized_emotes = random.choice(slot_options, 3).tolist()
+    randomized_emotes = random.sample(slot_options, 3)
 
     # figure out results of these randomized emotes xd
     bet_return = 0.0

@@ -1,6 +1,6 @@
 import logging
 
-from numpy import random
+import random
 
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
