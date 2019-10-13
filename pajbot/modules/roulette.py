@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from numpy import random
+import random
 
 import pajbot.exc
 import pajbot.models

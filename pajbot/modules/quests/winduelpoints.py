@@ -1,6 +1,6 @@
 import logging
 
-from numpy import random
+import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
@@ -94,7 +94,7 @@ class WinDuelPointsQuestModule(BaseQuest):
             pass
         if self.points_required is None:
             try:
-                self.points_required = random.randint(self.settings["min_value"], self.settings["max_value"] + 1)
+                self.points_required = random.randint(self.settings["min_value"], self.settings["max_value"])
             except ValueError:
                 # someone fucked up
                 self.points_required = 500
