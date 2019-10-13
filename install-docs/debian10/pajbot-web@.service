@@ -7,7 +7,8 @@ Type=simple
 User=pajbot
 Group=pajbot
 WorkingDirectory=/opt/pajbot
-ExecStart=/opt/pajbot/venv/bin/uwsgi --ini uwsgi_shared.ini --socket /srv/pajbot/%i-web.sock --pyargv "--config configs/%i.ini" --virtualenv venv
+RuntimeDirectory=pajbot/%i
+ExecStart=/opt/pajbot/venv/bin/uwsgi --ini uwsgi_shared.ini --socket /var/run/pajbot/%i/web.sock --pyargv "--config configs/%i.ini" --virtualenv venv
 RestartSec=2
 Restart=always
 

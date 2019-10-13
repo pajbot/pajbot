@@ -7,6 +7,7 @@ Type=simple
 User=pajbot
 Group=pajbot
 WorkingDirectory=/opt/pajbot
+RuntimeDirectory=pajbot/%i
 ExecStart=/opt/pajbot/venv/bin/python3 main.py --config "configs/%i.ini"
 RestartSec=2
 Restart=always

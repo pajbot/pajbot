@@ -1,9 +1,9 @@
 upstream kkonatestbroadcaster-botsite {
-    server unix:///srv/pajbot/kkonatestbroadcaster-web.sock;
+    server unix:///var/run/pajbot/kkonatestbroadcaster/web.sock;
 }
 
 upstream kkonatestbroadcaster-websocket {
-    server unix:///srv/pajbot/kkonatestbroadcaster-websocket.sock;
+    server unix:///var/run/pajbot/kkonatestbroadcaster/websocket.sock;
 }
 
 server {
