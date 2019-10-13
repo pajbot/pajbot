@@ -57,6 +57,11 @@ class ModeratorsRefreshModule(BaseModule):
             return
 
         moderator_logins = self._parse_pubnotice_for_mods(msg_id, message)
+
+        # The broadcaster also has the privileges of a moderator
+        if self.bot.streamer not in moderator_logins:
+            moderator_logins.append(self.bot.streamer)
+
         if moderator_logins is not None:
             self.bot.action_queue.submit(self._process_moderator_logins, moderator_logins)
 
