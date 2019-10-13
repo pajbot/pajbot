@@ -63,6 +63,8 @@ def up(cursor, bot):
         if tokens is None:
             # invalid amount in redis, skip
             continue
+        if tokens > 50:
+            tokens = 50
         cursor.execute('UPDATE "user" SET tokens = %s WHERE login = %s', (tokens, login))
 
     # new: last_seen
