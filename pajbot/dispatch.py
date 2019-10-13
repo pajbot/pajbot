@@ -385,7 +385,7 @@ class Dispatch:
     def check_sub(bot, source, message, event, args):
         if message:
             input = message.split(" ")[0]
-            with DBManager.create_session_scope() as db_session:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 user = User.find_by_user_input(db_session, input)
 
                 if user is None:

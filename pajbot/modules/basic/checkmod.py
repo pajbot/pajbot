@@ -21,7 +21,7 @@ class CheckModModule(BaseModule):
     def check_mod(bot, source, message, **rest):
         if message:
             username = message.split(" ")[0]
-            with DBManager.create_session_scope() as db_session:
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 user = User.find_by_user_input(db_session, username)
 
                 if user is None:
