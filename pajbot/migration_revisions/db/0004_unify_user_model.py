@@ -115,10 +115,18 @@ def up(cursor, bot):
     users_count = cursor.fetchone()[0]
 
     if users_count > 0:
+        # create Server-side cursor
+        cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
+
         progress_bar = tqdm(total=users_count, unit="users")
-        for offset in range(0, users_count, 100):
-            cursor.execute('SELECT id, login FROM "user" ORDER BY id LIMIT 100 OFFSET %s FOR UPDATE', (offset,))
+        while True:
+            cursor.execute("FETCH FORWARD 100 FROM all_users")
             rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
+
+            if len(rows) <= 0:
+                # done!
+                progress_bar.close()
+                break
 
             usernames_to_fetch = [t[1] for t in rows]
             all_user_basics = retry_call(
@@ -133,7 +141,8 @@ def up(cursor, bot):
                     )
                 progress_bar.update()
 
-        progress_bar.close()
+        # release the cursor again
+        cursor.execute("CLOSE all_users")
 
     # update admin logs to primary-key by Twitch ID.
     admin_logs_key = f"{bot.streamer}:logs:admin"
