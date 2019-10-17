@@ -24,6 +24,8 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 
 - Feature: Added module to fetch current chatters and update the database back to the bot (was previously [a microservice](https://github.com/pajbot/chatters)). Includes a new `!reload chatters` command.
 - Feature: Added `!reload subscribers` command to force refresh of subscriber status in the DB.
+- Minor: You can now reference users by their display name, even if the display name contains asian characters (e.g. `!checkmod 테스트계정420` finds the user correctly).
+- Minor: Messages shared with the streamer as part of resub messages are now processed like normal chat messages (They were not processed at all before).
 - Minor: Added `?user_input=true` optional parameter to `/api/v1/users/:login` endpoint to query for usernames more fuzzily.
 - Minor: Added `/api/v1/users/id/:id` to look up users by ID.
 - Minor: Removed system to synchronize points updates to StreamElements.
