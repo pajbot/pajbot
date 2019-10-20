@@ -226,15 +226,18 @@ def up(cursor, bot):
         # create Server-side cursor
         cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
 
-        progress_bar = tqdm(total=users_count, unit="users")
+        offset = 0
+
         while True:
             cursor.execute("FETCH FORWARD 100 FROM all_users")
             rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
 
             if len(rows) <= 0:
                 # done!
-                progress_bar.close()
                 break
+
+            offset += 100
+            log.info(f"{offset}/{users_count}")
 
             usernames_to_fetch = [t[1] for t in rows]
             all_user_basics = retry_call(
@@ -247,7 +250,6 @@ def up(cursor, bot):
                         'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s',
                         (basics.id, basics.login, basics.name, id),
                     )
-                progress_bar.update()
 
         # release the cursor again
         cursor.execute("CLOSE all_users")
