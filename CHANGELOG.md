@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+## v1.38
+
 Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!
 
 - Major: User data is not stored in redis anymore. Relevant data will automatically be migrated.
