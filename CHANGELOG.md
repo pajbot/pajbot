@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
+
 ## v1.38
 
 Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!

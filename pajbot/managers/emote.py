@@ -186,7 +186,6 @@ class EmoteManager:
 
         for emote_src in tag.split("/"):
             emote_id, emote_instances_src = emote_src.split(":")
-            emote_id = int(emote_id)
 
             for emote_instance_src in emote_instances_src.split(","):
                 start_src, end_src = emote_instance_src.split("-")
