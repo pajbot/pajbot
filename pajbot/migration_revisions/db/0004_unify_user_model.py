@@ -51,10 +51,10 @@ def up(cursor, bot):
             return None
 
     # # threaded user id migration
-# import time
-# import random
-# import threading
-# import queue
+    # import time
+    # import random
+    # import threading
+    # import queue
     # log.info("start user id migration")
     # # migrate users to ID
     # cursor.execute('SELECT COUNT(*) FROM "user"')
