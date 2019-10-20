@@ -24,7 +24,7 @@ def pull_lol(low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltb
     for e in high_tier_emotes:
         slot_options += [e]
 
-    randomized_emotes = random.sample(slot_options, 3)
+    randomized_emotes = random.choices(slot_options, k=3)
 
     # figure out results of these randomized emotes xd
     bet_return = 0.0
