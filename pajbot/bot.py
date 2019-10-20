@@ -6,8 +6,8 @@ import sys
 import urllib
 
 import irc.client
+import random
 import requests
-from numpy import random
 from pytz import timezone
 
 import pajbot.migration_revisions.db

@@ -1,13 +1,15 @@
 from contextlib import contextmanager
 
 import json
+import logging
 
 import datetime
 
 from retry.api import retry_call
-from tqdm import tqdm
 
 from pajbot.managers.redis import RedisManager
+
+log = logging.getLogger("pajbot")
 
 
 def up(cursor, bot):
@@ -35,9 +37,6 @@ def up(cursor, bot):
     # subscriber: add default
     cursor.execute('ALTER TABLE "user" ALTER COLUMN subscriber SET DEFAULT FALSE')
 
-    # points: INT -> BIGINT
-    cursor.execute('ALTER TABLE "user" ALTER COLUMN points SET DATA TYPE BIGINT')
-
     # new: moderator
     cursor.execute('ALTER TABLE "user" ADD COLUMN moderator BOOLEAN NOT NULL DEFAULT FALSE')
 
@@ -51,6 +50,113 @@ def up(cursor, bot):
         except ValueError:
             return None
 
+    # # threaded user id migration
+    # import time
+    # import random
+    # import threading
+    # import queue
+    # log.info("start user id migration")
+    # # migrate users to ID
+    # cursor.execute('SELECT COUNT(*) FROM "user"')
+    # users_count = cursor.fetchone()[0]
+
+    # q = queue.Queue(500)
+    # update_q = queue.Queue()
+
+    # def update_rows(all_user_data):
+    #     # log.info("updating rows")
+    #     for id, basics in all_user_data:
+    #         if basics is not None:
+    #             try:
+    #                 cursor.execute(
+    #                     'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s' ,
+    #                     (basics.id, basics.login, basics.name, id),
+    #                 )
+    #             except:
+    #                 log.exception("Error in update rows")
+    #                 log.info(f"XXX basics: {basics.login} - {basics.id}")
+    #                 raise
+
+    # class GetAndLockRows(threading.Thread):
+    #     def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
+    #         super(GetAndLockRows, self).__init__()
+    #         self.target = target
+    #         self.name = name
+
+    #     def run(self):
+    #         cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
+
+    #         offset = 0
+
+    #         while True:
+    #             while not update_q.empty():
+    #                 update_rows(update_q.get())
+
+    #             while q.full():
+    #                 while not update_q.empty():
+    #                     update_rows(update_q.get())
+    #                 log.info("helix api queue is full, waiting")
+    #                 time.sleep(random.random() * 0.5)
+
+    #             cursor.execute("FETCH FORWARD 100 FROM all_users")
+    #             rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
+    #             if len(rows) <= 0:
+    #                 break
+
+    #             offset += 100
+    #             log.info(f"{offset}/{users_count}")
+    #             q.put(rows)
+
+    #             while not update_q.empty():
+    #                 update_rows(update_q.get())
+
+    #         cursor.execute("CLOSE all_users")
+
+    #         log.info("Wait for q queue to fully empty")
+    #         q.join()
+    #         log.info("q queue is fully empty, process last users in update_q")
+
+    #         while not update_q.empty():
+    #             update_rows(update_q.get())
+
+    #         log.info("done updating all rows")
+
+    # class ConsumeRowsAndGetHelixData(threading.Thread):
+    #     def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
+    #         super(ConsumeRowsAndGetHelixData, self).__init__()
+    #         self.target = target
+    #         self.name = name
+    #         self.running = True
+
+    #     def run(self):
+    #         while self.running:
+    #             while not q.empty():
+    #                 rows = q.get()
+    #                 usernames_to_fetch = [t[1] for t in rows]
+    #                 all_user_basics = retry_call(
+    #                     bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
+    #                 )
+    #                 update_q.put(zip((t[0] for t in rows), all_user_basics))
+    #                 q.task_done()
+
+    #             time.sleep(random.random() * 0.1)
+
+    # if users_count > 0:
+    #     get_and_lock_rows = GetAndLockRows(name="get_and_lock_rows")
+    #     get_and_lock_rows.start()
+    #     consume_rows_and_get_helix_data = ConsumeRowsAndGetHelixData(name="consume_rows_and_get_helix_data")
+    #     consume_rows_and_get_helix_data.start()
+    #     get_and_lock_rows.join()
+    #     consume_rows_and_get_helix_data.running = False
+    #     consume_rows_and_get_helix_data.join()
+
+    # log.info("done with userid migration")
+
+    # points: INT -> BIGINT
+    log.info("change points to BIGINT")
+    cursor.execute('ALTER TABLE "user" ALTER COLUMN points SET DATA TYPE BIGINT')
+
+    log.info("import lines from redis")
     for login, num_lines in redis.zscan_iter(f"{bot.streamer}:users:num_lines", score_cast_func=safe_to_int):
         if num_lines is None:
             # invalid amount in redis, skip
@@ -68,12 +174,14 @@ def up(cursor, bot):
         cursor.execute('UPDATE "user" SET tokens = %s WHERE login = %s', (tokens, login))
 
     # new: last_seen
+    log.info("import last seen from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_seen TIMESTAMPTZ DEFAULT NULL')
     for login, last_seen_raw in redis.hscan_iter(f"{bot.streamer}:users:last_seen"):
         last_seen = datetime.datetime.fromtimestamp(float(last_seen_raw), tz=datetime.timezone.utc)
         cursor.execute('UPDATE "user" SET last_seen = %s WHERE login = %s', (last_seen, login))
 
     # new: last_active
+    log.info("import last active from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_active TIMESTAMPTZ DEFAULT NULL')
     for login, last_active_raw in redis.hscan_iter(f"{bot.streamer}:users:last_active"):
         last_seen = datetime.datetime.fromtimestamp(float(last_active_raw), tz=datetime.timezone.utc)
@@ -114,26 +222,35 @@ def up(cursor, bot):
     cursor.execute('SELECT COUNT(*) FROM "user"')
     users_count = cursor.fetchone()[0]
 
-    if users_count > 0:
-        progress_bar = tqdm(total=users_count, unit="users")
-        for offset in range(0, users_count, 100):
-            cursor.execute('SELECT id, login FROM "user" ORDER BY id LIMIT 100 OFFSET %s FOR UPDATE', (offset,))
-            rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
+    # create Server-side cursor
+    cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
 
-            usernames_to_fetch = [t[1] for t in rows]
-            all_user_basics = retry_call(
-                bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
-            )
+    offset = 0
+    while True:
+        cursor.execute("FETCH FORWARD 100 FROM all_users")
+        rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
 
-            for id, basics in zip((t[0] for t in rows), all_user_basics):
-                if basics is not None:
-                    cursor.execute(
-                        'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s',
-                        (basics.id, basics.login, basics.name, id),
-                    )
-                progress_bar.update()
+        if len(rows) <= 0:
+            # done!
+            break
 
-        progress_bar.close()
+        offset += 100
+        log.info(f"{offset}/{users_count}")
+
+        usernames_to_fetch = [t[1] for t in rows]
+        all_user_basics = retry_call(
+            bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
+        )
+
+        for id, basics in zip((t[0] for t in rows), all_user_basics):
+            if basics is not None:
+                cursor.execute(
+                    'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s',
+                    (basics.id, basics.login, basics.name, id),
+                )
+
+    # release the cursor again
+    cursor.execute("CLOSE all_users")
 
     # update admin logs to primary-key by Twitch ID.
     admin_logs_key = f"{bot.streamer}:logs:admin"

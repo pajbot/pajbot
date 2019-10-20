@@ -110,7 +110,7 @@ class AccessToken(ABC):
             expires_in=expires_in,
             token_type=response["token_type"],
             refresh_token=response.get("refresh_token", None),
-            scope=response.get("scope", None),
+            scope=response.get("scope", []),
         )
 
     @abstractmethod

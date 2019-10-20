@@ -42,7 +42,6 @@ Mako==1.1.0
 Markdown==3.1.1
 MarkupSafe==1.1.1
 more-itertools==7.2.0
-numpy==1.17.1
 oauthlib==2.1.0
 Pillow==6.1.0
 psycopg2==2.8.3
@@ -73,7 +72,6 @@ soupsieve==1.9.3
 SQLAlchemy==1.3.8
 SQLAlchemy-Utc==0.10.0
 tempora==1.14.1
-tqdm==4.36.1
 traceback2==1.4.0
 tweepy==3.8.0
 Twisted==19.7.0

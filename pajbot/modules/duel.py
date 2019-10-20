@@ -1,7 +1,8 @@
 import logging
 
 from datetime import timedelta
-from numpy import random
+
+import random
 
 from pajbot import utils
 from pajbot.managers.db import DBManager

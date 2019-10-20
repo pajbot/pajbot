@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+- Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
+
+## v1.38
+
 Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!
 
 - Major: User data is not stored in redis anymore. Relevant data will automatically be migrated.
@@ -46,7 +50,8 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 - Bugfix: Removed unfinished "email tag" API.
 - Bugfix: If the bot is restarted during an active HSBet game, bets will no longer be lost.
 - Bugfix: Web process no longer creates a super long-running database transaction that was never closed.
-- Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
+- Bugfix: Will no longer run all redis migrations on every bot startup.
+- Bugfix: Fixed a crash when an app access token expired and needed to be refreshed.
 
 ## v1.37
 
