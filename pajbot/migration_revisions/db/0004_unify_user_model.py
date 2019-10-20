@@ -221,11 +221,11 @@ def up(cursor, bot):
     # migrate users to ID
     cursor.execute('SELECT COUNT(*) FROM "user"')
     users_count = cursor.fetchone()[0]
-    offset = 0
 
     # create Server-side cursor
     cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
 
+    offset = 0
     while True:
         cursor.execute("FETCH FORWARD 100 FROM all_users")
         rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
