@@ -221,38 +221,36 @@ def up(cursor, bot):
     # migrate users to ID
     cursor.execute('SELECT COUNT(*) FROM "user"')
     users_count = cursor.fetchone()[0]
+    offset = 0
 
-    if users_count > 0:
-        # create Server-side cursor
-        cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
+    # create Server-side cursor
+    cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
 
-        offset = 0
+    while True:
+        cursor.execute("FETCH FORWARD 100 FROM all_users")
+        rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
 
-        while True:
-            cursor.execute("FETCH FORWARD 100 FROM all_users")
-            rows = cursor.fetchall()  # = [(id, login), (id, login), (id, login), ...]
+        if len(rows) <= 0:
+            # done!
+            break
 
-            if len(rows) <= 0:
-                # done!
-                break
+        offset += 100
+        log.info(f"{offset}/{users_count}")
 
-            offset += 100
-            log.info(f"{offset}/{users_count}")
+        usernames_to_fetch = [t[1] for t in rows]
+        all_user_basics = retry_call(
+            bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
+        )
 
-            usernames_to_fetch = [t[1] for t in rows]
-            all_user_basics = retry_call(
-                bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
-            )
+        for id, basics in zip((t[0] for t in rows), all_user_basics):
+            if basics is not None:
+                cursor.execute(
+                    'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s',
+                    (basics.id, basics.login, basics.name, id),
+                )
 
-            for id, basics in zip((t[0] for t in rows), all_user_basics):
-                if basics is not None:
-                    cursor.execute(
-                        'UPDATE "user" SET twitch_id = %s, login = %s, name = %s WHERE id = %s',
-                        (basics.id, basics.login, basics.name, id),
-                    )
-
-        # release the cursor again
-        cursor.execute("CLOSE all_users")
+    # release the cursor again
+    cursor.execute("CLOSE all_users")
 
     # update admin logs to primary-key by Twitch ID.
     admin_logs_key = f"{bot.streamer}:logs:admin"
