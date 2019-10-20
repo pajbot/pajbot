@@ -638,6 +638,10 @@ class Bot:
         msg_lower = message.lower()
 
         emote_tag = tags["emotes"]
+        if emote_tag is None:
+            # Temporary debugging code to investigate issue #579
+            log.info("Got a message with emote_tag=None, event is: %s", event)
+
         msg_id = tags.get("id", None)  # None on whispers!
 
         if not whisper and event.target == self.channel:
