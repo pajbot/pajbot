@@ -179,7 +179,7 @@ class EmoteManager:
 
     @staticmethod
     def parse_twitch_emotes_tag(tag, message):
-        if tag is None or len(tag) <= 0:
+        if len(tag) <= 0:
             return []
 
         emote_instances = []
@@ -216,7 +216,7 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message, twitch_emotes_tag=None):
+    def parse_all_emotes(self, message, twitch_emotes_tag=""):
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
