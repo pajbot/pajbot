@@ -637,6 +637,7 @@ class Bot:
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
 
+        emote_tag = tags["emotes"]
         msg_id = tags.get("id", None)  # None on whispers!
 
         if not whisper and event.target == self.channel:
