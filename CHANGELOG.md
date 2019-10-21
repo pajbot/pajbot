@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: The bow now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 
 ## v1.38

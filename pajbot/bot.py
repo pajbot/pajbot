@@ -106,7 +106,6 @@ class Bot:
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
-        StreamHelper.init_streamer(self.streamer)
 
         log.debug("Loaded config")
 
@@ -131,6 +130,8 @@ class Bot:
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
         if self.streamer_user_id is None:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+
+        StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
         # SQL migrations
         # engine.connect() returns a SQLAlchemy `Connection` object.
@@ -170,8 +171,7 @@ class Bot:
 
         self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
-
-        StreamHelper.init_bot(self, self.stream_manager)
+        StreamHelper.init_stream_manager(self.stream_manager)
         ScheduleManager.init()
 
         self.decks = DeckManager()
