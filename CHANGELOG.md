@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 
 ## v1.38

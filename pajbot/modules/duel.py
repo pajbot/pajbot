@@ -7,6 +7,7 @@ import random
 from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
+from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.models.user import User
@@ -80,6 +81,15 @@ class DuelModule(BaseModule):
         ModuleSetting(
             key="show_on_clr", label="Show duels on the clr overlay", type="boolean", required=True, default=True
         ),
+        ModuleSetting(
+            key="max_duel_age",
+            label="Auto-cancel duels after this many minutes",
+            type="number",
+            required=True,
+            placeholder="",
+            default=5,
+            constraints={"min_value": 1, "max_value": 60},
+        ),
     ]
 
     def load_commands(self, **options):
@@ -125,6 +135,9 @@ class DuelModule(BaseModule):
         self.duel_requests = {}
         self.duel_request_price = {}
         self.duel_targets = {}
+        self.duel_begin_time = {}
+
+        self.gc_job = None
 
     def initiate_duel(self, bot, source, message, **rest):
         """
@@ -202,6 +215,7 @@ class DuelModule(BaseModule):
             self.duel_targets[user.id] = source.id
             self.duel_requests[source.id] = user.id
             self.duel_request_price[source.id] = duel_price
+            self.duel_begin_time[source.id] = utils.now()
             bot.whisper(
                 user,
                 f"You have been challenged to a duel by {source} for {duel_price} points. You can either !accept or !deny this challenge.",
@@ -225,6 +239,8 @@ class DuelModule(BaseModule):
 
         del self.duel_targets[self.duel_requests[source.id]]
         del self.duel_requests[source.id]
+        del self.duel_request_price[source.id]
+        del self.duel_begin_time[source.id]
 
     def accept_duel(self, bot, source, **rest):
         """
@@ -253,6 +269,8 @@ class DuelModule(BaseModule):
 
                 del self.duel_requests[self.duel_targets[source.id]]
                 del self.duel_targets[source.id]
+                del self.duel_request_price[source.id]
+                del self.duel_begin_time[source.id]
 
                 return False
 
@@ -287,6 +305,8 @@ class DuelModule(BaseModule):
 
             del self.duel_requests[self.duel_targets[source.id]]
             del self.duel_targets[source.id]
+            del self.duel_request_price[source.id]
+            del self.duel_begin_time[source.id]
 
             HandlerManager.trigger(
                 "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
@@ -311,6 +331,8 @@ class DuelModule(BaseModule):
 
             del self.duel_targets[source.id]
             del self.duel_requests[requestor.id]
+            del self.duel_request_price[source.id]
+            del self.duel_begin_time[source.id]
 
     def status_duel(self, bot, source, **rest):
         """
@@ -349,3 +371,38 @@ class DuelModule(BaseModule):
             source,
             f"duels: {source.duel_stats.duels_total} winrate: {source.duel_stats.winrate:.2f}% streak: {source.duel_stats.current_streak} profit: {source.duel_stats.profit}",
         )
+
+    def _cancel_expired_duels(self):
+        now = utils.now()
+        for source_id, started_at in self.duel_begin_time.items():
+            duel_age = now - started_at
+            if duel_age <= timedelta(minutes=self.settings["max_duel_age"]):
+                # Duel is not too old
+                continue
+
+            with DBManager.create_session_scope() as db_session:
+                source = User.find_by_id(db_session, source_id)
+                challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+
+                if source is not None and challenged is not None:
+                    self.bot.whisper(
+                        source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
+                    )
+
+                del self.duel_targets[self.duel_requests[source.id]]
+                del self.duel_requests[source.id]
+                del self.duel_request_price[source.id]
+                del self.duel_begin_time[source.id]
+
+    def enable(self, bot):
+        if not bot:
+            return
+
+        self.gc_job = ScheduleManager.execute_every(30, lambda: self.bot.execute_now(self._cancel_expired_duels))
+
+    def disable(self, bot):
+        if not bot:
+            return
+
+        self.gc_job.remove()
+        self.gc_job = None
