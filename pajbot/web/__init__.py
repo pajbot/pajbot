@@ -82,7 +82,7 @@ def init(args):
 
     if "logo" not in config["web"]:
         try:
-            download_logo(twitch_helix_api, streamer)
+            download_logo(twitch_helix_api, streamer, streamer_user_id)
             config.set("web", "logo", "set")
         except:
             log.exception("Error downloading logo")
