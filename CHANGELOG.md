@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 

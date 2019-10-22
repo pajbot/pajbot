@@ -4,10 +4,12 @@ import collections
 class StreamHelper:
     """ Staticly available class with a bunch of useful variables.
     streamer: The name of the streamer in full lowercase
+    streamer_id: The Twitch user ID of the streamer (a string)
     stream_id: The ID of the current stream. False if the stream is not live
     """
 
     streamer = "Unknown"
+    streamer_id = "Unknown"
     stream_manager = None
     social_keys_unsorted = {
         "twitter": {"format": "https://twitter.com/{}", "title": "Twitter"},
@@ -23,21 +25,21 @@ class StreamHelper:
     valid_social_keys = set(social_keys.keys())
 
     @staticmethod
-    def init_bot(bot, stream_manager):
-        StreamHelper.init_streamer(bot.streamer)
+    def init_stream_manager(stream_manager):
         StreamHelper.stream_manager = stream_manager
 
     @staticmethod
-    def init_web(streamer):
-        StreamHelper.init_streamer(streamer)
-
-    @staticmethod
-    def init_streamer(streamer):
+    def init_streamer(streamer, streamer_id):
         StreamHelper.streamer = streamer
+        StreamHelper.streamer_id = streamer_id
 
     @staticmethod
     def get_streamer():
         return StreamHelper.streamer
+
+    @staticmethod
+    def get_streamer_id():
+        return StreamHelper.streamer_id
 
     @staticmethod
     def get_current_stream_id():
