@@ -73,6 +73,8 @@ class Bot:
         self.last_ping = utils.now()
         self.last_pong = utils.now()
 
+        ScheduleManager.init()
+
         DBManager.init(self.config["main"]["db"])
 
         # redis
@@ -172,7 +174,6 @@ class Bot:
         self.stream_manager = StreamManager(self)
 
         StreamHelper.init_bot(self, self.stream_manager)
-        ScheduleManager.init()
 
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
