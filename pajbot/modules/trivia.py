@@ -62,8 +62,7 @@ class TriviaModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
 
-        self.job = ScheduleManager.execute_every(1, self.poll_trivia)
-        self.job.pause()
+        self.job = None
 
         self.trivia_running = False
         self.last_question = None
@@ -164,7 +163,7 @@ class TriviaModule(BaseModule):
             return
 
         self.trivia_running = True
-        self.job.resume()
+        self.job = ScheduleManager.execute_every(1, self.poll_trivia)
 
         try:
             self.point_bounty = int(message)
@@ -187,7 +186,8 @@ class TriviaModule(BaseModule):
             bot.safe_me(f"{source}, no trivia is active right now")
             return
 
-        self.job.pause()
+        self.job.remove()
+        self.job = None
         self.trivia_running = False
         self.step_end()
 
