@@ -1,5 +1,6 @@
 import logging
 
+from requests import HTTPError
 from sqlalchemy import text
 
 from pajbot.apiwrappers.authentication.token_manager import UserAccessTokenManager, NoTokenError
@@ -47,6 +48,15 @@ class SubscriberFetchModule(BaseModule):
                 "Have the streamer log in with the /streamer_login web route to enable subscriber fetch."
             )
             return
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.warning(
+                    "Cannot fetch subscribers because the streamer token does not grant access to the "
+                    "subscribers list. Have the streamer log in again with the /streamer_login route"
+                )
+                return
+            else:
+                raise
 
         user_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(subscriber_ids)
         # filter out deleted/invalid users

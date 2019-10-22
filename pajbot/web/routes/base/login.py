@@ -55,7 +55,7 @@ def init(app):
             state=state,
             scope=(
                 "user_read user:edit user:read:email channel:moderate chat:edit "
-                + "chat:read whispers:read whispers:edit channel_editor"
+                + "chat:read whispers:read whispers:edit channel_editor channel:read:subscriptions"
             ),
             force_verify="true",
         )
