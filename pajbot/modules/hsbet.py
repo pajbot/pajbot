@@ -71,11 +71,6 @@ class HSBetModule(BaseModule):
         self.first_fetch = True
         self.last_game = None
 
-        self.poll_job = ScheduleManager.execute_every(15, self.poll_trackobot)
-        self.poll_job.pause()
-        self.reminder_job = ScheduleManager.execute_every(1, self.reminder_bet)
-        self.reminder_job.pause()
-
     def get_current_game(self, db_session, with_bets=False, with_users=False):
         query = db_session.query(HSBetGame).filter(HSBetGame.is_running)
 
@@ -347,12 +342,15 @@ class HSBetModule(BaseModule):
 
     def enable(self, bot):
         if bot:
-            self.poll_job.resume()
-            self.reminder_job.resume()
+            self.poll_job = ScheduleManager.execute_every(15, self.poll_trackobot)
+            self.reminder_job = ScheduleManager.execute_every(1, self.reminder_bet)
 
     def disable(self, bot):
         if bot:
-            self.poll_job.pause()
-            self.reminder_job.pause()
+            self.poll_job.remove()
+            self.poll_job = None
+            self.reminder_job.remove()
+            self.reminder_job = None
+
             self.first_fetch = True
             self.last_game = None
