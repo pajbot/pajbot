@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added setting to configure bypass level to "Link Checker" module.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 
