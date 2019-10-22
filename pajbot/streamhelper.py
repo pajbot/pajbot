@@ -4,7 +4,7 @@ import collections
 class StreamHelper:
     """ Staticly available class with a bunch of useful variables.
     streamer: The name of the streamer in full lowercase
-    streamer_id: The name of the streamer in full lowercase
+    streamer_id: The Twitch user ID of the streamer (a string)
     stream_id: The ID of the current stream. False if the stream is not live
     """
 
