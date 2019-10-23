@@ -19,6 +19,7 @@
 
 # Also see Pull Request #596: https://github.com/pajbot/pajbot/pull/596
 
+
 def up(cursor, bot):
     # This query selects the "NOT NULL" state of the pleblist_song.user_id column, which we can use
     # to determine whether this database was migrated with the bugged or fixed version of 0004_unify_user_model
