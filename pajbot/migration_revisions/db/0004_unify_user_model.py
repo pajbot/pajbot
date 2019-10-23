@@ -298,7 +298,7 @@ def up(cursor, bot):
     update_foreign_key("command_data", "added_by", nullable=True)
     update_foreign_key("command_data", "edited_by", nullable=True)
     update_foreign_key("hsbet_bet", "user_id")
-    update_foreign_key("pleblist_song", "user_id")
+    update_foreign_key("pleblist_song", "user_id", nullable=True)
     update_foreign_key("prediction_run_entry", "user_id")
     update_foreign_key("roulette", "user_id")
     with also_move_pkey("user_duel_stats", "user_id"):
@@ -360,7 +360,7 @@ def up(cursor, bot):
     add_foreign_key_again("command_data", "added_by", nullable=True)
     add_foreign_key_again("command_data", "edited_by", nullable=True)
     add_foreign_key_again("hsbet_bet", "user_id")
-    add_foreign_key_again("pleblist_song", "user_id")
+    add_foreign_key_again("pleblist_song", "user_id", nullable=True)
     add_foreign_key_again("prediction_run_entry", "user_id")
     add_foreign_key_again("roulette", "user_id")
     add_foreign_key_again("user_duel_stats", "user_id")
