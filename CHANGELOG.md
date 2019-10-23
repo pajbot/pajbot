@@ -10,6 +10,7 @@
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
 - Bugfix: Fixed subscriber update failing if the broadcaster had no subscription program.
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
+- Bugfix: Mass ping protection will no longer count inactive users (never seen before or seen longer than 2 weeks ago).
 
 ## v1.38
 
