@@ -67,8 +67,7 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(twitch_helix_api, streamer):
-    streamer_id = twitch_helix_api.require_user_id(streamer)
+def download_logo(twitch_helix_api, streamer, streamer_id):
     logo_url = twitch_helix_api.get_profile_image_url(streamer_id)
 
     logo_raw_path = f"static/images/logo_{streamer}.png"

@@ -172,6 +172,15 @@ class LinkCheckerModule(BaseModule):
             default=60,
             constraints={"min_value": 1, "max_value": 3600},
         ),
+        ModuleSetting(
+            key="bypass_level",
+            label="Level to bypass module",
+            type="number",
+            required=True,
+            placeholder="",
+            default=500,
+            constraints={"min_value": 100, "max_value": 1000},
+        ),
     ]
 
     def __init__(self, bot):
@@ -237,7 +246,7 @@ class LinkCheckerModule(BaseModule):
         if whisper:
             return
 
-        if source.level >= 500 or source.moderator is True:
+        if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
         if len(urls) > 0:
