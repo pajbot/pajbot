@@ -4,7 +4,7 @@
 
 - Major: `pleblist_song` table mistakenly wiped any non-user-connected rows in v1.38, this version will make the `pleblist_song` table able to contain non-user-connected rows again.
 
-  Here I will put instructions for how to load your old database into a temporary one and getting those lost rows back:
+  Here I will put instructions for how to load your old schema into a temporary schema and getting those lost rows back:
 
   ```bash
   script goes here
