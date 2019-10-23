@@ -2,10 +2,12 @@
 
 ## Unversioned
 
+- Minor: The regular refresh of the points_rank and num_lines_rank is now randomly jittered by ±30s to reduce CPU spikes when multiple instances are restarted at the same time
 - Minor: Added setting to configure bypass level to "Link Checker" module.
 - Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
+- Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 
 ## v1.38
 
