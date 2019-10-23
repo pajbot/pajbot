@@ -2,6 +2,14 @@
 
 ## Unversioned
 
+- Major: `pleblist_song` table mistakenly wiped any non-user-connected rows in v1.38, this version will make the `pleblist_song` table able to contain non-user-connected rows again.
+
+  Here I will put instructions for how to load your old database into a temporary one and getting those lost rows back:
+
+  ```bash
+  script goes here
+  ```
+
 - Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
