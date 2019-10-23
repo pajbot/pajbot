@@ -29,7 +29,7 @@ def up(cursor, bot):
     FROM pg_attribute
     WHERE
         attrelid = 'pleblist_song'::regclass
-        and attname = 'user_id'
+        AND attname = 'user_id'
     """
     )
     pleblist_song_user_id_column_unnullable = cursor.fetchone()[0]
