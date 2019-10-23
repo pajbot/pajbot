@@ -2,7 +2,8 @@
 
 
 def up(cursor, bot):
-    # This query selects the "nullable" state of the pleblist_song.user_id column
+    # This query selects the "unnullable" state of the pleblist_song.user_id column
+    # We use this as a check for whether this schema has run migration 0004_unify_user_model in its non-fixed state, as that's what we're trying to remedy
     cursor.execute(
         """
     SELECT attnotnull
