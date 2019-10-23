@@ -8,6 +8,7 @@
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
+- Bugfix: Fixed subscriber update failing if the broadcaster had no subscription program.
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 
 ## v1.38
