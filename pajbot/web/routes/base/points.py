@@ -6,7 +6,6 @@ from flask import render_template
 from sqlalchemy import text
 
 from pajbot.managers.db import DBManager
-from pajbot.models.module import Module
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import ChattersRefreshModule
