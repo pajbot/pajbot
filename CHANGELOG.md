@@ -3,12 +3,13 @@
 ## Unversioned
 
 - Minor: Added setting to configure bypass level to "Link Checker" module.
+- Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 
 ## v1.38
 
-Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: User data is not stored in redis anymore. Relevant data will automatically be migrated.
 - Major: Added automatic support for Twitch name changes. (`!namechange` command has been removed.)
@@ -57,15 +58,14 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 
 ## v1.37
 
-Remember to bring your dependencies up to date with
-`pip install -r requirements.txt` when updating to this version!
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: pajbot now uses PostgreSQL instead of MySQL as its supported
   database engine. It is not possible to continue to use MySQL.  
   To migrate your existing database(s):
 
   - Install new requirements from apt: `sudo apt-get install libpq-dev`
-  - Bring your installed dependencies up-to-date with `pip install -r requirements.txt`
+  - Bring your installed dependencies up-to-date with `./scripts/venvinstall.sh`
   - Install and start PostgreSQL, if you have not done so already
   - Create the pajbot PostgreSQL user, a database and optionally a schema for
     the bot to use. (see the updated SQL section of

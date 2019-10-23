@@ -74,15 +74,20 @@ def init(args):
         salt = generate_random_salt()
         config.set("web", "secret_key", salt.decode("utf-8"))
 
+    streamer = config["main"]["streamer"]
+    streamer_user_id = twitch_helix_api.get_user_id(streamer)
+    if streamer_user_id is None:
+        raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+    StreamHelper.init_streamer(streamer, streamer_user_id)
+
     if "logo" not in config["web"]:
         try:
-            download_logo(twitch_helix_api, config["main"]["streamer"])
+            download_logo(twitch_helix_api, streamer, streamer_user_id)
             config.set("web", "logo", "set")
         except:
             log.exception("Error downloading logo")
 
-    StreamHelper.init_web(config["main"]["streamer"])
-    SocketClientManager.init(config["main"]["streamer"])
+    SocketClientManager.init(streamer)
 
     with open(args.config, "w") as configfile:
         config.write(configfile)
