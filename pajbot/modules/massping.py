@@ -99,7 +99,7 @@ class MassPingProtectionModule(BaseModule):
                 db_session.query(User)
                 .with_entities(count())
                 .filter(or_(User.login.in_(usernames), func.lower(User.name).in_(usernames)))
-                .filter(and_(User.last_seen != None, (func.now() - User.last_seen) > timedelta(weeks=2)))
+                .filter(and_(User.last_seen.isnot(None), (func.now() - User.last_seen) > timedelta(weeks=2)))
                 .scalar()
             )
 
