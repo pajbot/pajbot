@@ -49,12 +49,7 @@ class DBManager:
         expire_on_commit=False
         """
 
-        try:
-            return DBManager.Session(**options)
-        except:
-            log.exception("Unhandled exception while creating a session")
-
-        return None
+        return DBManager.Session(**options)
 
     @staticmethod
     def create_scoped_session(**options):
@@ -63,12 +58,7 @@ class DBManager:
         expire_on_commit=False
         """
 
-        try:
-            return DBManager.ScopedSession(**options)
-        except:
-            log.exception("Unhandled exception while creating a scoped session")
-
-        return None
+        return DBManager.ScopedSession(**options)
 
     @staticmethod
     def session_add_expunge(db_object, **options):
