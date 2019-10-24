@@ -9,7 +9,6 @@ from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
-from pajbot.streamhelper import StreamHelper
 from pajbot.utils import time_method
 
 log = logging.getLogger(__name__)
@@ -64,7 +63,7 @@ class SubscriberFetchModule(BaseModule):
         user_basics = [e for e in user_basics if e is not None]
 
         # count how many subs we have (we don't want to count the broadcaster with his permasub)
-        sub_count = sum(1 for basics in user_basics if basics.id != StreamHelper.get_streamer_id())
+        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer_user_id)
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:
