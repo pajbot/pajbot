@@ -48,7 +48,7 @@ sudo apt install git
 sudo apt install libssl-dev libpq-dev python3 python3-pip python3-venv
 
 #
-# download pajbot code and dependencies
+# Download pajbot code and dependencies
 #
 cd
 git clone https://github.com/pajlada/pajbot.git
@@ -58,12 +58,12 @@ cd pajbot
 source venv/bin/activate
 
 #
-# create pajbot system user
+# Create pajbot system user
 #
 sudo adduser --system --group pajbot --home /opt/pajbot
 
 #
-# install redis and postgresql for pajbot1
+# Install redis and postgresql for pajbot1
 #
 sudo apt install postgresql redis-server
 sudo -u postgres psql
@@ -74,7 +74,7 @@ sudo -u pajbot psql pajbot
 # > CREATE SCHEMA pajbot1_kkonatestbroadcaster;
 
 #
-# create your domain
+# Create your domain
 # pajbot1 needs a functional website. Usage of SSL is strongly recommended.
 # In the following, we will set up our domain with CloudFlare as the DNS provider,
 # and then use a certificate authority called LetsEncrypt to get an SSL certificate
@@ -90,8 +90,8 @@ sudo -u pajbot psql pajbot
 # (1) Type A, Name "@" (when submitting, it will show "kkonatestbroadcaster.tv" instead of "@", this is normal),
 #     Value <IPv4 address of your server>, Automatic TTL, grey cloud (do not proxy through CloudFlare)
 # (2) Type AAAA, Name "@", Value <IPv6 address of your server>, Automatic TTL, grey cloud
-# (3) Type CNAME, Name "bot", Value "kkonatestbroadcaster.tv", Automatic TTC, grey cloud
-# (3) Type CNAME, Name "www", Value "kkonatestbroadcaster.tv", Automatic TTC, grey cloud
+# (3) Type CNAME, Name "bot", Value "kkonatestbroadcaster.tv", Automatic TTL, grey cloud
+# (3) Type CNAME, Name "www", Value "kkonatestbroadcaster.tv", Automatic TTL, grey cloud
 # (4) Type CAA, Name "@", Value: Tag: "Only allow specific hostnames", Value: "letsencrypt.org", Automatic TTL.
 # (4) Type CAA, Name "@", Value: Tag: "Only allow wildcards", Value: "letsencrypt.org", Automatic TTL.
 # (4) Type CAA, Name "@", Value: Tag: "Send violation reports to", Value: "mailto:your.email@provider.com", Automatic TTL.
@@ -103,7 +103,7 @@ sudo -u pajbot psql pajbot
 sudo apt install nginx-extras
 sudo apt install certbot python3-certbot-dns-cloudflare
 
-# you must now put your CloudFlare credentials in a file for certbot to look into:
+# You must now put your CloudFlare credentials in a file for certbot to look into:
 sudo mkdir -p /etc/letsencrypt/secrets
 sudo nano /etc/letsencrypt/secrets/cloudflare.ini
 sudo chmod 600 /etc/letsencrypt/secrets/cloudflare.ini
