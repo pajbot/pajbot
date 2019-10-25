@@ -1,8 +1,0 @@
-# kkonatestbroadcaster.tv and subdomains
-server {
-    listen 80;
-    listen [::]:80;
-    server_name kkonatestbroadcaster.tv *.kkonatestbroadcaster.tv;
-
-    return 301 https://$host$request_uri;
-}

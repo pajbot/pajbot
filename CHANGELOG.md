@@ -83,7 +83,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   - Activate the python virtualenv: `source venv/bin/activate`
   - Run `./scripts/migrate-mysql-to-postgresql` to move the data
   - Update the `sql` connection string in your bot config (see the updated
-    [example config](./install-docs/debian10/kkonatestbroadcaster.ini) for
+    [example config](./configs/example.ini) for
     examples)
   - Start pajbot again:
     `sudo systemctl start pajbot@streamername pajbot-web@streamername`
