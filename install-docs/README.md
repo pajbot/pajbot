@@ -9,7 +9,8 @@ For this reason, these installation instructions are split into two big parts: I
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 
 - [Service installation](#service-installation)
   - [Install system dependencies](#install-system-dependencies)
@@ -55,7 +56,7 @@ You can create a low-privilege "system" user for pajbot like this:
 
 ```bash
 sudo adduser --system --group pajbot --home /opt/pajbot
-``` 
+```
 
 ## Install pajbot
 
@@ -89,7 +90,7 @@ sudo -u postgres createuser pajbot
 > Note: We have not set a password for pajbot, and this is intentional. Because we created a system user with the name `pajbot` earlier, applications running under the `pajbot` system user will be able to log into the database server as the `pajbot` database user automatically, without having to enter a password.
 >
 > We have run `createuser` as `postgres` for the same reason: `postgres` is a pre-defined PostgreSQL database superuser, and by using `sudo`, we are executing `createuser pajbot` as the `postgres` system (and database) user.
-> 
+>
 > This is a default setting present on Debian-like systems, and is defined via the configuration file [`pg_hba.conf`](https://www.postgresql.org/docs/current/auth-pg-hba-conf.html).
 
 We will now create a database named `pajbot`, owned by the `pajbot` database user:
@@ -130,6 +131,7 @@ We will configure nginx later.
 ## Install system services
 
 We recommend you run pajbot with the help of systemd. Systemd will take care of:
+
 - starting and stopping pajbot,
 - capturing and storing the output of the service as logs,
 - starting pajbot automatically on system startup (and starting it in the correct order, after other services it needs),
@@ -158,9 +160,9 @@ The first thing you need to do is to create an application for the bot instance.
 
 To create an application with Twitch, visit https://dev.twitch.tv/console/apps/create.
 
-- Under *Name*, enter the name you want users to see when they log into the website and have to confirm they want to grant you access to their account.
-- Under *OAuth Redirect URL*, enter the full URL users should be redirected to after they complete the log in procedure with Twitch. This should be `https://pleb-domain.com/login/authorized` (adjust domain name of course).
-- Under *Category*, you should pick *Chat Bot*, as it is the most appropriate option for pajbot.
+- Under _Name_, enter the name you want users to see when they log into the website and have to confirm they want to grant you access to their account.
+- Under _OAuth Redirect URL_, enter the full URL users should be redirected to after they complete the log in procedure with Twitch. This should be `https://pleb-domain.com/login/authorized` (adjust domain name of course).
+- Under _Category_, you should pick _Chat Bot_, as it is the most appropriate option for pajbot.
 
 After you click "Create", you are given access to the **Client ID**. After clicking **New Secret**, you can also access your **Client Secret**. You will need these values in the next step - when you create the configuration file for your instance.
 
@@ -238,14 +240,14 @@ Congratulations! Your bot should be running by now, but there are some extra ste
 - Ask the streamer to log in once by going to `https://streamer_name.your-domain.com/streamer_login` - If the streamer does this, the bot will be able to fetch who's subscriber and keep the database up-to-date regularly
 - Add some basic commands:
 
-    Here's some ideas:
+  Here's some ideas:
 
-    ```
-    !add command ping --reply @$(source:name), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
-    !add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://streamer_name.your-domain.com/commands
-    !add command ecount --reply @$(source:name), $(1) has been used $(ecount;1) times.
-    !add command epm --reply @$(source:name), $(1) is currently being used $(epm;1) times per minute.
-    !add command uptime|downtime --reply @$(source:name), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
-    !add command points --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points
-    !add command lastseen --reply $(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago. 
-    ```
+  ```
+  !add command ping --reply @$(source:name), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
+  !add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://streamer_name.your-domain.com/commands
+  !add command ecount --reply @$(source:name), $(1) has been used $(ecount;1) times.
+  !add command epm --reply @$(source:name), $(1) is currently being used $(epm;1) times per minute.
+  !add command uptime|downtime --reply @$(source:name), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
+  !add command points --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points
+  !add command lastseen --reply $(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
+  ```
