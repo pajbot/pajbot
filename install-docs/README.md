@@ -17,7 +17,16 @@ For this reason, these installation instructions are split into two big parts: I
   - [Install pajbot](#install-pajbot)
   - [Install and set up the database server](#install-and-set-up-the-database-server)
   - [Install Redis](#install-redis)
+  - [Install nginx](#install-nginx)
   - [Install system services](#install-system-services)
+- [Single bot setup](#single-bot-setup)
+  - [Create an application with Twitch](#create-an-application-with-twitch)
+  - [Create a database schema](#create-a-database-schema)
+  - [Create a configuration file](#create-a-configuration-file)
+  - [Set up the website with nginx](#set-up-the-website-with-nginx)
+  - [Enable and start the service](#enable-and-start-the-service)
+  - [Authenticate the bot](#authenticate-the-bot)
+  - [Further steps](#further-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
