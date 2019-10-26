@@ -3,12 +3,19 @@
 ## Unversioned
 
 - Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
+- Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
+- Minor: The regular refresh of the points_rank and num_lines_rank is now randomly jittered by ±30s to reduce CPU spikes when multiple instances are restarted at the same time
+- Minor: Added setting to configure bypass level to "Link Checker" module.
+- Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
+- Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
+- Bugfix: Fixed subscriber update failing if the broadcaster had no subscription program.
+- Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 
 ## v1.38
 
-Remember to bring your dependencies up to date with `pip install -r requirements.txt` when updating to this version!
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: User data is not stored in redis anymore. Relevant data will automatically be migrated.
 - Major: Added automatic support for Twitch name changes. (`!namechange` command has been removed.)
@@ -57,15 +64,14 @@ Remember to bring your dependencies up to date with `pip install -r requirements
 
 ## v1.37
 
-Remember to bring your dependencies up to date with
-`pip install -r requirements.txt` when updating to this version!
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: pajbot now uses PostgreSQL instead of MySQL as its supported
   database engine. It is not possible to continue to use MySQL.  
   To migrate your existing database(s):
 
   - Install new requirements from apt: `sudo apt-get install libpq-dev`
-  - Bring your installed dependencies up-to-date with `pip install -r requirements.txt`
+  - Bring your installed dependencies up-to-date with `./scripts/venvinstall.sh`
   - Install and start PostgreSQL, if you have not done so already
   - Create the pajbot PostgreSQL user, a database and optionally a schema for
     the bot to use. (see the updated SQL section of
