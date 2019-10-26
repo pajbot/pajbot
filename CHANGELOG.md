@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
 - Minor: The regular refresh of the points_rank and num_lines_rank is now randomly jittered by ±30s to reduce CPU spikes when multiple instances are restarted at the same time
 - Minor: Added setting to configure bypass level to "Link Checker" module.
