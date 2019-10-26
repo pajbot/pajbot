@@ -313,7 +313,7 @@ class RaffleModule(BaseModule):
             return False
 
         with DBManager.create_session_scope() as db_session:
-            winner_id = random.choice(self.raffle_users)
+            winner_id = random.choice(list(self.raffle_users))
             winner = User.find_by_id(db_session, winner_id)
             if winner is None:
                 return False

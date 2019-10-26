@@ -14,6 +14,7 @@
 - Bugfix: Fixed subscriber update failing if the broadcaster had no subscription program.
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 - Bugfix: Mass ping protection will no longer count inactive users (never seen before or seen longer than 2 weeks ago).
+- Bugfix: Fixed single raffle silently failing when finishing. #610
 
 ## v1.38
 
