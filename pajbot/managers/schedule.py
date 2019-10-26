@@ -40,7 +40,7 @@ class ScheduleManager:
             scheduler = ScheduleManager.base_scheduler
 
         if scheduler is None:
-            return ScheduledJob(None)
+            raise ValueError("No scheduler available")
 
         job = scheduler.add_job(method, "date", run_date=utils.now(), args=args, kwargs=kwargs)
         return ScheduledJob(job)
@@ -51,7 +51,7 @@ class ScheduleManager:
             scheduler = ScheduleManager.base_scheduler
 
         if scheduler is None:
-            return ScheduledJob(None)
+            raise ValueError("No scheduler available")
 
         job = scheduler.add_job(
             method, "date", run_date=utils.now() + datetime.timedelta(seconds=delay), args=args, kwargs=kwargs
@@ -64,7 +64,7 @@ class ScheduleManager:
             scheduler = ScheduleManager.base_scheduler
 
         if scheduler is None:
-            return ScheduledJob(None)
+            raise ValueError("No scheduler available")
 
         job = scheduler.add_job(method, "interval", seconds=interval, args=args, kwargs=kwargs, jitter=jitter)
         return ScheduledJob(job)

@@ -8,6 +8,7 @@ from sqlalchemy import text
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
+from pajbot.modules import ChattersRefreshModule
 
 log = logging.getLogger(__name__)
 
@@ -43,4 +44,15 @@ def init(app):
                 )
             )
 
-            return render_template("points.html", top_30_users=rankings, custom_content=custom_content)
+            chatters_refresh_enabled = ChattersRefreshModule.is_enabled()
+            chatters_refresh_settings = ChattersRefreshModule.module_settings()
+            chatters_refresh_interval = ChattersRefreshModule.UPDATE_INTERVAL
+
+            return render_template(
+                "points.html",
+                top_30_users=rankings,
+                custom_content=custom_content,
+                chatters_refresh_enabled=chatters_refresh_enabled,
+                chatters_refresh_settings=chatters_refresh_settings,
+                chatters_refresh_interval=chatters_refresh_interval,
+            )

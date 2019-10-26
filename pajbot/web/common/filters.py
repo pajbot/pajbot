@@ -75,3 +75,11 @@ def init(app):
         m = s % 3600 / 60
         s = s % 60
         return "%dh%02dm%02ds" % (h, m, s)
+
+    @app.template_filter("with_unit")
+    def with_unit(value, unit, plural_suffix="s"):
+        """with_unit ≙ value_with_pluralized_unit"""
+        if value == 1:
+            return f"{value} {unit}"  # e.g. 1 point
+        else:
+            return f"{value} {unit}{plural_suffix}"  # e.g. 2 points
