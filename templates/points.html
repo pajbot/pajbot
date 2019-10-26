@@ -2,9 +2,32 @@
 {% set active_page = 'points' %}
 {% block title %}Points{% endblock %}
 {% block body %}
-<h2>Description</h2>
-<p><i class="large icon pin"></i>Subscribers gain <strong>5 points per 5 minutes</strong> while watching the stream.</p>
-<p><i class="large icon pin"></i>Non-subscribers gain <strong>1 point per 5 minutes</strong> while watching the stream.</p>
+{% if chatters_refresh_enabled and (chatters_refresh_settings["base_points_sub"] > 0 or chatters_refresh_settings["base_points_pleb"] > 0) %}
+    <h2>Description</h2>
+
+    {% set offline_chat_multiplier = chatters_refresh_settings["offline_chat_multiplier"] / 100 %}
+    {% set offline_points_sub = (chatters_refresh_settings["base_points_sub"] * offline_chat_multiplier)|round|int %}
+    {% set offline_points_pleb = (chatters_refresh_settings["base_points_pleb"] * offline_chat_multiplier)|round|int %}
+
+    {% if chatters_refresh_settings["base_points_sub"] > 0 %}
+        <p>
+            <i class="large icon pin"></i>Subscribers gain <strong>{{ chatters_refresh_settings["base_points_sub"]|with_unit("point") }} every {{ chatters_refresh_interval|with_unit("minute") }}</strong> of watching the stream
+                {%- if offline_points_sub > 0 -%}
+                    , and {{ offline_points_sub|with_unit("point") }} for every {{ chatters_refresh_interval|with_unit("minute") }} of being in offline chat
+                {%- endif -%}
+            .
+        </p>
+    {% endif %}
+    {% if chatters_refresh_settings["base_points_pleb"] > 0 %}
+        <p>
+            <i class="large icon pin"></i>Non-Subscribers gain <strong>{{ chatters_refresh_settings["base_points_pleb"]|with_unit("point") }} every {{ chatters_refresh_interval|with_unit("minute") }}</strong> of watching the stream
+                {%- if offline_points_pleb > 0 -%}
+                    , and {{ offline_points_pleb|with_unit("point") }} for every {{ chatters_refresh_interval|with_unit("minute") }} of being in offline chat
+                {%- endif -%}
+            .
+        </p>
+    {% endif %}
+{% endif %}
 {{ custom_content }}
 <h2>Check your own Points and Rank</h2>
 <div id="check_points" class="ui form">
@@ -16,7 +39,7 @@
     </form>
     <div class="ui response hidden"></div>
 </div>
-<h2>Points</h2>
+<h2>Points Leaderboard</h2>
 <div id="top_users">
     <table class="ui very basic table collapsing">
         <thead>
