@@ -2,16 +2,19 @@
 
 ## Unversioned
 
+- Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
 - Minor: The regular refresh of the points_rank and num_lines_rank is now randomly jittered by ±30s to reduce CPU spikes when multiple instances are restarted at the same time
 - Minor: Added setting to configure bypass level to "Link Checker" module.
 - Minor: The bot now uses the BTTV v3 API, which should fix some cases where the bot considered more emotes to be enabled than were actually supposed to be enabled.
-- Bugfix: Fixed single raffle silently failing when finishing. #610
+- Minor: The points gain rate information at the top of the points page is now dynamically updated based upon your settings for the "Chatters Refresh" module.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
 - Bugfix: Fixed subscriber update failing if the broadcaster had no subscription program.
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
+- Bugfix: Mass ping protection will no longer count inactive users (never seen before or seen longer than 2 weeks ago).
+- Bugfix: Fixed single raffle silently failing when finishing. #610
 
 ## v1.38
 

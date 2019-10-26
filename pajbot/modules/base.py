@@ -161,6 +161,15 @@ class BaseModule:
 
         return settings
 
+    @classmethod
+    def is_enabled(cls):
+        with DBManager.create_session_scope() as db_session:
+            db_module = db_session.query(Module).filter_by(id=cls.ID).one_or_none()
+            if db_module is None:
+                return cls.ENABLED_DEFAULT
+            else:
+                return db_module.enabled
+
     def load_commands(self, **options):
         pass
 
