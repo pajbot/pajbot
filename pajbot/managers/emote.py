@@ -125,6 +125,13 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         self.api = BTTVAPI(RedisManager.get())
         super().__init__()
 
+    def load_channel_emotes(self):
+        """Load channel emotes from the cache if available, or else, query the API."""
+        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id())
+
+    def update_channel_emotes(self):
+        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id(), force_fetch=True)
+
 
 class EmoteManager:
     def __init__(self, twitch_v5_api, twitch_legacy_api, action_queue):
@@ -179,7 +186,7 @@ class EmoteManager:
 
     @staticmethod
     def parse_twitch_emotes_tag(tag, message):
-        if tag is None or len(tag) <= 0:
+        if len(tag) <= 0:
             return []
 
         emote_instances = []
@@ -216,7 +223,7 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message, twitch_emotes_tag=None):
+    def parse_all_emotes(self, message, twitch_emotes_tag=""):
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}

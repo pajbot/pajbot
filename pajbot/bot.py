@@ -73,6 +73,8 @@ class Bot:
         self.last_ping = utils.now()
         self.last_pong = utils.now()
 
+        ScheduleManager.init()
+
         DBManager.init(self.config["main"]["db"])
 
         # redis
@@ -106,7 +108,6 @@ class Bot:
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
-        StreamHelper.init_streamer(self.streamer)
 
         log.debug("Loaded config")
 
@@ -131,6 +132,8 @@ class Bot:
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
         if self.streamer_user_id is None:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+
+        StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
         # SQL migrations
         # engine.connect() returns a SQLAlchemy `Connection` object.
@@ -170,9 +173,7 @@ class Bot:
 
         self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
-
-        StreamHelper.init_bot(self, self.stream_manager)
-        ScheduleManager.init()
+        StreamHelper.init_stream_manager(self.stream_manager)
 
         self.decks = DeckManager()
         self.banphrase_manager = BanphraseManager(self).load()
@@ -638,10 +639,6 @@ class Bot:
         msg_lower = message.lower()
 
         emote_tag = tags["emotes"]
-        if emote_tag is None:
-            # Temporary debugging code to investigate issue #579
-            log.info("Got a message with emote_tag=None, event is: %s", event)
-
         msg_id = tags.get("id", None)  # None on whispers!
 
         if not whisper and event.target == self.channel:
