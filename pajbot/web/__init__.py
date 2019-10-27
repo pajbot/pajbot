@@ -66,13 +66,22 @@ def init(args):
         salt = generate_random_salt()
         config.set("web", "pleblist_password_salt", salt.decode("utf-8"))
 
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
+
     if "pleblist_password" not in config["web"]:
         salt = generate_random_salt()
         config.set("web", "pleblist_password", salt.decode("utf-8"))
 
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
+
     if "secret_key" not in config["web"]:
         salt = generate_random_salt()
         config.set("web", "secret_key", salt.decode("utf-8"))
+
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
 
     streamer = config["main"]["streamer"]
     streamer_user_id = twitch_helix_api.get_user_id(streamer)
@@ -86,9 +95,6 @@ def init(args):
         log.exception("Error downloading the streamers profile picture")
 
     SocketClientManager.init(streamer)
-
-    with open(args.config, "w") as configfile:
-        config.write(configfile)
 
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
