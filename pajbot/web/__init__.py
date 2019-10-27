@@ -96,6 +96,7 @@ def init(args):
     app.bot_commands_list = []
     app.bot_config = config
     app.secret_key = config["web"]["secret_key"]
+    app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
     TimeManager.init_timezone(config["main"].get("timezone", "UTC"))
@@ -115,13 +116,16 @@ def init(args):
     errors.init(app, config)
     pajbot.web.routes.clr.config = config
 
-    version = extend_version_if_possible(VERSION)
+    version = VERSION
+    last_commit = None
 
-    try:
-        last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
-    except:
-        log.exception("Failed to get last_commit, will not show last commit")
-        last_commit = None
+    if app.bot_dev:
+        version = extend_version_if_possible(VERSION)
+
+        try:
+            last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
+        except:
+            log.exception("Failed to get last_commit, will not show last commit")
 
     default_variables = {
         "version": version,
