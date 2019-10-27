@@ -80,12 +80,10 @@ def init(args):
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
     StreamHelper.init_streamer(streamer, streamer_user_id)
 
-    if "logo" not in config["web"]:
-        try:
-            download_logo(twitch_helix_api, streamer, streamer_user_id)
-            config.set("web", "logo", "set")
-        except:
-            log.exception("Error downloading logo")
+    try:
+        download_logo(twitch_helix_api, streamer, streamer_user_id)
+    except:
+        log.exception("Error downloading the streamers profile picture")
 
     SocketClientManager.init(streamer)
 
