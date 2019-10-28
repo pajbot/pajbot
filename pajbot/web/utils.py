@@ -26,6 +26,7 @@ from pajbot.models.module import ModuleManager
 from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import time_method
+from pajbot.apiwrappers.twitch.badges import BadgeNotFoundError
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +88,23 @@ def download_logo(twitch_helix_api, streamer, streamer_id):
     # downscale and save the thumbnail
     pil_image.thumbnail((64, 64), Image.ANTIALIAS)
     pil_image.save(logo_tn_path, "png")
+
+
+def download_sub_badge(twitch_badges_api, streamer, streamer_id, subscriber_badge_version):
+    try:
+        subscriber_badge = twitch_badges_api.get_channel_subscriber_badge(streamer_id, subscriber_badge_version)
+    except BadgeNotFoundError as e:
+        log.warn(f"Unable to download subscriber badge: {e}")
+        return
+
+    subscriber_badge_path = f"static/images/badge_sub_{streamer}.png"
+
+    # returns bytes
+    subscriber_badge_bytes = BaseAPI(None).get_binary(subscriber_badge.image_url_1x)
+
+    # write image...
+    with open(subscriber_badge_path, "wb") as subscriber_badge_file:
+        subscriber_badge_file.write(subscriber_badge_bytes)
 
 
 @time_method
