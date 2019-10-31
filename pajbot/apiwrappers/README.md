@@ -44,7 +44,7 @@ You can set default headers, and other "defaults" using `self.session` after cal
 class SomeProviderAPI(BaseAPI):
     def __init__(self, client_id):
         super().__init__(base_url="https://some-provider.com/api/v1/")
-    
+
         # Send "Authorization: Client-ID <client_id>" on all requests by default
         self.session.headers["Authorization"]  = f"Client-ID {client_id}"
 ```
@@ -59,11 +59,11 @@ API Wrapper methods should not return the format the API returns, in raw. E.g. t
 class SomeProviderAPI(BaseAPI):
     def __init__(self):
         super().__init__(base_url="https://some-provider.com/api/v1/")
-    
+
     def get_user(self, username):
         return self.get(["users", username])
 ```
-  
+
 The user of the API would call `get_user` - and the API wrapper would just return the parsed JSON the API returned. This kind of API wrapper provides almost no useful extra layer of abstraction over the base API, except for maybe hiding the endpoint that has to be called.
 
 A more useful approach is to make methods that either return complete data class models, or methods that return scalars (e.g. strings, numbers, etc.):
@@ -81,10 +81,10 @@ class SomeProviderUser:
 class SomeProviderAPI(BaseAPI):
     def __init__(self):
         super().__init__(base_url="https://some-provider.com/api/v1/")
-    
+
     def get_user(self, username):
         response = self.get(["users", username])
-    
+
         return SomeProviderUser(
             username=response["username"],
             created_at=isodate.parse_duration(response["created_at"]),
@@ -101,7 +101,7 @@ To return to the original point: Either return an instance of a data model (not 
 class SomeProviderAPI(BaseAPI):
     def __init__(self):
         super().__init__(base_url="https://some-provider.com/api/v1/")
-    
+
     def get_user_phone_number(self, username):
         response = self.get(["users", username])
 
@@ -120,7 +120,7 @@ def get_user_phone_number(self, username):
 
 ## Processing data further with utility methods
 
-If you find yourself doing the same thing often, you can define a utility directly inside the API Wrapper (as long as it doesnt diverge from the intent of an *API wrapper* too far), e.g.:
+If you find yourself doing the same thing often, you can define a utility directly inside the API Wrapper (as long as it doesnt diverge from the intent of an _API wrapper_ too far), e.g.:
 
 ```python
 def get_older_user(self, first_username, second_username):
@@ -167,7 +167,7 @@ class SomeProviderUser:
             "email_address": self.email_address,
             "phone_number": self.phone_number
         }
-    
+
     # from_json() recovers an instance using the JSON that jsonify() produced.
     # This method is NOT meant to parse the JSON response from the original API!
     # That logic is part of the API wrapper, and should live inside _fetch_xxx or get_xxx functions.
@@ -183,10 +183,10 @@ class SomeProviderUser:
 class SomeProviderAPI(BaseAPI):
     def __init__(self, redis):
         super().__init__(base_url="https://some-provider.com/api/v1/", redis=redis)
-    
+
     def _fetch_user(self, username):
         response = self.get(["users", username])
-    
+
         return SomeProviderUser(
             username=response["username"],
             created_at=isodate.parse_duration(response["created_at"]),
@@ -213,7 +213,7 @@ class SomeProviderAPI(BaseAPI):
     def get_older_user(self, first_username, second_username):
         first_user = self.get_user(first_username)
         second_user = self.get_user(second_username)
-    
+
         if first_user.created_at > second_user.created_at:
             return first_user
         else:
@@ -221,9 +221,10 @@ class SomeProviderAPI(BaseAPI):
 ```
 
 - We added `jsonify` and `from_json` methods to our user model, to allow it to be serialized and deserialized.
-- The `redis` parameter has been added to the constructor, and is passed onto the super constructor, so we can use `self.cache`. 
+- The `redis` parameter has been added to the constructor, and is passed onto the super constructor, so we can use `self.cache`.
 
   If the super constructor is given a `redis` instance, it will set `self.cache` to an instance of `APIResponseCache`. `APIResponseCache` defines two methods: `cache_fetch_fn` and `cache_bulk_fetch_fn`.
+
 - The `get_user` method now calls the cache, which we instruct to call `_fetch_user` on cache miss.
 - `get_older_user` remains unchanged.
 
@@ -249,7 +250,7 @@ def get_something(self, some_input, another_input):
     # }
 
     return ...
-``` 
+```
 
 Or something shorter, like this (Example from the Google Safe Browsing API wrapper):
 
@@ -267,7 +268,7 @@ def is_url_bad(self, url):
 
 In the above examples, we never handled the case where the user we were looking for does not exist. There are two ways you can deal with this in new API wrappers:
 
-- **Return `None`** for methods that strictly *get* data and where the absence of data is not generally an error case, but can happen normally (like for example `get_user`) - or e.g. in the case of the BTTV API wrapper - when a channel has no emotes
+- **Return `None`** for methods that strictly _get_ data and where the absence of data is not generally an error case, but can happen normally (like for example `get_user`) - or e.g. in the case of the BTTV API wrapper - when a channel has no emotes
 - **Raise an exception** in all other cases, and in cases where the non-existance of data either means the method cannot continue normally.
 
 Take for example a method that seeks to fetch the currently playing song on Dubtrack - Say we first query the API for the current song, and then we query the API again in another call for the song's title, author, youtube link, etc. The second API call looks up the song using the internal ID the song is given by Dubtrack (which we got in the first API call's response) - in this case, getting a 404 Not Found error in the second API call would be an error condition. Getting the 404 Not Found error in the first stage (e.g. nothing currently playing), then the correct thing would be to return `None`.
@@ -288,7 +289,7 @@ For example, if all you wanted was to get user's emails, and nothing else, you c
 class SomeProviderAPI(BaseAPI):
     def __init__(self):
         super().__init__(base_url="https://some-provider.com/api/v1/")
-    
+
     def get_user_phone_number(self, username):
         response = self.get(["users", username])
 
