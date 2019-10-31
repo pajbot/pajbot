@@ -111,7 +111,7 @@ class SomeProviderAPI(BaseAPI):
 In this case, we don't need to define a data model first, since we'd only be returning a string. However, if you were to expand the example above with the full data model, you would write:
 
 ```python
-## ... snip ...
+# ... snip ...
 def get_user_phone_number(self, username):
       return self.get_user(username).email_address
 ```
