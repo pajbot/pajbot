@@ -22,8 +22,6 @@ def init(app):
     def pleblist_host():
         return render_template(
             "pleblist_host.html",
-            has_streamtip=False,
-            streamtip_client_id="",
             has_streamlabs=False,
             streamlabs_client_id="",
             has_streamelements=False,
