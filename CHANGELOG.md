@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Removed Pleblist StreamTip integration
 - Minor: Emote command (e.g. !bttvemotes) cooldowns and level can now be configured in the modules settings.
 - Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
