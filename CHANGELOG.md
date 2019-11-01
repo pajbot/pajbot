@@ -11,6 +11,9 @@
 - Minor: The points gain rate information at the top of the points page is now dynamically updated based upon your settings for the "Chatters Refresh" module.
 - Minor: "dev" config flag is now respected in web, properly omitting any git information in its footer
 - Minor: The subscriber badge is now automatically downloaded on web application startup. Which version of the subscriber badge should be downloaded can be configured in config.ini under the `web` section using the `subscriber_badge_version` key. Setting the `subscriber_badge_version` key to `-1` disables the sub badge downloading, in case you want to use a custom subscriber badge (or an old one that you don't want to overwrite)
+- Minor: Update jQuery from 2.1.4 to 3.4.1.
+- Minor: Fix playsounds not working after updating jQuery.
+- Minor: Fix table sorting in the modules page.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
