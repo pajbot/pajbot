@@ -35,7 +35,6 @@ def init(args):
     import pajbot.web.routes
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
-    from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper
@@ -115,7 +114,6 @@ def init(args):
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
-    TimeManager.init_timezone(config["main"].get("timezone", "UTC"))
 
     app.module_manager = ModuleManager(None).load()
 
