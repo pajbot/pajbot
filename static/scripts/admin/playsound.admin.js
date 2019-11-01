@@ -1,6 +1,6 @@
 'use strict';
 
-$(window).on('load', (function () {
+$(window).load(function () {
 
     $('#toggle-module-checkbox').change(function() {
         let checked = this.checked;
@@ -249,4 +249,4 @@ $(window).on('load', (function () {
     });
 
 
-}));
+});
