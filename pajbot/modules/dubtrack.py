@@ -206,7 +206,7 @@ class DubtrackModule(BaseModule):
             log.exception("Dubtrack API fetch for previous song failed", exc_info=e)
             self.bot.say("There was an error fetching the previous dubtrack song monkaS")
 
-        self.api_request_and_callback(self.get_current_song, on_success, on_error)
+        self.api_request_and_callback(self.get_previous_song, on_success, on_error)
 
     def on_scheduled_new_song_check(self):
         def on_success(song_info):
