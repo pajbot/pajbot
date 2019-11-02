@@ -31,10 +31,6 @@ CREATE TEMPORARY TABLE user_old
 \copy pleblist_song_old FROM 'pleblist_song_old.txt';
 \copy user_old FROM 'user_old.txt';
 
--- INSERT INTO pleblist_song VALUES (400, 13, 'K-8Rd9QBlJI', '2015-12-11 00:38:09+01'::timestamptz, '2015-12-11 00:43:20+01'::timestamptz, NULL, 40286300);
--- UPDATE pleblist_song_old SET user_id = 3058720 WHERE id = 400;
--- UPDATE pleblist_song_old SET user_id = 3058720 WHERE id = 399;
-
 INSERT INTO pleblist_song(id, stream_id, youtube_id, date_added, date_played, skip_after, user_id)
 SELECT pleblist_song_old.id,
        pleblist_song_old.stream_id,
