@@ -7,7 +7,25 @@
   Here I will put instructions for how to load your pre-migration backup into a temporary schema and getting those lost rows back:
 
   ```bash
-  script goes here
+  # Replace "streamer_name" with the name of the streamer in all commands below
+
+  # Create new database to restore into
+  sudo -u postgres createdb pajbot_restore --owner=pajbot
+
+  # Restore the backup into the "pajbot_restore" database
+  sudo -u pajbot psql pajbot_restore < pre-user-migration-backup.sql
+
+  # Get the data that was in the pleblist_song and user table in the pre-migration database state
+  sudo -u pajbot psql pajbot_restore -c "COPY (SELECT * FROM pajbot1_streamer_name.pleblist_song) TO STDOUT" > pleblist_song_old.txt
+  sudo -u pajbot psql pajbot_restore -c "COPY (SELECT * FROM pajbot1_streamer_name.user) TO STDOUT" > user_old.txt
+
+  # Drop the temporary database again
+  sudo -u postgres dropdb pajbot_restore
+
+  # Then run the final restore script: This loads data from "pleblist_song_old.txt" and "user_old.txt" and restores
+  # into the pleblist_song table inside the schema you specify (pajbot1_streamer_name)
+  # To customize the file paths, adjust the script itself
+  sudo -u pajbot psql pajbot -c "SET search_path=pajbot1_streamer_name" -f ./scripts/restore-pleblist-songs.sql
   ```
 
 - Minor: Emote command (e.g. !bttvemotes) cooldowns and level can now be configured in the modules settings.
