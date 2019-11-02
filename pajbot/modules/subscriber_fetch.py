@@ -1,5 +1,6 @@
 import logging
 
+from requests import HTTPError
 from sqlalchemy import text
 
 from pajbot.apiwrappers.authentication.token_manager import UserAccessTokenManager, NoTokenError
@@ -47,13 +48,23 @@ class SubscriberFetchModule(BaseModule):
                 "Have the streamer log in with the /streamer_login web route to enable subscriber fetch."
             )
             return
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.warning(
+                    "Cannot fetch subscribers because the streamer token does not grant access to the "
+                    "subscribers list. Have the streamer log in again with the /streamer_login route"
+                )
+                return
+            else:
+                raise
 
         user_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(subscriber_ids)
         # filter out deleted/invalid users
         user_basics = [e for e in user_basics if e is not None]
 
-        # remove broadcaster from sub count
-        self.bot.kvi["active_subs"].set(len(user_basics) - 1)
+        # count how many subs we have (we don't want to count the broadcaster with his permasub)
+        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer_user_id)
+        self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:
             db_session.execute(
@@ -68,10 +79,15 @@ ON COMMIT DROP"""
                 )
             )
 
-            db_session.execute(
-                text("INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"),
-                [basics.jsonify() for basics in user_basics],
-            )
+            if len(user_basics) > 0:
+                # The precondition check is to prevent an exception,
+                # if len(user_basics) was 0, then we would try to execute this SQL without any values,
+                # which would then fail.
+                # len(user_basics) can be 0 if the broadcaster does not have a subscription program.
+                db_session.execute(
+                    text("INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"),
+                    [basics.jsonify() for basics in user_basics],
+                )
 
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login

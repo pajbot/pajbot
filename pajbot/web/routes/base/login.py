@@ -55,7 +55,7 @@ def init(app):
             state=state,
             scope=(
                 "user_read user:edit user:read:email channel:moderate chat:edit "
-                + "chat:read whispers:read whispers:edit channel_editor"
+                + "chat:read whispers:read whispers:edit channel_editor channel:read:subscriptions"
             ),
             force_verify="true",
         )
@@ -131,7 +131,13 @@ def init(app):
             # there's a good chance the streamer will later log in using the normal login button.
             # we only update their access token if the returned scope containes the special scopes requested
             # in /streamer_login
-            if set(resp["scope"]) != set(streamer_scopes):
+
+            # We use issubset() to say "if the granted scope is a subset of the required scopes", this can be case
+            # for example when the bot is running in its own channel and you use /bot_login,
+            # then the granted scopes will be a superset of the scopes needed for the streamer.
+            # By doing this, both the streamer and bot token will be set if you complete /bot_login with the bot
+            # account, and if the bot is running in its own channel.
+            if set(resp["scope"]).issubset(set(streamer_scopes)):
                 log.info("Streamer logged in but not all scopes present, will not update streamer token")
             else:
                 redis = RedisManager.get()

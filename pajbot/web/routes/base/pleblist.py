@@ -21,12 +21,7 @@ def init(app):
     @app.route("/pleblist/host/")
     def pleblist_host():
         return render_template(
-            "pleblist_host.html",
-            has_streamtip=False,
-            streamtip_client_id="",
-            has_streamlabs=False,
-            streamlabs_client_id="",
-            has_streamelements=False,
+            "pleblist_host.html", has_streamlabs=False, streamlabs_client_id="", has_streamelements=False
         )
 
     @app.route("/pleblist/history/")

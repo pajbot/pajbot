@@ -4,6 +4,7 @@ from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmote
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import split_into_chunks_with_prefix
@@ -18,6 +19,35 @@ class EmotesModule(BaseModule):
     DESCRIPTION = "Refresh and list FFZ and BTTV emotes"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
+    SETTINGS = [
+        ModuleSetting(
+            key="global_cd",
+            label="Global cooldown of all emote-commands (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=5,
+            constraints={"min_value": 0, "max_value": 120},
+        ),
+        ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown of all emote-commands (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=15,
+            constraints={"min_value": 0, "max_value": 240},
+        ),
+        ModuleSetting(
+            key="level",
+            label="Level required to use the commands",
+            type="number",
+            required=True,
+            placeholder="",
+            default=100,
+            constraints={"min_value": 100, "max_value": 2000},
+        ),
+    ]
 
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
@@ -121,7 +151,9 @@ class EmotesModule(BaseModule):
         # The ' ' is there to make things look good in the
         # web interface.
         self.commands["bttvemotes"] = Command.multiaction_command(
-            level=100,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
+            level=self.settings["level"],
             default=" ",
             fallback=" ",
             command="bttvemotes",
@@ -129,7 +161,9 @@ class EmotesModule(BaseModule):
         )
 
         self.commands["ffzemotes"] = Command.multiaction_command(
-            level=100,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
+            level=self.settings["level"],
             default=" ",
             fallback=" ",
             command="ffzemotes",
@@ -137,7 +171,9 @@ class EmotesModule(BaseModule):
         )
 
         self.commands["subemotes"] = Command.multiaction_command(
-            level=100,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
+            level=self.settings["level"],
             default=" ",
             fallback=" ",
             command="subemotes",
