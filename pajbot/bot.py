@@ -33,7 +33,6 @@ from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
@@ -85,7 +84,6 @@ class Bot:
         wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
-        self.timezone = config["main"].get("timezone", "UTC")
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
@@ -98,8 +96,6 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
-
-        TimeManager.init_timezone(self.timezone)
 
         # streamer
         if "streamer" in config["main"]:
