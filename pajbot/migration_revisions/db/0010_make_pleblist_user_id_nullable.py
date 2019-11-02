@@ -43,6 +43,4 @@ def up(cursor, bot):
         cursor.execute("ALTER TABLE pleblist_song ALTER COLUMN user_id DROP NOT NULL")
 
         # Re-add pleblist_song.user_id foreign key, with ON DELETE SET NULL (instead of ON DELETE CASCADE like before)
-        cursor.execute(
-            'ALTER TABLE pleblist_song ADD FOREIGN KEY (user_id) REFERENCES "user"(twitch_id) ON DELETE SET NULL'
-        )
+        cursor.execute('ALTER TABLE pleblist_song ADD FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE SET NULL')
