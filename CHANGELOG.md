@@ -13,6 +13,7 @@
 - Minor: The subscriber badge is now automatically downloaded on web application startup. Which version of the subscriber badge should be downloaded can be configured in config.ini under the `web` section using the `subscriber_badge_version` key. Setting the `subscriber_badge_version` key to `-1` disables the sub badge downloading, in case you want to use a custom subscriber badge (or an old one that you don't want to overwrite)
 - Minor: Dates/Times on the website are now all shown in the user's time zone and formatted based on the viewer's locale. Note for the bot operator: You can remove the `timezone=` setting under `[main]`, since it's no longer needed.
 - Minor: Fix table sorting in the modules page.
+- Minor: Removed last remnants of already defunct Pleblist StreamTip integration
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
