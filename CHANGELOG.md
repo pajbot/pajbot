@@ -21,6 +21,7 @@
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 - Bugfix: Mass ping protection will no longer count inactive users (never seen before or seen longer than 2 weeks ago).
 - Bugfix: Fixed single raffle silently failing when finishing. #610
+- Bugfix: Fixed !dubtrack previous/!lastsong printing the current song instead of the previous song
 
 ## v1.38
 
