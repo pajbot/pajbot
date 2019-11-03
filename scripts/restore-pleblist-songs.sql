@@ -27,7 +27,7 @@ CREATE TEMPORARY TABLE user_old
     minutes_in_chat_offline integer NOT NULL
 ) ON COMMIT DROP;
 
--- Read the "COPY" dump of the table we produced earlier from stdin
+-- Read the "COPY" dumps
 \copy pleblist_song_old FROM 'pleblist_song_old.txt';
 \copy user_old FROM 'user_old.txt';
 
