@@ -4,7 +4,7 @@
 
 - Major: `pleblist_song` table mistakenly wiped any non-user-connected rows in v1.38, this version will make the `pleblist_song` table able to contain non-user-connected rows again.
 
-  Here I will put instructions for how to load your pre-migration backup into a temporary schema and getting those lost rows back:
+  Here is how you can recover the data, should you be affected:
 
   ```bash
   # Replace "streamer_name" with the name of the streamer in all commands below
