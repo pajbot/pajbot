@@ -179,7 +179,7 @@ Remember the name of the schema you created! You'll need to enter it into the co
 
 ## Create a configuration file
 
-There is an example config file available for you to copy:
+There is an [example config file](../configs/example.ini) available for you to copy:
 
 ```bash
 sudo -u pajbot cp /opt/pajbot/configs/example.ini /opt/pajbot/configs/streamer_name.ini
