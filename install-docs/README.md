@@ -202,7 +202,7 @@ sudo ln -s /etc/nginx/sites-available/streamer_name.your-domain.com.conf /etc/ng
 
 You have to then edit the file, at the very least you will have to insert the correct streamer name instead of the example streamer name.
 
-The example configuration sets your website up over HTTPS, for which you need a certificate (`ssl_certificate` and `ssl_certificate_key`). There are many possible ways to get a certificate, which is why we can't offer a definitive guide that will work for everybody's setup. However, if you need help for this step, you can [find a guide here]() if you have set up your domain with **CloudFlare DNS**.
+The example configuration sets your website up over HTTPS, for which you need a certificate (`ssl_certificate` and `ssl_certificate_key`). There are many possible ways to get a certificate, which is why we can't offer a definitive guide that will work for everybody's setup. However, if you need help for this step, you can [find a guide here](./certbot-with-cloudflare/README.md) if you have set up your domain with **CloudFlare DNS**.
 
 Once you're done with your changes, test that the configuration has no errors:
 
