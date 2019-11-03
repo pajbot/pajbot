@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Major: Added a scuffed weather module based on the Dark Sky API. For existing pajbot users, they will need to add the line: `darksky = 1234567890abcdefghijk` into the `[main]` part of the config.
 - Minor: Emote command (e.g. !bttvemotes) cooldowns and level can now be configured in the modules settings.
 - Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
