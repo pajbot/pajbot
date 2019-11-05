@@ -62,6 +62,7 @@ class WeatherModule(BaseModule)
             
             query_parameters = {
             "key": self.darksky_key,
+<<<<<<< HEAD
             "latitude": self.darksky_latitude,
             "longitude": self.darksky_longitute,
             "lang": self.darksky_language,
@@ -93,3 +94,11 @@ class WeatherModule(BaseModule)
         examples=[],
     )
     self.commands["temperature"] = self.commands["weather"]
+=======
+            "input": message,
+            "output": "json",
+            "format": "plaintext",
+            "reinterpret": "true",
+            "units": "
+            }
+>>>>>>> 6364e5f2bcc0e2036b0fd6586838ac5ab960853e
