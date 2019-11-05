@@ -19,11 +19,19 @@ class WeatherModule(BaseModule)
             default="auto",
         ),
         ModuleSettings(
-            key="darksky_location",
-            label="Choose the default weather location",
+            key="darksky_latitude",
+            label="Choose the default weather latitude",
             type="text",
             required=True,
-            placeholder="27.4698,153.0251",
+            placeholder="-27.46977",
+            default="",
+        ),
+        ModuleSettings(
+            key="darksky_longitude",
+            label="Choose the default weather longitude",
+            type="text",
+            required=True,
+            placeholder="153.025131",
             default="",
         ),
         ModuleSettings(
@@ -43,8 +51,10 @@ class WeatherModule(BaseModule)
             self.darksky_key = bot.config["main"].get("darksky", None)
             
     def query(sec, bot, source, message, event, args):
-        location = self.settings["darksky_location"]
+        latitude = self.settings["darksky_latitude"]
+        longitude = self.settings["darksky_longitude"]
         language = self.settings["darksky_language"]
+        units = self.settings["temperature_units"]
         
         if not self.darksky_key:
             # Notify user of misconfiguration
@@ -52,9 +62,34 @@ class WeatherModule(BaseModule)
             
             query_parameters = {
             "key": self.darksky_key,
-            "input": message,
-            "output": "json",
-            "format": "plaintext",
-            "reinterpret": "true",
-            "units": "
+            "latitude": self.darksky_latitude,
+            "longitude": self.darksky_longitute,
+            "lang": self.darksky_language,
+            "units": self.temperature_units,
             }
+            
+            res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
+            answer = res.json()["queryresult"]
+            
+            base_reply = f"{source}, "
+            
+            is_error = answer["error"]
+            is_success = answer["success"]
+            log.debug("Result status: error: %s, success: %s", is_error, is_success)
+            
+            if is_error:
+                reply = base_reply + "your query errored FeelsBadMan"
+                bot.send_message_to_user(source, reply, event, method="reply")
+                return False
+                
+    def load_commands(self, **options)"
+        self.commands["weather"] = Command.raw_command(
+        self.query,
+        delay_all=self.settings["global_cd"],
+        delay_user=self.settings["user_cd"],
+        level=self.settings["level"],
+        description="",
+        command="weather",
+        examples=[],
+    )
+    self.commands["temperature"] = self.commands["weather"]
