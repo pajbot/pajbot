@@ -83,7 +83,7 @@ class WeatherModule(BaseModule):
                 bot.send_message_to_user(source, reply, event, method="reply")
                 return False
 
-    def load_commands(self, **options)"
+    def load_commands(self, **options):
         self.commands["weather"] = Command.raw_command(
         self.query,
         delay_all=self.settings["global_cd"],
