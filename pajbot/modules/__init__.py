@@ -69,6 +69,7 @@ from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.massping import MassPingProtectionModule
+from pajbot.modules.weather import WeatherModule
 from pajbot.modules.wolfram import WolframModule
 
 available_modules = [
@@ -136,5 +137,6 @@ available_modules = [
     WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
     MassPingProtectionModule,
+    WeatherModule,
     WolframModule,
 ]
