@@ -3,10 +3,10 @@ from pajbot.modules.base import ModuleSetting
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 
+
 class WeatherModule(BaseModule)
 
-
-    ID = 
+    ID =
     NAME = "Weather"
     DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/"
     CATEGORY = "Feature"
