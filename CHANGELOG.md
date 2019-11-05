@@ -2,7 +2,32 @@
 
 ## Unversioned
 
-- Major: Added a scuffed weather module based on the Dark Sky API. For existing pajbot users, they will need to add the line: `darksky = 1234567890abcdefghijk` into the `[main]` part of the config.
+- Major: `pleblist_song` table mistakenly wiped any non-user-connected rows in v1.38, this version will make the `pleblist_song` table able to contain non-user-connected rows again.
+
+  Here is how you can recover the data, should you be affected:
+
+  ```bash
+  # Replace "streamer_name" with the name of the streamer in all commands below
+
+  # Create new database to restore into
+  sudo -u postgres createdb pajbot_restore --owner=pajbot
+
+  # Restore the backup into the "pajbot_restore" database
+  sudo -u pajbot psql pajbot_restore < pre-user-migration-backup.sql
+
+  # Get the data that was in the pleblist_song and user table in the pre-migration database state
+  sudo -u pajbot psql pajbot_restore -c "COPY (SELECT * FROM pajbot1_streamer_name.pleblist_song) TO STDOUT" > pleblist_song_old.txt
+  sudo -u pajbot psql pajbot_restore -c "COPY (SELECT * FROM pajbot1_streamer_name.user) TO STDOUT" > user_old.txt
+
+  # Drop the temporary database again
+  sudo -u postgres dropdb pajbot_restore
+
+  # Then run the final restore script: This loads data from "pleblist_song_old.txt" and "user_old.txt" and restores
+  # into the pleblist_song table inside the schema you specify (pajbot1_streamer_name)
+  # To customize the file paths, adjust the script itself
+  sudo -u pajbot psql pajbot -c "SET search_path=pajbot1_streamer_name" -f ./scripts/restore-pleblist-songs.sql
+  ```
+
 - Minor: Emote command (e.g. !bttvemotes) cooldowns and level can now be configured in the modules settings.
 - Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
@@ -15,6 +40,7 @@
 - Minor: Dates/Times on the website are now all shown in the user's time zone and formatted based on the viewer's locale. Note for the bot operator: You can remove the `timezone=` setting under `[main]`, since it's no longer needed.
 - Minor: Fix table sorting in the modules page.
 - Minor: Removed last remnants of already defunct Pleblist StreamTip integration
+- Bugfix: Fixed two more cases of long-running transactions not being closed, which in turn could cause the database server to run out of disk space (#648)
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.
@@ -22,6 +48,7 @@
 - Bugfix: Fixed points_rank and num_lines_rank never refreshing automatically.
 - Bugfix: Mass ping protection will no longer count inactive users (never seen before or seen longer than 2 weeks ago).
 - Bugfix: Fixed single raffle silently failing when finishing. #610
+- Bugfix: Fixed !dubtrack previous/!lastsong printing the current song instead of the previous song
 
 ## v1.38
 
