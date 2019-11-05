@@ -4,7 +4,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 
 
-class WeatherModule(BaseModule)
+class WeatherModule(BaseModule):
 
     ID =
     NAME = "Weather"
