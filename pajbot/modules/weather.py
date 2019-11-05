@@ -5,6 +5,7 @@ from pajbot.models.command import CommandExample
 
 class WeatherModule(BaseModule)
 
+
     ID = 
     NAME = "Weather"
     DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/"
@@ -43,46 +44,45 @@ class WeatherModule(BaseModule)
             default="en",
         ),
     ]
-    
+
     def __init__(self, bot):
         super().__init__(bot)
-        
+
         if bot:
             self.darksky_key = bot.config["main"].get("darksky", None)
-            
+
     def query(sec, bot, source, message, event, args):
         latitude = self.settings["darksky_latitude"]
         longitude = self.settings["darksky_longitude"]
         language = self.settings["darksky_language"]
         units = self.settings["temperature_units"]
-        
+
         if not self.darksky_key:
             # Notify user of misconfiguration
             return False
-            
+
             query_parameters = {
             "key": self.darksky_key,
-<<<<<<< HEAD
             "latitude": self.darksky_latitude,
             "longitude": self.darksky_longitute,
             "lang": self.darksky_language,
             "units": self.temperature_units,
             }
-            
+
             res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
             answer = res.json()["queryresult"]
-            
+
             base_reply = f"{source}, "
-            
+
             is_error = answer["error"]
             is_success = answer["success"]
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
-            
+
             if is_error:
                 reply = base_reply + "your query errored FeelsBadMan"
                 bot.send_message_to_user(source, reply, event, method="reply")
                 return False
-                
+
     def load_commands(self, **options)"
         self.commands["weather"] = Command.raw_command(
         self.query,
