@@ -10,14 +10,6 @@ class WeatherModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="temperature_units",
-            label="Choose the unit of measurement to use for the temperature - Options can be found here: https://darksky.net/dev/docs",
-            type="",
-            required=True,
-            placeholder="",
-            default="auto",
-        ),
-        ModuleSetting(
             key="darksky_latitude",
             label="Choose the default weather latitude",
             type="text",
@@ -80,7 +72,6 @@ class WeatherModule(BaseModule):
         latitude = self.settings["darksky_latitude"]
         longitude = self.settings["darksky_longitude"]
         language = self.settings["darksky_language"]
-        units = self.settings["temperature_units"]
 
         if not self.darksky_key:
             # Notify user of misconfiguration
@@ -91,7 +82,7 @@ class WeatherModule(BaseModule):
                 "latitude": self.darksky_latitude,
                 "longitude": self.darksky_longitute,
                 "lang": self.darksky_language,
-                "units": self.temperature_units,
+                "units": 'auto',
             }
 
             res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
