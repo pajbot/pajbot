@@ -72,11 +72,6 @@ class DarkSkyWeather(BaseModule):
         if bot:
             self.darksky_key = bot.config["main"].get("darksky", None)
 
-    def query(self, bot, source, message, event, args):
-        latitude = self.settings["darksky_latitude"]
-        longitude = self.settings["darksky_longitude"]
-        language = self.settings["darksky_language"]
-
         if not self.darksky_key:
             # Notify user of misconfiguration
             return False
