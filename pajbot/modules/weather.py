@@ -41,6 +41,33 @@ class WeatherModule(BaseModule):
             placeholder="",
             default="en",
         ),
+        ModuleSetting(
+            key="global_cd",
+            label="Global cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=15,
+            constraints={"min_value": 0, "max_value": 240},
+        ),
+        ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=30,
+            constraints={"min_value": 0, "max_value": 240},
+        ),
+        ModuleSetting(
+            key="level",
+            label="Level required to use the command (make sure people don't abuse this command)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=250,
+            constraints={"min_value": 100, "max_value": 2000},
+        ),
     ]
 
     def __init__(self, bot):
