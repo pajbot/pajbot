@@ -11,7 +11,7 @@ class WeatherModule(BaseModule):
     DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/ - Requires Dark Sky key in the bot config file"
     CATEGORY = "Feature"
     SETTINGS = [
-        ModuleSettings(
+        ModuleSetting(
             key="temperature_units",
             label="Choose the unit of measurement to use for the temperature - Options can be found here: https://darksky.net/dev/docs",
             type="",
@@ -19,7 +19,7 @@ class WeatherModule(BaseModule):
             placeholder="",
             default="auto",
         ),
-        ModuleSettings(
+        ModuleSetting(
             key="darksky_latitude",
             label="Choose the default weather latitude",
             type="text",
@@ -27,7 +27,7 @@ class WeatherModule(BaseModule):
             placeholder="-27.46977",
             default="",
         ),
-        ModuleSettings(
+        ModuleSetting(
             key="darksky_longitude",
             label="Choose the default weather longitude",
             type="text",
@@ -35,7 +35,7 @@ class WeatherModule(BaseModule):
             placeholder="153.025131",
             default="",
         ),
-        ModuleSettings(
+        ModuleSetting(
             key="darksky_language",
             label="Choose the default language the API should use - Supported list can be found here: https://darksky.net/dev/docs",
             type="text",
