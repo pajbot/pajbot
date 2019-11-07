@@ -1,7 +1,6 @@
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
 
 
 class WeatherModule(BaseModule):
