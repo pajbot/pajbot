@@ -5,7 +5,6 @@ from pajbot.models.command import CommandExample
 
 
 class WeatherModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Dark Sky Weather"
     DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/ - Requires Dark Sky key in the bot config file"
@@ -62,11 +61,11 @@ class WeatherModule(BaseModule):
             return False
 
             query_parameters = {
-            "key": self.darksky_key,
-            "latitude": self.darksky_latitude,
-            "longitude": self.darksky_longitute,
-            "lang": self.darksky_language,
-            "units": self.temperature_units,
+                "key": self.darksky_key,
+                "latitude": self.darksky_latitude,
+                "longitude": self.darksky_longitute,
+                "lang": self.darksky_language,
+                "units": self.temperature_units,
             }
 
             res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
@@ -85,12 +84,13 @@ class WeatherModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands["weather"] = Command.raw_command(
-        self.query,
-        delay_all=self.settings["global_cd"],
-        delay_user=self.settings["user_cd"],
-        level=self.settings["level"],
-        description="",
-        command="weather",
-        examples=[],
-    )
+            self.query,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
+            level=self.settings["level"],
+            description="",
+            command="weather",
+            examples=[],
+        )
+
     self.commands["temperature"] = self.commands["weather"]
