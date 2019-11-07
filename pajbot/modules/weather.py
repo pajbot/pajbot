@@ -7,7 +7,7 @@ from pajbot.models.command import Command
 log = logging.getLogger(__name__)
 
 
-class WeatherModule(BaseModule):
+class DarkSkyWeather(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Dark Sky Weather"
     DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/ - Requires Dark Sky key in the bot config file"

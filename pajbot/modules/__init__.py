@@ -17,6 +17,7 @@ from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
+from pajbot.modules.weather import DarkSkyWeather
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
@@ -36,6 +37,7 @@ from pajbot.modules.linkchecker import LinkCheckerModule
 from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.linktracker import LinkTrackerLink
 from pajbot.modules.linktracker import LinkTrackerModule
+from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.casechecker import CaseCheckerModule
@@ -68,8 +70,6 @@ from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
-from pajbot.modules.massping import MassPingProtectionModule
-from pajbot.modules.weather import WeatherModule
 from pajbot.modules.wolfram import WolframModule
 
 available_modules = [
@@ -85,6 +85,7 @@ available_modules = [
     DBManageModule,
     SubscriberFetchModule,
     DebugModule,
+    WeatherModule,
     DeckModule,
     DubtrackModule,
     DuelModule,
@@ -102,6 +103,7 @@ available_modules = [
     LineFarmingModule,
     LinkCheckerModule,
     LinkTrackerModule,
+    MassPingProtectionModule,
     MathModule,
     MaxMsgLengthModule,
     ModeratorsRefreshModule,
@@ -136,7 +138,5 @@ available_modules = [
     WinHsBetPointsQuestModule,
     WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
-    MassPingProtectionModule,
-    WeatherModule,
     WolframModule,
 ]
