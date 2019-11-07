@@ -87,7 +87,7 @@ class WeatherModule(BaseModule):
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
             level=self.settings["level"],
-            description="",
+            description="Find the weather for a specified location",
             command="weather",
             examples=[],
         )
