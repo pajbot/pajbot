@@ -1,7 +1,10 @@
+import logging
+
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.models.command import Command
 
+log = logging.getLogger(__name__)
 
 class WeatherModule(BaseModule):
     ID = __name__.split(".")[-1]
