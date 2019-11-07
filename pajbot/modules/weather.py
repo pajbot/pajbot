@@ -76,7 +76,7 @@ class WeatherModule(BaseModule):
         if bot:
             self.darksky_key = bot.config["main"].get("darksky", None)
 
-    def query(sec, bot, source, message, event, args):
+    def query(self, bot, source, message, event, args):
         latitude = self.settings["darksky_latitude"]
         longitude = self.settings["darksky_longitude"]
         language = self.settings["darksky_language"]
