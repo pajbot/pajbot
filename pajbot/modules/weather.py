@@ -6,6 +6,7 @@ from pajbot.models.command import Command
 
 log = logging.getLogger(__name__)
 
+
 class WeatherModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Dark Sky Weather"
