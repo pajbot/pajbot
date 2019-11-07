@@ -91,5 +91,4 @@ class WeatherModule(BaseModule):
             command="weather",
             examples=[],
         )
-
-    self.commands["temperature"] = self.commands["weather"]
+        self.commands["temperature"] = self.commands["weather"]
