@@ -85,7 +85,7 @@ available_modules = [
     DBManageModule,
     SubscriberFetchModule,
     DebugModule,
-    WeatherModule,
+    DarkSkyWeather,
     DeckModule,
     DubtrackModule,
     DuelModule,
