@@ -82,7 +82,7 @@ class WeatherModule(BaseModule):
                 "latitude": self.darksky_latitude,
                 "longitude": self.darksky_longitute,
                 "lang": self.darksky_language,
-                "units": 'auto',
+                "units": "auto",
             }
 
             res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
