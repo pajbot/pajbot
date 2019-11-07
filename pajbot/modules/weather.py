@@ -100,7 +100,6 @@ class DarkSkyWeather(BaseModule):
 
     def load_commands(self, **options):
         self.commands["weather"] = Command.raw_command(
-            self.query,
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
             level=self.settings["level"],
