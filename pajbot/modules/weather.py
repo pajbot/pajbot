@@ -83,9 +83,9 @@ class DarkSkyWeather(BaseModule):
 
             query_parameters = {
                 "key": self.darksky_key,
-                "latitude": self.darksky_latitude,
-                "longitude": self.darksky_longitute,
-                "lang": self.darksky_language,
+                "latitude": self.settings["darksky_latitude"],
+                "longitude": self.settings["darksky_longitude"],
+                "lang": self.settings["darksky_language"],
                 "units": "auto",
             }
 
