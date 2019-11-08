@@ -140,10 +140,10 @@ class Bot:
         # with self.conn:  # transaction control, does NOT close the connection
         #     with self.conn.cursor() as cursor:  # auto resource release of cursor
         #         cursor.execute("SOME SQL")
-        sql_conn = DBManager.engine.connect().connection.connection
-        sql_migratable = DatabaseMigratable(sql_conn)
-        sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
-        sql_migration.run()
+        with DBManager.create_dbapi_connection_scope() as sql_conn:
+            sql_migratable = DatabaseMigratable(sql_conn)
+            sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
+            sql_migration.run()
 
         # Redis migrations
         redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
