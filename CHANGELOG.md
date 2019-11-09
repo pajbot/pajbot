@@ -28,6 +28,7 @@
   sudo -u pajbot psql pajbot -c "SET search_path=pajbot1_streamer_name" -f ./scripts/restore-pleblist-songs.sql
   ```
 
+- Minor: Bot maintainer/host information can now be added to the config file and displayed on the `/contact`-page. See bottom of updated example config for an example.
 - Minor: Emote command (e.g. !bttvemotes) cooldowns and level can now be configured in the modules settings.
 - Minor: The end message sent when a negative raffle ends now says "lost X points" correctly, instead of "won -X points".
 - Minor: Duels now automatically expire and get cancelled if they are not accepted within 5 minutes (Time amount can be configured as a module setting).
