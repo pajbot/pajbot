@@ -10,3 +10,4 @@
 
 - Tag the release: `git tag YOUR.VERSION -am "YOUR.VERSION"`
 - Push the tag: `git push --tags`
+- Update the `stable` branch to point to the new release: `git fetch . your.version:stable`
