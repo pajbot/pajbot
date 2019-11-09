@@ -129,6 +129,9 @@ sudo apt install nginx
 
 We will configure nginx later.
 
+> Note: You can find a basic nginx configuration setup including HTTP -> HTTPS redirect, recommended SSL configuration parameters, etc. [over here](./full-nginx-setup/README.md).
+> If you don't already have a basic nginx setup, we strongly recommend you follow the linked guideline now.
+
 ## Install system services
 
 We recommend you run pajbot with the help of systemd. Systemd will take care of:
