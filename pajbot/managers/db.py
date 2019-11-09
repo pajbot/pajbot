@@ -188,7 +188,7 @@ class DBManager:
 
     @staticmethod
     @contextmanager
-    def create_dbapi_session_scope(autocommit=False):
+    def create_dbapi_cursor_scope(autocommit=False):
         # The create_dbapi_connection_scope context manager just does basic setup/cleanup of resources,
         # not transaction control
         with DBManager.create_dbapi_connection_scope(autocommit=autocommit) as sql_conn:
