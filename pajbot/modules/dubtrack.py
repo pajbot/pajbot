@@ -34,7 +34,7 @@ class DubtrackModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="room_name",
-            label="Dubtrack room name",
+            label="Dubtrack room name. No spaces. Use the string after /join/ in the URL",
             type="text",
             required=True,
             placeholder="Dubtrack room name (i.e. pajlada)",
