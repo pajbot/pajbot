@@ -16,6 +16,9 @@ def init(app):
     assets.register("base_css", base_css)
     assets.register("base_js", base_js)
 
+    datetime_js = Bundle("scripts/datetime.js", filters="jsmin", output="gen/scripts/datetime.%(version)s.js")
+    assets.register("datetime", datetime_js)
+
     # Pleblist-related javascript
     # Available under the following assets: pleblist_shared, pleblist_host, pleblist_client
     pleblist_client = Bundle("scripts/pleblist.js", filters="jsmin", output="gen/scripts/pleblist.%(version)s.js")
@@ -30,17 +33,15 @@ def init(app):
     assets.register("pleblist_host", pleblist_host)
 
     # CLR Overlay
-    # Availabe under: clr_overlay_js, clr_overlay_css, clr_shared_js
+    # Availabe under: clr_overlay_js, clr_overlay_css
     # jsmin is intentionally disabled for clr.overlay.js because the output is broken (same as below for
     # playsounds)
     clr_overlay_js = Bundle("scripts/clr.overlay.js", output="gen/scripts/clr.overlay.%(version)s.js")
     clr_overlay_css = Bundle(
         "css/clr.overlay.scss", filters="pyscss,cssmin", output="gen/css/clr.overlay.%(version)s.css"
     )
-    clr_shared_js = Bundle("scripts/clr.shared.js", filters="jsmin", output="gen/scripts/clr.shared.%(version)s.js")
     assets.register("clr_overlay_js", clr_overlay_js)
     assets.register("clr_overlay_css", clr_overlay_css)
-    assets.register("clr_shared_js", clr_shared_js)
 
     # Admin site
     # Availabe under: admin_create_banphrase, admin_create_command,

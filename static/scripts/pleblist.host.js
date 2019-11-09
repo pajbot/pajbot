@@ -230,10 +230,6 @@ $(document).ready(function() {
     }
 
     var services = {
-        'Streamtip': {
-            cookie: 'streamtip_access_token',
-            connect_method: streamtip_connect,
-        },
         'StreamElements': {
             cookie: 'streamelements_access_token',
             connect_method: streamelements_connect,

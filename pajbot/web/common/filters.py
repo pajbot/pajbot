@@ -1,5 +1,9 @@
-from pajbot.managers.time import TimeManager
 import pajbot.utils
+from jinja2 import Markup
+
+
+def is_naive_datetime(dt):
+    return dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None
 
 
 def init(app):
@@ -15,8 +19,18 @@ def init(app):
         return value.strftime(format)
 
     @app.template_filter("localize")
-    def time_localize(value):
-        return TimeManager.localize(value)
+    def time_localize(value, format="LLL"):
+        if is_naive_datetime(value):
+            raise ValueError("Cannot localize datetime without timezone info")
+
+        milliseconds_since_utc_epoch = value.timestamp() * 1000
+
+        # fallback_format is for users with JavaScript disabled
+        fallback_format = str(value)
+
+        return Markup(
+            f'<span class="localized-datetime" data-timestamp="{milliseconds_since_utc_epoch}" data-format="{format}">{fallback_format}</span>'
+        )
 
     @app.template_filter("unix_timestamp")
     def time_unix_timestamp(value):
@@ -75,3 +89,11 @@ def init(app):
         m = s % 3600 / 60
         s = s % 60
         return "%dh%02dm%02ds" % (h, m, s)
+
+    @app.template_filter("with_unit")
+    def with_unit(value, unit, plural_suffix="s"):
+        """with_unit ≙ value_with_pluralized_unit"""
+        if value == 1:
+            return f"{value} {unit}"  # e.g. 1 point
+        else:
+            return f"{value} {unit}{plural_suffix}"  # e.g. 2 points

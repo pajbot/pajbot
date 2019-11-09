@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 from datetime import timedelta
 from sqlalchemy import BOOLEAN, INT, TEXT, BIGINT, Interval, or_, and_
+from sqlalchemy.sql.functions import func
 from sqlalchemy import Column
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, foreign
@@ -379,7 +380,7 @@ class User(Base):
         # look for a match in both the login and name
         return (
             db_session.query(User)
-            .filter(or_(User.login == input, User.name == input))
+            .filter(or_(User.login == input, func.lower(User.name) == input))
             .order_by(User.login_last_updated.desc())
             .limit(1)
             .one_or_none()

@@ -6,6 +6,7 @@ from flask import Flask
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
 from pajbot.utils import extend_version_if_possible
@@ -34,13 +35,13 @@ def init(args):
     import pajbot.web.routes
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
-    from pajbot.managers.time import TimeManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
     from pajbot.web.utils import download_logo
+    from pajbot.web.utils import download_sub_badge
 
     config = load_config(args.config)
 
@@ -57,6 +58,7 @@ def init(args):
     id_api = TwitchIDAPI(api_client_credentials)
     app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
+    twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
 
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
@@ -66,13 +68,22 @@ def init(args):
         salt = generate_random_salt()
         config.set("web", "pleblist_password_salt", salt.decode("utf-8"))
 
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
+
     if "pleblist_password" not in config["web"]:
         salt = generate_random_salt()
         config.set("web", "pleblist_password", salt.decode("utf-8"))
 
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
+
     if "secret_key" not in config["web"]:
         salt = generate_random_salt()
         config.set("web", "secret_key", salt.decode("utf-8"))
+
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
 
     streamer = config["main"]["streamer"]
     streamer_user_id = twitch_helix_api.get_user_id(streamer)
@@ -80,25 +91,29 @@ def init(args):
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
     StreamHelper.init_streamer(streamer, streamer_user_id)
 
-    if "logo" not in config["web"]:
+    try:
+        download_logo(twitch_helix_api, streamer, streamer_user_id)
+    except:
+        log.exception("Error downloading the streamers profile picture")
+
+    subscriber_badge_version = config["web"].get("subscriber_badge_version", "0")
+
+    # Specifying a value of -1 in the config will disable sub badge downloading. Useful if you want to keep a custom version of a sub badge for a streamer
+    if subscriber_badge_version != "-1":
         try:
-            download_logo(twitch_helix_api, streamer, streamer_user_id)
-            config.set("web", "logo", "set")
+            download_sub_badge(twitch_badges_api, streamer, streamer_user_id, subscriber_badge_version)
         except:
-            log.exception("Error downloading logo")
+            log.exception("Error downloading the streamers subscriber badge")
 
     SocketClientManager.init(streamer)
-
-    with open(args.config, "w") as configfile:
-        config.write(configfile)
 
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
     app.bot_config = config
     app.secret_key = config["web"]["secret_key"]
+    app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
-    TimeManager.init_timezone(config["main"].get("timezone", "UTC"))
 
     app.module_manager = ModuleManager(None).load()
 
@@ -115,13 +130,16 @@ def init(args):
     errors.init(app, config)
     pajbot.web.routes.clr.config = config
 
-    version = extend_version_if_possible(VERSION)
+    version = VERSION
+    last_commit = None
 
-    try:
-        last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
-    except:
-        log.exception("Failed to get last_commit, will not show last commit")
-        last_commit = None
+    if app.bot_dev:
+        version = extend_version_if_possible(VERSION)
+
+        try:
+            last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
+        except:
+            log.exception("Failed to get last_commit, will not show last commit")
 
     default_variables = {
         "version": version,

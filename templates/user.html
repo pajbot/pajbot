@@ -44,7 +44,7 @@
                 <tr>
                     <td><strong>Last seen</strong></td>
                     {% if user.last_seen %}
-                    <td>{{ user.last_seen|strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ user.last_seen|localize }}</td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
@@ -53,7 +53,7 @@
                 <tr>
                     <td><strong>Last active in chat</strong></td>
                     {% if user.last_active %}
-                    <td>{{ user.last_active|strftime('%Y-%m-%d %H:%M:%S') }} &emsp; <a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">logs</a></td>
+                    <td>{{ user.last_active|localize }} &emsp; <a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">logs</a></td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
@@ -103,7 +103,7 @@
                 </tr>
                 <tr>
                     <td><strong>Last duel</strong></td>
-                    <td>{{ user.duel_stats.last_duel|localize|strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ user.duel_stats.last_duel|localize }}</td>
                 </tr>
                 {% if user.duel_stats.longest_winstreak > 1 %}
                 <tr>
@@ -187,7 +187,7 @@
             <tbody>
                 {% for roulette in roulettes %}
                 <tr>
-                    <td>{{ roulette.created_at }}</td>
+                    <td>{{ roulette.created_at|localize }}</td>
                     <td><span class="points {{ 'negative' if roulette.points < 0 else 'positive' }}">{{ roulette.points }}</span></td>
                 </tr>
                 {% endfor %}

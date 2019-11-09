@@ -19,6 +19,13 @@ def generate_winner_list(winners):
     return ", ".join(winner.name for winner in winners)
 
 
+def format_win(points_amount):
+    if points_amount >= 0:
+        return f"won {points_amount}"
+    else:
+        return f"lost {-points_amount}"
+
+
 class RaffleModule(BaseModule):
 
     MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT = 100
@@ -306,7 +313,7 @@ class RaffleModule(BaseModule):
             return False
 
         with DBManager.create_session_scope() as db_session:
-            winner_id = random.choice(self.raffle_users)
+            winner_id = random.choice(list(self.raffle_users))
             winner = User.find_by_id(db_session, winner_id)
             if winner is None:
                 return False
@@ -315,9 +322,9 @@ class RaffleModule(BaseModule):
 
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
-                    "notification", {"message": f"{winner} won {self.raffle_points} points in the raffle!"}
+                    "notification", {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"}
                 )
-                self.bot.me(f"The raffle has finished! {winner} won {self.raffle_points} points! PogChamp")
+                self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp")
 
             winner.points += self.raffle_points
 
@@ -427,10 +434,10 @@ class RaffleModule(BaseModule):
             self.raffle_users = set()
 
             if num_winners == 1:
-                self.bot.me(f"The multi-raffle has finished! 1 user won {points_per_user} points! PogChamp")
+                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! PogChamp")
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users won {points_per_user} points each! PogChamp"
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! PogChamp"
                 )
 
             winners_arr = []
@@ -441,17 +448,17 @@ class RaffleModule(BaseModule):
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_str) > 300:
                     if len(winners_arr) == 1:
-                        self.bot.me(f"{winners_str} won {points_per_user} points!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
                     else:
-                        self.bot.me(f"{winners_str} won {points_per_user} points each!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
                     winners_arr = []
 
             if len(winners_arr) > 0:
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_arr) == 1:
-                    self.bot.me(f"{winners_str} won {points_per_user} points!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
                 else:
-                    self.bot.me(f"{winners_str} won {points_per_user} points each!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
 
             HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 

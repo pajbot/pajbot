@@ -33,7 +33,6 @@ from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.managers.time import TimeManager
 from pajbot.managers.twitter import TwitterManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
@@ -51,7 +50,7 @@ from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
-from pajbot.utils import time_method, extend_version_if_possible, wait_for_redis_data_loaded
+from pajbot.utils import extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
 
@@ -85,7 +84,6 @@ class Bot:
         wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
-        self.timezone = config["main"].get("timezone", "UTC")
 
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
@@ -98,8 +96,6 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
-
-        TimeManager.init_timezone(self.timezone)
 
         # streamer
         if "streamer" in config["main"]:
@@ -220,7 +216,7 @@ class Bot:
         # Commitable managers
         self.commitable = {"commands": self.commands, "banphrases": self.banphrase_manager}
 
-        self.execute_every(10 * 60, self.commit_all)
+        self.execute_every(60, self.commit_all)
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
@@ -791,7 +787,6 @@ class Bot:
             message=event.arguments[0],
         )
 
-    @time_method
     def commit_all(self):
         for key, manager in self.commitable.items():
             manager.commit()

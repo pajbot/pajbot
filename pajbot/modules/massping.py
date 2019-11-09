@@ -1,7 +1,8 @@
 import logging
 import re
+from datetime import timedelta
 
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from sqlalchemy.sql.functions import count, func
 
 from pajbot.managers.db import DBManager
@@ -72,10 +73,33 @@ class MassPingProtectionModule(BaseModule):
         if len(usernames) < 1:
             return 0
         with DBManager.create_session_scope() as db_session:
+
+            # quick EXPLAIN ANALYZE for this query:
+            #
+            # pajbot=# EXPLAIN ANALYZE SELECT count(*) AS count_1
+            # FROM "user"
+            # WHERE ("user".login IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world') OR lower("user".name) IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world')) AND "user".last_seen IS NOT NULL AND now() - "user".last_seen <= make_interval(weeks := 2);
+            #                                                                              QUERY PLAN
+            # --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #  Aggregate  (cost=37.45..37.46 rows=1 width=8) (actual time=0.113..0.113 rows=1 loops=1)
+            #    ->  Bitmap Heap Scan on "user"  (cost=21.53..37.43 rows=5 width=0) (actual time=0.110..0.110 rows=1 loops=1)
+            #          Recheck Cond: ((login = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[])) OR (lower(name) = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[])))
+            #          Filter: ((last_seen IS NOT NULL) AND ((now() - last_seen) <= '14 days'::interval))
+            #          Heap Blocks: exact=6
+            #          ->  BitmapOr  (cost=21.53..21.53 rows=14 width=0) (actual time=0.101..0.101 rows=0 loops=1)
+            #                ->  Bitmap Index Scan on user_login_idx  (cost=0.00..10.76 rows=7 width=0) (actual time=0.054..0.054 rows=1 loops=1)
+            #                      Index Cond: (login = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[]))
+            #                ->  Bitmap Index Scan on user_lower_idx  (cost=0.00..10.76 rows=7 width=0) (actual time=0.046..0.047 rows=6 loops=1)
+            #                      Index Cond: (lower(name) = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[]))
+            #  Planning Time: 0.092 ms
+            #  Execution Time: 0.140 ms
+            # (12 rows)
+
             return (
                 db_session.query(User)
                 .with_entities(count())
                 .filter(or_(User.login.in_(usernames), func.lower(User.name).in_(usernames)))
+                .filter(and_(User.last_seen.isnot(None), (func.now() - User.last_seen) <= timedelta(weeks=2)))
                 .scalar()
             )
 
