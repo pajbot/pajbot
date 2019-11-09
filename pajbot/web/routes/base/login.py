@@ -138,7 +138,7 @@ def init(app):
             # By doing this, both the streamer and bot token will be set if you complete /bot_login with the bot
             # account, and if the bot is running in its own channel.
             if set(resp["scope"]) < set(streamer_scopes):
-                log.info(f"Streamer logged in but not all scopes present, will not update streamer token")
+                log.info("Streamer logged in but not all scopes present, will not update streamer token")
             else:
                 redis = RedisManager.get()
                 token_json = UserAccessToken.from_api_response(resp).jsonify()
