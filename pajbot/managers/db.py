@@ -202,7 +202,7 @@ class DBManager:
                 # The connection is automatically COMMITed should the inner block return without an exception,
                 # or the connection is ROLLBACKed if an exception occurs.
                 with sql_conn:
-                    # Now use cursor as context manager again, just to release resources correctly
+                    # Now use cursor as context manager, to release resources correctly
                     with sql_conn.cursor() as cursor:
                         yield cursor
 
