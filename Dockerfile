@@ -7,9 +7,15 @@ RUN python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
 RUN find /app/venv -name '__pycache__' | xargs rm -rf
 
 FROM python:3.8-alpine
+ARG COMMIT
+ARG COMMIT_COUNT
+ARG BRANCH
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PB1_COMMIT=${COMMIT}
+ENV PB1_COMMIT_COUNT=${COMMIT_COUNT}
+ENV PB1_BRANCH=${BRANCH}
 WORKDIR /app
-RUN apk add --no-cache git libpq libffi libjpeg-turbo
+RUN apk add --no-cache libpq libffi libjpeg-turbo
 COPY . /app
 COPY --from=build /app/venv /app/venv
 COPY docker/supervisord.conf /etc/supervisord.conf

@@ -1,6 +1,7 @@
 .vscode/
 .github/
 .circleci/
+.git/
 
 venv/
 install-docs/
