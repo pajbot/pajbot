@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ ! -d scripts ]; then
-    echo "This script needs to be called from the root folder, i.e. ./scripts/build-docker.sh"
+if [ ! -d scripts/docker ]; then
+    echo "This script needs to be called from the root folder, i.e. ./scripts/docker/build.sh"
     exit 1
 fi
 

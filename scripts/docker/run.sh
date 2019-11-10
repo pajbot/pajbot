@@ -8,7 +8,7 @@ if [[ -z "${PBUID}${PBGID}" ]]; then
 fi
 
 if [ "$1" = "" ]; then
-    echo "No streamer name provided."
+    echo "No streamer name provided. Example: ./scripts/docker/run.sh pajlada"
     exit 1
 fi
 
