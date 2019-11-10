@@ -12,8 +12,8 @@ if [ "$1" = "" ]; then
     exit 1
 fi
 
-if [ ! -f /opt/configs/"$1".ini ]; then
-    echo "No config file /opt/configs/$1.ini found."
+if [ ! -f /opt/pajbot/configs/"$1".ini ]; then
+    echo "No config file /opt/pajbot/configs/$1.ini found."
     exit 1
 fi
 
@@ -24,7 +24,7 @@ echo docker run \
 -e STREAMERNAME="$1" \
 -e TZ=UTC \
 --network host \
--v /opt/configs/"$1".ini:/app/config.ini \
+-v /opt/pajbot/configs/"$1".ini:/app/config.ini \
 -v /var/run/postgresql:/var/run/postgresql:ro \
 -v /etc/localtime:/etc/localtime:ro \
 -v /srv/pajbot:/srv/pajbot \
