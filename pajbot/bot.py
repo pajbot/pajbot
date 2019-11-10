@@ -111,7 +111,6 @@ class Bot:
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
         self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
 
-
         # TODO: bot.nickname, bot.channel, bot.streamer, bot.bot_user_id, bot.streamer_user_id
         # Fetch user models for the core users the bot uses:
         # - Its own user (e.g. pajbot/snusbot/etc.),
@@ -119,16 +118,22 @@ class Bot:
         # - If enabled, the "control hub",
         # - and the admin.
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            self.bot_user = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["bot_id"], always_fresh=True)
+            self.bot_user = User.find_or_create_from_id(
+                db_session, self.twitch_helix_api, config["main"]["bot_id"], always_fresh=True
+            )
             if self.bot_user is None:
                 raise ValueError("The bot Twitch user ID you entered under [main] does not exist on Twitch.")
 
-            self.streamer = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["streamer_id"], always_fresh=True)
+            self.streamer = User.find_or_create_from_id(
+                db_session, self.twitch_helix_api, config["main"]["streamer_id"], always_fresh=True
+            )
             if self.streamer is None:
                 raise ValueError("The streamer Twitch user ID you entered under [main] does not exist on Twitch.")
             self.channel = "#" + self.streamer.login
 
-            self.control_hub = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["control_hub_id"], always_fresh=True)
+            self.control_hub = User.find_or_create_from_id(
+                db_session, self.twitch_helix_api, config["main"]["control_hub_id"], always_fresh=True
+            )
             if self.control_hub is None:
                 log.warning(
                     "The Twitch user ID you entered for the control hub user does not exist on twitch. Bot will not be joined to any control hub."
@@ -139,7 +144,9 @@ class Bot:
             if "admin_id" not in config["main"]:
                 log.warning("No admin user specified. See the [main] section in the example config for its usage.")
             else:
-                self.admin = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["admin_id"], always_fresh=True)
+                self.admin = User.find_or_create_from_id(
+                    db_session, self.twitch_helix_api, config["main"]["admin_id"], always_fresh=True
+                )
                 if self.admin is None:
                     log.warning(
                         "The Twitch user ID you entered for the admin user does not exist on twitch. No admin user has been created."
