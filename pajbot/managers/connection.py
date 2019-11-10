@@ -94,7 +94,12 @@ class ConnectionManager:
             with self.reactor.mutex:
                 self.reactor.connections.append(self.main_conn)
             self.main_conn.connect(
-                self.host, self.port, self.bot.bot_user.name, self.bot.password, self.bot.bot_user.login, connect_factory=ssl_factory
+                self.host,
+                self.port,
+                self.bot.bot_user.name,
+                self.bot.password,
+                self.bot.bot_user.login,
+                connect_factory=ssl_factory,
             )
             self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
         except irc.client.ServerConnectionError:

@@ -89,13 +89,15 @@ def init(args):
     DBManager.init(config["main"]["db"])
 
     with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-        app.bot_user = User.find_or_create_from_id(db_session, twitch_helix_api, config["main"]["bot_id"],
-                                                    always_fresh=True)
+        app.bot_user = User.find_or_create_from_id(
+            db_session, twitch_helix_api, config["main"]["bot_id"], always_fresh=True
+        )
         if app.bot_user is None:
             raise ValueError("The bot Twitch user ID you entered under [main] does not exist on Twitch.")
 
-        app.streamer = User.find_or_create_from_id(db_session, twitch_helix_api, config["main"]["streamer_id"],
-                                                    always_fresh=True)
+        app.streamer = User.find_or_create_from_id(
+            db_session, twitch_helix_api, config["main"]["streamer_id"], always_fresh=True
+        )
         if app.streamer is None:
             raise ValueError("The streamer Twitch user ID you entered under [main] does not exist on Twitch.")
         StreamHelper.init_streamer(app.streamer.login, app.streamer.id)

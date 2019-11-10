@@ -19,12 +19,7 @@ class IRCManager:
         if bot.control_hub is not None:
             self.channels.append("#" + bot.control_hub.login)
 
-        self.connection_manager = ConnectionManager(
-            self.bot.reactor,
-            self.bot,
-            host="irc.chat.twitch.tv",
-            port=6697,
-        )
+        self.connection_manager = ConnectionManager(self.bot.reactor, self.bot, host="irc.chat.twitch.tv", port=6697)
 
     def start(self):
         self.connection_manager.start()

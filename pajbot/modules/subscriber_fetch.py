@@ -39,9 +39,7 @@ class SubscriberFetchModule(BaseModule):
         )
 
         try:
-            subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(
-                self.bot.streamer.id, access_token_manager
-            )
+            subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(self.bot.streamer.id, access_token_manager)
         except NoTokenError:
             log.warning(
                 "Cannot fetch subscribers because no streamer token is present. "
