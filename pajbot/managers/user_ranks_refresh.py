@@ -1,7 +1,5 @@
 import random
 
-from sqlalchemy import text
-
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.utils import time_method
@@ -30,8 +28,9 @@ class UserRanksRefreshManager:
     @time_method
     def _refresh(action_queue):
         try:
-            with DBManager.create_session_scope() as db_session:
-                db_session.execute(text("REFRESH MATERIALIZED VIEW CONCURRENTLY user_rank"))
+            with DBManager.create_dbapi_cursor_scope(autocommit=True) as cursor:
+                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY user_rank")
+                cursor.execute("VACUUM user_rank")
         finally:
             # Queue up the refresh in 5-6 minutes
             ScheduleManager.execute_delayed(

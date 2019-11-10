@@ -42,6 +42,7 @@
 - Minor: Fix table sorting in the modules page.
 - Minor: Removed last remnants of already defunct Pleblist StreamTip integration
 - Bugfix: Fixed two more cases of long-running transactions not being closed, which in turn could cause the database server to run out of disk space (#648)
+- Bugfix: Added explicit VACUUM of user_rank relation after refresh to ensure the database server does not run out of disk space, even if you have a lot of bots (with a lot of users in the database) running on the same server.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
 - Bugfix: Fixed an exception whenever the result of a command was being checked by the massping module.
 - Bugfix: Fixed a lot of log-spam and the subscribers refresh not working when the bot was running in its own channel. Re-authorize via `/bot_login` after this update if you were affected by this issue before.

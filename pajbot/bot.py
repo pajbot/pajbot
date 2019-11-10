@@ -132,18 +132,10 @@ class Bot:
         StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
         # SQL migrations
-        # engine.connect() returns a SQLAlchemy `Connection` object.
-        # engine.connect().connection returns a SQLAlchemy `_ConnectionFairy` object.
-        # engine.connect().connection.connection is the underlying psycopg2 connection.
-        # we need the psycopg2 connection, so we can do transaction control using the connection as a context manager
-        # e.g. (from the implementation of DatabaseMigratable):
-        # with self.conn:  # transaction control, does NOT close the connection
-        #     with self.conn.cursor() as cursor:  # auto resource release of cursor
-        #         cursor.execute("SOME SQL")
-        sql_conn = DBManager.engine.connect().connection.connection
-        sql_migratable = DatabaseMigratable(sql_conn)
-        sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
-        sql_migration.run()
+        with DBManager.create_dbapi_connection_scope() as sql_conn:
+            sql_migratable = DatabaseMigratable(sql_conn)
+            sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
+            sql_migration.run()
 
         # Redis migrations
         redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
