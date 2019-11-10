@@ -16,7 +16,7 @@ def _read_git_info_from_subprocess():
 def _read_git_info_from_environment_variables():
     # These fail with a KeyError if one of these is not set
     current_branch = os.environ["PB1_BRANCH"]
-    latest_commit = os.environ["PB1_COMMIT"]
+    latest_commit = os.environ["PB1_COMMIT"][:8]
     commit_number = os.environ["PB1_COMMIT_COUNT"]
     return current_branch, latest_commit, commit_number
 
