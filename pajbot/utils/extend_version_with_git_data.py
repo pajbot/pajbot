@@ -5,11 +5,13 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 def _read_git_info_from_subprocess():
     current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
     latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
     commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
     return current_branch, latest_commit, commit_number
+
 
 def _read_git_info_from_environment_variables():
     # These fail with a KeyError if one of these is not set
@@ -17,6 +19,7 @@ def _read_git_info_from_environment_variables():
     latest_commit = os.environ["PB1_COMMIT"]
     commit_number = os.environ["PB1_COMMIT_COUNT"]
     return current_branch, latest_commit, commit_number
+
 
 def extend_version_with_git_data(version):
     try:
