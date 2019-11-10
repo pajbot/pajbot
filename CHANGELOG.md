@@ -41,6 +41,7 @@
 - Minor: Dates/Times on the website are now all shown in the user's time zone and formatted based on the viewer's locale. Note for the bot operator: You can remove the `timezone=` setting under `[main]`, since it's no longer needed.
 - Minor: Fix table sorting in the modules page.
 - Minor: Removed last remnants of already defunct Pleblist StreamTip integration
+- Minor: Website will now show moderator badge next to usernames if the user is a Twitch moderator.
 - Bugfix: Fixed two more cases of long-running transactions not being closed, which in turn could cause the database server to run out of disk space (#648)
 - Bugfix: Added explicit VACUUM of user_rank relation after refresh to ensure the database server does not run out of disk space, even if you have a lot of bots (with a lot of users in the database) running on the same server.
 - Bugfix: Fixed an exception and the message not being handled whenever a message contained an emote modified via the "Channel Points" Twitch feature.
