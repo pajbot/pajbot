@@ -17,7 +17,7 @@ def init(app):
     nav_bar_header.append(MenuItem("/commands", "commands", "Commands"))
     if "deck" in app.module_manager:
         nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
-    if app.bot_config["main"]["nickname"] not in ["scamazbot", "exdeebot"]:
+    if app.bot_user.login not in ["scamazbot", "exdeebot"]:
         nav_bar_header.append(MenuItem("/points", "points", "Points"))
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
     if "playsounds" in app.bot_modules:

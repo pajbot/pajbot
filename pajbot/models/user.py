@@ -343,6 +343,20 @@ class User(Base):
         return User.from_basics(db_session, basics)
 
     @staticmethod
+    def find_or_create_from_id(db_session, twitch_helix_api, id, always_fresh=False):
+        if not always_fresh:
+            user_from_db = User.find_by_id(db_session, id)
+            if user_from_db is not None:
+                return user_from_db
+
+        # no user in DB! Query Helix API for user basics, then create user/update existing user and return.
+        basics = twitch_helix_api.get_user_basics_by_id(id)
+        if basics is None:
+            return None
+
+        return User.from_basics(db_session, basics)
+
+    @staticmethod
     def find_or_create_from_user_input(db_session, twitch_helix_api, input, always_fresh=False):
         input = User._normalize_user_username_input(input)
 

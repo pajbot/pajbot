@@ -83,8 +83,6 @@ class Bot:
         RedisManager.init(**redis_options)
         wait_for_redis_data_loaded(RedisManager.get())
 
-        self.nickname = config["main"].get("nickname", "pajbot")
-
         if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
 
@@ -96,14 +94,6 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
-
-        # streamer
-        if "streamer" in config["main"]:
-            self.streamer = config["main"]["streamer"]
-            self.channel = "#" + self.streamer
-        elif "target" in config["main"]:
-            self.channel = config["main"]["target"]
-            self.streamer = self.channel[1:]
 
         log.debug("Loaded config")
 
@@ -121,15 +111,44 @@ class Bot:
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
         self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
 
-        self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
-        if self.bot_user_id is None:
-            raise ValueError("The bot login name you entered under [main] does not exist on twitch.")
 
-        self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
-        if self.streamer_user_id is None:
-            raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+        # TODO: bot.nickname, bot.channel, bot.streamer, bot.bot_user_id, bot.streamer_user_id
+        # Fetch user models for the core users the bot uses:
+        # - Its own user (e.g. pajbot/snusbot/etc.),
+        # - The streamer,
+        # - If enabled, the "control hub",
+        # - and the admin.
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            self.bot_user = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["bot_id"], always_fresh=True)
+            if self.bot_user is None:
+                raise ValueError("The bot Twitch user ID you entered under [main] does not exist on Twitch.")
 
-        StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
+            self.streamer = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["streamer_id"], always_fresh=True)
+            if self.streamer is None:
+                raise ValueError("The streamer Twitch user ID you entered under [main] does not exist on Twitch.")
+            self.channel = "#" + self.streamer.login
+
+            self.control_hub = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["control_hub_id"], always_fresh=True)
+            if self.control_hub is None:
+                log.warning(
+                    "The Twitch user ID you entered for the control hub user does not exist on twitch. Bot will not be joined to any control hub."
+                )
+
+            # promote the admin to level 2000
+            self.admin = None
+            if "admin_id" not in config["main"]:
+                log.warning("No admin user specified. See the [main] section in the example config for its usage.")
+            else:
+                self.admin = User.find_or_create_from_id(db_session, self.twitch_helix_api, config["main"]["admin_id"], always_fresh=True)
+                if self.admin is None:
+                    log.warning(
+                        "The Twitch user ID you entered for the admin user does not exist on twitch. No admin user has been created."
+                    )
+                else:
+                    self.admin.level = 2000
+
+        # TODO: Use a user model inside StreamHelper too.
+        StreamHelper.init_streamer(self.streamer.login, self.streamer.id)
 
         # SQL migrations
         # engine.connect() returns a SQLAlchemy `Connection` object.
@@ -146,7 +165,7 @@ class Bot:
         sql_migration.run()
 
         # Redis migrations
-        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
+        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer.login)
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
@@ -192,13 +211,13 @@ class Bot:
             self.bot_token_manager = UserAccessTokenManager(
                 api=None,
                 redis=None,
-                username=self.nickname,
-                user_id=self.bot_user_id,
+                username=self.bot_user.name,
+                user_id=self.bot_user.id,
                 token=UserAccessToken.from_implicit_auth_flow_token(access_token),
             )
         else:
             self.bot_token_manager = UserAccessTokenManager(
-                api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
+                api=self.twitch_id_api, redis=RedisManager.get(), username=self.bot_user.name, user_id=self.bot_user.id
             )
 
         self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
@@ -218,21 +237,6 @@ class Bot:
 
         self.execute_every(60, self.commit_all)
         self.execute_every(1, self.do_tick)
-
-        # promote the admin to level 2000
-        admin = self.config["main"].get("admin", None)
-        if admin is None:
-            log.warning("No admin user specified. See the [main] section in the example config for its usage.")
-        else:
-            with DBManager.create_session_scope() as db_session:
-                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, admin)
-                if admin_user is None:
-                    log.warning(
-                        "The login name you entered for the admin user does not exist on twitch. "
-                        "No admin user has been created."
-                    )
-                else:
-                    admin_user.level = 2000
 
         # silent mode
         self.silent = (
@@ -263,7 +267,7 @@ class Bot:
             "broadcaster": self.streamer,
             "version": self.version_long,
             "version_brief": VERSION,
-            "bot_name": self.nickname,
+            "bot_name": self.bot_user.name,
         }
 
         self.data_cb = {
@@ -639,7 +643,7 @@ class Bot:
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
-            source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
+            source.moderator = tags["mod"] == "1" or source == self.streamer
             source.subscriber = tags["subscriber"] == "1"
 
         if not whisper and source.banned:
@@ -737,10 +741,11 @@ class Bot:
         login = event.source.user
         name = tags["display-name"]
 
-        if event.source.user == self.nickname:
+        # Ignore our own messages
+        if id == self.bot_user.id:
             return False
 
-        if self.streamer == "forsen":
+        if self.streamer.login == "forsen":
             if "zonothene" in login:
                 self._ban(login)
                 return True
@@ -760,7 +765,7 @@ class Bot:
                 else:
                     return True
 
-        if self.streamer == "nymn":
+        if self.streamer.login == "nymn":
             if "hades_k" in login:
                 self.timeout_login(login, 3600, reason="Bad username")
                 return True
@@ -809,14 +814,14 @@ class Bot:
             except (IndexError, ValueError, TypeError):
                 pass
             quit_delay = random.randint(0, quit_delay_random)
-            log.info("%s is restarting in %d seconds.", self.nickname, quit_delay)
+            log.info("%s is restarting in %d seconds.", self.bot_user.name, quit_delay)
 
         self.execute_delayed(quit_delay, self.quit_bot)
 
     def quit_bot(self, **options):
         self.commit_all()
         HandlerManager.trigger("on_quit")
-        phrase_data = {"nickname": self.nickname, "version": self.version_long}
+        phrase_data = {"nickname": self.bot_user.name, "version": self.version_long}
 
         try:
             ScheduleManager.base_scheduler.print_jobs()

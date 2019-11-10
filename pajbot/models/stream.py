@@ -79,7 +79,7 @@ class StreamManager:
         if self.online is False:
             return
 
-        data = self.bot.twitch_v5_api.get_vod_videos(self.bot.streamer_user_id)
+        data = self.bot.twitch_v5_api.get_vod_videos(self.bot.streamer.id)
         self.bot.execute_now(self.refresh_video_url_stage2, data)
 
     def fetch_video_url_stage2(self, data):
@@ -228,12 +228,12 @@ class StreamManager:
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
     def refresh_stream_status_stage1(self):
-        status = self.bot.twitch_v5_api.get_stream_status(self.bot.streamer_user_id)
+        status = self.bot.twitch_v5_api.get_stream_status(self.bot.streamer.id)
         self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
     def refresh_stream_status_stage2(self, status):
         redis = RedisManager.get()
-        key_prefix = self.bot.streamer + ":"
+        key_prefix = self.bot.streamer.login + ":"
 
         stream_data = {key_prefix + "online": str(status["online"]), key_prefix + "viewers": status["viewers"]}
         if status["game"]:

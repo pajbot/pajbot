@@ -157,7 +157,7 @@ def up(cursor, bot):
     cursor.execute('ALTER TABLE "user" ALTER COLUMN points SET DATA TYPE BIGINT')
 
     log.info("import lines from redis")
-    for login, num_lines in redis.zscan_iter(f"{bot.streamer}:users:num_lines", score_cast_func=safe_to_int):
+    for login, num_lines in redis.zscan_iter(f"{bot.streamer.login}:users:num_lines", score_cast_func=safe_to_int):
         if num_lines is None:
             # invalid amount in redis, skip
             continue
@@ -165,7 +165,7 @@ def up(cursor, bot):
 
     # new: tokens
     cursor.execute('ALTER TABLE "user" ADD COLUMN tokens INT NOT NULL DEFAULT 0')
-    for login, tokens in redis.zscan_iter(f"{bot.streamer}:users:tokens", score_cast_func=safe_to_int):
+    for login, tokens in redis.zscan_iter(f"{bot.streamer.login}:users:tokens", score_cast_func=safe_to_int):
         if tokens is None:
             # invalid amount in redis, skip
             continue
@@ -176,14 +176,14 @@ def up(cursor, bot):
     # new: last_seen
     log.info("import last seen from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_seen TIMESTAMPTZ DEFAULT NULL')
-    for login, last_seen_raw in redis.hscan_iter(f"{bot.streamer}:users:last_seen"):
+    for login, last_seen_raw in redis.hscan_iter(f"{bot.streamer.login}:users:last_seen"):
         last_seen = datetime.datetime.fromtimestamp(float(last_seen_raw), tz=datetime.timezone.utc)
         cursor.execute('UPDATE "user" SET last_seen = %s WHERE login = %s', (last_seen, login))
 
     # new: last_active
     log.info("import last active from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_active TIMESTAMPTZ DEFAULT NULL')
-    for login, last_active_raw in redis.hscan_iter(f"{bot.streamer}:users:last_active"):
+    for login, last_active_raw in redis.hscan_iter(f"{bot.streamer.login}:users:last_active"):
         last_seen = datetime.datetime.fromtimestamp(float(last_active_raw), tz=datetime.timezone.utc)
         cursor.execute('UPDATE "user" SET last_active = %s WHERE login = %s', (last_seen, login))
 
@@ -207,12 +207,12 @@ def up(cursor, bot):
 
     # new: ignored
     cursor.execute('ALTER TABLE "user" ADD COLUMN ignored BOOLEAN NOT NULL DEFAULT FALSE')
-    for login in redis.hkeys(f"{bot.streamer}:users:ignored"):
+    for login in redis.hkeys(f"{bot.streamer.login}:users:ignored"):
         cursor.execute('UPDATE "user" SET ignored = TRUE WHERE login = %s', (login,))
 
     # new: banned
     cursor.execute('ALTER TABLE "user" ADD COLUMN banned BOOLEAN NOT NULL DEFAULT FALSE')
-    for login in redis.hkeys(f"{bot.streamer}:users:banned"):
+    for login in redis.hkeys(f"{bot.streamer.login}:users:banned"):
         cursor.execute('UPDATE "user" SET banned = TRUE WHERE login = %s', (login,))
 
     # note: username_raw is not migrated in from redis, since the username_raw data will be fetched
@@ -253,7 +253,7 @@ def up(cursor, bot):
     cursor.execute("CLOSE all_users")
 
     # update admin logs to primary-key by Twitch ID.
-    admin_logs_key = f"{bot.streamer}:logs:admin"
+    admin_logs_key = f"{bot.streamer.login}:logs:admin"
     all_admin_logs = redis.lrange(admin_logs_key, 0, -1)
     # all_admin_logs and new_log_entries are in newest -> oldest order
     new_log_entries = []
@@ -396,13 +396,13 @@ def up(cursor, bot):
 
         # Delete data that was moved in
         redis_pipeline.delete(
-            f"{bot.streamer}:users:num_lines",
-            f"{bot.streamer}:users:tokens",
-            f"{bot.streamer}:users:last_seen",
-            f"{bot.streamer}:users:last_active",
-            f"{bot.streamer}:users:username_raw",
-            f"{bot.streamer}:users:ignored",
-            f"{bot.streamer}:users:banned",
+            f"{bot.streamer.login}:users:num_lines",
+            f"{bot.streamer.login}:users:tokens",
+            f"{bot.streamer.login}:users:last_seen",
+            f"{bot.streamer.login}:users:last_active",
+            f"{bot.streamer.login}:users:username_raw",
+            f"{bot.streamer.login}:users:ignored",
+            f"{bot.streamer.login}:users:banned",
         )
 
     # at the end of this migration, we are left with this users table:

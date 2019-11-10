@@ -62,7 +62,7 @@ class ChattersRefreshModule(BaseModule):
 
     @time_method
     def _update_chatters(self, only_last_seen=False):
-        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer)
+        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer.login)
         chatter_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(chatter_logins)
 
         # filter out invalid/deleted/etc. users

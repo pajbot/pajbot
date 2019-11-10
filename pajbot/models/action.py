@@ -474,7 +474,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             headers = {
                 "Accept": "text/plain",
                 "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
-                "User-Agent": f"pajbot1/{VERSION} ({bot.nickname})",
+                "User-Agent": f"pajbot1/{VERSION} ({bot.bot_user.name})",
             }
             r = requests.get(url, allow_redirects=True, headers=headers)
             r.raise_for_status()

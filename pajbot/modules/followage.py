@@ -175,19 +175,19 @@ class FollowAgeModule(BaseModule):
             else:
                 from_user = source
 
-            if to_input is None:
-                to_input = bot.streamer  # TODO make bot.streamer a User() instance?
-
-            to_user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, to_input)
-            if to_user is None:
-                bot.execute_now(
-                    bot.send_message_to_user,
-                    source,
-                    f'User "{to_input}" could not be found',
-                    event,
-                    method=message_method,
-                )
-                return
+            if to_input is not None:
+                to_user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, to_input)
+                if to_user is None:
+                    bot.execute_now(
+                        bot.send_message_to_user,
+                        source,
+                        f'User "{to_input}" could not be found',
+                        event,
+                        method=message_method,
+                    )
+                    return
+            else:
+                to_user = bot.streamer
 
         follow_since = bot.twitch_helix_api.get_follow_since(from_user.id, to_user.id)
         is_self = source == from_user

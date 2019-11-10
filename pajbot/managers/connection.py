@@ -61,16 +61,9 @@ class Connection(CustomServerConnection):
 
 
 class ConnectionManager:
-    def __init__(self, reactor, bot, streamer, control_hub_channel, host, port):
+    def __init__(self, reactor, bot, host, port):
         self.host = host
         self.port = port
-
-        self.streamer = streamer
-        self.channel = "#" + self.streamer
-        if control_hub_channel:
-            self.control_hub_channel = "#" + control_hub_channel
-        else:
-            self.control_hub_channel = None
 
         self.reactor = reactor
         self.bot = bot
@@ -81,7 +74,7 @@ class ConnectionManager:
         try:
             self.make_new_connection()
 
-            phrase_data = {"nickname": self.bot.nickname, "version": self.bot.version_long}
+            phrase_data = {"nickname": self.bot.bot_user.name, "version": self.bot.version_long}
 
             for p in self.bot.phrases["welcome"]:
                 self.bot.privmsg(p.format(**phrase_data))
@@ -95,16 +88,13 @@ class ConnectionManager:
             return False
 
     def make_new_connection(self):
-        ip = self.host
-        port = self.port
-
         try:
             ssl_factory = Factory(wrapper=ssl.wrap_socket)
             self.main_conn = Connection(self.reactor)
             with self.reactor.mutex:
                 self.reactor.connections.append(self.main_conn)
             self.main_conn.connect(
-                ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
+                self.host, self.port, self.bot.bot_user.name, self.bot.password, self.bot.bot_user.login, connect_factory=ssl_factory
             )
             self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
         except irc.client.ServerConnectionError:

@@ -15,21 +15,13 @@ class IRCManager:
 
         self.channels = []
 
-        self.channel = "#" + self.bot.streamer
-        self.channels.append(self.channel)
-
-        self.control_hub_channel = self.bot.config["main"].get("control_hub", None)
-        if self.control_hub_channel:
-            self.control_hub_channel = "#" + self.control_hub_channel
-            self.channels.append(self.control_hub_channel)
-
-        chub = bot.config["main"].get("control_hub", "")
+        self.channels.append("#" + self.bot.streamer.login)
+        if bot.control_hub is not None:
+            self.channels.append("#" + bot.control_hub.login)
 
         self.connection_manager = ConnectionManager(
             self.bot.reactor,
             self.bot,
-            streamer=self.bot.streamer,
-            control_hub_channel=chub,
             host="irc.chat.twitch.tv",
             port=6697,
         )
@@ -38,7 +30,7 @@ class IRCManager:
         self.connection_manager.start()
 
     def whisper(self, username, message):
-        self.connection_manager.privmsg(f"#{self.bot.nickname}", f"/w {username} {message}")
+        self.connection_manager.privmsg(f"#{self.bot.bot_user.login}", f"/w {username} {message}")
 
     def privmsg(self, message, channel, increase_message=True):
         self.connection_manager.privmsg(channel, message, increase_message=increase_message)

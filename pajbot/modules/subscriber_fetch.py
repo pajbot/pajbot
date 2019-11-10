@@ -34,13 +34,13 @@ class SubscriberFetchModule(BaseModule):
         access_token_manager = UserAccessTokenManager(
             api=self.bot.twitch_id_api,
             redis=RedisManager.get(),
-            username=self.bot.streamer,
-            user_id=self.bot.streamer_user_id,
+            username=self.bot.streamer.name,
+            user_id=self.bot.streamer.id,
         )
 
         try:
             subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(
-                self.bot.streamer_user_id, access_token_manager
+                self.bot.streamer.id, access_token_manager
             )
         except NoTokenError:
             log.warning(
@@ -63,7 +63,7 @@ class SubscriberFetchModule(BaseModule):
         user_basics = [e for e in user_basics if e is not None]
 
         # count how many subs we have (we don't want to count the broadcaster with his permasub)
-        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer_user_id)
+        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer.id)
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:

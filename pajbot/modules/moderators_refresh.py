@@ -61,7 +61,7 @@ class ModeratorsRefreshModule(BaseModule):
         if moderator_logins is not None:
             # The broadcaster also has the privileges of a moderator
             if self.bot.streamer not in moderator_logins:
-                moderator_logins.append(self.bot.streamer)
+                moderator_logins.append(self.bot.streamer.login)
 
             self.bot.action_queue.submit(self._process_moderator_logins, moderator_logins)
 
