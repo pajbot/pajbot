@@ -2,10 +2,9 @@ import logging
 
 import requests
 
-from pajbot.modules.base import BaseModule
-from pajbot.modules.base import ModuleSetting
 from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -14,32 +13,17 @@ class DarkSkyWeather(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Dark Sky Weather"
-    DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky: https://darksky.net/poweredby/ - Requires Dark Sky key in the bot config file"
+    DESCRIPTION = "Simple module for some weather commands - <a href="https://darksky.net/poweredby">Powered by Dark Sky</a> - Requires Dark Sky key in the bot config file"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="darksky_latitude",
-            label="Choose the default weather latitude",
-            type="text",
-            required=True,
-            placeholder="-27.46977",
-            default="",
-        ),
-        ModuleSetting(
-            key="darksky_longitude",
-            label="Choose the default weather longitude",
-            type="text",
-            required=True,
-            placeholder="153.025131",
-            default="",
-        ),
-        ModuleSetting(
-            key="darksky_language",
-            label="Choose the default language the API should use - Supported list can be found here: https://darksky.net/dev/docs",
-            type="text",
+            key="level",
+            label="Level required to use the command (make sure people don't abuse this command)",
+            type="number",
             required=True,
             placeholder="",
-            default="en",
+            default=250,
+            constraints={"min_value": 100, "max_value": 2000},
         ),
         ModuleSetting(
             key="global_cd",
@@ -59,15 +43,6 @@ class DarkSkyWeather(BaseModule):
             default=30,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(
-            key="level",
-            label="Level required to use the command (make sure people don't abuse this command)",
-            type="number",
-            required=True,
-            placeholder="",
-            default=250,
-            constraints={"min_value": 100, "max_value": 2000},
-        ),
     ]
 
     def __init__(self, bot):
@@ -77,18 +52,17 @@ class DarkSkyWeather(BaseModule):
             self.darksky_key = bot.config["main"].get("darksky", None)
 
         if not self.darksky_key:
-            # Notify user of misconfiguration
+            # XXX: Possibly notify user of misconfigured bot?
             return False
+
+        try:
+            log.debug('Querying darksky for input "%s"', message)
 
             query_parameters = {
                 "key": self.darksky_key,
-                "latitude": self.settings["darksky_latitude"],
-                "longitude": self.settings["darksky_longitude"],
-                "lang": self.settings["darksky_language"],
-                "units": "auto",
             }
 
-            res = requests.get("https://api.darksky.net/forecast", params=query_parameters)
+            res = requests.get("https://api.darksky.net/forecast/", params=query_parameters)
             answer = res.json()["queryresult"]
 
             base_reply = f"{source}, "
@@ -98,9 +72,16 @@ class DarkSkyWeather(BaseModule):
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
 
             if is_error:
-                reply = base_reply + "your query errored FeelsBadMan"
+                reply = base_reply + "your request errored FeelsBadMan"
                 bot.send_message_to_user(source, reply, event, method="reply")
                 return False
+
+            if not is_success:
+                log.debug(answer)
+                reply = base_reply + "DarkSky didn't understand your request FeelsBadMan"
+
+        except:
+            log.exception("wolfram query errored")
 
     def load_commands(self, **options):
         self.commands["weather"] = Command.raw_command(
@@ -111,4 +92,4 @@ class DarkSkyWeather(BaseModule):
             command="weather",
             examples=[],
         )
-        self.commands["temperature"] = self.commands["weather"]
+        self.commands["weather"] = self.commands["forecase"]
