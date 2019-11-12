@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Bugfix: Fixed users not being banned on sight if they were "banned on pajbot" (`!permaban` command/feature).
+
 ## v1.39
 
 - Major: `pleblist_song` table mistakenly wiped any non-user-connected rows in v1.38, this version will make the `pleblist_song` table able to contain non-user-connected rows again.

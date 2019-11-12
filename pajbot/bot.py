@@ -635,7 +635,7 @@ class Bot:
             source.subscriber = tags["subscriber"] == "1"
 
         if not whisper and source.banned:
-            self.ban(source.login)
+            self.ban(source)
             return False
 
         # Parse emotes in the message
