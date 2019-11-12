@@ -306,7 +306,7 @@ class LinkCheckerModule(BaseModule):
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
-            action.run()
+            action()
         if want_to_cache:
             self.cache_url(url.url, False)
         if want_to_blacklist:
