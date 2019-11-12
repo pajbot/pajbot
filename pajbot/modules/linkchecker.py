@@ -798,7 +798,7 @@ class LinkCheckerModule(BaseModule):
         options = {k: v for k, v in vars(args).items() if v is not None}
         response = " ".join(unknown)
 
-        if 'level' in options:
-            options['level'] = int(options['level'])
+        if "level" in options:
+            options["level"] = int(options["level"])
 
         return options, response
