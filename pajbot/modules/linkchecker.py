@@ -306,7 +306,7 @@ class LinkCheckerModule(BaseModule):
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
-            action.run()
+            action()
         if want_to_cache:
             self.cache_url(url.url, False)
         if want_to_blacklist:
@@ -797,5 +797,8 @@ class LinkCheckerModule(BaseModule):
         # Strip options of any values that are set as None
         options = {k: v for k, v in vars(args).items() if v is not None}
         response = " ".join(unknown)
+
+        if "level" in options:
+            options["level"] = int(options["level"])
 
         return options, response
