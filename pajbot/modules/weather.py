@@ -13,7 +13,7 @@ class DarkSkyWeather(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Dark Sky Weather"
-    DESCRIPTION = "Simple module for some weather commands - <a href="https://darksky.net/poweredby">Powered by Dark Sky</a> - Requires Dark Sky key in the bot config file"
+    DESCRIPTION = "Simple module for some weather commands - Powered by Dark Sky - https://darksky.net/poweredby - Requires Dark Sky key in the bot config file"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
