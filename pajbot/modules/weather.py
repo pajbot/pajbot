@@ -58,11 +58,7 @@ class DarkSkyWeather(BaseModule):
         try:
             log.debug('Querying darksky for input "%s"', message)
 
-            query_parameters = {
-                "key": self.darksky_key,
-            }
-
-            res = requests.get("https://api.darksky.net/forecast/", params=query_parameters)
+            res = requests.get("https://api.darksky.net/forecast/", params={"key": self.darksky_key})
             answer = res.json()["queryresult"]
 
             base_reply = f"{source}, "
