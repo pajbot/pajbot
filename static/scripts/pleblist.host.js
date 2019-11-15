@@ -1,36 +1,6 @@
 var secret_password = undefined;
-var currency_symbols = {
-    'USD': '$', // US Dollar
-    'EUR': '€', // Euro
-    'CRC': '₡', // Costa Rican Colón
-    'GBP': '£', // British Pound Sterling
-    'ILS': '₪', // Israeli New Sheqel
-    'INR': '₹', // Indian Rupee
-    'JPY': '¥', // Japanese Yen
-    'KRW': '₩', // South Korean Won
-    'NGN': '₦', // Nigerian Naira
-    'PHP': '₱', // Philippine Peso
-    'PLN': 'zł', // Polish Zloty
-    'PYG': '₲', // Paraguayan Guarani
-    'THB': '฿', // Thai Baht
-    'UAH': '₴', // Ukrainian Hryvnia
-    'VND': '₫', // Vietnamese Dong
-};
 
-function add_tip(username, avatar, amount, cents, note, currency_symbol)
 {
-    if (currency_symbol == null) {
-        currency_symbol = '$';
-    }
-
-    if (amount == null) {
-        cents = String(cents);
-        amount = cents.substring(0, cents.length - 2);
-        if (cents.substring(cents.length - 2) !== '00') {
-            amount = amount + '.' + cents.substring(cents.length - 2);
-        }
-    }
-
     var linked_note = Autolinker.link(note, {
         replaceFn: function(autolinker, match) {
             switch (match.getType()) {
