@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Bugfix: Fixed Twitter statuses showing with undecoded HTML entities (#645)
 - Bugfix: Fixed users not being banned on sight if they were "banned on pajbot" (`!permaban` command/feature).
 - Bugfix: Fixed linkchecker blacklist commands not working.
 - Bugfix: Fixed linkchecker blacklisted links not timing users out.

@@ -8,7 +8,7 @@ from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.twitter import TwitterUser
 from pajbot.utils import time_since
-from pajbot.utils import tweet_prettify_urls
+from pajbot.utils import stringify_tweet
 
 log = logging.getLogger(__name__)
 
@@ -115,8 +115,7 @@ class TwitterManager:
                         and status.in_reply_to_screen_name is None
                     ):
                         log.debug("On status from tweepy: %s", status.text)
-                        tw = tweet_prettify_urls(status)
-                        tweet_message = tw.replace("\n", " ")
+                        tweet_message = stringify_tweet(status)
                         self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
 
                 def on_error(self, status_code):
@@ -169,11 +168,10 @@ class TwitterManager:
                 public_tweets = self.twitter_client.user_timeline(username)
                 for tweet in public_tweets:
                     if not tweet.text.startswith("RT ") and tweet.in_reply_to_screen_name is None:
-                        tw = tweet_prettify_urls(tweet)
                         # Tweepy returns naive datetime object (but it's always UTC)
                         # .replace() makes it timezone-aware :)
                         created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
-                        tweet_message = tw.replace("\n", " ")
+                        tweet_message = stringify_tweet(tweet)
                         return f"{tweet_message} ({time_since(utils.now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
             except Exception:
                 log.exception("Exception caught while getting last tweet")
