@@ -4,7 +4,7 @@ Replace v1.23 with your version
 
 ## For the Pull Request
 
-- Update CHANGELOG.md, add entry inbetween `## Unversioned` and any changelog entries with `## v1.23`
+- Update `CHANGELOG.md`, add entry inbetween `## Unversioned` and any changelog entries with `## v1.23`
 - Look through the changelog entries of this version, and reorder any entries so the most important changes are at the top of each category
 - Update `pajbot/constants.py`
 
