@@ -1,12 +1,12 @@
 # Making a release
 
-Replace v1.23 with your version
+Replace `v1.23` with the new version in the commands/examples below.
 
 ## For the Pull Request
 
-- Update `CHANGELOG.md`, add entry inbetween `## Unversioned` and any changelog entries with `## v1.23`
+- Update `CHANGELOG.md`, replace `## Unversioned` with `## v1.23` and add a new empty `## Unversioned` section above `## v1.23`.
 - Look through the changelog entries of this version, and reorder any entries so the most important changes are at the top of each category
-- Update `pajbot/constants.py`
+- Update `pajbot/constants.py` with the new version
 
 ## After the Pull Request has been accepted
 
