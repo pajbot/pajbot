@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added more social media options
+- Minor: Added more social media options (Discord, Patreon, Snapchat)
 
 ## v1.40
 
