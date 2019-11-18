@@ -19,6 +19,7 @@ class StreamHelper:
         "reddit": {"format": "https://www.reddit.com/r/{}/", "title": "Reddit"},
         "steam": {"format": "{}", "title": "Steam"},
         "facebook": {"format": "{}", "title": "Facebook"},
+        "discord": {"format": "{}", "title": "Discord"},
         "star": {"format": "{}", "title": "Website"},
     }
     social_keys = collections.OrderedDict(sorted(social_keys_unsorted.items(), key=lambda t: t[0]))
