@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added more social media options (Discord, Patreon, Snapchat)
+
 ## v1.40
 
 - Bugfix: Fixed Twitter statuses showing with undecoded HTML entities (#645)
