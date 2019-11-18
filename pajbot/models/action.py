@@ -66,6 +66,8 @@ def apply_substitutions(text, substitutions, bot, extra):
             log.error("Unknown param for response.")
             continue
         value = sub.cb(param, extra)
+        if value is None:
+            return None
         try:
             for f in sub.filters:
                 value = bot.apply_filter(value, f)
