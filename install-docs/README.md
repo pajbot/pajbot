@@ -249,16 +249,16 @@ Congratulations! Your bot should be running by now, but there are some extra ste
 
   ```
   !add command ping @$(source:username_raw), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
-  !add command commands|help @$(source:username_raw), $(tb:bot_name) commands available here: https://$(tb:broadcaster).your-domain.com/commands
+  !add command commands|help @$(source:username_raw), $(tb:bot_name) commands available here: https://$(tb:bot_domain)/commands
   !add command ecount @$(source:username_raw), $(1) has been used $(ecount;1) times.
   !add command epm @$(source:username_raw), $(1) is currently being used $(epm;1) times per minute.
   !add command uptime|downtime @$(source:username_raw), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
   !add command points|p @$(source:username_raw), $(usersource;1:name) has $(usersource;1:points|number_format) points
   !add command lastseen @$(source:username_raw), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
   !add command epmrecord @$(source:username_raw), $(1) per minute record is $(epmrecord;1).
-  !add command profile @$(soruce:username_raw) https://$(tb:broadcaster).your-domain.com/user/$(usersource;1:username) 
-  !add command overlay|clr @$(source:username_raw), https://$(tb:broadcaster).your-domain.com/clr/overlay/12345
-  !add command playsounds @$(source:username_raw), available playsounds are listed here: https://$(tb:broadcaster).your-domain.com/playsounds
+  !add command profile @$(soruce:username_raw) https://$(tb:bot_domain)/user/$(usersource;1:username) 
+  !add command overlay|clr @$(source:username_raw), https://$(tb:bot_domain)/clr/overlay/12345
+  !add command playsounds @$(source:username_raw), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   ```
 
 - Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
