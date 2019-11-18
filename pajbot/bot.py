@@ -256,7 +256,7 @@ class Bot:
             "version": self.version_long,
             "version_brief": VERSION,
             "bot_name": self.nickname,
-            "domain": self.site.domain,
+            "domain": {self.bot.config['web']['domain']},
         }
 
         self.data_cb = {
