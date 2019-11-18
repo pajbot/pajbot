@@ -61,7 +61,6 @@ class VanishModule(BaseModule):
         ),
     ]
 
-    @staticmethod
     def vanish_command(self, bot, source, **rest):
         bot.execute_delayed(0.5, bot.timeout, source, 1, reason=self.settings["timeout_reason"], once=True)
 
