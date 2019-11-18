@@ -260,3 +260,5 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command overlay|clr @$(source:username_raw), https://$(tb:broadcaster).your-domain.com/clr/overlay/12345
   !add command playsounds @$(source:username_raw), available playsounds are listed here: https://$(tb:broadcaster).your-domain.com/playsounds
   ```
+
+- Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
