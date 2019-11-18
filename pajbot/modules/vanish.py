@@ -51,7 +51,7 @@ class VanishModule(BaseModule):
             constraints={"min_value": 0, "max_value": 5000},
         ),
         ModuleSetting(
-            key="reason",
+            key="timeout_reason",
             label="Timeout Reason",
             type="text",
             required=False,
@@ -63,7 +63,7 @@ class VanishModule(BaseModule):
 
     @staticmethod
     def vanish_command(bot, source, **rest):
-        bot.execute_delayed(0.5, bot.timeout, source, 1, self.settings["reason"], once=True)
+        bot.execute_delayed(0.5, bot.timeout, source, 1, reason=self.settings["timeout_reason"], once=True)
 
     def load_commands(self, **options):
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
