@@ -3,9 +3,14 @@
 ## Unversioned
 
 - Minor: Added more social media options
+
+## v1.40
+
+- Bugfix: Fixed Twitter statuses showing with undecoded HTML entities (#645)
 - Bugfix: Fixed users not being banned on sight if they were "banned on pajbot" (`!permaban` command/feature).
 - Bugfix: Fixed linkchecker blacklist commands not working.
 - Bugfix: Fixed linkchecker blacklisted links not timing users out.
+- Bugfix: Fixed strictargs not cancelling message response if a filter was applied to it. (#677)
 
 ## v1.39
 
