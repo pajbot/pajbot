@@ -256,7 +256,7 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command points|p @$(source:username_raw), $(usersource;1:name) has $(usersource;1:points|number_format) points
   !add command lastseen @$(source:username_raw), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
   !add command epmrecord @$(source:username_raw), $(1) per minute record is $(epmrecord;1).
-  !add command profile @$(source:username_raw) https://$(tb:bot_domain)/user/$(usersource;1:username) 
+  !add command profile @$(source:username_raw) https://$(tb:bot_domain)/user/$(usersource;1:username)
   !add command overlay|clr @$(source:username_raw), https://$(tb:bot_domain)/clr/overlay/12345
   !add command playsounds @$(source:username_raw), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   ```
