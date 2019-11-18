@@ -19,7 +19,7 @@ class VanishModule(BaseModule):
             label="Command name (i.e. vanish)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder="Command name (no prefix)",
             default="vanish",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -50,11 +50,20 @@ class VanishModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 5000},
         ),
+        ModuleSetting(
+            key="reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="Point cost",
+            default="Vanish command usage",
+            constraints={},
+        ),
     ]
 
     @staticmethod
     def vanish_command(bot, source, **rest):
-        bot.execute_delayed(0.5, bot.timeout, source, 1, once=True)
+        bot.execute_delayed(0.5, bot.timeout, source, 1, self.settings["reason"], once=True)
 
     def load_commands(self, **options):
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
