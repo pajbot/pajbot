@@ -256,6 +256,7 @@ class Bot:
             "version": self.version_long,
             "version_brief": VERSION,
             "bot_name": self.nickname,
+            "domain": self.domain,
         }
 
         self.data_cb = {
