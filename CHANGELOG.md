@@ -3,6 +3,7 @@
 ## Unversioned
 
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
+- Bugfix: Fixed potential issues with users with recycled Twitch usernames (cases when two users in the database shared the same Twitch username).
 
 ## v1.40
 
