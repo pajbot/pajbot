@@ -3,6 +3,7 @@
 ## Unversioned
 
 - Minor: Added `bot_domain` variable
+- Minor: Added more social media options (Discord, Patreon, Snapchat)
 
 ## v1.40
 
