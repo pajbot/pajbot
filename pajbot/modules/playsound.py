@@ -127,7 +127,7 @@ class PlaysoundModule(BaseModule):
             if playsound is None:
                 bot.whisper(
                     source,
-                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://'{self.bot.bot_domain}'/playsounds",
+                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
                 )
                 return False
 
@@ -153,7 +153,7 @@ class PlaysoundModule(BaseModule):
             if not playsound.enabled:
                 bot.whisper(
                     source,
-                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://'{self.bot.bot_domain}'/playsounds",
+                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
                 )
                 return False
 
