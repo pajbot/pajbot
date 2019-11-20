@@ -4,7 +4,7 @@ def up(cursor, bot):
     # The return value/modified row created inside the trigger procedure was ignored entirely.
     # In order for changes to the "NEW" row to actually be included in the update, we have to run BEFORE.
     # We just drop it and re-create it properly to fix our previous mistake here.
-    cursor.execute("DROP TRIGGER user_login_update ON \"user\"")
+    cursor.execute('DROP TRIGGER user_login_update ON "user"')
     cursor.execute(
         """
     CREATE TRIGGER user_login_update
