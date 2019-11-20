@@ -106,7 +106,7 @@ class Bot:
             self.streamer = self.channel[1:]
 
         self.bot_domain = self.config["web"]["domain"]
-        
+
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
