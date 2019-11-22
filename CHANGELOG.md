@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added dank reasoning for the vanish module
+- Minor: Added reasoning for the vanish module
 - Minor: Added `bot_domain` variable
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
 
