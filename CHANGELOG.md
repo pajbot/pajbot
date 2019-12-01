@@ -1,8 +1,7 @@
 # Changelog
 
 ## Unversioned
-
-- Minor: Removed broken Streamlabs & StreamElements login options from the pleblist module
+- Minor: Start removing unused pieces of pleblist (song request) system, starting with the login system
 - Minor: Added reasoning for the vanish module
 - Minor: Updated install-docs/readme.md further-steps
 - Minor: Added `bot_domain` variable
