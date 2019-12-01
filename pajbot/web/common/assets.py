@@ -20,17 +20,14 @@ def init(app):
     assets.register("datetime", datetime_js)
 
     # Pleblist-related javascript
-    # Available under the following assets: pleblist_shared, pleblist_host, pleblist_client
+    # Available under the following assets: pleblist_shared, pleblist_client
     pleblist_client = Bundle("scripts/pleblist.js", filters="jsmin", output="gen/scripts/pleblist.%(version)s.js")
     pleblist_shared = Bundle(
         "scripts/pleblist.shared.js", filters="jsmin", output="gen/scripts/pleblist.shared.%(version)s.js"
     )
-    pleblist_host = Bundle(
-        "scripts/pleblist.host.js", filters="jsmin", output="gen/scripts/pleblist.host.%(version)s.js"
-    )
+
     assets.register("pleblist_shared", pleblist_shared)
     assets.register("pleblist_client", pleblist_client)
-    assets.register("pleblist_host", pleblist_host)
 
     # CLR Overlay
     # Availabe under: clr_overlay_js, clr_overlay_css
