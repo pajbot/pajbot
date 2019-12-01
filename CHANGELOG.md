@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Updated install-docs/readme.md further-steps
 - Minor: Added `bot_domain` variable
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
 
