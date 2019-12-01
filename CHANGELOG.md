@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unversioned
+
 - Minor: Start removing unused pieces of pleblist (song request) system, starting with the login system
 - Minor: Added reasoning for the vanish module
 - Minor: Updated install-docs/readme.md further-steps
