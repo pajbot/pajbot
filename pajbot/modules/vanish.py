@@ -55,7 +55,7 @@ class VanishModule(BaseModule):
             label="Timeout Reason",
             type="text",
             required=False,
-            placeholder="Point cost",
+            placeholder="",
             default="Vanish command usage",
             constraints={},
         ),
