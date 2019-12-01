@@ -249,10 +249,16 @@ Congratulations! Your bot should be running by now, but there are some extra ste
 
   ```
   !add command ping --reply @$(source:name), $(tb:bot_name) $(tb:version_brief) online for $(tb:bot_uptime)
-  !add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://streamer_name.your-domain.com/commands
+  !add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://$(tb:bot_domain)/commands
   !add command ecount --reply @$(source:name), $(1) has been used $(ecount;1) times.
   !add command epm --reply @$(source:name), $(1) is currently being used $(epm;1) times per minute.
   !add command uptime|downtime --reply @$(source:name), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
-  !add command points --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points
-  !add command lastseen --reply $(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
+  !add command points|p --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points
+  !add command lastseen --reply @$(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
+  !add command epmrecord --reply @$(source:name), $(1) per minute record is $(epmrecord;1).
+  !add command profile --reply @$(source:name) https://$(tb:bot_domain)/user/$(usersource;1:username)
+  !add command overlay|clr --reply @$(source:name), https://$(tb:bot_domain)/clr/overlay/12345
+  !add command playsounds --reply @$(source:name), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   ```
+
+- Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)

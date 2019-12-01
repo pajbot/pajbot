@@ -34,7 +34,7 @@ def clean_up_message(message):
 
     # Stop the bot from calling other bot commands
     # by prefixing payload with invisible character
-    if payload[:1] in ["!", "$", "-", "<"]:
+    if payload[:1] in ["!", "$", "-", "<", "?"]:
         payload = "\U000e0000" + payload
 
     if command is not None and payload is not None:
