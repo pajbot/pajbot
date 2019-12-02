@@ -18,12 +18,6 @@ def init(app):
     def pleblist():
         return render_template("pleblist.html")
 
-    @app.route("/pleblist/host/")
-    def pleblist_host():
-        return render_template(
-            "pleblist_host.html", has_streamlabs=False, streamlabs_client_id="", has_streamelements=False
-        )
-
     @app.route("/pleblist/history/")
     def pleblist_history_redirect():
         with DBManager.create_session_scope() as session:
