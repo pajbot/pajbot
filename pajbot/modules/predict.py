@@ -167,7 +167,7 @@ class PredictModule(BaseModule):
             level=750,
         )
 
-        mini_command = self.settings["mini_command"].lower().replace("!", "").replace(" ", "")
+        mini_command = self.settings["mini_command"].lower().replace(f"{self.prefix}", "").replace(" ", "")
         if len(mini_command) > 0:
             self.commands[mini_command] = Command.multiaction_command(
                 level=100,
