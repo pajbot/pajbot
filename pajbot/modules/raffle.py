@@ -42,8 +42,8 @@ class RaffleModule(BaseModule):
             label="Start message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
-            default=".me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
+            placeholder=".me A raffle has begun for {points} points. Type "f"{self.prefix}join to join the raffle! The raffle will end in"" {length} seconds",
+            default=".me A raffle has begun for {points} points. Type "f"{self.prefix}join to join the raffle! The raffle will end in"" {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -51,8 +51,8 @@ class RaffleModule(BaseModule):
             label="Running message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The raffle for {points} points ends in {length} seconds! Type !join to join the raffle!",
-            default=".me The raffle for {points} points ends in {length} seconds! Type !join to join the raffle!",
+            placeholder=".me The raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
+            default=".me The raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -60,8 +60,8 @@ class RaffleModule(BaseModule):
             label="Start message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
-            default=".me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
+            placeholder=".me A multi-raffle has begun for {points} points. "f"Type {self.prefix}join to join the raffle!" "The raffle will end in {length} seconds",
+            default=".me A multi-raffle has begun for {points} points. "f"Type {self.prefix}join to join the raffle!" "The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -69,8 +69,8 @@ class RaffleModule(BaseModule):
             label="Running message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The multi-raffle for {points} points ends in {length} seconds! Type !join to join the raffle!",
-            default=".me The multi-raffle for {points} points ends in {length} seconds! Type !join to join the raffle!",
+            placeholder=".me The multi-raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
+            default=".me The multi-raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -105,7 +105,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_enabled",
-            label="Enable multi-raffles (!multiraffle/!mraffle)",
+            label=f"Enable multi-raffles ({self.prefix}multiraffle/{self.prefix}mraffle)",
             type="boolean",
             required=True,
             default=True,
@@ -153,7 +153,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="default_raffle_type",
-            label="Default raffle (What raffle type !raffle should invoke)",
+            label=f"Default raffle (What raffle type {self.prefix}raffle should invoke)",
             type="options",
             required=True,
             default="Single Raffle",
@@ -184,15 +184,15 @@ class RaffleModule(BaseModule):
                 CommandExample(
                     None,
                     "Start a raffle for 69 points",
-                    chat="user:!raffle 69\n"
-                    "bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.",
+                    chat=f"user:{self.prefix}raffle 69\n"
+                    f"bot:A raffle has begun for 69 points. Type {self.prefix}join to join the raffle! The raffle will end in 60 seconds.",
                     description="Start a 60-second raffle for 69 points",
                 ).parse(),
                 CommandExample(
                     None,
                     "Start a raffle with a different length",
-                    chat="user:!raffle 69 30\n"
-                    "bot:A raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.",
+                    chat=f"user:{self.prefix}raffle 69 30\n"
+                    f"bot:A raffle has begun for 69 points. Type {self.prefix}join to join the raffle! The raffle will end in 30 seconds.",
                     description="Start a 30-second raffle for 69 points",
                 ).parse(),
             ],
@@ -207,7 +207,7 @@ class RaffleModule(BaseModule):
                 CommandExample(
                     None,
                     "Join a running raffle",
-                    chat="user:!join",
+                    chat=f"user:{self.prefix}join",
                     description="You don't get confirmation whether you joined the raffle or not.",
                 ).parse()
             ],
@@ -224,15 +224,15 @@ class RaffleModule(BaseModule):
                     CommandExample(
                         None,
                         "Start a multi-raffle for 69 points",
-                        chat="user:!multiraffle 69\n"
-                        "bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 60 seconds.",
+                        chat=f"user:{self.prefix}multiraffle 69\n"
+                        f"bot:A multi-raffle has begun for 69 points. Type {self.prefix}!join to join the raffle! The raffle will end in 60 seconds.",
                         description="Start a 60-second raffle for 69 points",
                     ).parse(),
                     CommandExample(
                         None,
                         "Start a multi-raffle with a different length",
-                        chat="user:!multiraffle 69 30\n"
-                        "bot:A multi-raffle has begun for 69 points. Type !join to join the raffle! The raffle will end in 30 seconds.",
+                        chat=f"user:{self.prefix}multiraffle 69 30\n"
+                        f"bot:A multi-raffle has begun for 69 points. Type {self.prefix}join to join the raffle! The raffle will end in 30 seconds.",
                         description="Start a 30-second multi-raffle for 69 points",
                     ).parse(),
                 ],
@@ -279,7 +279,7 @@ class RaffleModule(BaseModule):
 
         if self.settings["show_on_clr"]:
             bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
-            bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
+            bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": f"Type {self.prefix}join to enter!"})
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         bot.say(self.get_phrase("message_start", **arguments))
@@ -349,7 +349,7 @@ class RaffleModule(BaseModule):
         if self.settings["show_on_clr"]:
             self.bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
             self.bot.execute_delayed(
-                0.75, self.bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"}
+                0.75, self.bot.websocket_manager.emit, "notification", {"message": f"Type {self.prefix}join to enter!"}
             )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}

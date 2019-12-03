@@ -19,7 +19,7 @@ class PaidSubmodeModule(BaseModule):
             label="Command name for turning sub mode on (i.e. $subon)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="$subon",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -28,7 +28,7 @@ class PaidSubmodeModule(BaseModule):
             label="Command name for turning sub mode off (i.e. $suboff)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="$suboff",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -72,8 +72,8 @@ class PaidSubmodeModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands[
-            self.settings["subon_command_name"].lower().replace("!", "").replace(" ", "")
+            self.settings["subon_command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
         ] = Command.raw_command(self.paid_subon, cost=self.settings["subon_cost"])
         self.commands[
-            self.settings["suboff_command_name"].lower().replace("!", "").replace(" ", "")
+            self.settings["suboff_command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
         ] = Command.raw_command(self.paid_suboff, cost=self.settings["suboff_cost"])

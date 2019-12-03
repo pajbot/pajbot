@@ -86,7 +86,7 @@ def init(page):
 
         if "aliases" not in request.form:
             abort(403)
-        alias_str = request.form.get("aliases", "").replace("!", "").lower()
+        alias_str = request.form.get("aliases", "").replace(f"{self.prefix}", "").lower()
         delay_all = request.form.get("cd", Command.DEFAULT_CD_ALL)
         delay_user = request.form.get("usercd", Command.DEFAULT_CD_USER)
         level = request.form.get("level", Command.DEFAULT_LEVEL)
@@ -143,7 +143,7 @@ def init(page):
 
         command_aliases = set(command_aliases)
 
-        alias_str = alias_str.replace(" ", "").replace("!", "").lower()
+        alias_str = alias_str.replace(" ", "").replace(f"{self.prefix}", "").lower()
         alias_list = alias_str.split("|")
 
         alias_list = [alias for alias in alias_list if len(alias) > 0]
@@ -159,7 +159,7 @@ def init(page):
 
         command = Command(command=alias_str, **options)
         command.data = CommandData(command.id, **options)
-        log_msg = f"The !{command.command.split('|')[0]} command has been created"
+        log_msg = f"The {self.prefix}{command.command.split('|')[0]} command has been created"
         AdminLogManager.add_entry("Command created", user, log_msg)
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             db_session.add(command)

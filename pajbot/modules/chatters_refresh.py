@@ -133,7 +133,7 @@ ON CONFLICT (id) DO UPDATE SET
                         CommandExample(
                             None,
                             f"Reload who is currently chatting",
-                            chat=f"user:!reload chatters\nbot>user: Reloading list of chatters...",
+                            chat=f"user:{self.prefix}reload chatters\nbot>user: Reloading list of chatters...",
                             description="Note: Updates only last_seen values, does not award points for watching the stream.",
                         ).parse()
                     ],

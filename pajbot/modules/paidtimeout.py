@@ -25,7 +25,7 @@ class PaidTimeoutModule(BaseModule):
             label="Command name (i.e. $timeout)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="timeout",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -55,7 +55,7 @@ class PaidTimeoutModule(BaseModule):
             label="Command name (i.e. $timeout5)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="timeout5",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -131,7 +131,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
                 bot.whisper(
                     victim,
-                    f"{source} just timed you out for {_time} seconds. /w {bot.nickname} !$unbanme to unban yourself for points forsenMoney",
+                    f"{source} just timed you out for {_time} seconds. /w {bot.nickname} {self.prefix}$unbanme to unban yourself for points forsenMoney",
                 )
                 bot.timeout(victim, _time, reason=f"Timed out by {source}")
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
@@ -155,21 +155,21 @@ class PaidTimeoutModule(BaseModule):
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
     def load_commands(self, **options):
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        self.commands[self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")] = Command.raw_command(
             self.paid_timeout,
             cost=self.settings["cost"],
             examples=[
                 CommandExample(
                     None,
                     f"Timeout someone for {self.settings['timeout_length']} seconds",
-                    chat=f"user:!{self.settings['command_name']} paja\nbot>user: You just used {self.settings['cost']} points to time out paja for an additional {self.settings['timeout_length']} seconds.",
+                    chat=f"user:{self.prefix}{self.settings['command_name']} paja\nbot>user: You just used {self.settings['cost']} points to time out paja for an additional {self.settings['timeout_length']} seconds.",
                     description="",
                 ).parse()
             ],
         )
         if self.settings["second_command"]:
             self.commands[
-                self.settings["command_name2"].lower().replace("!", "").replace(" ", "")
+                self.settings["command_name2"].lower().replace(f"{self.prefix}", "").replace(" ", "")
             ] = Command.raw_command(
                 self.paid_timeout2,
                 cost=self.settings["cost2"],
@@ -177,7 +177,7 @@ class PaidTimeoutModule(BaseModule):
                     CommandExample(
                         None,
                         f"Timeout someone for {self.settings['timeout_length2']} seconds",
-                        chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
+                        chat=f"user:{self.prefix}{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
                         description="",
                     ).parse()
                 ],

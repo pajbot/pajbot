@@ -65,7 +65,7 @@ class VanishModule(BaseModule):
         bot.execute_delayed(0.5, bot.timeout, source, 1, reason=self.settings["timeout_reason"], once=True)
 
     def load_commands(self, **options):
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        self.commands[self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")] = Command.raw_command(
             self.vanish_command,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],

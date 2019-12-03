@@ -107,6 +107,12 @@ class Bot:
 
         self.bot_domain = self.config["web"]["domain"]
 
+        #prefix
+        if "prefix" in config["main"]:
+            self.prefix = config["main"]["prefix"]
+        else:
+            self.prefix = '!'
+
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
@@ -741,15 +747,15 @@ class Bot:
                 return True
 
             raw_m = event.arguments[0].lower()
-            if raw_m.startswith("!lastseen forsen"):
-                if len(raw_m) > len("!lastseen forsen2"):
+            if raw_m.startswith(f"{self.prefix}lastseen forsen"):
+                if len(raw_m) > len(f"{self.prefix}lastseen forsen2"):
                     if raw_m[16] == " ":
                         return True
                 else:
                     return True
 
-            if raw_m.startswith("!lastseen @forsen"):
-                if len(raw_m) > len("!lastseen @forsen2"):
+            if raw_m.startswith(f"{self.prefix}lastseen @forsen"):
+                if len(raw_m) > len(f"{self.prefix}lastseen @forsen2"):
                     if raw_m[17] == " ":
                         return True
                 else:
