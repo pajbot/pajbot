@@ -14,7 +14,7 @@ class EightBallModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "8-ball"
-    DESCRIPTION = "Gives users access to the !8ball command!"
+    DESCRIPTION = f"Gives users access to the {self.prefix}8ball command!"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
@@ -120,12 +120,12 @@ class EightBallModule(BaseModule):
             self.eightball_command,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
-            description="Need help with a decision? Use the !8ball command!",
+            description=f"Need help with a decision? Use the {self.prefix}8ball command!",
             examples=[
                 CommandExample(
                     None,
-                    "!8ball",
-                    chat="user:!8ball Should I listen to gachimuchi?\n"
+                    f"{self.prefix}8ball",
+                    chat=f"user:{self.prefix}8ball Should I listen to gachimuchi?\n"
                     "bot:pajlada, the 8-ball says... Of course you should!",
                     description="Ask the 8ball an important question",
                 ).parse()
