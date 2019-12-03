@@ -24,7 +24,7 @@ class GivePointsModule(BaseModule):
             label="Command name (i.e. givepoints)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="givepoints",
             constraints={"min_str_len": 2, "max_str_len": 25},
         ),
@@ -52,7 +52,7 @@ class GivePointsModule(BaseModule):
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: {self.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         input = msg_split[0]
@@ -60,7 +60,7 @@ class GivePointsModule(BaseModule):
         try:
             num_points = utils.parse_points_amount(source, msg_split[1])
         except InvalidPointAmount as e:
-            bot.whisper(source, f"{e}. Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"{e}. Usage: {self.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         if num_points <= 0:
@@ -97,7 +97,7 @@ class GivePointsModule(BaseModule):
             bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
 
     def load_commands(self, **options):
-        self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        self.command_name = self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
         self.commands[self.command_name] = Command.raw_command(
             self.give_points,
             sub_only=self.settings["source_requires_sub"],
@@ -108,7 +108,7 @@ class GivePointsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give points to a user.",
-                    chat=f"user:!{self.command_name} pajapaja 4444\n"
+                    chat=f"user:{self.prefix}{self.command_name} pajapaja 4444\n"
                     "bot>user: Successfully gave away 4444 points to pajapaja",
                     description="",
                 ).parse()
