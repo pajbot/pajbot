@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class PlaysoundModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Playsound"
-    DESCRIPTION = "Play a sound on stream with !#playsound"
+    DESCRIPTION = f"Play a sound on stream with {self.prefix}#playsound"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
@@ -285,7 +285,7 @@ class PlaysoundModule(BaseModule):
         if options is False or name is False or link is False or link is None:
             bot.whisper(
                 source,
-                "Invalid usage. Correct syntax: !add playsound <name> <link> "
+                f"Invalid usage. Correct syntax: {self.prefix}add playsound <name> <link> "
                 + "[--volume 0-100] [--cooldown 60/none] [--enabled/--disabled]",
             )
             return
@@ -295,8 +295,8 @@ class PlaysoundModule(BaseModule):
             if count > 0:
                 bot.whisper(
                     source,
-                    "A Playsound with that name already exists. Use !edit playsound "
-                    + "or !remove playsound to edit or delete it.",
+                    f"A Playsound with that name already exists. Use {self.prefix}edit playsound "
+                    + f"or {self.prefix}remove playsound to edit or delete it.",
                 )
                 return
 
@@ -331,7 +331,7 @@ class PlaysoundModule(BaseModule):
         if options is False or name is False or link is False:
             bot.whisper(
                 source,
-                "Invalid usage. Correct syntax: !edit playsound <name> [link] "
+                f"Invalid usage. Correct syntax: {self.prefix}edit playsound <name> [link] "
                 + "[--volume 0-100] [--cooldown 60/none] [--enabled/--disabled]",
             )
             return
@@ -342,7 +342,7 @@ class PlaysoundModule(BaseModule):
                 bot.whisper(
                     source,
                     "No playsound with that name exists. You can create playsounds with "
-                    "!add playsound <name> <link> [options].",
+                    f"{self.prefix}add playsound <name> <link> [options].",
                 )
                 return
 
@@ -369,7 +369,7 @@ class PlaysoundModule(BaseModule):
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:
-            bot.whisper(source, "Invalid usage. Correct syntax: !remove playsound <name>")
+            bot.whisper(source, f"Invalid usage. Correct syntax: {self.prefix}remove playsound <name>")
             return
 
         with DBManager.create_session_scope() as session:
@@ -390,7 +390,7 @@ class PlaysoundModule(BaseModule):
         playsound_name = message.split(" ")[0].lower()
         # check for empty string
         if not playsound_name:
-            bot.whisper(source, "Invalid usage. Correct syntax: !debug playsound <name>")
+            bot.whisper(source, f"Invalid usage. Correct syntax: {self.prefix}debug playsound <name>")
             return
 
         with DBManager.create_session_scope() as session:
@@ -422,7 +422,7 @@ class PlaysoundModule(BaseModule):
                 CommandExample(
                     None,
                     'Play the "doot" sample',
-                    chat="user:!#playsound doot\n" "bot>user:Successfully played the sound doot on stream!",
+                    chat=f"user:{self.prefix}#playsound doot\n" "bot>user:Successfully played the sound doot on stream!",
                 ).parse()
             ],
         )
@@ -446,28 +446,28 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             "Create a new playsound",
-                            chat="user:!add playsound doot https://i.nuuls.com/Bb4aX.mp3\n"
+                            chat=f"user:{self.prefix}add playsound doot https://i.nuuls.com/Bb4aX.mp3\n"
                             "bot>user:Successfully created your playsound",
                             description='Creates the "doot" playsound with the given link.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a new playsound and sets volume",
-                            chat="user:!add playsound doot https://i.nuuls.com/Bb4aX.mp3 --volume 50\n"
+                            chat=f"user:{self.prefix}add playsound doot https://i.nuuls.com/Bb4aX.mp3 --volume 50\n"
                             "bot>user:Successfully created your playsound",
                             description='Creates the "doot" playsound with the given link and 50% volume.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a new playsound and sets cooldown",
-                            chat="user:!add playsound doot https://i.nuuls.com/Bb4aX.mp3 --cooldown 60\n"
+                            chat=f"user:{self.prefix}add playsound doot https://i.nuuls.com/Bb4aX.mp3 --cooldown 60\n"
                             "bot>user:Successfully created your playsound",
                             description='Creates the "doot" playsound with the given link and 1 minute cooldown.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a new playsound and disable it",
-                            chat="user:!add playsound doot https://i.nuuls.com/Bb4aX.mp3 --disabled\n"
+                            chat=f"user:{self.prefix}add playsound doot https://i.nuuls.com/Bb4aX.mp3 --disabled\n"
                             "bot>user:Successfully created your playsound",
                             description='Creates the "doot" playsound with the given link and initially disables it.',
                         ).parse(),
@@ -493,34 +493,34 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             "Edit an existing playsound's link",
-                            chat="user:!edit playsound doot https://i.nuuls.com/Bb4aX.mp3\n"
+                            chat=f"user:{self.prefix}edit playsound doot https://i.nuuls.com/Bb4aX.mp3\n"
                             "bot>user:Successfully edited your playsound",
                             description='Updates the link of the "doot" playsound.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Edit an existing playsound's volume",
-                            chat="user:!edit playsound doot --volume 50\n"
+                            chat=f"user:{self.prefix}edit playsound doot --volume 50\n"
                             "bot>user:Successfully edited your playsound",
                             description='Updates the volume of the "doot" playsound to 50%.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Edit an existing playsound's cooldown",
-                            chat="user:!edit playsound doot --cooldown 60\n"
+                            chat=f"user:{self.prefix}edit playsound doot --cooldown 60\n"
                             "bot>user:Successfully edited your playsound",
                             description='Updates the cooldown of the "doot" playsound to 1 minute.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Disable an existing playsound",
-                            chat="user:!edit playsound doot --disabled\n" "bot>user:Successfully edited your playsound",
+                            chat=f"user:{self.prefix}edit playsound doot --disabled\n" "bot>user:Successfully edited your playsound",
                             description='Disables the "doot" playsound.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Enable an existing playsound",
-                            chat="user:!edit playsound doot --enabled\n" "bot>user:Successfully edited your playsound",
+                            chat=f"user:{self.prefix}edit playsound doot --enabled\n" "bot>user:Successfully edited your playsound",
                             description='Enables the "doot" playsound.',
                         ).parse(),
                     ],
@@ -545,7 +545,7 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove an existing playsound",
-                            chat="user:!remove playsound doot\n" "bot>user:Successfully removed your playsound",
+                            chat=f"user:{self.prefix}remove playsound doot\n" "bot>user:Successfully removed your playsound",
                             description='Removes the "doot" playsound.',
                         ).parse()
                     ],
@@ -570,7 +570,7 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             'Get information about the "doot" playsound',
-                            chat="user:!debug playsound doot\n"
+                            chat=f"user:{self.prefix}debug playsound doot\n"
                             "bot>user: name=doot, link=https://i.nuuls.com/Bb4aX.mp3, volume=100, "
                             "cooldown=None, enabled=True",
                         ).parse()
