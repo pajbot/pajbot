@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class EmotesModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "!emotes"
+    NAME = f"{self.prefix}emotes"
     ENABLED_DEFAULT = True
     DESCRIPTION = "Refresh and list FFZ and BTTV emotes"
     CATEGORY = "Feature"
@@ -90,7 +90,7 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Reload all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes reload\n" + f"bot>user: {reload_msg}",
+                    chat=f"user: {self.prefix}{manager.friendly_name.lower()}emotes reload\n" + f"bot>user: {reload_msg}",
                 ).parse()
             ],
         )
@@ -108,7 +108,7 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Show all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes\n"
+                    chat=f"user: {self.prefix}{manager.friendly_name.lower()}emotes\n"
                     + f"bot: {manager.friendly_name} emotes: {examples}",
                 ).parse()
             ],
@@ -124,7 +124,7 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                    chat="user: !subemotes\n"
+                    chat=f"user: {self.prefix}subemotes\n"
                     "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
                     "Tier 2: forsenSnus Tier 3: forsen2499",
                 ).parse()
