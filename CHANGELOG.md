@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added the ability to change the bot prefix. If this is not currently in the config file, it will use `!` by default.
 - Minor: Start removing unused pieces of pleblist (song request) system, starting with the login system
 - Minor: Added reasoning for the vanish module
 - Minor: Updated install-docs/readme.md further-steps
