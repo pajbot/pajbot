@@ -16,12 +16,12 @@ class FollowAgeModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Follow age"
-    DESCRIPTION = "Makes two commands available: !followage and !followsince"
+    DESCRIPTION = f"Makes two commands available: {self.prefix}followage and {self.prefix}followsince"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
             key="action_followage",
-            label="MessageAction for !followage",
+            label=f"MessageAction for {self.prefix}followage",
             type="options",
             required=True,
             default="say",
@@ -29,7 +29,7 @@ class FollowAgeModule(BaseModule):
         ),
         ModuleSetting(
             key="action_followsince",
-            label="MessageAction for !followsince",
+            label=f"MessageAction for {self.prefix}followsince",
             type="options",
             required=True,
             default="say",
@@ -68,27 +68,27 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check your own follow age",
-                    chat="user:!followage\n" "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
+                    chat=f"user:{self.prefix}followage\n" "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
                     description="Check how long you have been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check someone elses follow age",
-                    chat="user:!followage NightNacht\n"
+                    chat=f"user:{self.prefix}followage NightNacht\n"
                     "bot:pajlada, NightNacht has been following Karl_Kons for 5 months and 4 days",
                     description="Check how long any user has been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check someones follow age for a certain streamer",
-                    chat="user:!followage NightNacht forsenlol\n"
+                    chat=f"user:{self.prefix}followage NightNacht forsenlol\n"
                     "bot:pajlada, NightNacht has been following forsenlol for 1 year and 4 months",
                     description="Check how long NightNacht has been following forsenlol",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check your own follow age for a certain streamer",
-                    chat="user:!followage pajlada forsenlol\n"
+                    chat=f"user:{self.prefix}followage pajlada forsenlol\n"
                     "bot:pajlada, you have been following forsenlol for 1 year and 3 months",
                     description="Check how long you have been following forsenlol",
                 ).parse(),
