@@ -27,7 +27,7 @@ class PaidUntimeoutModule(BaseModule):
             label="Command name (i.e. untimeout)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="untimeout",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -52,7 +52,7 @@ class PaidUntimeoutModule(BaseModule):
             label="Command name (i.e. unban)",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder=f"Command name (no {self.prefix})",
             default="unban",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -82,7 +82,7 @@ class PaidUntimeoutModule(BaseModule):
     def load_commands(self, **options):
         if self.settings["untimeout_enable"]:
             self.commands[
-                self.settings["untimeout_command_name"].lower().replace("!", "").replace(" ", "")
+                self.settings["untimeout_command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
             ] = Command.raw_command(
                 self.untimeout_source,
                 cost=self.settings["untimeout_cost"],
@@ -94,14 +94,14 @@ class PaidUntimeoutModule(BaseModule):
                     CommandExample(
                         None,
                         f"Untimeout yourself for {self.settings['untimeout_cost']} points",
-                        chat=f"user>bot:!{self.settings['untimeout_command_name']}\nbot>user: You have been unbanned.",
+                        chat=f"user>bot:{self.prefix}{self.settings['untimeout_command_name']}\nbot>user: You have been unbanned.",
                         description="",
                     ).parse()
                 ],
             )
         if self.settings["unban_enable"]:
             self.commands[
-                self.settings["unban_command_name"].lower().replace("!", "").replace(" ", "")
+                self.settings["unban_command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
             ] = Command.raw_command(
                 self.unban_source,
                 cost=self.settings["unban_cost"],
@@ -113,7 +113,7 @@ class PaidUntimeoutModule(BaseModule):
                     CommandExample(
                         None,
                         f"Unban yourself for {self.settings['unban_cost']} points",
-                        chat=f"user>bot:!{self.settings['unban_command_name']}\nbot>user: You have been unbanned.",
+                        chat=f"user>bot:{self.prefix}{self.settings['unban_command_name']}\nbot>user: You have been unbanned.",
                         description="",
                     ).parse()
                 ],
