@@ -208,7 +208,8 @@ class SlotMachineModule(BaseModule):
                 CommandExample(
                     None,
                     "SlotMachine for 69 points",
-                    chat=f"user:{self.prefix}slotmachine 69\n" "bot:pajlada won 69 points in slotmachine xd! FeelsGoodMan",
+                    chat=f"user:{self.prefix}slotmachine 69\n"
+                    "bot:pajlada won 69 points in slotmachine xd! FeelsGoodMan",
                     description="Do a slot machine pull for 69 points",
                 ).parse()
             ],
