@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 class PointsResetModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!pointsreset"
+    NAME = f"{self.prefix}pointsreset"
     DESCRIPTION = "Reset points from a user with negative points."
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
@@ -55,7 +55,7 @@ class PointsResetModule(BaseModule):
                 CommandExample(
                     None,
                     "Reset points from a user with negative points.",
-                    chat="user:!pointsreset pajtest\n"
+                    chat=f"user:{self.prefix}pointsreset pajtest\n"
                     "bot>user:You changed the points for pajtest from -10000 to 0 points",
                     description="",
                 ).parse()
