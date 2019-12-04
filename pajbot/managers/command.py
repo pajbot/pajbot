@@ -280,7 +280,8 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Remove a command with the given ID.",
-                            chat=f"user:{self.prefix}remove command 28\n" "bot>user:Successfully removed command with id 28",
+                            chat=f"user:{self.prefix}remove command 28\n"
+                            "bot>user:Successfully removed command with id 28",
                             description="Removes a command with id 28",
                         ).parse(),
                     ],
