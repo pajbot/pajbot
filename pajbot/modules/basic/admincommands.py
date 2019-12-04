@@ -267,8 +267,7 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Set a user's points",
-                    chat=f"user:{self.prefix}setpoints pajlada 500\n"
-                    "bot>user:Successfully set pajlada's points to 500.",
+                    chat=f"user:{self.prefix}setpoints pajlada 500\n" "bot>user:Successfully set pajlada's points to 500.",
                     description="This sets pajlada's points to 500.",
                 ).parse()
             ],
