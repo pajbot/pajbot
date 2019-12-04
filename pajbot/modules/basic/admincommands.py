@@ -246,15 +246,13 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give a user points",
-                    chat=f"user:{self.prefix}editpoints pajlada 500\n"
-                    "bot>user:Successfully gave pajlada 500 points.",
+                    chat=f"user:{self.prefix}editpoints pajlada 500\n" "bot>user:Successfully gave pajlada 500 points.",
                     description="This creates 500 points and gives them to pajlada",
                 ).parse(),
                 CommandExample(
                     None,
                     "Remove points from a user",
-                    chat=f"user:{self.prefix}editpoints pajlada -500\n"
-                    "bot>user:Successfully removed 500 points from pajlada.",
+                    chat=f"user:{self.prefix}editpoints pajlada -500\n" "bot>user:Successfully removed 500 points from pajlada.",
                     description="This removes 500 points from pajlada. Users can go into negative points with this.",
                 ).parse(),
             ],
