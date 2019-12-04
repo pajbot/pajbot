@@ -155,7 +155,9 @@ class PaidTimeoutModule(BaseModule):
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
     def load_commands(self, **options):
-        self.commands[self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")] = Command.raw_command(
+        self.commands[
+            self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
+        ] = Command.raw_command(
             self.paid_timeout,
             cost=self.settings["cost"],
             examples=[
