@@ -37,7 +37,9 @@ def main():
         cooldown = se_playsound["cooldown"]["user"]
         enabled = se_playsound["enabled"]
 
-        print(f"{self.prefix}add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}")
+        print(
+            f"{self.prefix}add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}"
+        )
 
     print()
     print()
