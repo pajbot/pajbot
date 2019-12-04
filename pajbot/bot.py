@@ -107,11 +107,11 @@ class Bot:
 
         self.bot_domain = self.config["web"]["domain"]
 
-        #prefix
+        # prefix
         if "prefix" in config["main"]:
             self.prefix = config["main"]["prefix"]
         else:
-            self.prefix = '!'
+            self.prefix = "!"
 
         log.debug("Loaded config")
 
