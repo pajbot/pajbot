@@ -115,7 +115,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat=f"user:{self.prefix}twitterfollow forsensc2\n" "bot>user:Now following ForsenSC2",
+                    chat=f"user:{self.prefix}twitterfollow forsensc2\n"
+                    "bot>user:Now following ForsenSC2",
                     description="Follow ForsenSC2 on twitter so new tweets are output in chat.",
                 ).parse()
             ],
@@ -129,7 +130,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat=f"user:{self.prefix}twitterunfollow forsensc2\n" "bot>user:No longer following ForsenSC2",
+                    chat=f"user:{self.prefix}twitterunfollow forsensc2\n"
+                    "bot>user:No longer following ForsenSC2",
                     description="Stop automatically printing tweets from ForsenSC2",
                 ).parse()
             ],
@@ -150,13 +152,15 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Create a normal command",
-                            chat=f"user:{self.prefix}add command test Kappa 123\n" "bot>user:Added your command (ID: 7)",
+                            chat=f"user:{self.prefix}add command test Kappa 123\n"
+                            "bot>user:Added your command (ID: 7)",
                             description=f"This creates a normal command with the trigger {self.prefix}test which outputs Kappa 123 to chat",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a command that responds with a whisper",
-                            chat=f"user:{self.prefix}add command test Kappa 123 --whisper\n" "bot>user:Added your command (ID: 7)",
+                            chat=f"user:{self.prefix}add command test Kappa 123 --whisper\n"
+                            "bot>user:Added your command (ID: 7)",
                             description=f"This creates a command with the trigger {self.prefix}test which responds with Kappa 123 as a whisper to the user who called the command",
                         ).parse(),
                     ],
@@ -210,37 +214,43 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Change the Global Cooldown",
-                            chat=f"user:{self.prefix}edit command test --cd 10\n" "bot>user:Updated the command (ID: 29)",
+                            chat=f"user:{self.prefix}edit command test --cd 10\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description=f"Changes the global cooldown for the command {self.prefix}test to 10 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the User-specific Cooldown",
-                            chat=f"user:{self.prefix}edit command test --usercd 30\n" "bot>user:Updated the command (ID: 29)",
+                            chat=f"user:{self.prefix}edit command test --usercd 30\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description=f"Changes the user-specific cooldown for the command {self.prefix}test to 30 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Level for a command",
-                            chat=f"user:{self.prefix}edit command test --level 500\n" "bot>user:Updated the command (ID: 29)",
+                            chat=f"user:{self.prefix}edit command test --level 500\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description=f"Changes the command level for {self.prefix}test to level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Cost for a command",
-                            chat=f"user:{self.prefix}edit command $test1 --cost 50\n" "bot>user:Updated the command (ID: 27)",
+                            chat=f"user:{self.prefix}edit command $test1 --cost 50\n"
+                            "bot>user:Updated the command (ID: 27)",
                             description=f"Changes the command cost for {self.prefix}$test1 to 50 points, you should always use a $ for a command that cost points.",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change a command to Moderator only",
-                            chat=f"user:{self.prefix}edit command test --modonly\n" "bot>user:Updated the command (ID: 29)",
+                            chat=f"user:{self.prefix}edit command test --modonly\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="This command can only be used for user with level 100 and Moderator status or user over level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove Moderator only from a command",
-                            chat=f"user:{self.prefix}edit command test --no-modonly\n" "bot>user:Updated the command (ID: 29)",
+                            chat=f"user:{self.prefix}edit command test --no-modonly\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="This command can be used for normal users again.",
                         ).parse(),
                     ],
@@ -265,7 +275,8 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Remove a command",
-                            chat=f"user:{self.prefix}remove command Keepo123\n" "bot>user:Successfully removed command with id 27",
+                            chat=f"user:{self.prefix}remove command Keepo123\n"
+                            "bot>user:Successfully removed command with id 27",
                             description=f"Removes a command with the trigger {self.prefix}Keepo123",
                         ).parse(),
                         CommandExample(
