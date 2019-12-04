@@ -68,7 +68,8 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check your own follow age",
-                    chat=f"user:{self.prefix}followage\n" "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
+                    chat=f"user:{self.prefix}followage\n"
+                    "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
                     description="Check how long you have been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
