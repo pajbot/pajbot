@@ -131,7 +131,8 @@ class ShowEmoteModule(BaseModule):
                 CommandExample(
                     None,
                     "Show an emote on stream.",
-                    chat=f"user:{self.prefix}#showemote Keepo\n" "bot>user: Successfully sent the emote Keepo to the stream!",
+                    chat=f"user:{self.prefix}#showemote Keepo\n"
+                    "bot>user: Successfully sent the emote Keepo to the stream!",
                     description="",
                 ).parse()
             ],
