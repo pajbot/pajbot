@@ -291,7 +291,9 @@ class RaffleModule(BaseModule):
 
         if self.settings["show_on_clr"]:
             bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
-            bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": f"Type {self.prefix}join to enter!"})
+            bot.execute_delayed(
+                0.75, bot.websocket_manager.emit, "notification", {"message": f"Type {self.prefix}join to enter!"}
+            )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         bot.say(self.get_phrase("message_start", **arguments))
