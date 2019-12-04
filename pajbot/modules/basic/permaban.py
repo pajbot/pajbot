@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class PermabanModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!permaban/!unpermaban"
+    NAME = f"{self.prefix}permaban/{self.prefix}unpermaban"
     DESCRIPTION = "Permaban a user. (re-bans him if unbanned by mod)"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
@@ -75,7 +75,7 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!permaban Karl_Kons\n" "bot>user:Karl_Kons has now been permabanned",
+                    chat=f"user:{self.prefix}permaban Karl_Kons\n" "bot>user:Karl_Kons has now been permabanned",
                     description="Permanently ban Karl_Kons from the chat",
                 ).parse()
             ],
@@ -89,7 +89,7 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!unpermaban Karl_Kons\n" "bot>user:Karl_Kons is no longer permabanned",
+                    chat=f"user:{self.prefix}unpermaban Karl_Kons\n" "bot>user:Karl_Kons is no longer permabanned",
                     description="Remove permanent ban from Karl_Kons",
                 ).parse()
             ],
