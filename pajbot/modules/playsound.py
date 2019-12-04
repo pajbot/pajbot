@@ -514,13 +514,15 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             "Disable an existing playsound",
-                            chat=f"user:{self.prefix}edit playsound doot --disabled\n" "bot>user:Successfully edited your playsound",
+                            chat=f"user:{self.prefix}edit playsound doot --disabled\n"
+                            "bot>user:Successfully edited your playsound",
                             description='Disables the "doot" playsound.',
                         ).parse(),
                         CommandExample(
                             None,
                             "Enable an existing playsound",
-                            chat=f"user:{self.prefix}edit playsound doot --enabled\n" "bot>user:Successfully edited your playsound",
+                            chat=f"user:{self.prefix}edit playsound doot --enabled\n"
+                            "bot>user:Successfully edited your playsound",
                             description='Enables the "doot" playsound.',
                         ).parse(),
                     ],
@@ -545,7 +547,8 @@ class PlaysoundModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove an existing playsound",
-                            chat=f"user:{self.prefix}remove playsound doot\n" "bot>user:Successfully removed your playsound",
+                            chat=f"user:{self.prefix}remove playsound doot\n"
+                            "bot>user:Successfully removed your playsound",
                             description='Removes the "doot" playsound.',
                         ).parse()
                     ],
