@@ -105,28 +105,28 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check your own follow since",
-                    chat="user:!followsince\n"
+                    chat=f"user:{self.prefix}followsince\n"
                     "bot:pajlada, you have been following Karl_Kons since 04 March 2015, 07:02:01 UTC",
                     description="Check when you first followed the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check someone elses follow since",
-                    chat="user:!followsince NightNacht\n"
+                    chat=f"user:{self.prefix}followsince NightNacht\n"
                     "bot:pajlada, NightNacht has been following Karl_Kons since 03 July 2014, 04:12:42 UTC",
                     description="Check when NightNacht first followed the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check someone elses follow since for another streamer",
-                    chat="user:!followsince NightNacht forsenlol\n"
+                    chat=f"user:{self.prefix}followsince NightNacht forsenlol\n"
                     "bot:pajlada, NightNacht has been following forsenlol since 13 June 2013, 13:10:51 UTC",
                     description="Check when NightNacht first followed the given streamer (forsenlol)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check your follow since for another streamer",
-                    chat="user:!followsince pajlada forsenlol\n"
+                    chat=f"user:{self.prefix}followsince pajlada forsenlol\n"
                     "bot:pajlada, you have been following forsenlol since 16 December 1990, 03:06:51 UTC",
                     description="Check when you first followed the given streamer (forsenlol)",
                 ).parse(),
