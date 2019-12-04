@@ -56,7 +56,8 @@ class StreamUpdateModule(BaseModule):
                 CommandExample(
                     None,
                     'Update the game to "World of Warcraft"',
-                    chat=f"user:{self.prefix}setgame World of Warcraft\n" 'bot>user:pajlada updated the game to "World of Warcraft"',
+                    chat=f"user:{self.prefix}setgame World of Warcraft\n"
+                    'bot>user:pajlada updated the game to "World of Warcraft"',
                 ).parse()
             ],
         )
@@ -69,7 +70,8 @@ class StreamUpdateModule(BaseModule):
                 CommandExample(
                     None,
                     'Update the title to "Games and shit"',
-                    chat=f"user:{self.prefix}settitle Games and shit\n" 'bot>user:pajlada updated the title to "Games and shit"',
+                    chat=f"user:{self.prefix}settitle Games and shit\n"
+                    'bot>user:pajlada updated the title to "Games and shit"',
                 ).parse()
             ],
         )
