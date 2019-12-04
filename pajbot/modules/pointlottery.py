@@ -40,7 +40,8 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat=f"user:{self.prefix}pointlottery join {}",
+                    chat=f"user:{self.prefix}pointlottery "
+                    "join {}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
                 CommandExample(
