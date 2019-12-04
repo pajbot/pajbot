@@ -121,13 +121,15 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Create a banphrase",
-                            chat=f"user:{self.prefix}add banphrase testman123\n" "bot>user:Inserted your banphrase (ID: 83)",
+                            chat=f"user:{self.prefix}add banphrase testman123\n"
+                            "bot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a banphrase that permabans people",
-                            chat=f"user:{self.prefix}add banphrase testman123 --perma\n" "bot>user:Inserted your banphrase (ID: 83)",
+                            chat=f"user:{self.prefix}add banphrase testman123 --perma\n"
+                            "bot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
@@ -180,7 +182,8 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove a banphrase with the given ID.",
-                            chat=f"user:{self.prefix}remove banphrase 25\n" "bot>user:Successfully removed banphrase with id 25",
+                            chat=f"user:{self.prefix}remove banphrase 25\n"
+                            "bot>user:Successfully removed banphrase with id 25",
                             description="Removes a banphrase with id 25",
                         ).parse(),
                     ],
