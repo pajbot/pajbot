@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class IgnoreModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!ignore/!unignore"
+    NAME = f"{self.prefix}ignore/{self.prefix}unignore"
     DESCRIPTION = "Ignore all commands from a user"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
@@ -75,7 +75,7 @@ class IgnoreModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!ignore Karl_Kons\n" "bot>user:Now ignoring Karl_Kons",
+                    chat=f"user:{self.prefix}ignore Karl_Kons\n" "bot>user:Now ignoring Karl_Kons",
                     description="Ignore user Karl_Kons",
                 ).parse()
             ],
@@ -89,7 +89,7 @@ class IgnoreModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!unignore Karl_Kons\n" "bot>user:No longer ignoring Karl_Kons",
+                    chat=f"user:{self.prefix}unignore Karl_Kons\n" "bot>user:No longer ignoring Karl_Kons",
                     description="Unignore user Karl_Kons",
                 ).parse()
             ],
