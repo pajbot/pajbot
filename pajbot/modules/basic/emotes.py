@@ -90,7 +90,8 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Reload all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: {self.prefix}{manager.friendly_name.lower()}emotes reload\n" + f"bot>user: {reload_msg}",
+                    chat=f"user: {self.prefix}{manager.friendly_name.lower()}emotes reload\n"
+                    + f"bot>user: {reload_msg}",
                 ).parse()
             ],
         )
