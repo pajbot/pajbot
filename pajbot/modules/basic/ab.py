@@ -76,7 +76,8 @@ class AbCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Inject emote inbetween each letter in message",
-                    chat=f"user:{self.prefix}ab Keepo KEEPO\n" "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
+                    chat=f"user:{self.prefix}ab Keepo KEEPO\n"
+                    "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
                     description="",
                 ).parse(),
                 CommandExample(
