@@ -42,8 +42,12 @@ class RaffleModule(BaseModule):
             label="Start message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A raffle has begun for {points} points. Type "f"{self.prefix}join to join the raffle! The raffle will end in"" {length} seconds",
-            default=".me A raffle has begun for {points} points. Type "f"{self.prefix}join to join the raffle! The raffle will end in"" {length} seconds",
+            placeholder=".me A raffle has begun for {points} points. Type "
+            f"{self.prefix}join to join the raffle! The raffle will end in "
+            "{length} seconds",
+            default=".me A raffle has begun for {points} points. Type "
+            f"{self.prefix}join to join the raffle! The raffle will end in"
+            " {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -51,8 +55,10 @@ class RaffleModule(BaseModule):
             label="Running message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
-            default=".me The raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
+            placeholder=".me The raffle for {points} points ends in {length} seconds! "
+            f"Type {self.prefix}join to join the raffle!",
+            default=".me The raffle for {points} points ends in {length} seconds! "
+            f"Type {self.prefix}join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -60,8 +66,12 @@ class RaffleModule(BaseModule):
             label="Start message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A multi-raffle has begun for {points} points. "f"Type {self.prefix}join to join the raffle!" "The raffle will end in {length} seconds",
-            default=".me A multi-raffle has begun for {points} points. "f"Type {self.prefix}join to join the raffle!" "The raffle will end in {length} seconds",
+            placeholder=".me A multi-raffle has begun for {points} points. "
+            f"Type {self.prefix}join to join the raffle! "
+            "The raffle will end in {length} seconds",
+            default=".me A multi-raffle has begun for {points} points. "
+            f"Type {self.prefix}join to join the raffle! "
+            "The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -69,8 +79,10 @@ class RaffleModule(BaseModule):
             label="Running message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The multi-raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
-            default=".me The multi-raffle for {points} points ends in {length} seconds! "f"Type {self.prefix}join to join the raffle!",
+            placeholder=".me The multi-raffle for {points} points ends in {length} seconds! "
+            f"Type {self.prefix}join to join the raffle!",
+            default=".me The multi-raffle for {points} points ends in {length} seconds! "
+            f"Type {self.prefix}join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
