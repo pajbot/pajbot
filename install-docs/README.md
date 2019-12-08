@@ -41,7 +41,7 @@ Pajbot is written in python, so we need to install some basic python packages:
 
 ```bash
 sudo apt update
-sudo apt install python3 python3-pip python3-venv
+sudo apt install python3 python3-dev python3-pip python3-venv
 ```
 
 We also need the following libraries and build tools:
