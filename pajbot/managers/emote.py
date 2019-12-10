@@ -7,6 +7,7 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
+from pajbot.apiwrappers.twitchemotesapi import TwitchEmotesAPI
 
 log = logging.getLogger(__name__)
 
@@ -82,7 +83,6 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def __init__(self, twitch_v5_api, twitch_legacy_api):
         self.api = twitch_v5_api
         self.legacy_api = twitch_legacy_api
-        from pajbot.apiwrappers.twitchemotesapi import TwitchEmotesAPI
         self.twitchemotesapi = TwitchEmotesAPI(RedisManager.get())
         self.tier_one_emotes = []
         self.tier_two_emotes = []
