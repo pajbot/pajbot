@@ -238,7 +238,7 @@ class DuelModule(BaseModule):
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
             del self.duel_targets[challenged.id]
             del self.duel_request_price[source.id]
-            del self.duel_begin_time[source.id]          
+            del self.duel_begin_time[source.id]
             del self.duel_requests[source.id]
 
     def accept_duel(self, bot, source, **rest):
@@ -268,7 +268,7 @@ class DuelModule(BaseModule):
 
                 del self.duel_requests[requestor.id]
                 del self.duel_request_price[requestor.id]
-                del self.duel_begin_time[requestor.id]          
+                del self.duel_begin_time[requestor.id]
                 del self.duel_targets[source.id]
 
                 return False
@@ -304,7 +304,7 @@ class DuelModule(BaseModule):
 
             del self.duel_requests[requestor.id]
             del self.duel_request_price[requestor.id]
-            del self.duel_begin_time[requestor.id]          
+            del self.duel_begin_time[requestor.id]
             del self.duel_targets[source.id]
 
             HandlerManager.trigger(
