@@ -272,8 +272,12 @@ class LinkCheckerModule(BaseModule):
                         if is_subdomain(parsed_url.parsed.netloc, whitelist):
                             whitelisted = True
                             break
+
+                    if whitelisted is False and self.is_whitelisted(url):
+                        whitelisted = True
+
                     if whitelisted is False:
-                        self.bot.timeout(source, 30, reason=ban_reason)
+                        self.bot.timeout(source, 1, reason=ban_reason)
                         if source.time_in_chat_online >= timedelta(hours=1):
                             self.bot.whisper(source, whisper_reason)
                         return False
@@ -398,6 +402,7 @@ class LinkCheckerModule(BaseModule):
             return False
 
         for link in self.whitelisted_links:
+            log.debug(f"Checking if {url} is whitelisted: {link}")
             if link.is_subdomain(domain):
                 if link.is_subpath(path):
                     return True
@@ -419,15 +424,20 @@ class LinkCheckerModule(BaseModule):
         if url.url in self.cache:
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
+                log.debug(f"Cached bad link {url.url}")
                 return self.RET_BAD_LINK
+
+            log.debug(f"Cached good link {url.url}")
             return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
             self.counteract_bad_url(url, action, want_to_blacklist=False)
+            log.debug(f"Bad link {url.url}")
             return self.RET_BAD_LINK
 
         if self.is_whitelisted(url.url, url.parsed):
             self.cache_url(url.url, True)
+            log.debug(f"Good link {url.url}")
             return self.RET_GOOD_LINK
 
         return self.RET_FURTHER_ANALYSIS
