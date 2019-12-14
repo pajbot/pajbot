@@ -277,7 +277,7 @@ class LinkCheckerModule(BaseModule):
                         whitelisted = True
 
                     if whitelisted is False:
-                        self.bot.timeout(source, 1, reason=ban_reason)
+                        self.bot.timeout(source, 30, reason=ban_reason)
                         if source.time_in_chat_online >= timedelta(hours=1):
                             self.bot.whisper(source, whisper_reason)
                         return False
