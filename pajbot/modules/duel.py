@@ -236,7 +236,6 @@ class DuelModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             challenged = User.find_by_id(db_session, self.duel_requests[source.id])
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
-            
         del self.duel_targets[challenged.id]
         del self.duel_request_price[source.id]
         del self.duel_begin_time[source.id]
