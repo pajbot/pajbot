@@ -402,7 +402,6 @@ class LinkCheckerModule(BaseModule):
             return False
 
         for link in self.whitelisted_links:
-            log.debug(f"Checking if {url} is whitelisted: {link}")
             if link.is_subdomain(domain):
                 if link.is_subpath(path):
                     return True
@@ -424,20 +423,16 @@ class LinkCheckerModule(BaseModule):
         if url.url in self.cache:
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
-                log.debug(f"Cached bad link {url.url}")
                 return self.RET_BAD_LINK
 
-            log.debug(f"Cached good link {url.url}")
             return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
             self.counteract_bad_url(url, action, want_to_blacklist=False)
-            log.debug(f"Bad link {url.url}")
             return self.RET_BAD_LINK
 
         if self.is_whitelisted(url.url, url.parsed):
             self.cache_url(url.url, True)
-            log.debug(f"Good link {url.url}")
             return self.RET_GOOD_LINK
 
         return self.RET_FURTHER_ANALYSIS

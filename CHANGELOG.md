@@ -8,6 +8,7 @@
 - Minor: Added `bot_domain` variable
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
 - Bugfix: Fixed potential issues with users with recycled Twitch usernames (cases when two users in the database shared the same Twitch username).
+- Bugfix: Links are now checked against whitelisted links in case the "Disallow links from X" settings are enabled
 
 ## v1.40
 
@@ -125,7 +126,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: pajbot now uses PostgreSQL instead of MySQL as its supported
-  database engine. It is not possible to continue to use MySQL.  
+  database engine. It is not possible to continue to use MySQL.
   To migrate your existing database(s):
 
   - Install new requirements from apt: `sudo apt-get install libpq-dev`
