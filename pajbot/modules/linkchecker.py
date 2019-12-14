@@ -272,6 +272,10 @@ class LinkCheckerModule(BaseModule):
                         if is_subdomain(parsed_url.parsed.netloc, whitelist):
                             whitelisted = True
                             break
+
+                    if whitelisted is False and self.is_whitelisted(url):
+                        whitelisted = True
+
                     if whitelisted is False:
                         self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
                         if source.time_in_chat_online >= timedelta(hours=1):
@@ -420,6 +424,7 @@ class LinkCheckerModule(BaseModule):
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
                 return self.RET_BAD_LINK
+
             return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
