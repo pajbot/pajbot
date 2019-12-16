@@ -45,20 +45,29 @@ class CustomServerConnection(irc.client.ServerConnection):
             # Ouch!
             self.disconnect("Connection reset by peer.")
 
-
 class Connection(CustomServerConnection):
     def __init__(self, reactor):
         super().__init__(reactor)
 
         self.num_msgs_sent = 0
+        self.num_whispers_sent_second = 0
+        self.num_whispers_sent_minute = 0
         self.in_channel = False
 
     def reduce_msgs_sent(self):
         self.num_msgs_sent -= 1
 
+    def reduce_whispers_sent_second(self):
+        self.num_whispers_sent_second -= 1
+    
+    def reduce_whispers_sent_minute(self):
+        self.num_whispers_sent_minute -= 1
+
     def can_send(self):
         return self.num_msgs_sent < TMI.message_limit
 
+    def can_send_whisper(self):
+        return self.num_whispers_sent_second < TMI.whispers_message_limit_second and self.num_whispers_sent_minute < TMI.whispers_message_limit_minute
 
 class ConnectionManager:
     def __init__(self, reactor, bot, streamer, control_hub_channel, host, port):
@@ -114,15 +123,21 @@ class ConnectionManager:
         log.error("Disconnected from IRC")
         self.start()
 
-    def privmsg(self, channel, message, increase_message=True):
+    def privmsg(self, channel, message, increase_message=True, whisper=False):
         conn = self.main_conn
-
-        if conn is None or not conn.can_send():
+        if (not whisper and (conn is None or not conn.can_send())) or (whisper and (conn is None or not conn.can_send_whisper())):
             log.error("No available connections to send messages from. Delaying message a few seconds.")
-            self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message)
+            self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message, whisper)
             return
-
+    
         conn.privmsg(channel, message)
+
         if increase_message:
-            conn.num_msgs_sent += 1
-            self.bot.execute_delayed(31, conn.reduce_msgs_sent)
+            if not whisper:
+                conn.num_msgs_sent += 1
+                self.bot.execute_delayed(30, conn.reduce_msgs_sent)
+            else:
+                conn.num_whispers_sent_second += 1
+                conn.num_whispers_sent_minute += 1
+                self.bot.execute_delayed(1, conn.reduce_whispers_sent_second)
+                self.bot.execute_delayed(60, conn.reduce_whispers_sent_minute)
