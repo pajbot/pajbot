@@ -81,8 +81,7 @@ class BanphraseModule(BaseModule):
             )
             AdminLogManager.post("Banphrase edited", source, banphrase.id, banphrase.phrase)
 
-    @staticmethod
-    def remove_banphrase(bot, source, message, **rest):
+    def remove_banphrase(self, bot, source, message, **rest):
         if not message:
             bot.whisper(source, f"Usage: {self.prefix}remove banphrase (BANPHRASE_ID)")
             return False
