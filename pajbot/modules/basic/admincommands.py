@@ -98,8 +98,7 @@ class AdminCommandsModule(BaseModule):
 
             bot.whisper(source, f"Successfully set {user}'s points to {num_points}.")
 
-    @staticmethod
-    def level(bot, source, message, **rest):
+    def level(self, bot, source, message, **rest):
         if not message:
             bot.whisper(source, f"Usage: {self.prefix}level USERNAME NEW_LEVEL")
             return False
@@ -137,8 +136,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.add_entry("Userlevel edited", source, log_msg)
 
-    @staticmethod
-    def cmd_silence(bot, source, **rest):
+    def cmd_silence(self, bot, source, **rest):
         if bot.silent:
             bot.whisper(source, "The bot is already silent")
         else:
