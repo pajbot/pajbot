@@ -40,8 +40,7 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat=f"user:{self.prefix}pointlottery "
-                    "join {}",
+                    chat=f"user:{self.prefix}pointlottery " "join {}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
                 CommandExample(
@@ -53,8 +52,7 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat=f"user:{self.prefix}pointlottery "
-                    "{}",
+                    chat=f"user:{self.prefix}pointlottery " "{}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
             ],
@@ -97,11 +95,18 @@ class PointLotteryModule(BaseModule):
 
         bot.websocket_manager.emit("notification", {"message": "A lottery has been started!"})
         bot.execute_delayed(
-            0.75, bot.websocket_manager.emit, "notification", {"message": f"Type {self.prefix}pointlottery join to enter!"}
+            0.75,
+            bot.websocket_manager.emit,
+            "notification",
+            {"message": f"Type {self.prefix}pointlottery join to enter!"},
         )
 
         bot.me(
-            "A lottery has begun. Type "f"{self.prefix}pointlottery" "join {tickets} or "f"{self.prefix}pointlottery"" {tickets} to join the lottery! "
+            "A lottery has begun. Type "
+            f"{self.prefix}pointlottery "
+            "join {tickets} or "
+            f"{self.prefix}pointlottery "
+            "{tickets} to join the lottery! "
             "The more tickets you buy, the more chances to win you have! "
             "1 ticket costs 1 point"
         )
