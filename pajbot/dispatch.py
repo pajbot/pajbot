@@ -19,8 +19,7 @@ class Dispatch:
         bot.kvi["br_wins"].inc()
         bot.me(f"{source} added a BR win!")
 
-    @staticmethod
-    def add_command(bot, source, message, event, args):
+    def add_command(self, bot, source, message, event, args):
         """Dispatch method for creating commands.
         Usage: !add command ALIAS [options] RESPONSE
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -71,8 +70,7 @@ class Dispatch:
         )
         return False
 
-    @staticmethod
-    def edit_command(bot, source, message, event, args):
+    def edit_command(self, bot, source, message, event, args):
         """Dispatch method for editing commands.
         Usage: !edit command ALIAS [options] RESPONSE
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -136,8 +134,7 @@ class Dispatch:
                 "Command edited", source, log_msg, data={"old_message": old_message, "new_message": new_message}
             )
 
-    @staticmethod
-    def add_funccommand(bot, source, message, event, args):
+    def add_funccommand(self, bot, source, message, event, args):
         """Dispatch method for creating function commands.
         Usage: !add funccommand ALIAS [options] CALLBACK
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -173,8 +170,7 @@ class Dispatch:
             )
             return False
 
-    @staticmethod
-    def edit_funccommand(bot, source, message, event, args):
+    def edit_funccommand(self, bot, source, message, event, args):
         """Dispatch method for editing function commands.
         Usage: !edit funccommand ALIAS [options] CALLBACK
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -218,8 +214,7 @@ class Dispatch:
         bot.kvi["br_wins"].dec()
         bot.me(f"{source} removed a BR win!")
 
-    @staticmethod
-    def add_alias(bot, source, message, event, args):
+    def add_alias(self, bot, source, message, event, args):
         """Dispatch method for adding aliases to already-existing commands.
         Usage: !add alias EXISTING_ALIAS NEW_ALIAS_1 NEW_ALIAS_2 ...
         """
@@ -268,8 +263,7 @@ class Dispatch:
         else:
             bot.whisper(source, f"Usage: {self.prefix}add alias existingalias newalias")
 
-    @staticmethod
-    def remove_alias(bot, source, message, event, args):
+    def remove_alias(self, bot, source, message, event, args):
         """Dispatch method for removing aliases from a command.
         Usage: !remove alias EXISTING_ALIAS_1 EXISTING_ALIAS_2"""
         if message:
@@ -319,8 +313,7 @@ class Dispatch:
         else:
             bot.whisper(source, f"Usage: {self.prefix}remove alias EXISTINGALIAS")
 
-    @staticmethod
-    def remove_command(bot, source, message, event, args):
+    def remove_command(self, bot, source, message, event, args):
         if message:
             id = None
             command = None
