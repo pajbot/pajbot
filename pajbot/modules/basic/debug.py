@@ -22,8 +22,7 @@ class DebugModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
 
-    @staticmethod
-    def debug_command(bot, source, message, **rest):
+    def debug_command(self, bot, source, message, **rest):
         if not message or len(message) <= 0:
             bot.whisper(source, f"Usage: {self.prefix}debug command (COMMAND_ID|COMMAND_ALIAS)")
             return False
@@ -65,8 +64,7 @@ class DebugModule(BaseModule):
 
         bot.whisper(source, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
 
-    @staticmethod
-    def debug_user(bot, source, message, **options):
+    def debug_user(self, bot, source, message, **options):
         if not message or len(message) <= 0:
             bot.whisper(source, f"Usage: {self.prefix}debug user USERNAME")
             return False
