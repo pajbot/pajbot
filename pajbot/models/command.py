@@ -21,7 +21,7 @@ from pajbot.models.action import RawFuncAction
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias, command, list):
+def parse_command_for_web(self, alias, command, list):
     import markdown
     from flask import Markup
 
