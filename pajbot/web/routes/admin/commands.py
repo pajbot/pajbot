@@ -78,7 +78,7 @@ def init(page):
 
     @page.route("/commands/create", methods=["GET", "POST"])
     @requires_level(500)
-    def commands_create(**options):
+    def commands_create(self, **options):
         session.pop("command_created_id", None)
         session.pop("command_edited_id", None)
         if request.method != "POST":
