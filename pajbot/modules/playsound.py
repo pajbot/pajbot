@@ -422,8 +422,7 @@ class PlaysoundModule(BaseModule):
                 CommandExample(
                     None,
                     'Play the "doot" sample',
-                    chat=f"user:{bot.prefix}#playsound doot\n"
-                    "bot>user:Successfully played the sound doot on stream!",
+                    chat=f"user:{bot.prefix}#playsound doot\n" "bot>user:Successfully played the sound doot on stream!",
                 ).parse()
             ],
         )

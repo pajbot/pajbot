@@ -150,8 +150,7 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Create a normal command",
-                            chat=f"user:{bot.prefix}add command test Kappa 123\n"
-                            "bot>user:Added your command (ID: 7)",
+                            chat=f"user:{bot.prefix}add command test Kappa 123\n" "bot>user:Added your command (ID: 7)",
                             description=f"This creates a normal command with the trigger {bot.prefix}test which outputs Kappa 123 to chat",
                         ).parse(),
                         CommandExample(
