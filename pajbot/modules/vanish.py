@@ -66,7 +66,7 @@ class VanishModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands[
-            self.settings["command_name"].lower().replace(f"{self.prefix}", "").replace(" ", "")
+            self.settings["command_name"].lower().replace(f"{bot.prefix}", "").replace(" ", "")
         ] = Command.raw_command(
             self.vanish_command,
             delay_all=self.settings["online_global_cd"],

@@ -23,7 +23,7 @@ class HSBetModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Hearthstone Betting"
-    DESCRIPTION = f"Enables betting on Hearthstone game outcomes with {self.prefix}hsbet"
+    DESCRIPTION = f"Enables betting on Hearthstone game outcomes with {bot.prefix}hsbet"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
@@ -201,7 +201,7 @@ class HSBetModule(BaseModule):
             # so we can create a new game
             db_session.flush()
 
-            self.bot.me(f"A new game has begun! Vote with {self.prefix}hsbet win/lose POINTS")
+            self.bot.me(f"A new game has begun! Vote with {bot.prefix}hsbet win/lose POINTS")
             current_game = self.get_current_game(db_session)
             time_limit = self.settings["time_until_bet_closes"]
             current_game.bet_deadline = utils.now() + datetime.timedelta(seconds=time_limit)
@@ -232,13 +232,13 @@ class HSBetModule(BaseModule):
             elif outcome_input in {"lose", "loss", "loser", "loose"}:
                 bet_for = HSGameOutcome.loss
             else:
-                bot.whisper(source, f"Invalid bet. Usage: {self.prefix}hsbet win/loss POINTS")
+                bot.whisper(source, f"Invalid bet. Usage: {bot.prefix}hsbet win/loss POINTS")
                 return False
 
             try:
                 points = int(msg_parts[1])
             except (IndexError, ValueError, TypeError):
-                bot.whisper(source, f"Invalid bet. Usage: {self.prefix}hsbet win/loss POINTS")
+                bot.whisper(source, f"Invalid bet. Usage: {bot.prefix}hsbet win/loss POINTS")
                 return False
 
             if points < 0:
@@ -295,7 +295,7 @@ class HSBetModule(BaseModule):
             self.bot.websocket_manager.emit("hsbet_new_game", data=payload)
 
             bot.me(
-                f"The bet for the current hearthstone game is open again! You have {time_limit} seconds to vote {self.prefix}hsbet win/lose POINTS"
+                f"The bet for the current hearthstone game is open again! You have {time_limit} seconds to vote {bot.prefix}hsbet win/lose POINTS"
             )
 
     def command_close(self, bot, **rest):

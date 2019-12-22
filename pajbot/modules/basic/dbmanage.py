@@ -13,7 +13,7 @@ class DBManageModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "DB Managing commands"
     ENABLED_DEFAULT = True
-    DESCRIPTION = f"{self.prefix}reload/{self.prefix}commit"
+    DESCRIPTION = f"{bot.prefix}reload/{bot.prefix}commit"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED

@@ -21,7 +21,7 @@ class QuestModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="action_currentquest",
-            label=f"MessageAction for {self.prefix}currentquest",
+            label=f"MessageAction for {bot.prefix}currentquest",
             type="options",
             required=True,
             default="say",
@@ -29,7 +29,7 @@ class QuestModule(BaseModule):
         ),
         ModuleSetting(
             key="action_tokens",
-            label=f"MessageAction for {self.prefix}tokens",
+            label=f"MessageAction for {bot.prefix}tokens",
             type="options",
             required=True,
             default="whisper",

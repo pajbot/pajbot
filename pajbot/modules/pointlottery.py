@@ -33,26 +33,26 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery start",
-                    chat=f"user:{self.prefix}pointlottery start\n"
+                    chat=f"user:{bot.prefix}pointlottery start\n"
                     "bot:A Lottery has begun. Type !pointlottery join {points} to join the lottery!",
                     description="Start lottery",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat=f"user:{self.prefix}pointlottery " "join {}",
+                    chat=f"user:{bot.prefix}pointlottery " "join {}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery stop",
-                    chat=f"user:{self.prefix}pointlottery stop\n" "bot:The lottery has finished! {} won {} points",
+                    chat=f"user:{bot.prefix}pointlottery stop\n" "bot:The lottery has finished! {} won {} points",
                     description="Finish lottery",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat=f"user:{self.prefix}pointlottery " "{}",
+                    chat=f"user:{bot.prefix}pointlottery " "{}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
             ],
@@ -98,14 +98,14 @@ class PointLotteryModule(BaseModule):
             0.75,
             bot.websocket_manager.emit,
             "notification",
-            {"message": f"Type {self.prefix}pointlottery join to enter!"},
+            {"message": f"Type {bot.prefix}pointlottery join to enter!"},
         )
 
         bot.me(
             "A lottery has begun. Type "
-            f"{self.prefix}pointlottery "
+            f"{bot.prefix}pointlottery "
             "join {tickets} or "
-            f"{self.prefix}pointlottery "
+            f"{bot.prefix}pointlottery "
             "{tickets} to join the lottery! "
             "The more tickets you buy, the more chances to win you have! "
             "1 ticket costs 1 point"

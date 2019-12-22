@@ -38,7 +38,7 @@ def main():
         enabled = se_playsound["enabled"]
 
         print(
-            f"{self.prefix}add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}"
+            f"{bot.prefix}add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}"
         )
 
     print()
@@ -47,7 +47,7 @@ def main():
     print("Done listing.")
     print(
         "Copy paste this list into a pastebin and then run "
-        f"\"{self.prefix}eval bot.eval_from_file(event, 'https://pastebin.com/raw/link')\""
+        f"\"{bot.prefix}eval bot.eval_from_file(event, 'https://pastebin.com/raw/link')\""
     )
 
 

@@ -195,21 +195,21 @@ class WolframModule(BaseModule):
                 CommandExample(
                     None,
                     "Ask Wolfram Alpha how big the moon is",
-                    chat=f"user:{self.prefix}query how big is the moon?\n"
+                    chat=f"user:{bot.prefix}query how big is the moon?\n"
                     "bot:pajlada, Input interpretation: Moon | average radius ❚ Result: 1737.4 km (kilometers)",
                     description="",
                 ).parse(),
                 CommandExample(
                     None,
                     "Ask Wolfram Alpha what time it is, relative to the location set in the module",
-                    chat=f"user:{self.prefix}query what is the time?\n"
+                    chat=f"user:{bot.prefix}query what is the time?\n"
                     "bot:pajlada, Input interpretation: current time ❚ Result: 2:22:02 pm CEST | Saturday, July 13, 2019",
                     description="",
                 ).parse(),
                 CommandExample(
                     None,
                     "Ask Wolfram Alpha where your car is",
-                    chat=f"user:{self.prefix}query where is my car\n"
+                    chat=f"user:{bot.prefix}query where is my car\n"
                     "bot:TETYYS, Input interpretation: Where is my car (truck, ...)? ❚ Result: Not sure, but wherever you find it, that's where it is.",
                     description="",
                 ).parse(),

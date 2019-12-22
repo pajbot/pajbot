@@ -68,21 +68,21 @@ class LeagueRankModule(BaseModule):
                 CommandExample(
                     None,
                     "Check streamer's rank",
-                    chat=f"user:{self.prefix}rank\n"
+                    chat=f"user:{bot.prefix}rank\n"
                     "bot: The Summoner Moregain Freeman on region EUW is currently in PLATINUM IV with 62 LP 4Head",
                     description="Bot says broadcaster's region, League-tier, division and LP",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check other player's rank on default region",
-                    chat=f"user:{self.prefix}rank forsen\n"
+                    chat=f"user:{bot.prefix}rank forsen\n"
                     "bot: The Summoner forsen on region EUW is currently in SILVER IV with 36 LP 4Head",
                     description="Bot says player's region, League-tier, division and LP",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check other player's rank on another region",
-                    chat=f"user:{self.prefix}rank imaqtpie na\n"
+                    chat=f"user:{bot.prefix}rank imaqtpie na\n"
                     "bot: The Summoner Imaqtpie on region NA is currently in CHALLENGER I with 441 LP 4Head",
                     description="Bot says player's region, League-tier, division and LP. Other regions to use as arguments: euw, eune, na, oce, br, kr, las, lan, ru, tr",
                 ).parse(),

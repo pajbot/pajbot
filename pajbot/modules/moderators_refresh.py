@@ -130,7 +130,7 @@ WHERE
                         CommandExample(
                             None,
                             f"Reload who is a Twitch channel moderator",
-                            chat=f"user:{self.prefix}reload moderators\nbot>user: Reloading moderator status...",
+                            chat=f"user:{bot.prefix}reload moderators\nbot>user: Reloading moderator status...",
                         ).parse()
                     ],
                 )

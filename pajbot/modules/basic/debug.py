@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class DebugModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = f"{self.prefix}debug"
+    NAME = f"{bot.prefix}debug"
     DESCRIPTION = "Debug commands and users"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
@@ -24,7 +24,7 @@ class DebugModule(BaseModule):
 
     def debug_command(self, bot, source, message, **rest):
         if not message or len(message) <= 0:
-            bot.whisper(source, f"Usage: {self.prefix}debug command (COMMAND_ID|COMMAND_ALIAS)")
+            bot.whisper(source, f"Usage: {bot.prefix}debug command (COMMAND_ID|COMMAND_ALIAS)")
             return False
 
         try:
@@ -66,7 +66,7 @@ class DebugModule(BaseModule):
 
     def debug_user(self, bot, source, message, **options):
         if not message or len(message) <= 0:
-            bot.whisper(source, f"Usage: {self.prefix}debug user USERNAME")
+            bot.whisper(source, f"Usage: {bot.prefix}debug user USERNAME")
             return False
 
         username = message.split(" ")[0]
@@ -98,7 +98,7 @@ class DebugModule(BaseModule):
                         CommandExample(
                             None,
                             "Debug a command",
-                            chat=f"user:{self.prefix}debug command ping\n"
+                            chat=f"user:{bot.prefix}debug command ping\n"
                             "bot>user: id=210, level=100, type=message, cost=0, cd_all=10, cd_user=30, mod_only=False, response=Snusbot has been online for $(tb:bot_uptime)",
                             description="",
                         ).parse()
@@ -112,7 +112,7 @@ class DebugModule(BaseModule):
                         CommandExample(
                             None,
                             "Debug a user",
-                            chat=f"user:{self.prefix}debug user snusbot\n"
+                            chat=f"user:{bot.prefix}debug user snusbot\n"
                             "bot>user: id=123, login=snusbot, name=Snusbot, level=100, num_lines=45, points=225, tokens=0, last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False",
                             description="",
                         ).parse()

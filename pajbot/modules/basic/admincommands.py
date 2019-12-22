@@ -41,7 +41,7 @@ class AdminCommandsModule(BaseModule):
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source, f"Usage: {self.prefix}{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: {bot.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         username_input = msg_split[0]
@@ -50,7 +50,7 @@ class AdminCommandsModule(BaseModule):
             num_points = int(msg_split[1])
         except (ValueError, TypeError):
             # The user did not specify a valid integer for points
-            bot.whisper(source, f"Invalid amount of points. Usage: {self.prefix}{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Invalid amount of points. Usage: {bot.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         with DBManager.create_session_scope() as db_session:
@@ -73,7 +73,7 @@ class AdminCommandsModule(BaseModule):
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source, f"Usage: {self.prefix}{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: {bot.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         username = msg_split[0]
@@ -85,7 +85,7 @@ class AdminCommandsModule(BaseModule):
             num_points = int(msg_split[1])
         except (ValueError, TypeError):
             # The user did not specify a valid integer for points
-            bot.whisper(source, f"Invalid amount of points. Usage: {self.prefix}{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Invalid amount of points. Usage: {bot.prefix}{self.command_name} USERNAME POINTS")
             return False
 
         with DBManager.create_session_scope() as db_session:
@@ -100,7 +100,7 @@ class AdminCommandsModule(BaseModule):
 
     def level(self, bot, source, message, **rest):
         if not message:
-            bot.whisper(source, f"Usage: {self.prefix}level USERNAME NEW_LEVEL")
+            bot.whisper(source, f"Usage: {bot.prefix}level USERNAME NEW_LEVEL")
             return False
 
         msg_args = message.split(" ")
@@ -143,7 +143,7 @@ class AdminCommandsModule(BaseModule):
             bot.silent = True
             bot.whisper(
                 source,
-                f"The bot is now silent. Use {self.prefix}unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts",
+                f"The bot is now silent. Use {bot.prefix}unsilence to enable messages again. Note that this option does not stick in case the bot crashes or restarts",
             )
 
     @staticmethod
@@ -244,13 +244,13 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give a user points",
-                    chat=f"user:{self.prefix}editpoints pajlada 500\n" "bot>user:Successfully gave pajlada 500 points.",
+                    chat=f"user:{bot.prefix}editpoints pajlada 500\n" "bot>user:Successfully gave pajlada 500 points.",
                     description="This creates 500 points and gives them to pajlada",
                 ).parse(),
                 CommandExample(
                     None,
                     "Remove points from a user",
-                    chat=f"user:{self.prefix}editpoints pajlada -500\n"
+                    chat=f"user:{bot.prefix}editpoints pajlada -500\n"
                     "bot>user:Successfully removed 500 points from pajlada.",
                     description="This removes 500 points from pajlada. Users can go into negative points with this.",
                 ).parse(),
@@ -264,7 +264,7 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Set a user's points",
-                    chat=f"user:{self.prefix}setpoints pajlada 500\n"
+                    chat=f"user:{bot.prefix}setpoints pajlada 500\n"
                     "bot>user:Successfully set pajlada's points to 500.",
                     description="This sets pajlada's points to 500.",
                 ).parse()

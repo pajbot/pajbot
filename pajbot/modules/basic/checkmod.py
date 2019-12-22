@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class CheckModModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = f"{self.prefix}checkmod"
+    NAME = f"{bot.prefix}checkmod"
     DESCRIPTION = "Checks if a user is marked as a moderator or not"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule

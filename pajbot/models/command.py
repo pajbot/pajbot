@@ -60,7 +60,7 @@ def parse_command_for_web(self, alias, command, list):
         test = re.compile(r"[^\w]")
         first_alias = command.command.split("|")[0]
         command.resolve_string = test.sub("", first_alias.replace(" ", "_"))
-        command.main_alias = f"{self.prefix}" + first_alias
+        command.main_alias = f"{bot.prefix}" + first_alias
         if not command.parsed_description:
             if command.action is not None:
                 if command.action.type == "message":
@@ -276,7 +276,7 @@ class Command(Base):
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
 
     def __str__(self):
-        return f"Command({self.prefix}{self.command})"
+        return f"Command({bot.prefix}{self.command})"
 
     @reconstructor
     def init_on_load(self):

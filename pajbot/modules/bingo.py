@@ -180,7 +180,7 @@ class BingoModule(BaseModule):
             bot.say(f"{source}, You must at least give me some emote sets or emotes to choose from! FailFish")
             return False
 
-        emote_index_offset = len(f"{self.prefix}bingo start ")
+        emote_index_offset = len(f"{bot.prefix}bingo start ")
 
         # we can't iterate using words_in_message here because that would mess up the accompanying index
         for index, word in iterate_split_with_index(message.split(" ")):
@@ -364,7 +364,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Emote bingo for default points",
-                            chat=f"user:{self.prefix}bingo start bttv\n"
+                            chat=f"user:{bot.prefix}bingo start bttv\n"
                             "bot: A bingo has started! Guess the right target to win 100 points! "
                             "Only one target per message! Select from Channel BTTV Emotes!",
                             description="",
@@ -372,7 +372,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Emote bingo for 222 points",
-                            chat=f"user:{self.prefix}bingo start bttv 222\n"
+                            chat=f"user:{bot.prefix}bingo start bttv 222\n"
                             "bot: A bingo has started! Guess the right target to win 222 points! "
                             "Only one target per message! Select from Channel BTTV Emotes!",
                             description="",
@@ -389,7 +389,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Cancel a bingo",
-                            chat=f"user:{self.prefix}bingo cancel\n" "bot: Bingo cancelled by pajlada FeelsBadMan",
+                            chat=f"user:{bot.prefix}bingo cancel\n" "bot: Bingo cancelled by pajlada FeelsBadMan",
                             description="",
                         ).parse()
                     ],
@@ -404,7 +404,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Get a random letter from the bingo target",
-                            chat=f"user:{self.prefix}bingo help\n"
+                            chat=f"user:{bot.prefix}bingo help\n"
                             "bot: A bingo for 100 points is still running. You should maybe use a a a a a for the target",
                             description="",
                         ).parse()
@@ -420,7 +420,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Get the first letter from the bingo target",
-                            chat=f"user:{self.prefix}bingo cheat\n"
+                            chat=f"user:{bot.prefix}bingo cheat\n"
                             "bot: A bingo for 100 points is still running. You should use W W W W W as the first letter for the target",
                             description="",
                         ).parse()

@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class ShowEmoteModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Showemote"
-    DESCRIPTION = f"Show a single emote on screen for a few seconds using {self.prefix}#showemote"
+    DESCRIPTION = f"Show a single emote on screen for a few seconds using {bot.prefix}#showemote"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
@@ -131,7 +131,7 @@ class ShowEmoteModule(BaseModule):
                 CommandExample(
                     None,
                     "Show an emote on stream.",
-                    chat=f"user:{self.prefix}#showemote Keepo\n"
+                    chat=f"user:{bot.prefix}#showemote Keepo\n"
                     "bot>user: Successfully sent the emote Keepo to the stream!",
                     description="",
                 ).parse()

@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class AbCommandModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = f"{self.prefix}ab"
+    NAME = f"{bot.prefix}ab"
     DESCRIPTION = "Inject an emote inbetween each letter/word in message"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
@@ -76,14 +76,14 @@ class AbCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Inject emote inbetween each letter in message",
-                    chat=f"user:{self.prefix}ab Keepo KEEPO\n"
+                    chat=f"user:{bot.prefix}ab Keepo KEEPO\n"
                     "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
                     description="",
                 ).parse(),
                 CommandExample(
                     None,
                     "Inject emote inbetween each word in message",
-                    chat=f"user:{self.prefix}ab Kreygasm NOW THATS WHAT I CALL MUSIC\n"
+                    chat=f"user:{bot.prefix}ab Kreygasm NOW THATS WHAT I CALL MUSIC\n"
                     "bot:pajlada, Kreygasm NOW Kreygasm THATS Kreygasm WHAT Kreygasm I Kreygasm CALL Kreygasm MUSIC Kreygasm",
                     description="",
                 ).parse(),

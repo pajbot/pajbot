@@ -614,14 +614,14 @@ class LinkCheckerModule(BaseModule):
                                 CommandExample(
                                     None,
                                     "Add a link to the blacklist for a shallow search",
-                                    chat=f"user:{self.prefix}add link blacklist --shallow scamlink.lonk/\n"
+                                    chat=f"user:{bot.prefix}add link blacklist --shallow scamlink.lonk/\n"
                                     "bot>user:Successfully added your links",
                                     description="Added the link scamlink.lonk/ to the blacklist for a shallow search",
                                 ).parse(),
                                 CommandExample(
                                     None,
                                     "Add a link to the blacklist for a deep search",
-                                    chat=f"user:{self.prefix}add link blacklist --deep scamlink.lonk/\n"
+                                    chat=f"user:{bot.prefix}add link blacklist --deep scamlink.lonk/\n"
                                     "bot>user:Successfully added your links",
                                     description="Added the link scamlink.lonk/ to the blacklist for a deep search",
                                 ).parse(),
@@ -637,7 +637,7 @@ class LinkCheckerModule(BaseModule):
                                 CommandExample(
                                     None,
                                     "Add a link to the whitelist",
-                                    chat=f"user:{self.prefix}add link whitelink safelink.lonk/\n"
+                                    chat=f"user:{bot.prefix}add link whitelink safelink.lonk/\n"
                                     "bot>user:Successfully added your links",
                                     description="Added the link safelink.lonk/ to the whitelist",
                                 ).parse()
@@ -671,7 +671,7 @@ class LinkCheckerModule(BaseModule):
                                 CommandExample(
                                     None,
                                     "Remove a link from the blacklist.",
-                                    chat=f"user:{self.prefix}remove link blacklist 20\n"
+                                    chat=f"user:{bot.prefix}remove link blacklist 20\n"
                                     "bot>user:Successfully removed blacklisted link with id 20",
                                     description="Remove a link from the blacklist with an ID",
                                 ).parse()
@@ -687,7 +687,7 @@ class LinkCheckerModule(BaseModule):
                                 CommandExample(
                                     None,
                                     "Remove a link from the whitelist.",
-                                    chat=f"user:{self.prefix}remove link whitelist 12\n"
+                                    chat=f"user:{bot.prefix}remove link whitelist 12\n"
                                     "bot>user:Successfully removed blacklisted link with id 12",
                                     description="Remove a link from the whitelist with an ID",
                                 ).parse()
@@ -715,7 +715,7 @@ class LinkCheckerModule(BaseModule):
                 bot.whisper(source, "Some error occurred while adding your links")
                 return False
         else:
-            bot.whisper(source, f"Usage: {self.prefix}add link blacklist LINK")
+            bot.whisper(source, f"Usage: {bot.prefix}add link blacklist LINK")
             return False
 
     def add_link_whitelist(self, bot, source, message, **rest):
@@ -733,7 +733,7 @@ class LinkCheckerModule(BaseModule):
 
     def remove_link_blacklist(self, bot, source, message, **rest):
         if not message:
-            bot.whisper(source, f"Usage: {self.prefix}remove link blacklist ID")
+            bot.whisper(source, f"Usage: {bot.prefix}remove link blacklist ID")
             return False
 
         id = None
@@ -757,7 +757,7 @@ class LinkCheckerModule(BaseModule):
 
     def remove_link_whitelist(self, bot, source, message, **rest):
         if not message:
-            bot.whisper(source, f"Usage: {self.prefix}remove link whitelist ID")
+            bot.whisper(source, f"Usage: {bot.prefix}remove link whitelist ID")
             return False
 
         id = None
