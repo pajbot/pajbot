@@ -19,7 +19,8 @@ class Dispatch:
         bot.kvi["br_wins"].inc()
         bot.me(f"{source} added a BR win!")
 
-    def add_command(self, bot, source, message, event, args):
+    @staticmethod
+    def add_command(bot, source, message, event, args):
         """Dispatch method for creating commands.
         Usage: !add command ALIAS [options] RESPONSE
         See pajbot/managers/command.py parse_command_arguments for available options
