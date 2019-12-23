@@ -128,11 +128,7 @@ class DubtrackModule(BaseModule):
             constraints={"min_value": 0, "max_value": 240},
         ),
         ModuleSetting(
-            key="if_dt_alias",
-            label=f"Alias dt to the dubtrack command",
-            type="boolean",
-            required=True,
-            default=True
+            key="if_dt_alias", label="Alias dt to the dubtrack command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
             key="if_short_alias",
