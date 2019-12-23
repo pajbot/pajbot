@@ -41,13 +41,13 @@ Pajbot is written in python, so we need to install some basic python packages:
 
 ```bash
 sudo apt update
-sudo apt install python3 python3-pip python3-venv
+sudo apt install python3 python3-dev python3-pip python3-venv
 ```
 
-We also need the following libraries:
+We also need the following libraries and build tools:
 
 ```bash
-sudo apt install libssl-dev libpq-dev
+sudo apt install libssl-dev libpq-dev build-essential
 ```
 
 ## Set up a system user
@@ -71,7 +71,7 @@ Install pajbot's dependencies like this:
 
 ```bash
 cd /opt/pajbot
-sudo -u pajbot ./scripts/venvinstall.sh
+sudo -H -u pajbot ./scripts/venvinstall.sh
 ```
 
 ## Install and set up the database server
