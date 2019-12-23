@@ -269,7 +269,7 @@ class Bot:
             "molly_age_in_years": self.c_molly_age_in_years,
         }
 
-        self.user_agent = f"pajbot/{VERSION} ({self.nickname})"
+        self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
 
     @property
     def password(self):
