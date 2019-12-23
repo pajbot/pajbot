@@ -34,13 +34,15 @@ class PointLotteryModule(BaseModule):
                     None,
                     "Lottery start",
                     chat=f"user:{bot.prefix}pointlottery start\n"
-                    "bot:A Lottery has begun. Type "f"{bot.prefix}pointlottery join ""{points} to join the lottery!",
+                    "bot:A Lottery has begun. Type "
+                    f"{bot.prefix}pointlottery join "
+                    "{points} to join the lottery!",
                     description="Start lottery",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat="user:"f"{bot.prefix}pointlottery ""join {}",
+                    chat="user:" f"{bot.prefix}pointlottery " "join {}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
                 CommandExample(

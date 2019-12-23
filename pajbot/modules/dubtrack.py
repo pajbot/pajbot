@@ -127,7 +127,13 @@ class DubtrackModule(BaseModule):
             default=15,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(key="if_dt_alias", label=f"Alias dt to the dubtrack command", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="if_dt_alias",
+            label=f"Alias dt to the dubtrack command",
+            type="boolean",
+            required=True,
+            default=True
+        ),
         ModuleSetting(
             key="if_short_alias",
             label="Alias !dubtrack [s, l, u] to !dubtrack [song, link, update]",
@@ -331,7 +337,8 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for dubtrack link",
-                        chat=f"user:{bot.prefix}dubtrack link\n" "bot:Request your songs at https://dubtrack.fm/join/pajlada",
+                        chat=f"user:{bot.prefix}dubtrack link\n"
+                        "bot:Request your songs at https://dubtrack.fm/join/pajlada",
                     ).parse()
                 ],
             ),

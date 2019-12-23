@@ -214,21 +214,21 @@ class PredictModule(BaseModule):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(source, 'This command is deprecated, please use 'f"{bot.prefix}predict new"' in the future.')
+        bot.whisper(source, "This command is deprecated, please use " f"{bot.prefix}predict new" " in the future.")
         self.new_predict(**options)
 
     def end_predict_depr(self, **options):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(source, 'This command is deprecated, please use 'f"{bot.prefix}predict end"' in the future.')
+        bot.whisper(source, "This command is deprecated, please use " f"{bot.prefix}predict end" " in the future.")
         self.end_predict(**options)
 
     def close_predict_depr(self, **options):
         bot = options["bot"]
         source = options["source"]
 
-        bot.whisper(source, 'This command is deprecated, please use 'f"{bot.prefix}predict close"' in the future.')
+        bot.whisper(source, "This command is deprecated, please use " f"{bot.prefix}predict close" " in the future.")
         self.close_predict(**options)
 
     def shared_predict(self, bot, source, message, type):

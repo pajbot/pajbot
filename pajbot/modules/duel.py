@@ -356,7 +356,10 @@ class DuelModule(BaseModule):
             if len(msg) > 0:
                 bot.whisper(source, ". ".join(msg))
             else:
-                bot.whisper(source, f"You have no duel request or duel target. Type {bot.prefix}duel USERNAME POT to duel someone!")
+                bot.whisper(
+                    source,
+                    f"You have no duel request or duel target. Type {bot.prefix}duel USERNAME POT to duel someone!",
+                )
 
     @staticmethod
     def get_duel_stats(bot, source, **rest):
