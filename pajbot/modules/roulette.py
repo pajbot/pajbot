@@ -132,7 +132,7 @@ class RouletteModule(BaseModule):
         self.output_buffer_args = []
         self.last_add = None
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["roulette"] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
@@ -143,7 +143,7 @@ class RouletteModule(BaseModule):
                 CommandExample(
                     None,
                     "Roulette for 69 points",
-                    chat="user:!roulette 69\n" "bot:pajlada won 69 points in roulette! FeelsGoodMan",
+                    chat=f"user:{bot.prefix}roulette 69\n" "bot:pajlada won 69 points in roulette! FeelsGoodMan",
                     description="Do a roulette for 69 points",
                 ).parse()
             ],

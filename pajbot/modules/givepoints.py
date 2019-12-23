@@ -94,7 +94,7 @@ class GivePointsModule(BaseModule):
             target.points += num_points
 
             bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
-            bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
+            bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;)")
 
     def load_commands(self, bot, **options):
         self.command_name = self.settings["command_name"].lower().replace(f"{bot.prefix}", "").replace(" ", "")

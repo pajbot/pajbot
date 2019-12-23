@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class ShowEmoteModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Showemote"
-    DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
+    DESCRIPTION = "Show a single emote on screen for a few seconds using the showemote command"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(

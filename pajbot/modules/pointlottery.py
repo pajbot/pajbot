@@ -23,7 +23,7 @@ class PointLotteryModule(BaseModule):
         self.lottery_users = []
         self.lottery_points = 0
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["pointlottery"] = Command.raw_command(
             self.lottery,
             delay_all=0,
@@ -33,26 +33,26 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery start",
-                    chat="user:!pointlottery start\n"
-                    "bot:A Lottery has begun. Type !pointlottery join {points} to join the lottery!",
+                    chat=f"user:{bot.prefix}pointlottery start\n"
+                    "bot:A Lottery has begun. Type "f"{bot.prefix}pointlottery join ""{points} to join the lottery!",
                     description="Start lottery",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat="user:!pointlottery join {}",
+                    chat="user:"f"{bot.prefix}pointlottery ""join {}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery stop",
-                    chat="user:!pointlottery stop\n" "bot:The lottery has finished! {} won {} points",
+                    chat=f"user:{bot.prefix}pointlottery stop\n" "bot:The lottery has finished! {} won {} points",
                     description="Finish lottery",
                 ).parse(),
                 CommandExample(
                     None,
                     "Lottery join",
-                    chat="user:!pointlottery " "{}",
+                    chat=f"user:{bot.prefix}pointlottery " "{}",
                     description="You don't get confirmation whether you joined the lottery or not.",
                 ).parse(),
             ],
