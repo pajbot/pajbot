@@ -197,7 +197,7 @@ class SlotMachineModule(BaseModule):
         self.output_buffer_args = []
         self.last_add = None
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["slotmachine"] = Command.raw_command(
             self.pull,
             delay_all=self.settings["online_global_cd"],

@@ -183,7 +183,7 @@ class WolframModule(BaseModule):
         except:
             log.exception("wolfram query errored")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["query"] = Command.raw_command(
             self.query,
             delay_all=self.settings["global_cd"],

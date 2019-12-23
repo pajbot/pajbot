@@ -47,7 +47,7 @@ class StreamUpdateModule(BaseModule):
     def update_title(self, bot, source, message, **rest):
         self.generic_update(bot, source, message, "title", self.bot.twitch_v5_api.set_title)
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["setgame"] = Command.raw_command(
             self.update_game,
             level=500,

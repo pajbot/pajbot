@@ -64,7 +64,7 @@ class AbCommandModule(BaseModule):
             inner_str = f" {outer_str} ".join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
             bot.say(f"{source}, {outer_str} {inner_str} {outer_str}")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["ab"] = Command.raw_command(
             self.ab,
             delay_all=self.settings["global_cd"],

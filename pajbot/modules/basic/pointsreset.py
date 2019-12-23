@@ -42,7 +42,7 @@ class PointsResetModule(BaseModule):
                 victim.points = 0
                 bot.whisper(source, f"You changed the points for {victim} from {old_points} to {victim.points} points")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["pointsreset"] = Command.raw_command(
             self.points_reset,
             delay_all=0,

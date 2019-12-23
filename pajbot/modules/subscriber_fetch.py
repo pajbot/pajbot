@@ -115,7 +115,7 @@ WHERE
 
         log.info(f"Successfully updated {len(user_basics)} subscribers")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["reload"] = Command.multiaction_command(
             command="reload",
             commands={

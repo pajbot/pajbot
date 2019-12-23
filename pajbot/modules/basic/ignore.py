@@ -66,7 +66,7 @@ class IgnoreModule(BaseModule):
             user.ignored = False
             bot.whisper(source, f"No longer ignoring {user}")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["ignore"] = Command.raw_command(
             self.ignore_command,
             level=1000,

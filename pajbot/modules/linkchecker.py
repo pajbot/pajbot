@@ -590,7 +590,7 @@ class LinkCheckerModule(BaseModule):
         self.cache_url(original_redirected_url.url, True)
         return
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["add"] = Command.multiaction_command(
             level=100,
             delay_all=0,

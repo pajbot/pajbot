@@ -102,7 +102,7 @@ class BanphraseModule(BaseModule):
         bot.whisper(source, f"Successfully removed banphrase with id {banphrase.id}")
         bot.banphrase_manager.remove_banphrase(banphrase)
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["add"] = Command.multiaction_command(
             level=100,
             delay_all=0,

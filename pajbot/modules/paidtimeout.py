@@ -25,7 +25,7 @@ class PaidTimeoutModule(BaseModule):
             label="Command name (i.e. $timeout)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="timeout",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -55,7 +55,7 @@ class PaidTimeoutModule(BaseModule):
             label="Command name (i.e. $timeout5)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="timeout5",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -154,7 +154,7 @@ class PaidTimeoutModule(BaseModule):
 
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands[
             self.settings["command_name"].lower().replace(f"{bot.prefix}", "").replace(" ", "")
         ] = Command.raw_command(

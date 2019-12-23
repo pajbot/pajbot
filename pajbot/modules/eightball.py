@@ -14,7 +14,7 @@ class EightBallModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "8-ball"
-    DESCRIPTION = f"Gives users access to the {bot.prefix}8ball command!"
+    DESCRIPTION = "Gives users access to the 8ball command!"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
@@ -115,7 +115,7 @@ class EightBallModule(BaseModule):
         emote = random.choice(self.emotes)
         bot.me(f"{source}, the 8-ball says... {phrase} {emote}")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["8ball"] = Command.raw_command(
             self.eightball_command,
             delay_all=self.settings["online_global_cd"],

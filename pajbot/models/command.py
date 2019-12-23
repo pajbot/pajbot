@@ -21,7 +21,7 @@ from pajbot.models.action import RawFuncAction
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(self, alias, command, list):
+def parse_command_for_web(self, bot, alias, command, list):
     import markdown
     from flask import Markup
 
@@ -275,7 +275,7 @@ class Command(Base):
         self.run_in_thread = options.get("run_in_thread", self.run_in_thread)
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
 
-    def __str__(self):
+    def __str__(self, bot):
         return f"Command({bot.prefix}{self.command})"
 
     @reconstructor

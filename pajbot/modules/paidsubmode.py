@@ -19,7 +19,7 @@ class PaidSubmodeModule(BaseModule):
             label="Command name for turning sub mode on (i.e. $subon)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="$subon",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -28,7 +28,7 @@ class PaidSubmodeModule(BaseModule):
             label="Command name for turning sub mode off (i.e. $suboff)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="$suboff",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -70,7 +70,7 @@ class PaidSubmodeModule(BaseModule):
 
         bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands[
             self.settings["subon_command_name"].lower().replace(f"{bot.prefix}", "").replace(" ", "")
         ] = Command.raw_command(self.paid_subon, cost=self.settings["subon_cost"])

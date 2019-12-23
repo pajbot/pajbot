@@ -23,7 +23,7 @@ class HSBetModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Hearthstone Betting"
-    DESCRIPTION = f"Enables betting on Hearthstone game outcomes with {bot.prefix}hsbet"
+    DESCRIPTION = "Enables betting on Hearthstone game outcomes with the hsbet command"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
@@ -145,7 +145,7 @@ class HSBetModule(BaseModule):
             return False
         return new_game is not None and old_game != new_game
 
-    def poll_trackobot_stage2(self, trackobot_game):
+    def poll_trackobot_stage2(self, bot, trackobot_game):
         if not self.detect_trackobot_game_change(trackobot_game):
             return
 

@@ -143,7 +143,7 @@ class RouletteModule(BaseModule):
                 CommandExample(
                     None,
                     "Roulette for 69 points",
-                    chat=f"user:{bot.prefix}roulette 69\n" "bot:pajlada won 69 points in roulette! FeelsGoodMan",
+                    chat="user:!roulette 69\n" "bot:pajlada won 69 points in roulette! FeelsGoodMan",
                     description="Do a roulette for 69 points",
                 ).parse()
             ],

@@ -234,7 +234,7 @@ class AdminCommandsModule(BaseModule):
 
             bot.say(f"Enabled module {module_id}")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")
         self.commands["editpoints"] = Command.raw_command(
             self.edit_points,

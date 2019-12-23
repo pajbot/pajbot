@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class PlaysoundModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Playsound"
-    DESCRIPTION = f"Play a sound on stream with {bot.prefix}#playsound"
+    DESCRIPTION = f"Play a sound on stream with the playsound command"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
@@ -405,7 +405,7 @@ class PlaysoundModule(BaseModule):
                 f"name={playsound.name}, link={playsound.link}, volume={playsound.volume}, cooldown={playsound.cooldown}, enabled={playsound.enabled}",
             )
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         from pajbot.models.command import Command
         from pajbot.models.command import CommandExample
 

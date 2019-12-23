@@ -73,7 +73,7 @@ class EmotesModule(BaseModule):
         for message in messages:
             self.bot.say(message)
 
-    def reload_cmd(self, manager):
+    def reload_cmd(self, bot, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
         reload_msg = f"Reloading {manager.friendly_name} emotes..."
 
@@ -96,7 +96,7 @@ class EmotesModule(BaseModule):
             ],
         )
 
-    def print_cmd(self, manager, examples):
+    def print_cmd(self, bot, manager, examples):
         def do_print(**rest):
             self.print_emotes(manager)
 
@@ -115,7 +115,7 @@ class EmotesModule(BaseModule):
             ],
         )
 
-    def print_twitch_cmd(self):
+    def print_twitch_cmd(self, bot):
         return Command.raw_command(
             self.print_twitch_emotes,
             level=100,

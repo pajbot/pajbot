@@ -120,7 +120,7 @@ ON CONFLICT (id) DO UPDATE SET
 
         log.info(f"Successfully updated {len(chatter_basics)} chatters")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["reload"] = Command.multiaction_command(
             command="reload",
             commands={

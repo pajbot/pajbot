@@ -16,12 +16,12 @@ class FollowAgeModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Follow age"
-    DESCRIPTION = f"Makes two commands available: {bot.prefix}followage and {bot.prefix}followsince"
+    DESCRIPTION = "Enables the followage and followsince commands"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
             key="action_followage",
-            label=f"MessageAction for {bot.prefix}followage",
+            label="MessageAction for the followage command",
             type="options",
             required=True,
             default="say",
@@ -29,7 +29,7 @@ class FollowAgeModule(BaseModule):
         ),
         ModuleSetting(
             key="action_followsince",
-            label=f"MessageAction for {bot.prefix}followsince",
+            label="MessageAction for the followsince command",
             type="options",
             required=True,
             default="say",
@@ -55,7 +55,7 @@ class FollowAgeModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         # TODO: Have delay modifiable in settings
 
         self.commands["followage"] = Command.raw_command(
@@ -82,16 +82,16 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check someones follow age for a certain streamer",
-                    chat=f"user:{bot.prefix}followage NightNacht forsenlol\n"
-                    "bot:pajlada, NightNacht has been following forsenlol for 1 year and 4 months",
-                    description="Check how long NightNacht has been following forsenlol",
+                    chat=f"user:{bot.prefix}followage NightNacht forsen\n"
+                    "bot:pajlada, NightNacht has been following forsen for 1 year and 4 months",
+                    description="Check how long NightNacht has been following forsen",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check your own follow age for a certain streamer",
-                    chat=f"user:{bot.prefix}followage pajlada forsenlol\n"
-                    "bot:pajlada, you have been following forsenlol for 1 year and 3 months",
-                    description="Check how long you have been following forsenlol",
+                    chat=f"user:{bot.prefix}followage pajlada forsen\n"
+                    "bot:pajlada, you have been following forsen for 1 year and 3 months",
+                    description="Check how long you have been following forsen",
                 ).parse(),
             ],
         )
@@ -120,16 +120,16 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check someone elses follow since for another streamer",
-                    chat=f"user:{bot.prefix}followsince NightNacht forsenlol\n"
-                    "bot:pajlada, NightNacht has been following forsenlol since 13 June 2013, 13:10:51 UTC",
-                    description="Check when NightNacht first followed the given streamer (forsenlol)",
+                    chat=f"user:{bot.prefix}followsince NightNacht forsen\n"
+                    "bot:pajlada, NightNacht has been following forsen since 13 June 2013, 13:10:51 UTC",
+                    description="Check when NightNacht first followed the given streamer (forsen)",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check your follow since for another streamer",
-                    chat=f"user:{bot.prefix}followsince pajlada forsenlol\n"
-                    "bot:pajlada, you have been following forsenlol since 16 December 1990, 03:06:51 UTC",
-                    description="Check when you first followed the given streamer (forsenlol)",
+                    chat=f"user:{bot.prefix}followsince pajlada forsen\n"
+                    "bot:pajlada, you have been following forsen since 16 December 1990, 03:06:51 UTC",
+                    description="Check when you first followed the given streamer (forsen)",
                 ).parse(),
             ],
         )

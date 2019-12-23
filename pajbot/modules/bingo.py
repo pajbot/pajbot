@@ -348,7 +348,7 @@ class BingoModule(BaseModule):
             f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp"
         )
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["bingo"] = Command.multiaction_command(
             level=500,
             default=None,

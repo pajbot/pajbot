@@ -58,7 +58,7 @@ class LeagueRankModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["lolrank"] = Command.raw_command(
             self.league_rank,
             delay_all=self.settings["online_global_cd"],

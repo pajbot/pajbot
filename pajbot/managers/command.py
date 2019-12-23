@@ -88,7 +88,7 @@ class CommandManager(UserDict):
     def commit(self):
         self.db_session.commit()
 
-    def load_internal_commands(self):
+    def load_internal_commands(self, bot):
         if self.internal_commands:
             return self.internal_commands
 
@@ -311,7 +311,7 @@ class CommandManager(UserDict):
 
         return self.internal_commands
 
-    def create_command(bot, alias_str, **options):
+    def create_command(self, bot, alias_str, **options):
         aliases = alias_str.lower().replace(f"{bot.prefix}", "").split("|")
         for alias in aliases:
             if alias in self.data:

@@ -102,7 +102,7 @@ class PredictModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["predict"] = Command.multiaction_command(
             level=100,
             default="vote",

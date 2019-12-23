@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class ShowEmoteModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Showemote"
-    DESCRIPTION = f"Show a single emote on screen for a few seconds using {bot.prefix}#showemote"
+    DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
@@ -119,7 +119,7 @@ class ShowEmoteModule(BaseModule):
         if self.settings["success_whisper"]:
             bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["#showemote"] = Command.raw_command(
             self.show_emote,
             tokens_cost=self.settings["token_cost"],

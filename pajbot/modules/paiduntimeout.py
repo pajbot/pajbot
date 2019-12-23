@@ -27,7 +27,7 @@ class PaidUntimeoutModule(BaseModule):
             label="Command name (i.e. untimeout)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="untimeout",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -52,7 +52,7 @@ class PaidUntimeoutModule(BaseModule):
             label="Command name (i.e. unban)",
             type="text",
             required=True,
-            placeholder=f"Command name (no {bot.prefix})",
+            placeholder="Command name (no prefix)",
             default="unban",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
@@ -79,7 +79,7 @@ class PaidUntimeoutModule(BaseModule):
         bot.whisper(source, "You have been unbanned.")
         source.timed_out = False
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         if self.settings["untimeout_enable"]:
             self.commands[
                 self.settings["untimeout_command_name"].lower().replace(f"{bot.prefix}", "").replace(" ", "")

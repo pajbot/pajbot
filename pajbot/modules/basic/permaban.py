@@ -16,7 +16,7 @@ class PermabanModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = f"{bot.prefix}permaban/{bot.prefix}unpermaban"
-    DESCRIPTION = "Permaban a user. (re-bans him if unbanned by mod)"
+    DESCRIPTION = "Permaban a user. (re-bans them if unbanned by mod)"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
@@ -66,7 +66,7 @@ class PermabanModule(BaseModule):
 
             AdminLogManager.add_entry("Permaban remove", source, log_msg)
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["permaban"] = Command.raw_command(
             self.permaban_command,
             level=1000,

@@ -83,7 +83,7 @@ class DebugModule(BaseModule):
 
             bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["debug"] = Command.multiaction_command(
             level=100,
             delay_all=0,

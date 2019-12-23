@@ -14,7 +14,7 @@ def get_se_channel(twitch_channel):
     return se_channel
 
 
-def main():
+def main(bot):
     parser = argparse.ArgumentParser()
     parser.add_argument("--channel", "-c", type=str, required=True, help="Twitch channel name (lowercase)")
     args = parser.parse_args()
