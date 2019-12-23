@@ -14,7 +14,7 @@ class DeckModule(BaseModule):
     DESCRIPTION = "Handles displaying/updating decks through commands and the website."
     CATEGORY = "Feature"
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["setdeck"] = Command.raw_command(
             self.set_deck,
             level=420,
@@ -25,14 +25,14 @@ class DeckModule(BaseModule):
                 CommandExample(
                     None,
                     "Add a new deck",
-                    chat="user:!set deck http://i.imgur.com/rInqJv0.png\n"
+                    chat=f"user:{bot.prefix}set deck http://i.imgur.com/rInqJv0.png\n"
                     "bot>user:This deck is a new deck. Its ID is 32",
                     description="This is the output if you set a deck which hasn't been set before.",
                 ).parse(),
                 CommandExample(
                     None,
                     "Set a pre-existing deck",
-                    chat="user:!set deck http://i.imgur.com/rInqJv0.png\n"
+                    chat=f"user:{bot.prefix}set deck http://i.imgur.com/rInqJv0.png\n"
                     "bot>user:Updated an already-existing deck. Its ID is 32",
                     description="This is the output if you set a deck which was added previously.",
                 ).parse(),
@@ -62,20 +62,20 @@ class DeckModule(BaseModule):
                         CommandExample(
                             None,
                             "Set the name and class of the current deck",
-                            chat="user:!update deck --name Midrange Secret --class paladin\n"
+                            chat=f"user:{bot.prefix}update deck --name Midrange Secret --class paladin\n"
                             "bot>user:Updated deck with ID 32. Updated name, class",
                         ).parse(),
                         CommandExample(
                             None,
                             "Updates the link of the current deck",
-                            chat="user:!update deck --link http://i.imgur.com/QEVwrVV.png\n"
+                            chat=f"user:{bot.prefix}update deck --link http://i.imgur.com/QEVwrVV.png\n"
                             "bot>user:Updated deck with ID 32. Updated link",
                             description="Changes the link of the current deck. This could be used if you want to reupload the screenshot to imgur or something.",
                         ).parse(),
                         CommandExample(
                             None,
                             "Set the name and class of an old deck",
-                            chat="user:!update deck --id 12 --name Aggro --class hunter\n"
+                            chat=f"user:{bot.prefix}update deck --id 12 --name Aggro --class hunter\n"
                             "bot>user:Updated deck with ID 12. Updated name, class",
                             description="Updates the name and class of an old deck. Useful for whenever you need to clean up old decks.",
                         ).parse(),
@@ -99,13 +99,13 @@ class DeckModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove a deck by ID",
-                            chat="user:!remove deck 123\n" "bot>user:Successfully removed the deck.",
+                            chat=f"user:{bot.prefix}remove deck 123\n" "bot>user:Successfully removed the deck.",
                             description="The ID in this case is 123",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove a deck by URL",
-                            chat="user:!remove deck http://i.imgur.com/rInqJv0.png\n"
+                            chat=f"user:{bot.prefix}remove deck http://i.imgur.com/rInqJv0.png\n"
                             "bot>user:Successfully removed the deck.",
                             description="The URL in this case is http://i.imgur.com/rInqJv0.png",
                         ).parse(),
@@ -143,7 +143,7 @@ class DeckModule(BaseModule):
         """
 
         if not message:
-            bot.whisper(source, "Usage example: !updatedeck --name Midrange Secret --class paladin")
+            bot.whisper(source, f"Usage example: {bot.prefix}updatedeck --name Midrange Secret --class paladin")
             return False
 
         options, response = bot.decks.parse_update_arguments(message)
@@ -200,5 +200,5 @@ class DeckModule(BaseModule):
                 return False
             return True
         else:
-            bot.whisper(source, "Usage example: !removedeck http://imgur.com/abc")
+            bot.whisper(source, f"Usage example: {bot.prefix}removedeck http://imgur.com/abc")
             return False

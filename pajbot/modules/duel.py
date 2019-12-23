@@ -92,7 +92,7 @@ class DuelModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["duel"] = Command.raw_command(
             self.initiate_duel,
             delay_all=self.settings["online_global_cd"],
@@ -102,13 +102,13 @@ class DuelModule(BaseModule):
                 CommandExample(
                     None,
                     "0-point duel",
-                    chat="user:!duel Karl_Kons\n" "bot>user:You have challenged Karl_Kons for 0 points",
+                    chat=f"user:{bot.prefix}duel Karl_Kons\n" "bot>user:You have challenged Karl_Kons for 0 points",
                     description="Duel Karl_Kons for 0 points",
                 ).parse(),
                 CommandExample(
                     None,
                     "69-point duel",
-                    chat="user:!duel Karl_Kons 69\n" "bot>user:You have challenged Karl_Kons for 69 points",
+                    chat=f"user:{bot.prefix}duel Karl_Kons 69\n" "bot>user:You have challenged Karl_Kons for 69 points",
                     description="Duel Karl_Kons for 69 points",
                 ).parse(),
             ],
@@ -182,7 +182,7 @@ class DuelModule(BaseModule):
 
                 bot.whisper(
                     source,
-                    f"You already have a duel request active with {currently_duelling}. Type !cancelduel to cancel your duel request.",
+                    f"You already have a duel request active with {currently_duelling}. Type {bot.prefix}cancelduel to cancel your duel request.",
                 )
                 return False
 
@@ -208,7 +208,7 @@ class DuelModule(BaseModule):
                 challenged_by = User.find_by_id(db_session, self.duel_requests[user.id])
                 bot.whisper(
                     source,
-                    f"This person is already being challenged by {challenged_by}. Ask them to answer the offer by typing !deny or !accept",
+                    f"This person is already being challenged by {challenged_by}. Ask them to answer the offer by typing {bot.prefix}deny or {bot.prefix}accept",
                 )
                 return False
 
@@ -218,7 +218,7 @@ class DuelModule(BaseModule):
             self.duel_begin_time[source.id] = utils.now()
             bot.whisper(
                 user,
-                f"You have been challenged to a duel by {source} for {duel_price} points. You can either !accept or !deny this challenge.",
+                f"You have been challenged to a duel by {source} for {duel_price} points. You can either {bot.prefix}accept or {bot.prefix}deny this challenge.",
             )
             bot.whisper(source, f"You have challenged {user} for {duel_price} points")
 
@@ -356,7 +356,7 @@ class DuelModule(BaseModule):
             if len(msg) > 0:
                 bot.whisper(source, ". ".join(msg))
             else:
-                bot.whisper(source, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!")
+                bot.whisper(source, f"You have no duel request or duel target. Type {bot.prefix}duel USERNAME POT to duel someone!")
 
     @staticmethod
     def get_duel_stats(bot, source, **rest):

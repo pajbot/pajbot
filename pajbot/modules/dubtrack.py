@@ -127,7 +127,7 @@ class DubtrackModule(BaseModule):
             default=15,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(key="if_dt_alias", label="Alias !dt to !dubtrack", type="boolean", required=True, default=True),
+        ModuleSetting(key="if_dt_alias", label=f"Alias dt to the dubtrack command", type="boolean", required=True, default=True),
         ModuleSetting(
             key="if_short_alias",
             label="Alias !dubtrack [s, l, u] to !dubtrack [song, link, update]",
@@ -319,7 +319,7 @@ class DubtrackModule(BaseModule):
 
         return self.process_queue_song_to_song_info(queue_song)
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         commands = {
             "link": Command.raw_command(
                 self.cmd_link,
@@ -331,7 +331,7 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for dubtrack link",
-                        chat="user:!dubtrack link\n" "bot:Request your songs at https://dubtrack.fm/join/pajlada",
+                        chat=f"user:{bot.prefix}dubtrack link\n" "bot:Request your songs at https://dubtrack.fm/join/pajlada",
                     ).parse()
                 ],
             ),
@@ -345,19 +345,19 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for current song (youtube)",
-                        chat="user:!dubtrack song\n"
+                        chat=f"user:{bot.prefix}dubtrack song\n"
                         "bot:Current song: NOMA - Brain Power, link: https://youtu.be/9R8aSKwTEMg requested by FabPotato69",
                     ).parse(),
                     CommandExample(
                         None,
                         "Ask bot for current song (soundcloud)",
-                        chat="user:!dubtrack song\n"
+                        chat=f"user:{bot.prefix}dubtrack song\n"
                         "bot:Current song: This is Bondage, link: https://soundcloud.com/razq35/nightlife requested by karylul",
                     ).parse(),
                     CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
-                        chat="user:!dubtrack song\n" "bot:There's no song playing right now FeelsBadMan",
+                        chat=f"user:{bot.prefix}dubtrack song\n" "bot:There's no song playing right now FeelsBadMan",
                     ).parse(),
                 ],
             ),
@@ -371,19 +371,19 @@ class DubtrackModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for current song (youtube)",
-                        chat="user:!dubtrack song\n"
+                        chat=f"user:{bot.prefix}dubtrack song\n"
                         "bot:Current song: NOMA - Brain Power, link: https://youtu.be/9R8aSKwTEMg requested by FabPotato69",
                     ).parse(),
                     CommandExample(
                         None,
                         "Ask bot for current song (soundcloud)",
-                        chat="user:!dubtrack song\n"
+                        chat=f"user:{bot.prefix}dubtrack song\n"
                         "bot:Current song: This is Bondage, link: https://soundcloud.com/razq35/nightlife requested by karylul",
                     ).parse(),
                     CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
-                        chat="user:!dubtrack song\n" "bot:There's no song playing right now FeelsBadMan",
+                        chat=f"user:{bot.prefix}dubtrack song\n" "bot:There's no song playing right now FeelsBadMan",
                     ).parse(),
                 ],
             ),
