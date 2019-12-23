@@ -115,8 +115,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat=f"user:{bot.prefix}twitterfollow forsensc2\n" "bot>user:Now following ForsenSC2",
-                    description="Follow ForsenSC2 on twitter so new tweets are output in chat.",
+                    chat="user:!twitterfollow forsen\n" "bot>user:Now following Forsen",
+                    description="Follow Forsen on twitter so new tweets are output in chat.",
                 ).parse()
             ],
         )
@@ -129,7 +129,7 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat=f"user:{bot.prefix}twitterunfollow forsensc2\n" "bot>user:No longer following ForsenSC2",
+                    chat="user:!twitterunfollow forsensc2\n" "bot>user:No longer following ForsenSC2",
                     description="Stop automatically printing tweets from ForsenSC2",
                 ).parse()
             ],
@@ -150,15 +150,15 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Create a normal command",
-                            chat=f"user:{bot.prefix}add command test Kappa 123\n" "bot>user:Added your command (ID: 7)",
-                            description=f"This creates a normal command with the trigger {bot.prefix}test which outputs Kappa 123 to chat",
+                            chat="user:!add command test Kappa 123\n" "bot>user:Added your command (ID: 7)",
+                            description="This creates a normal command with the trigger !test which outputs Kappa 123 to chat",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a command that responds with a whisper",
                             chat=f"user:{bot.prefix}add command test Kappa 123 --whisper\n"
                             "bot>user:Added your command (ID: 7)",
-                            description=f"This creates a command with the trigger {bot.prefix}test which responds with Kappa 123 as a whisper to the user who called the command",
+                            description="This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command",
                         ).parse(),
                     ],
                 ),
@@ -174,16 +174,16 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Add an alias to a command",
-                            chat=f"user:{bot.prefix}add alias test alsotest\n"
+                            chat="user:!add alias test alsotest\n"
                             "bot>user:Successfully added the aliases alsotest to test",
-                            description=f"Adds the alias {bot.prefix}alsotest to the existing command {bot.prefix}test",
+                            description="Adds the alias !alsotest to the existing command !test",
                         ).parse(),
                         CommandExample(
                             None,
                             "Add multiple aliases to a command",
-                            chat=f"user:{bot.prefix}add alias test alsotest newtest test123\n"
+                            chat="user:!add alias test alsotest newtest test123\n"
                             "bot>user:Successfully added the aliases alsotest, newtest, test123 to test",
-                            description=f"Adds the aliases {bot.prefix}alsotest, {bot.prefix}newtest, and {bot.prefix}test123 to the existing command {bot.prefix}test",
+                            description="Adds the aliases !alsotest, !newtest, and !test123 to the existing command !test",
                         ).parse(),
                     ],
                 ),
@@ -204,49 +204,49 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Change the response",
-                            chat=f"user:{bot.prefix}edit command test This is the new response!\n"
+                            chat="user:!edit command test This is the new response!\n"
                             "bot>user:Updated the command (ID: 29)",
-                            description=f'Changes the text response for the command {bot.prefix}test to "This is the new response!"',
+                            description='Changes the text response for the command !test to "This is the new response!"',
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Global Cooldown",
-                            chat=f"user:{bot.prefix}edit command test --cd 10\n"
+                            chat="user:!edit command test --cd 10\n"
                             "bot>user:Updated the command (ID: 29)",
-                            description=f"Changes the global cooldown for the command {bot.prefix}test to 10 seconds",
+                            description="Changes the global cooldown for the command !test to 10 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the User-specific Cooldown",
-                            chat=f"user:{bot.prefix}edit command test --usercd 30\n"
+                            chat="user:!edit command test --usercd 30\n"
                             "bot>user:Updated the command (ID: 29)",
-                            description=f"Changes the user-specific cooldown for the command {bot.prefix}test to 30 seconds",
+                            description="Changes the user-specific cooldown for the command !test to 30 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Level for a command",
-                            chat=f"user:{bot.prefix}edit command test --level 500\n"
+                            chat="user:!edit command test --level 500\n"
                             "bot>user:Updated the command (ID: 29)",
-                            description=f"Changes the command level for {bot.prefix}test to level 500",
+                            description="Changes the command level for !test to level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Cost for a command",
-                            chat=f"user:{bot.prefix}edit command $test1 --cost 50\n"
+                            chat="user:!edit command $test1 --cost 50\n"
                             "bot>user:Updated the command (ID: 27)",
-                            description=f"Changes the command cost for {bot.prefix}$test1 to 50 points, you should always use a $ for a command that cost points.",
+                            description="Changes the command cost for !$test1 to 50 points, you should always use a $ for a command that cost points.",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change a command to Moderator only",
-                            chat=f"user:{bot.prefix}edit command test --modonly\n"
+                            chat="user:!edit command test --modonly\n"
                             "bot>user:Updated the command (ID: 29)",
                             description="This command can only be used for user with level 100 and Moderator status or user over level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove Moderator only from a command",
-                            chat=f"user:{bot.prefix}edit command test --no-modonly\n"
+                            chat="user:!edit command test --no-modonly\n"
                             "bot>user:Updated the command (ID: 29)",
                             description="This command can be used for normal users again.",
                         ).parse(),
@@ -272,14 +272,14 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Remove a command",
-                            chat=f"user:{bot.prefix}remove command Keepo123\n"
+                            chat="user:!remove command Keepo123\n"
                             "bot>user:Successfully removed command with id 27",
-                            description=f"Removes a command with the trigger {bot.prefix}Keepo123",
+                            description="Removes a command with the trigger !Keepo123",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove a command with the given ID.",
-                            chat=f"user:{bot.prefix}remove command 28\n"
+                            chat="user:!remove command 28\n"
                             "bot>user:Successfully removed command with id 28",
                             description="Removes a command with id 28",
                         ).parse(),
@@ -294,7 +294,7 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Remove two aliases",
-                            chat=f"user:{bot.prefix}remove alias KeepoKeepo Keepo2Keepo\n"
+                            chat="user:!remove alias KeepoKeepo Keepo2Keepo\n"
                             "bot>user:Successfully removed 2 aliases.",
                             description="Removes KeepoKeepo and Keepo2Keepo as aliases",
                         ).parse()
@@ -311,7 +311,7 @@ class CommandManager(UserDict):
 
         return self.internal_commands
 
-    def create_command(self, alias_str, **options):
+    def create_command(bot, alias_str, **options):
         aliases = alias_str.lower().replace(f"{bot.prefix}", "").split("|")
         for alias in aliases:
             if alias in self.data:
