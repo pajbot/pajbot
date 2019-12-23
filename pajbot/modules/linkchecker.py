@@ -467,7 +467,9 @@ class LinkCheckerModule(BaseModule):
         connection_timeout = 2
         read_timeout = 1
         try:
-            r = requests.head(url.url, allow_redirects=True, timeout=connection_timeout)
+            r = requests.head(
+                url.url, allow_redirects=True, timeout=connection_timeout, headers={"User-Agent": self.bot.user_agent}
+            )
         except:
             self.cache_url(url.url, True)
             return
@@ -500,7 +502,12 @@ class LinkCheckerModule(BaseModule):
 
         html = ""
         try:
-            response = requests.get(url=url.url, stream=True, timeout=(connection_timeout, read_timeout))
+            response = requests.get(
+                url=url.url,
+                stream=True,
+                timeout=(connection_timeout, read_timeout),
+                headers={"User-Agent": self.bot.user_agent},
+            )
 
             content_length = response.headers.get("Content-Length")
             if content_length and int(response.headers.get("Content-Length")) > maximum_size:
@@ -567,7 +574,12 @@ class LinkCheckerModule(BaseModule):
                 continue
 
             try:
-                r = requests.head(url.url, allow_redirects=True, timeout=connection_timeout)
+                r = requests.head(
+                    url.url,
+                    allow_redirects=True,
+                    timeout=connection_timeout,
+                    headers={"User-Agent": self.bot.user_agent},
+                )
             except:
                 continue
 

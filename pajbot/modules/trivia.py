@@ -77,7 +77,7 @@ class TriviaModule(BaseModule):
             self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=12)
         ):
             url = "http://jservice.io/api/random"
-            r = requests.get(url)
+            r = requests.get(url, headers={"User-Agent": self.bot.user_agent})
             self.question = r.json()[0]
             self.question["answer"] = (
                 self.question["answer"]
