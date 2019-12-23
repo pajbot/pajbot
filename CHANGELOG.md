@@ -7,6 +7,7 @@
 - Minor: Updated install-docs/readme.md further-steps
 - Minor: Added `bot_domain` variable
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
+- Bugfix: Fixed duel stats not being applied to properly (#717)
 - Bugfix: Fixed potential issues with users with recycled Twitch usernames (cases when two users in the database shared the same Twitch username).
 
 ## v1.40
