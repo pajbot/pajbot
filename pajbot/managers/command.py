@@ -211,43 +211,37 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Change the Global Cooldown",
-                            chat="user:!edit command test --cd 10\n"
-                            "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --cd 10\n" "bot>user:Updated the command (ID: 29)",
                             description="Changes the global cooldown for the command !test to 10 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the User-specific Cooldown",
-                            chat="user:!edit command test --usercd 30\n"
-                            "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --usercd 30\n" "bot>user:Updated the command (ID: 29)",
                             description="Changes the user-specific cooldown for the command !test to 30 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Level for a command",
-                            chat="user:!edit command test --level 500\n"
-                            "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --level 500\n" "bot>user:Updated the command (ID: 29)",
                             description="Changes the command level for !test to level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Cost for a command",
-                            chat="user:!edit command $test1 --cost 50\n"
-                            "bot>user:Updated the command (ID: 27)",
+                            chat="user:!edit command $test1 --cost 50\n" "bot>user:Updated the command (ID: 27)",
                             description="Changes the command cost for !$test1 to 50 points, you should always use a $ for a command that cost points.",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change a command to Moderator only",
-                            chat="user:!edit command test --modonly\n"
-                            "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --modonly\n" "bot>user:Updated the command (ID: 29)",
                             description="This command can only be used for user with level 100 and Moderator status or user over level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove Moderator only from a command",
-                            chat="user:!edit command test --no-modonly\n"
-                            "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --no-modonly\n" "bot>user:Updated the command (ID: 29)",
                             description="This command can be used for normal users again.",
                         ).parse(),
                     ],
@@ -272,15 +266,13 @@ class CommandManager(UserDict):
                         CommandExample(
                             None,
                             "Remove a command",
-                            chat="user:!remove command Keepo123\n"
-                            "bot>user:Successfully removed command with id 27",
+                            chat="user:!remove command Keepo123\n" "bot>user:Successfully removed command with id 27",
                             description="Removes a command with the trigger !Keepo123",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove a command with the given ID.",
-                            chat="user:!remove command 28\n"
-                            "bot>user:Successfully removed command with id 28",
+                            chat="user:!remove command 28\n" "bot>user:Successfully removed command with id 28",
                             description="Removes a command with id 28",
                         ).parse(),
                     ],
