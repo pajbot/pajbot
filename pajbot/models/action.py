@@ -7,7 +7,6 @@ import irc
 import regex as re
 import requests
 
-from pajbot.constants import VERSION
 from pajbot.managers.schedule import ScheduleManager
 
 log = logging.getLogger(__name__)
