@@ -4,6 +4,7 @@ import logging
 from flask_restful import Resource
 from flask_restful import reqparse
 from sqlalchemy.orm import joinedload
+from flask import current_app as app
 
 import pajbot.modules
 import pajbot.utils
@@ -60,7 +61,7 @@ class APICommandRemove(Resource):
                 return {"error": "Invalid command ID"}, 404
             if command.level > options["user"].level:
                 return {"error": "Unauthorized"}, 403
-            log_msg = f"The {bot.prefix}{command.command.split('|')[0]} command has been removed"
+            log_msg = f"The {app.bot_prefix}{command.command.split('|')[0]} command has been removed"
             AdminLogManager.add_entry("Command removed", options["user"], log_msg)
             db_session.delete(command.data)
             db_session.delete(command)
@@ -158,9 +159,9 @@ class APICommandUpdate(Resource):
             command.data.set(**options)
 
             if len(old_message) > 0 and old_message != new_message:
-                log_msg = f'The {bot.prefix}{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
+                log_msg = f'The {app.bot_prefix}{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
             else:
-                log_msg = f"The {bot.prefix}{command.command.split('|')[0]} command has been updated"
+                log_msg = f"The {app.bot_prefix}{command.command.split('|')[0]} command has been updated"
 
             AdminLogManager.add_entry(
                 "Command edited",
