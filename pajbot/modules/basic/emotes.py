@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class EmotesModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = f"{bot.prefix}emotes"
+    NAME = "emotes"
     ENABLED_DEFAULT = True
     DESCRIPTION = "Refresh and list FFZ and BTTV emotes"
     CATEGORY = "Feature"

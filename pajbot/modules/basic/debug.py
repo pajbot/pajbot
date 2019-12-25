@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class DebugModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = f"{bot.prefix}debug"
+    NAME = "debug"
     DESCRIPTION = "Debug commands and users"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
