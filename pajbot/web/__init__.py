@@ -112,7 +112,12 @@ def init(args):
     app.bot_config = config
     app.secret_key = config["web"]["secret_key"]
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
-    app.bot_prefix = config["main"]["prefix"]
+
+    # prefix
+    if "prefix" in config["main"]:
+        app.prefix = config["main"]["prefix"]
+    else:
+        app.prefix = "!"
 
     DBManager.init(config["main"]["db"])
 
