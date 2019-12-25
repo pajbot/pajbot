@@ -236,10 +236,11 @@ class DuelModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             challenged = User.find_by_id(db_session, self.duel_requests[source.id])
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
-        del self.duel_targets[challenged.id]
-        del self.duel_request_price[source.id]
-        del self.duel_begin_time[source.id]
-        del self.duel_requests[source.id]
+
+            del self.duel_targets[challenged.id]
+            del self.duel_request_price[source.id]
+            del self.duel_begin_time[source.id]
+            del self.duel_requests[source.id]
 
     def accept_duel(self, bot, source, **rest):
         """
@@ -328,10 +329,10 @@ class DuelModule(BaseModule):
             bot.whisper(source, f"You have declined the duel vs {requestor}")
             bot.whisper(requestor, f"{source} declined the duel challenge with you.")
 
-        del self.duel_targets[source.id]
-        del self.duel_requests[requestor.id]
-        del self.duel_request_price[requestor.id]
-        del self.duel_begin_time[requestor.id]
+            del self.d  uel_targets[source.id]
+            del self.duel_requests[requestor.id]
+            del self.duel_request_price[requestor.id]
+            del self.duel_begin_time[requestor.id]
 
     def status_duel(self, bot, source, **rest):
         """
@@ -388,10 +389,10 @@ class DuelModule(BaseModule):
                         source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
                     )
 
-            del self.duel_targets[self.duel_requests[source.id]]
-            del self.duel_requests[source.id]
-            del self.duel_request_price[source.id]
-            del self.duel_begin_time[source.id]
+                del self.duel_targets[self.duel_requests[source.id]]
+                del self.duel_requests[source.id]
+                del self.duel_request_price[source.id]
+                del self.duel_begin_time[source.id]
 
     def enable(self, bot):
         if not bot:
