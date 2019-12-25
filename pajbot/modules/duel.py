@@ -329,7 +329,7 @@ class DuelModule(BaseModule):
             bot.whisper(source, f"You have declined the duel vs {requestor}")
             bot.whisper(requestor, f"{source} declined the duel challenge with you.")
 
-            del self.d  uel_targets[source.id]
+            del self.duel_targets[source.id]
             del self.duel_requests[requestor.id]
             del self.duel_request_price[requestor.id]
             del self.duel_begin_time[requestor.id]
