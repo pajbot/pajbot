@@ -104,12 +104,7 @@ class RaffleModule(BaseModule):
             constraints={"min_value": 1, "max_value": 35000},
         ),
         ModuleSetting(
-            key="multi_enabled",
-            label="Enable multi-raffles",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
+            key="multi_enabled", label="Enable multi-raffles", type="boolean", required=True, default=True),
         ModuleSetting(
             key="multi_max_points",
             label="Max points for a multi-raffle",
