@@ -42,12 +42,8 @@ class RaffleModule(BaseModule):
             label="Start message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A raffle has begun for {points} points. Type "
-            f"{bot.prefix}join to join the raffle! The raffle will end in "
-            "{length} seconds",
-            default=".me A raffle has begun for {points} points. Type "
-            f"{bot.prefix}join to join the raffle! The raffle will end in"
-            " {length} seconds",
+            placeholder="",
+            default=".me A raffle has begun for {points} points. Type (INSERTYOURBOTPREFIXHERE)join to join the raffle! The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -55,10 +51,8 @@ class RaffleModule(BaseModule):
             label="Running message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The raffle for {points} points ends in {length} seconds! "
-            f"Type {bot.prefix}join to join the raffle!",
-            default=".me The raffle for {points} points ends in {length} seconds! "
-            f"Type {bot.prefix}join to join the raffle!",
+            placeholder="",
+            default=".me The raffle for {points} points ends in {length} seconds! Type (INSERTYOURBOTPREFIXHERE)join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -66,12 +60,8 @@ class RaffleModule(BaseModule):
             label="Start message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A multi-raffle has begun for {points} points. "
-            f"Type {bot.prefix}join to join the raffle! "
-            "The raffle will end in {length} seconds",
-            default=".me A multi-raffle has begun for {points} points. "
-            f"Type {bot.prefix}join to join the raffle! "
-            "The raffle will end in {length} seconds",
+            placeholder="",
+            default=".me A multi-raffle has begun for {points} points. Type (INSERTYOURBOTPREFIXHERE)join to join the raffle! The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -79,10 +69,8 @@ class RaffleModule(BaseModule):
             label="Running message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me The multi-raffle for {points} points ends in {length} seconds! "
-            f"Type {bot.prefix}join to join the raffle!",
-            default=".me The multi-raffle for {points} points ends in {length} seconds! "
-            f"Type {bot.prefix}join to join the raffle!",
+            placeholder="",
+            default=".me The multi-raffle for {points} points ends in {length} seconds! Type (INSERTYOURBOTPREFIXHERE)join to join the raffle!",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -117,14 +105,14 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_enabled",
-            label=f"Enable multi-raffles ({bot.prefix}multiraffle/{bot.prefix}mraffle)",
+            label="Enable multi-raffles",
             type="boolean",
             required=True,
             default=True,
         ),
         ModuleSetting(
             key="multi_max_points",
-            label="Max points for a multi raffle",
+            label="Max points for a multi-raffle",
             type="number",
             required=True,
             placeholder="",
@@ -133,7 +121,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_max_length",
-            label="Max length for a multi raffle in seconds",
+            label="Max length for a multi-raffle in seconds",
             type="number",
             required=True,
             placeholder="",
@@ -142,14 +130,14 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_allow_negative_raffles",
-            label="Allow negative multi raffles",
+            label="Allow negative multi-raffles",
             type="boolean",
             required=True,
             default=True,
         ),
         ModuleSetting(
             key="multi_max_negative_points",
-            label="Max negative points for a multi raffle",
+            label="Max negative points for a multi-raffle",
             type="number",
             required=True,
             placeholder="",
@@ -165,7 +153,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="default_raffle_type",
-            label=f"Default raffle (What raffle type {bot.prefix}raffle should invoke)",
+            label=f"Default raffle type",
             type="options",
             required=True,
             default="Single Raffle",
@@ -184,7 +172,7 @@ class RaffleModule(BaseModule):
         self.raffle_points = 0
         self.raffle_length = 0
 
-    def load_commands(self, **options):
+    def load_commands(self, bot, **options):
         self.commands["singleraffle"] = Command.raw_command(
             self.raffle,
             delay_all=0,
