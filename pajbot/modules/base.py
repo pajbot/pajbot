@@ -126,7 +126,7 @@ class BaseModule:
         for setting in self.SETTINGS:
             self.default_settings[setting.key] = setting.default
 
-    def load(self, **options):
+    def load(self, bot, **options):
         """ This method will load everything from the module into
         their proper dictionaries, which we can then use later. """
 
