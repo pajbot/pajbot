@@ -326,7 +326,7 @@ class RaffleModule(BaseModule):
 
             HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
 
-    def multi_start_raffle(self, points, length):
+    def multi_start_raffle(self, bot, points, length):
         if self.raffle_running:
             return False
 
