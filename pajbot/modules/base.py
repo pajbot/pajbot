@@ -133,7 +133,7 @@ class BaseModule:
         self.settings = self.module_settings()
 
         self.commands = {}
-        self.load_commands(bot, **options)
+        self.load_commands(**options)
 
         return self
 
