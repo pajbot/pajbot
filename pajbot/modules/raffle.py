@@ -92,8 +92,7 @@ class RaffleModule(BaseModule):
             constraints={"min_value": 0, "max_value": 1200},
         ),
         ModuleSetting(
-            key="allow_negative_raffles", label="Allow negative raffles", type="boolean", required=True, default=True
-        ),
+            key="allow_negative_raffles", label="Allow negative raffles", type="boolean", required=True, default=True),
         ModuleSetting(
             key="max_negative_points",
             label="Max negative points for a single raffle",
@@ -103,8 +102,7 @@ class RaffleModule(BaseModule):
             default=3000,
             constraints={"min_value": 1, "max_value": 35000},
         ),
-        ModuleSetting(
-            key="multi_enabled", label="Enable multi-raffles", type="boolean", required=True, default=True),
+        ModuleSetting(key="multi_enabled", label="Enable multi-raffles", type="boolean", required=True, default=True),
         ModuleSetting(
             key="multi_max_points",
             label="Max points for a multi-raffle",
