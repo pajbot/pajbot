@@ -8,6 +8,7 @@
 - Minor: Added `bot_domain` variable
 - Minor: Added more social media options (Discord, Patreon, Snapchat)
 - Minor: Changed requests should now have the appropriate `User-Agent`.
+- Minor: Removed the old emote rendering code from the website.
 - Bugfix: Fixed duels not being cancelled
 - Bugfix: Fixed duel stats not being applied to the right person (#717)
 - Bugfix: Respect `timeout_length` setting in Link Checker module
