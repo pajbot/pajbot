@@ -35,7 +35,7 @@ def parse_command_for_web(alias, command, list):
         if command.description is not None:
             command.json_description = json.loads(command.description)
             if "description" in command.json_description:
-                command.parsed_description = "test"
+                command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
             if command.json_description.get("hidden", False) is True:
                 return
     except ValueError:
