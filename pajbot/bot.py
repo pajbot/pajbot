@@ -837,6 +837,9 @@ class Bot:
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
+            "title": lambda var, args: var.title(),
+            "capitalize": lambda var, args: var.capitalize(),
+            "swapcase": lambda var, args: var.swapcase(),
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
             else utils.time_since(var * 60, 0, time_format="long"),
