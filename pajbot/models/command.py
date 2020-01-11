@@ -441,7 +441,7 @@ class Command(Base):
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
             testcase = self.action.response
-            testcase = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)", "(urlfetch)", testcase)
+            testcase = re.sub(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)", "(urlfetch)", testcase)
             if subtype in ("say", "me"):
                 example.add_chat_message(subtype, testcase, "bot")
             elif subtype == "whisper":
