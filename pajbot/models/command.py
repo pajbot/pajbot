@@ -445,6 +445,10 @@ class Command(Base):
             elif subtype == "whisper":
                 example.add_chat_message(subtype, self.action.response, "bot", "user")
             examples.append(example)
+            if '(urlfetch)' in self.action.response
+                example.add_chat_message(subtype, "(urlfetch)", "bot")
+            else:
+                example.add_chat_message(subtype, self.action.response, "bot")
 
             if self.can_execute_with_whisper is True:
                 example = CommandExample(self.id, "Default usage through whisper")
