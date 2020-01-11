@@ -441,10 +441,9 @@ class Command(Base):
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
             if subtype in ("say", "me"):
-                if 'urlfetch' in self.action.response:
-                    example.add_chat_message(subtype, "(urlfetch)", "bot")
-                else:
-                    example.add_chat_message(subtype, self.action.response, "bot")
+                testcase = self.action.response
+                testcase = re.sub(r'[A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"', '(urlfetch)', testcase)
+                example.add_chat_message(subtype, testcase, "bot")
             elif subtype == "whisper":
                 if 'urlfetch' in self.action.response:
                     example.add_chat_message(subtype, "(urlfetch)", "bot", "user")
@@ -457,6 +456,9 @@ class Command(Base):
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me"):
+                    testcase = self.action.response
+                    testcase = re.sub(r'[A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"', '(urlfetch)', testcase)
+                    example.add_chat_message(subtype, testcase, "bot", "user")
                     example.add_chat_message(subtype, self.action.response, "bot")
                 elif subtype == "whisper":
                     example.add_chat_message(subtype, self.action.response, "bot", "user")
