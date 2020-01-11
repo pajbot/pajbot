@@ -30,16 +30,16 @@ class TwitchEmotesAPI(BaseAPI):
             # plans["$9.99"] is tier 2
             # plans["$24.99"] is tier 1
             ret_data = ([], [], [])
-            
+
             for emote in resp["emotes"]:
                 tier = 0
-                if str(emote["emoticon_set"]) == str(plans["$4.99"]): #tier 1 emotes
+                if str(emote["emoticon_set"]) == str(plans["$4.99"]):  # Tier 1 emotes
                     tier = 1
                 elif str(emote["emoticon_set"]) == str(plans["$9.99"]):
                     tier = 2
                 else:
                     tier = 3
-                ret_data[tier-1].append(EmoteManager.twitch_emote(emote["id"], emote["code"]))
+                ret_data[tier - 1].append(EmoteManager.twitch_emote(emote["id"], emote["code"]))
             return tuple(ret_data)
 
         except HTTPError as e:
