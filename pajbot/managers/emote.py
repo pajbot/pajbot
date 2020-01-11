@@ -83,7 +83,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def __init__(self, twitch_v5_api, twitch_legacy_api):
         self.api = twitch_v5_api
         self.legacy_api = twitch_legacy_api
-        self.twitchemotesapi = twitch_emotes_api(RedisManager.get())
+        self.TwitchEmotesAPI = twitch_emotes_api(RedisManager.get())
         self.tier_one_emotes = []
         self.tier_two_emotes = []
         self.tier_three_emotes = []
