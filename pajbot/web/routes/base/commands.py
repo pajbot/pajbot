@@ -37,7 +37,6 @@ def init(app):
     def command_detailed(raw_command_string):
         command_string_parts = raw_command_string.split("-")
         command_string = command_string_parts[0]
-        print('TESTING >> ' . command_string)
         command_id = None
         try:
             command_id = int(command_string)
