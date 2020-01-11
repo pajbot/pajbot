@@ -441,13 +441,15 @@ class Command(Base):
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
             if subtype in ("say", "me"):
-                example.add_chat_message(subtype, self.action.response, "bot")
+                if 'urlfetch' in self.action.response:
+                    example.add_chat_message(subtype, "(urlfetch)", "bot")
+                else:
+                    example.add_chat_message(subtype, self.action.response, "bot")
             elif subtype == "whisper":
-                example.add_chat_message(subtype, self.action.response, "bot", "user")
-            if 'urlfetch' in self.action.response:
-                example.add_chat_message(subtype, "(urlfetch)", "bot")
-            else:
-                example.add_chat_message(subtype, self.action.response, "bot", "user")
+                if 'urlfetch' in self.action.response:
+                    example.add_chat_message(subtype, "(urlfetch)", "bot", "user")
+                else:
+                    example.add_chat_message(subtype, self.action.response, "bot", "user")
             examples.append(example)
 
             if self.can_execute_with_whisper is True:
