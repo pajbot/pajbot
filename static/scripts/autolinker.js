@@ -2824,7 +2824,7 @@ return Autolinker;
 }));
 
 $(document).ready(function() {
-    $('.pemote').each(function(index, el) {
+    $('.autolink').each(function(index, el) {
         $(el).html(Autolinker.link($(el).html(), { twitter: false }));
     });
 })

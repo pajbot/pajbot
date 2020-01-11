@@ -246,10 +246,6 @@ div.chat div.chat-message {
   font-family: Helvetica Neue,Helvetica,sans-serif;
 }
 
-div.chat div.chat-message .pemote img {
-  margin: -5px 0;
-}
-
 .chat:nth-child(even) .chat-message.say, .chat:nth-child(even) .chat-message.me {
   background-color: #c8c8c8;
 }
@@ -398,4 +394,8 @@ button.ui.button.streamelements {
 
 .twitter_follows button.ui.button {
   white-space: nowrap;
+}
+
+img.emote {
+    height: 2.0em;
 }

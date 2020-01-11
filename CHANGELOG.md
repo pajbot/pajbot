@@ -11,6 +11,7 @@
 - Minor: Added `title` filter that titlecases a message (turns "lol LOL" into "Lol Lol")
 - Minor: Added `capitalize` filter that capitalizes a message (turns "lol LOL" into "Lol lol")
 - Minor: Added `swapcase` filter that inverts case for all letters in a message (turns "lol LOL" into "LOL lol")
+- Minor: Removed the old emote rendering code from the website.
 - Bugfix: Fixed duels not being cancelled
 - Bugfix: Fixed duel stats not being applied to the right person (#717)
 - Bugfix: Respect `timeout_length` setting in Link Checker module

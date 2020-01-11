@@ -124,7 +124,7 @@ function handle_command(base_key, command)
                                 chat_html += '</span>';
                             }
                             chat_html += '<span class="separator">:</span> ';
-                            chat_html += '<span class="message pemote">' + message.message + '</span>';
+                            chat_html += '<span class="message autolink">' + message.message + '</span>';
                             chat_html += '</div>';
                             chat_html += '</div>';
                         })
@@ -133,10 +133,6 @@ function handle_command(base_key, command)
                     $accordion.accordion({
                         duration: 200,
                         collapsible: true
-                    });
-
-                    $.each($accordion.find('.pemote'), function(index, el) {
-                        fix_emote_element(el);
                     });
                 }
                 break;
