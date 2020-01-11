@@ -440,15 +440,12 @@ class Command(Base):
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
+            testcase = self.action.response
+            testcase = re.sub(r"[A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)", "(urlfetch)", testcase)
             if subtype in ("say", "me"):
-                testcase = self.action.response
-                testcase = re.sub(r'[A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"', '(urlfetch)', testcase)
                 example.add_chat_message(subtype, testcase, "bot")
             elif subtype == "whisper":
-                if 'urlfetch' in self.action.response:
-                    example.add_chat_message(subtype, "(urlfetch)", "bot", "user")
-                else:
-                    example.add_chat_message(subtype, self.action.response, "bot", "user")
+                example.add_chat_message(subtype, testcase, "bot", "user")
             examples.append(example)
 
             if self.can_execute_with_whisper is True:
@@ -456,12 +453,9 @@ class Command(Base):
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me"):
-                    testcase = self.action.response
-                    testcase = re.sub(r'[A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"', '(urlfetch)', testcase)
-                    example.add_chat_message(subtype, testcase, "bot", "user")
-                    example.add_chat_message(subtype, self.action.response, "bot")
+                    example.add_chat_message(subtype, testcase, "bot")
                 elif subtype == "whisper":
-                    example.add_chat_message(subtype, self.action.response, "bot", "user")
+                    example.add_chat_message(subtype, testcase, "bot", "user")
                 examples.append(example)
             return examples
         return self.examples
