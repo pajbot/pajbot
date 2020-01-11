@@ -40,7 +40,7 @@
         {% for command in custom_commands %}
         <tr data-id="{{command.id}}">
             <td><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
-            <td class="description pemote">{{ command.parsed_description }}</td>
+            <td class="description autolink">{{ command.parsed_description }}</td>
             <td>{{ command.data.num_uses }}</td>
             {% include 'admin/helper/command_action.html' %}
         </tr>
@@ -68,7 +68,7 @@
         <tr data-id="{{command.id}}">
         <td class="collapsing"><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
         <td class="collapsing">{{ command.cost }}</td>
-        <td class="description pemote">{{ command.parsed_description }}</td>
+        <td class="description autolink">{{ command.parsed_description }}</td>
         <td>{{ command.data.num_uses }}</td>
         {% include 'admin/helper/command_action.html' %}
         </tr>
@@ -95,7 +95,7 @@
         {% for command in moderator_commands %}
         <tr data-id="{{command.id}}">
         <td class="collapsing"><div class="anchor" id="c{{command.id}}"></div>{% include 'helper/command_usage_nolink.html' %}</td>
-        <td class="description pemote">{{ command.parsed_description }}</td>
+        <td class="description autolink">{{ command.parsed_description }}</td>
         <td>{{ command.data.num_uses }}</td>
         {% include 'admin/helper/command_action.html' %}
         </tr>
