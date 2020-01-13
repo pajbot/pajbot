@@ -39,7 +39,7 @@ class TwitchEmotesAPI(BaseAPI):
                 else:
                     tier = 3
                 ret_data[tier - 1].append(EmoteManager.twitch_emote(emote["id"], emote["code"]))
-            return tuple(ret_data)
+            return ret_data
 
         except HTTPError as e:
             if e.response.status_code == 404:
