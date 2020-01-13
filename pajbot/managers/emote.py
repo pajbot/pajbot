@@ -355,7 +355,8 @@ end
     @staticmethod
     def get_emote_epm_record(emote_code):
         redis = RedisManager.get()
-        return redis.zscore(f"{self.streamer}:emotes:epmrecord", emote_code)
+        streamer = StreamHelper.get_streamer()
+        return redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
 
 
 class EcountManager:
