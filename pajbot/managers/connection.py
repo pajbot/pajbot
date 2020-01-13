@@ -116,6 +116,7 @@ class ConnectionManager:
 
     def privmsg(self, channel, message, increase_message=True):
         conn = self.main_conn
+
         if conn is None or not conn.can_send():
             log.error("No available connections to send messages from. Delaying message a few seconds.")
             self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message)
