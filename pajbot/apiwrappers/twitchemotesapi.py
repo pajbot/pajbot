@@ -50,7 +50,7 @@ class TwitchEmotesAPI(BaseAPI):
 
     def get_channel_emotes(self, channel_id, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:twitch:legacy:channel-emotes:{channel_name}",
+            redis_key=f"api:twitch_emotes:channel-emotes:{channel_name}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id, channel_name),
             serializer=TwitchChannelEmotesSerializer(),
             expiry=60 * 60,
