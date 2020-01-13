@@ -364,7 +364,7 @@ class EcountManager:
     def handle_emotes(emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         streamer = StreamHelper.get_streamer()
-        redis_key = f"{self.streamer}:emotes:count"
+        redis_key = f"{streamer}:emotes:count"
         with RedisManager.pipeline_context() as redis:
             for emote_code, instance_counts in emote_counts.items():
                 redis.zincrby(redis_key, instance_counts.count, emote_code)
@@ -373,7 +373,7 @@ class EcountManager:
     def get_emote_count(emote_code):
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
-        emote_count = redis.zscore(f"{self.streamer}:emotes:count", emote_code)
+        emote_count = redis.zscore(f"{streamer}:emotes:count", emote_code)
         if emote_count is None:
             return None
         return int(emote_count)
