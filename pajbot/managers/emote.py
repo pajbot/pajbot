@@ -359,7 +359,6 @@ end
 
 
 class EcountManager:
-    
     @staticmethod
     def handle_emotes(emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
