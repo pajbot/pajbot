@@ -83,7 +83,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def __init__(self, twitch_v5_api, twitch_legacy_api):
         self.api = twitch_v5_api
         self.legacy_api = twitch_legacy_api
-        self.twitchemotesapi = TwitchEmotesAPI(RedisManager.get())
+        self.twitchemotes_api = TwitchEmotesAPI(RedisManager.get())
         self.tier_one_emotes = []
         self.tier_two_emotes = []
         self.tier_three_emotes = []
@@ -96,13 +96,13 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
     def load_channel_emotes(self):
         streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotesapi.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotes_api.get_channel_emotes(
             StreamHelper.get_streamer_id(), streamer
         )
 
     def update_channel_emotes(self):
         streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotesapi.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotes_api.get_channel_emotes(
             StreamHelper.get_streamer_id(), streamer, force_fetch=True
         )
 
