@@ -81,6 +81,8 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
     def __init__(self):
         self.api = TwitchEmotesAPI(RedisManager.get())
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         self.tier_one_emotes = []
         self.tier_two_emotes = []
         self.tier_three_emotes = []
@@ -119,6 +121,8 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         from pajbot.apiwrappers.bttv import BTTVAPI
 
         self.api = BTTVAPI(RedisManager.get())
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         super().__init__()
 
     def load_channel_emotes(self):
@@ -132,6 +136,8 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 class EmoteManager:
     def __init__(self, twitch_v5_api, twitch_legacy_api, action_queue):
         self.action_queue = action_queue
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api, twitch_legacy_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
@@ -353,9 +359,11 @@ end
 
 
 class EcountManager:
+    
     @staticmethod
     def handle_emotes(emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
+        streamer = StreamHelper.get_streamer()
         redis_key = f"{self.streamer}:emotes:count"
         with RedisManager.pipeline_context() as redis:
             for emote_code, instance_counts in emote_counts.items():
@@ -364,6 +372,7 @@ class EcountManager:
     @staticmethod
     def get_emote_count(emote_code):
         redis = RedisManager.get()
+        streamer = StreamHelper.get_streamer()
         emote_count = redis.zscore(f"{self.streamer}:emotes:count", emote_code)
         if emote_count is None:
             return None
