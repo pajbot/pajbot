@@ -45,6 +45,7 @@ class CustomServerConnection(irc.client.ServerConnection):
             # Ouch!
             self.disconnect("Connection reset by peer.")
 
+
 class Connection(CustomServerConnection):
     def __init__(self, reactor):
         super().__init__(reactor)
@@ -119,9 +120,8 @@ class ConnectionManager:
             log.error("No available connections to send messages from. Delaying message a few seconds.")
             self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message)
             return
-    
-        conn.privmsg(channel, message)
 
+        conn.privmsg(channel, message)
         if increase_message:
             conn.num_msgs_sent += 1
-            self.bot.execute_delayed(30, conn.reduce_msgs_sent)
+            self.bot.execute_delayed(31, conn.reduce_msgs_sent)
