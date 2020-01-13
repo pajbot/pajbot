@@ -20,7 +20,8 @@ class GenericChannelEmoteManager:
     def __init__(self):
         self._global_emotes = []
         self._channel_emotes = []
-
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         self.global_lookup_table = {}
         self.channel_lookup_table = {}
 
@@ -51,12 +52,10 @@ class GenericChannelEmoteManager:
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer)
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer, force_fetch=True)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer, force_fetch=True)
 
     def update_all(self):
         self.update_global_emotes()
@@ -80,10 +79,8 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_v5_api, twitch_legacy_api):
-        self.api = twitch_v5_api
-        self.legacy_api = twitch_legacy_api
-        self.twitchemotes_api = TwitchEmotesAPI(RedisManager.get())
+    def __init__(self):
+        self.api = TwitchEmotesAPI(RedisManager.get())
         self.tier_one_emotes = []
         self.tier_two_emotes = []
         self.tier_three_emotes = []
@@ -95,15 +92,13 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         return self.tier_one_emotes
 
     def load_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotes_api.get_channel_emotes(
-            StreamHelper.get_streamer_id(), streamer
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+            self.streamer_id, self.streamer
         )
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotes_api.get_channel_emotes(
-            StreamHelper.get_streamer_id(), streamer, force_fetch=True
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+            self.streamer_id, self.streamer, force_fetch=True
         )
 
 
@@ -128,10 +123,10 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id())
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id)
 
     def update_channel_emotes(self):
-        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id(), force_fetch=True)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class EmoteManager:
@@ -344,8 +339,7 @@ end
         self.epm[code] -= count
 
     def save_epm_record(self, code, count):
-        streamer = StreamHelper.get_streamer()
-        self.redis_zadd_if_higher(keys=[f"{streamer}:emotes:epmrecord", count], args=[code])
+        self.redis_zadd_if_higher(keys=[f"{self.streamer}:emotes:epmrecord", count], args=[code])
 
     def get_emote_epm(self, emote_code):
         """Returns the current "emote per minute" usage of the given emote code,
@@ -355,16 +349,14 @@ end
     @staticmethod
     def get_emote_epm_record(emote_code):
         redis = RedisManager.get()
-        streamer = StreamHelper.get_streamer()
-        return redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
+        return redis.zscore(f"{self.streamer}:emotes:epmrecord", emote_code)
 
 
 class EcountManager:
     @staticmethod
     def handle_emotes(emote_counts):
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
-        streamer = StreamHelper.get_streamer()
-        redis_key = f"{streamer}:emotes:count"
+        redis_key = f"{self.streamer}:emotes:count"
         with RedisManager.pipeline_context() as redis:
             for emote_code, instance_counts in emote_counts.items():
                 redis.zincrby(redis_key, instance_counts.count, emote_code)
@@ -372,8 +364,7 @@ class EcountManager:
     @staticmethod
     def get_emote_count(emote_code):
         redis = RedisManager.get()
-        streamer = StreamHelper.get_streamer()
-        emote_count = redis.zscore(f"{streamer}:emotes:count", emote_code)
+        emote_count = redis.zscore(f"{self.streamer}:emotes:count", emote_code)
         if emote_count is None:
             return None
         return int(emote_count)
