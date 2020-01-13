@@ -29,7 +29,7 @@ class TwitchEmotesAPI(BaseAPI):
             # plans["$4.99"] is tier 1
             # plans["$9.99"] is tier 2
             # plans["$24.99"] is tier 1
-            ret_data = [[], [], []]
+            ret_data = ([], [], [])
             for emote in resp["emotes"]:
                 tier = 0
                 if str(emote["emoticon_set"]) == str(plans["$4.99"]):  # tier 1 emotes
