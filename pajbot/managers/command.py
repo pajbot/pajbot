@@ -115,8 +115,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!twitterfollow forsensc2\n" "bot>user:Now following ForsenSC2",
-                    description="Follow ForsenSC2 on twitter so new tweets are output in chat.",
+                    chat="user:!twitterfollow forsen\n" "bot>user:Now following Forsen",
+                    description="Follow Forsen on twitter so new tweets are output in chat.",
                 ).parse()
             ],
         )
@@ -129,8 +129,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!twitterunfollow forsensc2\n" "bot>user:No longer following ForsenSC2",
-                    description="Stop automatically printing tweets from ForsenSC2",
+                    chat="user:!twitterunfollow forsen\n" "bot>user:No longer following Forsen",
+                    description="Stop automatically printing tweets from Forsen",
                 ).parse()
             ],
         )

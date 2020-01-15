@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class ChattersRefreshModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Chatters refresh"
-    DESCRIPTION = "Fetches a list of chatters and updates the database"
+    DESCRIPTION = "Fetches a list of chatters and updates points/time accordingly - this is required to be turned on in order for the bot to record user time and/or points"
     ENABLED_DEFAULT = True
     CATEGORY = "Internal"
     SETTINGS = [
