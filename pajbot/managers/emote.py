@@ -134,11 +134,11 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
 
 class EmoteManager:
-    def __init__(self, twitch_v5_api, twitch_legacy_api, action_queue):
+    def __init__(self, action_queue):
         self.action_queue = action_queue
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api, twitch_legacy_api)
+        self.twitch_emote_manager = TwitchEmoteManager()
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
 
