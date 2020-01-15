@@ -10,6 +10,7 @@ WorkingDirectory=/opt/pajbot
 RuntimeDirectory=pajbot/%i
 RuntimeDirectoryPreserve=yes
 ExecStart=/opt/pajbot/venv/bin/uwsgi --ini uwsgi_shared.ini --socket /var/run/pajbot/%i/web.sock --pyargv "--config configs/%i.ini" --virtualenv venv
+SyslogIdentifier=pajbot-web@%I
 RestartSec=2
 Restart=always
 
