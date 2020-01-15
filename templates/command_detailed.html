@@ -18,7 +18,7 @@
     </div>
     <div class="content{{ ' active' if index == 1 else '' }}">
         {% if example['description']|length > 0 %}
-        <div class="description pemote">{{ example['description'] }}</div>
+        <div class="description autolink">{{ example['description'] }}</div>
         {% endif %}
         {% for chat_message in example['messages'] -%}
         {% include 'helper/command_chat_message.html' %}
