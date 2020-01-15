@@ -11,6 +11,8 @@
 - Minor: Added `title` filter that titlecases a message (turns "lol LOL" into "Lol Lol")
 - Minor: Added `capitalize` filter that capitalizes a message (turns "lol LOL" into "Lol lol")
 - Minor: Added `swapcase` filter that inverts case for all letters in a message (turns "lol LOL" into "LOL lol")
+- Minor: Fixed command examples of `forsen`
+- Minor: Modified description of the `chatters_refresh` module
 - Minor: Removed the old emote rendering code from the website.
 - Bugfix: Fixed duels not being cancelled
 - Bugfix: Fixed duel stats not being applied to the right person (#717)
