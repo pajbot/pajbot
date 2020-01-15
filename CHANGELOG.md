@@ -15,6 +15,7 @@
 - Bugfix: Fixed duels not being cancelled
 - Bugfix: Fixed duel stats not being applied to the right person (#717)
 - Bugfix: Respect `timeout_length` setting in Link Checker module
+- Bugfix: Fixed !subemotes command not working due to a deprecated Twitch API (#682)
 - Bugfix: Fixed potential issues with users with recycled Twitch usernames (cases when two users in the database shared the same Twitch username).
 - Bugfix: Links are now checked against whitelisted links in case the "Disallow links from X" settings are enabled
 - Bugfix: Single-raffle winners are now properly announced if the "show on clr" option is disabled
