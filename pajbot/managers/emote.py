@@ -345,7 +345,8 @@ end
         self.epm[code] -= count
 
     def save_epm_record(self, code, count):
-        self.redis_zadd_if_higher(keys=[f"{self.streamer}:emotes:epmrecord", count], args=[code])
+        streamer = StreamHelper.get_streamer()
+        self.redis_zadd_if_higher(keys=[f"{streamer}:emotes:epmrecord", count], args=[code])
 
     def get_emote_epm(self, emote_code):
         """Returns the current "emote per minute" usage of the given emote code,
