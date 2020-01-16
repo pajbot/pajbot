@@ -10,6 +10,7 @@ WorkingDirectory=/opt/pajbot
 RuntimeDirectory=pajbot/%i
 RuntimeDirectoryPreserve=yes
 ExecStart=/opt/pajbot/venv/bin/python3 main.py --config "configs/%i.ini"
+SyslogIdentifier=pajbot@%I
 RestartSec=2
 Restart=always
 
