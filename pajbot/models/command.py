@@ -17,6 +17,7 @@ from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.action import ActionParser
 from pajbot.models.action import RawFuncAction
+from pajbot.models.action import Substitution
 
 log = logging.getLogger(__name__)
 
@@ -440,9 +441,8 @@ class Command(Base):
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
-            cleanstring = re.sub(
-                r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)", "(urlfetch)", self.action.response
-            )
+            cleanstring = (Substitution.urlfetch_substitution_regex, "(urlfetch)", self.action.response)
+
             if subtype in ("say", "me"):
                 example.add_chat_message(subtype, cleanstring, "bot")
             elif subtype == "whisper":
