@@ -441,7 +441,7 @@ class Command(Base):
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
-            cleanstring = Substitution.urlfetch_substitution_regex.sub("(urlfetch)" self.action.response)
+            cleanstring = Substitution.urlfetch_substitution_regex.sub("(urlfetch)", self.action.response)
 
             if subtype in ("say", "me"):
                 example.add_chat_message(subtype, cleanstring, "bot")
