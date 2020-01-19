@@ -272,7 +272,7 @@ class LinkCheckerModule(BaseModule):
                         if is_subdomain(parsed_url.parsed.netloc, whitelist):
                             whitelisted = True
                             break
-					if whitelisted is False and self.is_whitelisted(url):
+                    if whitelisted is False and self.is_whitelisted(url):
                         whitelisted = True
                     if whitelisted is False:
                         self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)

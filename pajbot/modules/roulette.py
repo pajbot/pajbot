@@ -127,7 +127,7 @@ class RouletteModule(BaseModule):
 
     def __init__(self, bot):
         super().__init__(bot)
-		self.last_sub = None
+        self.last_sub = None
         self.output_buffer = ""
         self.output_buffer_args = []
         self.last_add = None

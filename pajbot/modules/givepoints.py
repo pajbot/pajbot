@@ -86,7 +86,7 @@ class GivePointsModule(BaseModule):
                 bot.whisper(source, "You can't give points to yourself WeirdChamp")
                 return True
 
-			if self.settings["target_requires_sub"] is True and target.subscriber is False:
+            if self.settings["target_requires_sub"] is True and target.subscriber is False:
                 # Settings indicate that the target must be a subscriber, which he isn't
                 bot.whisper(source, "Your target must be a subscriber.")
                 return False

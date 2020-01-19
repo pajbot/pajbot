@@ -22,7 +22,7 @@ def init(app):
     pajbot.web.routes.admin.moderators.init(page)
     pajbot.web.routes.admin.modules.init(page)
     pajbot.web.routes.admin.playsounds.init(page)
-	pajbot.web.routes.admin.predictions.init(page)
+    pajbot.web.routes.admin.predictions.init(page)
     pajbot.web.routes.admin.streamer.init(page)
     pajbot.web.routes.admin.timers.init(page)
 
