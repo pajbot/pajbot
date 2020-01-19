@@ -95,8 +95,8 @@ class RouletteModule(BaseModule):
                 "1. Show results in chat",
                 "2. Show results in whispers",
                 "3. Show results in chat if it's over X points else it will be whispered.",
-				"4. Combine output in chat",
-			],
+                "4. Combine output in chat",
+            ],
         ),
         ModuleSetting(
             key="min_show_points",
@@ -107,7 +107,7 @@ class RouletteModule(BaseModule):
             default=100,
             constraints={"min_value": 1, "max_value": 150000},
         ),
-		ModuleSetting(
+        ModuleSetting(
             key="only_roulette_after_sub",
             label="Only allow roulettes after sub",
             type="boolean",

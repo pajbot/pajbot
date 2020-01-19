@@ -50,7 +50,7 @@ class VanishModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 5000},
         ),
-		ModuleSetting(
+        ModuleSetting(
             key="timeout_reason",
             label="Timeout Reason",
             type="text",

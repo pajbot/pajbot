@@ -28,7 +28,7 @@ class GivePointsModule(BaseModule):
             default="givepoints",
             constraints={"min_str_len": 2, "max_str_len": 25},
         ),
-		ModuleSetting(
+        ModuleSetting(
             key="source_requires_sub",
             label="Users need to be subbed to give away points",
             type="boolean",
@@ -101,7 +101,7 @@ class GivePointsModule(BaseModule):
         self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
         self.commands[self.command_name] = Command.raw_command(
             self.give_points,
-			sub_only=self.settings["source_requires_sub"],
+            sub_only=self.settings["source_requires_sub"],
             delay_all=0,
             delay_user=60,
             can_execute_with_whisper=True,

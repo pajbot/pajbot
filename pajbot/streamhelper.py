@@ -20,8 +20,8 @@ class StreamHelper:
         "steam": {"format": "{}", "title": "Steam"},
         "facebook": {"format": "{}", "title": "Facebook"},
         "discord": {"format": "https://discord.gg/{}", "title": "Discord"},
-		"star": {"format": "{}", "title": "Website"},
-		"patreon": {"format": "https://www.patreon.com/{}", "title": "Patreon"},
+        "star": {"format": "{}", "title": "Website"},
+        "patreon": {"format": "https://www.patreon.com/{}", "title": "Patreon"},
         "snapchat": {"format": "https://snapchat.com/add/{}", "title": "Snapchat"},
     }
     social_keys = collections.OrderedDict(sorted(social_keys_unsorted.items(), key=lambda t: t[0]))

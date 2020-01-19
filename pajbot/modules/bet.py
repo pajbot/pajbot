@@ -336,7 +336,9 @@ class BetModule(BaseModule):
                 self.close_schedule.remove()
             except:
                 pass
-        self.close_schedule = ScheduleManager.execute_now(self.bot.websocket_manager.emit, args=["bet_close_game", WIDGET_ID])
+        self.close_schedule = ScheduleManager.execute_now(
+            self.bot.websocket_manager.emit, args=["bet_close_game", WIDGET_ID]
+        )
 
         bot.me("All your bets have been refunded and betting has been closed.")
 
