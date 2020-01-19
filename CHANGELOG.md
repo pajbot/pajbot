@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+- Major: Add support for streaming tweets through [tweet-provider](https://github.com/pajbot/tweet-provider) instead of going directly through Twitter.
+
+  This makes it possible to run many instances of pajbot1 with using only one Twitter app.
+
 - Minor: Start removing unused pieces of pleblist (song request) system, starting with the login system
 - Minor: Added reasoning for the vanish module
 - Minor: Updated install-docs/readme.md further-steps
