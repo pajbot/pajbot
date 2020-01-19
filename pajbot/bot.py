@@ -114,6 +114,7 @@ class Bot:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
 
+        self.bot_domain = self.config["web"]["domain"]
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
@@ -301,14 +302,13 @@ class Bot:
             )
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
-        self.bot_domain = self.config["web"].get("domain", "")
 
         self.data = {
             "broadcaster": self.streamer,
             "version": self.version_long,
             "version_brief": VERSION,
             "bot_name": self.nickname,
-            "bot_domain": self.config["web"].get("domain", ""),
+            "bot_domain": self.bot_domain,
         }
 
         self.data_cb = {
@@ -318,7 +318,7 @@ class Bot:
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
         }
-		self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
+        self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
 
     @property
     def password(self):

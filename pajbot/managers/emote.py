@@ -20,7 +20,7 @@ class GenericChannelEmoteManager:
     def __init__(self):
         self._global_emotes = []
         self._channel_emotes = []
-		self.streamer = StreamHelper.get_streamer()
+        self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
 
         self.global_lookup_table = {}
@@ -95,7 +95,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def channel_emotes(self):
         return self.tier_one_emotes
 
-	def load_global_emotes(self):
+    def load_global_emotes(self):
         self.global_emotes = self.twitch_v5_api.get_global_emotes()
 
     def update_global_emotes(self):
@@ -104,7 +104,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def load_channel_emotes(self):
         self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
             self.streamer_id, self.streamer
-		)
+        )
 
     def update_channel_emotes(self):
         self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
@@ -129,7 +129,7 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         from pajbot.apiwrappers.bttv import BTTVAPI
 
         self.api = BTTVAPI(RedisManager.get())
-		self.streamer = StreamHelper.get_streamer()
+        self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
         super().__init__()
 
@@ -147,7 +147,7 @@ class EmoteManager:
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
         self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api)
-		self.ffz_emote_manager = FFZEmoteManager()
+        self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
 
         self.epm = {}
