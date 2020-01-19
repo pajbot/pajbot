@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=troybot
-Group=troybot
+Group=pajbot
 WorkingDirectory=/opt/troybot
 RuntimeDirectory=troybot/%i
 RuntimeDirectoryPreserve=yes
