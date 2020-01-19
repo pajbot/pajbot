@@ -153,7 +153,7 @@ class RouletteModule(BaseModule):
         return random.randint(1, 100) > self.settings["rigged_percentage"]
 
     def roulette(self, bot, source, message, **rest):
-		if self.settings["only_roulette_after_sub"]:
+        if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
                 return False
             if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_roulette_time"]):
