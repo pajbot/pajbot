@@ -15,6 +15,7 @@
 - Minor: Modified description of the `chatters_refresh` module
 - Minor: Removed the old emote rendering code from the website.
 - Minor: Added streamer name to syslog identifier when running under systemd (`pajbot@streamer_name` instead of `python3`)
+- Minor: Added emotes to the join/leave messages
 - Bugfix: Fixed duels not being cancelled
 - Bugfix: Fixed duel stats not being applied to the right person (#717)
 - Bugfix: Respect `timeout_length` setting in Link Checker module
