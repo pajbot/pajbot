@@ -45,3 +45,4 @@ word2number==1.1
 python-socketio==4.4.0
 apiclient==1.0.4
 google-api-python-client==1.7.11
+setuptools==42.0.2
