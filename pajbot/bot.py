@@ -88,7 +88,7 @@ class Bot:
             TMI.promote_to_verified()
 
         # phrases
-        self.phrases = {"welcome": ["{nickname} {version} running!"], "quit": ["{nickname} {version} shutting down..."]}
+        self.phrases = {"welcome": ["{nickname} {version} running! HeyGuys"], "quit": ["{nickname} {version} shutting down... BibleThump"]}
         if "phrases" in config:
             phrases = config["phrases"]
             if "welcome" in phrases:
