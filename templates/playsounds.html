@@ -63,6 +63,7 @@
         <tr>
             <th>Name</th>
             <th>Command</th>
+            <th>Cost</th>
             <th>Per-Sample Cooldown</th>
             <th>Test</th>
         </tr>
@@ -74,12 +75,15 @@
                 <td>
                     <div class="ui action input compact">
                         <input type="text" readonly="readonly" class="copyInput compact"
-                               value="!#playsound {{ playsound.name }}">
+                               value="!playsound {{ playsound.name }}">
                         <button type="button" name="copyToken" title="Copy command to clipboard"
                                 class="copyButton ui right icon button compact">
                             <i class="clipboard icon"></i>
                         </button>
                     </div>
+                </td>
+				<td>{{ module_settings.point_cost if playsound.cost is none else playsound.cost }}
+                    {{ "(global default)" if playsound.cost is none }}
                 </td>
                 <td>{{ module_settings.default_sample_cd if playsound.cooldown is none else playsound.cooldown }}
                     seconds {{ "(global default)" if playsound.cooldown is none }}

@@ -11,9 +11,5 @@ Replace `v1.23` with the new version in the commands/examples below.
 ## After the Pull Request has been accepted
 
 - Tag the release: `git tag v1.23 -am "v1.23"`
+- Push the tag: `git push --tags`
 - Update the `stable` branch to point to the new release: `git checkout stable && git merge --ff-only v1.23`
-- Push the tag and `stable` branch: `git push --follow-tags`
-- Make a release in the GitHub interface: https://github.com/pajbot/pajbot/releases/new
-  - Tag version should be `v1.23`
-  - Release title should be `v1.23`
-  - Copy and paste this version's raw changelog entries into the description of the release.

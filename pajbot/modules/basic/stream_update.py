@@ -41,35 +41,53 @@ class StreamUpdateModule(BaseModule):
         bot.say(log_msg)
         AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
 
-    def update_game(self, bot, source, message, **rest):
+    def game(self, bot, source, message, **rest):
+        if not message or source.level < 500:
+            data = bot.twitch_v5_api.get_stream_status(bot.streamer_user_id)
+            game = data["game"]
+            bot.say(f'@{source.username_raw} -> {bot.streamer} is currently playing "{game}"')
+            return
         self.generic_update(bot, source, message, "game", self.bot.twitch_v5_api.set_game)
 
-    def update_title(self, bot, source, message, **rest):
+    def title(self, bot, source, message, **rest):
+        if not message or source.level < 500:
+            data = bot.twitch_v5_api.get_stream_status(bot.streamer_user_id)
+            title = data["title"]
+            bot.say(f'@{source.username_raw} -> The current title is "{title}"')
+            return
         self.generic_update(bot, source, message, "title", self.bot.twitch_v5_api.set_title)
 
     def load_commands(self, **options):
-        self.commands["setgame"] = Command.raw_command(
-            self.update_game,
-            level=500,
-            description="Update the stream's game",
+        self.commands["game"] = Command.raw_command(
+            self.game,
+            level=100,
+            description="Updates or Shows the stream's game",
             examples=[
                 CommandExample(
                     None,
-                    'Update the game to "World of Warcraft"',
-                    chat="user:!setgame World of Warcraft\n" 'bot>user:pajlada updated the game to "World of Warcraft"',
-                ).parse()
+                    "Shows the game",
+                    chat="user:!game\n" 'bot: @user -> $(tb:broadcaster) is currently playing "Dota 2"',
+                ).parse(),
+                CommandExample(
+                    None,
+                    'Update the game to "Dota 2"',
+                    chat="user:!game Dota 2\n" 'bot: @user updated the game to "Dota 2"',
+                ).parse(),
             ],
         )
 
-        self.commands["settitle"] = Command.raw_command(
-            self.update_title,
-            level=500,
-            description="Update the stream's title",
+        self.commands["title"] = Command.raw_command(
+            self.title,
+            level=100,
+            description="Updates or Shows  the stream's title",
             examples=[
                 CommandExample(
+                    None, "Shows the title", chat="user:!title\n" 'bot: @user -> The current title is: $(tb:title)"',
+                ).parse(),
+                CommandExample(
                     None,
-                    'Update the title to "Games and shit"',
-                    chat="user:!settitle Games and shit\n" 'bot>user:pajlada updated the title to "Games and shit"',
-                ).parse()
+                    'Update the title to "Just A Title"',
+                    chat="user:!title Just A Title\n" 'bot: @user updated the title to "Just A Title"',
+                ).parse(),
             ],
         )

@@ -14,7 +14,6 @@ Then merge our configuration into your nginx configuration directory and remove 
 
 ```bash
 sudo cp -RT /opt/pajbot/install-docs/full-nginx-setup/basic-config/ /etc/nginx/
-sudo ln -s /etc/nginx/sites-available/https-redirect.conf /etc/nginx/sites-enabled/https-redirect.conf
 sudo rm /etc/nginx/sites-{available,enabled}/default
 ```
 

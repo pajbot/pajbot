@@ -11,6 +11,8 @@ from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.utils import split_into_chunks_with_prefix
 
+from sqlalchemy import text
+
 log = logging.getLogger(__name__)
 
 
@@ -33,6 +35,43 @@ class AdminCommandsModule(BaseModule):
             username = msg_args[0]
             rest = " ".join(msg_args[1:])
             bot.whisper_login(username, rest)
+
+    def mass_points(self, bot, source, message, **rest):
+        if not message:
+            return False
+        msg_split = message.split(" ")
+        if len(msg_split) < 1:
+            # The user did not supply enough arguments
+            bot.whisper(source, f"Usage: !{self.command_name} POINTS")
+            return False
+        try:
+            num_points = int(msg_split[0])
+        except (ValueError, TypeError):
+            # The user did not specify a valid integer for points
+            bot.whisper(source, f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS")
+            return False
+
+        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer)
+        chatter_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(chatter_logins)
+
+        # filter out invalid/deleted/etc. users
+        chatter_basics = [e for e in chatter_basics if e is not None]
+
+        update_values = [{**basics.jsonify(), "add_points": num_points,} for basics in chatter_basics]
+
+        with DBManager.create_session_scope() as db_session:
+            db_session.execute(
+                text(
+                    """
+INSERT INTO "user"(id, login, name, points)
+    VALUES (:id, :login, :name, :add_points)
+ON CONFLICT (id) DO UPDATE SET
+    points = "user".points + :add_points
+            """
+                ),
+                update_values,
+            )
+        bot.say(f"{num_points} points have been given to {len(chatter_basics)} chatters!")
 
     def edit_points(self, bot, source, message, **rest):
         if not message:
@@ -254,6 +293,19 @@ class AdminCommandsModule(BaseModule):
                     "Remove points from a user",
                     chat="user:!editpoints pajlada -500\n" "bot>user:Successfully removed 500 points from pajlada.",
                     description="This removes 500 points from pajlada. Users can go into negative points with this.",
+                ).parse(),
+            ],
+        )
+        self.commands["masspoints"] = Command.raw_command(
+            self.mass_points,
+            level=1500,
+            description="Gives points to everyone in the chat",
+            examples=[
+                CommandExample(
+                    None,
+                    "Give a user points",
+                    chat="user:!masspoints 500\n" "bot>user:Successfully gave everyone 500 points.",
+                    description="This gives everyone 500 points",
                 ).parse(),
             ],
         )

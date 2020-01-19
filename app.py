@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-
 import pajbot.web
 from pajbot.utils import init_logging
 from pajbot.web import app

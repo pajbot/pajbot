@@ -65,7 +65,7 @@
                 <tr>
                     <td><strong>Time spent in offline chat</strong></td>
                     {% if user.time_in_chat_offline > user.time_in_chat_online * 2 %}
-                    <td>{{ user.time_in_chat_offline|format_timedelta }} <img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v1/58765/3.0" alt="NotLikeThis"></td>
+                    <td class="pemote">{{ user.time_in_chat_offline|format_timedelta }} NotLikeThis</td>
                     {% else %}
                     <td>{{ user.time_in_chat_offline|format_timedelta }}</td>
                     {% endif %}
@@ -73,6 +73,10 @@
                 <tr>
                     <td><strong>Permabanned on {{ bot.name }}</strong></td>
                     <td>{%if user.banned %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><strong>Profiles Paired</strong></td>
+                    <td><a href="/connections">{%if paired %}Yes{% else %}No{% endif %}</a></td>
                 </tr>
             </tbody>
         </table>

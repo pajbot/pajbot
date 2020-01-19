@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 
 import logging
 
-from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
+from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken, SpotifyAccessToken
 
 log = logging.getLogger(__name__)
 
@@ -64,20 +64,34 @@ class AccessTokenManager(ABC):
             log.debug("Successfully loaded OAuth token from storage")
             self._token = storage_result
         else:
-            self._token = self.fetch_new()
-            self.storage.save(self._token)
+            try:
+                self._token = self.fetch_new()
+                self.storage.save(self._token)
+            except Exception as e:
+                log.error(e)
+                return False
+        return True
 
     @property
     def token(self):
         """Get a valid token, attempts to load from storage/request a new token on the first call,
         and refreshes the token as necessary on every invocation."""
         if self._token is None:
-            self.initialize()
+            if not self.initialize():
+                return None
 
         if self._token.should_refresh():
             self.refresh()
 
         return self._token
+
+    def can_should_refresh(self):
+        if self._token is None:
+            if not self.initialize():
+                return
+
+        if self._token.should_refresh():
+            self.refresh()
 
 
 class AppAccessTokenManager(AccessTokenManager):
@@ -91,6 +105,17 @@ class AppAccessTokenManager(AccessTokenManager):
     def fetch_new(self):
         log.debug("No app access token present, trying to fetch new OAuth token")
         return self.api.get_app_access_token(self.scope)
+
+
+class SpotifyAccessTokenManager(AccessTokenManager):
+    def __init__(self, api, redis, user_id, token=None):
+        redis_key = f"authentication:spotify-access-token:{user_id}"
+        storage = RedisTokenStorage(redis, SpotifyAccessToken, redis_key, expire=False)
+        super().__init__(api, storage, token)
+        self.user_id = user_id
+
+    def fetch_new(self):
+        raise NoTokenError(f"No authentication token found for spotify {self.user_id} in redis")
 
 
 class UserAccessTokenManager(AccessTokenManager):

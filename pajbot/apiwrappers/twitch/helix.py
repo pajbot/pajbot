@@ -54,13 +54,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Fetch all pages using a function that returns a list of responses and a pagination cursor
         as a tuple when called with the pagination cursor as an argument."""
         pagination_cursor = None
-        responses = []
+        responses = {}
 
         while True:
             response, pagination_cursor = page_fetch_fn(after_pagination_cursor=pagination_cursor, *args, **kwargs)
-
             # add this chunk's responses to the list of all responses
-            responses.extend(response)
+            responses.update(response)
 
             # all pages iterated, done
             if len(response) <= 0:
@@ -172,8 +171,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #     "cursor": "xxxx"
         #   }
         # }
-
-        subscribers = [entry["user_id"] for entry in response["data"]]
+        switcher = {"3000": 3, "2000": 2, "1000": 1}
+        subscribers = {entry["user_id"]: switcher[entry["tier"]] for entry in response["data"]}
         pagination_cursor = response["pagination"]["cursor"]
 
         return subscribers, pagination_cursor

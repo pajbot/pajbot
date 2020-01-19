@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% set active_page = 'songrequest' %}
+{% block title %}Songrequest{% endblock %}
+{% block body %}
+<link rel="stylesheet" href="/static/css/songrequest-websocket.css">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css">
+
+<div id="Songrequest">
+    <div class="container">
+        <div class="column add-bottom">
+            <div id="mainwrap">
+                <div id="nowPlay">
+                    <span id="npAction">Paused...</span>
+                </div>
+                <div id="audiowrap">
+                    <div id="audio0">
+                        <audio id="audio1" preload controls>Your browser does not support HTML5 Audio! 😢</audio>
+                    </div>
+                    <div id="tracks">
+                        <a id="btnPrev">&vltri;</a><a id="btnNext">&vrtri;</a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="main container">
+    <div class="custom-left-css">
+        <table id="plList"><caption><h1>Song Request Queue</h1></caption></table>
+    </div>
+    <div class="custom-right-css">
+        <table id="buList"><caption><h1>Song History Queue</h1></caption></table>
+    </div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+    var ws_host = '{{ site.songrequestWS.host }}';
+    var auth = '{{ token_access }}';
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.6/plyr.min.js"></script>
+<script type="text/javascript" src="/static/scripts/songrequest-websocket.js"></script>
+{% endblock %}

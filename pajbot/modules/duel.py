@@ -25,15 +25,6 @@ class DuelModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
-            key="max_pot",
-            label="How many points you can duel for at most",
-            type="number",
-            required=True,
-            placeholder="",
-            default=420,
-            constraints={"min_value": 0, "max_value": 69000},
-        ),
-        ModuleSetting(
             key="message_won",
             label="Winner message | Available arguments: {winner}, {loser}",
             type="text",
@@ -47,18 +38,9 @@ class DuelModule(BaseModule):
             label="Points message | Available arguments: {winner}, {loser}, {total_pot}, {extra_points}",
             type="text",
             required=True,
-            placeholder="{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points",
-            default="{winner} won the duel vs {loser} PogChamp . The pot was {total_pot}, the winner gets their bet back + {extra_points} points",
+            placeholder="{winner} won the duel vs {loser} PogChamp for {total_pot}!",
+            default="{winner} won the duel vs {loser} PogChamp for {total_pot}!",
             constraints={"min_str_len": 10, "max_str_len": 400},
-        ),
-        ModuleSetting(
-            key="duel_tax",
-            label="Duel tax (deduct this percent value from the win)",
-            type="number",
-            required=True,
-            placeholder="",
-            default=30,
-            constraints={"min_value": 0, "max_value": 100},
         ),
         ModuleSetting(
             key="online_global_cd",
@@ -87,7 +69,7 @@ class DuelModule(BaseModule):
             type="number",
             required=True,
             placeholder="",
-            default=5,
+            default=2,
             constraints={"min_value": 1, "max_value": 60},
         ),
     ]
@@ -149,9 +131,10 @@ class DuelModule(BaseModule):
         """
 
         if message is None:
+            bot.whisper(
+                source, f"Invalid Usage !duel USERNAME POINTS_TO_BET",
+            )
             return False
-
-        max_pot = self.settings["max_pot"]
 
         msg_split = message.split()
         input = msg_split[0]
@@ -160,17 +143,21 @@ class DuelModule(BaseModule):
             user = User.find_by_user_input(db_session, input)
             if user is None:
                 # No user was found with this username
+                bot.whisper(
+                    source, f"The user, {input}, has never typed in chat before FailFish",
+                )
                 return False
-
+            if user == source:
+                bot.whisper(
+                    source, f"You cannot duel yourself",
+                )
+                return False
             duel_price = 0
             if len(msg_split) > 1:
                 try:
                     duel_price = int(msg_split[1])
                     if duel_price < 0:
                         return False
-
-                    if duel_price > max_pot:
-                        duel_price = max_pot
                 except ValueError:
                     pass
 
@@ -179,17 +166,11 @@ class DuelModule(BaseModule):
                 if currently_duelling is None:
                     del self.duel_requests[source.id]
                     return False
-
                 bot.whisper(
                     source,
                     f"You already have a duel request active with {currently_duelling}. Type !cancelduel to cancel your duel request.",
                 )
                 return False
-
-            if user == source:
-                # You cannot duel yourself
-                return False
-
             if user.last_active is None or (utils.now() - user.last_active) > timedelta(minutes=5):
                 bot.whisper(
                     source,
@@ -236,7 +217,6 @@ class DuelModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             challenged = User.find_by_id(db_session, self.duel_requests[source.id])
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
-
             del self.duel_targets[challenged.id]
             del self.duel_request_price[source.id]
             del self.duel_begin_time[source.id]
@@ -256,7 +236,6 @@ class DuelModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
             duel_price = self.duel_request_price[self.duel_targets[source.id]]
-
             if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
                 bot.whisper(
                     source,
@@ -276,23 +255,21 @@ class DuelModule(BaseModule):
 
             source.points -= duel_price
             requestor.points -= duel_price
-            winning_pot = int(duel_price * (1.0 - self.settings["duel_tax"] / 100))
             participants = [source, requestor]
             winner = random.choice(participants)
             participants.remove(winner)
             loser = participants.pop()
-            winner.points += duel_price
-            winner.points += winning_pot
+
+            winner.points += duel_price * 2
 
             # Persist duel statistics
-            winner.duel_stats.won(winning_pot)
+            winner.duel_stats.won(duel_price)
             loser.duel_stats.lost(duel_price)
-
             arguments = {
                 "winner": winner.name,
                 "loser": loser.name,
                 "total_pot": duel_price,
-                "extra_points": winning_pot,
+                "extra_points": duel_price,
             }
 
             if duel_price > 0:
@@ -309,7 +286,7 @@ class DuelModule(BaseModule):
             del self.duel_targets[source.id]
 
             HandlerManager.trigger(
-                "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
+                "on_duel_complete", winner=winner, loser=loser, points_won=duel_price, points_bet=duel_price
             )
 
     def decline_duel(self, bot, source, **options):

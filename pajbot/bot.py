@@ -16,11 +16,19 @@ import pajbot.utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
-from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
+from pajbot.apiwrappers.authentication.token_manager import (
+    AppAccessTokenManager,
+    UserAccessTokenManager,
+    SpotifyAccessTokenManager,
+)
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
+from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
+from pajbot.apiwrappers.twitch.pubsubapi import PubSubAPI
+from pajbot.apiwrappers.streamlabsapi import StreamLabsAPI
+from pajbot.apiwrappers.spotifyapi import SpotifyApi
 from pajbot.constants import VERSION
 from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
@@ -33,15 +41,18 @@ from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.twitter import TwitterManager
+from pajbot.managers.songrequest import SongrequestManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
+from pajbot.managers.songrequest_websocket import SongRequestWebSocketManager
 from pajbot.managers.websocket import WebSocketManager
+from pajbot.managers.spotify_streamlabs import SpotifyStreamLabsManager
+from pajbot.managers.discord_bot import DiscordBotManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
 from pajbot.migration.redis import RedisMigratable
 from pajbot.models.action import ActionParser
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
-from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
@@ -104,8 +115,6 @@ class Bot:
             self.channel = config["main"]["target"]
             self.streamer = self.channel[1:]
 
-        self.bot_domain = self.config["web"]["domain"]
-
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
@@ -115,11 +124,45 @@ class Bot:
             self.config["twitchapi"]["redirect_uri"],
         )
 
+        HandlerManager.init_handlers()
+
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
         self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
+
         self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
+        self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
+        self.spotify_api = None
+        self.spotify_token_manager = None
+        if (
+            "client_id" in config["spotify"]
+            and "client_secret" in config["spotify"]
+            and "redirect_uri" in config["spotify"]
+            and "user_id" in config["spotify"]
+        ):
+            if (
+                config["spotify"]["client_id"] != ""
+                and config["spotify"]["client_secret"] != ""
+                and config["spotify"]["redirect_uri"] != ""
+                and config["spotify"]["user_id"] != ""
+            ):
+                self.spotify_api = SpotifyApi(
+                    RedisManager.get(),
+                    config["spotify"]["client_id"],
+                    config["spotify"]["client_secret"],
+                    config["spotify"]["redirect_uri"],
+                )
+                self.spotify_token_manager = SpotifyAccessTokenManager(
+                    self.spotify_api, RedisManager.get(), config["spotify"]["user_id"]
+                )
+                log.info("Spotify Loaded")
+
+        self.streamlabs_api = None
+        if "socket_access_token" in config["streamlabs"]:
+            socket_access_token = config["streamlabs"]["socket_access_token"]
+            if socket_access_token is not None and socket_access_token != "":
+                self.streamlabs_api = StreamLabsAPI(socket_access_token)
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
@@ -128,6 +171,13 @@ class Bot:
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
         if self.streamer_user_id is None:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+
+        self.pubsub_api = PubSubAPI(
+            self,
+            UserAccessTokenManager(
+                api=self.twitch_id_api, redis=RedisManager.get(), username=self.streamer, user_id=self.streamer_user_id
+            ),
+        )
 
         StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
@@ -157,8 +207,6 @@ class Bot:
         self.start_time = utils.now()
         ActionParser.bot = self
 
-        HandlerManager.init_handlers()
-
         self.socket_manager = SocketManager(self.streamer, self.execute_now)
         self.stream_manager = StreamManager(self)
         StreamHelper.init_stream_manager(self.stream_manager)
@@ -167,6 +215,8 @@ class Bot:
         self.banphrase_manager = BanphraseManager(self).load()
         self.timer_manager = TimerManager(self).load()
         self.kvi = KVIManager()
+
+        self.websocket_manager = WebSocketManager(self)
 
         # bot access token
         if "password" in self.config["main"]:
@@ -193,15 +243,18 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
+        self.songrequest_manager = SongrequestManager(self)
+        self.songrequest_websocket_manager = SongRequestWebSocketManager(self)
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
+        self.discord_bot_manager = DiscordBotManager(self, RedisManager.get())
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
-        self.websocket_manager = WebSocketManager(self)
+        self.spotify_streamlabs_manager = SpotifyStreamLabsManager(self)
 
         HandlerManager.trigger("on_managers_loaded")
 
@@ -250,13 +303,14 @@ class Bot:
             )
 
         self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
+        self.bot_domain = self.config["web"].get("domain", "")
 
         self.data = {
             "broadcaster": self.streamer,
             "version": self.version_long,
             "version_brief": VERSION,
             "bot_name": self.nickname,
-            "bot_domain": self.bot_domain,
+            "bot_domain": self.config["web"].get("domain", ""),
         }
 
         self.data_cb = {
@@ -266,8 +320,6 @@ class Bot:
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
         }
-
-        self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
 
     @property
     def password(self):
@@ -364,19 +416,6 @@ class Bot:
 
         return None
 
-    def get_current_song_value(self, key, extra={}):
-        if self.stream_manager.online:
-            current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)
-            inner_keys = key.split(".")
-            val = current_song
-            for inner_key in inner_keys:
-                val = getattr(val, inner_key, None)
-                if val is None:
-                    return None
-            if val is not None:
-                return val
-        return None
-
     def get_strictargs_value(self, key, extra={}):
         ret = self.get_args_value(key, extra)
 
@@ -431,7 +470,7 @@ class Bot:
 
     def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
-            r = requests.get(url, headers={"User-Agent": self.user_agent})
+            r = requests.get(url)
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
@@ -457,7 +496,7 @@ class Bot:
     # Usage: !eval bot.eval_from_file(event, 'https://pastebin.com/raw/LhCt8FLh')
     def eval_from_file(self, event, url):
         try:
-            r = requests.get(url, headers={"User-Agent": self.user_agent})
+            r = requests.get(url)
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
@@ -624,7 +663,8 @@ class Bot:
         return self.irc.start()
 
     def on_disconnect(self, chatconn, event):
-        self.irc.on_disconnect(chatconn, event)
+        if not self.silent:
+            self.irc.on_disconnect(chatconn, event)
 
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
@@ -820,8 +860,9 @@ class Bot:
             log.exception("Error while shutting down the apscheduler")
 
         try:
-            for p in self.phrases["quit"]:
-                self.privmsg(p.format(**phrase_data))
+            if not self.silent:
+                for p in self.phrases["quit"]:
+                    self.privmsg(p.format(**phrase_data))
         except Exception:
             log.exception("Exception caught while trying to say quit phrase")
 
@@ -833,11 +874,9 @@ class Bot:
     def apply_filter(self, resp, f):
         available_filters = {
             "strftime": _filter_strftime,
+            "timezone": _filter_timezone,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
-            "title": lambda var, args: var.title(),
-            "capitalize": lambda var, args: var.capitalize(),
-            "swapcase": lambda var, args: var.swapcase(),
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
             else utils.time_since(var * 60, 0, time_format="long"),
@@ -853,6 +892,8 @@ class Bot:
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
+        else:
+            log.info(f.name)
         return resp
 
     def _filter_or_broadcaster(self, var, args):
@@ -894,6 +935,10 @@ def _filter_number_format(var, args):
 
 def _filter_strftime(var, args):
     return var.strftime(args[0])
+
+
+def _filter_timezone(var, args):
+    return var.astimezone(timezone(args[0]))
 
 
 def _filter_urlencode(var, args):

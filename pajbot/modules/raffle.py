@@ -324,8 +324,7 @@ class RaffleModule(BaseModule):
                 self.bot.websocket_manager.emit(
                     "notification", {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"}
                 )
-
-            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp")
+                self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp")
 
             winner.points += self.raffle_points
 

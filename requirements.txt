@@ -37,3 +37,4 @@ tweepy==3.8.0
 Twisted==19.7.0
 Unidecode==1.1.1
 uWSGI==2.0.18
+apiclient==1.0.3

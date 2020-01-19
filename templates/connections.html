@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}Connections - {{ user }}{% endblock %}
+{% block body %}
+<div id="userprofile" style="text-align: center;">
+    <h2>User Connections - {{ user }}</h2>
+    <h3 style={{ 'display:block' if pair_failed else 'display:none' }}> Pairing failed accounts already in use!</h3>
+    <div>
+        <table class="ui very basic table celled">
+            <heading><h1>Pair New Accounts</h1></heading>
+            <tbody>
+                <tr>
+                    <td><strong>Twitch</strong></td>
+                    <td>{{ data['twitch']['name'] }}</td>
+                    <td>Connected</td>
+                </tr>
+                <tr>
+                    <td><strong>Discord</strong></td>
+                    <td><a href={{ "https://discordapp.com/users/"+data['discord']['id']+"/" if data['discord'] else "" }}>{{ data['discord']['username'] if data['discord'] else ""}}</a></td>
+                    <td><a href={{ ("/logout_discord" if data["discord"] else "/discord_login") + "?n=" + returnUrl}}>{{ "Disconnect" if data['discord'] else "Connect"}}</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Steam</strong></td>
+                    <td><a href={{ "https://steamcommunity.com/profiles/"+data['steam']['id']+"/" if data['steam'] else "" }}>{{ "https://steamcommunity.com/profiles/"+data['steam']['id']+"/" if data['steam'] else ""}}</a></td>
+                    <td><a href={{ ("/logout_steam" if data["steam"] else "/steam_login")+ "?n=" + returnUrl}}>{{ "Disconnect" if data['steam'] else "Connect"}}</a></td>
+                </tr>
+            </tbody>
+        </table>
+        {% if data['discord'] and data['steam'] %}
+        <a href={{ returnUrl + "/pair" if data['offcd'] else '#' }} class="ui {{ 'twitch' if data['offcd'] }} button">{{ 'Pair Accounts' if data['offcd'] else 'Account pair on cooldown' }}</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

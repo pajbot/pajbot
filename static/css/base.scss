@@ -151,42 +151,12 @@ div#songhistory div.item div.description {
   background-color: rgba(255, 0, 0, 0.1);
 }
 
-#pleblist {
-  height: 100%;
-}
-
-div.pleblist-wrapper {
-  overflow: hidden;
-}
-
-div.pleblist-wrapper div {
-  margin-bottom: 0.5em;
-}
-
-div.pleblist-wrapper div.inner-player-wrapper {
-  position: relative;
-  width: 100%;
-  height: 0px;
-  padding-bottom: 60%;
-}
-
 #player {
   position: absolute;
   left: 0px;
   top: 0px;
   width: 100%;
   height: 100%;
-}
-
-div.pleblist-wrapper div.player-wrapper {
-  width: auto;
-  overflow: hidden;
-  padding-right: 1em;
-}
-
-div.pleblist-wrapper div.songlist-wrapper {
-  float: right;
-  width: 240px;
 }
 
 table.editcommand div.edit {
@@ -244,6 +214,10 @@ div.chat div.chat-message {
   list-style-position: unset;
   list-style-type: none;
   font-family: Helvetica Neue,Helvetica,sans-serif;
+}
+
+div.chat div.chat-message .pemote img {
+  margin: -5px 0;
 }
 
 .chat:nth-child(even) .chat-message.say, .chat:nth-child(even) .chat-message.me {
@@ -312,10 +286,6 @@ div.anchor {
 
 #bot_moderators h4 {
   padding-top: 35px;
-}
-
-#pleblist_host #donationlist {
-  width: 700px;
 }
 
 .command-sample {
@@ -394,8 +364,4 @@ button.ui.button.streamelements {
 
 .twitter_follows button.ui.button {
   white-space: nowrap;
-}
-
-img.emote {
-    height: 2.0em;
 }

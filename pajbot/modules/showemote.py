@@ -7,6 +7,8 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
+WIDGET_ID = "1"
+
 
 class ShowEmoteModule(BaseModule):
     ID = __name__.split(".")[-1]
@@ -23,17 +25,10 @@ class ShowEmoteModule(BaseModule):
             default=100,
             constraints={"min_value": 0, "max_value": 999999},
         ),
-        ModuleSetting(
-            key="token_cost",
-            label="Token cost",
-            type="number",
-            required=True,
-            placeholder="Token cost",
-            default=0,
-            constraints={"min_value": 0, "max_value": 15},
-        ),
         ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
-        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=False
+        ),
         ModuleSetting(
             key="emote_whitelist",
             label="Whitelisted emotes (separate by spaces). Leave empty to use the blacklist.",
@@ -108,6 +103,7 @@ class ShowEmoteModule(BaseModule):
 
         self.bot.websocket_manager.emit(
             "new_emotes",
+            WIDGET_ID,
             {
                 "emotes": [first_emote.jsonify()],
                 "opacity": self.settings["emote_opacity"],
@@ -115,14 +111,13 @@ class ShowEmoteModule(BaseModule):
                 "scale": self.settings["emote_onscreen_scale"],
             },
         )
-
         if self.settings["success_whisper"]:
             bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
 
     def load_commands(self, **options):
-        self.commands["#showemote"] = Command.raw_command(
+        self.commands["showemote"] = Command.raw_command(
             self.show_emote,
-            tokens_cost=self.settings["token_cost"],
+            notify_on_error=True,
             cost=self.settings["point_cost"],
             description="Show an emote on stream!",
             sub_only=self.settings["sub_only"],
@@ -131,7 +126,7 @@ class ShowEmoteModule(BaseModule):
                 CommandExample(
                     None,
                     "Show an emote on stream.",
-                    chat="user:!#showemote Keepo\n" "bot>user: Successfully sent the emote Keepo to the stream!",
+                    chat="user:!showemote Keepo\n" "bot>user: Successfully sent the emote Keepo to the stream!",
                     description="",
                 ).parse()
             ],

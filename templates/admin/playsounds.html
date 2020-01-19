@@ -110,6 +110,7 @@
             <th class="collapsing">Name</th>
             <th>Link</th>
             <th class="collapsing">Volume</th>
+            <th class="collapsing">Cost</th>
             <th class="collapsing">
                 Cooldown<br>
                 (seconds)
@@ -156,6 +157,12 @@
                         <input form="form-{{ playsound.name }}" type="hidden" name="volume">
                         <div class="ui range volume-slider" data-initial="{{ playsound.volume }}"></div>
                         <div class="volume-label">{{ playsound.volume }}</div>
+                    </div>
+                </td>
+                <td class="top aligned">
+                    <div class="ui input compact" style="width: 150px;">
+                        <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cost"
+                               step="100" value="{{ playsound.cost }}">
                     </div>
                 </td>
                 <td class="top aligned">

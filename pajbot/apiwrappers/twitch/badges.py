@@ -81,6 +81,7 @@ class BadgeSets(dict):
 # https://discuss.dev.twitch.tv/t/beta-badge-api/6388
 class TwitchBadgesAPI(BaseAPI):
     def __init__(self, redis):
+        log.info("Badge Api Started!")
         super().__init__(base_url="https://badges.twitch.tv/v1/", redis=redis)
 
     def _fetch_channel_badge_sets(self, channel_id):

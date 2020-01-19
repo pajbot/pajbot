@@ -22,6 +22,15 @@ class HandlerManager:
         # on_usernotice(source, message, tags)
         HandlerManager.create_handler("on_usernotice")
 
+        # on_cheer(user, bits)
+        HandlerManager.create_handler("on_cheer")
+
+        # on_donate(user, amount)
+        HandlerManager.create_handler("on_donate")
+
+        # streamlabs_reconnect()
+        HandlerManager.create_handler("streamlabs_reconnect")
+
         # on_pubnotice(channel, msg_id, message)
         HandlerManager.create_handler("on_pubnotice")
 
@@ -73,6 +82,30 @@ class HandlerManager:
         # on_quit()
         HandlerManager.create_handler("on_quit")
 
+        # on_open_bets()
+        HandlerManager.create_handler("on_open_bets")
+
+        # on_lock_bets()
+        HandlerManager.create_handler("on_lock_bets")
+
+        # on_end_bets(winning_team, player_team)
+        HandlerManager.create_handler("on_end_bets")
+
+        # on_song_request()
+        HandlerManager.create_handler("on_song_request")
+
+        # next_song()
+        HandlerManager.create_handler("next_song")
+
+        # resume_spotify()
+        HandlerManager.create_handler("resume_spotify")
+
+        # pause_spotify()
+        HandlerManager.create_handler("pause_spotify")
+
+        # change_state()
+        HandlerManager.create_handler("change_state")
+
     @staticmethod
     def create_handler(event):
         """ Create an empty list for the given event """
@@ -118,5 +151,4 @@ class HandlerManager:
             if res is False and stop_on_false is True:
                 # Abort if handler returns false and stop_on_false is enabled
                 return False
-
         return True

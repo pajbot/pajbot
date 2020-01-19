@@ -193,10 +193,6 @@ function refresh_combo_emote(emote) {
     })
 }
 
-function debug_text(text) {
-    //add_notification(text);
-}
-
 let current_emote_code = null;
 let close_down_combo = null;
 
@@ -235,115 +231,6 @@ function refresh_emote_combo({emote, count}) {
     refresh_combo_count(count);
 }
 
-function create_object_for_win(points) {
-    return {
-        value: points,
-        color: '#64DD17',
-    }
-}
-
-function create_object_for_loss(points) {
-    return {
-        value: points,
-        color: '#D50000',
-    }
-}
-
-var hsbet_chart = false;
-
-function hsbet_set_data(win_points, loss_points) {
-    if (hsbet_chart !== false) {
-        hsbet_chart.segments[0].value = win_points;
-        hsbet_chart.segments[1].value = loss_points;
-        hsbet_chart.update();
-    }
-}
-
-function hsbet_update_data({win: win_points, loss: loss_points}) {
-    if (hsbet_chart !== false) {
-        hsbet_chart.segments[0].value += win_points;
-        hsbet_chart.segments[1].value += loss_points;
-        hsbet_chart.update();
-    }
-}
-
-function create_graph(win, loss) {
-    var ctx = $('#hsbet .chart').get(0).getContext('2d');
-    if (win == 0) {
-        win = 1;
-    }
-    if (loss == 0) {
-        loss = 1;
-    }
-    var data = [
-        create_object_for_win(win),
-        create_object_for_loss(loss),
-    ];
-    var options = {
-        animationSteps: 100,
-        animationEasing: 'easeInOutQuart',
-        segmentShowStroke: false,
-    };
-    if (hsbet_chart === false || true) {
-        hsbet_chart = new Chart(ctx).Pie(data, options);
-    } else {
-        hsbet_set_data(win, loss);
-    }
-}
-
-/* interval for ticking down the hsbet timer */
-var tick_down = false;
-var stop_hsbet = false;
-var stop_hsbet_2 = false;
-
-function hsbet_new_game({time_left, win, loss}) {
-    console.log(time_left);
-    var hsbet_el = $('#hsbet');
-
-    if (tick_down !== false) {
-        clearInterval(tick_down);
-        clearTimeout(stop_hsbet);
-        clearTimeout(stop_hsbet_2);
-    }
-
-    time_left -= 10;
-
-    if (time_left <= 0) {
-        return;
-    }
-
-    var time_left_el = hsbet_el.find('.time_left');
-    console.log(time_left_el);
-    console.log(time_left_el.text());
-    time_left_el.text(time_left);
-    console.log(time_left);
-    hsbet_el.find('.left').css({'visibility': 'visible', 'opacity': 1});
-
-    hsbet_el.hide();
-    tick_down = setInterval(function () {
-        console.log('HI');
-        var old_val = parseInt(time_left_el.text());
-        time_left_el.text(old_val - 1);
-    }, 1000);
-    stop_hsbet = setTimeout(function () {
-        clearInterval(tick_down);
-        hsbet_el.find('.left').fadeTo(1000, 0, function () {
-            hsbet_el.find('.left').css('visibility', 'hidden');
-            //hsbet_chart.update();
-        });
-        stop_hsbet_2 = setTimeout(function () {
-            hsbet_el.fadeOut(1000);
-        }, 10000);
-    }, time_left * 1000);
-    if (hsbet_chart !== false) {
-        hsbet_chart.clear();
-    }
-    hsbet_el.find('.left').show();
-    hsbet_el.fadeIn(1000, function () {
-        create_graph(win, loss);
-        console.log('XD');
-    });
-}
 
 function play_sound({link, volume}) {
     let player = new Howl({
@@ -357,6 +244,65 @@ function play_sound({link, volume}) {
     player.play();
 }
 
+//Bet System 
+function bet_close_bet() {
+    var bet_el = $('#bet')
+    bet_el.fadeOut(5000, function() {
+        bet_el.find('.left').css({
+            'visibility': 'hidden',
+            'opacity': 1
+        });
+    });
+    bet_el.hide();
+}
+function bet_show_bets() {
+    var bet_el = $('#bet')
+    bet_el.find('.left').css({
+        'visibility': 'visible',
+        'opacity': 1
+    });
+    bet_el.find('.left').show();
+    bet_el.show();
+}
+function bet_update_data({win_betters, loss_betters, win_points, loss_points}) {
+    $('#winbetters').text(win_betters);
+    $('#lossbetters').text(loss_betters);
+    $('#winpoints').text(win_points);
+    $('#losspoints').text(loss_points);
+}
+function bet_new_game() {
+    var bet_el = $('#bet');
+    bet_el.find('.left').css({
+        'visibility': 'visible',
+        'opacity': 1
+    });
+
+    bet_el.hide();
+
+    $('#winbetters').text('0');
+    $('#lossbetters').text('0');
+    $('#winpoints').text('0');
+    $('#losspoints').text('0');
+
+    bet_el.find('.left').show();
+    bet_el.fadeIn(1000, function() {
+        console.log('Faded in');
+    });
+}
+function bet_reload() {
+    var bet_el = $('#bet')
+    bet_el.find('.left').css({
+        'visibility': 'hidden',
+        'opacity': 1
+    });
+    bet_el.hide();
+    $('#winbetters').text('0');
+    $('#lossbetters').text('0');
+    $('#winpoints').text('0');
+    $('#losspoints').text('0');
+}
+
+
 function handleWebsocketData(json_data) {
     if (json_data['event'] === undefined) {
         return;
@@ -364,12 +310,6 @@ function handleWebsocketData(json_data) {
 
     let data = json_data.data;
     switch (json_data['event']) {
-        case 'new_box':
-            add_random_box(data);
-            break;
-        case 'new_emotes':
-            add_emotes(data);
-            break;
         case 'notification':
             add_notification(data);
             break;
@@ -380,28 +320,136 @@ function handleWebsocketData(json_data) {
                 //play_sound('slap');
             }, 100);
             break;
+        case 'new_emotes':
+            add_emotes(data);
+            break;
         case 'play_sound':
             play_sound(data);
             break;
         case 'emote_combo':
             refresh_emote_combo(data);
             break;
-        case 'hsbet_new_game':
-            hsbet_new_game(data);
+        case 'bet_new_game':
+            bet_new_game();
             break;
-        case 'hsbet_update_data':
-            hsbet_update_data(data);
+        case 'bet_show_bets':
+            bet_show_bets();
+            break;
+        case 'bet_update_data':
+            bet_update_data(data);
+            break;
+        case 'bet_close_game':
+            bet_close_bet();
             break;
         case 'show_custom_image':
             show_custom_image(data);
             break;
         case 'refresh':
         case 'reload':
-            location.reload(true);
+            bet_reload();
             break;
+        case 'songrequest_play':
+            play(data);
+            break;
+        case 'songrequest_pause':
+            pause();
+            break;
+        case 'songrequest_resume':
+            resume();
+            break;
+        case 'songrequest_volume':
+            volume(data);
+            break;
+        case 'songrequest_seek':
+            seek(data);
+            break;
+        case 'songrequest_show':
+            show();
+            break;
+        case 'songrequest_hide':
+            hide();
+            break;
+        case 'songrequest_stop':
+            stop();
+            break;
+            
     }
 
 }
+
+var player
+jQuery(function ($) {
+    'use strict'
+    var supportsAudio = !!document.createElement('audio').canPlayType;
+    if (supportsAudio) {
+        // initialize plyr
+        player = new Plyr('#player', {
+            controls: [],
+            listeners: {
+                play: function (e) {
+                    return false;    // required on v3
+                },
+                seek: function (e) {
+                    return false;
+                },
+                volume: function (e) {
+                    return false;
+                }, 
+                restart: function (e) {
+                    return false;    // required on v3
+                }           
+            }
+        });
+        player.on('ready', event => {
+            player.play();
+            player.pause();
+            player.embed.a.closest("div").style.cssText = "";
+            player.volume = volume_g;
+            hide();
+        });
+        player.on('ended', function(event) {
+           hide();
+        });
+    }
+});
+function play({video_id}) {
+    player.source = {
+        type: 'video',
+        sources: [
+            {
+                src: video_id,
+                provider: 'youtube',
+            },
+        ],
+    };
+}
+function pause() {
+    player.pause();
+}
+function resume() {
+    console.log("resumed")
+    player.play();
+}
+function seek({seek_time}) {
+    player.currentTime = seek_time;
+    pause()
+}
+var volume_g = 0
+function volume({volume}) {
+    volume_g = (volume/100);
+    player.volume = volume_g;
+}
+function hide() {
+    $('#songrequest').hide();
+}
+function show() {
+    $('#songrequest').show();
+}
+function stop() {
+    player.stop()
+    play({video_id : ''})
+}
+
 
 let socket = null;
 
@@ -415,6 +463,7 @@ function connect_to_ws() {
     socket.binaryType = "arraybuffer";
     socket.onopen = function () {
         console.log('WebSocket Connected!');
+        socket.send(widget_id); 
     };
     socket.onerror = function (event) {
         console.error("WebSocket error observed:", event);
@@ -431,7 +480,7 @@ function connect_to_ws() {
     socket.onclose = function (e) {
         console.log(`WebSocket closed ${e.wasClean ? '' : 'un'}cleanly with reason ${e.code}: ${e.reason}`);
         socket = null;
-        setTimeout(connect_to_ws, 2500);
+        location.reload(true);
     }
 
 }

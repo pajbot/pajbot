@@ -73,25 +73,49 @@ class BaseAPI:
         else:
             return BaseAPI.join_base_and_string(base, endpoint)
 
-    def request(self, method, endpoint, params, headers, json=None, **request_options):
-        full_url = self.join_base_and_endpoint(self.base_url, endpoint)
+    def request(self, method, endpoint, params, headers, json=None, base_url=None, data=None, **request_options):
+        if base_url is None:
+            base_url = self.base_url
+        full_url = self.join_base_and_endpoint(base_url, endpoint)
         response = self.session.request(
-            method, full_url, params=params, headers=headers, json=json, timeout=self.timeout, **request_options
+            method,
+            full_url,
+            params=params,
+            headers=headers,
+            json=json,
+            timeout=self.timeout,
+            data=data,
+            **request_options,
         )
         response.raise_for_status()
         return response
 
-    def get(self, endpoint, params=None, headers=None, **request_options):
-        return self.request("GET", endpoint, params, headers, **request_options).json()
+    def get(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
+        try:
+            return self.request("GET", endpoint, params, headers, base_url, data, **request_options).json()
+        except:
+            return None
 
-    def get_response(self, endpoint, params=None, headers=None, **request_options):
-        return self.request("GET", endpoint, params, headers, **request_options)
+    def get_response(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
+        try:
+            return self.request("GET", endpoint, params, headers, base_url, data, **request_options)
+        except:
+            return None
 
-    def get_binary(self, endpoint, params=None, headers=None, **request_options):
-        return self.request("GET", endpoint, params, headers, **request_options).content
+    def get_binary(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
+        try:
+            return self.request("GET", endpoint, params, headers, base_url, data, **request_options).content
+        except:
+            return None
 
-    def post(self, endpoint, params=None, headers=None, json=None, **request_options):
-        return self.request("POST", endpoint, params, headers, json, **request_options).json()
+    def post(self, endpoint, params=None, headers=None, json=None, base_url=None, data=None, **request_options):
+        try:
+            return self.request("POST", endpoint, params, headers, json, base_url, data, **request_options).json()
+        except:
+            return None
 
-    def put(self, endpoint, params=None, headers=None, json=None, **request_options):
-        return self.request("PUT", endpoint, params, headers, json, **request_options).json()
+    def put(self, endpoint, params=None, headers=None, json=None, base_url=None, data=None, **request_options):
+        try:
+            return self.request("PUT", endpoint, params, headers, json, base_url, data, **request_options).json()
+        except:
+            return None

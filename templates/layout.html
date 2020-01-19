@@ -15,6 +15,9 @@
 {% assets "base_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 </head>
 <body class="main body">
 {% set active_page = active_page|default('home') %}
@@ -63,6 +66,7 @@
            <a class="item" href="https://github.com/pajbot/pajbot/issues"><i class="warning circle icon"></i> Submit an Issue</a>
            <a class="item" href="/contact"><i class="mail icon"></i> Contact</a>
            <a class="item" href="https://twitter.com/pajlada"><i class="twitter icon"></i> Created by @pajlada</a>
+           <a class="item" href="https://twitter.com/troydota"><i class="twitter icon"></i> Maintained by @TroyDota</a>
           </div>
         </div>
         <div class="three wide column">
@@ -96,8 +100,6 @@
 <script>
 var bot_name = '{{ bot.name }}';
 </script>
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.js"></script>
 {%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>

@@ -22,8 +22,6 @@ def init(app):
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
     if "playsounds" in app.bot_modules:
         nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
-    if "pleblist" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
 
     nav_bar_admin_header = []
     nav_bar_admin_header.append(MenuItem("/", "home", "Home"))

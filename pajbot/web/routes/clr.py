@@ -15,7 +15,7 @@ log = logging.getLogger("pajbot")
 @page.route("/overlay/<widget_id>/<random_shit>")
 @nocache
 def overlay(widget_id, **options):
-    return render_template("clr/overlay.html", widget={})
+    return render_template("clr/overlay.html", widget={"id": widget_id})
 
 
 @page.route("/fatoverlay/<widget_id>")

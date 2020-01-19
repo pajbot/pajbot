@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}Connections - {{ user }}{% endblock %}
+{% block body %}
+<div id="userprofile" style="text-align: center;">
+    <h2>User Connections - {{ user }}</h2>
+    <div>
+        <table class="ui very basic table celled">
+            <heading><h1>Paired Accounts</h1></heading>
+            <tbody>
+                <tr>
+                    <td><strong>Twitch</strong></td>
+                    <td>{{ twitch_user['name'] }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Discord</strong></td>
+                    <td><a href={{ "https://discordapp.com/users/"+data['discord_user_id']+"/" }}>{{ data['discord_username'] }}</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Steam</strong></td>
+                    <td><a href={{ "https://steamcommunity.com/profiles/"+data['steam_id']+"/" }}>{{ "https://steamcommunity.com/profiles/"+data['steam_id']+"/" }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <a href={{ returnUrl + "/unpair" }} class="ui twitch button" >Unpair Accounts</a>
+    </div>
+</div>
+{% endblock %}

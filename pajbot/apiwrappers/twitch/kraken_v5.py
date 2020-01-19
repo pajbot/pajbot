@@ -3,6 +3,9 @@ import logging
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 from pajbot.models.emote import Emote
+from pajbot.models.user import User
+
+from pajbot.managers.db import DBManager
 
 log = logging.getLogger(__name__)
 
@@ -23,14 +26,15 @@ class TwitchKrakenV5API(BaseTwitchAPI):
         data = self.get(["streams", user_id])
 
         def rest_data_offline():
+            stream = self.get(["channels", user_id])
             return {
                 "viewers": -1,
-                "game": None,
-                "title": None,
-                "created_at": None,
-                "followers": -1,
-                "views": -1,
-                "broadcast_id": None,
+                "game": stream["game"],
+                "title": stream["status"],
+                "created_at": stream["created_at"],
+                "followers": stream["followers"],
+                "views": stream["views"],
+                "broadcast_id": stream["_id"],
             }
 
         def rest_data_online():
@@ -72,6 +76,12 @@ class TwitchKrakenV5API(BaseTwitchAPI):
 
         resp = self.get("/chat/emoticon_images", params={"emotesets": "0"})
         return [EmoteManager.twitch_emote(data["id"], data["code"]) for data in resp["emoticon_sets"]["0"]]
+
+    def user_from_access_token(self, access_token, twitch_helix_api, db_session):
+        resp = self.get("", authorization=" ", headers={"Authorization": "OAuth " + access_token})
+        if "token" in resp:
+            return User.find_or_create_from_user_input(db_session, twitch_helix_api, resp["token"]["user_name"])
+        return None
 
     def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(

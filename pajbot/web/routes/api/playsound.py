@@ -38,6 +38,7 @@ class PlaysoundAPI(Resource):
         post_parser.add_argument("link", required=True)
         post_parser.add_argument("volume", type=int, required=True)
         post_parser.add_argument("cooldown", type=int, required=False)
+        post_parser.add_argument("cost", type=int, required=False)
         post_parser.add_argument("enabled", type=bool, required=False)
 
         args = post_parser.parse_args()
@@ -49,6 +50,10 @@ class PlaysoundAPI(Resource):
         volume = args["volume"]
         if not PlaysoundModule.validate_volume(volume):
             return "Bad volume argument", 400
+
+        cost = args.get("cost", None)
+        if not PlaysoundModule.validate_cost(cost):
+            return "Bad cost argument", 400
 
         # cooldown is allowed to be null/None
         cooldown = args.get("cooldown", None)
@@ -67,6 +72,7 @@ class PlaysoundAPI(Resource):
             # TODO admin audit logs
             playsound.link = link
             playsound.volume = volume
+            playsound.cost = cost
             playsound.cooldown = cooldown
             playsound.enabled = enabled
 

@@ -21,6 +21,9 @@ class TwitchEmotesAPI(BaseAPI):
 
         try:
             resp = self.get(["channels", channel_id])
+            if resp is None:
+                log.warning(f"No subscription plans found for channel {channel_name}")
+                return [], [], []
             plans = resp["plans"]
             if len(plans) <= 0:
                 log.warning(f"No subscription plans found for channel {channel_name}")
@@ -29,7 +32,7 @@ class TwitchEmotesAPI(BaseAPI):
             # plans["$4.99"] is tier 1
             # plans["$9.99"] is tier 2
             # plans["$24.99"] is tier 1
-            ret_data = ([], [], [])
+            ret_data = [[], [], []]
             for emote in resp["emotes"]:
                 tier = 0
                 if str(emote["emoticon_set"]) == str(plans["$4.99"]):  # tier 1 emotes
@@ -39,7 +42,7 @@ class TwitchEmotesAPI(BaseAPI):
                 else:
                     tier = 3
                 ret_data[tier - 1].append(EmoteManager.twitch_emote(emote["id"], emote["code"]))
-            return ret_data
+            return tuple(ret_data)
 
         except HTTPError as e:
             if e.response.status_code == 404:
@@ -50,7 +53,7 @@ class TwitchEmotesAPI(BaseAPI):
 
     def get_channel_emotes(self, channel_id, channel_name, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:twitch_emotes:channel-emotes:{channel_name}",
+            redis_key=f"api:twitchemotes:channel-emotes:{channel_name}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id, channel_name),
             serializer=TwitchChannelEmotesSerializer(),
             expiry=60 * 60,

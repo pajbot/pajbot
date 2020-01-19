@@ -16,20 +16,22 @@ class WebSocketServer:
         from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 
         class MyServerProtocol(WebSocketServerProtocol):
+            def __init__(self):
+                WebSocketServerProtocol.__init__(self)
+                self.widget_id = ""
+
             def onConnect(self, request):
-                # log.info(self.factory)
-                # log.info('Client connecting: {0}'.format(request.peer))
                 pass
 
             def onOpen(self):
                 log.info("WebSocket connection open")
-                WebSocketServer.clients.append(self)
 
             def onMessage(self, payload, isBinary):
                 if isBinary:
                     log.info(f"Binary message received: {len(payload)} bytes")
                 else:
-                    log.info(f"Text message received: {payload.decode('utf8')}")
+                    self.widget_id = payload.decode("utf8")
+                    WebSocketServer.clients.append(self)
 
             def onClose(self, wasClean, code, reason):
                 log.info(f"WebSocket connection closed: {reason}")
@@ -55,7 +57,6 @@ class WebSocketServer:
                 else:
                     log.info("ws unsecure")
                     reactor.listenTCP(port, factory)
-            reactor.run(installSignalHandlers=0)
 
         if secure:
             context_factory = ssl.DefaultOpenSSLContextFactory(key_path, crt_path)
@@ -112,11 +113,12 @@ class WebSocketManager:
         except:
             log.exception("Uncaught exception in WebSocketManager")
 
-    def emit(self, event, data={}):
+    def emit(self, event, widget_id=None, data={}):
         if self.server:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
-                client.sendMessage(payload, False)
+                if widget_id == None or client.widget_id == widget_id:
+                    client.sendMessage(payload, False)
 
     @staticmethod
     def on_log_message(message, isError=False, printed=False):

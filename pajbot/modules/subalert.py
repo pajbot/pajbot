@@ -5,6 +5,7 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from decimal import *
 
 log = logging.getLogger(__name__)
 
@@ -129,6 +130,40 @@ class SubAlertModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 50000},
         ),
+        ModuleSetting(
+            key="message_on_give_points",
+            label="Enable posting a message to chat upon user getting points due to sub",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="message_on_give_points_value",
+            label="Message to user upon getting points due to sub | Available arguments: {username}, {points_given} ",
+            type="text",
+            required=True,
+            placeholder="",
+            default="{username} was given {points_given} points for subscribing! FeelsAmazingMan",
+            constraints={"min_str_len": 0, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="grant_points_on_bits",
+            label="Give points to user when they cheer with bits (per bit). 0 = OFF ",
+            type="number",
+            required=True,
+            placeholder="",
+            default=1,
+            constraints={"min_value": 0, "max_value": 50000},
+        ),
+        ModuleSetting(
+            key="grant_points_on_donate",
+            label="Give points to user when they donate (per USD). 0 = OFF ",
+            type="number",
+            required=True,
+            placeholder="",
+            default=100,
+            constraints={"min_value": 0, "max_value": 50000},
+        ),
     ]
 
     def __init__(self, bot):
@@ -139,21 +174,26 @@ class SubAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_sub"]
-        self.bot.say(f"{user} was given {self.settings['grant_points_on_sub']} points for subscribing! FeelsAmazingMan")
+        if self.settings["message_on_give_points"]:
+            points_given = self.settings["grant_points_on_sub"]
+            username = user
+            self.bot.say(self.settings["message_on_give_points_value"].format())
 
     def on_new_sub(self, user, sub_type, gifted_by=None):
-        """
+        """ 
         A new user just subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
         Also increase the number of active subscribers in the database by one.
         """
-
-        self.on_sub_shared(user)
+        if gifted_by:
+            self.on_sub_shared(gifted_by)
+            gifted_name = gifted_by.name
+        else:
+            self.on_sub_shared(user)
+            gifted_name = ""
 
         self.bot.kvi["active_subs"].inc()
-
-        payload = {"username": user.name, "gifted_by": gifted_by}
-        self.bot.websocket_manager.emit("new_sub", payload)
+        payload = {"username": user.name, "gifted_by": gifted_name}
 
         if self.settings["chat_message"] is True:
             if sub_type == "Prime":
@@ -175,16 +215,20 @@ class SubAlertModule(BaseModule):
         Send the event to the websocket manager, and send a customized message in chat.
         """
 
-        self.on_sub_shared(user)
+        if gifted_by:
+            self.on_sub_shared(gifted_by)
+            gifted_name = gifted_by.name
+        else:
+            self.on_sub_shared(user)
+            gifted_name = ""
 
-        payload = {"username": user.name, "num_months": num_months, "gifted_by": gifted_by}
+        payload = {"username": user.name, "num_months": num_months, "gifted_by": gifted_name}
         if substreak_count and substreak_count > 0:
             payload["substreak_string"] = self.get_phrase(
                 "substreak_string", username=user.name, num_months=substreak_count, gifted_by=gifted_by
             )
         else:
             payload["substreak_string"] = ""
-        self.bot.websocket_manager.emit("resub", payload)
 
         if self.settings["chat_message"] is True:
             if sub_type == "Prime":
@@ -253,13 +297,11 @@ class SubAlertModule(BaseModule):
 
                 if num_months > 1:
                     # Resub
-                    self.on_resub(
-                        receiver, num_months, tags["msg-param-sub-plan"], tags["display-name"], substreak_count
-                    )
+                    self.on_resub(receiver, num_months, tags["msg-param-sub-plan"], source, substreak_count)
                     HandlerManager.trigger("on_user_resub", user=receiver, num_months=num_months)
                 else:
                     # New sub
-                    self.on_new_sub(receiver, tags["msg-param-sub-plan"], tags["display-name"])
+                    self.on_new_sub(receiver, tags["msg-param-sub-plan"], source)
                     HandlerManager.trigger("on_user_sub", user=receiver)
         elif tags["msg-id"] == "sub":
             if "msg-param-sub-plan" not in tags:
@@ -271,8 +313,30 @@ class SubAlertModule(BaseModule):
         else:
             log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
+    def on_cheer(self, user, bits_cheered, **rest):
+        if self.settings["grant_points_on_bits"] <= 0:
+            return
+        points_to_give = int(bits_cheered) * self.settings["grant_points_on_bits"]
+        user.points += points_to_give
+        self.bot.whisper(
+            user, "You have been given " + str(points_to_give) + " points for cheering " + str(bits_cheered) + " bits"
+        )
+
+    def on_donate(self, user, amount, **rest):
+        if self.settings["grant_points_on_donate"] <= 0:
+            return
+        points_to_give = int(amount * self.settings["grant_points_on_donate"])
+        user.points += points_to_give
+        TWOPLACES = Decimal(10) ** -2
+        amount = str(Decimal(str(amount)).quantize(TWOPLACES))
+        self.bot.whisper(user, "You have been given " + str(points_to_give) + " points for donating $" + str(amount))
+
     def enable(self, bot):
         HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+        HandlerManager.add_handler("on_donate", self.on_donate)
+        HandlerManager.add_handler("on_cheer", self.on_cheer)
 
     def disable(self, bot):
         HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
+        HandlerManager.remove_handler("on_donate", self.on_donate)
+        HandlerManager.remove_handler("on_cheer", self.on_cheer)

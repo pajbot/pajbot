@@ -146,3 +146,11 @@ class AppAccessToken(AccessToken):
 
     def refresh(self, api):
         return api.get_app_access_token(self.scope)
+
+
+class SpotifyAccessToken(AccessToken):
+    def can_refresh(self):
+        return True
+
+    def refresh(self, api):
+        return api.refresh_user_access_token(self.refresh_token)

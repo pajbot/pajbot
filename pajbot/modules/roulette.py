@@ -95,7 +95,6 @@ class RouletteModule(BaseModule):
                 "1. Show results in chat",
                 "2. Show results in whispers",
                 "3. Show results in chat if it's over X points else it will be whispered.",
-                "4. Combine output in chat",
             ],
         ),
         ModuleSetting(
@@ -104,30 +103,13 @@ class RouletteModule(BaseModule):
             type="number",
             required=True,
             placeholder="",
-            default=100,
+            default=1,
             constraints={"min_value": 1, "max_value": 150000},
-        ),
-        ModuleSetting(
-            key="only_roulette_after_sub",
-            label="Only allow roulettes after sub",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="after_sub_roulette_time",
-            label="How long after a sub people can roulette (seconds)",
-            type="number",
-            required=True,
-            placeholder="",
-            default=30,
-            constraints={"min_value": 5, "max_value": 3600},
         ),
     ]
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.last_sub = None
         self.output_buffer = ""
         self.output_buffer_args = []
         self.last_add = None
@@ -153,11 +135,6 @@ class RouletteModule(BaseModule):
         return random.randint(1, 100) > self.settings["rigged_percentage"]
 
     def roulette(self, bot, source, message, **rest):
-        if self.settings["only_roulette_after_sub"]:
-            if self.last_sub is None:
-                return False
-            if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_roulette_time"]):
-                return False
 
         if message is None:
             bot.whisper(source, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
@@ -194,11 +171,6 @@ class RouletteModule(BaseModule):
         else:
             out_message = self.get_phrase("message_lost", **arguments)
 
-        if self.settings["options_output"] == "4. Combine output in chat":
-            if bot.is_online:
-                self.add_message(bot, arguments)
-            else:
-                bot.me(out_message)
         if self.settings["options_output"] == "1. Show results in chat":
             bot.me(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
@@ -232,49 +204,8 @@ class RouletteModule(BaseModule):
         self.output_buffer = ""
         self.output_buffer_args = []
 
-    def add_message(self, bot, arguments):
-        parts = []
-        new_buffer = "Roulette: "
-        win_emote = "forsenPls"
-        lose_emote = "forsenSWA"
-        for arg in self.output_buffer_args:
-            parts.append(
-                f"{win_emote if arg['win'] else lose_emote} {arg['user']} {'+' if arg['win'] else '-'}{arg['bet']}"
-            )
-
-        parts.append(
-            f"{win_emote if arguments['win'] else lose_emote} {arguments['user']} {'+' if arguments['win'] else '-'}{arguments['bet']}"
-        )
-
-        log.debug(parts)
-        new_buffer += ", ".join(parts)
-
-        if len(new_buffer) > 480:
-            self.flush_output_buffer()
-        else:
-            self.output_buffer = new_buffer
-            log.info("Set output buffer to " + new_buffer)
-
-        self.output_buffer_args.append(arguments)
-
-        self.last_add = utils.now()
-
-    def on_user_sub(self, **rest):
-        self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"]:
-            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
-
-    def on_user_resub(self, **rest):
-        self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"]:
-            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
-
     def enable(self, bot):
-        HandlerManager.add_handler("on_user_sub", self.on_user_sub)
-        HandlerManager.add_handler("on_user_resub", self.on_user_resub)
         HandlerManager.add_handler("on_tick", self.on_tick)
 
     def disable(self, bot):
-        HandlerManager.remove_handler("on_user_sub", self.on_user_sub)
-        HandlerManager.remove_handler("on_user_resub", self.on_user_resub)
         HandlerManager.remove_handler("on_tick", self.on_tick)

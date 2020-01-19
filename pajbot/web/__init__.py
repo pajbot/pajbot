@@ -28,13 +28,16 @@ def init(args):
 
     from flask import request
     from flask import session
+    from flask import g
     from flask_scrypt import generate_random_salt
 
     import pajbot.utils
     import pajbot.web.common
     import pajbot.web.routes
+
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
+    from pajbot.managers.schedule import ScheduleManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper
@@ -43,8 +46,10 @@ def init(args):
     from pajbot.web.utils import download_logo
     from pajbot.web.utils import download_sub_badge
 
-    config = load_config(args.config)
+    ScheduleManager.init()
 
+    config = load_config(args.config)
+    # ScheduleManager.init()
     api_client_credentials = ClientCredentials(
         config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
     )
@@ -63,20 +68,6 @@ def init(args):
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
-
-    if "pleblist_password_salt" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "pleblist_password_salt", salt.decode("utf-8"))
-
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
-
-    if "pleblist_password" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "pleblist_password", salt.decode("utf-8"))
-
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
 
     if "secret_key" not in config["web"]:
         salt = generate_random_salt()
@@ -149,6 +140,11 @@ def init(args):
             "domain": config["web"]["domain"],
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
+            "songrequestWS": {
+                "host": config["songrequest-websocket"].get(
+                    "host", f"wss://{config['web']['domain']}/songrequest_websocket"
+                )
+            },
         },
         "streamer": {"name": config["web"]["streamer_name"], "full_name": config["main"]["streamer"]},
         "modules": app.bot_modules,
