@@ -232,7 +232,7 @@ class RouletteModule(BaseModule):
         self.output_buffer = ""
         self.output_buffer_args = []
 
-	def add_message(self, bot, arguments):
+    def add_message(self, bot, arguments):
         parts = []
         new_buffer = "Roulette: "
         win_emote = "forsenPls"
@@ -270,11 +270,11 @@ class RouletteModule(BaseModule):
             self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
 
     def enable(self, bot):
-		HandlerManager.add_handler("on_user_sub", self.on_user_sub)
+        HandlerManager.add_handler("on_user_sub", self.on_user_sub)
         HandlerManager.add_handler("on_user_resub", self.on_user_resub)
         HandlerManager.add_handler("on_tick", self.on_tick)
 
     def disable(self, bot):
-		HandlerManager.remove_handler("on_user_sub", self.on_user_sub)
+        HandlerManager.remove_handler("on_user_sub", self.on_user_sub)
         HandlerManager.remove_handler("on_user_resub", self.on_user_resub)
         HandlerManager.remove_handler("on_tick", self.on_tick)
