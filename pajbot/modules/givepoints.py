@@ -28,6 +28,20 @@ class GivePointsModule(BaseModule):
             default="givepoints",
             constraints={"min_str_len": 2, "max_str_len": 25},
         ),
+		ModuleSetting(
+            key="source_requires_sub",
+            label="Users need to be subbed to give away points",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="target_requires_sub",
+            label="Target needs to be subbed to receive points",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def give_points(self, bot, source, message, **rest):
@@ -72,6 +86,11 @@ class GivePointsModule(BaseModule):
                 bot.whisper(source, "You can't give points to yourself WeirdChamp")
                 return True
 
+			if self.settings["target_requires_sub"] is True and target.subscriber is False:
+                # Settings indicate that the target must be a subscriber, which he isn't
+                bot.whisper(source, "Your target must be a subscriber.")
+                return False
+
             source.points -= num_points
             target.points += num_points
 
@@ -82,6 +101,7 @@ class GivePointsModule(BaseModule):
         self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
         self.commands[self.command_name] = Command.raw_command(
             self.give_points,
+			sub_only=self.settings["source_requires_sub"],
             delay_all=0,
             delay_user=60,
             can_execute_with_whisper=True,

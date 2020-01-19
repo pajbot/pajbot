@@ -103,8 +103,10 @@ class WolframModule(BaseModule):
             elif location is not None:
                 query_parameters["location"] = location
 
-            res = requests.get("https://api.wolframalpha.com/v2/query", params=query_parameters)
-            answer = res.json()["queryresult"]
+            res = requests.get(
+                "https://api.wolframalpha.com/v2/query", params=query_parameters, headers={"User-Agent": bot.user_agent}
+            )
+			answer = res.json()["queryresult"]
 
             base_reply = f"{source}, "
 

@@ -4,7 +4,7 @@
     </div>
     <div class="content">
 <div class="header">
-    <a href="/highlights/{{ highlight.created_at|strftime('%Y-%m-%d') }}/{{ highlight.id }}" style="color: #0e407f;" class="pemote">
+    <a href="/highlights/{{ highlight.created_at|strftime('%Y-%m-%d') }}/{{ highlight.id }}" style="color: #0e407f;">
         {%- if highlight.description %}
         {{ highlight.description }} 
         {% else %}
@@ -30,7 +30,7 @@
             Highlight last edited by {% include 'user/username_link_nobadge.html' %}<br />
             {% endif %}
             {% if highlight.description %}
-            <p class="pemote">{{ highlight.stream_chunk.stream.title }}</p>
+            <p>{{ highlight.stream_chunk.stream.title }}</p>
             {% endif %}
         </div>
     </div>

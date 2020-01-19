@@ -24,7 +24,6 @@ from pajbot.apiwrappers.authentication.token_manager import (
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
-from pajbot.apiwrappers.twitch.legacy import TwitchLegacyAPI
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
 from pajbot.apiwrappers.twitch.pubsubapi import PubSubAPI
 from pajbot.apiwrappers.streamlabsapi import StreamLabsAPI
@@ -132,7 +131,6 @@ class Bot:
 
         self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
-        self.twitch_legacy_api = TwitchLegacyAPI(self.api_client_credentials, RedisManager.get())
         self.spotify_api = None
         self.spotify_token_manager = None
         if (
@@ -245,7 +243,7 @@ class Bot:
 
         self.songrequest_manager = SongrequestManager(self)
         self.songrequest_websocket_manager = SongRequestWebSocketManager(self)
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.twitch_legacy_api, self.action_queue)
+        self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = TwitterManager(self)
@@ -320,6 +318,7 @@ class Bot:
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
         }
+		self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
 
     @property
     def password(self):
@@ -470,7 +469,7 @@ class Bot:
 
     def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
-            r = requests.get(url)
+            r = requests.get(url, headers={"User-Agent": self.user_agent})
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
@@ -496,7 +495,7 @@ class Bot:
     # Usage: !eval bot.eval_from_file(event, 'https://pastebin.com/raw/LhCt8FLh')
     def eval_from_file(self, event, url):
         try:
-            r = requests.get(url)
+            r = requests.get(url, headers={"User-Agent": self.user_agent})
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
@@ -877,6 +876,9 @@ class Bot:
             "timezone": _filter_timezone,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
+			"title": lambda var, args: var.title(),
+            "capitalize": lambda var, args: var.capitalize(),
+            "swapcase": lambda var, args: var.swapcase(),
             "time_since_minutes": lambda var, args: "no time"
             if var == 0
             else utils.time_since(var * 60, 0, time_format="long"),
@@ -892,8 +894,6 @@ class Bot:
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
-        else:
-            log.info(f.name)
         return resp
 
     def _filter_or_broadcaster(self, var, args):

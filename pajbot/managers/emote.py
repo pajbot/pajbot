@@ -20,6 +20,8 @@ class GenericChannelEmoteManager:
     def __init__(self):
         self._global_emotes = []
         self._channel_emotes = []
+		self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
 
         self.global_lookup_table = {}
         self.channel_lookup_table = {}
@@ -51,12 +53,10 @@ class GenericChannelEmoteManager:
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer)
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.channel_emotes = self.api.get_channel_emotes(streamer, force_fetch=True)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer, force_fetch=True)
 
     def update_all(self):
         self.update_global_emotes()
@@ -80,10 +80,11 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_v5_api, twitch_legacy_api):
-        self.api = twitch_v5_api
-        self.legacy_api = twitch_legacy_api
-        self.twitchemotesapi = TwitchEmotesAPI(RedisManager.get())
+    def __init__(self, twitch_v5_api):
+        self.api = TwitchEmotesAPI(RedisManager.get())
+        self.twitch_v5_api = twitch_v5_api
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         self.tier_one_emotes = []
         self.tier_two_emotes = []
         self.tier_three_emotes = []
@@ -94,16 +95,20 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def channel_emotes(self):
         return self.tier_one_emotes
 
+	def load_global_emotes(self):
+        self.global_emotes = self.twitch_v5_api.get_global_emotes()
+
+    def update_global_emotes(self):
+        self.global_emotes = self.twitch_v5_api.get_global_emotes(force_fetch=True)
+
     def load_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotesapi.get_channel_emotes(
-            StreamHelper.get_streamer_id(), streamer
-        )
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+            self.streamer_id, self.streamer
+		)
 
     def update_channel_emotes(self):
-        streamer = StreamHelper.get_streamer()
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitchemotesapi.get_channel_emotes(
-            StreamHelper.get_streamer_id(), streamer, force_fetch=True
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+            self.streamer_id, self.streamer, force_fetch=True
         )
 
 
@@ -124,21 +129,25 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         from pajbot.apiwrappers.bttv import BTTVAPI
 
         self.api = BTTVAPI(RedisManager.get())
+		self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
         super().__init__()
 
     def load_channel_emotes(self):
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id())
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id)
 
     def update_channel_emotes(self):
-        self.channel_emotes = self.api.get_channel_emotes(StreamHelper.get_streamer_id(), force_fetch=True)
+        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class EmoteManager:
-    def __init__(self, twitch_v5_api, twitch_legacy_api, action_queue):
+    def __init__(self, twitch_v5_api, action_queue):
         self.action_queue = action_queue
-        self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api, twitch_legacy_api)
-        self.ffz_emote_manager = FFZEmoteManager()
+        self.streamer = StreamHelper.get_streamer()
+        self.streamer_id = StreamHelper.get_streamer_id()
+        self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api)
+		self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
 
         self.epm = {}
