@@ -1,16 +1,16 @@
 [Unit]
-Description=pajbot-web for %i
+Description=troybot-web for %i
 After=network.target
 
 [Service]
 Type=simple
 User=pajbot
 Group=pajbot
-WorkingDirectory=/opt/pajbot
-RuntimeDirectory=pajbot/%i
+WorkingDirectory=/opt/troybot
+RuntimeDirectory=troybot/%i
 RuntimeDirectoryPreserve=yes
-ExecStart=/opt/pajbot/venv/bin/uwsgi --ini uwsgi_shared.ini --socket /var/run/pajbot/%i/web.sock --pyargv "--config configs/%i.ini" --virtualenv venv
-SyslogIdentifier=pajbot-web@%I
+ExecStart=/opt/troybot/venv/bin/uwsgi --ini uwsgi_shared.ini --socket /var/run/troybot/%i/web.sock --pyargv "--config configs/%i.ini" --virtualenv venv
+SyslogIdentifier=troybot-web@%I
 RestartSec=2
 Restart=always
 
