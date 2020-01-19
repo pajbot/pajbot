@@ -194,7 +194,7 @@ class RouletteModule(BaseModule):
         else:
             out_message = self.get_phrase("message_lost", **arguments)
 
-		if self.settings["options_output"] == "4. Combine output in chat":
+        if self.settings["options_output"] == "4. Combine output in chat":
             if bot.is_online:
                 self.add_message(bot, arguments)
             else:
