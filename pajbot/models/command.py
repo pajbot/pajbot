@@ -441,12 +441,12 @@ class Command(Base):
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
-            cleanstring = Substitution.urlfetch_substitution_regex.sub("(urlfetch)", self.action.response)
+            cleanvariable = Substitution.urlfetch_substitution_regex.sub("(urlfetch)", self.action.response)
 
             if subtype in ("say", "me"):
-                example.add_chat_message(subtype, cleanstring, "bot")
+                example.add_chat_message(subtype, cleanvariable, "bot")
             elif subtype == "whisper":
-                example.add_chat_message(subtype, cleanstring, "bot", "user")
+                example.add_chat_message(subtype, cleanvariable, "bot", "user")
             examples.append(example)
 
             if self.can_execute_with_whisper is True:
@@ -454,9 +454,9 @@ class Command(Base):
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me"):
-                    example.add_chat_message(subtype, cleanstring, "bot")
+                    example.add_chat_message(subtype, cleanvariable, "bot")
                 elif subtype == "whisper":
-                    example.add_chat_message(subtype, cleanstring, "bot", "user")
+                    example.add_chat_message(subtype, cleanvariable, "bot", "user")
                 examples.append(example)
             return examples
         return self.examples
