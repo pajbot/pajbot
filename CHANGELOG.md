@@ -2,6 +2,35 @@
 
 ## Unversioned
 
+## v1.41
+
+- Major: Add support for streaming tweets through [tweet-provider](https://github.com/pajbot/tweet-provider) instead of going directly through Twitter.
+
+  This makes it possible to run many instances of pajbot1 with using only one Twitter app.
+
+- Minor: Added emotes to the join/leave messages
+- Minor: Added reasoning for the vanish module
+- Minor: Added `bot_domain` variable
+- Minor: Added more social media options (Discord, Patreon, Snapchat)
+- Minor: Changed requests should now have the appropriate `User-Agent`.
+- Minor: Added `title` filter that titlecases a message (turns "lol LOL" into "Lol Lol")
+- Minor: Added `capitalize` filter that capitalizes a message (turns "lol LOL" into "Lol lol")
+- Minor: Added `swapcase` filter that inverts case for all letters in a message (turns "lol LOL" into "LOL lol")
+- Minor: Added `(urlfetch)` masking for the commands page. (Don't think your commands with url are private yet, this still needs work)
+- Minor: Modified description of the `chatters_refresh` module
+- Minor: Removed the old emote rendering code from the website.
+- Minor: Fixed command examples of `forsen`
+- Minor: Added streamer name to syslog identifier when running under systemd (`pajbot@streamer_name` instead of `python3`)
+- Minor: Updated install-docs/readme.md further-steps
+- Minor: Start removing unused pieces of pleblist (song request) system, starting with the login system
+- Bugfix: Fixed duels not being cancelled
+- Bugfix: Fixed duel stats not being applied to the right person (#717)
+- Bugfix: Respect `timeout_length` setting in Link Checker module
+- Bugfix: Fixed !subemotes command not working due to a deprecated Twitch API (#682)
+- Bugfix: Fixed potential issues with users with recycled Twitch usernames (cases when two users in the database shared the same Twitch username).
+- Bugfix: Links are now checked against whitelisted links in case the "Disallow links from X" settings are enabled
+- Bugfix: Single-raffle winners are now properly announced if the "show on clr" option is disabled
+
 ## v1.40
 
 - Bugfix: Fixed Twitter statuses showing with undecoded HTML entities (#645)
