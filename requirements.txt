@@ -43,3 +43,4 @@ Unidecode==1.1.1
 uWSGI==2.0.18
 word2number==1.1
 python-socketio==4.4.0
+apiclient==1.0.4
