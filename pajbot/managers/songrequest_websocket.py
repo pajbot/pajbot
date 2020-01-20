@@ -147,7 +147,7 @@ class SongRequestWebSocketServer:
                 data = {
                     "event": "initialize",
                     "data": {
-                        "currentSong": current_song.webjsonify(db_session) if current_song else None,
+                        "currentSong": current_song.webjsonify() if current_song else None,
                         "playlist": SongrequestQueue._get_playlist(db_session, 15),
                         "history": SongrequestHistory._get_history(db_session, 15),
                         "paused": manager_ext.bot.songrequest_manager.paused,
@@ -210,7 +210,7 @@ class SongRequestWebSocketServer:
                     return False
                 youtube_id = find_youtube_id_in_string(data["request"])
                 if youtube_id is False:
-                    youtube_id = find_youtube_video_by_search(message)
+                    youtube_id = find_youtube_video_by_search(data["request"])
                     if youtube_id is None:
                         return True
                 return manager_ext.bot.songrequest_manager.request_function(youtube_id, self.login)
@@ -260,14 +260,9 @@ class SongRequestWebSocketServer:
                     reactor.listenTCP(port, factory)
             reactor.run(installSignalHandlers=0)
 
-        if secure:
-            context_factory = ssl.DefaultOpenSSLContextFactory(key_path, crt_path)
-        else:
-            context_factory = None
-
         reactor_thread = threading.Thread(
             target=reactor_run,
-            args=(reactor, factory, port, context_factory, unix_socket_path),
+            args=(reactor, factory, port, None, unix_socket_path),
             name="SongRequestWebSocketServerThread",
         )
         reactor_thread.daemon = True

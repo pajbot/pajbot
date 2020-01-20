@@ -1,7 +1,8 @@
 import logging
 from pajbot.managers.db import DBManager
-from pajbot.models.songrequest import SongrequestQueue, SongrequestHistory
+from pajbot.models.songrequest import SongrequestQueue, SongrequestHistory, SongRequestSongInfo
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.models.user import User
 import threading
 import time
 
@@ -61,19 +62,28 @@ class SongrequestManager:
         return False
 
     def skip_function(self, skipped_by):
+        with DBManager.create_session_scope() as db_session:
+            skipped_by = User.find_by_user_input(db_session, skipped_by)
+            if not skipped_by:
+                return
+            skipped_by_id = skipped_by.id
         if not self.enabled and self.current_song_id:
             return False
-        self.load_song(skipped_by)
+        self.load_song(skipped_by_id)
         return True
 
     def previous_function(self, requested_by):
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
-            SongrequestHistory._insert_previous(db_session, requested_by, self.previous_queue)
+            requested_by = User.find_by_user_input(db_session, requested_by)
+            if not requested_by:
+                return
+            requested_by_id = requested_by.id
+            SongrequestHistory._insert_previous(db_session, requested_by_id, self.previous_queue)
             db_session.commit()
         self.previous_queue += 1
-        self.load_song(requested_by)
+        self.load_song(requested_by_id)
         return True
 
     def pause_function(self):
@@ -118,10 +128,14 @@ class SongrequestManager:
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
+            skipped_by = User.find_by_user_input(db_session, skipped_by)
+            if not skipped_by:
+                return
+            skipped_by_id = skipped_by.id
             song = SongrequestQueue._from_id(db_session, database_id)
             song._move_song(db_session, 1)
             db_session.commit()
-        self.load_song(skipped_by)
+        self.load_song(skipped_by_id)
         SongrequestQueue._update_queue()
         return True
 
@@ -140,6 +154,10 @@ class SongrequestManager:
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
+            requested_by = User.find_by_user_input(db_session, requested_by)
+            if not requested_by:
+                return
+            requested_by_id = requested_by.id
             song_info = SongRequestSongInfo._create_or_get(db_session, video_id, self.youtube)
             if not song_info:
                 log.error("There was an error!")
@@ -147,7 +165,7 @@ class SongrequestManager:
             skip_after = (
                 self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
             )
-            songrequest_queue = SongrequestQueue._create(db_session, video_id, skip_after, source.login)
+            SongrequestQueue._create(db_session, video_id, skip_after, requested_by_id)
             db_session.commit()
         SongrequestQueue._update_queue()
         return True
@@ -156,10 +174,14 @@ class SongrequestManager:
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
+            requested_by = User.find_by_user_input(db_session, requested_by)
+            if not requested_by:
+                return
+            requested_by_id = requested_by.id
             current_song = SongrequestQueue._from_id(db_session, self.current_song_id)
-            self.request_function(current_song.video_id, current_song.requested_by)._move_song(db_session, 1)
+            self.request_function(current_song.video_id, current_song.requested_by_id)._move_song(db_session, 1)
             db_session.commit()
-        self.load_song(requested_by)
+        self.load_song(requested_by_id)
         SongrequestQueue._update_queue()
         return True
 
@@ -167,7 +189,11 @@ class SongrequestManager:
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
-            SongrequestHistory._from_id(db_session, database_id).requeue(db_session, requested_by)
+            requested_by = User.find_by_user_input(db_session, requested_by)
+            if not requested_by:
+                return
+            requested_by_id = requested_by.id
+            SongrequestHistory._from_id(db_session, database_id).requeue(db_session, requested_by_id)
             db_session.commit()
         SongrequestQueue._update_queue()
         self._playlist()
@@ -223,7 +249,7 @@ class SongrequestManager:
                                     and next_song.requested_by != "Backup Playlist"
                                 ):
                                     self.load_song("Backup Playlist Skip")
-                                elif current_song.current_song_time >= current_song.duration(db_session):
+                                elif current_song.current_song_time >= current_song.duration:
                                     self.load_song()
                                 current_song.current_song_time += 1
                     except:
@@ -232,7 +258,7 @@ class SongrequestManager:
                 self.load_song()
             time.sleep(1)
 
-    def load_song(self, skipped_by=None):
+    def load_song(self, skipped_by_id=None):
         if not self.enabled:
             return False
         if self.current_song_id:
@@ -241,11 +267,10 @@ class SongrequestManager:
                 if current_song:
                     if current_song.current_song_time > 5:
                         self.previous_queue = 0
-                        histroy = current_song._to_histroy(db_session, skipped_by)
+                        histroy = current_song._to_histroy(db_session, skipped_by_id)
                         if not histroy:
                             log.info("Something went wrong changing song queue to song history")
                             return False
-
                     else:
                         current_song._remove(db_session)
                 self._stop_video()
@@ -274,14 +299,14 @@ class SongrequestManager:
                 current_song.queue = 0
                 current_song.current_song_time = 0
                 self.current_song_id = current_song.id
-                song_info = current_song.song_info(db_session)
-                self._play(current_song.video_id, song_info.title, current_song.requested_by)
+                song_info = current_song.song_info
+                self._play(current_song.video_id, song_info.title, current_song.requested_by.username_raw)
                 if self.settings["use_spotify"]:
                     is_playing, song_name, artistsArr = self.bot.spotify_api.state(self.bot.spotify_token_manager)
                     if is_playing:
                         self.bot.spotify_api.pause(self.bot.spotify_token_manager)
                         self.previously_playing_spotify = True
-                if not current_song.requested_by or current_song.requested_by == "Backup Playlist":
+                if not current_song.requested_by_id:
                     SongrequestQueue._create(
                         db_session,
                         current_song.video_id,
@@ -301,12 +326,12 @@ class SongrequestManager:
                 self._hide()
         return False
 
-    def _play(self, video_id, video_title, requested_by):
+    def _play(self, video_id, video_title, requested_by_name):
         self.bot.websocket_manager.emit(
             "songrequest_play", WIDGET_ID, {"video_id": video_id,},
         )
         self.bot.songrequest_websocket_manager.emit(
-            "play", {"video_id": video_id, "video_title": video_title, "requested_by": requested_by,},
+            "play", {"video_id": video_id, "video_title": video_title, "requested_by": requested_by_name,},
         )
         self.paused = True
         self.scheduled_tasks.append(ScheduleManager.execute_delayed(3, self.resume_function))
@@ -367,8 +392,9 @@ class SongrequestManager:
 
     def _playlist(self):
         with DBManager.create_session_scope() as db_session:
+            playlist = SongrequestQueue._get_playlist(db_session, 15)
             self.bot.songrequest_websocket_manager.emit(
-                "playlist", {"playlist": SongrequestQueue._get_playlist(db_session, 15),},
+                "playlist", {"playlist": playlist},
             )
 
     def _playlist_history(self):

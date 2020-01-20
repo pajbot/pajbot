@@ -213,6 +213,9 @@ class SongrequestModule(BaseModule):
             if not song_info:
                 log.error("There was an error!")
                 return False
+            if song_info.banned:
+                bot.whisper(source, "That song is banned! FeelsWeirdMan")
+                return False
             skip_after = (
                 self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
             )
@@ -260,21 +263,19 @@ class SongrequestModule(BaseModule):
             current_song = SongrequestQueue._get_current_song(db_session)
             if current_song:
                 if current_song.requestor:
-                    requestor = User.find_by_login(db_session, current_song.requestor)
-                    if requestor:
-                        bot.say(
-                            self.settings["message_in_chat_when_song_is_playing"].format(
-                                title=current_song.song_info(db_session).title,
-                                requestor=requestor.username_raw,
-                                time_left=current_song.time_left(db_session),
-                            )
+                    bot.say(
+                        self.settings["message_in_chat_when_song_is_playing"].format(
+                            title=current_song.song_info.title,
+                            requestor=current_song.requestor.username_raw,
+                            time_left=current_song.time_left,
                         )
-                        return True
+                    )
+                    return True
                 bot.say(
                     self.settings["message_in_chat_when_song_is_playing"].format(
-                        title=current_song.song_info(db_session).title,
+                        title=current_song.song_info.title,
                         requestor="Backup Playlist",
-                        time_left=current_song.time_left(db_session),
+                        time_left=current_song.time_left,
                     )
                 )
                 return True
@@ -299,17 +300,15 @@ class SongrequestModule(BaseModule):
                     if requestor:
                         bot.say(
                             self.settings["message_in_chat_when_next_song"].format(
-                                title=next_song.song_info(db_session).title,
+                                title=next_song.song_info.title,
                                 requestor=requestor.username_raw,
-                                time_left=next_song.time_left(db_session),
+                                time_left=next_song.time_left,
                             )
                         )
                         return True
                 bot.say(
                     self.settings["message_in_chat_when_next_song"].format(
-                        title=next_song.song_info(db_session).title,
-                        requestor="Backup Playlist",
-                        time_left=next_song.time_left(db_session),
+                        title=next_song.song_info.title, requestor="Backup Playlist", time_left=next_song.time_left,
                     )
                 )
                 return True

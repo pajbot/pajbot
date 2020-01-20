@@ -13,7 +13,9 @@ def up(cursor, bot):
         video_id TEXT PRIMARY KEY NOT NULL,
         title TEXT NOT NULL,
         duration INT NOT NULL,
-        default_thumbnail TEXT NOT NULL
+        default_thumbnail TEXT NOT NULL,
+        banned boolean ,
+        favourite boolean
     )
     """
     )
@@ -44,4 +46,3 @@ def up(cursor, bot):
     )
     """
     )
-    
