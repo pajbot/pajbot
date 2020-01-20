@@ -251,7 +251,7 @@ class SongrequestManager:
                                 ):
                                     self.load_song("Backup Playlist Skip")
                                 elif current_song.current_song_time >= current_song.duration:
-                                    time.sleep(2)
+                                    time.sleep(4)
                                     self.load_song()
                                 current_song.current_song_time += 1
                     except:
