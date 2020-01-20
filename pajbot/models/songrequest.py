@@ -21,12 +21,14 @@ class SongrequestQueue(Base):
 
     id = Column(INT, primary_key=True)
     queue = Column(INT, nullable=False)
-    video_id = Column(TEXT, index=True, nullable=False)
+    video_id = Column(TEXT, ForeignKey("songrequest_song_info.video_id", ondelete="CASCADE"), nullable=False)
     date_added = Column(UtcDateTime(), nullable=False)
     skip_after = Column(INT, nullable=True)  # skipped after
     playing = Column(BOOLEAN, nullable=True)
-    requested_by = Column(TEXT, index=True, nullable=True)
+    requested_by_id = Column(INT, ForeignKey("user.id"), nullable=True)
     current_song_time = Column(REAL, nullable=False, default=0)
+    song_info = relationship("SongRequestSongInfo", foreign_keys=[video_id])
+    requested_by = relationship("User", foreign_keys=[requested_by_id])
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -45,37 +47,33 @@ class SongrequestQueue(Base):
             "requested_by": self.requested_by,
         }
 
-    def webjsonify(self, db_session):
-        user = User.find_by_login(db_session, self.requested_by)
+    def webjsonify(self):
         return {
             "video_id": self.video_id,
-            "video_title": self.song_info(db_session).title,
-            "video_length": self.duration(db_session),
-            "requested_by": user.username_raw if user else None,
+            "video_title": self.song_info.title,
+            "video_length": self.duration,
+            "requested_by": requested_by.username_raw if requested_by_id else None,
             "database_id": self.id,
             "current_song_time": self.current_song_time,
         }
 
     def playing_in(self, db_session):
-        all_songs_before_current = db_session.query(SongrequestQueue).filter(SongrequestQueue.queue < self.queue).all()
+        all_songs_before_current = db_session.query(SongrequestQueue).filter(SongrequestQueue.queue < self.queue).filter(requested_by_id!=None).all()
         time = 0
         for song in all_songs_before_current:
             if not song.playing:
-                time += song.skip_after if song.skip_after else song.song_info(db_session).duration
+                time += song.skip_after if song.skip_after else song.song_info.duration
             else:
                 time += song.time_left(db_session)
         return time
 
-    def time_left(self, db_session):
+    def time_left(self):
         if self.playing:
-            return self.duration(db_session) - self.current_song_time
+            return self.duration - self.current_song_time
         return False
 
-    def song_info(self, db_session):
-        return db_session.query(SongRequestSongInfo).filter_by(video_id=self.video_id).one_or_none()
-
-    def duration(self, db_session):
-        return self.skip_after if self.skip_after else self.song_info(db_session).duration
+    def duration(self):
+        return self.skip_after if self.skip_after else self.song_info.duration
 
     def _remove(self, db_session):
         db_session.delete(self)
@@ -155,10 +153,10 @@ class SongrequestQueue(Base):
         return returnExe
 
     @staticmethod
-    def _update_queue():
+    def _update_queue(db_session):
         with DBManager.create_session_scope() as db_session:
             queued_songs = (
-                db_session.query(SongrequestQueue).filter_by(playing=False).order_by(SongrequestQueue.queue).all()
+                db_session.query(SongrequestQueue).filter_by(playing=False).order_by(Songrequest`Queue.queue).all()
             )
             pos = 1
             for song in queued_songs:
@@ -195,21 +193,22 @@ class SongrequestQueue(Base):
         return SongrequestQueue._create(db_session, video_id, skip_after, requested_by, queue_id)
 
     @staticmethod
-    def _get_playlist(db_session, limit):
+    def _get_playlist(db_session, limit=None):
         queued_songs = (
             db_session.query(SongrequestQueue)
             .filter_by(playing=False)
             .order_by(SongrequestQueue.queue)
-            .limit(limit)
-            .all()
         )
+        if limit:
+            queued_songs = queued_songs.limit(limit)
+        queued_songs = queued_songs.all()
         songs = []
         for song in queued_songs:
             songs.append(
                 {
                     "video_id": song.video_id,
-                    "video_title": song.song_info(db_session).title,
-                    "video_length": song.duration(db_session),
+                    "video_title": song.song_info.title,
+                    "video_length": song.duration,
                     "requested_by": song.requested_by,
                     "database_id": song.id,
                 }
@@ -221,12 +220,15 @@ class SongrequestHistory(Base):
     __tablename__ = "songrequest_history"
 
     id = Column(INT, primary_key=True)
-    stream_id = Column(INT, nullable=True)
-    video_id = Column(TEXT, index=True, nullable=False)
+    stream_id = Column(INT, nullable=False)
+    video_id = Column(TEXT, ForeignKey("songrequest_song_info.video_id"), nullable=False)
     date_finished = Column(UtcDateTime(), nullable=False)
-    requested_by = Column(TEXT, index=True, nullable=True)
-    skipped_by = Column(TEXT, index=True, nullable=True)
+    requested_by_id = Column(INT, ForeignKey("user.id"), nullable=True)
+    skipped_by_id = Column(INT, ForeignKey("user.id"), nullable=True)
     skip_after = Column(INT, nullable=True)
+    song_info = relationship("SongRequestSongInfo", foreign_keys=[video_id])
+    requested_by = relationship("User", foreign_keys=[requested_by_id])
+    skipped_by = relationship("User", foreign_keys=[skipped_by_id])
 
     def __init__(self, **options):
         super().__init__(**options)
@@ -238,7 +240,7 @@ class SongrequestHistory(Base):
             "video_id": self.video_id,
             "date_finished": self.date_finished,
             "requested_by": self.requested_by,
-            "skipped_by": self.skipped_by,
+            "skipped_by": self.skipped_by.user,
             "skip_after": self.skip_after,
         }
 
@@ -246,14 +248,11 @@ class SongrequestHistory(Base):
     def link(self):
         return f"youtu.be/{self.video_id}"
 
-    def duration(self, db_session):
-        return self.skip_after if self.skip_after else self.song_info(db_session).duration
+    def duration(self):
+        return self.skip_after if self.skip_after else self.song_info.duration
 
     def _remove(self, db_session):
         db_session.delete(self)
-
-    def song_info(self, db_session):
-        return db_session.query(SongRequestSongInfo).filter_by(video_id=self.video_id).one_or_none()
 
     def requeue(self, db_session, requested_by):
         return SongrequestQueue._create(db_session, self.video_id, self.skip_after, requested_by)
@@ -300,8 +299,8 @@ class SongrequestHistory(Base):
             songs.append(
                 {
                     "video_id": song.video_id,
-                    "video_title": song.song_info(db_session).title,
-                    "video_length": song.duration(db_session),
+                    "video_title": song.song_info.title,
+                    "video_length": song.duration,
                     "requested_by": song.requested_by,
                     "database_id": song.id,
                 }
