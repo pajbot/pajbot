@@ -216,7 +216,7 @@ class SongrequestModule(BaseModule):
             skip_after = (
                 self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
             )
-            songrequest_queue = SongrequestQueue._create(db_session, video_id, skip_after, source.login)
+            songrequest_queue = SongrequestQueue._create(db_session, video_id, skip_after, source.id)
             db_session.commit()
             m, s = divmod(int(songrequest_queue.playing_in(db_session)), 60)
             playing_in = f"{m:02d}:{s:02d}"
