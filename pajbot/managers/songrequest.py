@@ -231,6 +231,7 @@ class SongrequestManager:
 
     def inc_current_song(self):
         while True:
+            start_time = current_milli_time()
             if not self.enabled:
                 break
             if self.current_song_id:
@@ -256,7 +257,9 @@ class SongrequestManager:
                         pass
             elif self.module_opened:
                 self.load_song()
-            time.sleep(1)
+            adjust = 1 - (current_milli_time() - start_time)
+            if adjust > 0:
+                time.sleep(adjust)
 
     def load_song(self, skipped_by_id=None):
         if not self.enabled:
