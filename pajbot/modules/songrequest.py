@@ -208,33 +208,30 @@ class SongrequestModule(BaseModule):
                 return songs
 
     def create_song_request_queue(self, video_id, bot, source):
-        try:
-            with DBManager.create_session_scope() as db_session:
-                song_info = SongRequestSongInfo._create_or_get(db_session, video_id, self.youtube)
-                if not song_info:
-                    log.error("There was an error!")
-                    return False
-                skip_after = (
-                    self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
-                )
-                songrequest_queue = SongrequestQueue._create(db_session, video_id, skip_after, source.login)
-                db_session.commit()
-                m, s = divmod(int(songrequest_queue.playing_in(db_session)), 60)
-                playing_in = f"{m:02d}:{s:02d}"
-                if self.settings["send_message_in_chat"]:
-                    bot.say(
-                        self.settings["message_in_chat"].format(
-                            username=source.username_raw,
-                            title=song_info.title,
-                            current_pos=songrequest_queue.queue
-                            + (1 if SongrequestQueue._get_current_song(db_session) else 0),
-                            playing_in=playing_in,
-                        )
+        with DBManager.create_session_scope() as db_session:
+            song_info = SongRequestSongInfo._create_or_get(db_session, video_id, self.youtube)
+            if not song_info:
+                log.error("There was an error!")
+                return False
+            skip_after = (
+                self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
+            )
+            songrequest_queue = SongrequestQueue._create(db_session, video_id, skip_after, source.login)
+            db_session.commit()
+            m, s = divmod(int(songrequest_queue.playing_in(db_session)), 60)
+            playing_in = f"{m:02d}:{s:02d}"
+            if self.settings["send_message_in_chat"]:
+                bot.say(
+                    self.settings["message_in_chat"].format(
+                        username=source.username_raw,
+                        title=song_info.title,
+                        current_pos=songrequest_queue.queue
+                        + (1 if SongrequestQueue._get_current_song(db_session) else 0),
+                        playing_in=playing_in,
                     )
-            self.bot.songrequest_manager._playlist()
-            return True
-        except Exception as e:
-            log.error(e)
+                )
+        self.bot.songrequest_manager._playlist()
+        return True
 
     def add_song(self, bot, source, message, **rest):
         if not message:
@@ -326,14 +323,6 @@ class SongrequestModule(BaseModule):
                 bot.say(self.settings["message_sent_on_open"])
                 return
         bot.whisper(source, "Song request is already open!")
-
-    def close_module(self, bot, source, message, **rest):
-        if self.bot.songrequest_manager.close_module_function():
-            if self.settings["send_message_on_open"]:
-                bot.whisper(source, self.settings["message_sent_on_close"])
-                bot.say(self.settings["message_sent_on_close"])
-                return
-        bot.whisper(source, "Song request is already closed!")
 
     def close_module(self, bot, source, message, **rest):
         if self.bot.songrequest_manager.close_module_function():
