@@ -32,7 +32,7 @@ class SongrequestQueue(Base):
 
     def __init__(self, **options):
         super().__init__(**options)
-        if self.skip_after is not None and self.skip_after < 0:
+        if self.skip_afterand and self.skip_after < 0:
             # Make sure skip_after cannot be a negative number
             self.skip_after = None
 
@@ -52,13 +52,13 @@ class SongrequestQueue(Base):
             "video_id": self.video_id,
             "video_title": self.song_info.title,
             "video_length": self.duration,
-            "requested_by": requested_by.username_raw if requested_by_id else None,
+            "requested_by": self.requested_by.username_raw if self.requested_by_id else None,
             "database_id": self.id,
             "current_song_time": self.current_song_time,
         }
 
     def playing_in(self, db_session):
-        all_songs_before_current = db_session.query(SongrequestQueue).filter(SongrequestQueue.queue < self.queue).filter(requested_by_id!=None).all()
+        all_songs_before_current = db_session.query(SongrequestQueue).filter(SongrequestQueue.queue < self.queue).filter(self.requested_by_id!=None).all()
         time = 0
         for song in all_songs_before_current:
             if not song.playing:
@@ -156,7 +156,7 @@ class SongrequestQueue(Base):
     def _update_queue(db_session):
         with DBManager.create_session_scope() as db_session:
             queued_songs = (
-                db_session.query(SongrequestQueue).filter_by(playing=False).order_by(Songrequest`Queue.queue).all()
+                db_session.query(SongrequestQueue).filter_by(playing=False).order_by(SongrequestQueue.queue).all()
             )
             pos = 1
             for song in queued_songs:
@@ -347,7 +347,7 @@ class SongRequestSongInfo(Base):
 
         try:
             video_response = youtube.videos().list(id=str(video_id), part="snippet,contentDetails").execute()
-        except HttpError as e:
+        except HttpError:
             return False
         except:
             return False
