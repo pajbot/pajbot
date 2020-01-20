@@ -144,6 +144,7 @@ class SongrequestQueue(Base):
             playing=False,
             requested_by_id=requested_by_id,
         )
+        log.info(type(songrequestqueue))
         db_session.add(songrequestqueue)
         return songrequestqueue
 
