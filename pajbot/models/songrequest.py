@@ -153,7 +153,7 @@ class SongrequestQueue(Base):
         return returnExe
 
     @staticmethod
-    def _update_queue(db_session):
+    def _update_queue():
         with DBManager.create_session_scope() as db_session:
             queued_songs = (
                 db_session.query(SongrequestQueue).filter_by(playing=False).order_by(SongrequestQueue.queue).all()
