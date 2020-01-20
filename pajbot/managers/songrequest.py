@@ -251,13 +251,14 @@ class SongrequestManager:
                                 ):
                                     self.load_song("Backup Playlist Skip")
                                 elif current_song.current_song_time >= current_song.duration:
+                                    time.sleep(2)
                                     self.load_song()
                                 current_song.current_song_time += 1
                     except:
                         pass
             elif self.module_opened:
                 self.load_song()
-            adjust = 1 - (current_milli_time() - start_time)
+            adjust = 1 - (current_milli_time() - start_time) 
             if adjust > 0:
                 time.sleep(adjust)
 
