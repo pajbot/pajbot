@@ -26,7 +26,7 @@ def up(cursor, bot):
         date_added timestamp with time zone DEFAULT NULL,
         skip_after INT,
         playing BOOLEAN,
-        requested_by_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+        requested_by_id TEXT REFERENCES "user"(id) ON DELETE CASCADE,
         current_song_time REAL NOT NULL DEFAULT 0
     )
     """
@@ -38,8 +38,8 @@ def up(cursor, bot):
         stream_id INT NOT NULL,
         video_id TEXT NOT NULL REFERENCES "songrequest_song_info"(video_id) ON DELETE CASCADE,
         date_finished timestamp with time zone DEFAULT NULL,
-        requested_by_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-        skipped_by_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+        requested_by_id TEXT REFERENCES "user"(id) ON DELETE CASCADE,
+        skipped_by_id TEXT REFERENCES "user"(id) ON DELETE CASCADE,
         skip_after INT
     )
     """
