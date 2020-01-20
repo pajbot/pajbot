@@ -32,7 +32,7 @@ class SongrequestQueue(Base):
 
     def __init__(self, **options):
         super().__init__(**options)
-        if self.skip_afterand and self.skip_after < 0:
+        if self.skip_after and self.skip_after < 0:
             # Make sure skip_after cannot be a negative number
             self.skip_after = None
 
