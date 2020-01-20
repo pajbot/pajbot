@@ -9,6 +9,16 @@ def up(cursor, bot):
     cursor.execute("DROP TABLE IF EXISTS songrequest_song_info")
     cursor.execute(
         """
+    CREATE TABLE songrequest_song_info (
+        video_id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL,
+        duration INT NOT NULL,
+        default_thumbnail TEXT NOT NULL
+    )
+    """
+    )
+    cursor.execute(
+        """
     CREATE TABLE songrequest_queue (
         id SERIAL PRIMARY KEY,
         queue INT NOT NULL,
@@ -34,13 +44,4 @@ def up(cursor, bot):
     )
     """
     )
-    cursor.execute(
-        """
-    CREATE TABLE user_connections (
-        video_id TEXT PRIMARY KEY NOT NULL,
-        title TEXT NOT NULL,
-        duration INT NOT NULL,
-        default_thumbnail TEXT NOT NULL
-    )
-    """
-    )
+    
