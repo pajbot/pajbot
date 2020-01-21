@@ -258,7 +258,7 @@ class SongrequestManager:
                         pass
             elif self.module_opened:
                 self.load_song()
-            adjust = 1 - (current_milli_time() - start_time) 
+            adjust = 1 - (current_milli_time() - start_time + 0.005)
             if adjust > 0:
                 time.sleep(adjust)
 
