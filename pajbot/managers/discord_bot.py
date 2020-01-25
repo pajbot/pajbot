@@ -348,7 +348,7 @@ class DiscordBotManager(object):
                         if role not in member.roles:
                             await self.add_role(member, role)
                     else:
-                        if user.role > 1:
+                        if user.tier and user.tier > 1:
                             if (
                                 self.settings["notify_on_unsub"]
                                 and connection.tier > 1
