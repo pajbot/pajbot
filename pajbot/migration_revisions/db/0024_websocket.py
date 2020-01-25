@@ -21,3 +21,7 @@ def up(cursor, bot):
     )
     """
     )
+    cursor.execute("INSERT INTO widgets(id, name) VALUES (1, \"SHOWEMOTE\")"
+    cursor.execute("INSERT INTO widgets(id, name) VALUES (2, \"BETTING\")"
+    cursor.execute("INSERT INTO widgets(id, name) VALUES (3, \"PLAYSOUND\")"
+    cursor.execute("INSERT INTO widgets(id, name) VALUES (4, \"SONGREQUEST\")"
