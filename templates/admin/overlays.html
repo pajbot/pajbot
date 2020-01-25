@@ -48,8 +48,8 @@
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script type="text/javascript">
-        function edit() {
-            var id = $(this).parent().parent().data('id');
+        function edit(button) {
+            var id = button.parent().parent().data('id');
             document.location.href = '/admin/overlays/edit/' + id;
         }
         $(document).ready(function () {
