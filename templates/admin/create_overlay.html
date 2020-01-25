@@ -1,0 +1,24 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_banphrase' %}
+{% block title %}Create Banphrase{% endblock %}
+{% block body %}
+{% if banphrase %}
+<h2>Edit Banphrase &quot;{{ banphrase.name }}&quot;</h2>
+{% else %}
+<h2>Create Banphrase</h2>
+{% endif %}
+<form class="ui form" method="POST" action="/admin/overlays/create">
+    <div class="fields">
+        <div class="field ui four wide required">
+            <label>Overlay widget</label>
+            <select class="ui dropdown" name="widget">
+                {%- for widget in widgets -%}
+                    <option value="{{ widget.id }}">{{ widget.name }}</option>
+                {% endfor -%}
+            </select>
+        </div>
+    </div>
+    <div class="ui submit button green">Create</div>
+</div>
+</form>
+{% endblock %}

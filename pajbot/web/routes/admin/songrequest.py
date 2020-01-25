@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def init(page):
     @page.route("/songrequest")
-    @requires_level(500, "/admin/songrequest")
+    @requires_level(500)
     def admin_songrequest(**options):
         if session.get("twitch_token_expire", 0) <= round(time.time()):
             return redirect("/login?n=/admin/songrequest")

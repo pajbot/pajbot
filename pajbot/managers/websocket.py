@@ -59,11 +59,12 @@ class WebSocketServer:
                     pass
 
             def _auth(self, db_session, data):
-                if "salt" not in data or "widget_id" not in data:
+                if "salt" not in data:
                     return False
-                if not WebSocket._by_salt(db_session, data["salt"]):
+                ws = WebSocket._by_salt(db_session, data["salt"]):
+                if not ws:
                     return False
-                self.widget_id = data["widget_id"]
+                self.widget_id = ws.widget_id
                 WebSocketServer.clients.append(self)
                 return True
 
