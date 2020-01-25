@@ -47,6 +47,7 @@ class WebSocket(Base):
         if not salt:
             salt = salt_gen()
         websocket = WebSocket(
+            widget_id=widget_id,
             salt=salt,
         )
         db_session.add(websocket)
