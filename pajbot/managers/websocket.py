@@ -161,7 +161,8 @@ class WebSocketManager:
         if self.server:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
-                if widget_id == None or client.widget_id == widget_id:
+                log.info(client.widget_id)
+                if not widget_id or client.widget_id == widget_id:
                     client.sendMessage(payload, False)
 
     @staticmethod
