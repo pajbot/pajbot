@@ -48,20 +48,29 @@
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script type="text/javascript">
-        
-        $(document).ready(function () {
+        function enable_edit_row(base) {
             $('button.edit-row').click(function() {
-                document.location.href = '/admin/overlays/edit/' + $(this).parent().parent().data('id');;
+                var id = $(this).parent().parent().data('id');
+                document.location.href = '/admin/' + base + '/edit/' + id;
             });
+        }
+
+        function enable_remove_row(modal_class, base) {
+            var id_remove = 0;
             $('button.remove-row').click(function() {
                 id_remove = $(this).parent().parent().data('id');
                 $('.ui.modal.' + modal_class).modal('show');
             });
-            $('.ui.modal.remove-overlay').modal({
+            $('.ui.modal.' + modal_class).modal({
                 onApprove: function(el) {
-                    document.location.href = '/admin/overlays/remove/' + id_remove;
+                    document.location.href = '/admin/' + base + '/remove/' + id_remove;
                 }
             });
+        }
+
+        $(document).ready(function () {
+            enable_edit_row('overlays');
+            enable_remove_row('remove-overlay', 'overlays');
         });
     </script>
 {% endblock %}
