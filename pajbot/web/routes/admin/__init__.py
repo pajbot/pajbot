@@ -26,6 +26,6 @@ def init(app):
     pajbot.web.routes.admin.predictions.init(page)
     pajbot.web.routes.admin.streamer.init(page)
     pajbot.web.routes.admin.timers.init(page)
-    pajbot.web.routes.admin.timers.songrequest(page)
+    pajbot.web.routes.admin.songrequest(page)
 
     app.register_blueprint(page)
