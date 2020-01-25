@@ -124,7 +124,7 @@ class DiscordBotManager(object):
                     except:
                         return
                     count = UserConnections._count_by_tier(db_session, requested_tier)
-                    if requsted_tier == 0:
+                    if requested_tier == 0:
                         count += UserConnections._count_by_tier(db_session, None)
                 else:
                     count = UserConnections._count(db_session)
