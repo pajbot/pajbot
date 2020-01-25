@@ -410,6 +410,7 @@ class DiscordBotManager(object):
                     continue
                 for member in role.members:
                     if ignore_role is None or ignore_role not in member.roles:
+                        log.info(member)
                         if str(member.id) not in quick_dict_discord:
                             if not self.settings["pause_bot"]:
                                 await self.remove_role(member, role)
