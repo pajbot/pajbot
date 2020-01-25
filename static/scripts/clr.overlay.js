@@ -406,6 +406,7 @@ jQuery(function ($) {
             player.embed.a.closest("div").style.cssText = "";
             player.volume = volume_g;
             hide();
+            socket.send(JSON.stringify({"event" : "ready", "data" : {"salt": salt_value}})); 
         });
         player.on('ended', function(event) {
             socket.send(JSON.stringify({"event" : "next_song", "data" : {"salt": salt_value}})); 

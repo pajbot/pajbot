@@ -44,6 +44,7 @@ class WebSocketServer:
                         switcher = {
                             "auth": self._auth,
                             "next_song": self._next_song,
+                            "ready": self._ready,
                         }
                         if "event" in message and "data" in message and message["event"] in switcher and switcher[message["event"]](db_session, message["data"]):
                             pass
@@ -72,6 +73,14 @@ class WebSocketServer:
                 if not WebSocket._by_salt(db_session, data["salt"]):
                     return False
                 manager.bot.songrequest_manager.load_song()
+                return True
+
+            def _ready(self, db_session, data):
+                if "salt" not in data:
+                    return False
+                if not WebSocket._by_salt(db_session, data["salt"]):
+                    return False
+                manager.bot.songrequest_manager.ready()
                 return True
 
         factory = WebSocketServerFactory()

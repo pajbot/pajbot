@@ -29,7 +29,6 @@ class SongrequestManager:
         self.module_opened = False
         self.previous_queue = 0
         self.volume = self.settings["volume"] / 100
-        self.scheduled_tasks = []
         thread = threading.Thread(target=self.inc_current_song, daemon=True)
         thread.start()
 
@@ -248,8 +247,6 @@ class SongrequestManager:
                                     and next_song.requested_by
                                 ):
                                     self.load_song("Backup Playlist Skip")
-                                elif current_song.current_song_time >= current_song.duration:
-                                    self.load_song()
                                 current_song.current_song_time += 1
                     except:
                         pass
@@ -279,12 +276,6 @@ class SongrequestManager:
         SongrequestQueue._update_queue()
 
         self.current_song_id = None
-        for job in self.scheduled_tasks:
-            try:
-                job.remove()
-            except:
-                pass
-        self.scheduled_tasks = []
 
         if not self.module_opened:
             return False
@@ -333,11 +324,13 @@ class SongrequestManager:
             "play", {"video_id": video_id, "video_title": video_title, "requested_by": requested_by_name,},
         )
         self.paused = True
-        self.scheduled_tasks.append(ScheduleManager.execute_delayed(3, self.resume_function))
-        self.scheduled_tasks.append(ScheduleManager.execute_delayed(3, self._volume))
         if self.showVideo:
             self._show()
         self._playlist()
+
+    def ready(self):
+        self.resume_function()
+        self._volume()
 
     def _pause(self):
         self.bot.websocket_manager.emit(
@@ -375,7 +368,6 @@ class SongrequestManager:
             "seek", {"seek_time": time,},
         )
         self.paused = True
-        self.scheduled_tasks.append(ScheduleManager.execute_delayed(1, self.resume_function))
 
     def _show(self):
         self.bot.websocket_manager.emit(
