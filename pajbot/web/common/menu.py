@@ -43,8 +43,11 @@ def init(app):
     nav_bar_admin_header.append(MenuItem("/admin/modules", "admin_modules", "Modules"))
     if "playsounds" in app.bot_modules:
         nav_bar_admin_header.append(MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds"))
+    if "songrequest" in app.bot_modules:
+        nav_bar_admin_header.append(MenuItem("/songrequest", "songrequest", "Songrequest"))
     if "predict" in app.module_manager:
         nav_bar_admin_header.append(MenuItem("/admin/predictions", "admin_predictions", "Predictions"))
+    nav_bar_admin_header.append(MenuItem("/admin/overlays", "admin_overlays", "Manage Overlays"))
     nav_bar_admin_header.append(MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"))
 
     @app.context_processor
