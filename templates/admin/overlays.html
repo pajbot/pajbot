@@ -48,11 +48,11 @@
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     <script type="text/javascript">
-        function edit(button) {
-            var id = button.parent().parent().data('id');
-            document.location.href = '/admin/overlays/edit/' + id;
-        }
+        
         $(document).ready(function () {
+            $('button.edit-row').click(function() {
+                document.location.href = '/admin/' + base + '/edit/' + $(this).parent().parent().data('id');;
+            });
             function enable_remove_row2(modal_class, base) {
                 var id_remove = 0;
                 $('button.remove-row').click(function() {
