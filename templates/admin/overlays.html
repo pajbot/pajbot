@@ -54,7 +54,7 @@
                 document.location.href = '/admin/overlays/edit/' + id;
             }
 
-            function enable_remove_row(modal_class, base) {
+            function enable_remove_row2(modal_class, base) {
                 var id_remove = 0;
                 $('button.remove-row').click(function() {
                     id_remove = $(this).parent().parent().data('id');
@@ -66,8 +66,7 @@
                     }
                 });
             }
-            enable_edit_row('');
-            enable_remove_row('remove-overlay', 'overlays');
+            enable_remove_row2('remove-overlay', 'overlays');
         });
     </script>
 {% endblock %}
