@@ -342,8 +342,8 @@ class DiscordBotManager(object):
 
                 db_session.commit()
 
-                if ignore_role is None or member and ignore_role not in member.roles:
-                    role = roles_allocated[f"tier{user.tier}_role"] if user.tier and user.tier > 1 else None
+                if user.tier and user.tier > 1 and ignore_role is None or member and ignore_role not in member.roles:
+                    role = roles_allocated[f"tier{user.tier}_role"]
                     if user.tier == connection.tier:
                         if role not in member.roles:
                             await self.add_role(member, role)
