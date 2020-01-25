@@ -123,7 +123,10 @@ class DiscordBotManager(object):
                         requested_tier = int(requested_tier)
                     except:
                         return
+                    if requsted_tier == 0:
                     count = UserConnections._count_by_tier(db_session, requested_tier)
+                    if requsted_tier == 0:
+                        count += UserConnections._count_by_tier(db_session, None)
                 else:
                     count = UserConnections._count(db_session)
                 await self.private_message(
