@@ -44,7 +44,8 @@ def init(page):
                     if not Widget._by_id(db_session, int(widget_id)):
                         abort(403)
                         return
-                except:
+                except Exception as e:
+                    log.info(e)
                     abort(403)
                     return
                 WebSocket._create(db_session, int(widget_id))
