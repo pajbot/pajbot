@@ -130,7 +130,7 @@ class DiscordBotManager(object):
                     count = UserConnections._count(db_session)
                 await self.private_message(
                     requestor,
-                    f"There are {count} tier {requested_tier} subs" if len(args) > 0 else f"There are {count} users"
+                    f"There are {count} tier {requested_tier} subs" if len(args) > 0 else f"There are {count} users connected"
                 )   
 
     async def _get_users_by_tier(self, message):
