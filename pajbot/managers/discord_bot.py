@@ -373,10 +373,16 @@ class DiscordBotManager(object):
 
                 if not self.settings["pause_bot"]:
                     if connection.twitch_id not in subs_to_return and not self.settings["pause_bot"]:
-                        if connection.tier != 0 and (not user.tier or user.tier == 0):
-                            subs_to_return[connection.twitch_id] = str(
-                                utils.now() + timedelta(days=int(self.settings["grace_time"]))
-                            )
+                        if connection.tier != user.tier:
+                            if connection.tier != 0 and (not user.tier or user.tier == 0):
+                                subs_to_return[connection.twitch_id] = str(
+                                    utils.now() + timedelta(days=int(self.settings["grace_time"]))
+                                )
+                            else:
+                                subs_to_return[connection.twitch_id] = str(
+                                    utils.now()
+                                )
+
 
             if not self.settings["pause_bot"]:
                 for sub in queued_subs:  # sub "twitch_id" : date_to_be_removed
