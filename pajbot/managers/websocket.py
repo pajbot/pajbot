@@ -52,7 +52,7 @@ class WebSocketServer:
                             self.sendClose()
 
             def onClose(self, wasClean, code, reason):
-                log.info(f"WebSocket connection closed: {reason}")
+                log.info(f"WebSocket {self.widget_id} connection closed: {reason}")
                 try:
                     WebSocketServer.clients.remove(self)
                 except:
