@@ -63,7 +63,7 @@ class WebSocket(Base):
 
     @staticmethod
     def _all(db_session):
-        return db_session.query(WebSocket).order_by(WebSocket.widget_id).all()
+        return db_session.query(WebSocket).order_by(WebSocket.widget_id, WebSocket.id).all()
 
 
 class Widget(Base):
