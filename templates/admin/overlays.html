@@ -51,6 +51,7 @@
         function enable_edit_row(base) {
             $('button.edit-row').click(function() {
                 var id = $(this).parent().parent().data('id');
+                console.log(id)
                 document.location.href = '/admin/' + base + '/edit/' + id;
             });
         }
