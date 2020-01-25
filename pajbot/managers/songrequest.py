@@ -149,7 +149,7 @@ class SongrequestManager:
         SongrequestQueue._update_queue()
         return True
 
-    def request_function(self, video_id, requested_by):
+    def request_function(self, video_id, requested_by, queue=None):
         if not self.enabled:
             return False
         with DBManager.create_session_scope() as db_session:
@@ -164,10 +164,12 @@ class SongrequestManager:
             skip_after = (
                 self.settings["max_song_length"] if song_info.duration > self.settings["max_song_length"] else None
             )
-            SongrequestQueue._create(db_session, video_id, skip_after, requested_by_id)
+            song = SongrequestQueue._create(db_session, video_id, skip_after, requested_by_id)
+            if queue:
+                song._move_song(db_session, queue)
             db_session.commit()
         SongrequestQueue._update_queue()
-        return True
+        return 
 
     def replay_function(self, requested_by):
         if not self.enabled:
@@ -178,7 +180,7 @@ class SongrequestManager:
                 return
             requested_by_id = requested_by.id
             current_song = SongrequestQueue._from_id(db_session, self.current_song_id)
-            self.request_function(current_song.video_id, current_song.requested_by_id)._move_song(db_session, 1)
+            self.request_function(current_song.video_id, current_song.requested_by_id, 1)
             db_session.commit()
         self.load_song(requested_by_id)
         SongrequestQueue._update_queue()
