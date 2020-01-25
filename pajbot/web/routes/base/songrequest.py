@@ -29,7 +29,7 @@ def init(app):
             songs_queue = []
             queue = (
                 db_session.query(SongrequestQueue)
-                .filter(SongrequestHistory.song_info.has(banned = False))
+                .filter(SongrequestHistory.song_info.has(banned=False))
                 .order_by(SongrequestQueue.queue)
                 .limit(50)
                 .all()
@@ -53,7 +53,7 @@ def init(app):
 
             history = (
                 db_session.query(SongrequestHistory)
-                .filter(SongRequestSongInfo.banned == False)
+                .filter(SongrequestHistory.song_info.has(banned=False))
                 .order_by(SongrequestHistory.id.desc())
                 .limit(50)
                 .all()

@@ -311,7 +311,7 @@ class SongrequestHistory(Base):
     def _get_history(db_session, limit):
         played_songs = (
             db_session.query(SongrequestHistory)
-            .filter(SongrequestHistory.song_info.has(banned = False))
+            .filter(SongrequestHistory.song_info.has(banned=False))
             .order_by(SongrequestHistory.id.desc())
             .limit(limit)
             .all()
