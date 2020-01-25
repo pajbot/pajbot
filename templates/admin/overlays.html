@@ -51,21 +51,17 @@
         
         $(document).ready(function () {
             $('button.edit-row').click(function() {
-                document.location.href = '/admin/' + base + '/edit/' + $(this).parent().parent().data('id');;
+                document.location.href = '/admin/overlays/edit/' + $(this).parent().parent().data('id');;
             });
-            function enable_remove_row2(modal_class, base) {
-                var id_remove = 0;
-                $('button.remove-row').click(function() {
-                    id_remove = $(this).parent().parent().data('id');
-                    $('.ui.modal.' + modal_class).modal('show');
-                });
-                $('.ui.modal.' + modal_class).modal({
-                    onApprove: function(el) {
-                        document.location.href = '/admin/' + base + '/remove/' + id_remove;
-                    }
-                });
-            }
-            enable_remove_row2('remove-overlay', 'overlays');
+            $('button.remove-row').click(function() {
+                id_remove = $(this).parent().parent().data('id');
+                $('.ui.modal.' + modal_class).modal('show');
+            });
+            $('.ui.modal.remove-overlay').modal({
+                onApprove: function(el) {
+                    document.location.href = '/admin/overlays/remove/' + id_remove;
+                }
+            });
         });
     </script>
 {% endblock %}
