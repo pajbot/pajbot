@@ -342,10 +342,10 @@ class DiscordBotManager(object):
 
                 db_session.commit()
 
-                if ignore_role is None or member and ignore_role not in member.roles:
+                if not ignore_role or member and ignore_role not in member.roles:
                     role = roles_allocated[f"tier{user.tier}_role"] if user.tier and user.tier > 1 else None
                     if user.tier == connection.tier:
-                        if role not in member.roles:
+                        if role and role not in member.roles:
                             await self.add_role(member, role)
                     else:
                         if user.tier and user.tier > 1:
@@ -410,7 +410,6 @@ class DiscordBotManager(object):
                     continue
                 for member in role.members:
                     if ignore_role is None or ignore_role not in member.roles:
-                        log.info(member)
                         if str(member.id) not in quick_dict_discord:
                             if not self.settings["pause_bot"]:
                                 await self.remove_role(member, role)
