@@ -52,7 +52,7 @@ def init(page):
         else:
             with DBManager.create_session_scope() as db_session:
                 widgets = [x.jsonify() for x in Widget._all(db_session)]
-            return render_template("admin/create_overlays.html", widgets=widgets)
+            return render_template("admin/create_overlay.html", widgets=widgets)
 
     @page.route("/overlays/delete/<overlay_id>")
     @requires_level(500)
