@@ -342,20 +342,21 @@ class DiscordBotManager(object):
 
                 db_session.commit()
 
-                if user.tier and user.tier > 1 and ignore_role is None or member and ignore_role not in member.roles:
-                    role = roles_allocated[f"tier{user.tier}_role"]
+                if ignore_role is None or member and ignore_role not in member.roles:
+                    role = roles_allocated[f"tier{user.tier}_role"] if user.tier and user.tier > 1 else None
                     if user.tier == connection.tier:
                         if role not in member.roles:
                             await self.add_role(member, role)
                     else:
-                        if (
-                            self.settings["notify_on_unsub"]
-                            and connection.tier > 1
-                            and self.settings[f"notify_on_tier{connection.tier}"]
-                        ):
-                            messages_remove.append(
-                                f"\n\nTier {connection.tier} sub removal notification:\nTwitch: {user} (<https://twitch.tv/{user.login}>){discord}\nSteam: <https://steamcommunity.com/profiles/{steam_id}>"
-                            )
+                        if user.role > 1:
+                            if (
+                                self.settings["notify_on_unsub"]
+                                and connection.tier > 1
+                                and self.settings[f"notify_on_tier{connection.tier}"]
+                            ):
+                                messages_remove.append(
+                                    f"\n\nTier {connection.tier} sub removal notification:\nTwitch: {user} (<https://twitch.tv/{user.login}>){discord}\nSteam: <https://steamcommunity.com/profiles/{steam_id}>"
+                                )
                         if role:
                             if (
                                 self.settings["notify_on_new_sub"]
