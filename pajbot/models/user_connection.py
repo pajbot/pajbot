@@ -91,7 +91,7 @@ class UserConnections(Base):
 
     @staticmethod
     def _by_tier(db_session, tier):
-        return db_session.query(UserConnections).filter_by(UserConnections.tier==tier).all()
+        return db_session.query(UserConnections).filter(UserConnections.tier==tier).all()
 
     @staticmethod
     def _count_by_tier(db_session, tier):
