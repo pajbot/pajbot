@@ -23,6 +23,7 @@ def init(page):
     @requires_level(500)
     def admin_overlays_edit(overlay_id, **options):
         with DBManager.create_session_scope() as db_session:
+            log.info(overlay_id)
             try:
                 WebSocket._by_id(db_session, int(overlay_id))._new_salt(db_session)
             except:
