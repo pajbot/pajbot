@@ -357,6 +357,7 @@ class DiscordBotManager(object):
                                 messages_remove.append(
                                     f"\n\nTier {connection.tier} sub removal notification:\nTwitch: {user} (<https://twitch.tv/{user.login}>){discord}\nSteam: <https://steamcommunity.com/profiles/{steam_id}>"
                                 )
+                            connection._update_tier(db_session, user.tier)
                         if role:
                             if (
                                 self.settings["notify_on_new_sub"]
@@ -367,7 +368,7 @@ class DiscordBotManager(object):
                                     f"\n\nTier {user.tier} sub notification:\nTwitch: {user} (<https://twitch.tv/{user.login}>){discord}\nSteam: <https://steamcommunity.com/profiles/{steam_id}>"
                                 )
                             await self.add_role(member, role)
-                        connection._update_tier(db_session, user.tier)
+                            connection._update_tier(db_session, user.tier)
                 db_session.commit()
 
                 if not self.settings["pause_bot"]:
