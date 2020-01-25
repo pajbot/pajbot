@@ -296,16 +296,14 @@ class SongrequestModule(BaseModule):
             next_song = SongrequestQueue._get_next_song(db_session)
             if next_song:
                 if next_song.requestor:
-                    requestor = User.find_by_login(db_session, next_song.requestor)
-                    if requestor:
-                        bot.say(
-                            self.settings["message_in_chat_when_next_song"].format(
-                                title=next_song.song_info.title,
-                                requestor=requestor.username_raw,
-                                time_left=next_song.time_left,
-                            )
+                    bot.say(
+                        self.settings["message_in_chat_when_next_song"].format(
+                            title=next_song.song_info.title,
+                            requestor=next_song.requestor.username_raw,
+                            time_left=next_song.time_left,
                         )
-                        return True
+                    )
+                    return True
                 bot.say(
                     self.settings["message_in_chat_when_next_song"].format(
                         title=next_song.song_info.title, requestor="Backup Playlist", time_left=next_song.time_left,

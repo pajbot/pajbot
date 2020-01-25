@@ -144,7 +144,6 @@ class SongrequestQueue(Base):
             playing=False,
             requested_by_id=requested_by_id,
         )
-        log.info(type(songrequestqueue))
         db_session.add(songrequestqueue)
         return songrequestqueue
 
@@ -312,7 +311,7 @@ class SongrequestHistory(Base):
     def _get_history(db_session, limit):
         played_songs = (
             db_session.query(SongrequestHistory)
-            .filter(SongRequestSongInfo.banned == False)
+            .filter(SongrequestHistory.song_info.has(banned = False))
             .order_by(SongrequestHistory.id.desc())
             .limit(limit)
             .all()
