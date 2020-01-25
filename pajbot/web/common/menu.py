@@ -45,7 +45,7 @@ def init(app):
     if "playsounds" in app.bot_modules:
         nav_bar_admin_header.append(MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds"))
     if "songrequest" in app.bot_modules:
-        nav_bar_admin_header.append(MenuItem("/admin/songrequest", "songrequest", "Songrequest"))
+        nav_bar_admin_header.append(MenuItem("/admin/songrequest", "admin_songrequest", "Songrequest"))
     if "predict" in app.module_manager:
         nav_bar_admin_header.append(MenuItem("/admin/predictions", "admin_predictions", "Predictions"))
     nav_bar_admin_header.append(MenuItem("/admin/overlays", "admin_overlays", "Manage Overlays"))
