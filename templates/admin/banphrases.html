@@ -24,11 +24,6 @@
         {%- for row in banphrases -%}
             <tr data-id="{{ row.id }}" data-enabled="{{ 1 if row.enabled else 0 }}">
                 <td class="collapsing">{{ row.id }}</td>
-                <td class="collapsing">{{ row.name }}</td>
-                <td colspan="6" style="word-break: break-all;">{{ row.phrase }}</td>
-            </tr>
-            <tr data-id="{{ row.id }}" data-enabled="{{ 1 if row.enabled else 0 }}">
-                <td class="collapsing">{{ row.id }}</td>
                 <td class="collapsing"></td>
                 <td>{{ 'Permaban' if row.permanent else 'Timeout ({})'.format(row.length|time_ago_timespan_seconds) }}</td>
                 <td class="right aligned collapsing">
