@@ -9,8 +9,8 @@ from pajbot.web.utils import requires_level
 
 log = logging.getLogger(__name__)
 
-def init(app):
-    @app.route("/admin/songrequest")
+def init(page):
+    @page.route("/admin/songrequest")
     @requires_level(500, "/admin/songrequest")
     def songrequest(**options):
         if session.get("twitch_token_expire", 0) <= round(time.time()):
