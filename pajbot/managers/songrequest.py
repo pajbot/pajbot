@@ -1,10 +1,11 @@
 import logging
-from pajbot.managers.db import DBManager
-from pajbot.models.songrequest import SongrequestQueue, SongrequestHistory, SongRequestSongInfo
-from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.user import User
 import threading
 import time
+
+from pajbot.managers.db import DBManager
+from pajbot.models.songrequest import SongrequestQueue, SongrequestHistory, SongRequestSongInfo
+from pajbot.models.user import User
+
 
 current_milli_time = lambda: int(round(time.time() * 10))
 log = logging.getLogger("pajbot")
@@ -17,6 +18,15 @@ class SongrequestManager:
         self.bot = bot
         self.enabled = False
         self.current_song_id = None
+        self.showVideo = None
+        self.isVideoShowing = None
+        self.youtube = None
+        self.settings = None
+        self.previously_playing_spotify = None
+        self.paused = None
+        self.module_opened = None
+        self.previous_queue = None
+        self.volume = None
 
     def enable(self, settings, youtube):
         self.enabled = True
@@ -364,12 +374,12 @@ class SongrequestManager:
         )
         
 
-    def _seek(self, time):
+    def _seek(self, _time):
         self.bot.songrequest_websocket_manager.emit(
             "seek", {"seek_time": time,},
         )
         self.bot.websocket_manager.emit(
-            "songrequest_seek", WIDGET_ID, {"seek_time": time,},
+            "songrequest_seek", WIDGET_ID, {"seek_time": _time,},
         )
         self.paused = True
 
