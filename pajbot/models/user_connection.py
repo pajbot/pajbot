@@ -91,3 +91,15 @@ class UserConnections(Base):
     @staticmethod
     def _by_tier(db_session, tier):
         return db_session.query(UserConnections).filter_by(discord_tier=tier).all()
+
+    @staticmethod
+    def _by_tier(db_session, tier):
+        return db_session.query(UserConnections).filter(UserConnections.tier==tier).all()
+
+    @staticmethod
+    def _count_by_tier(db_session, tier):
+        return db_session.query(func.count(UserConnections.twitch_id)).group_by(UserConnections.tier)[tier]
+
+    @staticmethod
+    def _count(db_session):
+        return db_session.query(func.count(UserConnections.twitch_id))
