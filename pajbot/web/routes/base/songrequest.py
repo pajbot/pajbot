@@ -1,27 +1,17 @@
 import logging
-import time
 
-from flask import redirect
 from flask import session
 from flask import render_template
 
 from pajbot.managers.db import DBManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.songrequest import SongrequestQueue, SongrequestHistory, SongRequestSongInfo
-from pajbot.web.utils import requires_level
 
 log = logging.getLogger(__name__)
 
 
 def init(app):
-    @app.route("/songrequest/")
-    @requires_level(500, "/songrequest")
-    def songrequest(**options):
-        if session.get("twitch_token_expire", 0) <= round(time.time()):
-            return redirect("/login?n=/songrequest")
-        return render_template("songrequest.html", token_access=session.get("twitch_token"))
-
-    @app.route("/songrequest/history/")
+    @app.route("/songrequest")
     def songrequest_history():
         with DBManager.create_session_scope() as db_session:
             playing_in = 0
@@ -73,7 +63,7 @@ def init(app):
                 songs_history.append(jsonify)
 
             return render_template(
-                "songrequest_history.html",
+                "songrequest.html",
                 songs_queue=songs_queue,
                 songs_history=songs_history,
                 live=StreamManager.online,
