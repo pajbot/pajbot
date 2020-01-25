@@ -43,7 +43,7 @@ class WebSocketServer:
                             return
                         switcher = {
                             "auth": self._auth,
-                            "next_song": self.next_song,
+                            "next_song": self._next_song,
                         }
                         if "event" in message and "data" in message and message["event"] in switcher and switcher[message["event"]](db_session, message["data"]):
                             pass
