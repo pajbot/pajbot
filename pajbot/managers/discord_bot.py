@@ -157,10 +157,9 @@ class DiscordBotManager(object):
                     all_users_con = UserConnections._by_tier(db_session, requested_tier)
                     if requested_tier == 0:
                         all_users_con = all_users_con + UserConnections._by_tier(db_session, None)
-                    log.info(len(all_users_con))
                     for user_con in all_users_con:
                         user = user_con.twitch_user
-                        if (user.tier is None and requested_tier != 0) or user.tier != requested_tier:
+                        if (not user.tier and requested_tier != 0) or (user.tier and user.tier != requested_tier):
                             continue
 
                         discord = await self.get_discord_string(user_con.discord_user_id)
