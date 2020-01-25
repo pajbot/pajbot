@@ -23,7 +23,7 @@
                 <td class="collapsing">{{ row.id }}</td>
                 <td class="collapsing">{{ row.widget_id }}</td>
                 <td class="collapsing">{{ row.widget_name }}</td>
-                <td>{{ site.domain + "/clr/overlay/" + row.salt }}</td>
+                <td><a href={{"https://" + site.domain + "/clr/overlay/" + row.salt}}>{{ "https://" + site.domain + "/clr/overlay/" + row.salt }}</a></td>
                 {% include 'admin/helper/row_overlay_action.html' %}
             </tr>
         {% endfor -%}
