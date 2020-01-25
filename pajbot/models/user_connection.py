@@ -99,8 +99,8 @@ class UserConnections(Base):
 
     @staticmethod
     def _count_by_tier(db_session, tier):
-        return db_session.query(func.count(UserConnections.twitch_id)).group_by(UserConnections.tier)[tier]
+        return db_session.query(func.count(UserConnections.twitch_id)).filter(UserConnections.tier==tier)[0]
 
     @staticmethod
     def _count(db_session):
-        return db_session.query(func.count(UserConnections.twitch_id))
+        return db_session.query(func.count(UserConnections.twitch_id))[0]
