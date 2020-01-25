@@ -15,7 +15,8 @@
     {% endassets %}
     <script type="text/javascript">
         var ws_host = '{{ site.websocket.host }}';
-        var widget_id = '{{ widget.id }}';
+        var widget_id = '{{ data.id }}';
+        var salt_value = '{{ data.salt }}';
     </script>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.5.6/plyr.min.js"></script>

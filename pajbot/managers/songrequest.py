@@ -231,7 +231,6 @@ class SongrequestManager:
 
     def inc_current_song(self):
         while True:
-            start_time = current_milli_time()
             if not self.enabled:
                 break
             if self.current_song_id:
@@ -244,10 +243,9 @@ class SongrequestManager:
                                 self.load_song()
                             else:
                                 if (
-                                    (not current_song.requested_by or current_song.requested_by == "Backup Playlist")
+                                    (not current_song.requested_by)
                                     and next_song
                                     and next_song.requested_by
-                                    and next_song.requested_by != "Backup Playlist"
                                 ):
                                     self.load_song("Backup Playlist Skip")
                                 elif current_song.current_song_time >= current_song.duration:

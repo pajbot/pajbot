@@ -3,6 +3,11 @@ import logging
 import threading
 from pathlib import Path
 
+from pajbot.managers.handler import HandlerManager
+from pajbot.managers.db import DBManager
+
+from pajbot.models.web_sockets import WebSocket
+
 log = logging.getLogger("pajbot")
 
 
@@ -30,8 +35,20 @@ class WebSocketServer:
                 if isBinary:
                     log.info(f"Binary message received: {len(payload)} bytes")
                 else:
-                    self.widget_id = payload.decode("utf8")
-                    WebSocketServer.clients.append(self)
+                    with DBManager.create_session_scope() as db_session:
+                        try:
+                            message = json.loads(payload)
+                        except:
+                            self.sendClose()
+                            return
+                        switcher = {
+                            "auth": self._auth,
+                            "next_song": self.next_song,
+                        }
+                        if "event" in message and "data" in message and message["event"] in switcher and switcher[message["event"]](db_session, message["data"]):
+                            pass
+                        else:
+                            self.sendClose()
 
             def onClose(self, wasClean, code, reason):
                 log.info(f"WebSocket connection closed: {reason}")
@@ -39,6 +56,23 @@ class WebSocketServer:
                     WebSocketServer.clients.remove(self)
                 except:
                     pass
+
+            def _auth(self, db_session, data):
+                if "salt" not in data or "widget_id" not in data:
+                    return False
+                if not WebSocket._by_salt(db_session, data["salt"]):
+                    return False
+                self.widget_id = data["widget_id"]
+                WebSocketServer.clients.append(self)
+                return True
+
+            def _next_song(self, db_session, data):
+                if "salt" not in data:
+                    return False
+                if not WebSocket._by_salt(db_session, data["salt"]):
+                    return False
+                manager.bot.songrequest_manager.load_song()
+                return True
 
         factory = WebSocketServerFactory()
         factory.setProtocolOptions(autoPingInterval=15, autoPingTimeout=5)

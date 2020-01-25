@@ -12,21 +12,7 @@ log = logging.getLogger("pajbot")
 
 
 @page.route("/overlay/<widget_id>")
-@page.route("/overlay/<widget_id>/<random_shit>")
+@page.route("/overlay/<widget_id>/<salt>")
 @nocache
-def overlay(widget_id, **options):
-    return render_template("clr/overlay.html", widget={"id": widget_id})
-
-
-@page.route("/fatoverlay/<widget_id>")
-@page.route("/fatoverlay/<widget_id>/<random_shit>")
-@nocache
-def fatoverlay(widget_id, **options):
-    return render_template("clr/fatoverlay.html", widget={})
-
-
-@page.route("/crazyoverlay/<widget_id>")
-@page.route("/crazyoverlay/<widget_id>/<random_shit>")
-@nocache
-def crazyoverlay(widget_id, **options):
-    return render_template("clr/crazyoverlay.html", widget={})
+def overlay(widget_id, salt):
+    return render_template("clr/overlay.html", data={"id": widget_id, "salt": salt})

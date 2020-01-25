@@ -408,7 +408,7 @@ jQuery(function ($) {
             hide();
         });
         player.on('ended', function(event) {
-           hide();
+            socket.send(JSON.stringify({"event" : "next_song", "data" : {"salt": salt_value}})); 
         });
     }
 });
@@ -463,7 +463,7 @@ function connect_to_ws() {
     socket.binaryType = "arraybuffer";
     socket.onopen = function () {
         console.log('WebSocket Connected!');
-        socket.send(widget_id); 
+        socket.send(JSON.stringify({"event" : "auth", "data": {"widget_id" : widget_id, "salt": salt_value}})); 
     };
     socket.onerror = function (event) {
         console.error("WebSocket error observed:", event);
