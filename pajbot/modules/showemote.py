@@ -7,7 +7,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
-WIDGET_ID = "1"
+WIDGET_ID = 1
 
 
 class ShowEmoteModule(BaseModule):

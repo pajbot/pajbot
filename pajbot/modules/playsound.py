@@ -10,7 +10,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
-WIDGET_ID = "3"
+WIDGET_ID = 3
 
 
 class PlaysoundModule(BaseModule):

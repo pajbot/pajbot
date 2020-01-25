@@ -8,7 +8,8 @@ import time
 
 current_milli_time = lambda: int(round(time.time() * 10))
 log = logging.getLogger("pajbot")
-WIDGET_ID = "4"
+
+WIDGET_ID = 4
 
 
 class SongrequestManager:

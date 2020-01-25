@@ -16,7 +16,7 @@ from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
-WIDGET_ID = "2"
+WIDGET_ID = 2
 
 
 class BetModule(BaseModule):
