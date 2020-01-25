@@ -33,6 +33,7 @@ def init(page):
     @requires_level(500)
     def admin_overlays_create(**options):
         if request.method == "POST":
+            log.info("POSTED!")
             try:
                 widget_id = request.form["widget"].strip().lower()
             except (KeyError, ValueError):
