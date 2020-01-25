@@ -56,7 +56,7 @@ def init(page):
                 widgets = [x.jsonify() for x in Widget._all(db_session)]
             return render_template("admin/create_overlay.html", widgets=widgets)
 
-    @page.route("/overlays/delete/<overlay_id>")
+    @page.route("/overlays/remove/<overlay_id>")
     @requires_level(500)
     def admin_overlays_delete(overlay_id, **options):
         with DBManager.create_session_scope() as db_session:

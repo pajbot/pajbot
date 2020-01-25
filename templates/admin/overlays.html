@@ -49,11 +49,9 @@
     {% endassets %}
     <script type="text/javascript">
         $(document).ready(function () {
-            function enable_edit_row(base) {
-                $('button.edit-row').click(function() {
-                    var id = $(this).parent().parent().data('id');
-                    document.location.href = '/admin/' + base + '/edit/' + id;
-                });
+            function edit() {
+                var id = $(this).parent().parent().data('id');
+                document.location.href = '/admin/overlays/edit/' + id;
             }
 
             function enable_remove_row(modal_class, base) {
@@ -68,7 +66,7 @@
                     }
                 });
             }
-            enable_edit_row('overlays');
+            enable_edit_row('');
             enable_remove_row('remove-overlay', 'overlays');
         });
     </script>
