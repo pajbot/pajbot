@@ -79,7 +79,7 @@ class WebSocketServer:
             def _ready(self, db_session, data):
                 if "salt" not in data:
                     return False
-                if not WebSocket._by_salt(db_session, data["salt"]):
+                if not WebSocket._by_salt(db_session, data["salt"])
                     return False
                 manager.bot.songrequest_manager.ready()
                 return True
