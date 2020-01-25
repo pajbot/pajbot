@@ -29,7 +29,7 @@ def init(page):
                 return render_template("admin/no_overlay.html")
         return redirect("/admin/overlays")
 
-    @page.route("/overlays/create")
+    @page.route("/overlays/create", methods=['GET', 'POST'])
     @requires_level(500)
     def admin_overlays_create(**options):
         if request.method == "POST":
