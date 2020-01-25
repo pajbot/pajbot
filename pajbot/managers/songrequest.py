@@ -320,11 +320,11 @@ class SongrequestManager:
         return False
 
     def _play(self, video_id, video_title, requested_by_name):
-        self.bot.websocket_manager.emit(
-            "songrequest_play", WIDGET_ID, {"video_id": video_id,},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "play", {"video_id": video_id, "video_title": video_title, "requested_by": requested_by_name,},
+        )
+        self.bot.websocket_manager.emit(
+            "songrequest_play", WIDGET_ID, {"video_id": video_id,},
         )
         self.paused = True
         if self.showVideo:
@@ -336,39 +336,40 @@ class SongrequestManager:
         self._volume()
 
     def _pause(self):
-        self.bot.websocket_manager.emit(
-            "songrequest_pause", WIDGET_ID, {},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "pause", {},
+        )
+        self.bot.websocket_manager.emit(
+            "songrequest_pause", WIDGET_ID, {},
         )
         self._hide()
 
     def _resume(self):
-        self.bot.websocket_manager.emit(
-            "songrequest_resume", WIDGET_ID, {},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "resume", {},
+        )
+        self.bot.websocket_manager.emit(
+            "songrequest_resume", WIDGET_ID, {},
         )
         self.paused = False
         if self.showVideo:
             self._show()
 
     def _volume(self):
-        self.bot.websocket_manager.emit(
-            "songrequest_volume", WIDGET_ID, {"volume": self.volume * 100,},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "volume", {"volume": self.volume * 100 * (1 / (self.settings["volume_multiplier"] / 100)),},
         )
+        self.bot.websocket_manager.emit(
+            "songrequest_volume", WIDGET_ID, {"volume": self.volume * 100,},
+        )
+        
 
     def _seek(self, time):
-        self.bot.websocket_manager.emit(
-            "songrequest_seek", WIDGET_ID, {"seek_time": time,},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "seek", {"seek_time": time,},
+        )
+        self.bot.websocket_manager.emit(
+            "songrequest_seek", WIDGET_ID, {"seek_time": time,},
         )
         self.paused = True
 
@@ -398,9 +399,9 @@ class SongrequestManager:
             )
 
     def _stop_video(self):
-        self.bot.websocket_manager.emit(
-            "songrequest_stop", WIDGET_ID, {},
-        )
         self.bot.songrequest_websocket_manager.emit(
             "stop", {},
+        )
+        self.bot.websocket_manager.emit(
+            "songrequest_stop", WIDGET_ID, {},
         )
