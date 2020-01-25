@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 def init(app):
     @app.route("/songrequest")
-    def songrequest_history():
+    def songrequest():
         with DBManager.create_session_scope() as db_session:
             playing_in = 0
             track_number = 1
