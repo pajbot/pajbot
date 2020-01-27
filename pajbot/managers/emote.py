@@ -97,6 +97,9 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     def load_global_emotes(self):
         self.global_emotes = self.twitch_v5_api.get_global_emotes()
 
+    def update_global_emotes(self):
+        self.global_emotes = self.twitch_v5_api.get_global_emotes(force_fetch=True)
+
     def load_channel_emotes(self):
         self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
             self.streamer_id, self.streamer

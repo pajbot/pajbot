@@ -17,6 +17,7 @@ from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.action import ActionParser
 from pajbot.models.action import RawFuncAction
+from pajbot.models.action import Substitution
 
 log = logging.getLogger(__name__)
 
@@ -440,10 +441,12 @@ class Command(Base):
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
+            clean_response = Substitution.urlfetch_substitution_regex.sub("(urlfetch)", self.action.response)
+
             if subtype in ("say", "me"):
-                example.add_chat_message(subtype, self.action.response, "bot")
+                example.add_chat_message(subtype, clean_response, "bot")
             elif subtype == "whisper":
-                example.add_chat_message(subtype, self.action.response, "bot", "user")
+                example.add_chat_message(subtype, clean_response, "bot", "user")
             examples.append(example)
 
             if self.can_execute_with_whisper is True:
@@ -451,9 +454,9 @@ class Command(Base):
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me"):
-                    example.add_chat_message(subtype, self.action.response, "bot")
+                    example.add_chat_message(subtype, clean_response, "bot")
                 elif subtype == "whisper":
-                    example.add_chat_message(subtype, self.action.response, "bot", "user")
+                    example.add_chat_message(subtype, clean_response, "bot", "user")
                 examples.append(example)
             return examples
         return self.examples
