@@ -435,6 +435,18 @@ class Bot:
         for msg in arr:
             self.privmsg(msg, target)
 
+    def privmsg_arr_chunked(self, arr, per_chunk=35, chunk_delay=30, target=None):
+        i = 0
+        while arr:
+            if i == 0:
+                self.privmsg_arr(arr[:per_chunk], target)
+            else:
+                self.execute_delayed(chunk_delay * i, self.privmsg_arr, arr[:per_chunk], target)
+
+            del arr[:per_chunk]
+
+            i = i + 1
+
     def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
             r = requests.get(url, headers={"User-Agent": self.user_agent})
@@ -446,16 +458,7 @@ class Bot:
                 return
 
             lines = r.text.splitlines()
-            i = 0
-            while lines:
-                if i == 0:
-                    self.privmsg_arr(lines[:per_chunk], target)
-                else:
-                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, lines[:per_chunk], target)
-
-                del lines[:per_chunk]
-
-                i = i + 1
+            self.privmsg_arr_chunked(lines, per_chunk=per_chunk, chunk_delay=chunk_delay, target=target)
         except:
             log.exception("error in privmsg_from_file")
 
