@@ -17,7 +17,7 @@ class FFZAPI(BaseAPI):
                 # FFZ returns relative URLs (e.g. //cdn.frankerfacez.com/...)
                 # so we fill in the scheme if it's missing :)
                 urls = {size: FFZAPI.fill_in_url_scheme(url) for size, url in emote["urls"].items()}
-                emotes.append(Emote(code=emote["name"], provider="ffz", id=emote["id"], urls=urls))
+                emotes.append(Emote(code=emote["name"], provider="ffz", id=str(emote["id"]), urls=urls))
 
         return emotes
 

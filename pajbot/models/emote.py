@@ -12,6 +12,8 @@ class Emote:
     def __init__(self, code, provider, id, urls):
         self.code = code
         self.provider = provider
+        if not isinstance(id, str):
+            raise ValueError("id parameter must be a string")
         self.id = id
         self.urls = urls
 
