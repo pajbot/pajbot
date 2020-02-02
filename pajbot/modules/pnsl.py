@@ -61,7 +61,7 @@ class PNSLModule(BaseModule):
             bot.whisper(source, f"Missing P&SL token in config.ini. talk to @{bot.admin} BabyRage")
             return False
 
-        guid = message.lstrip("https://bot.tetyys.com/BotList/")
+        guid = message.replace("https://bot.tetyys.com/BotList/", "")
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
@@ -76,7 +76,9 @@ class PNSLModule(BaseModule):
 
         log.info(f"[P&SL] User {source.name} running list {guid} with {len(privmsg_list)} entries")
 
-        bot.privmsg_arr_chunked(privmsg_list)
+        bot.privmsg_arr_chunked(
+            privmsg_list, per_chunk=self.settings["per_chunk"], chunk_delay=self.settings["chunk_delay"]
+        )
 
     def load_commands(self, **options):
         self.commands["runpnsl"] = Command.raw_command(
