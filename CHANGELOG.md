@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Add ability to run P&SL lists with !pslrun command
+- Minor: Add ability to run P&SL lists with !pnslrun command
 - Bugfix: Fixed the "type emote" quest by ensuring all emote IDs are strings. (#768)
 
 ## v1.41
