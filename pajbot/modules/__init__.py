@@ -71,7 +71,6 @@ from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
-from pajbot.modules.pnsl import PNSLModule
 
 available_modules = [
     AbCommandModule,
