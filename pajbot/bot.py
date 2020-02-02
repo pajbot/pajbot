@@ -218,12 +218,12 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        admin = self.config["main"].get("admin", None)
-        if admin is None:
+        self.admin = self.config["main"].get("admin", None)
+        if self.admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
             with DBManager.create_session_scope() as db_session:
-                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, admin)
+                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, self.admin)
                 if admin_user is None:
                     log.warning(
                         "The login name you entered for the admin user does not exist on twitch. "
@@ -435,6 +435,18 @@ class Bot:
         for msg in arr:
             self.privmsg(msg, target)
 
+    def privmsg_arr_chunked(self, arr, per_chunk=35, chunk_delay=30, target=None):
+        i = 0
+        while arr:
+            if i == 0:
+                self.privmsg_arr(arr[:per_chunk], target)
+            else:
+                self.execute_delayed(chunk_delay * i, self.privmsg_arr, arr[:per_chunk], target)
+
+            del arr[:per_chunk]
+
+            i = i + 1
+
     def privmsg_from_file(self, url, per_chunk=35, chunk_delay=30, target=None):
         try:
             r = requests.get(url, headers={"User-Agent": self.user_agent})
@@ -446,16 +458,7 @@ class Bot:
                 return
 
             lines = r.text.splitlines()
-            i = 0
-            while lines:
-                if i == 0:
-                    self.privmsg_arr(lines[:per_chunk], target)
-                else:
-                    self.execute_delayed(chunk_delay * i, self.privmsg_arr, lines[:per_chunk], target)
-
-                del lines[:per_chunk]
-
-                i = i + 1
+            self.privmsg_arr_chunked(lines, per_chunk=per_chunk, chunk_delay=chunk_delay, target=target)
         except:
             log.exception("error in privmsg_from_file")
 

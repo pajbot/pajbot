@@ -70,6 +70,7 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.wolfram import WolframModule
+from pajbot.modules.pnsl import PNSLModule
 
 available_modules = [
     AbCommandModule,
@@ -106,6 +107,7 @@ available_modules = [
     ModeratorsRefreshModule,
     CaseCheckerModule,
     EmoteTimeoutModule,
+    PNSLModule,
     PaidSubmodeModule,
     PaidTimeoutModule,
     PaidUntimeoutModule,
