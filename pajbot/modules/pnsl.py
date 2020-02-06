@@ -13,7 +13,7 @@ class PNSLModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Run P&SL lists"
-    DESCRIPTION = "Run P&SL lists through !pnslrun command"
+    DESCRIPTION = "Run P&SL lists through the !runpnsl command"
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
