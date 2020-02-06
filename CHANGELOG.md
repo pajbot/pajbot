@@ -2,6 +2,9 @@
 
 ## Unversioned
 
+- Minor: Add ability to run P&SL lists with !pnslrun command
+- Bugfix: Fixed the "type emote" quest by ensuring all emote IDs are strings. (#768)
+
 ## v1.41
 
 - Major: Add support for streaming tweets through [tweet-provider](https://github.com/pajbot/tweet-provider) instead of going directly through Twitter.

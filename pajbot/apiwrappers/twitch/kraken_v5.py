@@ -71,7 +71,7 @@ class TwitchKrakenV5API(BaseTwitchAPI):
         from pajbot.managers.emote import EmoteManager
 
         resp = self.get("/chat/emoticon_images", params={"emotesets": "0"})
-        return [EmoteManager.twitch_emote(data["id"], data["code"]) for data in resp["emoticon_sets"]["0"]]
+        return [EmoteManager.twitch_emote(str(data["id"]), data["code"]) for data in resp["emoticon_sets"]["0"]]
 
     def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(

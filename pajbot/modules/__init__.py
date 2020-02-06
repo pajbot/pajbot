@@ -16,6 +16,7 @@ from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
+from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
@@ -36,14 +37,16 @@ from pajbot.modules.linkchecker import LinkCheckerModule
 from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.linktracker import LinkTrackerLink
 from pajbot.modules.linktracker import LinkTrackerModule
+from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
-from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.moderators_refresh import ModeratorsRefreshModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.paiduntimeout import PaidUntimeoutModule
+from pajbot.modules.playsound import PlaysoundModule
 from pajbot.modules.pleblist import PleblistModule
+from pajbot.modules.pnsl import PNSLModule
 from pajbot.modules.pointlottery import PointLotteryModule
 from pajbot.modules.predict import PredictModule
 from pajbot.modules.pyramid import PyramidModule
@@ -59,30 +62,27 @@ from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
+from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subalert import SubAlertModule
-from pajbot.modules.playsound import PlaysoundModule
-from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
-from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.wolfram import WolframModule
 
 available_modules = [
     AbCommandModule,
     AdminCommandsModule,
     AsciiProtectionModule,
-    EmotesModule,
     BanphraseModule,
     BasicCommandsModule,
     BingoModule,
-    CheckModModule,
+    CaseCheckerModule,
     ChattersRefreshModule,
+    CheckModModule,
     DBManageModule,
-    SubscriberFetchModule,
     DebugModule,
     DeckModule,
     DubtrackModule,
@@ -90,6 +90,8 @@ available_modules = [
     DummyModule,
     EightBallModule,
     EmoteComboModule,
+    EmoteTimeoutModule,
+    EmotesModule,
     EmotesOnScreenModule,
     FollowAgeModule,
     GetTimedOutQuestModule,
@@ -101,11 +103,11 @@ available_modules = [
     LineFarmingModule,
     LinkCheckerModule,
     LinkTrackerModule,
+    MassPingProtectionModule,
     MathModule,
     MaxMsgLengthModule,
     ModeratorsRefreshModule,
-    CaseCheckerModule,
-    EmoteTimeoutModule,
+    PNSLModule,
     PaidSubmodeModule,
     PaidTimeoutModule,
     PaidUntimeoutModule,
@@ -114,16 +116,17 @@ available_modules = [
     PleblistModule,
     PointLotteryModule,
     PointsResetModule,
-    StreamUpdateModule,
     PredictModule,
     PyramidModule,
     QuestModule,
     RaffleModule,
     RepspamModule,
     RouletteModule,
-    SlotMachineModule,
     ShowEmoteModule,
+    SlotMachineModule,
+    StreamUpdateModule,
     SubAlertModule,
+    SubscriberFetchModule,
     TopModule,
     TriviaModule,
     TypeEmoteQuestModule,
@@ -135,6 +138,5 @@ available_modules = [
     WinHsBetPointsQuestModule,
     WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
-    MassPingProtectionModule,
     WolframModule,
 ]
