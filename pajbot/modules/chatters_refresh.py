@@ -14,10 +14,10 @@ log = logging.getLogger(__name__)
 
 class ChattersRefreshModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Currency"
+    NAME = "Loyalty"
     DESCRIPTION = "Earn currency and build your watchtime while you watch your favourite streamer!"
     ENABLED_DEFAULT = True
-    CATEGORY = "Internal"
+    CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
             key="base_points_pleb",
