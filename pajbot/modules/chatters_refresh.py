@@ -14,10 +14,10 @@ log = logging.getLogger(__name__)
 
 class ChattersRefreshModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Chatters refresh"
-    DESCRIPTION = "Fetches a list of chatters and updates points/time accordingly - this is required to be turned on in order for the bot to record user time and/or points"
+    NAME = "Loyalty"
+    DESCRIPTION = "Earn points and build your watchtime while you watch your favourite streamer!"
     ENABLED_DEFAULT = True
-    CATEGORY = "Internal"
+    CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
             key="base_points_pleb",
