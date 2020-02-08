@@ -89,3 +89,4 @@ class PNSLModule(BaseModule):
             description="Run a P&SL list",
             command="runpnsl",
         )
+        self.commands["pnslrun"] = self.commands["runpnsl"]

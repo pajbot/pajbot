@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Add ability to run P&SL lists with !pnslrun command
+- Minor: Add ability to run P&SL lists with !runpnsl command
 - Minor: Renamed the chatter refresh module
 - Bugfix: Fixed the "type emote" quest by ensuring all emote IDs are strings. (#768)
 
