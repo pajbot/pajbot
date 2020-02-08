@@ -4,6 +4,7 @@
 
 - Minor: Add ability to run P&SL lists with !pnslrun command
 - Minor: Renamed the chatter refresh module
+- Minor: Implemented required changes for [upcoming changes to the Twitch API](https://discuss.dev.twitch.tv/t/requiring-oauth-for-helix-twitch-api-endpoints/23916).
 - Bugfix: Fixed the "type emote" quest by ensuring all emote IDs are strings. (#768)
 
 ## v1.41
