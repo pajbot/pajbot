@@ -22,7 +22,7 @@ class BaseTwitchAPI(BaseAPI):
         #   - None (-> default will be assigned)
         #   - False (-> No Authorization)
         #   - ClientCredentials (-> Client-ID)
-        #   - AccessTokenManager (-> Authorization)
+        #   - AccessTokenManager (-> Authorization + Client-ID)
         #   - AccessToken (-> Authorization)
 
         if authorization is None:
@@ -31,7 +31,10 @@ class BaseTwitchAPI(BaseAPI):
         if isinstance(authorization, ClientCredentials):
             auth_headers = {"Client-ID": authorization.client_id}
         elif isinstance(authorization, AccessTokenManager):
-            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}"}
+            auth_headers = {
+                "Client-ID": authorization.api.client_credentials.client_id,
+                "Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}",
+            }
         elif isinstance(authorization, AccessToken):
             auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.access_token}"}
         else:
