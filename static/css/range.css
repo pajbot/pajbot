@@ -28,60 +28,61 @@
  */
 
 .ui.range {
-	width: 100%;
-	height: 20px;
+  width: 100%;
+  height: 20px;
 }
 
 .ui.range .inner {
-	margin: 0 10px 0 10px;
-	height: 20px;
-	position: relative;
+  margin: 0 10px 0 10px;
+  height: 20px;
+  position: relative;
 }
 
 .ui.range .inner:hover {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .ui.range .inner .track {
-	position: absolute;
-	width: 100%;
-	height: 4px;
-	border-radius: 4px;
-	top: 9px;
-	left: 0;
-	background-color: rgba(0,0,0,.05);
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  top: 9px;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .ui.inverted.range .inner .track {
-	background-color: rgba(255,255,255,.08);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .ui.range .inner .track-fill {
-	position: absolute;
-	width: 0;
-	height: 4px;
-	border-radius: 4px;
-	top: 9px;
-	left: 0;
-	background-color: #1b1c1d;
+  position: absolute;
+  width: 0;
+  height: 4px;
+  border-radius: 4px;
+  top: 9px;
+  left: 0;
+  background-color: #1b1c1d;
 }
 
 .ui.inverted.range .inner .track-fill {
-	background-color: #545454;
+  background-color: #545454;
 }
 
 .ui.range .inner .thumb {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 20px;
-	width: 20px;
-	background: #fff linear-gradient(transparent, rgba(0, 0, 0, 0.05));
-	background: #fff -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
-	background: #fff -o-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
-	background: #fff -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
-	border-radius: 100%;
-	box-shadow: 0 1px 2px 0 rgba(34,36,38,.15),0 0 0 1px rgba(34,36,38,.15) inset;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background: #fff linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+  background: #fff -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+  background: #fff -o-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+  background: #fff -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+  border-radius: 100%;
+  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15),
+    0 0 0 1px rgba(34, 36, 38, 0.15) inset;
 }
 
 /*--------------
@@ -90,119 +91,119 @@
 
 /* Red */
 .ui.red.range .inner .track-fill {
-	background-color: #DB2828;
+  background-color: #db2828;
 }
 .ui.red.inverted.range .inner .track-fill {
-	background-color: #FF695E;
+  background-color: #ff695e;
 }
 
 /* Orange */
 .ui.orange.range .inner .track-fill {
-	background-color: #F2711C;
+  background-color: #f2711c;
 }
 .ui.orange.inverted.range .inner .track-fill {
-	background-color: #FF851B;
+  background-color: #ff851b;
 }
 
 /* Yellow */
 .ui.yellow.range .inner .track-fill {
-	background-color: #FBBD08;
+  background-color: #fbbd08;
 }
 .ui.yellow.inverted.range .inner .track-fill {
-	background-color: #FFE21F;
+  background-color: #ffe21f;
 }
 
 /* Olive */
 .ui.olive.range .inner .track-fill {
-	background-color: #B5CC18;
+  background-color: #b5cc18;
 }
 .ui.olive.inverted.range .inner .track-fill {
-	background-color: #D9E778;
+  background-color: #d9e778;
 }
 
 /* Green */
 .ui.green.range .inner .track-fill {
-	background-color: #21BA45;
+  background-color: #21ba45;
 }
 .ui.green.inverted.range .inner .track-fill {
-	background-color: #2ECC40;
+  background-color: #2ecc40;
 }
 
 /* Teal */
 .ui.teal.range .inner .track-fill {
-	background-color: #00B5AD;
+  background-color: #00b5ad;
 }
 .ui.teal.inverted.range .inner .track-fill {
-	background-color: #6DFFFF;
+  background-color: #6dffff;
 }
 
 /* Blue */
 .ui.blue.range .inner .track-fill {
-	background-color: #2185D0;
+  background-color: #2185d0;
 }
 .ui.blue.inverted.range .inner .track-fill {
-	background-color: #54C8FF;
+  background-color: #54c8ff;
 }
 
 /* Violet */
 .ui.violet.range .inner .track-fill {
-	background-color: #6435C9;
+  background-color: #6435c9;
 }
 .ui.violet.inverted.range .inner .track-fill {
-	background-color: #A291FB;
+  background-color: #a291fb;
 }
 
 /* Purple */
 .ui.purple.range .inner .track-fill {
-	background-color: #A333C8;
+  background-color: #a333c8;
 }
 .ui.purple.inverted.range .inner .track-fill {
-	background-color: #DC73FF;
+  background-color: #dc73ff;
 }
 
 /* Pink */
 .ui.pink.range .inner .track-fill {
-	background-color: #E03997;
+  background-color: #e03997;
 }
 .ui.pink.inverted.range .inner .track-fill {
-	background-color: #FF8EDF;
+  background-color: #ff8edf;
 }
 
 /* Brown */
 .ui.brown.range .inner .track-fill {
-	background-color: #A5673F;
+  background-color: #a5673f;
 }
 .ui.brown.inverted.range .inner .track-fill {
-	background-color: #D67C1C;
+  background-color: #d67c1c;
 }
 
 /* Grey */
 .ui.grey.range .inner .track-fill {
-	background-color: #767676;
+  background-color: #767676;
 }
 .ui.grey.inverted.range .inner .track-fill {
-	background-color: #DCDDDE;
+  background-color: #dcddde;
 }
 
 /* Black */
 .ui.black.range .inner .track-fill {
-	background-color: #1b1c1d;
+  background-color: #1b1c1d;
 }
 .ui.black.inverted.range .inner .track-fill {
-	background-color: #545454;
+  background-color: #545454;
 }
 
 /*--------------
     Disabled
 ---------------*/
 .ui.range.disabled {
-	opacity: .5;
+  opacity: 0.5;
 }
 
 .ui.range.disabled .inner:hover {
-	cursor: auto;
+  cursor: auto;
 }
 
 .ui.range.disabled .inner .track-fill {
-	background: #ccc;
+  background: #ccc;
 }

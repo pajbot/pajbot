@@ -1,8 +1,9 @@
-.pui.command, .pui.argument {
+.pui.command,
+.pui.argument {
   font-family: monospace;
-  border-radius: .285rem;
+  border-radius: 0.285rem;
   background: #f8f8f9;
-  padding: .4em;
+  padding: 0.4em;
   line-height: 18px;
   box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.22) inset, 0 0 0 0 transparent;
   display: inline-block;
@@ -22,10 +23,17 @@
 .user.l1500 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-image: -webkit-gradient(linear, left top, right top, color-stop(0, #922), color-stop(1, #f55));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0, #922),
+    color-stop(1, #f55)
+  );
 }
 
-.user.l1000, .user.l1250 {
+.user.l1000,
+.user.l1250 {
   color: #922;
 }
 
@@ -37,7 +45,8 @@
   color: #44f;
 }
 
-.user.l420, .user.l421 {
+.user.l420,
+.user.l421 {
   color: #292;
 }
 
@@ -45,14 +54,32 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  background-image: -webkit-gradient(linear, left top, right top, color-stop(0, red), color-stop(50%, yellow), color-stop(1, green));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0, red),
+    color-stop(50%, yellow),
+    color-stop(1, green)
+  );
 }
 
 .user.l123 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  background-image: -webkit-gradient(linear, left top, right top, color-stop(0, red), color-stop(16%, orange), color-stop(32%, yellow), color-stop(48%, green), color-stop(60%, blue), color-stop(76%, indigo), color-stop(1, violet));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0, red),
+    color-stop(16%, orange),
+    color-stop(32%, yellow),
+    color-stop(48%, green),
+    color-stop(60%, blue),
+    color-stop(76%, indigo),
+    color-stop(1, violet)
+  );
 }
 
 @media (min-height: 320px) {
@@ -73,7 +100,8 @@
   z-index: 1001;
 }
 
-.main.header, .main.footer {
+.main.header,
+.main.footer {
   flex: none;
 }
 
@@ -110,7 +138,8 @@ div.video_thumbnail img {
   display: none;
 }
 
-div#stats th, div#userprofile td {
+div#stats th,
+div#userprofile td {
   width: 50%;
 }
 
@@ -124,7 +153,8 @@ div.mediumtable {
   width: 600px;
 }
 
-div#songlist div.item:first-child, div#songhistory div.item.not-played.first {
+div#songlist div.item:first-child,
+div#songhistory div.item.not-played.first {
   background-color: rgba(0, 255, 0, 0.175);
 }
 
@@ -136,11 +166,11 @@ div#songlist div.item:first-child, div#songhistory div.item.not-played.first {
 #songlist a.skip {
   color: red;
   opacity: 0.5;
-  transition: opacity .25s ease-in-out;
+  transition: opacity 0.25s ease-in-out;
 }
 
 #songlist a.skip:hover {
-  opacity: 1.0;
+  opacity: 1;
 }
 
 div#songhistory div.item div.description {
@@ -193,7 +223,8 @@ table.editcommand div.edit {
   display: none;
 }
 
-.ui.input.compact input, .ui.input.compact .ui.label {
+.ui.input.compact input,
+.ui.input.compact .ui.label {
   padding: 0.375em;
 }
 
@@ -215,14 +246,15 @@ td.description a {
 
 .ui.twitch.button {
   background-color: #6441a5;
-  color: #FFFFFF;
+  color: #ffffff;
   text-shadow: none;
   background-image: none;
   box-shadow: 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
 }
 
-.ui.twitch.button:hover, .ui.twitch.button:active {
-  background-color: #7550BA;
+.ui.twitch.button:hover,
+.ui.twitch.button:active {
+  background-color: #7550ba;
 }
 
 div.chat div.chat-message {
@@ -243,14 +275,16 @@ div.chat div.chat-message {
   width: 340px;
   list-style-position: unset;
   list-style-type: none;
-  font-family: Helvetica Neue,Helvetica,sans-serif;
+  font-family: Helvetica Neue, Helvetica, sans-serif;
 }
 
-.chat:nth-child(even) .chat-message.say, .chat:nth-child(even) .chat-message.me {
+.chat:nth-child(even) .chat-message.say,
+.chat:nth-child(even) .chat-message.me {
   background-color: #c8c8c8;
 }
 
-.chat:nth-child(odd) .chat-message.say, .chat:nth-child(odd) .chat-message.me {
+.chat:nth-child(odd) .chat-message.say,
+.chat:nth-child(odd) .chat-message.me {
   background-color: #d9d9d9;
 }
 
@@ -267,7 +301,7 @@ div.chat div.chat-message {
 }
 
 .chat .chat-message.whisper {
-  background-color: #E8D6FF;
+  background-color: #e8d6ff;
 }
 
 .chat.border {
@@ -397,5 +431,5 @@ button.ui.button.streamelements {
 }
 
 img.emote {
-    height: 2.0em;
+  height: 2em;
 }
