@@ -55,7 +55,7 @@ jobs:
       - checkout
       - run:
           name: Check code style
-          command: ./scripts/reformat.sh --check
+          command: source venv/bin/activate && ./scripts/reformat.sh --check
 
 # add one workflow that runs all jobs in parallel
 workflows:
