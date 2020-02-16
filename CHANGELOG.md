@@ -9,6 +9,7 @@
 - Minor: Renamed the chatter refresh module
 - Bugfix: Fixed the "type emote" quest by ensuring all emote IDs are strings. (#768)
 - Bugfix: Fixed a bug where sorting in the modules page didn't sometimes work.
+- Bugfix: Fixed a bug where messages like `/me` or `/commercial` (without anything after them) could not be posted by the bot.
 
 ## v1.41
 
