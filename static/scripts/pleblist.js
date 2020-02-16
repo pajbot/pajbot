@@ -6,20 +6,18 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 var player_ready = false;
 var current_song = null;
-function onYouTubeIframeAPIReady()
-{
+function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         height: '100%',
         width: '100%',
         events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+        },
     });
 }
 
-function api_call_next_song(song_id)
-{
+function api_call_next_song(song_id) {
     $.api({
         action: 'pleblist_next_song',
         method: 'post',
@@ -30,19 +28,22 @@ function api_call_next_song(song_id)
             return settings;
         },
         onFailure: function(response, element) {
-            console.warn('There was an error notifiying the API that the song with id ' + song_id + ' had been skipped. Retrying in 5 seconds.');
+            console.warn(
+                'There was an error notifiying the API that the song with id ' +
+                    song_id +
+                    ' had been skipped. Retrying in 5 seconds.'
+            );
             setTimeout(function() {
                 api_call_next_song(song_id);
             }, 5 * 1000);
-        }
+        },
     });
 }
 
-function next_song()
-{
+function next_song() {
     if (current_song !== null) {
         var song_just_played = pleblist_songs.shift();
-        $('#song-'+song_just_played.id).remove();
+        $('#song-' + song_just_played.id).remove();
         api_call_next_song(current_song.id);
         current_song = null;
     }
@@ -50,7 +51,7 @@ function next_song()
     if (pleblist_songs.length > 0) {
         current_song = pleblist_songs[0];
         player.loadVideoById({
-            'videoId': current_song.youtube_id,
+            videoId: current_song.youtube_id,
         });
     } else {
         player.stopVideo();
@@ -60,13 +61,11 @@ function next_song()
     update_indices();
 }
 
-function onPlayerReady(event)
-{
+function onPlayerReady(event) {
     console.log('player ready');
 }
 
-function onPlayerStateChange(event)
-{
+function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.ENDED) {
         next_song();
     }
@@ -76,8 +75,7 @@ var pleblist_songs = [];
 var latest_song_id = -1;
 var pleblist_started = false;
 
-function start_pleblist()
-{
+function start_pleblist() {
     pleblist_started = true;
     if (pleblist_songs.length > 0) {
         $('#start_button').hide();
@@ -85,13 +83,12 @@ function start_pleblist()
     }
 }
 
-function start_getting_new_songs()
-{
+function start_getting_new_songs() {
     setTimeout(function() {
         $.ajax({
             dataType: 'json',
             timeout: 10 * 1000,
-            'url': '/api/v1/pleblist/list/after/' + latest_song_id,
+            url: '/api/v1/pleblist/list/after/' + latest_song_id,
             success: function(response) {
                 start_getting_new_songs();
                 process_songs(response.songs);
@@ -99,20 +96,19 @@ function start_getting_new_songs()
             error: function(response) {
                 start_getting_new_songs();
                 console.log(response);
-            }
+            },
         });
     }, 5 * 1000);
 }
 
-function add_to_pleblist(song)
-{
+function add_to_pleblist(song) {
     pleblist_songs.push(song);
     latest_song_id = song.id;
-    var $div = $('<div>', {class: 'item', id: 'song-' + song.id});
+    var $div = $('<div>', { class: 'item', id: 'song-' + song.id });
     $('#pleblist div.ui.list').append($div);
-    var $index = $('<div>', {class: 'song-index'});
+    var $index = $('<div>', { class: 'song-index' });
     $div.append($index);
-    $div_content = $('<div>', {class: 'content'});
+    $div_content = $('<div>', { class: 'content' });
     $div.append($div_content);
     var title = '???';
     var song_length = '???';
@@ -123,22 +119,30 @@ function add_to_pleblist(song)
     }
     if (song.info !== null) {
         title = song.info.title;
-        song_length = moment.duration(song_duration, 'seconds').format('h:mm:ss');
+        song_length = moment
+            .duration(song_duration, 'seconds')
+            .format('h:mm:ss');
     }
-    $div_header = $('<div>', {class: 'header'});
-    $a_link = $('<a>', {'href': 'https://youtu.be/' + song.youtube_id }).text(title);
-    $a_close = $('<a>', {class: 'skip', 'href': '#', style: 'padding-left: 15px; float: right;'}).text('SKIP');
+    $div_header = $('<div>', { class: 'header' });
+    $a_link = $('<a>', { href: 'https://youtu.be/' + song.youtube_id }).text(
+        title
+    );
+    $a_close = $('<a>', {
+        class: 'skip',
+        href: '#',
+        style: 'padding-left: 15px; float: right;',
+    }).text('SKIP');
     $div_header.append($a_close);
     $div_header.append($a_link);
     $div_content.append($div_header);
-    $div_description = $('<div>', {class: 'description'}).text(song_length);
+    $div_description = $('<div>', { class: 'description' }).text(song_length);
     $div_content.append($div_description);
 
     $a_close.api({
         action: 'pleblist_skip_future_song',
         method: 'post',
         urlData: {
-            'id': song.id,
+            id: song.id,
         },
         beforeSend: function(settings) {
             if (song == current_song) {
@@ -166,7 +170,7 @@ function add_to_pleblist(song)
 
             update_song_counter();
             update_indices();
-        }
+        },
     });
 
     if (current_song == null && pleblist_started === true) {
@@ -176,33 +180,34 @@ function add_to_pleblist(song)
     update_indices();
 }
 
-function update_indices()
-{
+function update_indices() {
     $.each($('#songlist div.item'), function(index, el) {
-        $(el).find('div.song-index').text((index + 1) + '.');
+        $(el)
+            .find('div.song-index')
+            .text(index + 1 + '.');
     });
 }
 
-function update_song_counter()
-{
+function update_song_counter() {
     $('#num_songs').text(pleblist_songs.length);
     var total_duration = 0;
     for (song_id in pleblist_songs) {
         var song = pleblist_songs[song_id];
         if (song.skip_after !== null) {
-        song_duration = song.skip_after;
+            song_duration = song.skip_after;
         } else {
-        song_duration = song.info.duration;
+            song_duration = song.info.duration;
         }
         if (song.info !== null) {
             total_duration += song_duration;
         }
     }
-    $('#total_duration').text(moment.duration(total_duration, 'seconds').format('h:mm:ss'));
+    $('#total_duration').text(
+        moment.duration(total_duration, 'seconds').format('h:mm:ss')
+    );
 }
 
-function process_songs(song_list)
-{
+function process_songs(song_list) {
     for (index in song_list) {
         var song = song_list[index];
         add_to_pleblist(song);
@@ -214,8 +219,7 @@ function process_songs(song_list)
     }
 }
 
-function check_timer()
-{
+function check_timer() {
     /***
      * Check how far we've come in the current song.
      * We should also check if the current song should be skipped or not.
@@ -239,12 +243,11 @@ $(document).ready(function() {
         setTimeout(function() {
             $.ajax({
                 dataType: 'json',
-                'url': '/api/v1/pleblist/list',
+                url: '/api/v1/pleblist/list',
                 success: function(response) {
                     process_songs(response.songs);
                 },
-                error: function(response) {
-                }
+                error: function(response) {},
             });
         }, 500);
         $('#pleblist').hide();
@@ -253,14 +256,14 @@ $(document).ready(function() {
         setTimeout(function() {
             $.ajax({
                 dataType: 'json',
-                'url': '/api/v1/pleblist/list',
+                url: '/api/v1/pleblist/list',
                 success: function(response) {
                     process_songs(response.songs);
                     start_getting_new_songs();
                 },
                 error: function(response) {
                     start_getting_new_songs();
-                }
+                },
             });
         }, 500);
     }
@@ -269,36 +272,39 @@ $(document).ready(function() {
         next_song();
     });
 
-    $('#add_song').api({
-        action: 'pleblist_add_song',
-        method: 'post',
-        data: {
-            'password': secret_password
-        },
-        beforeSend: function(settings) {
-            settings.data.password = secret_password;
-            var youtube_id = parse_youtube_id_from_url($('#song_input').val());
-            if (youtube_id === false) {
-                return false;
-            }
-            settings.data.youtube_id = youtube_id;
-            //$('#song_input').val('');
-            return settings;
-        }
-    }).state({
-        onActivate: function() {
-            $(this).state('flash text');
-        },
-        text: {
-            flash: 'Song added!',
-        }
-    });
+    $('#add_song')
+        .api({
+            action: 'pleblist_add_song',
+            method: 'post',
+            data: {
+                password: secret_password,
+            },
+            beforeSend: function(settings) {
+                settings.data.password = secret_password;
+                var youtube_id = parse_youtube_id_from_url(
+                    $('#song_input').val()
+                );
+                if (youtube_id === false) {
+                    return false;
+                }
+                settings.data.youtube_id = youtube_id;
+                //$('#song_input').val('');
+                return settings;
+            },
+        })
+        .state({
+            onActivate: function() {
+                $(this).state('flash text');
+            },
+            text: {
+                flash: 'Song added!',
+            },
+        });
 
     $('#add_song').click(function() {
         var song_url = $('#song_input').val();
         if (song_url.length > 0) {
             $('#song_input').val('');
         }
-    })
+    });
 });
-

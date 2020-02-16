@@ -1,4 +1,5 @@
-.grow, .grow * {
+.grow,
+.grow * {
     width: 100%;
 }
 
@@ -18,7 +19,7 @@
 
     /** same height as the semantic compact input fields */
     /** 0.375em margin * 2 + 1.2142em line-height + 2 * 1px border */
-    min-height: calc((.375em * 2) + 1.2142em + 2px) !important;
+    min-height: calc((0.375em * 2) + 1.2142em + 2px) !important;
 }
 
 .volume-slider {
@@ -37,11 +38,11 @@
     justify-content: flex-start;
     align-items: stretch;
     align-content: flex-start;
-    margin-bottom: -.5em;
+    margin-bottom: -0.5em;
 }
 
 .audio-section > * {
-    margin-bottom: .5em;
+    margin-bottom: 0.5em;
 }
 
 .play-buttons {
@@ -60,11 +61,11 @@
     justify-content: center;
     align-items: center;
     align-content: stretch;
-    margin-bottom: -.5em !important;
+    margin-bottom: -0.5em !important;
 }
 
 .actions-buttons-container > * {
-    margin-bottom: .5em !important;
+    margin-bottom: 0.5em !important;
 }
 
 .middle-input {

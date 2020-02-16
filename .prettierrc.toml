@@ -1,0 +1,11 @@
+trailingComma = "es5"
+
+[[overrides]]
+files = ["*.js", "*.css"]
+[overrides.options]
+tabWidth = 4
+
+[[overrides]]
+files = ["*.js"]
+[overrides.options]
+singleQuote = true

@@ -1,11 +1,10 @@
 'use strict';
 
-$(document).ready(function () {
+$(document).ready(function() {
     let playButtons = $('.play-in-browser-play');
     let stopButtons = $('.play-in-browser-stop');
 
-
-    $('.play-in-browser-wrapper').each(function (index, wrapper) {
+    $('.play-in-browser-wrapper').each(function(index, wrapper) {
         let playButton = $(wrapper).find('.play-in-browser-play');
         let stopButton = $(wrapper).find('.play-in-browser-stop');
         let player;
@@ -14,7 +13,7 @@ $(document).ready(function () {
             let link = $(wrapper).attr('data-link');
             let volume = parseInt($(wrapper).attr('data-volume'));
 
-            let donePlaying = (e) => {
+            let donePlaying = e => {
                 if (e && typeof e !== 'number') {
                     console.warn(e);
                 }
@@ -28,11 +27,11 @@ $(document).ready(function () {
 
             player = new Howl({
                 src: [link],
-                volume: volume * 0.01,  // the given volume is between 0 and 100
+                volume: volume * 0.01, // the given volume is between 0 and 100
                 onend: donePlaying,
                 onstop: donePlaying,
                 onloaderror: donePlaying,
-                onplayerror: donePlaying
+                onplayerror: donePlaying,
             });
 
             player.play();
@@ -47,6 +46,5 @@ $(document).ready(function () {
         $(stopButton).click(() => {
             player.stop();
         });
-
     });
 });

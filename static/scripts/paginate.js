@@ -1,11 +1,11 @@
 var paginate_data = {};
 
-function paginate_refresh_buttons(key)
-{
+function paginate_refresh_buttons(key) {
     var data = paginate_data[key];
 
     var num_pages = Math.ceil(data.total / data.limit);
-    var current_page = Math.round(((data.offset / data.total) * (data.total / data.limit))) + 1;
+    var current_page =
+        Math.round((data.offset / data.total) * (data.total / data.limit)) + 1;
 
     if (current_page == 1) {
         data['left_btn'].addClass('disabled');
@@ -28,14 +28,17 @@ function paginate_refresh_buttons(key)
 
         var btns = 0;
 
-        data['div_el'].find('a.page_btn.icur').text(current_page).show();
-        for (var i=1; i<num_buttons; ++i) {
+        data['div_el']
+            .find('a.page_btn.icur')
+            .text(current_page)
+            .show();
+        for (var i = 1; i < num_buttons; ++i) {
             var btn_id = Math.round(i / 2);
             var el = false;
             var id = 0;
 
-            if (i%2 == 0) {
-                el = data['div_el'].find('a.ib' + (7-btn_id));
+            if (i % 2 == 0) {
+                el = data['div_el'].find('a.ib' + (7 - btn_id));
                 id = current_page - btn_id;
             } else {
                 el = data['div_el'].find('a.ia' + btn_id);
@@ -59,14 +62,12 @@ function paginate_refresh_buttons(key)
     }
 }
 
-function paginate_add_rows(key, rows)
-{
+function paginate_add_rows(key, rows) {
     var data = paginate_data[key];
     data.body_el.append(rows);
 }
 
-function paginate_reload(key)
-{
+function paginate_reload(key) {
     var el = $(key);
     var data = paginate_data[key];
 
@@ -74,7 +75,9 @@ function paginate_reload(key)
         action: data.action,
         on: 'now',
         beforeSend: function(settings) {
-            var key = $(this).closest('.paginate_base').data('paginate_key');
+            var key = $(this)
+                .closest('.paginate_base')
+                .data('paginate_key');
             var data = paginate_data[key];
             settings.data.offset = data.offset;
             settings.data.limit = data.limit;
@@ -85,13 +88,12 @@ function paginate_reload(key)
             paginate_on_success(response, element, xhr);
 
             var data = paginate_data[element.data('paginate_key')];
-            data['div_el'].css('visibility', 'visible')
-        }
+            data['div_el'].css('visibility', 'visible');
+        },
     });
 }
 
-function paginate_on_success(response, element, xhr)
-{
+function paginate_on_success(response, element, xhr) {
     var key = element.closest('.paginate_base').data('paginate_key');
     var data = paginate_data[key];
     data.total = response._total;
@@ -105,8 +107,7 @@ function paginate_on_success(response, element, xhr)
     paginate_refresh_buttons(key);
 }
 
-function paginate(selector, limit, direction, action, on_success, show_ends)
-{
+function paginate(selector, limit, direction, action, on_success, show_ends) {
     if (show_ends !== true) {
         show_ends = false;
     }
@@ -127,16 +128,20 @@ function paginate(selector, limit, direction, action, on_success, show_ends)
     paginate_data[selector]['action'] = action;
 
     var buttons = '';
-    for (var i=0; i<=6; ++i) {
-        buttons += '<a class="item page_btn num ib' + i + '">'+i+'</a>';
+    for (var i = 0; i <= 6; ++i) {
+        buttons += '<a class="item page_btn num ib' + i + '">' + i + '</a>';
     }
     buttons += '<a class="item page_btn icur active">XD</a>';
-    for (var i=0; i<=6; ++i) {
-        buttons += '<a class="item page_btn num ia' + i + '">'+i+'</a>';
+    for (var i = 0; i <= 6; ++i) {
+        buttons += '<a class="item page_btn num ia' + i + '">' + i + '</a>';
     }
 
     /* Create menu base */
-    paginate_el.append('<div class="ui right floated pagination menu"><a class="item nleft"><i class="left chevron icon"></i></a>'+buttons+'<a class="item nright"><i class="right chevron icon"></i></a></div>');
+    paginate_el.append(
+        '<div class="ui right floated pagination menu"><a class="item nleft"><i class="left chevron icon"></i></a>' +
+            buttons +
+            '<a class="item nright"><i class="right chevron icon"></i></a></div>'
+    );
 
     paginate_data[selector]['div_el'] = paginate_el.find('div.pagination');
     paginate_data[selector]['left_btn'] = paginate_el.find('a.nleft');
@@ -144,7 +149,16 @@ function paginate(selector, limit, direction, action, on_success, show_ends)
     paginate_el.find('a.page_btn.num').api({
         action: action,
         beforeSend: function(settings) {
-            var data = paginate_data[$(this).parent().parent().parent().parent().parent().data('paginate_key')];
+            var data =
+                paginate_data[
+                    $(this)
+                        .parent()
+                        .parent()
+                        .parent()
+                        .parent()
+                        .parent()
+                        .data('paginate_key')
+                ];
             data.offset = ($(this).data('id') - 1) * data.limit;
             settings.data.offset = data.offset;
             settings.data.limit = data.limit;
@@ -152,12 +166,14 @@ function paginate(selector, limit, direction, action, on_success, show_ends)
             return settings;
         },
         onSuccess: paginate_on_success,
-    })
+    });
 
     paginate_el.find('.nleft').api({
         action: action,
         beforeSend: function(settings) {
-            var key = $(this).closest('.paginate_base').data('paginate_key');
+            var key = $(this)
+                .closest('.paginate_base')
+                .data('paginate_key');
             var data = paginate_data[key];
             data.offset -= data.limit;
             settings.data.offset = data.offset;
@@ -171,7 +187,9 @@ function paginate(selector, limit, direction, action, on_success, show_ends)
     paginate_el.find('.nright').api({
         action: action,
         beforeSend: function(settings) {
-            var key = $(this).closest('.paginate_base').data('paginate_key');
+            var key = $(this)
+                .closest('.paginate_base')
+                .data('paginate_key');
             var data = paginate_data[key];
             data.offset += limit;
             settings.data.offset = data.offset;

@@ -1,16 +1,20 @@
-function enable_edit_row(base)
-{
+function enable_edit_row(base) {
     $('button.edit-row').click(function() {
-        var id = $(this).parent().parent().data('id');
+        var id = $(this)
+            .parent()
+            .parent()
+            .data('id');
         document.location.href = '/admin/' + base + '/edit/' + id;
     });
 }
 
-function enable_remove_row(modal_class, action)
-{
+function enable_remove_row(modal_class, action) {
     var id_remove = 0;
     $('button.remove-row').click(function() {
-        id_remove = $(this).parent().parent().data('id');
+        id_remove = $(this)
+            .parent()
+            .parent()
+            .data('id');
         $('.ui.modal.' + modal_class).modal('show');
     });
     $('.ui.modal.' + modal_class).modal({
@@ -19,7 +23,7 @@ function enable_remove_row(modal_class, action)
                 on: 'now',
                 action: action,
                 urlData: {
-                    'id': id_remove,
+                    id: id_remove,
                 },
                 onSuccess: function(response, element) {
                     $('tr[data-id="' + id_remove + '"]').remove();
@@ -28,12 +32,11 @@ function enable_remove_row(modal_class, action)
                     console.error('something went wrong');
                 },
             });
-        }
+        },
     });
 }
 
-function enable_toggle_row(action)
-{
+function enable_toggle_row(action) {
     $('button.toggle-row').api({
         action: action,
         method: 'post',
@@ -41,9 +44,15 @@ function enable_toggle_row(action)
             return response.success || false;
         },
         beforeSend: function(settings) {
-            var state = $(this).parent().parent().data('enabled');
+            var state = $(this)
+                .parent()
+                .parent()
+                .data('enabled');
             console.log(state);
-            settings.urlData.id = $(this).parent().parent().data('id');
+            settings.urlData.id = $(this)
+                .parent()
+                .parent()
+                .data('id');
             if (state == '1') {
                 settings.data.new_state = 0;
             } else {
@@ -52,20 +61,32 @@ function enable_toggle_row(action)
             return settings;
         },
         onSuccess: function(response, element) {
-            $(this).parent().parent().data('enabled', response.new_state);
+            $(this)
+                .parent()
+                .parent()
+                .data('enabled', response.new_state);
             if (response.new_state == 1) {
-                $(element).find('.text').text('Disable');
-                $(element).find('.icon').removeClass('green').addClass('red');
+                $(element)
+                    .find('.text')
+                    .text('Disable');
+                $(element)
+                    .find('.icon')
+                    .removeClass('green')
+                    .addClass('red');
             } else {
-                $(element).find('.text').text('Enable');
-                $(element).find('.icon').removeClass('red').addClass('green');
+                $(element)
+                    .find('.text')
+                    .text('Enable');
+                $(element)
+                    .find('.icon')
+                    .removeClass('red')
+                    .addClass('green');
             }
         },
     });
 }
 
-function enable_toggle_row_cb(action)
-{
+function enable_toggle_row_cb(action) {
     $('.toggle-row').api({
         on: 'change',
         action: action,
@@ -74,9 +95,17 @@ function enable_toggle_row_cb(action)
             return response.success || false;
         },
         beforeSend: function(settings) {
-            var state = $(this).parent().parent().parent().data('enabled');
+            var state = $(this)
+                .parent()
+                .parent()
+                .parent()
+                .data('enabled');
             console.log(state);
-            settings.urlData.id = $(this).parent().parent().parent().data('id');
+            settings.urlData.id = $(this)
+                .parent()
+                .parent()
+                .parent()
+                .data('id');
             if (state == '1') {
                 settings.data.new_state = 0;
             } else {
@@ -85,13 +114,27 @@ function enable_toggle_row_cb(action)
             return settings;
         },
         onSuccess: function(response, element) {
-            $(this).parent().parent().parent().data('enabled', response.new_state);
+            $(this)
+                .parent()
+                .parent()
+                .parent()
+                .data('enabled', response.new_state);
             if (response.new_state == 1) {
-                $(element).find('.text').text('Disable');
-                $(element).find('.icon').removeClass('green').addClass('red');
+                $(element)
+                    .find('.text')
+                    .text('Disable');
+                $(element)
+                    .find('.icon')
+                    .removeClass('green')
+                    .addClass('red');
             } else {
-                $(element).find('.text').text('Enable');
-                $(element).find('.icon').removeClass('red').addClass('green');
+                $(element)
+                    .find('.text')
+                    .text('Enable');
+                $(element)
+                    .find('.icon')
+                    .removeClass('red')
+                    .addClass('green');
             }
         },
     });

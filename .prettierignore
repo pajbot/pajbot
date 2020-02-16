@@ -30,3 +30,13 @@ venv/
 .idea/
 .vscode/
 /.github/pull_request_template.md
+
+# Ignore generated code
+/static/gen/
+
+# Ignore code not written by us
+/static/scripts/autolinker.js
+/static/scripts/tablesort.js
+/static/scripts/range.js
+/static/scripts/clr.queue.js
+/static/css/range.css

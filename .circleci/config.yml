@@ -39,23 +39,10 @@ jobs:
       - run:
           name: Run tests
           command: ./venv/bin/pytest
-  lint:
+  check_format:
     executor: pajbot
     steps:
       - create_python_setup
-      - run:
-          name: Run flake8 (lint)
-          command: ./venv/bin/flake8
-  check_python_format:
-    executor: pajbot
-    steps:
-      - create_python_setup
-      - run:
-          name: Run black in check mode
-          command: source venv/bin/activate && ./scripts/reformat-python.sh --check
-  check_markdown_format:
-    executor: pajbot
-    steps:
       - run:
           name: Install curl
           command: apt-get update && apt-get install curl -y
@@ -67,8 +54,8 @@ jobs:
           command: apt-get install nodejs -y
       - checkout
       - run:
-          name: Check markdown style with prettier
-          command: ./scripts/reformat-markdown.sh --check
+          name: Check code style
+          command: source venv/bin/activate && ./scripts/reformat.sh --check
 
 # add one workflow that runs all jobs in parallel
 workflows:
@@ -76,6 +63,4 @@ workflows:
   build:
     jobs:
       - test
-      - lint
-      - check_python_format
-      - check_markdown_format
+      - check_format

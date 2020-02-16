@@ -70,7 +70,8 @@ div.notifications div {
   font-weight: bold;
   font-family: "Comic Sans MS";
   -webkit-text-stroke: 1px black;
-  text-shadow: 3px 3px 0 #000, 2px 2px 0 #000, -2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  text-shadow: 3px 3px 0 #000, 2px 2px 0 #000, -2px 2px 0 #000, -1px -1px 0 #000,
+    1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 div.notifications div span.word1 {
   color: #dfffdf;
@@ -85,7 +86,8 @@ div.notifications div span.word4 {
   top: 150px;
   display: none;
 }
-#hsbet td, #hsbet div {
+#hsbet td,
+#hsbet div {
   font-size: 1.15em;
   font-weight: bold;
   font-family: "Roboto";
@@ -94,10 +96,10 @@ div.notifications div span.word4 {
   width: 70%;
 }
 #hsbet .win {
-  color: #64DD17;
+  color: #64dd17;
 }
 #hsbet .lose {
-  color: #D50000;
+  color: #d50000;
 }
 #hsbet div.left {
   float: left;

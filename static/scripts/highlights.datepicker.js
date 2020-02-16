@@ -1,5 +1,4 @@
-function create_picker(selector, disabled_dates, highlight)
-{
+function create_picker(selector, disabled_dates, highlight) {
     $(selector).pickadate({
         disable: disabled_dates,
     });
@@ -12,7 +11,14 @@ function create_picker(selector, disabled_dates, highlight)
         set: function(thing) {
             if (thing.select) {
                 date_chosen = new Date(thing.select);
-                var url = '/highlights/' + date_chosen.getFullYear() + '-' + (date_chosen.getMonth() + 1) + '-' + date_chosen.getDate() + '/';
+                var url =
+                    '/highlights/' +
+                    date_chosen.getFullYear() +
+                    '-' +
+                    (date_chosen.getMonth() + 1) +
+                    '-' +
+                    date_chosen.getDate() +
+                    '/';
                 document.location.href = url;
             }
         },
