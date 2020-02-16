@@ -38,4 +38,5 @@ venv/
 /static/scripts/autolinker.js
 /static/scripts/tablesort.js
 /static/scripts/range.js
+/static/scripts/clr.queue.js
 /static/css/range.css
