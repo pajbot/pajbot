@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added ban reason for "!permaban"
+
 ## v1.42
 
 - Minor: Add ability to run P&SL lists with !runpnsl command
