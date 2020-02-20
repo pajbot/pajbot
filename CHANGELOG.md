@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
+
 ## v1.42
 
 - Minor: Add ability to run P&SL lists with !runpnsl command
