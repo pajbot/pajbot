@@ -647,7 +647,10 @@ class Bot:
             source.subscriber = tags["subscriber"] == "1"
 
         if not whisper and source.banned:
-            self.ban(source, reason=f"User is on the {self.nickname} banlist. Contact a moderator level 1000 or higher for unban.") 
+            self.ban(
+                source,
+                reason=f"User is on the {self.nickname} banlist. Contact a moderator level 1000 or higher for unban."
+            ) 
             return False
 
         # Parse emotes in the message
