@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
 - Minor: Added ban reason for "!permaban"
 
 ## v1.42
