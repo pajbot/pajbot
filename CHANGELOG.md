@@ -4,7 +4,7 @@
 
 - Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
 - Minor: Added ban reason for "!permaban"
-- Minor: Increased the maximum value for the `!$timeout` points cost from 10k to 1 million.
+- Minor: You can now set the points cost for the `!$timeout`/`!untimeout`/`!unban`/`!$subon`/`!$suboff` commands as high as 1 million (was 30k/10k before).
 
 ## v1.42
 

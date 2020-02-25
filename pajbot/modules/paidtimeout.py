@@ -75,7 +75,7 @@ class PaidTimeoutModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=400,
-            constraints={"min_value": 1, "max_value": 10000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="bypass_level",
