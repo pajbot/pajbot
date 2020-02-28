@@ -39,7 +39,7 @@ class PaidSubmodeModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=1000,
-            constraints={"min_value": 1, "max_value": 30000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="suboff_cost",
@@ -48,7 +48,7 @@ class PaidSubmodeModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=1000,
-            constraints={"min_value": 1, "max_value": 30000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
     ]
 

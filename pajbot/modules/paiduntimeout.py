@@ -38,7 +38,7 @@ class PaidUntimeoutModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=400,
-            constraints={"min_value": 0, "max_value": 10000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="unban_enable",
@@ -63,7 +63,7 @@ class PaidUntimeoutModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=1000,
-            constraints={"min_value": 0, "max_value": 10000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
     ]
 
