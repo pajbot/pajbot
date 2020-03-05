@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class MaxMsgLengthModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "Maximum message length"
+    NAME = "Maximum Message Length"
     DESCRIPTION = "Times out users who post messages that contain too many characters."
     CATEGORY = "Moderation"
     SETTINGS = [
