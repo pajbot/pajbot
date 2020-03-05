@@ -31,6 +31,7 @@ class DubtrackModule(BaseModule):
     NAME = "Dubtrack"
     DESCRIPTION = "Gets currently playing song from dubtrack"
     CATEGORY = "Feature"
+    HIDDEN = True
     SETTINGS = [
         ModuleSetting(
             key="room_name",
