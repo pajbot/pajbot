@@ -13,10 +13,10 @@ log = logging.getLogger(__name__)
 class BanphraseModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "Banphrase"
+    NAME = "Banphrases"
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = []
 
     def is_message_bad(self, source, msg_raw, _event):

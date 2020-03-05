@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class EmotesOnScreenModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Emotes on Screen (CLR)"
+    NAME = "Emotes on Screen - CLR"
     DESCRIPTION = "Shows one or more emotes on screen per message"
     CATEGORY = "Feature"
     SETTINGS = [

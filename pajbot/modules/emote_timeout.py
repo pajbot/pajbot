@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class EmoteTimeoutModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Emote timeout"
+    NAME = "Emote Timeout"
     DESCRIPTION = "Times out users who post emoji or Twitch, BTTV or FFZ emotes"
     CATEGORY = "Filter"
     SETTINGS = [

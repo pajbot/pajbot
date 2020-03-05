@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 class EmoteComboModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Emote Combo (web interface)"
-    DESCRIPTION = "Shows emote combos in the web interface CLR thing"
+    NAME = "Emote Combos - Overlay"
+    DESCRIPTION = "Shows emote combos on the CLR pajbot overlay"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(

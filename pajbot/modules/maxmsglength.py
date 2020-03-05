@@ -14,7 +14,7 @@ class MaxMsgLengthModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Maximum message length"
     DESCRIPTION = "Times out users who post messages that contain too many characters."
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="max_msg_length",

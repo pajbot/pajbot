@@ -11,7 +11,7 @@ class CaseCheckerModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Case checker"
     DESCRIPTION = "Times out users who post messages that contain lowercase/uppercase letters."
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="timeout_uppercase",

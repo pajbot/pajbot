@@ -57,7 +57,7 @@ def pull_lol(low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltb
 class SlotMachineModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "SlotMachine"
+    NAME = "Slot Machine"
     DESCRIPTION = "Lets players play slot machines for points"
     CATEGORY = "Game"
     SETTINGS = [

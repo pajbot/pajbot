@@ -14,7 +14,7 @@ class PyramidModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Pyramid"
-    DESCRIPTION = "Congratulates people who build successfully pyramids in twitch chat"
+    DESCRIPTION = "Congratulates people who successfully build a pyramid in chat"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
