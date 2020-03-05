@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 class StreamUpdateModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Stream Update commands"
+    NAME = "Stream Update Commands"
     DESCRIPTION = "Update the stream game and title using commands from chat"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
