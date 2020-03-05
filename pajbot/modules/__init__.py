@@ -66,7 +66,7 @@ from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subalert import SubAlertModule
 from pajbot.modules.subscriber_fetch import SubscriberFetchModule
-from pajbot.modules.top import TopModule
+from pajbot.modules.topcommands import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.warning import WarningModule
