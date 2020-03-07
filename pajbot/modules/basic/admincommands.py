@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 class AdminCommandsModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Basic admin commands"
+    NAME = "Admin Commands"
     DESCRIPTION = "All miscellaneous admin commands"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True

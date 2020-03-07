@@ -14,7 +14,7 @@ class RepspamModule(BaseModule):
     NAME = "Repetitive Spam"
     DESCRIPTION = "Times out messages containing repetitive spam"
     ENABLED_DEFAULT = False
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="bypass_level",

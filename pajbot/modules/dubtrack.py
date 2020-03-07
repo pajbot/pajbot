@@ -29,7 +29,9 @@ class DubtrackModule(BaseModule):
     AUTHOR = "TalVivian @ github.com/TalVivian"
     ID = __name__.split(".")[-1]
     NAME = "Dubtrack"
-    DESCRIPTION = "Gets currently playing song from dubtrack"
+    DESCRIPTION = (
+        "Gets currently playing song from dubtrack - This module is currently unusable due to Dubtrack's closing"
+    )
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(

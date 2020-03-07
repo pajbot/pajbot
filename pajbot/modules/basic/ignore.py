@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class IgnoreModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!ignore/!unignore"
+    NAME = "Ignore"
     DESCRIPTION = "Ignore all commands from a user"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True

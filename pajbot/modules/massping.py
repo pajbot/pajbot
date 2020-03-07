@@ -21,7 +21,7 @@ class MassPingProtectionModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Mass Ping Protection"
     DESCRIPTION = "Times out users who post messages that mention too many users at once."
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="max_ping_count",
