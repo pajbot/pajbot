@@ -7,6 +7,7 @@
 - Minor: You can now set the points cost for the `!$timeout`/`!untimeout`/`!unban`/`!$subon`/`!$suboff` commands as high as 1 million (was 30k/10k before).
 - Minor: Fixed some minor grammar issues, also modified some module names and descriptions
 - Minor: "Stream Update Commands" module is now configurable (custom trigger, custom level requirement)
+- Minor: Added `slice` filter that can slice up a string. See https://docs.python.org/3/library/functions.html#slice
 
 ## v1.42
 
