@@ -935,13 +935,10 @@ def _filter_or_else(var, args):
 
 def _filter_slice(var, args):
     m = SLICE_REGEX.match(args[0])
-    print(args[0])
     if m:
         groups = m.groups()
-        print(groups)
         if groups[0] is not None and groups[2] is None:
             if groups[1] is None:
-                print(m)
                 # 0
                 return var[slice(int(groups[0]), int(groups[0]) + 1)]
 
