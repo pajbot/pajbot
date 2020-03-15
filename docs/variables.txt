@@ -39,6 +39,7 @@ Available filters:
             "or_else": _filter_or_else,
             "or_broadcaster": self._filter_or_broadcaster,
             "or_streamer": self._filter_or_broadcaster,
+            "slice": _filter_slice,
         }
 
 
