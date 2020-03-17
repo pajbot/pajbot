@@ -209,29 +209,6 @@ paginate_parser = reqparse.RequestParser()
 paginate_parser.add_argument("limit", type=int, required=False)
 paginate_parser.add_argument("offset", type=int, required=False)
 
-
-def pleblist_login(in_password, bot_config):
-    """ Throws an InvalidLogin exception if the login was not good """
-    salted_password = generate_password_hash(
-        bot_config["web"]["pleblist_password"], bot_config["web"]["pleblist_password_salt"]
-    )
-
-    try:
-        user_password = base64.b64decode(in_password)
-    except binascii.Error:
-        raise pajbot.exc.InvalidLogin("Invalid password")
-    if not user_password == salted_password:
-        raise pajbot.exc.InvalidLogin("Invalid password")
-
-
-def create_pleblist_login(bot_config):
-    """ Throws an InvalidLogin exception if the login was not good """
-    salted_password = generate_password_hash(
-        bot_config["web"]["pleblist_password"], bot_config["web"]["pleblist_password_salt"]
-    )
-    return base64.b64encode(salted_password).decode("utf8")
-
-
 def seconds_to_vodtime(t):
     s = int(t)
     h = s / 3600
