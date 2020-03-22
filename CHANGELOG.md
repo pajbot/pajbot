@@ -8,6 +8,7 @@
 - Minor: Fixed some minor grammar issues, also modified some module names and descriptions
 - Minor: "Stream Update Commands" module is now configurable (custom trigger, custom level requirement)
 - Minor: Added `slice` filter that can slice up a string. See https://docs.python.org/3/library/functions.html#slice
+- Minor: Removed pleblist stuff. Namely: password/key generation and password/key checking. Also removed youtube config entry from the example config file.
 
 ## v1.42
 
