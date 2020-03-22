@@ -64,6 +64,13 @@ def init(args):
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
 
+    if "secret_key" not in config["web"]:
+        salt = generate_random_salt()
+        config.set("web", "secret_key", salt.decode("utf-8"))
+
+        with open(args.config, "w") as configfile:
+            config.write(configfile)
+
     streamer = config["main"]["streamer"]
     streamer_user_id = twitch_helix_api.get_user_id(streamer)
     if streamer_user_id is None:
