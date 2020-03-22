@@ -1,5 +1,3 @@
-import base64
-import binascii
 import datetime
 import json
 import logging
@@ -14,7 +12,6 @@ from flask import make_response
 from flask import request
 from flask import session
 from flask_restful import reqparse
-from flask_scrypt import generate_password_hash
 
 import pajbot.exc
 import pajbot.managers
