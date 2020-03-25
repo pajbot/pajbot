@@ -1,11 +1,11 @@
 # Installation instructions
 
-Welcome to the installation instructions for pajbot!
+Welcome to the installation instructions for troybot!
 
-Below is the index for a full list of installation instructions for pajbot.
+Below is the index for a full list of installation instructions for troybot.
 
-These installation instructions will install pajbot in a way that allows you to run pajbot for multiple streamers at once without too much duplication.
-For this reason, these installation instructions are split into two big parts: Installation of pajbot, and creating a pajbot instance for a single channel (which you can repeat as needed, should you want to run pajbot in multiple channels, for different streamers for example).
+These installation instructions will install troybot in a way that allows you to run troybot for multiple streamers at once without too much duplication.
+For this reason, these installation instructions are split into two big parts: Installation of troybot, and creating a troybot instance for a single channel (which you can repeat as needed, should you want to run troybot in multiple channels, for different streamers for example).
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -15,7 +15,7 @@ For this reason, these installation instructions are split into two big parts: I
 - [Service installation](#service-installation)
   - [Install system dependencies](#install-system-dependencies)
   - [Set up a system user](#set-up-a-system-user)
-  - [Install pajbot](#install-pajbot)
+  - [Install troybot](#install-troybot)
   - [Install and set up the database server](#install-and-set-up-the-database-server)
   - [Install Redis](#install-redis)
   - [Install nginx](#install-nginx)
@@ -33,11 +33,11 @@ For this reason, these installation instructions are split into two big parts: I
 
 # Service installation
 
-Please note we currently only document how to run pajbot on GNU/Linux systems. The following instructions should work without any changes on Debian and Ubuntu. If you are running another distribution of GNU/Linux, you might have to make some changes to the commands, file locations, etc. below.
+Please note we currently only document how to run troybot on GNU/Linux systems. The following instructions should work without any changes on Debian and Ubuntu. If you are running another distribution of GNU/Linux, you might have to make some changes to the commands, file locations, etc. below.
 
 ## Install system dependencies
 
-Pajbot is written in python, so we need to install some basic python packages:
+troybot is written in python, so we need to install some basic python packages:
 
 ```bash
 sudo apt update
@@ -52,57 +52,57 @@ sudo apt install libssl-dev libpq-dev build-essential
 
 ## Set up a system user
 
-For security reasons, you shouldn't run pajbot as the `root` user on your server.
-You can create a low-privilege "system" user for pajbot like this:
+For security reasons, you shouldn't run troybot as the `root` user on your server.
+You can create a low-privilege "system" user for troybot like this:
 
 ```bash
-sudo adduser --system --group pajbot --home /opt/pajbot
+sudo adduser --system --group troybot --home /opt/troybot
 ```
 
-## Install pajbot
+## Install troybot
 
-Download the latest stable version of pajbot:
+Download the latest stable version of troybot:
 
 ```bash
-sudo -u pajbot git clone https://github.com/pajlada/pajbot.git /opt/pajbot --branch stable
+sudo -u troybot git clone https://github.com/TroyDota/troybot.git /opt/troybot --branch master
 ```
 
-Install pajbot's dependencies like this:
+Install troybot's dependencies like this:
 
 ```bash
-cd /opt/pajbot
-sudo -H -u pajbot ./scripts/venvinstall.sh
+cd /opt/troybot
+sudo -H -u troybot ./scripts/venvinstall.sh
 ```
 
 ## Install and set up the database server
 
-pajbot uses PostgreSQL as its database server. If you don't already have PostgreSQL running on your server, you can install it with:
+troybot uses PostgreSQL as its database server. If you don't already have PostgreSQL running on your server, you can install it with:
 
 ```bash
 sudo apt install postgresql
 ```
 
-Now that you have PostgreSQL installed, we will create a user to allow pajbot to use the PostgreSQL database server:
+Now that you have PostgreSQL installed, we will create a user to allow troybot to use the PostgreSQL database server:
 
 ```bash
-sudo -u postgres createuser pajbot
+sudo -u postgres createuser troybot
 ```
 
-> Note: We have not set a password for pajbot, and this is intentional. Because we created a system user with the name `pajbot` earlier, applications running under the `pajbot` system user will be able to log into the database server as the `pajbot` database user automatically, without having to enter a password.
+> Note: We have not set a password for troybot, and this is intentional. Because we created a system user with the name `troybot` earlier, applications running under the `troybot` system user will be able to log into the database server as the `troybot` database user automatically, without having to enter a password.
 >
-> We have run `createuser` as `postgres` for the same reason: `postgres` is a pre-defined PostgreSQL database superuser, and by using `sudo`, we are executing `createuser pajbot` as the `postgres` system (and database) user.
+> We have run `createuser` as `postgres` for the same reason: `postgres` is a pre-defined PostgreSQL database superuser, and by using `sudo`, we are executing `createuser troybot` as the `postgres` system (and database) user.
 >
 > This is a default setting present on Debian-like systems, and is defined via the configuration file [`pg_hba.conf`](https://www.postgresql.org/docs/current/auth-pg-hba-conf.html).
 
-We will now create a database named `pajbot`, owned by the `pajbot` database user:
+We will now create a database named `troybot`, owned by the `troybot` database user:
 
 ```bash
-sudo -u postgres createdb --owner=pajbot pajbot
+sudo -u postgres createdb --owner=troybot troybot
 ```
 
 ## Install Redis
 
-Pajbot also needs an instance of [Redis](https://redis.io/) to run.
+troybot also needs an instance of [Redis](https://redis.io/) to run.
 The redis database server does not need any manual setup - all you have to do is install redis:
 
 ```bash
@@ -134,18 +134,18 @@ We will configure nginx later.
 
 ## Install system services
 
-We recommend you run pajbot with the help of systemd. Systemd will take care of:
+We recommend you run troybot with the help of systemd. Systemd will take care of:
 
-- starting and stopping pajbot,
+- starting and stopping troybot,
 - capturing and storing the output of the service as logs,
-- starting pajbot automatically on system startup (and starting it in the correct order, after other services it needs),
-- restarting pajbot on failure,
-- and running multiple instances if you run pajbot for multiple streamers
+- starting troybot automatically on system startup (and starting it in the correct order, after other services it needs),
+- restarting troybot on failure,
+- and running multiple instances if you run troybot for multiple streamers
 
-To start using systemd for pajbot, install the pre-packaged unit files like this:
+To start using systemd for troybot, install the pre-packaged unit files like this:
 
 ```bash
-sudo cp /opt/pajbot/install-docs/*.service /etc/systemd/system/
+sudo cp /opt/troybot/install-docs/*.service /etc/systemd/system/
 ```
 
 Then tell systemd to reload changes:
@@ -156,7 +156,7 @@ sudo systemctl daemon-reload
 
 # Single bot setup
 
-Now that you have the basics installed, we need to tell pajbot to (and how to) run in a certain channel. Pajbot running in a single channel, and with its website for that channel, is called an **instance** of pajbot from now on.
+Now that you have the basics installed, we need to tell troybot to (and how to) run in a certain channel. troybot running in a single channel, and with its website for that channel, is called an **instance** of troybot from now on.
 
 ## Create an application with Twitch
 
@@ -166,16 +166,16 @@ To create an application with Twitch, visit https://dev.twitch.tv/console/apps/c
 
 - Under _Name_, enter the name you want users to see when they log into the website and have to confirm they want to grant you access to their account.
 - Under _OAuth Redirect URL_, enter the full URL users should be redirected to after they complete the log in procedure with Twitch. This should be `https://pleb-domain.com/login/authorized` (adjust domain name of course).
-- Under _Category_, you should pick _Chat Bot_, as it is the most appropriate option for pajbot.
+- Under _Category_, you should pick _Chat Bot_, as it is the most appropriate option for troybot.
 
 After you click "Create", you are given access to the **Client ID**. After clicking **New Secret**, you can also access your **Client Secret**. You will need these values in the next step - when you create the configuration file for your instance.
 
 ## Create a database schema
 
-Each instance's data lives in the same database (`pajbot`, we created this earlier), but we separate the data by putting each instance into its own **schema**. To create a new schema for your instance, run:
+Each instance's data lives in the same database (`troybot`, we created this earlier), but we separate the data by putting each instance into its own **schema**. To create a new schema for your instance, run:
 
 ```bash
-sudo -u pajbot psql pajbot -c "CREATE SCHEMA pajbot1_streamername"
+sudo -u troybot psql troybot -c "CREATE SCHEMA troybot_streamername"
 ```
 
 Remember the name of the schema you created! You'll need to enter it into the configuration file, which you will create and edit in the next step:
@@ -185,21 +185,21 @@ Remember the name of the schema you created! You'll need to enter it into the co
 There is an [example config file](../configs/example.ini) available for you to copy:
 
 ```bash
-sudo -u pajbot cp /opt/pajbot/configs/example.ini /opt/pajbot/configs/streamer_name.ini
+sudo -u troybot cp /opt/troybot/configs/example.ini /opt/troybot/configs/streamer_name.ini
 ```
 
 The example config contains comments about what values you need to enter in what places. Edit the config with a text editor to adjust the values.
 
 ```bash
-sudo -u pajbot editor /opt/pajbot/configs/streamer_name.ini
+sudo -u troybot editor /opt/troybot/configs/streamer_name.ini
 ```
 
 ## Set up the website with nginx
 
-Pajbot comes with pre-set nginx configuration files you only need to copy and edit lightly to reflect your installation.
+troybot comes with pre-set nginx configuration files you only need to copy and edit lightly to reflect your installation.
 
 ```bash
-sudo cp /opt/pajbot/install-docs/nginx-example.conf /etc/nginx/sites-available/streamer_name.your-domain.com.conf
+sudo cp /opt/troybot/install-docs/nginx-example.conf /etc/nginx/sites-available/streamer_name.your-domain.com.conf
 sudo ln -s /etc/nginx/sites-available/streamer_name.your-domain.com.conf /etc/nginx/sites-enabled/
 ```
 
@@ -221,20 +221,20 @@ sudo systemctl reload nginx
 
 ## Enable and start the service
 
-To start and enable (i.e. run it on boot) pajbot, run:
+To start and enable (i.e. run it on boot) troybot, run:
 
 ```bash
-sudo systemctl enable --now pajbot@streamer_name pajbot-web@streamer_name
+sudo systemctl enable --now troybot@streamer_name troybot-web@streamer_name
 ```
 
 ## Authenticate the bot
 
-One last step: You need to give your pajbot instance access to use your bot account! For this purpose, visit the URL `https://streamer_name.your-domain.com/bot_login` and complete the login procedure to authorize the bot.
+One last step: You need to give your troybot instance access to use your bot account! For this purpose, visit the URL `https://streamer_name.your-domain.com/bot_login` and complete the login procedure to authorize the bot.
 
 Then, to finally make the bot come online in chat, run:
 
 ```bash
-sudo systemctl restart pajbot@streamer_name
+sudo systemctl restart troybot@streamer_name
 ```
 
 ## Further steps
@@ -257,8 +257,5 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command lastseen --reply @$(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
   !add command epmrecord --reply @$(source:name), $(1) per minute record is $(epmrecord;1).
   !add command profile --reply @$(source:name), https://$(tb:bot_domain)/user/$(usersource;1:username)
-  !add command overlay|clr --reply @$(source:name), https://$(tb:bot_domain)/clr/overlay/12345
   !add command playsounds --reply @$(source:name), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   ```
-
-- Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
