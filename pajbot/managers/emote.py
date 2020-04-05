@@ -151,14 +151,11 @@ class EmoteManager:
 
         self.epm = {}
 
-        try:
-            # every 1 hour
-            # note: whenever emotes are refreshed (cache is saved to redis), the key is additionally set to expire
-            # in one hour. This is to prevent emotes from never refreshing if the bot restarts in less than an hour.
-            # (This also means that the bot will never have emotes older than 2 hours)
-            ScheduleManager.execute_every(1 * 60 * 60, self.update_all_emotes)
-        except:
-            log.exception("Something went wrong trying to initialize automatic emote refresh")
+        # every 1 hour
+        # note: whenever emotes are refreshed (cache is saved to redis), the key is additionally set to expire
+        # in one hour. This is to prevent emotes from never refreshing if the bot restarts in less than an hour.
+        # (This also means that the bot will never have emotes older than 2 hours)
+        ScheduleManager.execute_every(1 * 60 * 60, self.update_all_emotes)
 
         self.load_all_emotes()
 
