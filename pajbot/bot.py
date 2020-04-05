@@ -643,7 +643,7 @@ class Bot:
         emote_tag = tags["emotes"]
         msg_id = tags.get("id", None)  # None on whispers!
         badges_string = tags.get("badges", "")
-        badges = dict((badge.split('/') for badge in filter(None, badges_string.split(','))))
+        badges = dict((badge.split("/") for badge in filter(None, badges_string.split(","))))
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
