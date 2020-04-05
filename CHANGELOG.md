@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unversioned
+- Bugfix: Fixed warnings in the admin playsounds page
 
 ## v1.43
 
