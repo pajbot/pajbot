@@ -10,6 +10,7 @@
 - Minor: Added `slice` filter that can slice up a string. See https://docs.python.org/3/library/functions.html#slice
 - Minor: Removed pleblist stuff. Namely: password/key generation and password/key checking. Also removed youtube config entry from the example config file.
 - Bugfix: Fixed web process not starting if the venv was recently installed or updated. (#816)
+- Bugfix: Fixed founders not counting as subscribers (#820)
 
 ## v1.42
 
