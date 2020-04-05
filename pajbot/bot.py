@@ -642,11 +642,14 @@ class Bot:
 
         emote_tag = tags["emotes"]
         msg_id = tags.get("id", None)  # None on whispers!
+        badges_string = tags.get("badges", "")
+        badges = dict((badge.split('/') for badge in filter(None, badges_string.split(','))))
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
             source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
-            source.subscriber = tags["subscriber"] == "1"
+            # Having the founder badge means that the subscriber tag is set to 0. Therefore it's more stable to just check badges
+            source.subscriber = "founder" in badges or "subscriber" in badges
 
         if not whisper and source.banned:
             self.ban(
