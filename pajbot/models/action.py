@@ -124,7 +124,7 @@ class Substitution:
         r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
-    urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)+\)")
+    urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-.|_~:\/?#\[\]@!$%&\'\"()*+,;=]+)\)")
     urlfetch_substitution_regex_all = re.compile(r"\$\(urlfetch (.+?)\)")
 
     def __init__(self, cb, needle, key=None, argument=None, filters=[]):
