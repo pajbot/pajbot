@@ -161,7 +161,7 @@
                 <td class="top aligned">
                     <div class="ui input compact cooldown-input">
                         <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cooldown"
-                               value="{{ playsound.cooldown if playsound.cooldown }}">
+                               value="{{ playsound.cooldown if playsound.cooldown is not none }}">
                     </div>
                 </td>
                 <td class="top aligned">
