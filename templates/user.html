@@ -53,7 +53,7 @@
                 <tr>
                     <td><strong>Last active in chat</strong></td>
                     {% if user.last_active %}
-                    <td>{{ user.last_active|localize }} &emsp; <a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">logs</a></td>
+                    <td>{{ user.last_active|localize }}</td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
@@ -73,6 +73,10 @@
                 <tr>
                     <td><strong>Permabanned on {{ bot.name }}</strong></td>
                     <td>{%if user.banned %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                <tr>
+                    <td><strong>Logs</strong></td>
+                    <td><a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">Overrustle</a> | <a href="https://logs.ivr.fi/?channel={{ streamer.full_name }}&username={{ user.login }}">Leppunen Logs</a> | <a href="https://www.twitch.tv/popout/{{ streamer.full_name }}/viewercard/{{ user.login }}">Twitch Logs (Mod only)</a></td>
                 </tr>
             </tbody>
         </table>
