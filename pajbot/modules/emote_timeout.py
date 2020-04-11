@@ -12,7 +12,7 @@ class EmoteTimeoutModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Emote Timeout"
     DESCRIPTION = "Times out users who post emoji or Twitch, BTTV or FFZ emotes"
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="timeout_twitch", label="Timeout any Twitch emotes", type="boolean", required=True, default=False
