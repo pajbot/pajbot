@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Lowered minimum level required for the `!runpnsl` command from 500 to 420.
+- Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
 
 ## v1.43
 
