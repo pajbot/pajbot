@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Bugfix: Fixed warnings in the admin playsounds page
+
 ## v1.43
 
 - Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
