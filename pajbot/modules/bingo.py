@@ -63,7 +63,7 @@ def remove_emotes_suffix(word):
 
 class BingoModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Bingo Games"
+    NAME = "Bingo"
     DESCRIPTION = "Chat Bingo Game for Twitch, FFZ and BTTV Emotes"
     ENABLED_DEFAULT = False
     CATEGORY = "Game"

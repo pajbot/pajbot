@@ -58,6 +58,8 @@ URL_REGEX = re.compile(
     re.IGNORECASE,
 )
 
+SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
+
 
 class Bot:
     """
@@ -640,11 +642,14 @@ class Bot:
 
         emote_tag = tags["emotes"]
         msg_id = tags.get("id", None)  # None on whispers!
+        badges_string = tags.get("badges", "")
+        badges = dict((badge.split("/") for badge in badges_string.split(",") if badge != ""))
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
             source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
-            source.subscriber = tags["subscriber"] == "1"
+            # Having the founder badge means that the subscriber tag is set to 0. Therefore it's more stable to just check badges
+            source.subscriber = "founder" in badges or "subscriber" in badges
 
         if not whisper and source.banned:
             self.ban(
@@ -862,6 +867,7 @@ class Bot:
             "or_else": _filter_or_else,
             "or_broadcaster": self._filter_or_broadcaster,
             "or_streamer": self._filter_or_broadcaster,
+            "slice": _filter_slice,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -928,3 +934,27 @@ def _filter_or_else(var, args):
         return args[0]
     else:
         return var
+
+
+def _filter_slice(var, args):
+    m = SLICE_REGEX.match(args[0])
+    if m:
+        groups = m.groups()
+        if groups[0] is not None and groups[2] is None:
+            if groups[1] is None:
+                # 0
+                return var[slice(int(groups[0]), int(groups[0]) + 1)]
+
+            # 0:
+            return var[slice(int(groups[0]), None)]
+        if groups[0] is not None and groups[2] is not None:
+            # 0:0
+            return var[slice(int(groups[0]), int(groups[2]))]
+
+        if groups[0] is None and groups[2] is not None:
+            # :0
+            return var[slice(int(groups[2]))]
+
+        return var
+
+    return var

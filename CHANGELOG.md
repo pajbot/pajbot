@@ -2,9 +2,17 @@
 
 ## Unversioned
 
+## v1.43
+
 - Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
-- Minor: Added ban reason for "!permaban"
+- Minor: Added ban reason for `!permaban`
 - Minor: You can now set the points cost for the `!$timeout`/`!untimeout`/`!unban`/`!$subon`/`!$suboff` commands as high as 1 million (was 30k/10k before).
+- Minor: Fixed some minor grammar issues, also modified some module names and descriptions
+- Minor: "Stream Update Commands" module is now configurable (custom trigger, custom level requirement)
+- Minor: Added `slice` filter that can slice up a string. See https://docs.python.org/3/library/functions.html#slice
+- Minor: Removed pleblist stuff. Namely: password/key generation and password/key checking. Also removed youtube config entry from the example config file.
+- Bugfix: Fixed web process not starting if the venv was recently installed or updated. (#816)
+- Bugfix: Fixed founders not counting as subscribers (#820)
 
 ## v1.42
 

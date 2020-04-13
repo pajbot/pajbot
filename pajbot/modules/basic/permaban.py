@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 class PermabanModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!permaban/!unpermaban"
-    DESCRIPTION = "Permaban a user. (re-bans him if unbanned by mod)"
-    CATEGORY = "Feature"
+    NAME = "Permaban"
+    DESCRIPTION = "Permabans a user (re-bans them if unbanned by a mod)"
+    CATEGORY = "Moderation"
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule

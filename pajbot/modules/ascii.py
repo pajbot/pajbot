@@ -12,9 +12,9 @@ log = logging.getLogger(__name__)
 class AsciiProtectionModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "Ascii Protection"
+    NAME = "ASCII Protection"
     DESCRIPTION = "Times out users who post messages that contain too many ASCII characters."
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="min_msg_length",

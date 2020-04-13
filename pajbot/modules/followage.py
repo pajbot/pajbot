@@ -16,7 +16,7 @@ class FollowAgeModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Follow age"
-    DESCRIPTION = "Makes two commands available: !followage and !followsince"
+    DESCRIPTION = "Enables the usage of the !followage and !followsince commands"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(

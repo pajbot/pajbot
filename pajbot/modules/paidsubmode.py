@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class PaidSubmodeModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "Paid SubOn/SubOff"
+    NAME = "Paid Submode"
     DESCRIPTION = "Allows user to toggle subscribers mode on and off using points."
     CATEGORY = "Feature"
     SETTINGS = [

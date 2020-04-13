@@ -64,20 +64,6 @@ def init(args):
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
 
-    if "pleblist_password_salt" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "pleblist_password_salt", salt.decode("utf-8"))
-
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
-
-    if "pleblist_password" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "pleblist_password", salt.decode("utf-8"))
-
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
-
     if "secret_key" not in config["web"]:
         salt = generate_random_salt()
         config.set("web", "secret_key", salt.decode("utf-8"))
