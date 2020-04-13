@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Lowered minimum level required for the `!runpnsl` command from 500 to 420.
+
 ## v1.43
 
 - Minor: Updated response of `!checkmod` command to reflect the regular moderators refresh feature introduced in v1.38.
