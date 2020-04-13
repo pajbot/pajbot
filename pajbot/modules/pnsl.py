@@ -23,7 +23,7 @@ class PNSLModule(BaseModule):
             required=True,
             placeholder="",
             default=750,
-            constraints={"min_value": 500, "max_value": 2000},
+            constraints={"min_value": 420, "max_value": 2000},
         ),
         ModuleSetting(
             key="per_chunk",
