@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
 - Bugfix: Fixed warnings in the admin playsounds page
 
 ## v1.43
