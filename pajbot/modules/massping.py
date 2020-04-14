@@ -125,7 +125,8 @@ class MassPingProtectionModule(BaseModule):
 
             potential_users.add(matched_part)
 
-        # check how many words a known user (we have seen this username before)
+        # check how many of the words in `potential_users` refer to known users
+        # (i.e. we have seen this username before & user was recently seen in chat)
         return MassPingProtectionModule.count_known_users(potential_users)
 
     def determine_timeout_length(self, message, source, emote_instances):
