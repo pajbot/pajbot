@@ -63,32 +63,39 @@ function add_emotes({
         // largest URL available
         let { url, needsScale } = getEmoteURL(emote);
 
-        let divsize = 120;
-        let posx = (Math.random() * ($(document).width() - divsize)).toFixed();
-        let posy = (Math.random() * ($(document).height() - divsize)).toFixed();
-        let newdiv = $('<img class="absemote">').css({
-            left: posx + 'px',
-            top: posy + 'px',
-            opacity: 0,
-            transform: `scale(${(emoteScale / 100) * needsScale})`,
-        });
-        newdiv.attr({ src: url });
-        newdiv.appendTo('body');
-        newdiv.animate(
+        let posX = `${Math.random() * 100}%`;
+        let posY = `${Math.random() * 100}%`;
+
+        let imgElement = $('<img class="absemote">')
+            .css({
+                transform: `scale(${(emoteScale / 100) * needsScale})`,
+            })
+            .attr({ src: url });
+
+        let containerDiv = $('<div class="absemote_container"></div>')
+            .css({
+                left: posX,
+                top: posY,
+                opacity: 0,
+            })
+            .append(imgElement)
+            .appendTo('body');
+
+        containerDiv.animate(
             {
                 opacity: opacity / 100,
             },
             500
         );
         setTimeout(() => {
-            newdiv.animate(
+            containerDiv.animate(
                 {
                     opacity: 0,
                 },
                 1000
             );
             setTimeout(() => {
-                newdiv.remove();
+                containerDiv.remove();
             }, 1000);
         }, persistenceTime);
     }
