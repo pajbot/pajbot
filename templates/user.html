@@ -53,7 +53,7 @@
                 <tr>
                     <td><strong>Last active in chat</strong></td>
                     {% if user.last_active %}
-                    <td>{{ user.last_active|localize }} &emsp; <a href="https://overrustlelogs.net/stalk?channel={{ streamer.full_name }}&nick={{ user.login }}">logs</a></td>
+                    <td>{{ user.last_active|localize }}</td>
                     {% else %}
                     <td>Never</td>
                     {% endif %}
