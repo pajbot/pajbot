@@ -53,8 +53,14 @@ div.exploding {
   position: absolute;
 }
 
-img.absemote {
-  position: absolute;
+div.absemote_container {
+  position: fixed;
+  transform: translate(-50%, -50%);
+}
+
+img.absemote,
+#emote_combo img {
+  image-rendering: pixelated;
 }
 
 div.notifications {
