@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added new module for simple emote spam moderation
 - Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
 - Minor: Enlarged emotes on the CLR are no longer blurry
 - Minor: Remove the logs option from the user page (due to the termination of overrustlelogs)
