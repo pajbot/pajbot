@@ -65,7 +65,7 @@ from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.slotmachine import SlotMachineModule
-from pajbot.modules.subalert import SubAlertModule
+from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
