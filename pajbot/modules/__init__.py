@@ -19,6 +19,7 @@ from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.chat_alerts import ChatAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
+from pajbot.modules.chat_alerts.followalert import FollowAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
@@ -98,6 +99,7 @@ available_modules = [
     EmotesModule,
     EmotesOnScreenModule,
     FollowAgeModule,
+    FollowAlertModule,
     GetTimedOutQuestModule,
     GivePointsModule,
     HSBetModule,
