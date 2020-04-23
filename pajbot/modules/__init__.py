@@ -17,6 +17,8 @@ from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
+from pajbot.modules.chat_alerts import ChatAlertsModule
+from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.dubtrack import DubtrackModule
@@ -65,7 +67,6 @@ from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
 from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.slotmachine import SlotMachineModule
-from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
@@ -81,6 +82,7 @@ available_modules = [
     BasicCommandsModule,
     BingoModule,
     CaseCheckerModule,
+    ChatAlertsModule,
     ChattersRefreshModule,
     CheckModModule,
     DBManageModule,
