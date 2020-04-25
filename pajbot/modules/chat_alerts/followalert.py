@@ -86,21 +86,11 @@ class FollowAlertModule(BaseModule):
         Send the event to the websocket manager, and send a customized message in chat.
         """
 
-        self.on_sub_shared(user)
-
-        self.bot.kvi["active_subs"].inc()
-
-        payload = {"username": user.name, "gifted_by": gifted_by}
-        self.bot.websocket_manager.emit("new_sub", payload)
+        payload = {"username": user.name}
+        self.bot.websocket_manager.emit("new_follow", payload)
 
         if self.settings["chat_message"] is True:
-            if sub_type == "Prime":
-                self.bot.say(self.get_phrase("new_prime_sub", **payload))
-            else:
-                if gifted_by:
-                    self.bot.say(self.get_phrase("new_gift_sub", **payload))
-                else:
-                    self.bot.say(self.get_phrase("new_sub", **payload))
+            self.bot.say(self.get_phrase("new_follow", **payload))
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
