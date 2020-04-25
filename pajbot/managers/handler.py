@@ -73,6 +73,9 @@ class HandlerManager:
         # on_quit()
         HandlerManager.create_handler("on_quit")
 
+        #on_follow(user)
+        HandlerManager.create_handler("on_follow")
+
     @staticmethod
     def create_handler(event):
         """ Create an empty list for the given event """
