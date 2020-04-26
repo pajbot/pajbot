@@ -14,6 +14,19 @@ class EmoteLimitModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
+            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="allow_subs_to_bypass",
+            label="Allow subscribers to bypass",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="max_emotes",
             label="Maximum number of emotes that can be posted",
             type="number",
@@ -47,19 +60,6 @@ class EmoteLimitModule(BaseModule):
             placeholder="",
             default=60,
             constraints={"min_value": 3, "max_value": 3600},
-        ),
-        ModuleSetting(
-            key="allow_subs_to_bypass",
-            label="Allow subscribers to bypass",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
-            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
         ),
         ModuleSetting(
             key="timeout_reason",
