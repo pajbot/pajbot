@@ -28,6 +28,9 @@ class CaseCheckerModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
+            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
             type="number",
@@ -44,9 +47,6 @@ class CaseCheckerModule(BaseModule):
             placeholder="",
             default=3,
             constraints={"min_value": 3, "max_value": 120},
-        ),
-        ModuleSetting(
-            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
         ),
         ModuleSetting(
             key="uppercase_timeout_reason",
