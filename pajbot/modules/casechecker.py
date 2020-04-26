@@ -48,6 +48,24 @@ class CaseCheckerModule(BaseModule):
         ModuleSetting(
             key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
         ),
+        ModuleSetting(
+            key="uppercase_timeout_reason",
+            label="Uppercase Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="no uppercase characters allowed",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="lowercase_timeout_reason",
+            label="Lowercase Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="NO LOWERCASE CHARACTERS ALLOWED",
+            constraints={},
+        ),
     ]
 
     def on_message(self, source, message, **rest):
@@ -59,13 +77,13 @@ class CaseCheckerModule(BaseModule):
 
         if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
             self.bot.timeout(
-                source, self.settings["timeout_duration"], reason="no uppercase characters allowed", once=True
+                source, self.settings["timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True
             )
             return False
 
         if self.settings["timeout_lowercase"] and any(c.islower() for c in message):
             self.bot.timeout(
-                source, self.settings["timeout_duration"], reason="NO LOWERCASE CHARACTERS ALLOWED", once=True
+                source, self.settings["timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True
             )
             return False
 
