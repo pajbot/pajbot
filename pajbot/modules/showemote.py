@@ -14,6 +14,15 @@ class ShowEmoteModule(BaseModule):
     DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
     CATEGORY = "Feature"
     SETTINGS = [
+        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
+        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="success_whisper",
+            label="Send a whisper when emote was successfully sent",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
         ModuleSetting(
             key="point_cost",
             label="Point cost",
@@ -32,8 +41,6 @@ class ShowEmoteModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 15},
         ),
-        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
-        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
         ModuleSetting(
             key="emote_whitelist",
             label="Whitelisted emotes (separate by spaces). Leave empty to use the blacklist.",
@@ -76,13 +83,6 @@ class ShowEmoteModule(BaseModule):
             placeholder="",
             default=100,
             constraints={"min_value": 0, "max_value": 100000},
-        ),
-        ModuleSetting(
-            key="success_whisper",
-            label="Send a whisper when emote was successfully sent",
-            type="boolean",
-            required=True,
-            default=True,
         ),
     ]
 

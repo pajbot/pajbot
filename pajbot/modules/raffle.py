@@ -38,6 +38,16 @@ class RaffleModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
+            key="show_on_clr", label="Show raffles on the clr overlay", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="multi_raffle_on_sub",
+            label="Start a multi raffle when someone subscribes",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="message_start",
             label="Start message | Available arguments: {length}, {points}",
             type="text",
@@ -145,22 +155,12 @@ class RaffleModule(BaseModule):
             constraints={"min_value": 1, "max_value": 100000},
         ),
         ModuleSetting(
-            key="multi_raffle_on_sub",
-            label="Start a multi raffle when someone subscribes",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
             key="default_raffle_type",
             label="Default raffle (What raffle type !raffle should invoke)",
             type="options",
             required=True,
             default="Single Raffle",
             options=["Single Raffle", "Multi Raffle"],
-        ),
-        ModuleSetting(
-            key="show_on_clr", label="Show raffles on the clr overlay", type="boolean", required=True, default=True
         ),
     ]
 

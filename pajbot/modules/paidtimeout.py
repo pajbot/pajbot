@@ -21,6 +21,9 @@ class PaidTimeoutModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
+            key="show_on_clr", label="Show timeouts on the clr overlay", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
             key="command_name",
             label="Command name (i.e. $timeout)",
             type="text",
@@ -85,9 +88,6 @@ class PaidTimeoutModule(BaseModule):
             placeholder="",
             default=500,
             constraints={"min_value": 100, "max_value": 1000},
-        ),
-        ModuleSetting(
-            key="show_on_clr", label="Show timeouts on the clr overlay", type="boolean", required=True, default=True
         ),
     ]
 

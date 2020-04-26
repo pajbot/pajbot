@@ -18,17 +18,15 @@ class TopModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="num_top",
-            label="How many people we should list",
-            type="number",
-            required=True,
-            placeholder="min 1, max 5",
-            default=3,
-            constraints={"min_value": 1, "max_value": 5},
-        ),
-        ModuleSetting(
             key="enable_topchatters",
             label="Enable the !topchatters command (most messages)",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="enable_toppoints",
+            label="Enable the !toppoints command (most points)",
             type="boolean",
             required=True,
             default=False,
@@ -48,11 +46,13 @@ class TopModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
-            key="enable_toppoints",
-            label="Enable the !toppoints command (most points)",
-            type="boolean",
+            key="num_top",
+            label="How many people we should list",
+            type="number",
             required=True,
-            default=False,
+            placeholder="min 1, max 5",
+            default=3,
+            constraints={"min_value": 1, "max_value": 5},
         ),
     ]
 
