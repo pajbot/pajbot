@@ -24,13 +24,6 @@ class MassPingProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
             key="max_ping_count",
             label="Maximum number of pings allowed in each message",
             type="number",
@@ -56,6 +49,13 @@ class MassPingProtectionModule(BaseModule):
             placeholder="",
             default=30,
             constraints={"min_value": 0, "max_value": 600},
+        ),
+        ModuleSetting(
+            key="whisper_offenders",
+            label="Send offenders a whisper explaining the timeout",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="bypass_level",
