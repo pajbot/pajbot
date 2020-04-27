@@ -17,13 +17,6 @@ class AsciiProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
             key="min_msg_length",
             label="Minimum message length to be considered bad",
             type="number",
@@ -49,6 +42,13 @@ class AsciiProtectionModule(BaseModule):
             placeholder="",
             default=500,
             constraints={"min_value": 100, "max_value": 1000},
+        ),
+        ModuleSetting(
+            key="whisper_offenders",
+            label="Send offenders a whisper explaining the timeout",
+            type="boolean",
+            required=True,
+            default=False,
         ),
     ]
 
