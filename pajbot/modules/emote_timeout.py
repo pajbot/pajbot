@@ -83,6 +83,7 @@ class EmoteTimeoutModule(BaseModule):
             default="No BTTV emotes allowed",
             constraints={},
         ),
+        ModuleSetting(
             key="emoji_timeout_reason",
             label="Emoji Timeout Reason",
             type="text",
