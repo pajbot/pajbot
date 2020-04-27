@@ -25,12 +25,6 @@ class EmoteTimeoutModule(BaseModule):
             key="timeout_emoji", label="Timeout any unicode emoji", type="boolean", required=True, default=False
         ),
         ModuleSetting(
-            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
-            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
             type="number",
@@ -57,31 +51,10 @@ class EmoteTimeoutModule(BaseModule):
             constraints={"min_value": 3, "max_value": 120},
         ),
         ModuleSetting(
-            key="twitch_timeout_reason",
-            label="Twitch Emote Timeout Reason",
-            type="text",
-            required=False,
-            placeholder="",
-            default="No Twitch emotes allowed",
-            constraints={},
+            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="ffz_timeout_reason",
-            label="FFZ Emote Timeout Reason",
-            type="text",
-            required=False,
-            placeholder="",
-            default="No FFZ emotes allowed",
-            constraints={},
-        ),
-        ModuleSetting(
-            key="bttv_timeout_reason",
-            label="BTTV Emote Timeout Reason",
-            type="text",
-            required=False,
-            placeholder="",
-            default="No BTTV emotes allowed",
-            constraints={},
+            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
         ),
     ]
 
@@ -102,15 +75,15 @@ class EmoteTimeoutModule(BaseModule):
             return True
 
         if self.settings["timeout_twitch"] and any(e.emote.provider == "twitch" for e in emote_instances):
-            self.delete_or_timeout(source, msg_id, self.settings["twitch_timeout_reason"])
+            self.delete_or_timeout(source, msg_id, "No Twitch emotes allowed")
             return False
 
         if self.settings["timeout_ffz"] and any(e.emote.provider == "ffz" for e in emote_instances):
-            self.delete_or_timeout(source, msg_id, self.settings["ffz_timeout_reason"])
+            self.delete_or_timeout(source, msg_id, "No FFZ emotes allowed")
             return False
 
         if self.settings["timeout_bttv"] and any(e.emote.provider == "bttv" for e in emote_instances):
-            self.delete_or_timeout(source, msg_id, self.settings["bttv_timeout_reason"])
+            self.delete_or_timeout(source, msg_id, "No BTTV emotes allowed")
             return False
 
         if self.settings["timeout_emoji"] and any(emoji in message for emoji in ALL_EMOJI):
