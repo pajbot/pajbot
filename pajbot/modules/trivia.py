@@ -244,14 +244,14 @@ class TriviaModule(BaseModule):
                     level=self.settings["commands_level"],
                     delay_all=0,
                     delay_user=10,
-                    can_execute_with_whisper=True
+                    can_execute_with_whisper=True,
                 ),
                 "stop": Command.raw_command(
                     self.command_stop,
                     level=self.settings["commands_level"],
                     delay_all=0,
                     delay_user=0,
-                    can_execute_with_whisper=True
+                    can_execute_with_whisper=True,
                 ),
             },
         )
