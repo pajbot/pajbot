@@ -50,6 +50,15 @@ class AsciiProtectionModule(BaseModule):
             required=True,
             default=False,
         ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many ASCII characters",
+            constraints={},
+        ),
     ]
 
     @staticmethod
@@ -74,7 +83,7 @@ class AsciiProtectionModule(BaseModule):
             return
 
         duration, punishment = self.bot.timeout_warn(
-            source, self.settings["timeout_length"], reason="Too many ASCII characters"
+            source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
         )
 
         """ We only send a notification to the user if he has spent more than
