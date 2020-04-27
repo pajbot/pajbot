@@ -17,22 +17,6 @@ class PlaysoundModule(BaseModule):
     DESCRIPTION = "Play a sound on stream with !#playsound"
     CATEGORY = "Feature"
     SETTINGS = [
-        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
-        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
-        ModuleSetting(
-            key="confirmation_whisper",
-            label="Send user a whisper when sound was successfully played",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
-            key="global_cd_whisper",
-            label="Send user a whisper playsounds are on global cooldown",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
         ModuleSetting(
             key="point_cost",
             label="Point cost",
@@ -77,6 +61,22 @@ class PlaysoundModule(BaseModule):
             placeholder="",
             default=40,
             constraints={"min_value": 0, "max_value": 100},
+        ),
+        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
+        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="confirmation_whisper",
+            label="Send user a whisper when sound was successfully played",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="global_cd_whisper",
+            label="Send user a whisper playsounds are on global cooldown",
+            type="boolean",
+            required=True,
+            default=True,
         ),
     ]
 

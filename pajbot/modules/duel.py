@@ -25,9 +25,6 @@ class DuelModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
-            key="show_on_clr", label="Show duels on the clr overlay", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
             key="max_pot",
             label="How many points you can duel for at most",
             type="number",
@@ -80,6 +77,9 @@ class DuelModule(BaseModule):
             placeholder="",
             default=5,
             constraints={"min_value": 0, "max_value": 240},
+        ),
+        ModuleSetting(
+            key="show_on_clr", label="Show duels on the clr overlay", type="boolean", required=True, default=True
         ),
         ModuleSetting(
             key="max_duel_age",

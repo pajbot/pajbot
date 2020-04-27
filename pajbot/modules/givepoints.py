@@ -20,6 +20,15 @@ class GivePointsModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
+            key="command_name",
+            label="Command name (i.e. givepoints)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="givepoints",
+            constraints={"min_str_len": 2, "max_str_len": 25},
+        ),
+        ModuleSetting(
             key="source_requires_sub",
             label="Users need to be subbed to give away points",
             type="boolean",
@@ -32,15 +41,6 @@ class GivePointsModule(BaseModule):
             type="boolean",
             required=True,
             default=False,
-        ),
-        ModuleSetting(
-            key="command_name",
-            label="Command name (i.e. givepoints)",
-            type="text",
-            required=True,
-            placeholder="Command name (no !)",
-            default="givepoints",
-            constraints={"min_str_len": 2, "max_str_len": 25},
         ),
     ]
 

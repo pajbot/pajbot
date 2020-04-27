@@ -66,7 +66,6 @@ class PredictModule(BaseModule):
     DESCRIPTION = "Handles predictions of arena wins"
     CATEGORY = "Feature"
     SETTINGS = [
-        ModuleSetting(key="sub_only", label="Sub only", type="boolean", required=True, default=True),
         ModuleSetting(
             key="challenge_name",
             label="The name of the challenge",
@@ -84,6 +83,7 @@ class PredictModule(BaseModule):
             default=120,
             constraints={"min_value": 0},
         ),
+        ModuleSetting(key="sub_only", label="Sub only", type="boolean", required=True, default=True),
         ModuleSetting(
             key="mini_command",
             label="Mini predict command (Leave empty to disable)",
