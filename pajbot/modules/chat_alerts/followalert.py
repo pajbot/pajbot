@@ -15,7 +15,7 @@ class FollowAlertModule(BaseModule):
     NAME = "Follow Alert"
     DESCRIPTION = "Prints a message in chat/whispers when a user follows the channel"
     CATEGORY = "Feature"
-    ENABLED_DEFAULT = True
+    ENABLED_DEFAULT = False
     PARENT_MODULE = ChatAlertModule
     SETTINGS = [
         ModuleSetting(
