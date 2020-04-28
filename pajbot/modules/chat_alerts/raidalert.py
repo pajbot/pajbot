@@ -74,12 +74,6 @@ class RaidAlertModule(BaseModule):
         super().__init__(bot)
 
     def on_raid(self, user, num_viewers):
-        if self.settings["grant_points_on_raid"] <= 0:
-            return
-
-        user.points += self.settings["grant_points_on_raid"]
-        self.bot.say(f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan")
-
         """
         A new user just raided.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -95,6 +89,11 @@ class RaidAlertModule(BaseModule):
             self.bot.execute_delayed(
                 self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("raid_whisper", **payload)
             )
+        if self.settings["grant_points_on_raid"] <= 0:
+            return
+
+        user.points += self.settings["grant_points_on_raid"]
+        self.bot.say(f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan")
 
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
