@@ -73,14 +73,13 @@ class RaidAlertModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
 
-    def on_new_raid(self, user):
+    def on_raid(self, user, num_viewers):
         if self.settings["grant_points_on_raid"] <= 0:
             return
 
         user.points += self.settings["grant_points_on_raid"]
         self.bot.say(f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan")
 
-    def on_raid(self, user, num_viewers):
         """
         A new user just raided.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -101,12 +100,14 @@ class RaidAlertModule(BaseModule):
         if "msg-id" not in tags:
             return
 
+        if tags["msg-id"] == "raid":
             if "msg-param-viewerCount" in tags:
                 num_viewers = int(tags["msg-param-viewerCount"])
 
             if "display-name" not in tags:
                 log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
                 return
+            self.on_raid(source, num_viewers)
 
     def enable(self, bot):
         HandlerManager.add_handler("on_usernotice", self.on_usernotice)
