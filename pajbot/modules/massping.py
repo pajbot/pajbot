@@ -175,9 +175,7 @@ class MassPingProtectionModule(BaseModule):
         self.bot.timeout(source, timeout_duration, reason=self.settings["timeout_reason"])
 
         if self.settings["whisper_offenders"]:
-            self.bot.whisper(
-                source, self.settings["whisper_timeout_reason"].format(punishment=punishment)
-            )
+            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(timeout_duration=timeout_duration))
 
         return False
 
