@@ -21,7 +21,7 @@
 <header class="main header">
 {% block menu %}
     <div class="ui top fixed menu">
-        <div class="right menu">
+        <div class="menu" style="margin:auto;">
         {% for menuitem in nav_bar_header %}
         <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
             {% if menuitem.id == 'home' %}
