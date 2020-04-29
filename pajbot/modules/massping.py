@@ -51,13 +51,6 @@ class MassPingProtectionModule(BaseModule):
             constraints={"min_value": 0, "max_value": 600},
         ),
         ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
             type="number",
@@ -65,6 +58,31 @@ class MassPingProtectionModule(BaseModule):
             placeholder="",
             default=420,
             constraints={"min_value": 100, "max_value": 2000},
+        ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many users pinged in message",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="whisper_offenders",
+            label="Send offenders a whisper explaining the timeout",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="whisper_timeout_reason",
+            label="Whisper Timeout Reason | Available arguments: {timeout_duration}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
+            constraints={},
         ),
     ]
 
@@ -154,12 +172,11 @@ class MassPingProtectionModule(BaseModule):
         if timeout_duration <= 0:
             return
 
-        self.bot.timeout(source, timeout_duration, reason="Too many users pinged in message")
+        self.bot.timeout(source, timeout_duration, reason=self.settings["timeout_reason"])
 
         if self.settings["whisper_offenders"]:
             self.bot.whisper(
-                source,
-                f"You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
+                source, self.settings["whisper_timeout_reason"].format(punishment=punishment)
             )
 
         return False
