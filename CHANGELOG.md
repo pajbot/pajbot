@@ -8,6 +8,7 @@
 - Minor: Remove the logs option from the user page (due to the termination of overrustlelogs)
 - Bugfix: Fixed warnings in the admin playsounds page
 - Bugfix: Fixed scrollbar appearing on CLR overlay (#832)
+- Bugfix: The modules list no longer incorrectly shows as sorted on page load
 
 ## v1.43
 
