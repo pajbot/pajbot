@@ -15,15 +15,15 @@
 {% endif %}
 <button class="ui button create-timer green"><i class="icon add"></i> <strong>Create Timer</strong></button>
 <h2>Timers</h2>
-<table class="ui table basic sortable">
+<table class="ui table basic">
     <thead>
         <tr>
             <th class="collapsing">Name</th>
             <th class="collapsing">Interval online (minutes)</th>
             <th class="collapsing">Interval offline (minutes)</th>
             <th>Message</th>
-            <th class="no-sort">Enabled</th>
-            <th class="no-sort">Actions</th>
+            <th>Enabled</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -56,7 +56,6 @@
 {% assets 'admin_create_row' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-<script type="text/javascript" src="/static/scripts/tablesort.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $('button.create-timer').click(function() {
@@ -70,8 +69,6 @@ $(document).ready(function() {
     $('.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');
     });
-    
-    $('table').tablesort();
 });
 </script>
 {% endblock %}

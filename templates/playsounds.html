@@ -58,13 +58,13 @@
     </div>
 
     <h3>List of available Playsounds</h3>
-    <table class="ui sortable collapsing single line compact table">
+    <table class="ui collapsing single line compact table">
         <thead>
         <tr>
             <th>Name</th>
-            <th class="no-sort">Command</th>
+            <th>Command</th>
             <th>Per-Sample Cooldown</th>
-            <th class="no-sort">Test</th>
+            <th>Test</th>
         </tr>
         </thead>
         <tbody>
@@ -109,7 +109,6 @@
     {% assets 'base_js', 'playsound_common_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
-    <script type="text/javascript" src="/static/scripts/tablesort.js"></script>
     <script>
         $(document).ready(function () {
             $('.copyButton').click(function () {
@@ -119,8 +118,6 @@
 
                 document.execCommand("copy");
             });
-
-            $('table').tablesort();
         })
     </script>
 {% endblock %}
