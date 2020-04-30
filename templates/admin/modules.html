@@ -41,4 +41,12 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script type="text/javascript" src="/static/scripts/tablesort.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    enable_edit_row('modules');
+    enable_toggle_row_cb('toggle_module');
+
+    $('table').tablesort();
+});
+</script>
 {% endblock %}
