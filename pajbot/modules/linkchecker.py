@@ -4,7 +4,6 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
-from datetime import timedelta
 from sqlalchemy import Column, INT, TEXT
 
 import pajbot.managers
@@ -182,6 +181,15 @@ class LinkCheckerModule(BaseModule):
             constraints={"min_value": 100, "max_value": 1000},
         ),
         ModuleSetting(
+            key="banned_link_timeout_reason",
+            label="Banned Link Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been timed out for posting a banned link in chat",
+            constraints={},
+        ),
+        ModuleSetting(
             key="pleb_timeout_reason",
             label="Pleb Timeout Reason",
             type="text",
@@ -270,14 +278,13 @@ class LinkCheckerModule(BaseModule):
         if len(urls) > 0:
             do_timeout = False
             ban_reason = "You are not allowed to post links in chat"
-            whisper_reason = "??? KKona"
 
             if self.settings["ban_pleb_links"] is True and source.subscriber is False:
                 do_timeout = True
-                whisper_reason = self.settings["pleb_timeout_reason"]
+                ban_reason = self.settings["pleb_timeout_reason"]
             elif self.settings["ban_sub_links"] is True and source.subscriber is True:
                 do_timeout = True
-                whisper_reason = self.settings["sub_timeout_reason"]
+                ban_reason = self.settings["sub_timeout_reason"]
 
             if do_timeout is True:
                 # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
@@ -296,14 +303,14 @@ class LinkCheckerModule(BaseModule):
 
                     if whitelisted is False:
                         self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
-                        if source.time_in_chat_online >= timedelta(hours=1):
-                            self.bot.whisper(source, whisper_reason)
                         return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
             def action():
-                self.bot.timeout(source, self.settings["timeout_length"], reason="Banned link")
+                self.bot.timeout(
+                    source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                )
 
             # First we perform a basic check
             if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
