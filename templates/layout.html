@@ -29,6 +29,11 @@
             {% endif %}
             {{ menuitem.caption }}</a>
         {% endfor %}
+        {% if session.user %}
+        <a class="item{% if active_page == "me" %} active {% endif %}" href="/user/{{ session.user.name  }}">
+            Me
+        </a>
+        {% endif %}
         <div class="item">
           <div class="ui transparent icon input">
               <form id="usersearch">
