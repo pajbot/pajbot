@@ -290,7 +290,7 @@ class User(Base):
             "num_lines_rank": self.num_lines_rank,
             "tokens": self.tokens,
             "last_seen": self.last_seen.isoformat() if self.last_seen is not None else None,
-            "last_active": self.last_seen.isoformat() if self.last_active is not None else None,
+            "last_active": self.last_active.isoformat() if self.last_active is not None else None,
             "ignored": self.ignored,
             "banned": self.banned,
         }

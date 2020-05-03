@@ -61,6 +61,15 @@ class EmoteLimitModule(BaseModule):
         ModuleSetting(
             key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
         ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many emotes in your message",
+            constraints={},
+        ),
     ]
 
     def delete_or_timeout(self, user, msg_id, reason):
@@ -83,7 +92,7 @@ class EmoteLimitModule(BaseModule):
             return True
 
         if len(emote_instances) > self.settings["max_emotes"]:
-            self.delete_or_timeout(source, msg_id, "Too many emotes in your message")
+            self.delete_or_timeout(source, msg_id, self.settings["timeout_reason"])
             return False
 
         return True

@@ -70,6 +70,15 @@ class RepspamModule(BaseModule):
             default=10,
             constraints={"min_value": 5, "max_value": 600},
         ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="No repetitive messages OMGScoods",
+            constraints={},
+        ),
     ]
 
     def enable(self, bot):
@@ -124,5 +133,5 @@ class RepspamModule(BaseModule):
                 continue
 
             # found a group of equally repeating words (a repeating spam) that repeats more than allowed
-            self.bot.timeout(source, self.settings["timeout_length"], "No repetitive messages OMGScoods", once=True)
+            self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
             return False

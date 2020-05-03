@@ -44,11 +44,29 @@ class AsciiProtectionModule(BaseModule):
             constraints={"min_value": 100, "max_value": 1000},
         ),
         ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many ASCII characters",
+            constraints={},
+        ),
+        ModuleSetting(
             key="whisper_offenders",
             label="Send offenders a whisper explaining the timeout",
             type="boolean",
             required=True,
             default=False,
+        ),
+        ModuleSetting(
+            key="whisper_timeout_reason",
+            label="Whisper Timeout Reason | Available arguments: {punishment}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been {punishment} because your message contained too many ascii characters.",
+            constraints={},
         ),
     ]
 
@@ -74,15 +92,13 @@ class AsciiProtectionModule(BaseModule):
             return
 
         duration, punishment = self.bot.timeout_warn(
-            source, self.settings["timeout_length"], reason="Too many ASCII characters"
+            source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
         )
 
         """ We only send a notification to the user if he has spent more than
         one hour watching the stream. """
         if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-            self.bot.whisper(
-                source, f"You have been {punishment} because your message contained too many ascii characters."
-            )
+            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
 
         return False
 
