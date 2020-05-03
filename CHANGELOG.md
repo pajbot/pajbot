@@ -11,6 +11,7 @@
 - Bugfix: Fixed warnings in the admin playsounds page
 - Bugfix: Fixed scrollbar appearing on CLR overlay (#832)
 - Bugfix: The modules list no longer incorrectly shows as sorted on page load
+- Bugfix: Fixed `last_active` field in the API showing the same value as `last_seen` (#853)
 
 ## v1.43
 
