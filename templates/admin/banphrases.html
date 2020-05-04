@@ -3,11 +3,11 @@
 {% block title %}Admin - Banphrases{% endblock %}
 {% block body %}
     <form action="/admin/banphrases/create" method="GET">
-        <button class="ui button green"><i class="icon add"></i> <strong>Create Banphrase</strong>
+        <button class="ui button green inverted"><i class="icon add"></i> <strong>Create Banphrase</strong>
         </button>
     </form>
     <h2>Banphrases</h2>
-    <table class="ui selectable table basic">
+    <table class="ui selectable table basic inverted">
         <thead>
         <tr>
             <th class="collapsing">ID</th>
@@ -55,8 +55,8 @@
             </div>
         </div>
         <div class="actions">
-            <div class="ui approve button">Remove</div>
-            <div class="ui cancel button">Cancel</div>
+            <div class="ui approve button inverted">Remove</div>
+            <div class="ui cancel button inverted">Cancel</div>
         </div>
     </div>
 {% endblock %}

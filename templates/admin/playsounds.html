@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} message">
+    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} inverted message">
         <i class="{{ "check circle" if playsounds_enabled else "exclamation triangle" }} icon"></i>
         <div class="content">
             <div class="header">
@@ -82,7 +82,7 @@
             <div class="ui toggle checkbox">
                 <input id="toggle-module-checkbox" type="checkbox" autocomplete="off" {% if playsounds_enabled %}
                        checked {% endif %}>
-                <label>Enable Playsound module</label>
+                <label><p>Enable Playsound module</p></label>
             </div>
             </p>
         </div>
@@ -104,7 +104,7 @@
             </form>
         </div>
     </div>
-    <table class="ui compact table">
+    <table class="ui compact very basic table inverted">
         <thead>
         <tr>
             <th class="collapsing">Name</th>

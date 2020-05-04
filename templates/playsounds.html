@@ -3,7 +3,7 @@
 {% block title %}Playsounds{% endblock %}
 {% block body %}
     <h2>Playsounds</h2>
-    <div class="ui icon message">
+    <div class="ui icon message inverted">
         <i class="info circle icon"></i>
         <div class="content">
             <div class="header">
@@ -41,7 +41,7 @@
         </div>
     </div>
 
-    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} message">
+    <div class="ui icon {{ "positive" if playsounds_enabled else "negative" }} inverted message">
         <i class="{{ "check circle" if playsounds_enabled else "exclamation triangle" }} icon"></i>
         <div class="content">
             <div class="header">
@@ -58,7 +58,7 @@
     </div>
 
     <h3>List of available Playsounds</h3>
-    <table class="ui collapsing single line compact table">
+    <table class="ui collapsing single line compact very basic table inverted">
         <thead>
         <tr>
             <th>Name</th>

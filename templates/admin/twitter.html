@@ -2,10 +2,10 @@
 {%- if not session.user.level or session.user.level >= 1000 %}
 <div class="twitter-follow">
 <div class="ui input"><input type="text"></div>
-<button class="ui button"><i class="icon add green"> </i>Follow</button>
+<button class="ui button inverted"><i class="icon add green"> </i>Follow</button>
 </div>
 {% endif -%}
-<table class="ui celled table selectable twitter_follows paginate_base">
+<table class="ui celled basic table selectable twitter_follows paginate_base inverted">
     <thead>
         <tr>
             <th>Username</th>

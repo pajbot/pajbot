@@ -399,6 +399,7 @@ span.winrate.positive {
 
 #commands div.segment.tab {
   min-height: 1024px;
+  background: #2d2d2d;
 }
 
 table .paginate div.pagination {
@@ -432,4 +433,41 @@ button.ui.button.streamelements {
 
 img.emote {
   height: 2em;
+}
+
+.main.container {
+  background-color: #2d2d2d;
+}
+
+h1, h2, h3, h4, h5, p {
+  color: white;
+}
+
+.ui.tabular.menu .active.item {
+  color: white;
+  background: #2d2d2d;
+}
+
+.ui.basic.table {
+  border: none;
+}
+
+.ui.compact.menu {
+  border-right: 1px solid rgba(255, 255, 255, .1) !important;
+  border-radius: 0 !important;
+}
+
+.ui.tabular.menu .item:hover,
+.ui.tabular.menu .item {
+  color:white;
+}
+
+.ui.table td.active,
+.ui.table tbody tr td.selectable:active {
+  background: rgba(255,255,255,.08) !important;
+  color: white !important;
+}
+
+.ui.segment.help {
+  display: none !important;
 }

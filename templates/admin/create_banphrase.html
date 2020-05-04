@@ -7,7 +7,7 @@
 {% else %}
 <h2>Create Banphrase</h2>
 {% endif %}
-<form class="ui form" method="POST" action="/admin/banphrases/create">
+<form class="ui form inverted" method="POST" action="/admin/banphrases/create">
     {% if banphrase %}
     <input type="hidden" name="id" value="{{ banphrase.id }}" />
     {% endif %}
@@ -86,9 +86,9 @@
     <div class="ui message warning" style="padding: 0.4em;"></div>
     <div class="ui message error" style="padding: 0.4em;"></div>
     {% if banphrase %}
-    <div class="ui submit button green">Edit</div>
+    <div class="ui submit button green inverted">Save</div>
     {% else %}
-    <div class="ui submit button green">Create</div>
+    <div class="ui submit button green inverted">Create</div>
     {% endif %}
 </div>
 </form>

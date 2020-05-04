@@ -8,7 +8,7 @@
 <h2>Create Timer</h2>
 {% endif %}
 <p>An interval set to 0 means it will not be run.</p>
-<form class="ui form" method="POST" action="/admin/timers/create">
+<form class="ui form inverted" method="POST" action="/admin/timers/create">
     {% if timer %}
     <input type="hidden" name="id" value="{{ timer.id }}" />
     {% endif %}
@@ -42,9 +42,9 @@
     <div class="ui message warning" style="padding: 0.4em;"></div>
     <div class="ui message error" style="padding: 0.4em;"></div>
     {% if timer %}
-    <div class="ui submit button green">Edit</div>
+    <div class="ui submit button green inverted">Save</div>
     {% else %}
-    <div class="ui submit button green">Create</div>
+    <div class="ui submit button green inverted">Create</div>
     {% endif %}
 </div>
 </form>
