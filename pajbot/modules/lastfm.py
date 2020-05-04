@@ -21,7 +21,7 @@ class LastfmModule(BaseModule):
             required=True,
             placeholder="i.e. anniefuchsia",
             default="",
-        ),
+        )
     ]
 
     def load_commands(self, **options):
