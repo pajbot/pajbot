@@ -60,6 +60,9 @@ def init(args):
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
     twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
 
+    app.twitch_helix_api = twitch_helix_api
+    app.twitch_id_api = id_api
+
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
