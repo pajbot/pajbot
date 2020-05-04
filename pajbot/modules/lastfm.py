@@ -15,14 +15,6 @@ class LastfmModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="api_key",
-            label="LastFM Api Key",
-            type="text",
-            required=True,
-            placeholder="i.e. abcedfg1235hfhafafajhf",
-            default="",
-        ),
-        ModuleSetting(
             key="username",
             label="LastFM Username",
             type="text",
@@ -60,7 +52,7 @@ class LastfmModule(BaseModule):
             log.error("Missing required library for the LastFM Module: pylast")
             return False
 
-        API_KEY = self.settings["api_key"]
+        API_KEY = self.settings["lastfm_key"]
         lastfmname = self.settings["username"]
 
         if len(API_KEY) < 10 or len(lastfmname) < 2:

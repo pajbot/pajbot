@@ -2,6 +2,9 @@ from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.base import ModuleType
 
+from pajbot.modules.api_keys import ApiKeyModule
+from pajbot.modules.api_keys.twitter_keys import TwitterKeyModule
+from pajbot.modules.api_keys.wolfram_keys import WolframKeysModule
 from pajbot.modules.ascii import AsciiProtectionModule
 from pajbot.modules.banphrase import BanphraseModule
 from pajbot.modules.basic import BasicCommandsModule
@@ -76,6 +79,7 @@ from pajbot.modules.wolfram import WolframModule
 available_modules = [
     AbCommandModule,
     AdminCommandsModule,
+    ApiKeyModule,
     AsciiProtectionModule,
     BanphraseModule,
     BasicCommandsModule,
@@ -131,6 +135,7 @@ available_modules = [
     SubscriberFetchModule,
     TopModule,
     TriviaModule,
+    TwitterKeyModule,
     TypeEmoteQuestModule,
     TypeMeMessageQuestModule,
     VanishModule,
@@ -141,4 +146,5 @@ available_modules = [
     WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
     WolframModule,
+    WolframKeysModule,
 ]
