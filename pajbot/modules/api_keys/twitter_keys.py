@@ -1,14 +1,7 @@
-import logging
-
-from datetime import timedelta
-
-from pajbot.managers.handler import HandlerManager
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.base import ModuleType
 from pajbot.modules.api_keys import ApiKeyModule
-
-log = logging.getLogger(__name__)
 
 
 class TwitterKeyModule(BaseModule):
