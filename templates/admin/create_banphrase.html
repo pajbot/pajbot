@@ -13,18 +13,30 @@
     {% endif %}
     <div class="fields">
         <div class="required field four wide">
-            <label>Name</label>
-            <input type="text" name="name" placeholder="Name to describe Banphrase" value="{{ banphrase.name if banphrase else ''}}" />
+            <div class="ui form">
+                <div class="required field">
+                    <label>Name</label>
+                    <input type="text" name="name" placeholder="Name to describe banphrase" value="{{ banphrase.name if banphrase else ''}}"/>
+                </div>
+            </div>
         </div>
         <div class="required field twelve wide">
-            <label>Banned phrase</label>
-            <input type="text" name="phrase" placeholder="Banned phrase" value="{{ banphrase.phrase if banphrase else ''}}"/>
+            <div class="ui form">
+                <div class="required field">
+                    <label>Banned Phrase</label>
+                    <input type="text" name="phrase" placeholder="Banned phrase" value="{{ banphrase.phrase if banphrase else ''}}"/>
+                </div>
+            </div>
         </div>
     </div>
     <div class="fields">
         <div class="field ui four wide required">
-            <label>Timeout duration</label>
-            <input type="number" name="length" placeholder="Timeout duration" value="{{ banphrase.length if banphrase else '300'}}"/>
+            <div class="ui form">
+                <div class="required field">
+                    <label>Timeout Duration</label>
+                    <input type="number" name="length" placeholder="Timeout duration" value="{{ banphrase.length if banphrase else '300'}}"/>
+                </div>
+            </div>
         </div>
         <div class="field ui four wide required">
             <label>Operator</label>

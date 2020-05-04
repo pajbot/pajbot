@@ -1,8 +1,9 @@
 <h4>Twitter</h4>
 {%- if not session.user.level or session.user.level >= 1000 %}
 <div class="twitter-follow">
-<div class="ui input"><input type="text"></div>
-<button class="ui button inverted"><i class="icon add green"> </i>Follow</button>
+<div class="ui left icon action input">
+    <i class="icon twitter"></i><input type="text" placeholder="Twitter Username"><button class="ui button inverted"><i class="icon add green"></i>Follow</button>
+</div>
 </div>
 {% endif -%}
 <table class="ui celled basic table selectable twitter_follows paginate_base inverted">

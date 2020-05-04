@@ -16,7 +16,7 @@
 <div class="ui divider"></div>
 {% if sub_modules|length > 0 %}
 <h3>Sub-modules</h3>
-    <table class="ui very basic table collapsing">
+    <table class="ui very basic table collapsing inverted">
         <thead>
             <tr>
                 <th class="collapsing">Module</th>
@@ -38,8 +38,8 @@
                         </div>
                     {% endif %}
                 </td>
-                <td class="right aligned collapsing">
-                <button class="ui compact button edit-row"><i class="icon setting"></i>Configure</button></td>
+                <td class="right aligned collapsing inverted">
+                <button class="ui compact button inverted edit-row"><i class="icon setting"></i>Configure</button></td>
             </tr>
 {% endfor %}
         </tbody>
@@ -47,7 +47,7 @@
     {% endif %}
     <h3>Settings</h3>
 {% if module.SETTINGS|length > 0 %}
-<form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
+<form class="ui form inverted" method="POST" action="/admin/modules/edit/{{ module.ID }}">
     {%- for setting in module.SETTINGS %}
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>
@@ -73,7 +73,7 @@
     {% endfor -%}
     <div class="ui message warning" style="padding: 0.4em;"></div>
     <div class="ui message error" style="padding: 0.4em;"></div>
-    <div class="ui submit button green"><i class="icon setting"></i>Configure</div>
+    <div class="ui submit button green inverted"><i class="icon setting"></i>Save</div>
 </div>
 </form>
 {% else %}

@@ -53,7 +53,7 @@
     </table>
 </div>
 <div class="ui bottom attached tab segment" data-tab="point">
-    <table class="ui selectable table">
+    <table class="ui selectable basic table inverted">
         <thead>
             <tr>
                 <th>Command</th>
@@ -82,7 +82,7 @@
     </table>
 </div>
 <div class="ui bottom attached tab segment" data-tab="moderator">
-    <table class="ui selectable table">
+    <table class="ui selectable basic table inverted">
         <thead>
             <tr>
                 <th>Command</th>
@@ -110,15 +110,15 @@
 </div>
 <div class="ui modal remove-command">
     <i class="close icon"></i>
-    <div class="header">Confirm Action</div>
+    <div class="header"><p>Confirm Action</p></div>
     <div class="content">
         <div class="description">
-            Are you sure you want to remove this command? This action is irreversible.
+            <p>Are you sure you want to remove this command? This action is irreversible.</p>
         </div>
     </div>
     <div class="actions">
-        <div class="ui approve button">Remove</div>
-        <div class="ui cancel button">Cancel</div>
+        <div class="ui approve inverted button">Remove</div>
+        <div class="ui cancel inverted button">Cancel</div>
     </div>
 </div>
 {% endblock %}

@@ -439,7 +439,12 @@ img.emote {
   background-color: #2d2d2d;
 }
 
-h1, h2, h3, h4, h5, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
   color: white;
 }
 
@@ -470,4 +475,21 @@ h1, h2, h3, h4, h5, p {
 
 .ui.segment.help {
   display: none !important;
+}
+
+.ui.modal > .header,
+.ui.modal > .content,
+.ui.modal > .actions {
+  background: #2d2d2d;
+}
+
+.ui.button:not(.icon) > .icon:not(.button):not(.dropdown) {
+  padding-bottom: 16px !important;
+}
+
+.pui.command,
+.pui.argument {
+  background: none;
+  box-shadow: none;
+  border-radius: none;
 }
