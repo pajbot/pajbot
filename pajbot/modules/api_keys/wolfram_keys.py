@@ -23,7 +23,7 @@ class WolframKeysModule(BaseModule):
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = ApiKeyModule
     SETTINGS = [
-	ModuleSetting(
+       ModuleSetting(
             key="wolfram_key",
             label="Wolfram Alpha Key | Get your API key here: http://developer.wolframalpha.com/portal/myapps",
             type="text",
@@ -31,8 +31,8 @@ class WolframKeysModule(BaseModule):
             placeholder="ABCDEF-GHIJKLMNOP",
             default="",
             constraints={},
-        ),
-	ModuleSetting(
+       ),
+       ModuleSetting(
 	    key="wolfram_ip",
 	    label="Wolfram Alpha IP | This IP is used to localize the queries to a default location",
 	    type="text",
@@ -40,8 +40,8 @@ class WolframKeysModule(BaseModule):
 	    placeholder="62.41.0.123",
 	    default="",
 	    constraints={},
-	),
-	ModuleSetting(
+       ),
+       ModuleSetting(
 	    key="wolfram_location",
 	    label="Wolfram Alpha Location | This location it used to localize the queries to a default location. If you specify both IP & Location, the location will be ignored.",
 	    type="text",
@@ -49,5 +49,5 @@ class WolframKeysModule(BaseModule):
 	    placeholder="Amsterdam",
 	    default="",
 	    constraints={},
-	),
+       ),
     ]
