@@ -1,14 +1,15 @@
 import json
 import logging
+import base64
 
 from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
-from flask_oauthlib.client import OAuth
 from flask_oauthlib.client import OAuthException
 
+from pajbot.oauth_client_edit import OAuthEdited
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
@@ -18,7 +19,7 @@ log = logging.getLogger(__name__)
 
 
 def init(app):
-    oauth = OAuth(app)
+    oauth = OAuthEdited(app)
 
     twitch = oauth.remote_app(
         "twitch",
@@ -31,6 +32,21 @@ def init(app):
         access_token_url="https://id.twitch.tv/oauth2/token",
         authorize_url="https://id.twitch.tv/oauth2/authorize",
     )
+
+    spotify = oauth.remote_app(
+        "spotify",
+        consumer_key=app.bot_config["spotify"]["client_id"],
+        consumer_secret=app.bot_config["spotify"]["client_secret"],
+        request_token_params={},
+        base_url="https://api.spotify.com/v1/",
+        request_token_url=None,
+        access_token_method="POST",
+        access_token_url="https://accounts.spotify.com/api/token",
+        authorize_url="https://accounts.spotify.com/authorize",
+    ) if (app.bot_config.get("spotify") 
+        and app.bot_config["spotify"].get("client_id")
+        and app.bot_config["spotify"].get("client_secret")
+    ) else None
 
     @app.route("/login")
     def login():
@@ -62,6 +78,14 @@ def init(app):
 
     streamer_scopes = ["user_read", "channel:read:subscriptions"]
     """Request these scopes on /streamer_login"""
+
+    spotify_scopes = [
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+        "user-read-email",
+        "user-read-private",
+    ]
 
     @app.route("/streamer_login")
     def streamer_login():
@@ -166,3 +190,69 @@ def init(app):
     @twitch.tokengetter
     def get_twitch_oauth_token():
         return session.get("twitch_token")
+
+    if not spotify:
+        return
+
+    @app.route("/spotify_login")
+    def spotify_login():
+        if spotify is not None:
+            callback_url = (
+                app.bot_config["spotify"]["redirect_uri"]
+                if "redirect_uri" in app.bot_config["spotify"]
+                else url_for("authorized", _external=True)
+            )
+            state = request.args.get("n") or request.referrer or None
+            return spotify.authorize(
+                callback=callback_url, state=state, scope=" ".join(spotify_scopes), force_verify="true"
+            )
+        return render_template("login_error.html")
+
+    @app.route("/login/spotify_auth")
+    def spotify_auth():
+        try:
+            resp = spotify.authorized_response(spotify=True)
+        except OAuthException as e:
+            log.error(e)
+            log.exception("An exception was caught while authorizing")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        except Exception as e:
+            log.error(e)
+            log.exception("Unhandled exception while authorizing")
+            return render_template("login_error.html")
+
+        session["spotify_token"] = (resp["access_token"],)
+        if resp is None:
+            if "error" in request.args and "error_description" in request.args:
+                log.warning(
+                    f"Access denied: reason={request.args['error']}, error={request.args['error_description']}"
+                )
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        elif type(resp) is OAuthException:
+            log.warning(resp.message)
+            log.warning(resp.data)
+            log.warning(resp.type)
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+
+        data = f'{app.bot_config["spotify"]["client_id"]}:{app.bot_config["spotify"]["client_secret"]}'
+        encoded = str(base64.b64encode(data.encode("utf-8")), "utf-8")
+        headers = {"Authorization": f"Basic {encoded}"}
+
+        me_api_response = spotify.get("me", headers=headers)
+
+        redis = RedisManager.get()
+        token_json = UserAccessToken.from_api_response(resp).jsonify()
+
+        redis.set(f"authentication:spotify-access-token:{me_api_response.data['id']}", json.dumps(token_json))
+        redis.set(f"authentication:user-refresh-token:{me_api_response.data['id']}", token_json["refresh_token"])
+        log.info(f"Successfully updated spotify token in redis for user {me_api_response.data['id']}")
+
+        next_url = get_next_url(request, "state")
+        return redirect(next_url)
+
+    @spotify.tokengetter
+    def get_token_to_submit():
+        return session.get("spotify_token")

@@ -104,3 +104,13 @@ class UserAccessTokenManager(AccessTokenManager):
 
     def fetch_new(self):
         raise NoTokenError(f"No authentication token found for user {self.username} ({self.user_id}) in redis")
+
+class SpotifyAccessTokenManager(AccessTokenManager):
+    def __init__(self, api, redis, user_id, token=None):
+        redis_key = f"authentication:spotify-access-token:{user_id}"
+        storage = RedisTokenStorage(redis, SpotifyAccessToken, redis_key, expire=False)
+        super().__init__(api, storage, token)
+        self.user_id = user_id
+
+    def fetch_new(self):
+        raise NoTokenError(f"No authentication token found for spotify {self.user_id} in redis")

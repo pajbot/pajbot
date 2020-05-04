@@ -16,11 +16,16 @@ import pajbot.utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
-from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
+from pajbot.apiwrappers.authentication.token_manager import (
+    AppAccessTokenManager,
+    UserAccessTokenManager,
+    SpotifyAccessTokenManager,
+)
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
+from pajbot.apiwrappers.spotifyapi import SpotifyApi
 from pajbot.constants import VERSION
 from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
@@ -48,7 +53,6 @@ from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
-from pajbot import utils
 from pajbot.utils import extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
@@ -125,6 +129,25 @@ class Bot:
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
+        self.spotify_api = None
+        self.spotify_token_manager = None
+        if (
+            config.get("spotify")
+            and config["spotify"].get("client_id")
+            and config["spotify"].get("client_secret")
+            and config["spotify"].get("redirect_uri")
+            and config["spotify"].get("user_id")
+        ):
+            self.spotify_api = SpotifyApi(
+                RedisManager.get(),
+                config["spotify"]["client_id"],
+                config["spotify"]["client_secret"],
+                config["spotify"]["redirect_uri"],
+            )
+            self.spotify_token_manager = SpotifyAccessTokenManager(
+                self.spotify_api, RedisManager.get(), config["spotify"]["user_id"]
+            )
+            log.info("Spotify Loaded")
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
