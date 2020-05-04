@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Major: Moved all third party API keys to the admin zone - only accessibly by level 1500+
 - Minor: Added timeout reason customization to various moderation modules
 - Minor: Added new module for simple emote spam moderation
 - Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
