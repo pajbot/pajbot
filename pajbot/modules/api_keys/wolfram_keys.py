@@ -1,7 +1,11 @@
-from pajbot.modules.base import BaseModule
-from pajbot.modules.base import ModuleSetting
-from pajbot.modules.base import ModuleType
+import logging
+
+from datetime import timedelta
+
+from pajbot.modules import BaseModule, ModuleSetting, ModuleType
 from pajbot.modules.api_keys import ApiKeyModule
+
+log = logging.getLogger(__name__)
 
 
 class WolframKeysModule(BaseModule):
