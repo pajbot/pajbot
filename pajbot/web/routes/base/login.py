@@ -104,25 +104,24 @@ def init(app):
             return redirect(next_url)
         session["twitch_token"] = (resp["access_token"],)
 
-        me_api_response = twitch.get("users")
-        if len(me_api_response.data["data"]) < 1:
+        token = UserAccessToken.from_api_response(resp)
+
+        me_api_response = app.twitch_helix_api.get_user_data_by_client_id_and_access_token(
+            app.bot_config["twitchapi"]["client_id"], token.access_token
+        )
+        if me_api_response is None:
             return render_template("login_error.html")
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             me = User.from_basics(
-                db_session,
-                UserBasics(
-                    me_api_response.data["data"][0]["id"],
-                    me_api_response.data["data"][0]["login"],
-                    me_api_response.data["data"][0]["display_name"],
-                ),
+                db_session, UserBasics(me_api_response["id"], me_api_response["login"], me_api_response["display_name"])
             )
             session["user"] = me.jsonify()
 
         # bot login
         if me.login == app.bot_config["main"]["nickname"].lower():
             redis = RedisManager.get()
-            token_json = UserAccessToken.from_api_response(resp).jsonify()
+            token_json = token.jsonify()
             redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
             log.info("Successfully updated bot token in redis")
 
@@ -141,7 +140,7 @@ def init(app):
                 log.info("Streamer logged in but not all scopes present, will not update streamer token")
             else:
                 redis = RedisManager.get()
-                token_json = UserAccessToken.from_api_response(resp).jsonify()
+                token_json = token.jsonify()
                 redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
                 log.info("Successfully updated streamer token in redis")
 
