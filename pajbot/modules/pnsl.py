@@ -48,11 +48,7 @@ class PNSLModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
 
-        self.pnsl_token = None
-
-        if bot:
-            if "pnsl" in bot.config:
-                self.pnsl_token = bot.config["pnsl"].get("token", None)
+        self.pnsl_token = bot.module_manager["apikeys_group"].settings["pnsl_key"]
 
     def run_pnsl(self, bot, source, message, event, args):
         base_url = "https://bot.tetyys.com/api/v1/BotLists"

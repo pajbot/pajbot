@@ -1,8 +1,8 @@
 import logging
 
-from datetime import timedelta
-
-from pajbot.modules import BaseModule, ModuleSetting, ModuleType
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.modules import ModuleType
 from pajbot.modules.api_keys import ApiKeyModule
 
 log = logging.getLogger(__name__)
@@ -12,9 +12,7 @@ class TwitterKeyModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Twitter Keys"
-    DESCRIPTION = (
-        "A place to input your Twitter API keys | Get your API keys here: https://developer.twitter.com/en/apps"
-    )
+    DESCRIPTION = "A place to input your Twitter API keys | Learn more here: https://developer.twitter.com"
     CATEGORY = "Feature"
     CONFIGURE_LEVEL = 1500
     ENABLED_DEFAULT = True
@@ -76,7 +74,7 @@ class TwitterKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="tweet_provider_host",
-            label="Tweet-Provider Host",
+            label="Tweet Provider Host",
             type="text",
             required=False,
             placeholder="127.0.0.1",
@@ -85,8 +83,8 @@ class TwitterKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="tweet_provider_port",
-            label="Tweet-Provider Port",
-            type="number",
+            label="Tweet Provider Port",
+            type="text",
             required=False,
             placeholder="2356",
             default="",
@@ -94,7 +92,7 @@ class TwitterKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="tweet_provider_protocol",
-            label="Tweet-Provider Protocol | Note: wss is untested",
+            label="Tweet Provider Protocol | Note: wss is untested",
             type="options",
             required=False,
             default="ws",

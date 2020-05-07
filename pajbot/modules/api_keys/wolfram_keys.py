@@ -1,8 +1,8 @@
 import logging
 
-from datetime import timedelta
-
-from pajbot.modules import BaseModule, ModuleSetting, ModuleType
+from pajbot.modules import BaseModule
+from pajbot.modules import ModuleSetting
+from pajbot.modules import ModuleType
 from pajbot.modules.api_keys import ApiKeyModule
 
 log = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ class WolframKeysModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Wolfram Alpha Keys"
-    DESCRIPTION = "A place to input your Wolfram Alpha Key | Get your API key here: http://developer.wolframalpha.com/portal/myapps"
+    DESCRIPTION = "A place to input your Wolfram Alpha Key | Learn more here: http://developer.wolframalpha.com"
     CATEGORY = "Feature"
     CONFIGURE_LEVEL = 1500
     ENABLED_DEFAULT = True

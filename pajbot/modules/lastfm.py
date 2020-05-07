@@ -52,7 +52,7 @@ class LastfmModule(BaseModule):
             log.error("Missing required library for the LastFM Module: pylast")
             return False
 
-        API_KEY = bot.modules["ApiKeyModule"].settings["lastfm_key"]
+        API_KEY = bot.module_manager["apikeys_group"].settings["lastfm_key"]
         lastfmname = self.settings["username"]
 
         if len(API_KEY) < 10 or len(lastfmname) < 2:

@@ -18,7 +18,7 @@ class ApiKeyModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="safe_browsing_api_key",
-            label="Safe Browsing API Key | Used by the LinkChecker Module | Get your API key here: https://developers.google.com/safe-browsing/v4",
+            label="Safe Browsing API Key | Used by the LinkChecker Module | Learn more here: https://developers.google.com/safe-browsing/v4",
             type="text",
             required=False,
             placeholder="OWwcxRaHf820gei2PTouLnkUZbEWNo0EXD9cY_0",
@@ -36,7 +36,7 @@ class ApiKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="lastfm_key",
-            label="LastFM Key | Required for the LastFM Module | Get your API key here: https://www.last.fm/api/account/create",
+            label="LastFM Key | Required for the LastFM Module | Learn more here: https://www.last.fm/api",
             type="text",
             required=False,
             placeholder="abcedfg1235hfhafafajhf",
@@ -45,7 +45,7 @@ class ApiKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="riot_api_key",
-            label="Riot Developer API Key | Required for the LeagueRank Module",
+            label="Riot Developer API Key | Required for the LeagueRank Module | Learn more here: https://developer.riotgames.com",
             type="text",
             required=False,
             placeholder="1e3415de-1234-5432-f331-67abb0454d12",
@@ -53,7 +53,7 @@ class ApiKeyModule(BaseModule):
         ),
         ModuleSetting(
             key="youtube_developer_key",
-            label="YouTube Developer Key | Required for the Pleblist Module",
+            label="YouTube Developer Key | Required for the Pleblist Module | Learn more here: https://developers.google.com/youtube/v3/getting-started",
             type="text",
             required=False,
             placeholder="abc",

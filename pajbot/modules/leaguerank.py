@@ -15,14 +15,6 @@ class LeagueRankModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="riot_api_key",
-            label="Riot developer api key",
-            type="text",
-            required=True,
-            placeholder="i.e. 1e3415de-1234-5432-f331-67abb0454d12",
-            default="",
-        ),
-        ModuleSetting(
             key="default_summoner",
             label="Default summoner name",
             type="text",
@@ -98,7 +90,7 @@ class LeagueRankModule(BaseModule):
             log.error("Missing required module for League Rank module: riotwatcher")
             return False
 
-        riot_api_key = self.settings["riot_api_key"]
+        riot_api_key = bot.module_manager["apikeys"].settings["riot_api_key"]
         summoner_name = self.settings["default_summoner"]
         def_region = self.settings["default_region"]
 
