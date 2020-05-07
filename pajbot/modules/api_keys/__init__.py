@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 
 class ApiKeyModule(BaseModule):
-    ID = "apikeys-group"
+    ID = "apikeys_group"
     NAME = "API Keys"
     DESCRIPTION = "A place to input your 3rd party API keys."
     CATEGORY = "Feature"
