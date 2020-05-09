@@ -79,4 +79,15 @@ class TwitchIDAPI(BaseAPI):
     def validate_oauth_token(self, oauth_token):
         response = self.get("/oauth2/validate", headers={"Authorization": f"OAuth {oauth_token}"})
 
+        # response =
+        # {
+        #   "client_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        #   "login": "pajlada",
+        #   "scopes": [
+        #     "user_read"
+        #   ],
+        #   "user_id": "11148817",
+        #   "expires_in": 13555
+        # }
+
         return response
