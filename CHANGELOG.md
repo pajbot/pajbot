@@ -11,6 +11,7 @@
 - Minor: Updated semantic-ui css and js dependencies
 - Minor: Login system is now protected against CSRF attacks (#861)
 - Minor: Updated code for login system to make it work with upcoming changes to the Twitch API. (#861)
+- Minor: Login process no longer asks users for the permission to read the email from their profile (we now only request public information). (#861)
 - Bugfix: Fixed warnings in the admin playsounds page
 - Bugfix: Fixed scrollbar appearing on CLR overlay (#832)
 - Bugfix: The modules list no longer incorrectly shows as sorted on page load
