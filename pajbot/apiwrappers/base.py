@@ -93,18 +93,14 @@ class BaseAPI:
     def get(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
         return self.request("GET", endpoint, params, headers, base_url, data, **request_options).json()
 
-
     def get_response(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
         return self.request("GET", endpoint, params, headers, base_url, data, **request_options)
-
 
     def get_binary(self, endpoint, params=None, headers=None, base_url=None, data=None, **request_options):
         return self.request("GET", endpoint, params, headers, base_url, data, **request_options).content
 
-
     def post(self, endpoint, params=None, headers=None, json=None, base_url=None, data=None, **request_options):
         return self.request("POST", endpoint, params, headers, json, base_url, data, **request_options).json()
-
 
     def put(self, endpoint, params=None, headers=None, json=None, base_url=None, data=None, **request_options):
         return self.request("PUT", endpoint, params, headers, json, base_url, data, **request_options).json()
