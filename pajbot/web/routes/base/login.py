@@ -124,7 +124,9 @@ def init(app):
             log.exception("Could not exchange given code for access token with Twitch")
             return login_error(500, "Could not exchange the given code for an access token.")
 
-        user_basics = app.twitch_helix_api.fetch_user_basics_from_authorization(access_token)
+        user_basics = app.twitch_helix_api.fetch_user_basics_from_authorization(
+            (app.api_client_credentials, access_token)
+        )
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             me = User.from_basics(db_session, user_basics)
