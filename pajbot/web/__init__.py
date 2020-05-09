@@ -55,10 +55,13 @@ def init(args):
 
     RedisManager.init(**redis_options)
 
-    id_api = TwitchIDAPI(api_client_credentials)
-    app_token_manager = AppAccessTokenManager(id_api, RedisManager.get())
+    twitch_id_api = TwitchIDAPI(api_client_credentials)
+    app_token_manager = AppAccessTokenManager(twitch_id_api, RedisManager.get())
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
     twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
+
+    app.twitch_id_api = twitch_id_api
+    app.twitch_helix_api = twitch_helix_api
 
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
@@ -96,6 +99,9 @@ def init(args):
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
     app.bot_config = config
+    # https://flask.palletsprojects.com/en/1.1.x/quickstart/#sessions
+    # https://flask.palletsprojects.com/en/1.1.x/api/#sessions
+    # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.secret_key
     app.secret_key = config["web"]["secret_key"]
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 

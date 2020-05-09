@@ -9,6 +9,8 @@
 - Minor: Remove the logs option from the user page (due to the termination of overrustlelogs)
 - Minor: Added a setting to change the level required for the `!trivia start` and `!trivia stop` commands. (Default remains at 500, like before.) (#847)
 - Minor: Updated semantic-ui css and js dependencies
+- Minor: Login system is now protected against CSRF attacks (#861)
+- Minor: Updated code for login system to make it work with upcoming changes to the Twitch API. (#861)
 - Bugfix: Fixed warnings in the admin playsounds page
 - Bugfix: Fixed scrollbar appearing on CLR overlay (#832)
 - Bugfix: The modules list no longer incorrectly shows as sorted on page load
