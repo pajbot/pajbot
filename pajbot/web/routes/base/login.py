@@ -33,20 +33,25 @@ def init(app):
         authorize_url="https://id.twitch.tv/oauth2/authorize",
     )
 
-    spotify = oauth.remote_app(
-        "spotify",
-        consumer_key=app.bot_config["spotify"]["client_id"],
-        consumer_secret=app.bot_config["spotify"]["client_secret"],
-        request_token_params={},
-        base_url="https://api.spotify.com/v1/",
-        request_token_url=None,
-        access_token_method="POST",
-        access_token_url="https://accounts.spotify.com/api/token",
-        authorize_url="https://accounts.spotify.com/authorize",
-    ) if (app.bot_config.get("spotify") 
-        and app.bot_config["spotify"].get("client_id")
-        and app.bot_config["spotify"].get("client_secret")
-    ) else None
+    spotify = (
+        oauth.remote_app(
+            "spotify",
+            consumer_key=app.bot_config["spotify"]["client_id"],
+            consumer_secret=app.bot_config["spotify"]["client_secret"],
+            request_token_params={},
+            base_url="https://api.spotify.com/v1/",
+            request_token_url=None,
+            access_token_method="POST",
+            access_token_url="https://accounts.spotify.com/api/token",
+            authorize_url="https://accounts.spotify.com/authorize",
+        )
+        if (
+            "spotify" in app.bot_config
+            and app.bot_config["spotify"].get("client_id")
+            and app.bot_config["spotify"].get("client_secret")
+        )
+        else None
+    )
 
     @app.route("/login")
     def login():
@@ -225,9 +230,7 @@ def init(app):
         session["spotify_token"] = (resp["access_token"],)
         if resp is None:
             if "error" in request.args and "error_description" in request.args:
-                log.warning(
-                    f"Access denied: reason={request.args['error']}, error={request.args['error_description']}"
-                )
+                log.warning(f"Access denied: reason={request.args['error']}, error={request.args['error_description']}")
             next_url = get_next_url(request, "state")
             return redirect(next_url)
         elif type(resp) is OAuthException:

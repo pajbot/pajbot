@@ -14,7 +14,7 @@ from pajbot.modules.basic.emotes import EmotesModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
-from pajbot.modules.spotifyquery import SpotifySongQuery
+from pajbot.modules.spotify import SpotifyModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
@@ -127,7 +127,7 @@ available_modules = [
     RouletteModule,
     ShowEmoteModule,
     SlotMachineModule,
-    SpotifySongQuery,
+    SpotifyModule,
     StreamUpdateModule,
     SubAlertModule,
     SubscriberFetchModule,

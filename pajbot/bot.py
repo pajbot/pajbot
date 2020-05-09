@@ -131,7 +131,7 @@ class Bot:
         self.spotify_api = None
         self.spotify_token_manager = None
         if (
-            config.get("spotify")
+            "spotify" in config
             and config["spotify"].get("client_id")
             and config["spotify"].get("client_secret")
             and config["spotify"].get("redirect_uri")

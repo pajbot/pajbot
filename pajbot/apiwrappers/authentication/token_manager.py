@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 
 import logging
 
-from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
+from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken, SpotifyAccessToken
 
 log = logging.getLogger(__name__)
 
@@ -104,6 +104,7 @@ class UserAccessTokenManager(AccessTokenManager):
 
     def fetch_new(self):
         raise NoTokenError(f"No authentication token found for user {self.username} ({self.user_id}) in redis")
+
 
 class SpotifyAccessTokenManager(AccessTokenManager):
     def __init__(self, api, redis, user_id, token=None):
