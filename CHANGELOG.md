@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Major: Added new Spotify module, which shows the current playing song in chat - requires new config options
 - Minor: Added timeout reason customization to various moderation modules
 - Minor: Added new module for simple emote spam moderation
 - Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
