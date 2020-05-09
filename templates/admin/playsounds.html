@@ -4,7 +4,7 @@
 {% block body %}
     <h2>Playsounds</h2>
 
-    <div class="ui icon message">
+    <div class="ui icon message inverted">
         <i class="info circle icon"></i>
         <div class="content">
             <div class="header">
@@ -12,7 +12,7 @@
             </div>
             <p>The playsound feature allows viewers to play predefined soundbites on stream.</p>
 
-            <div class="ui raised segment">
+            <div class="ui raised segment inverted">
                 <p>
                     Playing a sound
                     {% if module_settings.point_cost <= 0 and module_settings.token_cost <= 0 %}
@@ -100,11 +100,11 @@
                 <input autocomplete="off" type="url" name="link" class="link-input middle-input"
                        placeholder="New playsound link"
                        style="width: 300px;" required>
-                <button class="ui button positive" id="#create-playsound-button" type="submit">Create Playsound</button>
+                <button class="ui button green inverted" id="#create-playsound-button" type="submit">Create Playsound</button>
             </form>
         </div>
     </div>
-    <table class="ui compact very basic table inverted">
+    <table class="ui single line very basic table inverted">
         <thead>
         <tr>
             <th class="collapsing">Name</th>
@@ -136,35 +136,37 @@
                                  data-name="{{ playsound.name }}"
                                  data-link="{{ playsound.link }}"
                                  data-volume="{{ playsound.volume }}">
-                                <button class="positive play-in-browser-play ui icon button compact">
+                                <button class="green inverted play-in-browser-play ui icon button compact">
                                     <i class="play circle outline icon"></i>
                                     Test in browser
                                 </button>
-                                <button class="play-in-browser-stop ui button compact icon disabled">
-                                    <i class="stop circle outline icon"></i>Stop Playback
+                                <button class="play-in-browser-stop ui button compact icon disabled inverted">
+                                    <i class="stop circle outline icon"></i>
+                                    Stop Playback
                                 </button>
-                                <button class="play-on-stream ui button icon compact">
-                                    <i class="play circle outline icon"></i>Test on stream
+                                <button class="play-on-stream ui button icon compact inverted">
+                                    <i class="play circle outline icon"></i>
+                                    Test on stream
                                 </button>
                             </div>
                         </div>
                     </div>
 
                 </td>
-                <td class="top aligned">
+                <td class="middle aligned">
                     <div class="min-height-container volume-container">
                         <input form="form-{{ playsound.name }}" type="hidden" name="volume">
-                        <div class="ui range volume-slider" data-initial="{{ playsound.volume }}"></div>
+                        <div class="ui range volume-slider inverted" data-initial="{{ playsound.volume }}"></div>
                         <div class="volume-label">{{ playsound.volume }}</div>
                     </div>
                 </td>
-                <td class="top aligned">
+                <td class="middle aligned">
                     <div class="ui input compact cooldown-input">
                         <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cooldown"
                                value="{{ playsound.cooldown if playsound.cooldown is not none }}">
                     </div>
                 </td>
-                <td class="top aligned">
+                <td class="middle aligned">
                     <div class="min-height-container">
                         <div class="ui toggle fitted checkbox enabled-input">
                             <input autocomplete="off" form="form-{{ playsound.name }}" type="checkbox"
@@ -176,10 +178,10 @@
                 <td>
                     <div class="actions-buttons-container">
                         <button form="form-{{ playsound.name }}"
-                                class="playsound-submit-save ui compact positive button" type="submit">Save
+                                class="playsound-submit-save ui compact green inverted button" type="submit">Save
                         </button>
                         <button form="form-{{ playsound.name }}"
-                                class="playsound-submit-delete ui compact negative button" type="button">Delete
+                                class="playsound-submit-delete ui compact red inverted button" type="button">Delete
                         </button>
                     </div>
                 </td>
@@ -190,16 +192,17 @@
 
     <div class="ui tiny test modal" id="delete-modal">
         <div class="header">
-            Delete Playsound
+            <p>Delete Playsound</p>
         </div>
         <div class="content">
             <p>Please confirm you want to delete that playsound. This action is irreversible.</p>
         </div>
         <div class="actions">
-            <div class="ui negative button">
+            <div class="ui red inverted right labeled icon button">
                 No, Don't delete
+                <i class="close icon"></i>
             </div>
-            <div class="ui positive right labeled icon button">
+            <div class="ui green inverted right labeled icon button">
                 Yes, delete
                 <i class="checkmark icon"></i>
             </div>
@@ -208,7 +211,7 @@
 
 {% endblock %}
 {% block footer %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.2/howler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.1.3/howler.min.js"></script>
     {% assets 'base_js', 'range_slider_js', 'playsound_common_js', 'playsound_admin_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}

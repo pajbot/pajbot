@@ -16,7 +16,7 @@
 <p>Columns in yellow mark an unsaved change.</p>
 <p>Click the "Save Changes" button below to confirm your changes.</p>
 <h2>Command</h2>
-<table class="ui definition table editcommand celled command inverted">
+<table class="ui very basic table editcommand celled command inverted">
     <tbody>
         {% for label, editable, value, name, type, suffix in data_available %}
         {% if type == 'boolean' %}
@@ -27,7 +27,7 @@
             <td class="buttons two wide right aligned">
                 {% if editable %}
                 <div class="ui small compact basic icon buttons display">
-                    <button title="Edit value" class="ui button icon edit"><i class="icon edit"></i></button>
+                    <button title="Edit value" class="ui button icon edit"><i class="icon edit outline"></i></button>
                 </div>
                 <div class="ui small compact basic icon buttons edit">
                     <button title="Cancel changes" class="ui button icon cancel"><i class="icon red cancel"></i></button>
@@ -78,7 +78,7 @@
 ] %}
 {% endif %}
 <h2>Action</h2>
-<table class="ui definition table editcommand celled action inverted">
+<table class="ui very basic table editcommand celled action inverted">
     <tbody>
         {% for label, editable, value, name, type, suffix in data_available %}
         {% if type == 'boolean' %}

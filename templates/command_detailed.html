@@ -10,15 +10,15 @@
 </p>
 {% endif %}
 {% if examples|length > 0 %}
-<div class="ui styled accordion examples">
+<div class="ui styled accordion examples inverted" style="background: #2d2d2d;">
     {% set index = 1 %}
     {% for example in examples -%}
     <div class="title{{ ' active' if index == 1 else '' }}">
         <i class="dropdown icon"></i>{{ example['title'] }}
     </div>
-    <div class="content{{ ' active' if index == 1 else '' }}">
+    <div class="content{{ ' active' if index == 1 else '' }}" style="background: #2d2d2d;">
         {% if example['description']|length > 0 %}
-        <div class="description autolink">{{ example['description'] }}</div>
+        <div class="description autolink"><p>{{ example['description'] }}</p></div>
         {% endif %}
         {% for chat_message in example['messages'] -%}
         {% include 'helper/command_chat_message.html' %}

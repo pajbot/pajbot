@@ -77,7 +77,8 @@ function handle_command(base_key, command) {
                 el_base.empty();
                 if (value.length > 0) {
                     var $accordion = $('<div>', {
-                        class: 'ui styled accordion examples',
+                        class: 'ui styled accordion examples inverted',
+                        style: 'background: #2d2d2d;',
                     });
                     el_base.append('<h5>Command examples</h5>');
                     el_base.append($accordion);
