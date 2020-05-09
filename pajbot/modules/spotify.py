@@ -42,7 +42,7 @@ class SpotifyModule(BaseModule):
         ),
         ModuleSetting(
             key="playing_spotify",
-            label="Message shown when !song is called from chat if a song is playing in spotify | Available arguments: {username}, {song_title}, {artists}",
+            label="Message shown when a song is playing | Available arguments: {username}, {song_title}, {artists}",
             type="text",
             required=True,
             placeholder="",
@@ -50,7 +50,7 @@ class SpotifyModule(BaseModule):
         ),
         ModuleSetting(
             key="no_song_playing",
-            label="Message shown when !song is called from chat if there is no song playing | Available arguments: {username}",
+            label="Message shown when no song is playing | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="",
@@ -58,7 +58,7 @@ class SpotifyModule(BaseModule):
         ),
         ModuleSetting(
             key="show_song_when_stream_offline",
-            label="Show a message of the currently playing song when the stream is offline",
+            label="Post a message when the stream is offline?",
             type="boolean",
             required=True,
             placeholder="",
@@ -66,7 +66,7 @@ class SpotifyModule(BaseModule):
         ),
         ModuleSetting(
             key="offline_song_message",
-            label="Message shown when !song is called when the stream is offline. Requires above option to be enabled. | Available arguments: {username}",
+            label="Message shown when !song is called while offline. Requires above option to be enabled. | Available arguments: {username}",
             type="text",
             required=False,
             placeholder="",
