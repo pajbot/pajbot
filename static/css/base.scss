@@ -497,3 +497,11 @@ p {
 .ui.styled.accordion {
   box-shadow: none;
 }
+
+input[type="text"],
+input[type="number"],
+select {
+  background-color: #2d2d2d !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}

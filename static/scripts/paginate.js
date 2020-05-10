@@ -138,7 +138,7 @@ function paginate(selector, limit, direction, action, on_success, show_ends) {
 
     /* Create menu base */
     paginate_el.append(
-        '<div class="ui right floated pagination menu"><a class="item nleft"><i class="left chevron icon"></i></a>' +
+        '<div class="ui right floated pagination menu inverted" style="background-color: #2d2d2d; color: white !important;"><a class="item nleft"><i class="left chevron icon"></i></a>' +
             buttons +
             '<a class="item nright"><i class="right chevron icon"></i></a></div>'
     );

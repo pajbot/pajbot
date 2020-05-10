@@ -15,7 +15,7 @@
                 <div class="ui simple dropdown item">{{ menuitem.caption }}<i class="dropdown icon"></i>
                     <div class="menu">
                         {%- for submenuitem in menuitem.href %}
-                            <a class="inverted item{% if submenuitem.id == active_page %} active{% endif %}" href="{{ submenuitem.href }}">
+                            <a class="item{% if submenuitem.id == active_page %} active{% endif %}" href="{{ submenuitem.href }}" style="background-color: #1b1c1d !important; color: white !important;">
                             {{ submenuitem.caption }}</a>
                         {% endfor -%}
                     </div>
