@@ -3,6 +3,10 @@
 ## Unversioned
 
 - Minor: Added a default dark theme to the bot website
+
+## v1.44
+
+- Minor: Updated code for login system to make it work with upcoming changes to the Twitch API. (#861)
 - Minor: Added timeout reason customization to various moderation modules
 - Minor: Added new module for simple emote spam moderation
 - Minor: You can now allow users with level 420 to use the `!runpnsl` command (could only be set as low as 500 before). Default level requirement remains at 750. (#830)
@@ -10,6 +14,8 @@
 - Minor: Remove the logs option from the user page (due to the termination of overrustlelogs)
 - Minor: Added a setting to change the level required for the `!trivia start` and `!trivia stop` commands. (Default remains at 500, like before.) (#847)
 - Minor: Updated semantic-ui css and js dependencies
+- Minor: Login system is now protected against CSRF attacks (#861)
+- Minor: Login process no longer asks users for the permission to read the email from their profile (we now only request public information). (#861)
 - Bugfix: Fixed warnings in the admin playsounds page
 - Bugfix: Fixed scrollbar appearing on CLR overlay (#832)
 - Bugfix: The modules list no longer incorrectly shows as sorted on page load
