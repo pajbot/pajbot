@@ -48,7 +48,7 @@ def init(app):
         "channel:read:subscriptions",
     ]
 
-    streamer_scopes = ["user_read", "channel:read:subscriptions"]
+    streamer_scopes = ["channel:read:subscriptions"]
 
     @app.route("/login")
     def login():
