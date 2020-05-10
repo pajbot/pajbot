@@ -279,13 +279,13 @@ div.chat div.chat-message {
 
 .chat:nth-child(even) .chat-message.say,
 .chat:nth-child(even) .chat-message.me {
-  background-color: #282828;
+  background-color: #0e0e0e;
   color: white;
 }
 
 .chat:nth-child(odd) .chat-message.say,
 .chat:nth-child(odd) .chat-message.me {
-  background-color: #343434;
+  background-color: #1a1a1a;
   color: white;
 }
 
@@ -318,12 +318,12 @@ div.chat div.chat-message {
 }
 
 .chat .user {
-  color: #BB4646;
+  color: #bb4646;
   font-weight: 700;
 }
 
 .chat .bot {
-  color: #6B78FF;
+  color: #6b78ff;
   font-weight: 700;
 }
 
