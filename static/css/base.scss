@@ -506,3 +506,23 @@ select {
   color: white !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+.chat.border {
+  border: none !important;
+}
+
+.div.chat {
+  border: none !important;
+}
+
+.chat:nth-child(odd) .chat-message.say,
+.chat:nth-child(odd) .chat-message.me {
+  background-color: #222222 !important;
+  color: white !important;
+}
+
+.chat:nth-child(even) .chat-message.say,
+.chat:nth-child(even) .chat-message.me {
+  background-color: #191919 !important;
+  color: white !important;
+}
