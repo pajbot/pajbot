@@ -1,11 +1,11 @@
 .pui.command,
 .pui.argument {
   font-family: monospace;
-  border-radius: 0.285rem;
-  background: #f8f8f9;
+  border-radius: none;
+  background: none;
   padding: 0.4em;
   line-height: 18px;
-  box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.22) inset, 0 0 0 0 transparent;
+  box-shadow: none;
   display: inline-block;
 }
 
@@ -263,9 +263,8 @@ div.chat div.chat-message {
   word-break: break-word;
   word-wrap: break-word;
   color: #3d3d42;
-  border-bottom-color: #b4b4b4;
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
+  border-bottom: 1px solid #1b1c1d;
+  border-right: 1px solid #1b1c1d;
   display: block;
   font-size: 12px;
   padding-bottom: 3px;
@@ -280,12 +279,14 @@ div.chat div.chat-message {
 
 .chat:nth-child(even) .chat-message.say,
 .chat:nth-child(even) .chat-message.me {
-  background-color: #c8c8c8;
+  background-color: #282828;
+  color: white;
 }
 
 .chat:nth-child(odd) .chat-message.say,
 .chat:nth-child(odd) .chat-message.me {
-  background-color: #d9d9d9;
+  background-color: #343434;
+  color: white;
 }
 
 .chat .chat-message.me.from-bot .message {
@@ -305,7 +306,7 @@ div.chat div.chat-message {
 }
 
 .chat.border {
-  border-color: #b4b4b4;
+  border-color: #1b1c1d;
   border-width: 0.666667px;
   border-style: solid;
   width: 341px;
@@ -487,13 +488,6 @@ p {
   padding-bottom: 16px !important;
 }
 
-.pui.command,
-.pui.argument {
-  background: none;
-  box-shadow: none;
-  border-radius: none;
-}
-
 .ui.styled.accordion {
   box-shadow: none;
 }
@@ -505,20 +499,4 @@ select {
   background-color: #2d2d2d !important;
   color: white !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.div.chat {
-  border: none !important;
-}
-
-.chat:nth-child(odd) .chat-message.say,
-.chat:nth-child(odd) .chat-message.me {
-  background-color: #343434 !important;
-  color: white !important;
-}
-
-.chat:nth-child(even) .chat-message.say,
-.chat:nth-child(even) .chat-message.me {
-  background-color: #282828 !important;
-  color: white !important;
 }
