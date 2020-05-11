@@ -1,141 +1,226 @@
 import json
-import os
 import logging
 import base64
-import urllib
-from json import JSONDecodeError
+import time
 
 from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
+from flask import url_for
+from flask_oauthlib.client import OAuth, OAuthException
 
+from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.user import User
+from pajbot.models.user import User, UserBasics
+
 
 log = logging.getLogger(__name__)
 
 
 def init(app):
-    def twitch_login(scopes):
-        csrf_token = base64.b64encode(os.urandom(64)).decode("utf-8")
-        session["csrf_token"] = csrf_token
+    oauth = OAuth(app)
 
-        state = {"csrf_token": csrf_token, "return_to": request.args.get("returnTo", None)}
-
-        params = {
-            "client_id": app.bot_config["twitchapi"]["client_id"],
-            "redirect_uri": app.bot_config["twitchapi"]["redirect_uri"],
-            "response_type": "code",
-            "scope": " ".join(scopes),
-            "state": json.dumps(state),
-        }
-
-        authorize_url = "https://id.twitch.tv/oauth2/authorize?" + urllib.parse.urlencode(params)
-        return redirect(authorize_url)
-
-    bot_scopes = [
-        "user_read",
-        "user:edit",
-        "user:read:email",
-        "channel:moderate",
-        "chat:edit",
-        "chat:read",
-        "whispers:read",
-        "whispers:edit",
-        "channel_editor",
-        "channel:read:subscriptions",
-    ]
-
-    streamer_scopes = ["channel:read:subscriptions"]
+    twitch = oauth.remote_app(
+        "twitch",
+        consumer_key=app.bot_config["twitchapi"]["client_id"],
+        consumer_secret=app.bot_config["twitchapi"]["client_secret"],
+        request_token_params={"scope": "user_read"},
+        base_url="https://api.twitch.tv/helix/",
+        request_token_url=None,
+        access_token_method="POST",
+        access_token_url="https://id.twitch.tv/oauth2/token",
+        authorize_url="https://id.twitch.tv/oauth2/authorize",
+    )
+    try:
+        spotify = oauth.remote_app(
+            "spotify",
+            consumer_key=app.bot_config["spotify"]["client_id"],
+            consumer_secret=app.bot_config["spotify"]["client_secret"],
+            request_token_params={},
+            base_url="https://api.spotify.com/v1/",
+            request_token_url=None,
+            access_token_method="POST",
+            access_token_url="https://accounts.spotify.com/api/token",
+            authorize_url="https://accounts.spotify.com/authorize",
+        )
+    except:
+        spotify = None
 
     @app.route("/login")
     def login():
-        return twitch_login(scopes=[])
+        callback_url = (
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
+            else url_for("authorized", _external=True)
+        )
+        state = request.args.get("n") or request.referrer or None
+        return twitch.authorize(callback=callback_url, state=state)
 
     @app.route("/bot_login")
     def bot_login():
-        return twitch_login(scopes=bot_scopes)
+        callback_url = (
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
+            else url_for("authorized", _external=True)
+        )
+        state = request.args.get("n") or request.referrer or None
+        return twitch.authorize(
+            callback=callback_url,
+            state=state,
+            scope=(
+                "user_read user:edit user:read:email channel:moderate chat:edit "
+                "chat:read whispers:read whispers:edit channel_editor channel:read:subscriptions"
+            ),
+            force_verify="true",
+        )
+
+    """Request these scopes on /streamer_login"""
+    streamer_scopes = [
+        "user_read",
+        "channel:read:subscriptions",
+        "channel:read:redemptions",
+        "bits:read",
+        "channel_subscriptions",
+        "moderation:read",
+    ]
+
+    spotify_scopes = [
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "user-read-currently-playing",
+        "user-read-email",
+        "user-read-private",
+    ]
 
     @app.route("/streamer_login")
     def streamer_login():
-        return twitch_login(scopes=streamer_scopes)
+        callback_url = (
+            app.bot_config["twitchapi"]["redirect_uri"]
+            if "redirect_uri" in app.bot_config["twitchapi"]
+            else url_for("authorized", _external=True)
+        )
+        state = request.args.get("n") or request.referrer or None
+        return twitch.authorize(
+            callback=callback_url, state=state, scope=" ".join(streamer_scopes), force_verify="true"
+        )
+
+    @app.route("/spotify_login")
+    def spotify_login():
+        if spotify is not None:
+            callback_url = (
+                app.bot_config["spotify"]["redirect_uri"]
+                if "redirect_uri" in app.bot_config["spotify"]
+                else url_for("authorized", _external=True)
+            )
+            state = request.args.get("n") or request.referrer or None
+            return spotify.authorize(
+                callback=callback_url, state=state, scope=" ".join(spotify_scopes), force_verify="true"
+            )
+        return render_template("login_error.html")
 
     @app.route("/login/error")
     def login_error():
         return render_template("login_error.html")
 
+    @app.route("/login/spotify_auth")
+    def spotify_auth():
+        if spotify is None:
+            return render_template("login_error.html")
+
+        try:
+            resp = spotify.authorized_response()
+        except OAuthException as e:
+            log.error(e)
+            log.exception("An exception was caught while authorizing")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        except Exception as e:
+            log.error(e)
+            log.exception("Unhandled exception while authorizing")
+            return render_template("login_error.html")
+
+        session["spotify_token"] = (resp["access_token"],)
+        if resp is None:
+            if "error" in request.args and "error_description" in request.args:
+                log.warning(f"Access denied: reason={request.args['error']}, error={request.args['error_description']}")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        elif type(resp) is OAuthException:
+            log.warning(resp.message)
+            log.warning(resp.data)
+            log.warning(resp.type)
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+
+        data = f'{app.bot_config["spotify"]["client_id"]}:{app.bot_config["spotify"]["client_secret"]}'
+        encoded = str(base64.b64encode(data.encode("utf-8")), "utf-8")
+        headers = {"Authorization": f"Basic {encoded}"}
+
+        me_api_response = spotify.get("me", headers=headers)
+
+        redis = RedisManager.get()
+        token_json = UserAccessToken.from_api_response(resp).jsonify()
+
+        redis.set(f"authentication:spotify-access-token:{me_api_response.data['id']}", json.dumps(token_json))
+        redis.set(f"authentication:user-refresh-token:{me_api_response.data['id']}", token_json["refresh_token"])
+        log.info(f"Successfully updated spotify token in redis for user {me_api_response.data['id']}")
+
+        next_url = get_next_url(request, "state")
+        return redirect(next_url)
+
     @app.route("/login/authorized")
     def authorized():
-        # First, validate state with CSRF token
-        # (CSRF token from request parameter must match token from session)
-        state_str = request.args.get("state", None)
-
-        if state_str is None:
-            return render_template("login_error.html", return_to="/", detail_msg="State parameter missing"), 400
-
         try:
-            state = json.loads(state_str)
-        except JSONDecodeError:
-            return render_template("login_error.html", return_to="/", detail_msg="State parameter not valid JSON"), 400
+            resp = twitch.authorized_response()
+        except OAuthException as e:
+            log.error(e)
+            log.exception("An exception was caught while authorizing")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        except Exception as e:
+            log.error(e)
+            log.exception("Unhandled exception while authorizing")
+            return render_template("login_error.html")
 
-        # we now have a valid state object, we can send the user back to the place they came from
-        return_to = state.get("return_to", "/")
+        if resp is None:
+            if "error" in request.args and "error_description" in request.args:
+                log.warning(f"Access denied: reason={request.args['error']}, error={request.args['error_description']}")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        elif type(resp) is OAuthException:
+            log.warning(resp.message)
+            log.warning(resp.data)
+            log.warning(resp.type)
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
 
-        def login_error(code, detail_msg=None):
-            return render_template("login_error.html", return_to=return_to, detail_msg=detail_msg), code
+        session["twitch_token"] = (resp["access_token"],)
+        session["twitch_token_expire"] = time.time() + resp["expires_in"] * 0.75
 
-        csrf_token = state.get("csrf_token", None)
-        if csrf_token is None:
-            return login_error(400, "CSRF token missing from state")
-
-        csrf_token_in_session = session.pop("csrf_token", None)
-        if csrf_token_in_session is None:
-            return login_error(400, "No CSRF token in session cookie")
-
-        if csrf_token != csrf_token_in_session:
-            return login_error(403, "CSRF tokens don't match")
-
-        # determine if we got ?code= or ?error= (success or not)
-        # https://tools.ietf.org/html/rfc6749#section-4.1.2
-        if "error" in request.args:
-            # user was sent back with an error condition
-            error_code = request.args["error"]
-            optional_error_description = request.args.get("error_description", None)
-
-            if optional_error_description is not None:
-                user_detail_msg = f"Error returned from Twitch: {optional_error_description} (code: {error_code}"
-            else:
-                user_detail_msg = f"Error returned from Twitch (code: {error_code})"
-
-            return login_error(400, user_detail_msg)
-
-        if "code" not in request.args:
-            return login_error(400, "No ?code or ?error present on the request")
-
-        # successful authorization
-        code = request.args["code"]
-
-        try:
-            # gets us an UserAccessToken object
-            access_token = app.twitch_id_api.get_user_access_token(code)
-        except:
-            log.exception("Could not exchange given code for access token with Twitch")
-            return login_error(500, "Could not exchange the given code for an access token.")
-
-        user_basics = app.twitch_helix_api.fetch_user_basics_from_authorization(
-            (app.api_client_credentials, access_token)
-        )
+        me_api_response = twitch.get("users", headers={"Client-ID": app.bot_config["twitchapi"]["client_id"]})
+        log.info(session["twitch_token"])
+        log.info(me_api_response.data)
+        if len(me_api_response.data["data"]) < 1:
+            return render_template("login_error.html")
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            me = User.from_basics(db_session, user_basics)
+            me = User.from_basics(
+                db_session,
+                UserBasics(
+                    me_api_response.data["data"][0]["id"],
+                    me_api_response.data["data"][0]["login"],
+                    me_api_response.data["data"][0]["display_name"],
+                ),
+            )
             session["user"] = me.jsonify()
 
         # bot login
         if me.login == app.bot_config["main"]["nickname"].lower():
             redis = RedisManager.get()
-            redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
+            token_json = UserAccessToken.from_api_response(resp).jsonify()
+            redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
             log.info("Successfully updated bot token in redis")
 
         # streamer login
@@ -149,21 +234,39 @@ def init(app):
             # then the granted scopes will be a superset of the scopes needed for the streamer.
             # By doing this, both the streamer and bot token will be set if you complete /bot_login with the bot
             # account, and if the bot is running in its own channel.
-            if set(access_token.scope) < set(streamer_scopes):
+            if set(resp["scope"]) < set(streamer_scopes):
                 log.info("Streamer logged in but not all scopes present, will not update streamer token")
             else:
                 redis = RedisManager.get()
-                redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
+                token_json = UserAccessToken.from_api_response(resp).jsonify()
+                redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
                 log.info("Successfully updated streamer token in redis")
 
-        return redirect(return_to)
+        next_url = get_next_url(request, "state")
+        return redirect(next_url)
+
+    def get_next_url(request, key="n"):
+        next_url = request.args.get(key, "/")
+        if next_url.startswith("//"):
+            return "/"
+        return next_url
 
     @app.route("/logout")
     def logout():
+        session.pop("twitch_token", None)
         session.pop("user", None)
+        session.pop("twitch_token_expire", None)
+        next_url = get_next_url(request)
+        if next_url.startswith("/admin"):
+            next_url = "/"
+        return redirect(next_url)
 
-        return_to = request.args.get("returnTo", "/")
-        if return_to.startswith("/admin"):
-            return_to = "/"
+    @twitch.tokengetter
+    def get_twitch_oauth_token():
+        return session.get("twitch_token")
 
-        return redirect(return_to)
+    if spotify is not None:
+
+        @spotify.tokengetter
+        def get_token_to_submit():
+            return session.get("spotify_token")
