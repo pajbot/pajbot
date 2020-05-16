@@ -92,7 +92,7 @@ class ConnectionManager:
             return True
         except:
             log.exception("Connection failed, retrying")
-            self.bot.execute_delayed(1, lambda: self.start())
+            self.bot.execute_delayed(2, lambda: self.start())
             return False
 
     def make_new_connection(self):
