@@ -81,7 +81,11 @@ def init(app):
             return render_template("login_error.html", return_to="/", detail_msg="State parameter not valid JSON"), 400
 
         # we now have a valid state object, we can send the user back to the place they came from
-        return_to = state.get("return_to", "/")
+        return_to = state.get("return_to", None)
+        if return_to is None:
+            # either not present in the JSON at all, or { "return_to": null } (which is the case when you
+            # e.g. access /bot_login or /streamer_login directly)
+            return_to = "/"
 
         def login_error(code, detail_msg=None):
             return render_template("login_error.html", return_to=return_to, detail_msg=detail_msg), code
