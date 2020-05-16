@@ -76,7 +76,7 @@ class EmoteLimitModule(BaseModule):
             type="text",
             required=False,
             placeholder="",
-            default="You have been timed out for {timeout_duration} for posting too many emotes.",
+            default="You have been timed out for {timeout_duration} seconds for posting too many emotes.",
             constraints={},
         ),
     ]
