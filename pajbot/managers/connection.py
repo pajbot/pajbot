@@ -91,7 +91,7 @@ class ConnectionManager:
 
             return True
         except:
-            log.exception("Connection failed, retrying")
+            log.exception("Failed to open connection, retrying")
             self.bot.execute_delayed(2, lambda: self.start())
             return False
 
