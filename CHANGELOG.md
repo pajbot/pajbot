@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added whisper timeout reasons to the emote limit module
+
 ## v1.44
 
 - Minor: Updated code for login system to make it work with upcoming changes to the Twitch API. (#861)
