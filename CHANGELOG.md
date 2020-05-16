@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added `timeout_end` field to User API Response. (#875)
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 
