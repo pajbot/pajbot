@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added whisper timeout reasons to the emote limit module
+- Minor: Added whisper timeout reasons to the emote limit module (#866)
 
 ## v1.44
 
