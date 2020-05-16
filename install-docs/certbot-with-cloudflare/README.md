@@ -97,5 +97,4 @@ ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
 ```
 
-> Note! If you have requested a wildcard certificate (as we have done here in the example), you can re-use the same certificate for multiple bots.
-> E.g. if you have bots running under the two subdomains `streamer_a.your-domain.com` and `streamer_b.your-domain.com`, and you have a wildcard certificate for `*.your-domain.com`, then both these site configurations can share the same certificate (`/etc/letsencrypt/live/your-domain.com/fullchain.pem` for example).
+> Note! If you have requested a wildcard certificate (as we have done here in the example), you can re-use the same certificate for multiple bots. E.g. if you have bots running under the two subdomains `streamer_a.your-domain.com` and `streamer_b.your-domain.com`, and you have a wildcard certificate for `*.your-domain.com`, then both these site configurations can share the same certificate (`/etc/letsencrypt/live/your-domain.com/fullchain.pem` for example).
