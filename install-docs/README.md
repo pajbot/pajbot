@@ -4,8 +4,7 @@ Welcome to the installation instructions for pajbot!
 
 Below is the index for a full list of installation instructions for pajbot.
 
-These installation instructions will install pajbot in a way that allows you to run pajbot for multiple streamers at once without too much duplication.
-For this reason, these installation instructions are split into two big parts: Installation of pajbot, and creating a pajbot instance for a single channel (which you can repeat as needed, should you want to run pajbot in multiple channels, for different streamers for example).
+These installation instructions will install pajbot in a way that allows you to run pajbot for multiple streamers at once without too much duplication. For this reason, these installation instructions are split into two big parts: Installation of pajbot, and creating a pajbot instance for a single channel (which you can repeat as needed, should you want to run pajbot in multiple channels, for different streamers for example).
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -52,8 +51,7 @@ sudo apt install libssl-dev libpq-dev build-essential
 
 ## Set up a system user
 
-For security reasons, you shouldn't run pajbot as the `root` user on your server.
-You can create a low-privilege "system" user for pajbot like this:
+For security reasons, you shouldn't run pajbot as the `root` user on your server. You can create a low-privilege "system" user for pajbot like this:
 
 ```bash
 sudo adduser --system --group pajbot --home /opt/pajbot
@@ -102,8 +100,7 @@ sudo -u postgres createdb --owner=pajbot pajbot
 
 ## Install Redis
 
-Pajbot also needs an instance of [Redis](https://redis.io/) to run.
-The redis database server does not need any manual setup - all you have to do is install redis:
+Pajbot also needs an instance of [Redis](https://redis.io/) to run. The redis database server does not need any manual setup - all you have to do is install redis:
 
 ```bash
 sudo apt install redis-server
@@ -129,8 +126,7 @@ sudo apt install nginx
 
 We will configure nginx later.
 
-> Note: You can find a basic nginx configuration setup including HTTP -> HTTPS redirect, recommended SSL configuration parameters, etc. [over here](./full-nginx-setup/README.md).
-> If you don't already have a basic nginx setup, we strongly recommend you follow the linked guideline now.
+> Note: You can find a basic nginx configuration setup including HTTP -> HTTPS redirect, recommended SSL configuration parameters, etc. [over here](./full-nginx-setup/README.md). If you don't already have a basic nginx setup, we strongly recommend you follow the linked guideline now.
 
 ## Install system services
 

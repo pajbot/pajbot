@@ -19,8 +19,7 @@ redis-cli --pipe < redis_dump_streamer.bin
 Generates a list of all unicode emoji.
 
 Useful to generate/refresh the `emoji.py` file with fresh data.  
-Draws directly from the official unicode `emoji-test.txt` file and generates a
-list format that can be inserted into `../pajbot/emoji.py`.
+Draws directly from the official unicode `emoji-test.txt` file and generates a list format that can be inserted into `../pajbot/emoji.py`.
 
 E.g.:
 
