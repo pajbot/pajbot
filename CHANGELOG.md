@@ -3,7 +3,7 @@
 ## Unversioned
 
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
-- Bugfix: Fixed reconnection logic, we previously didn't handle errors like "connection refused" or "connection timed out". (#872)
+- Bugfix: Added retry logic for when opening connection fails. (#872)
 
 ## v1.44
 
