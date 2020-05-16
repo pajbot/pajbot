@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
+
 ## v1.44
 
 - Minor: Updated code for login system to make it work with upcoming changes to the Twitch API. (#861)
