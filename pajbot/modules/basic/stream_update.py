@@ -53,17 +53,19 @@ class StreamUpdateModule(BaseModule):
         if not message:
             bot.say(f"You must specify a {field} to update to!")
             return
-
         try:
-            api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
-        except HTTPError as e:
-            if e.response.status_code == 401:
-                bot.say(
-                    f"Error (bot operator): The streamer needs to be re-authenticated to be able to update the {field}."
-                )
-                return
-            else:
-                raise e
+            api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
+        except HTTPError:
+            try:
+                api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    bot.say(
+                        f"Error (bot operator): The streamer needs to be re-authenticated to be able to update the {field}."
+                    )
+                    return
+                else:
+                    raise e
 
         log_msg = f'{source} updated the {field} to "{message}"'
         bot.say(log_msg)
