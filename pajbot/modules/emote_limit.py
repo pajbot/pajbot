@@ -109,14 +109,14 @@ class EmoteLimitModule(BaseModule):
 
         if len(emote_instances) > self.settings["max_emotes"]:
             self.delete_or_timeout(source, msg_id, self.settings["timeout_reason"])
-            if self.settings["moderation_action"] == "Timeout":
-                if self.settings["enable_whisper_timeout_reasons"] is True:
-                    self.bot.whisper(
-                        source,
-                        self.settings["whisper_timeout_reason"].format(
-                            timeout_duration=self.settings["timeout_duration"]
-                        ),
-                    )
+            if (
+                self.settings["moderation_action"] == "Timeout"
+                and self.settings["enable_whisper_timeout_reasons"] is True
+            ):
+                self.bot.whisper(
+                    source,
+                    self.settings["whisper_timeout_reason"].format(timeout_duration=self.settings["timeout_duration"]),
+                )
             return False
 
         return True
