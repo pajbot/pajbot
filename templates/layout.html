@@ -29,7 +29,7 @@
             {% endif %}
             {{ menuitem.caption }}</a>
         {% endfor %}
-        {% if session.user is not none %}
+        {% if session.user %}
         <a class="item{% if active_page == "me" %} active{% endif %}" href="/user/{{ session.user.login }}">
             My profile
         </a>
