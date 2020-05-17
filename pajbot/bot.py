@@ -799,6 +799,28 @@ class Bot:
             message=event.arguments[0],
         )
 
+    def on_clearchat(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        target_user_id = tags["target-user-id"]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_id(db_session, target_user_id)
+
+            if user is None:
+                # User is not otherwise known, we won't store their timeout (they need to type first)
+                # We could theoretically also do an API call here to figure out everything about that user,
+                # but that could easily overwhelm the bot when lots of unknown users are banned quickly (e.g. bots).
+                return
+
+            if "ban-duration" in tags:
+                # timeout
+                ban_duration = int(tags["ban-duration"])
+                user.timeout_end = utils.now() + datetime.timedelta(seconds=ban_duration)
+            else:
+                # permaban
+                # this sets timeout_end to None
+                user.timed_out = False
+
     def commit_all(self):
         for key, manager in self.commitable.items():
             manager.commit()

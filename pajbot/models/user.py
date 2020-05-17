@@ -293,6 +293,7 @@ class User(Base):
             "last_active": self.last_active.isoformat() if self.last_active is not None else None,
             "ignored": self.ignored,
             "banned": self.banned,
+            "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
         }
 
     def __eq__(self, other):
