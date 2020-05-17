@@ -3,9 +3,8 @@ import logging
 from requests import HTTPError
 from sqlalchemy import text
 
-from pajbot.apiwrappers.authentication.token_manager import UserAccessTokenManager, NoTokenError
+from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
-from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule

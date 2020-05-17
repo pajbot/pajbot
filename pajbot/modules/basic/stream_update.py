@@ -58,7 +58,7 @@ class StreamUpdateModule(BaseModule):
             api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
         except HTTPError as e:
             if e.response.status_code == 401:
-                bot.say(f"Error (bot operator): The bot needs to be re-authenticated to be able to update the {field}.")
+                bot.say(f"Error (bot operator): The streamer needs to be re-authenticated to be able to update the {field}.")
                 return
             else:
                 raise e
