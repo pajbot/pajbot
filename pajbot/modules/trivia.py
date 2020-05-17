@@ -57,6 +57,15 @@ class TriviaModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 600},
         ),
+        ModuleSetting(
+            key="commands_level",
+            label="Minimum level to use !trivia start/stop",
+            type="number",
+            required=True,
+            placeholder="",
+            default=500,
+            constraints={"min_value": 100, "max_value": 1500},
+        ),
     ]
 
     def __init__(self, bot):
@@ -231,10 +240,18 @@ class TriviaModule(BaseModule):
             can_execute_with_whisper=True,
             commands={
                 "start": Command.raw_command(
-                    self.command_start, level=500, delay_all=0, delay_user=10, can_execute_with_whisper=True
+                    self.command_start,
+                    level=self.settings["commands_level"],
+                    delay_all=0,
+                    delay_user=10,
+                    can_execute_with_whisper=True,
                 ),
                 "stop": Command.raw_command(
-                    self.command_stop, level=500, delay_all=0, delay_user=0, can_execute_with_whisper=True
+                    self.command_stop,
+                    level=self.settings["commands_level"],
+                    delay_all=0,
+                    delay_user=0,
+                    can_execute_with_whisper=True,
                 ),
             },
         )

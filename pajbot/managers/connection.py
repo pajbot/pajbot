@@ -91,24 +91,22 @@ class ConnectionManager:
 
             return True
         except:
-            log.exception("babyrage")
+            log.exception("Failed to open connection, retrying")
+            self.bot.execute_delayed(2, lambda: self.start())
             return False
 
     def make_new_connection(self):
         ip = self.host
         port = self.port
 
-        try:
-            ssl_factory = Factory(wrapper=ssl.wrap_socket)
-            self.main_conn = Connection(self.reactor)
-            with self.reactor.mutex:
-                self.reactor.connections.append(self.main_conn)
-            self.main_conn.connect(
-                ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
-            )
-            self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
-        except irc.client.ServerConnectionError:
-            return False
+        ssl_factory = Factory(wrapper=ssl.wrap_socket)
+        self.main_conn = Connection(self.reactor)
+        with self.reactor.mutex:
+            self.reactor.connections.append(self.main_conn)
+        self.main_conn.connect(
+            ip, port, self.bot.nickname, self.bot.password, self.bot.nickname, connect_factory=ssl_factory
+        )
+        self.main_conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
 
     def on_disconnect(self, _chatconn):
         log.error("Disconnected from IRC")

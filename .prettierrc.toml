@@ -9,3 +9,8 @@ tabWidth = 4
 files = ["*.js"]
 [overrides.options]
 singleQuote = true
+
+[[overrides]]
+files = ["*.md"]
+[overrides.options]
+proseWrap = "never"
