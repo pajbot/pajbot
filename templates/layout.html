@@ -29,11 +29,6 @@
             {% endif %}
             {{ menuitem.caption }}</a>
         {% endfor %}
-        {% if session.user %}
-        <a class="item{% if active_page == "me" %} active{% endif %}" href="/user/{{ session.user.login }}">
-            My profile
-        </a>
-        {% endif %}
         <div class="item">
           <div class="ui transparent icon input">
               <form id="usersearch">
@@ -77,6 +72,7 @@
         <div class="four wide column">{% if session.user %}
           <h4 class="ui inverted header">Hello {{ session.user.name }}</h4>
           <div class="ui inverted link list">
+           <a class="item" href="/user/{{ session.user.login }}"><i class="user icon"></i> Profile</a>
            {% if not session.user.level or session.user.level >= 500 %}
              <a class="item" href="/admin/"><i class="legal icon"></i> Admin Zone</a>
            {% endif %}
