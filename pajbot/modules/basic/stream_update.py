@@ -53,6 +53,7 @@ class StreamUpdateModule(BaseModule):
         if not message:
             bot.say(f"You must specify a {field} to update to!")
             return
+
         try:
             api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
         except HTTPError:
