@@ -49,13 +49,13 @@ class PNSLModule(BaseModule):
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
         pnsl_token = bot.module_manager["apikeys_group"].settings["pnsl_key"]
 
-        if not self.pnsl_token:
+        if not pnsl_token:
             bot.whisper(source, f"Missing P&SL token in apikey module. Talk to @{bot.admin} BabyRage")
             return False
 
         guid = message.replace("https://bot.tetyys.com/BotList/", "")
 
-        headers = {"Authorization": f"Bearer {self.pnsl_token}"}
+        headers = {"Authorization": f"Bearer {pnsl_token}"}
 
         res = requests.get(base_url + "/" + guid, headers=headers)
 
