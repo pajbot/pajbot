@@ -125,6 +125,7 @@ def init(app):
             # gets us an UserAccessToken object
             access_token = app.twitch_id_api.get_user_access_token(code)
         except:
+<<<<<<< HEAD
             log.exception("Could not exchange given code for access token with Twitch")
             return login_error(500, "Could not exchange the given code for an access token.")
 
@@ -134,12 +135,48 @@ def init(app):
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             me = User.from_basics(db_session, user_basics)
+=======
+            log.exception("Unhandled exception while authorizing")
+            return render_template("login_error.html")
+
+        if resp is None:
+            if "error" in request.args and "error_description" in request.args:
+                log.warning(f"Access denied: reason={request.args['error']}, error={request.args['error_description']}")
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        elif type(resp) is OAuthException:
+            log.warning(resp.message)
+            log.warning(resp.data)
+            log.warning(resp.type)
+            next_url = get_next_url(request, "state")
+            return redirect(next_url)
+        session["twitch_token"] = (resp["access_token"],)
+
+        me_api_response = twitch.get("users")
+        if len(me_api_response.data["data"]) < 1:
+            return render_template("login_error.html")
+
+        with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+            me = User.from_basics(
+                db_session,
+                UserBasics(
+                    me_api_response.data["data"][0]["id"],
+                    me_api_response.data["data"][0]["login"],
+                    me_api_response.data["data"][0]["display_name"],
+                ),
+            )
+>>>>>>> parent of bef40133... Merge remote-tracking branch 'origin/fix/helix-auth-lockdown' into HEAD
             session["user"] = me.jsonify()
 
         # bot login
         if me.login == app.bot_config["main"]["nickname"].lower():
             redis = RedisManager.get()
+<<<<<<< HEAD
             redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
+=======
+            token_json = UserAccessToken.from_api_response(resp).jsonify()
+            redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
+>>>>>>> parent of bef40133... Merge remote-tracking branch 'origin/fix/helix-auth-lockdown' into HEAD
             log.info("Successfully updated bot token in redis")
 
         # streamer login
@@ -157,7 +194,12 @@ def init(app):
                 log.info("Streamer logged in but not all scopes present, will not update streamer token")
             else:
                 redis = RedisManager.get()
+<<<<<<< HEAD
                 redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
+=======
+                token_json = UserAccessToken.from_api_response(resp).jsonify()
+                redis.set(f"authentication:user-access-token:{me.id}", json.dumps(token_json))
+>>>>>>> parent of bef40133... Merge remote-tracking branch 'origin/fix/helix-auth-lockdown' into HEAD
                 log.info("Successfully updated streamer token in redis")
 
         return redirect(return_to)

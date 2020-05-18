@@ -247,13 +247,3 @@ class TwitchHelixAPI(BaseTwitchAPI):
             else None
             for user_data in bulk_user_data
         ]
-
-    def get_user_data_by_client_id_and_access_token(self, client_id, access_token):
-        response = self.get(
-            "/users", headers={"Authorization": "Bearer " + access_token, "Client-ID": client_id}, authorization={}
-        )
-
-        if len(response["data"]) <= 0:
-            return None
-
-        return response["data"][0]
