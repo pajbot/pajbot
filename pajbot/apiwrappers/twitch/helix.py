@@ -84,6 +84,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return response["data"][0]
 
+    def _fetch_user_data_from_authorization(self, authorization):
+        response = self.get("/users", authorization=authorization)
+
+        if len(response["data"]) <= 0:
+            raise ValueError("No user returned for given authorization")
+
+        return response["data"][0]
+
     def _get_user_data_by_login(self, login):
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:user:by-login:{login}",
@@ -144,6 +152,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_login(login)
         if user_data is None:
             return None
+        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+
+    def fetch_user_basics_from_authorization(self, authorization):
+        """Fetch the UserBasics for the user identified by the given authorization object.
+        `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""
+        user_data = self._fetch_user_data_from_authorization(authorization)
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
     def _fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
