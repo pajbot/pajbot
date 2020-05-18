@@ -60,8 +60,6 @@ def init(args):
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
     twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
 
-    app.twitch_helix_api = twitch_helix_api
-    app.twitch_id_api = id_api
     app.api_client_credentials = api_client_credentials
     app.twitch_id_api = twitch_id_api
     app.twitch_helix_api = twitch_helix_api

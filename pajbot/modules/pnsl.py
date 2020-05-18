@@ -45,16 +45,12 @@ class PNSLModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
-        super().__init__(bot)
-
-        self.pnsl_token = bot.module_manager["apikeys_group"].settings["pnsl_key"]
-
     def run_pnsl(self, bot, source, message, event, args):
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
+        pnsl_token = bot.module_manager["apikeys_group"].settings["pnsl_key"]
 
         if not self.pnsl_token:
-            bot.whisper(source, f"Missing P&SL token in config.ini. talk to @{bot.admin} BabyRage")
+            bot.whisper(source, f"Missing P&SL token in apikey module. Talk to @{bot.admin} BabyRage")
             return False
 
         guid = message.replace("https://bot.tetyys.com/BotList/", "")
