@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added whisper timeout reasons to the emote limit module (#866)
 - Minor: Added `timeout_end` field to User API Response and `!debug user` command output. (#875)
 - Minor: Paid timeouts now stack with moderator's timeouts (and no longer override them). (#876)
 - Minor: Added "My profile" link to website footer (#852)
