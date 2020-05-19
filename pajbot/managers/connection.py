@@ -9,7 +9,7 @@ from irc.client import ServerNotConnectedError
 from irc.connection import Factory
 from ratelimiter import RateLimiter
 
-from pajbot.tmi import TMI
+from pajbot.tmi import TMI, Whispers
 
 log = logging.getLogger("pajbot")
 
@@ -51,25 +51,27 @@ class Connection(CustomServerConnection):
         super().__init__(reactor)
 
         self.num_msgs_sent = 0
-        self.num_whispers_sent_minuite = 0
+        self.num_whispers_sent_minute = 0
         self.num_whispers_sent_second = 0
         self.in_channel = False
 
     def reduce_msgs_sent(self):
         self.num_msgs_sent -= 1
 
-    def reduce_whispers_sent_minuite(self):
-        self.num_whispers_sent_minuite -= 1
+    def reduce_whispers_sent_minute(self):
+        self.num_whispers_sent_minute -= 1
 
     def reduce_whispers_sent_second(self):
         self.num_whispers_sent_second -= 1
 
     def can_send(self, whisper=False):
-        if whisper:
-            return self.num_msgs_sent < TMI.message_limit
+        can_send = self.num_msgs_sent < TMI.message_limit
+        if not whisper:
+            return can_send
         return (
-            self.num_whispers_sent_second < TMI.whispers_message_limit_second
-            and self.num_whispers_sent_minuite < TMI.whispers_message_limit_minute
+            can_send
+            and self.num_whispers_sent_second < TMI.whispers_message_limit_second
+            and self.num_whispers_sent_minute < TMI.whispers_message_limit_minute
         )
 
 
@@ -128,8 +130,13 @@ class ConnectionManager:
     def privmsg(self, channel, message, increase_message=True, whisper=False):
         conn = self.main_conn
 
-        if TMI.disable_whisper and whisper:
-            log.warning("Whispers disabled in config yet, whisper requested")
+        if whisper:
+            if TMI.whispers == Whispers.DISABLED:
+                log.debug("Whisper was not sent (due to config setting)")
+                return
+
+            if TMI.whispers == Whispers.CHAT:
+                whisper = False
 
         if conn is None or not conn.can_send(whisper):
             log.error("No available connections to send messages from. Delaying message a few seconds.")
@@ -139,11 +146,9 @@ class ConnectionManager:
         conn.privmsg(channel, message)
         if increase_message:
             if whisper:
-                conn.num_whispers_sent_minuite += 1
+                conn.num_whispers_sent_minute += 1
                 conn.num_whispers_sent_second += 1
                 self.bot.execute_delayed(1, conn.reduce_whispers_sent_second)
-                self.bot.execute_delayed(61, conn.reduce_whispers_sent_minuite)
-                return
-
+                self.bot.execute_delayed(61, conn.reduce_whispers_sent_minute)
             conn.num_msgs_sent += 1
             self.bot.execute_delayed(31, conn.reduce_msgs_sent)

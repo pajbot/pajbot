@@ -47,7 +47,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import TMI
+from pajbot.tmi import TMI, Whispers
 from pajbot import utils
 from pajbot.utils import extend_version_if_possible, wait_for_redis_data_loaded
 
@@ -86,14 +86,13 @@ class Bot:
 
         self.nickname = config["main"].get("nickname", "pajbot")
 
-        if config["main"].getboolean("known", False):
-            TMI.promote_to_known()
-        elif config["main"].getboolean("verified", False):
+        if config["main"].getboolean("verified", False):
             TMI.promote_to_verified()
+        elif config["main"].getboolean("known", False):
+            TMI.promote_to_known()
 
-        whisper_output = config["main"].getint("wisper_output", 1).lower()
-        if whisper_output in [0, 2]:
-            TMI.change_whisper_output(whisper_output)
+        whispers_setting = Whispers.from_config_value(config["main"].get("whispers", "normal"))
+        TMI.change_whispers(whispers_setting)
 
         # phrases
         self.phrases = {
@@ -584,16 +583,10 @@ class Bot:
         self.privmsg(f"/delete {msg_id}")
 
     def whisper(self, user, message):
-        if TMI.whisper_output == 1:
-            return self.irc.whisper(user.login, message)
-        if TMI.whisper_output == 2:
-            return self.say(f"@{user.login}, {message}")
+        return self.irc.whisper(user.login, message)
 
     def whisper_login(self, login, message):
-        if TMI.whisper_output == 1:
-            return self.irc.whisper(login, message)
-        if TMI.whisper_output == 2:
-            return self.say(f"@{login}, {message}")
+        return self.irc.whisper(login, message)
 
     def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
