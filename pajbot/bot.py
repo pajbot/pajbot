@@ -802,6 +802,9 @@ class Bot:
     def on_clearchat(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        if "target-user-id" not in tags:
+            return
+
         target_user_id = tags["target-user-id"]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_id(db_session, target_user_id)
@@ -819,7 +822,8 @@ class Bot:
             else:
                 # permaban
                 # this sets timeout_end to None
-                user.timed_out = False
+                user.timed_out = True
+                user.timeout_end = None
 
     def commit_all(self):
         for key, manager in self.commitable.items():
