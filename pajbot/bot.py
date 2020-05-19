@@ -802,6 +802,7 @@ class Bot:
     def on_clearchat(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        # Ignore "Chat has been cleared by a moderator" messages
         if "target-user-id" not in tags:
             return
 
