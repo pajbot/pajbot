@@ -54,11 +54,11 @@ class StreamUpdateModule(BaseModule):
             bot.say(f"You must specify a {field} to update to!")
             return
 
-        try:
-            api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
-        except HTTPError:
+        if "channel_editor" in bot.streamer_access_token_manager.token.scope:
+            api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
+        else:
             try:
-                api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
+                api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
             except HTTPError as e:
                 if e.response.status_code == 401:
                     bot.say(
