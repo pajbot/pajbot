@@ -86,10 +86,10 @@ class Bot:
 
         self.nickname = config["main"].get("nickname", "pajbot")
 
-        if config["main"].getboolean("verified", False):
-            TMI.promote_to_verified()
-        elif config["main"].getboolean("known", False):
+        if config["main"].getboolean("known", False):
             TMI.promote_to_known()
+        elif config["main"].getboolean("verified", False):
+            TMI.promote_to_verified()
 
         whisper_output = config["main"].getint("wisper_output", 1).lower()
         if whisper_output in [0, 2]:
