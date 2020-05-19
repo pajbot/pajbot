@@ -12,7 +12,6 @@ from pytz import timezone
 
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-import pajbot.utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -49,7 +48,6 @@ from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
-from pajbot.utils import extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
 
@@ -82,7 +80,7 @@ class Bot:
         if "redis" in config:
             redis_options = dict(config.items("redis"))
         RedisManager.init(**redis_options)
-        wait_for_redis_data_loaded(RedisManager.get())
+        utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
 
@@ -244,7 +242,7 @@ class Bot:
         # dev mode
         self.dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
         if self.dev:
-            self.version_long = extend_version_if_possible(VERSION)
+            self.version_long = utils.extend_version_if_possible(VERSION)
         else:
             self.version_long = VERSION
 
