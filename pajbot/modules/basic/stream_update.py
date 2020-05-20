@@ -62,7 +62,7 @@ class StreamUpdateModule(BaseModule):
             except HTTPError as e:
                 if e.response.status_code == 401:
                     bot.say(
-                        f"Error: Niether the streamer nor the bot token grants permission to update the {field}. The streamer needs to be re-authenticated to fix this problem."
+                        f"Error: Neither the streamer nor the bot token grants permission to update the {field}. The streamer needs to be re-authenticated to fix this problem."
                     )
                     return
                 else:
