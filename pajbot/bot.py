@@ -800,6 +800,10 @@ class Bot:
     def on_clearchat(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        # Ignore "Chat has been cleared by a moderator" messages
+        if "target-user-id" not in tags:
+            return
+
         target_user_id = tags["target-user-id"]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_id(db_session, target_user_id)
