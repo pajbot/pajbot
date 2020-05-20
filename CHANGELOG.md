@@ -8,6 +8,7 @@
 - Minor: Added "My profile" link to website footer (#852)
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
+- Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
 
 ## v1.44
 
