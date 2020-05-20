@@ -821,8 +821,7 @@ class Bot:
             else:
                 # permaban
                 # this sets timeout_end to None
-                user.timed_out = True
-                user.timeout_end = None
+                user.timed_out = False
 
     def commit_all(self):
         for key, manager in self.commitable.items():
