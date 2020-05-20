@@ -89,6 +89,8 @@ class User(Base):
     ignored = Column(BOOLEAN, nullable=False, server_default="FALSE")
     banned = Column(BOOLEAN, nullable=False, server_default="FALSE")
     timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
+    vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
+    founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
     _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select")
 
