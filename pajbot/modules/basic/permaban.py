@@ -45,7 +45,7 @@ class PermabanModule(BaseModule):
             placeholder="",
             default="Un-permabanned by {source}",
             constraints={},
-        )
+        ),
     ]
 
     @staticmethod
@@ -94,10 +94,7 @@ class PermabanModule(BaseModule):
             if self.settings["unban_from_chat"] is True:
                 bot.unban(user)
 
-            if (
-                self.settings["enable_send_timeout"] is True
-                and self.settings["unban_from_chat"] is True
-            ):
+            if self.settings["enable_send_timeout"] is True and self.settings["unban_from_chat"] is True:
                 bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source), once=True)
 
     def load_commands(self, **options):
