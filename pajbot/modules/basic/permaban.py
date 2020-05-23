@@ -29,6 +29,22 @@ class PermabanModule(BaseModule):
             type="boolean",
             required=True,
             default=False,
+        ),
+        ModuleSetting(
+            key="enable_send_timeout",
+            label="Timeout the user for one second to note the unban reason in the mod logs",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason | Available arguments: {source}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Un-permabanned by {source}",
+            constraints={},
         )
     ]
 
@@ -77,6 +93,12 @@ class PermabanModule(BaseModule):
 
             if self.settings["unban_from_chat"] is True:
                 bot.unban(user)
+
+            if (
+                self.settings["enable_send_timeout"] is True
+                and self.settings["unban_from_chat"] is True
+            ):
+                bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source), once=True)
 
     def load_commands(self, **options):
         self.commands["permaban"] = Command.raw_command(
