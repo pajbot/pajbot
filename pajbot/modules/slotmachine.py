@@ -214,6 +214,7 @@ class SlotMachineModule(BaseModule):
             ],
         )
         self.commands["smp"] = self.commands["slotmachine"]
+        self.commands["slots"] = self.commands["slotmachine"]
 
     def pull(self, bot, source, message, **rest):
         if message is None:
