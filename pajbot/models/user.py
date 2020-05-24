@@ -298,6 +298,8 @@ class User(Base):
             "ignored": self.ignored,
             "banned": self.banned,
             "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
+            "vip": self.vip,
+            "founder": self.founder,
         }
 
     def __eq__(self, other):
