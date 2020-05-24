@@ -22,6 +22,7 @@ class MassPingProtectionModule(BaseModule):
     NAME = "Mass Ping Protection"
     DESCRIPTION = "Times out users who post messages that mention too many users at once."
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     SETTINGS = [
         ModuleSetting(
             key="max_ping_count",

@@ -8,6 +8,7 @@ class WarningModule(BaseModule):
     NAME = "Warnings"
     DESCRIPTION = "Gives people warnings before timing them out for the full duration for banphrase and stuff"
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     ENABLED_DEFAULT = True
     SETTINGS = [
         ModuleSetting(

@@ -15,6 +15,7 @@ class AsciiProtectionModule(BaseModule):
     NAME = "ASCII Protection"
     DESCRIPTION = "Times out users who post messages that contain too many ASCII characters."
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     SETTINGS = [
         ModuleSetting(
             key="min_msg_length",

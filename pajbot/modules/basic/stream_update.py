@@ -17,6 +17,7 @@ class StreamUpdateModule(BaseModule):
     NAME = "Stream Update Commands"
     DESCRIPTION = "Update the stream game and title using commands from chat"
     CATEGORY = "Feature"
+    CONFIGURE_LEVEL = 1000
     ENABLED_DEFAULT = True
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [

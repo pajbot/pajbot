@@ -17,6 +17,7 @@ class BanphraseModule(BaseModule):
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     SETTINGS = []
 
     def is_message_bad(self, source, msg_raw, _event):

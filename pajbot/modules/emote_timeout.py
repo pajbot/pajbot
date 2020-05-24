@@ -13,6 +13,7 @@ class EmoteTimeoutModule(BaseModule):
     NAME = "Emote Timeout"
     DESCRIPTION = "Times out users who post emoji or Twitch, BTTV or FFZ emotes"
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     SETTINGS = [
         ModuleSetting(
             key="timeout_twitch", label="Timeout any Twitch emotes", type="boolean", required=True, default=False

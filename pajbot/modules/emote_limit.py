@@ -12,6 +12,7 @@ class EmoteLimitModule(BaseModule):
     NAME = "Emote Limit"
     DESCRIPTION = "Times out users who post too many emotes"
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1000
     SETTINGS = [
         ModuleSetting(
             key="max_emotes",

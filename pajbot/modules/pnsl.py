@@ -15,6 +15,7 @@ class PNSLModule(BaseModule):
     NAME = "Run P&SL lists"
     DESCRIPTION = "Run P&SL lists through the !runpnsl command"
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1500
     SETTINGS = [
         ModuleSetting(
             key="level",

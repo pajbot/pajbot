@@ -19,6 +19,7 @@ class PermabanModule(BaseModule):
     NAME = "Permaban"
     DESCRIPTION = "Permabans a user (re-bans them if unbanned by a mod)"
     CATEGORY = "Moderation"
+    CONFIGURE_LEVEL = 1500
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
