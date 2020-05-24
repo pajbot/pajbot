@@ -13,6 +13,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 - Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
+- Major: Added the ability to rate-limit whispers aswell as rate limiting for known bots. Also added new config options, `known` and `whispers`. The `known` tag is used if your bot is a known bot and this will apply rate limits specific to known bots. Where if the bot is still a unverified and unknown you can make it handle all whispers in such a way so that they are displayed in chat or not displayed at all, this can be done with the `whispers` tag. View the example.ini for more info.
 
 ## v1.44
 
