@@ -61,6 +61,31 @@ class EmoteLimitModule(BaseModule):
         ModuleSetting(
             key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
         ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many emotes in your message",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="enable_whisper_timeout_reasons",
+            label="Enable Whisper Timeout Reasons",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="whisper_timeout_reason",
+            label="Whisper Timeout Reason | Available arguments: {timeout_duration}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been timed out for {timeout_duration} seconds for posting too many emotes.",
+            constraints={},
+        ),
     ]
 
     def delete_or_timeout(self, user, msg_id, reason):
@@ -83,7 +108,15 @@ class EmoteLimitModule(BaseModule):
             return True
 
         if len(emote_instances) > self.settings["max_emotes"]:
-            self.delete_or_timeout(source, msg_id, "Too many emotes in your message")
+            self.delete_or_timeout(source, msg_id, self.settings["timeout_reason"])
+            if (
+                self.settings["moderation_action"] == "Timeout"
+                and self.settings["enable_whisper_timeout_reasons"] is True
+            ):
+                self.bot.whisper(
+                    source,
+                    self.settings["whisper_timeout_reason"].format(timeout_duration=self.settings["timeout_duration"]),
+                )
             return False
 
         return True

@@ -12,7 +12,6 @@ from pytz import timezone
 
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-import pajbot.utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -49,7 +48,6 @@ from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import TMI
 from pajbot import utils
-from pajbot.utils import extend_version_if_possible, wait_for_redis_data_loaded
 
 log = logging.getLogger(__name__)
 
@@ -82,7 +80,7 @@ class Bot:
         if "redis" in config:
             redis_options = dict(config.items("redis"))
         RedisManager.init(**redis_options)
-        wait_for_redis_data_loaded(RedisManager.get())
+        utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
 
@@ -133,6 +131,10 @@ class Bot:
         self.streamer_user_id = self.twitch_helix_api.get_user_id(self.streamer)
         if self.streamer_user_id is None:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
+
+        self.streamer_access_token_manager = UserAccessTokenManager(
+            api=self.twitch_id_api, redis=RedisManager.get(), username=self.streamer, user_id=self.streamer_user_id
+        )
 
         StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
@@ -244,7 +246,7 @@ class Bot:
         # dev mode
         self.dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
         if self.dev:
-            self.version_long = extend_version_if_possible(VERSION)
+            self.version_long = utils.extend_version_if_possible(VERSION)
         else:
             self.version_long = VERSION
 
@@ -798,6 +800,32 @@ class Bot:
             msg_id=tags["msg-id"],
             message=event.arguments[0],
         )
+
+    def on_clearchat(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        # Ignore "Chat has been cleared by a moderator" messages
+        if "target-user-id" not in tags:
+            return
+
+        target_user_id = tags["target-user-id"]
+        with DBManager.create_session_scope() as db_session:
+            user = User.find_by_id(db_session, target_user_id)
+
+            if user is None:
+                # User is not otherwise known, we won't store their timeout (they need to type first)
+                # We could theoretically also do an API call here to figure out everything about that user,
+                # but that could easily overwhelm the bot when lots of unknown users are banned quickly (e.g. bots).
+                return
+
+            if "ban-duration" in tags:
+                # timeout
+                ban_duration = int(tags["ban-duration"])
+                user.timeout_end = utils.now() + datetime.timedelta(seconds=ban_duration)
+            else:
+                # permaban
+                # this sets timeout_end to None
+                user.timed_out = False
 
     def commit_all(self):
         for key, manager in self.commitable.items():

@@ -54,17 +54,19 @@ class StreamUpdateModule(BaseModule):
             bot.say(f"You must specify a {field} to update to!")
             return
 
-        try:
-            api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
-        except HTTPError as e:
-            if e.response.status_code == 401:
-                bot.say(f"Error (bot operator): The bot needs to be re-authenticated to be able to update the {field}.")
-                return
-            elif e.response.status_code == 403:
-                bot.say(f"Error: The bot is not a channel editor and was not able to update the {field}.")
-                return
-            else:
-                raise e
+        if "channel_editor" in bot.streamer_access_token_manager.token.scope:
+            api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
+        else:
+            try:
+                api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    bot.say(
+                        f"Error: Neither the streamer nor the bot token grants permission to update the {field}. The streamer needs to be re-authenticated to fix this problem."
+                    )
+                    return
+                else:
+                    raise e
 
         log_msg = f'{source} updated the {field} to "{message}"'
         bot.say(log_msg)

@@ -52,6 +52,24 @@ class MaxMsgLengthModule(BaseModule):
             default=500,
             constraints={"min_value": 100, "max_value": 1000},
         ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Message too long",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="whisper_timeout_reason",
+            label="Whisper Timeout Reason | Available arguments: {punishment}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been {punishment} because your message was too long.",
+            constraints={},
+        ),
     ]
 
     def on_message(self, source, message, whisper, **rest):
@@ -63,22 +81,22 @@ class MaxMsgLengthModule(BaseModule):
         if self.bot.is_online:
             if len(message) > self.settings["max_msg_length"]:
                 duration, punishment = self.bot.timeout_warn(
-                    source, self.settings["timeout_length"], reason="Message too long"
+                    source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
                 )
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
                 if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                    self.bot.whisper(source, f"You have been {punishment} because your message was too long.")
+                    self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
                 return False
         else:
             if len(message) > self.settings["max_msg_length_offline"]:
                 duration, punishment = self.bot.timeout_warn(
-                    source, self.settings["timeout_length"], reason="Message too long"
+                    source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
                 )
                 """ We only send a notification to the user if he has spent more than
                 one hour watching the stream. """
                 if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                    self.bot.whisper(source, f"You have been {punishment} because your message was too long.")
+                    self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
                 return False
 
     def enable(self, bot):
