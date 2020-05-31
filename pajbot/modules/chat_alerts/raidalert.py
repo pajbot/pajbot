@@ -102,13 +102,14 @@ class RaidAlertModule(BaseModule):
         if tags["msg-id"] == "raid":
             if "msg-param-viewerCount" in tags:
                 num_viewers = int(tags["msg-param-viewerCount"])
+            else:
+                log.debug(f"raidalert requires viewerCount, but it is missing: {tags}")
+                return
 
             if "display-name" not in tags:
                 log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
                 return
             self.on_raid(source, num_viewers)
-        else:
-            log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
     def enable(self, bot):
         HandlerManager.add_handler("on_usernotice", self.on_usernotice)
