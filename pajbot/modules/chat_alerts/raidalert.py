@@ -74,7 +74,7 @@ class RaidAlertModule(BaseModule):
             placeholder="",
             default=0,
             constraints={"min_value": 0},
-        )
+        ),
     ]
 
     def __init__(self, bot):
