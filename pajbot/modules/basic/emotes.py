@@ -47,6 +47,15 @@ class EmotesModule(BaseModule):
             default=100,
             constraints={"min_value": 100, "max_value": 2000},
         ),
+        ModuleSetting(
+            key="enable_subemotes", label="Enable !subemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
+        ),
     ]
 
     def print_emotes(self, manager):
@@ -150,32 +159,35 @@ class EmotesModule(BaseModule):
 
         # The ' ' is there to make things look good in the
         # web interface.
-        self.commands["bttvemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="bttvemotes",
-            commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
-        )
+        if self.settings["enable_bttvemotes"]:
+            self.commands["bttvemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="bttvemotes",
+                commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
+            )
 
-        self.commands["ffzemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="ffzemotes",
-            commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
-        )
+        if self.settings["enable_ffzemotes"]:
+            self.commands["ffzemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="ffzemotes",
+                commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
+            )
 
-        self.commands["subemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="subemotes",
-            commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
-        )
+        if self.settings["enable_subemotes"]:
+            self.commands["subemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="subemotes",
+                commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
+            )
