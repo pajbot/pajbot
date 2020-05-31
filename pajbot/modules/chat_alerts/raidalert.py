@@ -66,6 +66,15 @@ class RaidAlertModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 50000},
         ),
+        ModuleSetting(
+            key="min_viewers",
+            label="Minimum amount of viewers required to trigger the alert. 0 = all raids",
+            type="number",
+            required=True,
+            placeholder="",
+            default=0,
+            constraints={"min_value": 0},
+        )
     ]
 
     def __init__(self, bot):
@@ -79,6 +88,9 @@ class RaidAlertModule(BaseModule):
 
         payload = {"username": user.name, "num_viewers": num_viewers}
         self.bot.websocket_manager.emit("new_raid", payload)
+
+        if num_viewers < self.settings["min_viewers"]:
+            return
 
         if self.settings["chat_message"] is True:
             self.bot.say(self.get_phrase("new_raid", **payload))
