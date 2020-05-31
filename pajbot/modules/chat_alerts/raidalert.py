@@ -1,8 +1,6 @@
 import logging
 
-from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
