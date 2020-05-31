@@ -93,7 +93,9 @@ class RaidAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_raid"]
-        self.bot.say(f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan")
+        self.bot.say(
+            f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan"
+        )
 
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
