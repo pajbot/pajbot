@@ -65,14 +65,11 @@ class Connection(CustomServerConnection):
         self.num_whispers_sent_second -= 1
 
     def can_send(self, whisper=False):
-        if whisper:
-            return (
-                self.num_msgs_sent < TMI.message_limit
-                and self.num_whispers_sent_second < TMI.whispers_message_limit_second
-                and self.num_whispers_sent_minute < TMI.whispers_message_limit_minute
-            )
-        else:
-            return self.num_msgs_sent < TMI.message_limit
+        return (
+            self.num_msgs_sent < TMI.message_limit
+            and self.num_whispers_sent_second < TMI.whispers_message_limit_second
+            and self.num_whispers_sent_minute < TMI.whispers_message_limit_minute
+        ) if whisper else self.num_msgs_sent < TMI.message_limit
 
 
 class ConnectionManager:
