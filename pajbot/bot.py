@@ -46,7 +46,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import TMI, Whispers
+from pajbot.tmi import TMI, WhisperOutputMode
 from pajbot import utils
 
 log = logging.getLogger(__name__)
