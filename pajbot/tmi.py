@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Whispers(Enum):
+class WhisperOutputMode(Enum):
     DISABLED = 0
     NORMAL = 1
     CHAT = 2
@@ -15,7 +15,7 @@ class Whispers(Enum):
 
 class TMI:
     message_limit = 90
-    whispers = Whispers.NORMAL
+    whisper_output_mode = WhisperOutputMode.NORMAL
     whispers_message_limit_second = 2
     whispers_message_limit_minute = 90
 
@@ -29,7 +29,3 @@ class TMI:
     def promote_to_known():
         TMI.whispers_message_limit_second = 8
         TMI.whispers_message_limit_minute = 180
-
-    @staticmethod
-    def change_whispers(setting):
-        TMI.whispers = setting
