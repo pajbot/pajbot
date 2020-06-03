@@ -8,7 +8,7 @@ class WhisperOutputMode(Enum):
 
     @staticmethod
     def from_config_value(config_value):
-        return { 
+        return {
             "disabled": WhisperOutputMode.DISABLED,
             "normal": WhisperOutputMode.NORMAL,
             "chat": WhisperOutputMode.CHAT,
