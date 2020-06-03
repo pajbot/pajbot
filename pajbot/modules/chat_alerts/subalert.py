@@ -5,16 +5,18 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.modules.chat_alerts import ChatAlertModule
 
 log = logging.getLogger(__name__)
 
 
 class SubAlertModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Subscription Alert - Chat"
+    NAME = "Subscription Alert"
     DESCRIPTION = "Prints a message in chat/whispers when a user re/subscribes"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
+    PARENT_MODULE = ChatAlertModule
     SETTINGS = [
         ModuleSetting(
             key="chat_message",
