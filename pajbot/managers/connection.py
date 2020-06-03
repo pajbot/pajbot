@@ -9,7 +9,7 @@ from irc.client import ServerNotConnectedError
 from irc.connection import Factory
 from ratelimiter import RateLimiter
 
-from pajbot.tmi import TMI, Whispers
+from pajbot.tmi import TMI, WhisperOutputMode
 
 log = logging.getLogger("pajbot")
 
@@ -131,11 +131,11 @@ class ConnectionManager:
         conn = self.main_conn
 
         if whisper:
-            if TMI.whispers == Whispers.DISABLED:
+            if TMI.whisper_output_mode == WhisperOutputMode.DISABLED:
                 log.debug("Whisper was not sent (due to config setting)")
                 return
 
-            if TMI.whispers == Whispers.CHAT:
+            if TMI.whisper_output_mode == WhisperOutputMode.CHAT:
                 whisper = False
 
         if conn is None or not conn.can_send(whisper):
