@@ -89,7 +89,7 @@ class Bot:
         elif config["main"].getboolean("known", False):
             TMI.promote_to_known()
 
-        TMI.whispers_output_mode = WhisperOutputMode.from_config_value(config["main"].get("whispers", "normal"))
+        TMI.whisper_output_mode = WhisperOutputMode.from_config_value(config["main"].get("whispers", "normal"))
 
         # phrases
         self.phrases = {
