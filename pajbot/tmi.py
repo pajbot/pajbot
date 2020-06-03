@@ -8,9 +8,11 @@ class WhisperOutputMode(Enum):
 
     @staticmethod
     def from_config_value(config_value):
-        return {"disabled": WhisperOutputMode.DISABLED, "normal": WhisperOutputMode.NORMAL, "chat": WhisperOutputMode.CHAT}.get(
-            config_value.lower(), WhisperOutputMode.NORMAL
-        )
+        return { 
+            "disabled": WhisperOutputMode.DISABLED,
+            "normal": WhisperOutputMode.NORMAL,
+            "chat": WhisperOutputMode.CHAT,
+        }.get(config_value.lower(), WhisperOutputMode.NORMAL)
 
 
 class TMI:
