@@ -838,7 +838,7 @@ class Bot:
                 user.timed_out = False
 
     def on_welcome(self, _conn, _event):
-        """Gets triggered on "IRC" welcome, i.e. when the login is successful."""
+        """Gets triggered on IRC welcome, i.e. when the login is successful."""
         if self.welcome_messages_sent:
             return
 
