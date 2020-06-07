@@ -67,6 +67,9 @@ class IRCManager:
 
     @RateLimiter(max_calls=1, period=2)
     def start(self):
+        if self.conn is not None or self.ping_task is not None:
+            raise AssertionError("start() should not be called while a connection is active")
+
         try:
             self._make_new_connection()
         except:
