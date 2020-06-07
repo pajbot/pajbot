@@ -9,7 +9,7 @@ from irc.client import ServerNotConnectedError
 from irc.connection import Factory
 from ratelimiter import RateLimiter
 
-from pajbot.tmi import TMI
+from pajbot.tmi import TMI, WhisperOutputMode
 
 log = logging.getLogger("pajbot")
 
@@ -51,13 +51,28 @@ class Connection(CustomServerConnection):
         super().__init__(reactor)
 
         self.num_msgs_sent = 0
+        self.num_whispers_sent_minute = 0
+        self.num_whispers_sent_second = 0
         self.in_channel = False
 
     def reduce_msgs_sent(self):
         self.num_msgs_sent -= 1
 
-    def can_send(self):
-        return self.num_msgs_sent < TMI.message_limit
+    def reduce_whispers_sent_minute(self):
+        self.num_whispers_sent_minute -= 1
+
+    def reduce_whispers_sent_second(self):
+        self.num_whispers_sent_second -= 1
+
+    def can_send(self, whisper=False):
+        if whisper:
+            return (
+                self.num_msgs_sent < TMI.message_limit
+                and self.num_whispers_sent_second < TMI.whispers_message_limit_second
+                and self.num_whispers_sent_minute < TMI.whispers_message_limit_minute
+            )
+        else:
+            return self.num_msgs_sent < TMI.message_limit
 
 
 class ConnectionManager:
@@ -112,15 +127,30 @@ class ConnectionManager:
         log.error("Disconnected from IRC")
         self.start()
 
-    def privmsg(self, channel, message, increase_message=True):
+    def privmsg(self, channel, message, increase_message=True, whisper=False):
         conn = self.main_conn
 
-        if conn is None or not conn.can_send():
+        if whisper:
+            if TMI.whisper_output_mode == WhisperOutputMode.DISABLED:
+                log.debug("Whisper was not sent (due to config setting)")
+                return
+
+            if TMI.whisper_output_mode == WhisperOutputMode.CHAT:
+                channel = self.channel
+                message = " ".join(message.split()[2:])
+                whisper = False
+
+        if conn is None or not conn.can_send(whisper):
             log.error("No available connections to send messages from. Delaying message a few seconds.")
-            self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message)
+            self.bot.execute_delayed(2, self.privmsg, channel, message, increase_message, whisper)
             return
 
         conn.privmsg(channel, message)
         if increase_message:
+            if whisper:
+                conn.num_whispers_sent_minute += 1
+                conn.num_whispers_sent_second += 1
+                self.bot.execute_delayed(1, conn.reduce_whispers_sent_second)
+                self.bot.execute_delayed(61, conn.reduce_whispers_sent_minute)
             conn.num_msgs_sent += 1
             self.bot.execute_delayed(31, conn.reduce_msgs_sent)
