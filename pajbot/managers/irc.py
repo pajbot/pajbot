@@ -152,4 +152,3 @@ class IRCManager:
     def on_welcome(self, conn):
         log.info("Successfully connected and authenticated with IRC")
         conn.join(",".join(self.channels))
-        self.bot.on_irc_connect()

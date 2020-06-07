@@ -834,7 +834,8 @@ class Bot:
                 # this sets timeout_end to None
                 user.timed_out = False
 
-    def on_irc_connect(self):
+    def on_welcome(self):
+        """Gets triggered on "IRC" welcome, i.e. when the login is successful."""
         for p in self.phrases["welcome"]:
             self.privmsg(p.format(nickname=self.nickname, version=self.version_long))
 
