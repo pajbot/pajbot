@@ -68,12 +68,12 @@ class IRCManager:
     @RateLimiter(max_calls=1, period=2)
     def start(self):
         try:
-            self.make_new_connection()
+            self._make_new_connection()
         except:
             log.exception("Failed to open connection, retrying in 2 seconds")
             self.bot.execute_delayed(2, lambda: self.start())
 
-    def make_new_connection(self):
+    def _make_new_connection(self):
         self.conn = Connection(self.bot.reactor)
         with self.bot.reactor.mutex:
             self.bot.reactor.connections.append(self.conn)
@@ -94,7 +94,7 @@ class IRCManager:
             self.conn.ping("tmi.twitch.tv")
 
     def privmsg(self, channel, message, is_whisper):
-        if self.conn is None or not self.can_send(is_whisper):
+        if self.conn is None or not self._can_send(is_whisper):
             log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
             self.bot.execute_delayed(2, self.privmsg, channel, message, is_whisper)
             return
@@ -113,7 +113,7 @@ class IRCManager:
     def whisper(self, username, message):
         self.privmsg(f"#{self.bot.nickname}", f"/w {username} {message}", is_whisper=True)
 
-    def can_send(self, is_whisper):
+    def _can_send(self, is_whisper):
         if is_whisper:
             return (
                 self.num_privmsg_sent < self.bot.tmi_rate_limits.privmsg_per_30
