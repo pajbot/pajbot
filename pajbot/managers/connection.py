@@ -136,6 +136,8 @@ class ConnectionManager:
                 return
 
             if TMI.whisper_output_mode == WhisperOutputMode.CHAT:
+                channel = self.channel
+                message = " ".join(message.split()[2:])
                 whisper = False
 
         if conn is None or not conn.can_send(whisper):
