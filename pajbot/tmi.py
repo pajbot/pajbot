@@ -6,13 +6,18 @@ class WhisperOutputMode(Enum):
     NORMAL = 1
     CHAT = 2
 
+    CONFIG_OPTIONS = {
+        "disabled": WhisperOutputMode.DISABLED,
+        "normal": WhisperOutputMode.NORMAL,
+        "chat": WhisperOutputMode.CHAT,
+    }
+
     @staticmethod
     def from_config_value(config_value):
-        return {
-            "disabled": WhisperOutputMode.DISABLED,
-            "normal": WhisperOutputMode.NORMAL,
-            "chat": WhisperOutputMode.CHAT,
-        }.get(config_value.lower(), WhisperOutputMode.NORMAL)
+        if config_value.lower() in CONFIG_OPTIONS:
+            return CONFIG_OPTIONS[config_value.lower()]
+        else:
+            raise ValueError(f"whisper_output_mode config option \"{config_value}\" was not recognized. Must be `disabled`, `normal` or `chat`")
 
 
 class TMI:
