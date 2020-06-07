@@ -19,6 +19,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 - Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
 - Bugfix: Fixed `tweet_provider_port` config option not working correctly. (#900)
+- Bugfix: Welcome message(s) are no longer sent to chat when the bot reconnects. (#904)
 
 ## v1.44
 
