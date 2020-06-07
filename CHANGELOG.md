@@ -4,7 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Major: Added the ability to rate-limit whispers aswell as rate limiting for known bots. Also added new config options, `known` and `whispers`. The `known` config option is used if your bot is a known bot and this will apply rate limits specific to known bots. Where if the bot is still a unverified and unknown you can make it handle all whispers in such a way so that they are displayed in chat or not displayed at all, this can be done with the `whispers` config option. View the example config for more info. (#878)
+- Major: Added a new config option `whisper_output_mode`, allowing you to send whispers to the streamer's chat or to disable them altogether, to aid un-verified bots that may be unable to send whispers. View the example config for more info. (#878)
+- Minor: Added an extra config option for _known_ bots (in addition to verified bots that were already supported). (#878)
 - Minor: Moved chat alerts into a sub-category. Also added a new raid alert module
 - Minor: Added option to unban user from chat when the `!unpermaban` command is used (#739, #887)
 - Minor: Added whisper timeout reasons to the emote limit module (#866)
