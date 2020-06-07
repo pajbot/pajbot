@@ -17,6 +17,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 - Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
+- Bugfix: Fixed `tweet_provider_port` config option not working correctly. (#900)
 
 ## v1.44
 
