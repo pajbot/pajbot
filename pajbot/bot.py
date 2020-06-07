@@ -106,6 +106,9 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
+        # Remembers whether the "welcome" phrases have already been said. We don't want to send the
+        # welcome messages to chat again on a reconnect.
+        self.welcome_messages_sent = False
 
         # streamer
         if "streamer" in config["main"]:
@@ -836,8 +839,13 @@ class Bot:
 
     def on_welcome(self):
         """Gets triggered on "IRC" welcome, i.e. when the login is successful."""
+        if self.welcome_messages_sent:
+            return
+
         for p in self.phrases["welcome"]:
             self.privmsg(p.format(nickname=self.nickname, version=self.version_long))
+
+        self.welcome_messages_sent = True
 
     def commit_all(self):
         for key, manager in self.commitable.items():
