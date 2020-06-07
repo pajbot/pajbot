@@ -62,6 +62,8 @@ class IRCManager:
             self.channels.append("#" + control_hub_channel)
 
         bot.reactor.add_global_handler("all_events", self._dispatcher, -10)
+        bot.reactor.add_global_handler("disconnect", self._on_disconnect)
+        bot.reactor.add_global_handler("welcome", self._on_welcome)
 
     @RateLimiter(max_calls=1, period=2)
     def start(self):
@@ -131,11 +133,6 @@ class IRCManager:
         self.num_whispers_sent_second -= 1
 
     def _dispatcher(self, conn, event):
-        if event.type == "disconnect":
-            self.on_disconnect()
-        elif event.type == "welcome":
-            self.on_welcome(conn)
-
         method = getattr(self.bot, "on_" + event.type, None)
         if method is not None:
             try:
@@ -143,12 +140,13 @@ class IRCManager:
             except:
                 log.exception("Logging an uncaught exception (IRC event handler)")
 
-    def on_disconnect(self):
+    def _on_disconnect(self, _conn, _event):
+        log.error("Disconnected from IRC")
         self.conn = None
-        self.ping_task.remove()
+        self.ping_task.remove()  # Stops the scheduled task from further executing
         self.ping_task = None
         self.start()
 
-    def on_welcome(self, conn):
+    def _on_welcome(self, conn, _event):
         log.info("Successfully connected and authenticated with IRC")
         conn.join(",".join(self.channels))
