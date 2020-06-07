@@ -143,8 +143,8 @@ class IRCManager:
             except:
                 log.exception("Logging an uncaught exception (IRC event handler)")
 
-    def _on_disconnect(self, _conn, _event):
-        log.error("Disconnected from IRC")
+    def _on_disconnect(self, _conn, event):
+        log.error(f"Disconnected from IRC ({event.arguments[0]})")
         self.conn = None
         self.ping_task.remove()  # Stops the scheduled task from further executing
         self.ping_task = None
