@@ -123,6 +123,14 @@ class RouletteModule(BaseModule):
             default=30,
             constraints={"min_value": 5, "max_value": 3600},
         ),
+        ModuleSetting(
+            key="alert_message_after_sub",
+            label="Message to announce rouletting has been enabled after a sub or resub, leave empty to disable message. | Available arguments: {seconds}",
+            type="text",
+            required=True,
+            default="Rouletting is now allowed for {seconds} seconds! PogChamp",
+            constraints={"min_str_len": 0, "max_str_len": 300},
+        ),
     ]
 
     def __init__(self, bot):
@@ -261,13 +269,17 @@ class RouletteModule(BaseModule):
 
     def on_user_sub(self, **rest):
         self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"]:
-            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
+        if self.settings["only_roulette_after_sub"] and self.settings["alert_message_after_sub"] != "":
+            self.bot.say(
+                self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
+            )
 
     def on_user_resub(self, **rest):
         self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"]:
-            self.bot.say(f"Rouletting is now allowed for {self.settings['after_sub_roulette_time']} seconds! PogChamp")
+        if self.settings["only_roulette_after_sub"] and self.settings["alert_message_after_sub"] != "":
+            self.bot.say(
+                self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
+            )
 
     def enable(self, bot):
         HandlerManager.add_handler("on_user_sub", self.on_user_sub)
