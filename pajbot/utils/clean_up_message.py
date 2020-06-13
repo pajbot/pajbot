@@ -1,5 +1,5 @@
 # list of twitch commands permitted, without leading slash or dot
-permitted_commands = {"me"}
+permitted_commands = {"me", "commercial"}
 
 
 def clean_up_message(message):
