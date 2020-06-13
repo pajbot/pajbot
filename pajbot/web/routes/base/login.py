@@ -62,10 +62,6 @@ def init(app):
     def streamer_login():
         return twitch_login(scopes=streamer_scopes)
 
-    @app.route("/login/error")
-    def login_error():
-        return render_template("login_error.html")
-
     @app.route("/login/authorized")
     def authorized():
         # First, validate state with CSRF token
