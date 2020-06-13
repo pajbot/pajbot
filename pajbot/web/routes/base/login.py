@@ -111,6 +111,7 @@ def init(app):
             if error_code == "access_denied":
                 # User pressed "Cancel" button. We don't want to show an error page, instead we will just
                 # redirect them to where they were coming from.
+                # See also https://tools.ietf.org/html/rfc6749#section-4.1.2.1 for error codes and documentation for them
                 return redirect(return_to)
 
             # All other error conditions, we show an error page.
