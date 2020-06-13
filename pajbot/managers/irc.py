@@ -37,8 +37,10 @@ class IRCManager:
     def start(self):
         self.connection_manager.start()
 
-    def whisper(self, username, message):
-        self.connection_manager.privmsg(f"#{self.bot.nickname}", f"/w {username} {message}")
+    def whisper(self, username, message, increase_message=True):
+        self.connection_manager.privmsg(
+            f"#{self.bot.nickname}", f"/w {username} {message}", increase_message=increase_message, whisper=True
+        )
 
     def privmsg(self, message, channel, increase_message=True):
         self.connection_manager.privmsg(channel, message, increase_message=increase_message)
