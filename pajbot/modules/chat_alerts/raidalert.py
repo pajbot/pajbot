@@ -75,6 +75,14 @@ class RaidAlertModule(BaseModule):
             default=0,
             constraints={"min_value": 0},
         ),
+        ModuleSetting(
+            key="alert_message_points_given",
+            label="Message to announce points were given to user, leave empty to disable message. | Available arguments: {user}, {points}",
+            type="text",
+            required=True,
+            default="{user} was given {points} points for raiding the channel! FeelsAmazingMan",
+            constraints={"min_str_len": 0, "max_str_len": 300},
+        ),
     ]
 
     def __init__(self, bot):
@@ -103,9 +111,10 @@ class RaidAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_raid"]
-        self.bot.say(
-            f"{user} was given {self.settings['grant_points_on_raid']} points for raiding the channel! FeelsAmazingMan"
-        )
+
+        alert_message = self.settings["alert_message_points_given"]
+        if alert_message != "":
+            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_raid"]))
 
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:

@@ -15,10 +15,14 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added `!slots` alias to `!slotmachine` command (#890)
 - Minor: Added settings to individually disable `!subemotes`, `!bttvemotes` or `!ffzemotes` without having to disable all of them together. (#895)
 - Minor: "Stats" tab is no longer highlighted while showing the user detail page. (#902, #906)
+- Minor: Updated version of Google Analytics script + added documentation for `google_analytics` config option. (#907)
+- Minor: Added settings to change and disable the "User was given points for (re)subbing" and "Rouletting is now allowed for X seconds" messages. (#897, #908)
+- Minor: If a user clicks "Cancel" instead of "Authorize" during the Twitch login process, they will no longer see an error page, instead the user will be silently returned to where they came from. (#914)
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 - Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
 - Bugfix: Fixed `tweet_provider_port` config option not working correctly. (#900)
+- Bugfix: Fixed typo on login error page. (#914)
 
 ## v1.44
 
