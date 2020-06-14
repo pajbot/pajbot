@@ -16,19 +16,13 @@ class WhisperOutputMode(Enum):
             )
 
 
-class TMI:
-    message_limit = 90
-    whisper_output_mode = WhisperOutputMode.NORMAL
-    whispers_message_limit_second = 2
-    whispers_message_limit_minute = 90
+class TMIRateLimits:
+    def __init__(self, privmsg_per_30, whispers_per_second, whispers_per_minute):
+        self.privmsg_per_30 = privmsg_per_30
+        self.whispers_per_second = whispers_per_second
+        self.whispers_per_minute = whispers_per_minute
 
-    @staticmethod
-    def promote_to_verified():
-        TMI.message_limit = 7000
-        TMI.whispers_message_limit_second = 15
-        TMI.whispers_message_limit_minute = 1150
 
-    @staticmethod
-    def promote_to_known():
-        TMI.whispers_message_limit_second = 8
-        TMI.whispers_message_limit_minute = 180
+TMIRateLimits.BASE = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
+TMIRateLimits.KNOWN = TMIRateLimits(privmsg_per_30=90, whispers_per_second=8, whispers_per_minute=190)
+TMIRateLimits.VERIFIED = TMIRateLimits(privmsg_per_30=7000, whispers_per_second=15, whispers_per_minute=1150)
