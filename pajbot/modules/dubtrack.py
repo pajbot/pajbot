@@ -30,9 +30,10 @@ class DubtrackModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Dubtrack"
     DESCRIPTION = (
-        "Gets currently playing song from dubtrack - This module is currently unusable due to Dubtrack's closing"
+        "Gets currently playing song from dubtrack. This module is currently unusable due to Dubtrack's closing"
     )
     CATEGORY = "Feature"
+    HIDDEN = True
     SETTINGS = [
         ModuleSetting(
             key="room_name",
