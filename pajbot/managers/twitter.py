@@ -279,7 +279,7 @@ class PBTwitterManager(GenericTwitterManager):
 
         twitter_config = bot.config["twitter"]
         tweet_provider_host = twitter_config.get("tweet_provider_host", "127.0.0.1")
-        tweet_provider_port = twitter_config.get("tweet_provider_port", 2356)
+        tweet_provider_port = int(twitter_config.get("tweet_provider_port", 2356))
         tweet_provider_protocol = twitter_config.get("tweet_provider_protocol", "ws")
 
         factory = ClientFactory(f"{tweet_provider_protocol}://{tweet_provider_host}:{tweet_provider_port}")
