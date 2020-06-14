@@ -68,9 +68,6 @@ class Bot:
         self.config = config
         self.args = args
 
-        self.last_ping = utils.now()
-        self.last_pong = utils.now()
-
         ScheduleManager.init()
 
         DBManager.init(self.config["main"]["db"])
@@ -726,12 +723,6 @@ class Bot:
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             source = User.from_basics(db_session, UserBasics(id, login, name))
             self.parse_message(event.arguments[0], source, event, tags, whisper=True)
-
-    def on_ping(self, chatconn, event):
-        self.last_ping = utils.now()
-
-    def on_pong(self, chatconn, event):
-        self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
