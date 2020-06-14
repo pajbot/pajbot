@@ -237,8 +237,7 @@ sudo systemctl restart pajbot@streamer_name
 
 Congratulations! Your bot should be running by now, but there are some extra steps you may want to complete:
 
-- Ask the streamer to give your bot the [editor permission](https://help.twitch.tv/s/article/Managing-Roles-for-your-Channel?language=en_US#manage). You can then use `!settitle` and `!setgame` commands to change title and game from chat.
-- Ask the streamer to log in once by going to `https://streamer_name.your-domain.com/streamer_login` - If the streamer does this, the bot will be able to fetch who's a subscriber and keep the database up-to-date regularly
+- Ask the streamer to log in once by going to `https://streamer_name.your-domain.com/streamer_login` - If the streamer does this, the bot will be able to fetch who's a subscriber and keep the database up-to-date regularly. The bot will also then be able to change the game and title with the `!settitle` and `!setgame` commands. Alternatively the streamer could give the bot the [editor permission](https://help.twitch.tv/s/article/Managing-Roles-for-your-Channel?language=en_US#manage), this will also allow the bot to change the game and title from chat.
 - Add some basic commands:
 
   Here's some ideas:

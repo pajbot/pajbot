@@ -1,8 +1,28 @@
-class TMI:
-    message_limit = 90
-    whispers_message_limit = 20
-    whispers_limit_interval = 5  # in seconds
+from enum import Enum
+
+
+class WhisperOutputMode(Enum):
+    DISABLED = 0
+    NORMAL = 1
+    CHAT = 2
 
     @staticmethod
-    def promote_to_verified():
-        TMI.message_limit = 7000
+    def from_config_value(config_value):
+        try:
+            return WhisperOutputMode[config_value.upper()]
+        except KeyError:
+            raise ValueError(
+                f'whisper_output_mode config option "{config_value}" was not recognized. Must be `disabled`, `normal` or `chat`'
+            )
+
+
+class TMIRateLimits:
+    def __init__(self, privmsg_per_30, whispers_per_second, whispers_per_minute):
+        self.privmsg_per_30 = privmsg_per_30
+        self.whispers_per_second = whispers_per_second
+        self.whispers_per_minute = whispers_per_minute
+
+
+TMIRateLimits.BASE = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
+TMIRateLimits.KNOWN = TMIRateLimits(privmsg_per_30=90, whispers_per_second=8, whispers_per_minute=190)
+TMIRateLimits.VERIFIED = TMIRateLimits(privmsg_per_30=7000, whispers_per_second=15, whispers_per_minute=1150)

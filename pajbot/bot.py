@@ -46,7 +46,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import TMI
+from pajbot.tmi import TMIRateLimits, WhisperOutputMode
 from pajbot import utils
 
 log = logging.getLogger(__name__)
@@ -68,9 +68,6 @@ class Bot:
         self.config = config
         self.args = args
 
-        self.last_ping = utils.now()
-        self.last_pong = utils.now()
-
         ScheduleManager.init()
 
         DBManager.init(self.config["main"]["db"])
@@ -85,7 +82,15 @@ class Bot:
         self.nickname = config["main"].get("nickname", "pajbot")
 
         if config["main"].getboolean("verified", False):
-            TMI.promote_to_verified()
+            self.tmi_rate_limits = TMIRateLimits.VERIFIED
+        elif config["main"].getboolean("known", False):
+            self.tmi_rate_limits = TMIRateLimits.KNOWN
+        else:
+            self.tmi_rate_limits = TMIRateLimits.BASE
+
+        self.whisper_output_mode = WhisperOutputMode.from_config_value(
+            config["main"].get("whisper_output_mode", "normal")
+        )
 
         # phrases
         self.phrases = {
@@ -98,6 +103,9 @@ class Bot:
                 self.phrases["welcome"] = phrases["welcome"].splitlines()
             if "quit" in phrases:
                 self.phrases["quit"] = phrases["quit"].splitlines()
+        # Remembers whether the "welcome" phrases have already been said. We don't want to send the
+        # welcome messages to chat again on a reconnect.
+        self.welcome_messages_sent = False
 
         # streamer
         if "streamer" in config["main"]:
@@ -132,6 +140,10 @@ class Bot:
         if self.streamer_user_id is None:
             raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
 
+        self.streamer_access_token_manager = UserAccessTokenManager(
+            api=self.twitch_id_api, redis=RedisManager.get(), username=self.streamer, user_id=self.streamer_user_id
+        )
+
         StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
 
         # SQL migrations
@@ -151,7 +163,7 @@ class Bot:
         # refresh points_rank and num_lines_rank regularly
         UserRanksRefreshManager.start(self.action_queue)
 
-        self.reactor = irc.client.Reactor(self.on_connect)
+        self.reactor = irc.client.Reactor()
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
         # e.g. on actions via bot.execute_now, etc.
         self.reactor.scheduler_class = SafeDefaultScheduler
@@ -255,8 +267,6 @@ class Bot:
                 "DEPRECATED - Relaybroker support is no longer implemented. relay_host and relay_password are ignored"
             )
 
-        self.reactor.add_global_handler("all_events", self.irc._dispatcher, -10)
-
         self.data = {
             "broadcaster": self.streamer,
             "version": self.version_long,
@@ -278,9 +288,6 @@ class Bot:
     @property
     def password(self):
         return f"oauth:{self.bot_token_manager.token.access_token}"
-
-    def on_connect(self, sock):
-        return self.irc.on_connect(sock)
 
     def start(self):
         """Start the IRC client."""
@@ -487,11 +494,11 @@ class Bot:
             log.exception("BabyRage")
             self.whisper_login(event.source.user.lower(), "Exception BabyRage")
 
-    def privmsg(self, message, channel=None, increase_message=True):
+    def privmsg(self, message, channel=None):
         if channel is None:
             channel = self.channel
 
-        return self.irc.privmsg(message, channel, increase_message=increase_message)
+        self.irc.privmsg(channel, message, is_whisper=False)
 
     def c_uptime(self):
         return utils.time_ago(self.start_time)
@@ -576,10 +583,20 @@ class Bot:
         self.privmsg(f"/delete {msg_id}")
 
     def whisper(self, user, message):
-        return self.irc.whisper(user.login, message)
+        if self.whisper_output_mode == WhisperOutputMode.NORMAL:
+            self.irc.whisper(user.login, message)
+        if self.whisper_output_mode == WhisperOutputMode.CHAT:
+            self.privmsg(f"{user}, {message}")
+        elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
+            log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
     def whisper_login(self, login, message):
-        return self.irc.whisper(login, message)
+        if self.whisper_output_mode == WhisperOutputMode.NORMAL:
+            self.irc.whisper(login, message)
+        if self.whisper_output_mode == WhisperOutputMode.CHAT:
+            self.privmsg(f"{login}, {message}")
+        elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
+            log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
 
     def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
@@ -596,14 +613,14 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def safe_privmsg(self, message, channel=None, increase_message=True):
+    def safe_privmsg(self, message, channel=None):
         # Check for banphrases
         res = self.banphrase_manager.check_message(message, None)
         if res is not False:
-            self.privmsg(f"filtered message ({res.id})", channel, increase_message)
+            self.privmsg(f"filtered message ({res.id})", channel)
             return
 
-        self.privmsg(message, channel, increase_message)
+        self.privmsg(message, channel)
 
     def say(self, message, channel=None):
         if message is None:
@@ -626,14 +643,8 @@ class Bot:
     def me(self, message, channel=None):
         self.say("/me " + message[:500], channel=channel)
 
-    def on_welcome(self, chatconn, event):
-        return self.irc.on_welcome(chatconn, event)
-
     def connect(self):
-        return self.irc.start()
-
-    def on_disconnect(self, chatconn, event):
-        self.irc.on_disconnect(chatconn, event)
+        self.irc.start()
 
     def parse_message(self, message, source, event, tags={}, whisper=False):
         msg_lower = message.lower()
@@ -712,12 +723,6 @@ class Bot:
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             source = User.from_basics(db_session, UserBasics(id, login, name))
             self.parse_message(event.arguments[0], source, event, tags, whisper=True)
-
-    def on_ping(self, chatconn, event):
-        self.last_ping = utils.now()
-
-    def on_pong(self, chatconn, event):
-        self.last_pong = utils.now()
 
     def on_usernotice(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
@@ -800,6 +805,10 @@ class Bot:
     def on_clearchat(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        # Ignore "Chat has been cleared by a moderator" messages
+        if "target-user-id" not in tags:
+            return
+
         target_user_id = tags["target-user-id"]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_id(db_session, target_user_id)
@@ -818,6 +827,16 @@ class Bot:
                 # permaban
                 # this sets timeout_end to None
                 user.timed_out = False
+
+    def on_welcome(self, _conn, _event):
+        """Gets triggered on IRC welcome, i.e. when the login is successful."""
+        if self.welcome_messages_sent:
+            return
+
+        for p in self.phrases["welcome"]:
+            self.privmsg(p.format(nickname=self.nickname, version=self.version_long))
+
+        self.welcome_messages_sent = True
 
     def commit_all(self):
         for key, manager in self.commitable.items():

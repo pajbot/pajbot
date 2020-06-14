@@ -3,9 +3,8 @@ import logging
 from requests import HTTPError
 from sqlalchemy import text
 
-from pajbot.apiwrappers.authentication.token_manager import UserAccessTokenManager, NoTokenError
+from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
-from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
@@ -31,16 +30,9 @@ class SubscriberFetchModule(BaseModule):
 
     @time_method
     def _update_subscribers(self):
-        access_token_manager = UserAccessTokenManager(
-            api=self.bot.twitch_id_api,
-            redis=RedisManager.get(),
-            username=self.bot.streamer,
-            user_id=self.bot.streamer_user_id,
-        )
-
         try:
             subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(
-                self.bot.streamer_user_id, access_token_manager
+                self.bot.streamer_user_id, self.bot.streamer_access_token_manager
             )
         except NoTokenError:
             log.warning(
