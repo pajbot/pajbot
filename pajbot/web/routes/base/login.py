@@ -62,10 +62,6 @@ def init(app):
     def streamer_login():
         return twitch_login(scopes=streamer_scopes)
 
-    @app.route("/login/error")
-    def login_error():
-        return render_template("login_error.html")
-
     @app.route("/login/authorized")
     def authorized():
         # First, validate state with CSRF token
@@ -108,8 +104,15 @@ def init(app):
             error_code = request.args["error"]
             optional_error_description = request.args.get("error_description", None)
 
+            if error_code == "access_denied":
+                # User pressed "Cancel" button. We don't want to show an error page, instead we will just
+                # redirect them to where they were coming from.
+                # See also https://tools.ietf.org/html/rfc6749#section-4.1.2.1 for error codes and documentation for them
+                return redirect(return_to)
+
+            # All other error conditions, we show an error page.
             if optional_error_description is not None:
-                user_detail_msg = f"Error returned from Twitch: {optional_error_description} (code: {error_code}"
+                user_detail_msg = f"Error returned from Twitch: {optional_error_description} (code: {error_code})"
             else:
                 user_detail_msg = f"Error returned from Twitch (code: {error_code})"
 
