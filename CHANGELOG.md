@@ -5,7 +5,9 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Added the ability to rate-limit whispers aswell as rate limiting for known bots. Also added new config options, `known` and `whispers`. The `known` config option is used if your bot is a known bot and this will apply rate limits specific to known bots. Where if the bot is still a unverified and unknown you can make it handle all whispers in such a way so that they are displayed in chat or not displayed at all, this can be done with the `whispers` config option. View the example config for more info. (#878)
-- Minor: Removed the dubtrack module
+- Major: Added a new config option `whisper_output_mode`, allowing you to send whispers to the streamer's chat or to disable them altogether, to aid un-verified bots that may be unable to send whispers. View the example config for more info. (#878)
+- Minor: Removed the dubtrack module (#916)
+- Minor: Added an extra config option for _known_ bots (in addition to verified bots that were already supported). (#878)
 - Minor: Moved chat alerts into a sub-category. Also added a new raid alert module
 - Minor: Added option to unban user from chat when the `!unpermaban` command is used (#739, #887)
 - Minor: Added whisper timeout reasons to the emote limit module (#866)
@@ -15,12 +17,15 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added support for updating the game/title using the authorization of the streamer (via `/streamer_login`). Previously only the bot's authorization was used, and required the bot to be channel editor. (Note the bot/channel editor system is still used if the streamer token cannot be used.) (#877)
 - Minor: Added `!slots` alias to `!slotmachine` command (#890)
 - Minor: Added settings to individually disable `!subemotes`, `!bttvemotes` or `!ffzemotes` without having to disable all of them together. (#895)
+- Minor: "Stats" tab is no longer highlighted while showing the user detail page. (#902, #906)
+- Minor: Updated version of Google Analytics script + added documentation for `google_analytics` config option. (#907)
 - Minor: Added settings to change and disable the "User was given points for (re)subbing" and "Rouletting is now allowed for X seconds" messages. (#897, #908)
 - Minor: If a user clicks "Cancel" instead of "Authorize" during the Twitch login process, they will no longer see an error page, instead the user will be silently returned to where they came from. (#914)
 - Bugfix: Fixed incorrect redirect after completing the `/bot_login` or `/streamer_login` process. (#869)
 - Bugfix: Added retry logic for when opening connection fails. (#872)
 - Bugfix: Updated `httplib` dependency to mitigate possible vulnerability (#884)
 - Bugfix: Fixed `tweet_provider_port` config option not working correctly. (#900)
+- Bugfix: Welcome message(s) are no longer sent to chat when the bot reconnects. (#904)
 - Bugfix: Fixed typo on login error page. (#914)
 
 ## v1.44
