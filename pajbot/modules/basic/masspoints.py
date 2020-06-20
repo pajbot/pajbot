@@ -39,8 +39,7 @@ class MassPointsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give 300 points (for a fisting)",
-                    chat="user:!masspoints 300\n"
-                    "bot: user just gave 159 viewers 300 points! Enjoy FeelsGoodMan",
+                    chat="user:!masspoints 300\n" "bot: user just gave 159 viewers 300 points! Enjoy FeelsGoodMan",
                     description="Give 300 points to the number of people in chat, in this case 159",
                 ).parse()
             ],
@@ -75,19 +74,11 @@ class MassPointsModule(BaseModule):
         userBasics = [e for e in userBasics if e is not None]
 
         with DBManager.create_session_scope() as db_session:
-            subscribers = [
-                user.id
-                for user in db_session.query(User).filter_by(subscriber=True).all()
-            ]
+            subscribers = [user.id for user in db_session.query(User).filter_by(subscriber=True).all()]
             num_points = lambda user: givePoints + (
-                givePoints * self.settings["sub_points"]
-                if user.id in subscribers
-                else 0
+                givePoints * self.settings["sub_points"] if user.id in subscribers else 0
             )
-            update_values = [
-                {**basics.jsonify(), "add_points": num_points(basics)}
-                for basics in userBasics
-            ]
+            update_values = [{**basics.jsonify(), "add_points": num_points(basics)} for basics in userBasics]
             db_session.execute(
                 text(
                     """
@@ -100,6 +91,4 @@ WHERE "user".ignored = False and "user".banned = False and "user".num_lines > 5
                 ),
                 update_values,
             )
-        bot.say(
-            f"{source} just gave {numUsers} viewers {givePoints} points each! Enjoy FeelsGoodMan"
-        )
+        bot.say(f"{source} just gave {numUsers} viewers {givePoints} points each! Enjoy FeelsGoodMan")
