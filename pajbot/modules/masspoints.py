@@ -49,7 +49,6 @@ class MassPointsModule(BaseModule):
             return False
 
         points_argument = message.split()[0]
-        givePoints = 0
 
         try:
             givePoints = int(points_argument)
@@ -58,7 +57,7 @@ class MassPointsModule(BaseModule):
             return False
 
         # If they enter 0, there is no point in doing an update.
-        if givePoints == 0:
+        if givePoints <== 0:
             return
 
         current_chatters = bot.twitch_tmi_api.get_chatter_logins_by_login(bot.streamer)
