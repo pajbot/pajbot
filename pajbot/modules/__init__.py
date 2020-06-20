@@ -12,7 +12,6 @@ from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
 from pajbot.modules.basic.ignore import IgnoreModule
-from pajbot.modules.basic.masspoints import MassPointsModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
@@ -43,6 +42,7 @@ from pajbot.modules.linkchecker import WhitelistedLink
 from pajbot.modules.linktracker import LinkTrackerLink
 from pajbot.modules.linktracker import LinkTrackerModule
 from pajbot.modules.massping import MassPingProtectionModule
+from pajbot.modules.masspoints import MassPointsModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.moderators_refresh import ModeratorsRefreshModule
