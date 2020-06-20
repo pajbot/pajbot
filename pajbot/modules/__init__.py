@@ -12,6 +12,7 @@ from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
 from pajbot.modules.basic.ignore import IgnoreModule
+from pajbot.modules.basic.masspoints import MassPointsModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
@@ -109,6 +110,7 @@ available_modules = [
     LinkCheckerModule,
     LinkTrackerModule,
     MassPingProtectionModule,
+    MassPointsModule,
     MathModule,
     MaxMsgLengthModule,
     ModeratorsRefreshModule,
