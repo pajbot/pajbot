@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added a new module to add points to all users currently in chat
+
 ## v1.45
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
