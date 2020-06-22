@@ -2,8 +2,8 @@
 
 ## Unversioned
 
-- Minor: Added a live alerts module to notify chat when the streamer goes live
-- Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster
+- Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
+- Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster (#924)
 
 ## v1.45
 
