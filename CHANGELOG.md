@@ -2,6 +2,9 @@
 
 ## Unversioned
 
+- Minor: Added a live alerts module to notify chat when the streamer goes live
+- Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster
+
 ## v1.45
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
