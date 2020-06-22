@@ -18,7 +18,7 @@ from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.chat_alerts import ChatAlertModule
-from pajbot.modules.chat_alerts import LiveAlertModule
+from pajbot.modules.chat_alerts.livealert import LiveAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
