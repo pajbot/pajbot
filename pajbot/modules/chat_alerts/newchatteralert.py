@@ -93,7 +93,10 @@ class NewChatterAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("new_chatter_whisper", **payload)
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.get_phrase("new_chatter_whisper", **payload),
             )
         if self.settings["grant_points_on_new_chatter"] <= 0:
             return
