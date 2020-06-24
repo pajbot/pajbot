@@ -2,12 +2,18 @@
 
 ## Unversioned
 
+- Minor: Removed the dubtrack module (#916)
+
+## v1.45
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Added a new config option `whisper_output_mode`, allowing you to send whispers to the streamer's chat or to disable them altogether, to aid un-verified bots that may be unable to send whispers. View the example config for more info. (#878)
-- Minor: Removed the dubtrack module (#916)
 - Minor: Added an extra config option for _known_ bots (in addition to verified bots that were already supported). (#878)
 - Minor: Moved chat alerts into a sub-category. Also added a new raid alert module
+- Minor: Added an extra config option for _known_ bots (in addition to verified bots that were already supported). See example config for usage. (#878)
+- Minor: Moved chat alerts into a sub-category. (#896)
+- Minor: Added a new module to print a chat alert on raids. (#896)
 - Minor: Added option to unban user from chat when the `!unpermaban` command is used (#739, #887)
 - Minor: Added whisper timeout reasons to the emote limit module (#866)
 - Minor: Added `timeout_end` field to User API Response and `!debug user` command output. (#875)
