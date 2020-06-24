@@ -131,7 +131,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
                 bot.whisper(
                     victim,
-                    f"{source} just timed you out for {_time} seconds. /w {bot.nickname} !$unbanme to unban yourself for points forsenMoney",
+                    f"{source} just timed you out for {_time} seconds. LUL",
                 )
                 bot.timeout(victim, _time, reason=f"Timed out by {source}")
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
