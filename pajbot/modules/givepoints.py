@@ -82,7 +82,7 @@ class GivePointsModule(BaseModule):
 
             if target == source:
                 # The user tried giving points to themselves
-                bot.whisper(source, "You can't give points to yourself OMGScoots")
+                bot.whisper(source, "You can't give points to yourself cmonBruh")
                 return True
 
             if self.settings["target_requires_sub"] is True and target.subscriber is False:
