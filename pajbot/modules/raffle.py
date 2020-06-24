@@ -372,7 +372,7 @@ class RaffleModule(BaseModule):
 
     def multi_raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source}, a raffle is already running OMGScoots")
+            bot.say(f"{source}, a raffle is already running MingLee")
             return False
 
         points = 100
