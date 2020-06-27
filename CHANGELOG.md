@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Removed the dubtrack module (#916)
+
 ## v1.45
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!

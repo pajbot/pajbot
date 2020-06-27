@@ -22,7 +22,6 @@ from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
-from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
@@ -89,7 +88,6 @@ available_modules = [
     DBManageModule,
     DebugModule,
     DeckModule,
-    DubtrackModule,
     DuelModule,
     DummyModule,
     EightBallModule,
