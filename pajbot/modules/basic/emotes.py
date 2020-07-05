@@ -88,7 +88,7 @@ class EmotesModule(BaseModule):
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
         if self.settings[f"custom_{manager.friendly_name}_response"] != "":
-            messages = self.settings[f"custom_{manager.friendly_name}_response"]
+            messages = self.settings[f"custom_{manager.friendly_name}_response"].format(source=source)
         else:
             messages = split_into_chunks_with_prefix(
                 [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
