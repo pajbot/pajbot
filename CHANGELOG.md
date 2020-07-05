@@ -5,6 +5,8 @@
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
 - Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster (#924)
 - Minor: Removed the dubtrack module (#916)
+- Minor: It is no longer necessary to restart the bot during installation process after completing the `/bot_login` process. (#929)
+- Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
 
 ## v1.45
 

@@ -227,11 +227,7 @@ sudo systemctl enable --now pajbot@streamer_name pajbot-web@streamer_name
 
 One last step: You need to give your pajbot instance access to use your bot account! For this purpose, visit the URL `https://streamer_name.your-domain.com/bot_login` and complete the login procedure to authorize the bot.
 
-Then, to finally make the bot come online in chat, run:
-
-```bash
-sudo systemctl restart pajbot@streamer_name
-```
+The bot will then automatically come online in chat within about 2-3 seconds of you completing the login process.
 
 ## Further steps
 

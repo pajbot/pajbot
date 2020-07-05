@@ -74,6 +74,13 @@ class IRCManager:
             self._make_new_connection()
         except:
             log.exception("Failed to open connection, retrying in 2 seconds")
+
+            # reset our state back to if we weren't connected at all, so we can start fresh once start() is called again
+            # e.g. if _make_new_connection() fails at the part where it gets the login password, and if this wasn't here,
+            # then it would leave a self.conn behind that isn't None. (and the AssertionError above would be raised
+            # in 2 seconds, once self.start() gets called again via execute_delayed)
+            self.conn = None
+
             self.bot.execute_delayed(2, lambda: self.start())
 
     def _make_new_connection(self):
