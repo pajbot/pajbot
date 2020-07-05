@@ -98,7 +98,7 @@ class EmotesModule(BaseModule):
         for message in messages:
             self.bot.say(message)
 
-    def print_twitch_emotes(self, source, **rest):
+    def print_twitch_emotes(self, source, manager, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
         if self.settings["custom_subemotes_response"] != "":
             messages = self.settings["custom_subemotes_response"].format(source=source)
