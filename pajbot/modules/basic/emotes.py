@@ -51,33 +51,66 @@ class EmotesModule(BaseModule):
             key="enable_subemotes", label="Enable !subemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
+            key="custom_subemotes_response",
+            label="Custom Response for subemotes command | Available arguments: {source}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
             key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
+            key="custom_FFZ_response",
+            label="Custom Response for ffzemotes command | Available arguments: {source}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
             key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_BTTV_response",
+            label="Custom Response for bttvemotes command | Available arguments: {source}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="",
+            constraints={"max_str_len": 400},
         ),
     ]
 
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
-        messages = split_into_chunks_with_prefix(
-            [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
-            default=f"No {manager.friendly_name} Emotes active in this chat :(",
-        )
+        if self.settings[f"custom_{manager.friendly_name}_response"] != "":
+            messages = self.settings[f"custom_{manager.friendly_name}_response"]
+        else:
+            messages = split_into_chunks_with_prefix(
+                [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
+                default=f"No {manager.friendly_name} Emotes active in this chat :(",
+            )
 
         for message in messages:
             self.bot.say(message)
 
-    def print_twitch_emotes(self, **rest):
+    def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
-        messages = split_into_chunks_with_prefix(
-            [
-                {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
-                {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
-                {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
-            ],
-            default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
-        )
+        if self.settings["custom_subemotes_response"] != "":
+            messages = self.settings["custom_subemotes_response"].format(source=source)
+        else:
+            messages = split_into_chunks_with_prefix(
+                [
+                    {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
+                    {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
+                    {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
+                ],
+                default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
+            )
 
         for message in messages:
             self.bot.say(message)
