@@ -63,7 +63,7 @@ class EmotesModule(BaseModule):
             key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_FFZ_response",
+            key="custom_ffz_response",
             label="Custom Response for ffzemotes command | Available arguments: {source}",
             type="text",
             required=False,
@@ -75,7 +75,7 @@ class EmotesModule(BaseModule):
             key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_BTTV_response",
+            key="custom_bttv_response",
             label="Custom Response for bttvemotes command | Available arguments: {source}",
             type="text",
             required=False,
@@ -87,8 +87,8 @@ class EmotesModule(BaseModule):
 
     def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
-        if self.settings[f"custom_{manager.friendly_name}_response"] != "":
-            messages = self.settings[f"custom_{manager.friendly_name}_response"].format(source=source)
+        if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
+            messages = self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(source=source)
         else:
             messages = split_into_chunks_with_prefix(
                 [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
