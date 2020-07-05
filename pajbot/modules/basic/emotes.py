@@ -52,10 +52,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_subemotes_response",
-            label="Custom Response for subemotes command | Available arguments: {source}",
+            label="Custom Response for subemotes command",
             type="text",
             required=False,
-            placeholder="",
+            placeholder="Subscriber emotes can be found here: https://twitchemotes.com/channels/11148817",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -63,11 +63,11 @@ class EmotesModule(BaseModule):
             key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_ffz_response",
-            label="Custom Response for ffzemotes command | Available arguments: {source}",
+            key="custom_FFZ_response",
+            label="Custom Response for ffzemotes command",
             type="text",
             required=False,
-            placeholder="",
+            placeholder="FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -75,20 +75,20 @@ class EmotesModule(BaseModule):
             key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_bttv_response",
-            label="Custom Response for bttvemotes command | Available arguments: {source}",
+            key="custom_BTTV_response",
+            label="Custom Response for bttvemotes command",
             type="text",
             required=False,
-            placeholder="",
+            placeholder="BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
             default="",
             constraints={"max_str_len": 400},
         ),
     ]
 
-    def print_emotes(self, source, manager):
+    def print_emotes(self, manager):
         emotes = manager.channel_emotes
-        if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            messages = self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(source=source)
+        if self.settings[f"custom_{manager.friendly_name}_response"] != "":
+            messages = self.settings[f"custom_{manager.friendly_name}_response"]
         else:
             messages = split_into_chunks_with_prefix(
                 [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
@@ -98,10 +98,10 @@ class EmotesModule(BaseModule):
         for message in messages:
             self.bot.say(message)
 
-    def print_twitch_emotes(self, source, manager, **rest):
+    def print_twitch_emotes(self, manager, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
         if self.settings["custom_subemotes_response"] != "":
-            messages = self.settings["custom_subemotes_response"].format(source=source)
+            messages = self.settings["custom_subemotes_response"]
         else:
             messages = split_into_chunks_with_prefix(
                 [
