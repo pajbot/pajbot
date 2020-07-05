@@ -85,7 +85,7 @@ class EmotesModule(BaseModule):
         ),
     ]
 
-    def print_emotes(self, manager):
+    def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
         if self.settings[f"custom_{manager.friendly_name}_response"] != "":
             messages = self.settings[f"custom_{manager.friendly_name}_response"].format(source=source)
