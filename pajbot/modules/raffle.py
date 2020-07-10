@@ -22,8 +22,7 @@ def generate_winner_list(winners):
 def format_win(points_amount):
     if points_amount >= 0:
         return f"won {points_amount}"
-    else:
-        return f"lost {-points_amount}"
+    return f"lost {-points_amount}"
 
 
 class RaffleModule(BaseModule):
@@ -246,7 +245,7 @@ class RaffleModule(BaseModule):
 
     def raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source}, a raffle is already running OMGScoots")
+            bot.say(f"{source}, a raffle is already running cmonBruh")
             return False
 
         self.raffle_users = set()
@@ -308,6 +307,11 @@ class RaffleModule(BaseModule):
 
         self.raffle_running = False
 
+        if self.raffle_points >= 0:
+            emote = "PogChamp"
+        else:
+            emote = "LUL"
+
         if len(self.raffle_users) == 0:
             self.bot.me("Wow, no one joined the raffle DansGame")
             return False
@@ -325,7 +329,7 @@ class RaffleModule(BaseModule):
                     "notification", {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"}
                 )
 
-            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp")
+            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! {emote}")
 
             winner.points += self.raffle_points
 
