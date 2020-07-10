@@ -24,6 +24,11 @@ def format_win(points_amount):
         return f"won {points_amount}"
     return f"lost {-points_amount}"
 
+    if points_amount == 1 or -1:
+        text_format = "point"
+    else:
+        text_format = "points"
+
 
 class RaffleModule(BaseModule):
 
@@ -245,7 +250,7 @@ class RaffleModule(BaseModule):
 
     def raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source}, a raffle is already running cmonBruh")
+            bot.say(f"{source}, a raffle is already running MingLee")
             return False
 
         self.raffle_users = set()
@@ -439,10 +444,10 @@ class RaffleModule(BaseModule):
             self.raffle_users = set()
 
             if num_winners == 1:
-                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! PogChamp")
+                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! {emote}")
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! PogChamp"
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! {emote}"
                 )
 
             winners_arr = []
