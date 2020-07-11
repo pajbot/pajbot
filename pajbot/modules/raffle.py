@@ -180,8 +180,8 @@ class RaffleModule(BaseModule):
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
-        self.emote = ""
-        self.text_format = ""
+        self.emote = "PogChamp"
+        self.text_format = "points"
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
