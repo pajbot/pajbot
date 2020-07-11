@@ -311,7 +311,6 @@ class RaffleModule(BaseModule):
         self.raffle_users.add(source.id)
 
     def end_raffle(self):
-
         if not self.raffle_running:
             return False
 
