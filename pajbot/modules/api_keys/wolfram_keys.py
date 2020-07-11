@@ -22,7 +22,7 @@ class WolframKeysModule(BaseModule):
         ModuleSetting(
             key="wolfram_key",
             label="Wolfram Alpha Key | Get your API key here: http://developer.wolframalpha.com/portal/myapps",
-            type="text",
+            type="password",
             required=False,
             placeholder="ABCDEF-GHIJKLMNOP",
             default="",
