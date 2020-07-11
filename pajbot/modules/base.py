@@ -24,7 +24,7 @@ class ModuleSetting:
       * options - A select/options list
     """
 
-    def __init__(self, key, label, type, required=False, placeholder="", default=None, constraints={}, options=[]):
+    def __init__(self, key, label, type, required=False, placeholder="", default=None, constraints={}, options=[], required_read_level=1000, required_write_level=1500):
         self.key = key
         self.label = label
         self.type = type
@@ -33,6 +33,8 @@ class ModuleSetting:
         self.default = default
         self.constraints = constraints
         self.options = options
+        self.required_read_level = required_read_level
+        self.required_write_level = required_write_level
 
     def validate(self, value):
         """ Validate the input for this module.
