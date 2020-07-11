@@ -331,10 +331,13 @@ class RaffleModule(BaseModule):
 
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
-                    "notification", {"message": f"{winner} {format_win(self.raffle_points)} {self.text_format} in the raffle!"}
+                    "notification",
+                    {"message": f"{winner} {format_win(self.raffle_points)} {self.text_format} in the raffle!"},
                 )
 
-            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! {self.emote}")
+            self.bot.me(
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! {self.emote}"
+            )
 
             winner.points += self.raffle_points
 
@@ -444,7 +447,9 @@ class RaffleModule(BaseModule):
             self.raffle_users = set()
 
             if num_winners == 1:
-                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {self.text_format}! {self.emote}")
+                self.bot.me(
+                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {self.text_format}! {self.emote}"
+                )
             else:
                 self.bot.me(
                     f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! {self.emote}"
