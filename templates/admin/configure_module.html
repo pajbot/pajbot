@@ -52,27 +52,59 @@
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>
         {% if setting.type == 'text' %}
-        {% if session.user.level < setting.required_write_level %}
-        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" readonly />
-        {% elif session.user.level < setting.required_read_level %}
-        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" hidden />
-		<p>Your level is not high enough to view this setting!</p>
-	{% else %}
-        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
-	{% endif %}
+            {% if session.user.level < setting.required_write_level %}
+        	    <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" disabled />
+            {% elif session.user.level < setting.required_read_level %}
+        	    <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" hidden />
+		        <p>Your level is not high enough to view this setting!</p>
+	        {% else %}
+        	    <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+	        {% endif %}
         {% elif setting.type == 'number' %}
-        <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
-          {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
-          {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
-        />
+            {% if session.user.level < setting.required_write_level %}
+                <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" disabled
+                    {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
+                    {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
+                />
+            {% elif session.user.level < setting.required_read_level %}
+                <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" hidden
+                    {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
+                    {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
+                />
+                <p>Your level is not high enough to view this setting!</p>
+            {% else %}
+                <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
+                    {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
+                    {% if 'max_value' in setting.constraints %} max="{{ setting.constraints['max_value'] }}" {% endif %}
+                />
         {% elif setting.type == 'boolean' %}
-        <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} />
+            {% if session.user.level < setting.required_write_level %}
+                <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} disabled />
+            {% elif session.user.level < setting.required_read_level %}
+                <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} hidden />
+                <p>Your level is not high enough to view this setting!</p>
+            {% else %}
+                <input type="checkbox" id="key_{{ setting.key }}" name="{{ setting.key }}" {{ 'checked' if module.settings[setting.key] == True else ''}} />
         {% elif setting.type == 'options' %}
-        <select id="key_{{ setting.key }}" name="{{ setting.key }}">
-            {%- for option in setting.options %}
-            <option{{ ' selected' if option == module.settings[setting.key] else '' }}>{{ option }}</option>
-            {% endfor -%}
-        </select>
+            {% if session.user.level < setting.required_write_level %}
+                <select id="key_{{ setting.key }}" name="{{ setting.key }}" disabled>
+                    {%- for option in setting.options %}
+                    <option{{ ' selected' if option == module.settings[setting.key] else '' }}>{{ option }}</option>
+                    {% endfor -%}
+                </select>
+            {% elif session.user.level < setting.required_read_level %}
+                <select id="key_{{ setting.key }}" name="{{ setting.key }}" hidden>
+                    {%- for option in setting.options %}
+                    <option{{ ' selected' if option == module.settings[setting.key] else '' }}>{{ option }}</option>
+                    {% endfor -%}
+                </select>
+                <p>Your level is not high enough to view this setting!</p>
+            {% else %}
+                <select id="key_{{ setting.key }}" name="{{ setting.key }}">
+                    {%- for option in setting.options %}
+                    <option{{ ' selected' if option == module.settings[setting.key] else '' }}>{{ option }}</option>
+                    {% endfor -%}
+                </select>
         {% else %}
         Unknown type: {{ setting.type }}
         {% endif %}
