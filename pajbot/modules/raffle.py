@@ -337,7 +337,7 @@ class RaffleModule(BaseModule):
                 )
 
             self.bot.me(
-                f"The raffle has finished! {winner} {format_win(self.raffle_points)} points!" + emote)
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! " + emote)
 
             winner.points += self.raffle_points
 
@@ -448,11 +448,11 @@ class RaffleModule(BaseModule):
 
             if num_winners == 1:
                 self.bot.me(
-                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points!" + emote
+                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! " + emote
                 )
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each!" + emote
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! " + emote
                 )
 
             winners_arr = []
