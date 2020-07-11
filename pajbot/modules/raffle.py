@@ -173,7 +173,7 @@ class RaffleModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot, points_amount):
+    def __init__(self, bot):
         super().__init__(bot)
 
         self.raffle_running = False
