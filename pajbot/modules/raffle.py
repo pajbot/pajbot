@@ -172,6 +172,11 @@ class RaffleModule(BaseModule):
         self.raffle_length = 0
         self.text_format = "points"
 
+        if self.raffle_points > 0:
+            self.emote = "PogChamp"
+        else:
+            self.emote = "LUL"
+
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
             self.raffle,
@@ -321,11 +326,6 @@ class RaffleModule(BaseModule):
 
     def end_raffle(self):
 
-        if self.raffle_points > 0:
-            emote = "PogChamp"
-        else:
-            emote = "LUL"
-
         if not self.raffle_running:
             return False
 
@@ -350,7 +350,7 @@ class RaffleModule(BaseModule):
                 )
 
             self.bot.me(
-                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! " + emote
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! {self.emote}"
             )
 
             winner.points += self.raffle_points
@@ -474,12 +474,11 @@ class RaffleModule(BaseModule):
 
             if num_winners == 1:
                 self.bot.me(
-                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {self.text_format}! " + emote
+                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {self.text_format}! {self.emote}"
                 )
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! "
-                    + emote
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! {self.emote}"
                 )
 
             winners_arr = []
