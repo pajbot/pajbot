@@ -101,8 +101,8 @@ class EmotesModule(BaseModule):
     def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
         messages = self.settings["custom_subemotes_response"]
-        if messages != "":
-            self.bot.say(messages.format(source=source))
+        if self.settings["custom_subemotes_response"] != "":
+            self.bot.say(self.settings["custom_subemotes_response"].format(source=source))
         else:
             messages = split_into_chunks_with_prefix(
                 [
