@@ -212,7 +212,7 @@ class Bot:
         self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
-        if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":	
+        if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
             self.twitter_manager = PBTwitterManager(self)
         else:
             self.twitter_manager = TwitterManager(self)
