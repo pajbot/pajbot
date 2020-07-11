@@ -24,6 +24,16 @@ def format_win(points_amount):
         return f"won {points_amount}"
     return f"lost {-points_amount}"
 
+    if points_amount > 0:
+        emote = "PogChamp"
+    else:
+        emote = "LUL"
+
+    if points_amount == 1 or -1:
+        text_format = "point"
+    else:
+        text_format = "points"
+
 
 class RaffleModule(BaseModule):
 
@@ -170,16 +180,8 @@ class RaffleModule(BaseModule):
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
-
-        if points_amount > 0:
-            self.emote = "PogChamp"
-        else:
-            self.emote = "LUL"
-
-        if points_amount == 1 or -1:
-            self.text_format = "point"
-        else:
-            self.text_format = "points"
+        self.emote = ""
+        self.text_format = ""
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
