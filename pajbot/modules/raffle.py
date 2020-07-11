@@ -285,13 +285,13 @@ class RaffleModule(BaseModule):
             bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
             bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
 
-        arguments = {"length": self.raffle_length, self.text_format: self.raffle_points}
+        arguments = {"length": self.raffle_length, "points": self.raffle_points}
         bot.say(self.get_phrase("message_start", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
         bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.50), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
         bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.25), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
         bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
@@ -365,17 +365,17 @@ class RaffleModule(BaseModule):
                 0.75, self.bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"}
             )
 
-        arguments = {"length": self.raffle_length, self.text_format: self.raffle_points}
+        arguments = {"length": self.raffle_length, "points": self.raffle_points}
         self.bot.say(self.get_phrase("message_start_multi", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
         self.bot.execute_delayed(
             self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
-        arguments = {"length": round(self.raffle_length * 0.50), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
         self.bot.execute_delayed(
             self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
-        arguments = {"length": round(self.raffle_length * 0.25), self.text_format: self.raffle_points}
+        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
         self.bot.execute_delayed(
             self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
