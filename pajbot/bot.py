@@ -31,6 +31,7 @@ from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.twitter import TwitterManager, PBTwitterManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
@@ -211,8 +212,11 @@ class Bot:
         self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
+        if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":	
+            self.twitter_manager = PBTwitterManager(self)	
+        else:	
+            self.twitter_manager = TwitterManager(self)
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
-        self.twitter_manager = self.module_manager["twitter_keys"].settings["twitter_streaming_type"]
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
