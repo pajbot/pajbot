@@ -52,7 +52,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_subemotes_response",
-            label="Custom Response for the subemotes command | Available arguments: {source},
+            label="Custom Response for the subemotes command | Available arguments: {source}",
             type="text",
             required=False,
             placeholder="{source}, Subscriber emotes can be found here: https://twitchemotes.com/channels/11148817",
@@ -98,7 +98,7 @@ class EmotesModule(BaseModule):
         for message in messages:
             self.bot.say(message)
 
-    def print_twitch_emotes(self, manager, **rest):
+    def print_twitch_emotes(self, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
         if self.settings["custom_subemotes_response"] != "":
             messages = self.settings["custom_subemotes_response"]
