@@ -19,7 +19,6 @@ class LastfmModule(BaseModule):
             label="LastFM Api Key",
             type="text",
             required=True,
-            required_read_level=1500,
             placeholder="i.e. abcedfg1235hfhafafajhf",
             default="",
         ),
