@@ -24,11 +24,6 @@ def format_win(points_amount):
         return f"won {points_amount}"
     return f"lost {-points_amount}"
 
-    if points_amount > 0:
-        emote = "PogChamp"
-    else:
-        emote = "LUL"
-
     if points_amount == 1 or -1:
         text_format = "point"
     else:
@@ -180,8 +175,6 @@ class RaffleModule(BaseModule):
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
-        self.emote = "PogChamp"
-        self.text_format = "points"
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
@@ -314,6 +307,12 @@ class RaffleModule(BaseModule):
         self.raffle_users.add(source.id)
 
     def end_raffle(self):
+
+        if self.raffle_points > 0:
+            emote = "PogChamp"
+        else:
+            emote = "LUL"
+
         if not self.raffle_running:
             return False
 
@@ -334,12 +333,11 @@ class RaffleModule(BaseModule):
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
                     "notification",
-                    {"message": f"{winner} {format_win(self.raffle_points)} {format_win(self.text_format)} in the raffle!"},
+                    {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"},
                 )
 
             self.bot.me(
-                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {format_win(self.text_format)}! {format_win(self.emote)}"
-            )
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} points!" + emote)
 
             winner.points += self.raffle_points
 
@@ -450,11 +448,11 @@ class RaffleModule(BaseModule):
 
             if num_winners == 1:
                 self.bot.me(
-                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {format_win(self.text_format)}! {format_win(self.emote)}"
+                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points!" + emote
                 )
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {format_win(self.text_format)} each! {format_win(self.emote)}"
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each!" + emote
                 )
 
             winners_arr = []
@@ -465,17 +463,17 @@ class RaffleModule(BaseModule):
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_str) > 300:
                     if len(winners_arr) == 1:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} {format_win(self.text_format)}!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
                     else:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} {format_win(self.text_format)} each!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
                     winners_arr = []
 
             if len(winners_arr) > 0:
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_arr) == 1:
-                    self.bot.me(f"{winners_str} {format_win(points_per_user)} {format_win(self.text_format)}!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
                 else:
-                    self.bot.me(f"{winners_str} {format_win(points_per_user)} {format_win(self.text_format)} each!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
 
             HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 
