@@ -24,7 +24,19 @@ class ModuleSetting:
       * options - A select/options list
     """
 
-    def __init__(self, key, label, type, required=False, placeholder="", default=None, constraints={}, options=[], required_read_level=500, required_write_level=500):
+    def __init__(
+        self,
+        key,
+        label,
+        type,
+        required=False,
+        placeholder="",
+        default=None,
+        constraints={},
+        options=[],
+        required_read_level=500,
+        required_write_level=500,
+    ):
         self.key = key
         self.label = label
         self.type = type
