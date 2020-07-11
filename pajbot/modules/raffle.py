@@ -296,19 +296,19 @@ class RaffleModule(BaseModule):
         arguments = {
             "length": round(self.raffle_length * 0.75),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
         arguments = {
             "length": round(self.raffle_length * 0.50),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
         arguments = {
             "length": round(self.raffle_length * 0.25),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
 
@@ -384,7 +384,7 @@ class RaffleModule(BaseModule):
         arguments = {
             "length": round(self.raffle_length * 0.75),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         self.bot.execute_delayed(
             self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
@@ -392,7 +392,7 @@ class RaffleModule(BaseModule):
         arguments = {
             "length": round(self.raffle_length * 0.50),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         self.bot.execute_delayed(
             self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
@@ -400,7 +400,7 @@ class RaffleModule(BaseModule):
         arguments = {
             "length": round(self.raffle_length * 0.25),
             "points": self.raffle_points,
-            "points_format": self.text_format
+            "points_format": self.text_format,
         }
         self.bot.execute_delayed(
             self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
