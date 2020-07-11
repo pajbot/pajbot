@@ -53,6 +53,8 @@
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>
         {% if setting.type == 'text' %}
         <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+        {% elif setting.type == 'password' %}
+        <input type="password" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
         {% elif setting.type == 'number' %}
         <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
           {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
