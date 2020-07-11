@@ -170,11 +170,7 @@ class RaffleModule(BaseModule):
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
-
-        if self.raffle_points == 1 or -1:
-            self.text_format = "point"
-        else:
-            self.text_format = "points"
+        self.text_format = "points"
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
@@ -278,6 +274,11 @@ class RaffleModule(BaseModule):
             self.raffle_points = min(self.raffle_points, self.settings["single_max_points"])
         if self.raffle_points <= -1:
             self.raffle_points = max(self.raffle_points, -self.settings["max_negative_points"])
+
+        if self.raffle_points == 1 or -1:
+            self.text_format = "point"
+        else:
+            self.text_format = "points"
 
         self.raffle_length = min(self.raffle_length, self.settings["max_length"])
 
