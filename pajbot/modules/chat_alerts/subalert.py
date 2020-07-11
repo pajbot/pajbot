@@ -5,16 +5,18 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.modules.chat_alerts import ChatAlertModule
 
 log = logging.getLogger(__name__)
 
 
 class SubAlertModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Subscription Alert - Chat"
+    NAME = "Subscription Alert"
     DESCRIPTION = "Prints a message in chat/whispers when a user re/subscribes"
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
+    PARENT_MODULE = ChatAlertModule
     SETTINGS = [
         ModuleSetting(
             key="chat_message",
@@ -129,6 +131,14 @@ class SubAlertModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 50000},
         ),
+        ModuleSetting(
+            key="alert_message_points_given",
+            label="Message to announce points were given to user, leave empty to disable message. | Available arguments: {user}, {points}",
+            type="text",
+            required=True,
+            default="{user} was given {points} points for subscribing! FeelsAmazingMan",
+            constraints={"min_str_len": 0, "max_str_len": 300},
+        ),
     ]
 
     def __init__(self, bot):
@@ -139,7 +149,10 @@ class SubAlertModule(BaseModule):
             return
 
         user.points += self.settings["grant_points_on_sub"]
-        self.bot.say(f"{user} was given {self.settings['grant_points_on_sub']} points for subscribing! FeelsAmazingMan")
+
+        alert_message = self.settings["alert_message_points_given"]
+        if alert_message != "":
+            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_sub"]))
 
     def on_new_sub(self, user, sub_type, gifted_by=None):
         """

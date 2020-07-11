@@ -8,6 +8,7 @@ from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -21,6 +22,31 @@ class PermabanModule(BaseModule):
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
+    SETTINGS = [
+        ModuleSetting(
+            key="unban_from_chat",
+            label="Unban the user from chat when the unpermaban command is used",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="enable_send_timeout",
+            label="Timeout the user for one second to note the unban reason in the mod logs",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason | Available arguments: {source}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Un-permabanned by {source}",
+            constraints={},
+        ),
+    ]
 
     @staticmethod
     def permaban_command(bot, source, message, **rest):
@@ -44,8 +70,7 @@ class PermabanModule(BaseModule):
 
             AdminLogManager.add_entry("Permaban added", source, log_msg)
 
-    @staticmethod
-    def unpermaban_command(bot, source, message, **rest):
+    def unpermaban_command(self, bot, source, message, **rest):
         if not message:
             return
 
@@ -65,6 +90,12 @@ class PermabanModule(BaseModule):
             bot.whisper(source, log_msg)
 
             AdminLogManager.add_entry("Permaban remove", source, log_msg)
+
+            if self.settings["unban_from_chat"] is True:
+                bot.unban(user)
+
+                if self.settings["enable_send_timeout"] is True:
+                    bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source), once=True)
 
     def load_commands(self, **options):
         self.commands["permaban"] = Command.raw_command(
