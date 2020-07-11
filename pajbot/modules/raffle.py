@@ -24,11 +24,6 @@ def format_win(points_amount):
         return f"won {points_amount}"
     return f"lost {-points_amount}"
 
-    if points_amount == 1 or -1:
-        text_format = "point"
-    else:
-        text_format = "points"
-
 
 class RaffleModule(BaseModule):
 
@@ -175,6 +170,11 @@ class RaffleModule(BaseModule):
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
+
+        if self.raffle_points == 1 or -1:
+            self.text_format = "point"
+        else:
+            self.text_format = "points"
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
@@ -337,7 +337,7 @@ class RaffleModule(BaseModule):
                 )
 
             self.bot.me(
-                f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! " + emote)
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! " + emote)
 
             winner.points += self.raffle_points
 
