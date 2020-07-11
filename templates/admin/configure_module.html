@@ -52,6 +52,11 @@
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>
         {% if setting.type == 'text' %}
+        {% if session.user.level < setting.required_write_level %}
+        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" readonly/>
+        {% elseif session.user.level < setting.required_read_level %}
+        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" disabled/>
+        {% endif %}
         <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
         {% elif setting.type == 'number' %}
         <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
