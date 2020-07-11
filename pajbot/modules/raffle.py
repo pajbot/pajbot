@@ -24,11 +24,6 @@ def format_win(points_amount):
         return f"won {points_amount}"
     return f"lost {-points_amount}"
 
-    if points_amount == 1 or -1:
-        text_format = "point"
-    else:
-        text_format = "points"
-
 
 class RaffleModule(BaseModule):
 
@@ -168,13 +163,23 @@ class RaffleModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot, points_amount):
         super().__init__(bot)
 
         self.raffle_running = False
         self.raffle_users = set()
         self.raffle_points = 0
         self.raffle_length = 0
+
+        if points_amount > 0:
+            self.emote = "PogChamp"
+        else:
+            self.emote = "LUL"
+
+        if points_amount == 1 or -1:
+            self.text_format = "point"
+        else:
+            self.text_format = "points"
 
     def load_commands(self, **options):
         self.commands["singleraffle"] = Command.raw_command(
@@ -312,11 +317,6 @@ class RaffleModule(BaseModule):
 
         self.raffle_running = False
 
-        if self.raffle_points >= 0:
-            emote = "PogChamp"
-        else:
-            emote = "LUL"
-
         if len(self.raffle_users) == 0:
             self.bot.me("Wow, no one joined the raffle DansGame")
             return False
@@ -331,10 +331,10 @@ class RaffleModule(BaseModule):
 
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
-                    "notification", {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"}
+                    "notification", {"message": f"{winner} {format_win(self.raffle_points)} {self.text_format} in the raffle!"}
                 )
 
-            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! {emote}")
+            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! {self.emote}")
 
             winner.points += self.raffle_points
 
@@ -444,10 +444,10 @@ class RaffleModule(BaseModule):
             self.raffle_users = set()
 
             if num_winners == 1:
-                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! {emote}")
+                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} {self.text_format}! {self.emote}")
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! {emote}"
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! {self.emote}"
                 )
 
             winners_arr = []
@@ -458,17 +458,17 @@ class RaffleModule(BaseModule):
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_str) > 300:
                     if len(winners_arr) == 1:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} {self.text_format}!")
                     else:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
+                        self.bot.me(f"{winners_str} {format_win(points_per_user)} {self.text_format} each!")
                     winners_arr = []
 
             if len(winners_arr) > 0:
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_arr) == 1:
-                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} {self.text_format}!")
                 else:
-                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
+                    self.bot.me(f"{winners_str} {format_win(points_per_user)} {self.text_format} each!")
 
             HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 
