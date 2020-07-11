@@ -288,11 +288,23 @@ class RaffleModule(BaseModule):
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points, "points_format": self.text_format}
         bot.say(self.get_phrase("message_start", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.75),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.50),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.25),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
@@ -338,7 +350,8 @@ class RaffleModule(BaseModule):
                 )
 
             self.bot.me(
-                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! " + emote)
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} {self.text_format}! " + emote
+            )
 
             winner.points += self.raffle_points
 
@@ -368,15 +381,27 @@ class RaffleModule(BaseModule):
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points, "points_format": self.text_format}
         self.bot.say(self.get_phrase("message_start_multi", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.75),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         self.bot.execute_delayed(
             self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
-        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.50),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         self.bot.execute_delayed(
             self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
-        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points, "points_format": self.text_format}
+        arguments = {
+            "length": round(self.raffle_length * 0.25),
+            "points": self.raffle_points,
+            "points_format": self.text_format,
+        }
         self.bot.execute_delayed(
             self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
         )
@@ -453,7 +478,8 @@ class RaffleModule(BaseModule):
                 )
             else:
                 self.bot.me(
-                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! " + emote
+                    f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} {self.text_format} each! "
+                    + emote
                 )
 
             winners_arr = []
