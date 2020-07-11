@@ -48,7 +48,7 @@ class PNSLModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
 
-        if bot.module_manager["apikeys_group"].settings["pnsl_key"] !="":
+        if bot.module_manager["apikeys_group"].settings["pnsl_key"] != "":
             self.pnsl_token = bot.module_manager["apikeys_group"].settings["pnsl_key"]
         elif bot:
             if "pnsl" in bot.config:
