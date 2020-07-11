@@ -53,11 +53,13 @@
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>
         {% if setting.type == 'text' %}
         {% if session.user.level < setting.required_write_level %}
-        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" readonly/>
-        {% elseif session.user.level < setting.required_read_level %}
-        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" disabled/>
-        {% endif %}
-        <input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" readonly />
+        {% elif session.user.level < setting.required_read_level %}
+        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" hidden />
+		<p>Your level is not high enough to view this setting!</p>
+	{% else %}
+        	<input type="text" " id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}" />
+	{% endif %}
         {% elif setting.type == 'number' %}
         <input type="number" id="key_{{ setting.key }}" name="{{ setting.key }}" placeholder="{{ setting.placeholder }}" value="{{ module.settings[setting.key] }}"
           {% if 'min_value' in setting.constraints %} min="{{ setting.constraints['min_value'] }}" {% endif %}
