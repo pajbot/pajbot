@@ -8,7 +8,7 @@
 - Minor: Removed the dubtrack module (#916)
 - Minor: It is no longer necessary to restart the bot during installation process after completing the `/bot_login` process. (#929)
 - Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
-- Bugfix: Validate playsound names during creation #(934)
+- Bugfix: Validate playsound names during creation (#502, 934)
 
 ## v1.45
 
