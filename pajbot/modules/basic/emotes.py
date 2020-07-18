@@ -52,10 +52,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_sub_response",
-            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}",
             type="text",
             required=False,
-            placeholder="@{source}, {streamer}'s sub emotes can be found here: https://twitchemotes.com/channels/11148817",
+            placeholder="@{source}, Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -64,10 +64,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_ffz_response",
-            label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}",
             type="text",
             required=False,
-            placeholder="@{source}, {streamer}'s FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
+            placeholder="@{source}, Channel FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -76,10 +76,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_bttv_response",
-            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}",
             type="text",
             required=False,
-            placeholder="@{source}, {streamer}'s BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
+            placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -87,7 +87,6 @@ class EmotesModule(BaseModule):
 
     def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
-        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
             default=f"No {manager.friendly_name} Emotes active in this chat :(",
@@ -100,11 +99,10 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message).format(streamer=streamer, source=source)
+            self.bot.say(custom_message).format(source=source)
 
     def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
-        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [
                 {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
@@ -121,7 +119,7 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message).format(streamer=streamer, source=source)
+            self.bot.say(custom_message).format(source=source)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
