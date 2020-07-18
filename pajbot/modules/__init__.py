@@ -19,6 +19,7 @@ from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.chat_alerts import ChatAlertModule
 from pajbot.modules.chat_alerts.livealert import LiveAlertModule
+from pajbot.modules.chat_alerts.newchatteralert import NewChatterAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
@@ -112,6 +113,7 @@ available_modules = [
     MathModule,
     MaxMsgLengthModule,
     ModeratorsRefreshModule,
+    NewChatterAlertModule,
     PNSLModule,
     PaidSubmodeModule,
     PaidTimeoutModule,
