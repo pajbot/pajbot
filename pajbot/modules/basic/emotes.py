@@ -156,7 +156,7 @@ class EmotesModule(BaseModule):
         )
 
     def print_cmd(self, manager, examples):
-        def do_print(bot, source, **rest):
+        def do_print(source, **rest):
             self.print_emotes(source, manager)
 
         return Command.raw_command(
