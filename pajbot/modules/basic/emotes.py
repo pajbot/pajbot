@@ -87,6 +87,7 @@ class EmotesModule(BaseModule):
 
     def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
+        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
             default=f"No {manager.friendly_name} Emotes active in this chat :(",
@@ -99,10 +100,11 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message.format(source=source))
+            self.bot.say(custom_message.format(streamer=streamer, source=source))
 
     def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
+        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [
                 {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
@@ -119,7 +121,7 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message.format(source=source))
+            self.bot.say(custom_message.format(streamer=streamer, source=source))
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
