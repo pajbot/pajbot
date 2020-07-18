@@ -115,13 +115,23 @@ class EmotesModule(BaseModule):
         )
 
         if self.settings["custom_sub_response"] != "":
+            streamer = self.bot.streamer_display
             custom_message = self.settings["custom_sub_response"]
-
-        if custom_message == "":
-            for message in messages:
-                self.bot.say(message)
-        else:
             self.bot.say(custom_message.format(streamer=streamer, source=source))
+        else:
+            manager = self.bot.emote_manager.twitch_emote_manager
+
+            messages = split_into_chunks_with_prefix(
+                [
+                    {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
+                    {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
+                    {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
+                ],
+                default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
+            )
+
+            for message in messages:
+                self.bot.say(message)            
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
