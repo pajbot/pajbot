@@ -52,7 +52,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_sub_response",
-            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}",
+            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
             placeholder="@{source}, Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
@@ -64,7 +64,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_ffz_response",
-            label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}",
+            label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
             placeholder="@{source}, Channel FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
@@ -76,7 +76,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_bttv_response",
-            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}",
+            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
             placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
