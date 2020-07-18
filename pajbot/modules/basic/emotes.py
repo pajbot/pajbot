@@ -76,7 +76,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_bttv_response",
-            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            label="A custom message to override the default !bttvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
             placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
