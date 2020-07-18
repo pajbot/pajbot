@@ -51,25 +51,61 @@ class EmotesModule(BaseModule):
             key="enable_subemotes", label="Enable !subemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
+            key="custom_sub_response",
+            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, {streamer}'s sub emotes can be found here: https://twitchemotes.com/channels/11148817",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
             key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
+            key="custom_FFZ_response",
+            label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, {streamer}'s FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
             key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_BTTV_response",
+            label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, {streamer}'s BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
+            default="",
+            constraints={"max_str_len": 400},
         ),
     ]
 
     def print_emotes(self, manager):
         emotes = manager.channel_emotes
+        source = IMPORT_SOURCE_HERE
         messages = split_into_chunks_with_prefix(
             [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
             default=f"No {manager.friendly_name} Emotes active in this chat :(",
         )
+        streamer = self.bot.streamer_display
 
-        for message in messages:
-            self.bot.say(message)
+        if self.settings[f"custom_{manager.friendly_name}_response"] != "":
+            custom_message = self.settings[f"custom_{manager.friendly_name}_response"]
+
+        if custom_message == "":
+            for message in messages:
+                self.bot.say(message)
+        else:
+            self.bot.say(custom_message).format(streamer=streamer, source=source)
 
     def print_twitch_emotes(self, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
+        source = IMPORT_SOURCE_HERE
         messages = split_into_chunks_with_prefix(
             [
                 {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
@@ -79,8 +115,14 @@ class EmotesModule(BaseModule):
             default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
         )
 
-        for message in messages:
-            self.bot.say(message)
+        if self.settings["custom_sub_response"] != "":
+            custom_message = self.settings["custom_sub_response"]
+
+        if custom_message == "":
+            for message in messages:
+                self.bot.say(message)
+        else:
+            self.bot.say(custom_message).format(streamer=streamer, source=source)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
