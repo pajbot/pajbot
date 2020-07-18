@@ -33,7 +33,7 @@ class LiveAlertModule(BaseModule):
             placeholder="@{streamer} TWEET THAT YOU'RE LIVE OMGScoots",
             default="",
             constraints={"max_str_len": 400},
-        )
+        ),
     ]
 
     def __init__(self, bot):
@@ -44,13 +44,7 @@ class LiveAlertModule(BaseModule):
         streamer = self.bot.streamer_display
         game = self.bot.stream_manager.game
         title = self.bot.stream_manager.title
-        self.bot.say(
-            live_chat_message.format(
-                streamer=streamer,
-                game=game,
-                title=title,
-            )
-        )
+        self.bot.say(live_chat_message.format(streamer=streamer, game=game, title=title))
         if self.settings["extra_message"] != "":
             self.bot.say(self.settings["extra_message"].format(streamer=streamer))
 
