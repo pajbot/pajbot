@@ -143,51 +143,44 @@ class EmotesModule(BaseModule):
         def do_print(source, **rest):
             self.print_emotes(source, manager)
 
+        if self.settings[f"custom_{manager.friendly_name.lower()}_response"]:
+            bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"]
+        else:
+            bot_response = f"bot: {manager.friendly_name} emotes: {examples}"
+
         return Command.raw_command(
             do_print,
             level=100,
             delay_all=15,
             delay_user=30,
             examples=[
-                if self.settings[f"custom_{manager.friendly_name.lower()}_response"] == "":
                     CommandExample(
                         None,
                         f"Show all active {manager.friendly_name} emotes for this channel.",
                         chat=f"user: !{manager.friendly_name.lower()}emotes\n"
-                        + f"bot: {manager.friendly_name} emotes: {examples}",
-                    ).parse()
-                else:
-                    CommandExample(
-                        None,
-                        f"Show all active {manager.friendly_name} emotes for this channel.",
-                        chat=f"user: !{manager.friendly_name.lower()}emotes\n"
-                        + f"bot: self.settings["custom_{manager.friendly_name.lower()}_response"]",
+                        + bot_response
                     ).parse()
             ],
         )
 
     def print_twitch_cmd(self):
+        if self.settings["custom_sub_response"]:
+            bot_response = "bot: " + self.settings["custom_sub_response"]
+        else:
+            bot_response = "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
+
         return Command.raw_command(
             self.print_twitch_emotes,
             level=100,
             delay_all=15,
             delay_user=30,
             examples=[
-                if self.settings["custom_sub_response"] == "":
-                    CommandExample(
-                        None,
-                        f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                        chat="user: !subemotes\n"
-                        "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
-                        "Tier 2: forsenSnus Tier 3: forsen2499",
-                    ).parse()
-                else:
-                    CommandExample(
-                        None,
-                        f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                        chat="user: !subemotes\n"
-                        f"bot: self.settings["custom_sub_response"]",
-                    ).parse()
+                CommandExample(
+                    None,
+                    f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
+                    chat="user: !subemotes\n"
+                    + bot_response
+                ).parse()
             ],
         )
 
