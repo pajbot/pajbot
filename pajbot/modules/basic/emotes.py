@@ -86,41 +86,26 @@ class EmotesModule(BaseModule):
     ]
 
     def print_emotes(self, source, manager):
-        emotes = manager.channel_emotes
-        streamer = self.bot.streamer_display
-        messages = split_into_chunks_with_prefix(
-            [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
-            default=f"No {manager.friendly_name} Emotes active in this chat :(",
-        )
-
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
+            streamer = self.bot.streamer_display
             custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
-
-        if custom_message == "":
+            self.bot.say(custom_message.format(streamer=streamer, source=source))
+        else:
+            emotes = manager.channel_emotes
+            messages = split_into_chunks_with_prefix(
+                [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
+                default=f"No {manager.friendly_name} Emotes active in this chat :(",
+            )
             for message in messages:
                 self.bot.say(message)
-        else:
-            self.bot.say(custom_message.format(streamer=streamer, source=source))
 
     def print_twitch_emotes(self, source, **rest):
-        manager = self.bot.emote_manager.twitch_emote_manager
-        streamer = self.bot.streamer_display
-        messages = split_into_chunks_with_prefix(
-            [
-                {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
-                {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
-                {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
-            ],
-            default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
-        )
-
         if self.settings["custom_sub_response"] != "":
             streamer = self.bot.streamer_display
             custom_message = self.settings["custom_sub_response"]
             self.bot.say(custom_message.format(streamer=streamer, source=source))
         else:
             manager = self.bot.emote_manager.twitch_emote_manager
-
             messages = split_into_chunks_with_prefix(
                 [
                     {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
@@ -129,9 +114,8 @@ class EmotesModule(BaseModule):
                 ],
                 default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
             )
-
             for message in messages:
-                self.bot.say(message)            
+                self.bot.say(message)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
@@ -165,12 +149,20 @@ class EmotesModule(BaseModule):
             delay_all=15,
             delay_user=30,
             examples=[
-                CommandExample(
-                    None,
-                    f"Show all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes\n"
-                    + f"bot: {manager.friendly_name} emotes: {examples}",
-                ).parse()
+                if self.settings[f"custom_{manager.friendly_name.lower()}_response"] == "":
+                    CommandExample(
+                        None,
+                        f"Show all active {manager.friendly_name} emotes for this channel.",
+                        chat=f"user: !{manager.friendly_name.lower()}emotes\n"
+                        + f"bot: {manager.friendly_name} emotes: {examples}",
+                    ).parse()
+                else:
+                    CommandExample(
+                        None,
+                        f"Show all active {manager.friendly_name} emotes for this channel.",
+                        chat=f"user: !{manager.friendly_name.lower()}emotes\n"
+                        + f"bot: self.settings["custom_{manager.friendly_name.lower()}_response"]",
+                    ).parse()
             ],
         )
 
@@ -181,13 +173,21 @@ class EmotesModule(BaseModule):
             delay_all=15,
             delay_user=30,
             examples=[
-                CommandExample(
-                    None,
-                    f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                    chat="user: !subemotes\n"
-                    "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
-                    "Tier 2: forsenSnus Tier 3: forsen2499",
-                ).parse()
+                if self.settings["custom_sub_response"] == "":
+                    CommandExample(
+                        None,
+                        f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
+                        chat="user: !subemotes\n"
+                        "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
+                        "Tier 2: forsenSnus Tier 3: forsen2499",
+                    ).parse()
+                else:
+                    CommandExample(
+                        None,
+                        f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
+                        chat="user: !subemotes\n"
+                        f"bot: self.settings["custom_sub_response"]",
+                    ).parse()
             ],
         )
 
