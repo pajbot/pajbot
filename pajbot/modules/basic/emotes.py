@@ -63,7 +63,7 @@ class EmotesModule(BaseModule):
             key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_FFZ_response",
+            key="custom_ffz_response",
             label="Enable a custom response to the !ffzemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
@@ -75,7 +75,7 @@ class EmotesModule(BaseModule):
             key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="custom_BTTV_response",
+            key="custom_bttv_response",
             label="Enable a custom response to the !bttvemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
@@ -85,14 +85,13 @@ class EmotesModule(BaseModule):
         ),
     ]
 
-    def print_emotes(self, manager):
+    def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
-        source = IMPORT_SOURCE_HERE
+        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
             default=f"No {manager.friendly_name} Emotes active in this chat :(",
         )
-        streamer = self.bot.streamer_display
 
         if self.settings[f"custom_{manager.friendly_name}_response"] != "":
             custom_message = self.settings[f"custom_{manager.friendly_name}_response"]
@@ -103,9 +102,9 @@ class EmotesModule(BaseModule):
         else:
             self.bot.say(custom_message).format(streamer=streamer, source=source)
 
-    def print_twitch_emotes(self, **rest):
+    def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
-        source = IMPORT_SOURCE_HERE
+        streamer = self.bot.streamer_display
         messages = split_into_chunks_with_prefix(
             [
                 {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
@@ -147,8 +146,8 @@ class EmotesModule(BaseModule):
         )
 
     def print_cmd(self, manager, examples):
-        def do_print(**rest):
-            self.print_emotes(manager)
+        def do_print(bot, source, **rest):
+            self.print_emotes(source, manager)
 
         return Command.raw_command(
             do_print,
