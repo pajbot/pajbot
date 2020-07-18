@@ -92,7 +92,7 @@ class EmotesModule(BaseModule):
             default=f"No {manager.friendly_name} Emotes active in this chat :(",
         )
 
-        if self.settings[f"custom_{manager.friendly_name}_response"] != "":
+        if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             custom_message = self.settings[f"custom_{manager.friendly_name}_response"]
 
         if custom_message == "":
