@@ -93,7 +93,7 @@ class EmotesModule(BaseModule):
         )
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            custom_message = self.settings[f"custom_{manager.friendly_name}_response"]
+            custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
 
         if custom_message == "":
             for message in messages:
