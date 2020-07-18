@@ -99,7 +99,7 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message).format(source=source)
+            self.bot.say(custom_message.format(source=source))
 
     def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
@@ -119,7 +119,7 @@ class EmotesModule(BaseModule):
             for message in messages:
                 self.bot.say(message)
         else:
-            self.bot.say(custom_message).format(source=source)
+            self.bot.say(custom_message.format(source=source))
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
