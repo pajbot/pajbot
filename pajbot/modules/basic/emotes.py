@@ -52,7 +52,7 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_sub_response",
-            label="Enable a custom response to the !subemotes command. Leave empty to disable the message. | Available arguments: {source}, {streamer}",
+            label="A custom message to override the default !subemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
             placeholder="@{source}, Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
