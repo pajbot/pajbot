@@ -88,20 +88,23 @@ class EmotesModule(BaseModule):
     def print_emotes(self, source, manager):
         emotes = manager.channel_emotes
         if self.settings[f"custom_{manager.friendly_name}_response"] != "":
-            self.bot.say(self.settings[f"custom_{manager.friendly_name}_response"].format(source=source))
+            custom_emote_message = self.settings[f"custom_{manager.friendly_name}_response"]
+            self.bot.say(custom_emote_message).format(source=source)
         else:
             messages = split_into_chunks_with_prefix(
                 [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
                 default=f"No {manager.friendly_name} Emotes active in this chat :(",
             )
 
-        for message in messages:
-            self.bot.say(message)
+        if custom_emote_message == "":
+            for message in messages:
+                self.bot.say(message)
 
     def print_twitch_emotes(self, source, **rest):
         manager = self.bot.emote_manager.twitch_emote_manager
         if self.settings["custom_subemotes_response"] != "":
-            self.bot.say(self.settings["custom_subemotes_response"].format(source=source))
+            custom_subemotes_message = self.settings["custom_subemotes_response"]
+            self.bot.say(custom_subemotes_message).format(source=source)
         else:
             messages = split_into_chunks_with_prefix(
                 [
@@ -112,8 +115,9 @@ class EmotesModule(BaseModule):
                 default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
             )
 
-        for message in messages:
-            self.bot.say(message)
+        if custom_subemotes_message == "":
+            for message in messages:
+                self.bot.say(message)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
