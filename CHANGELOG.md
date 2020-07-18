@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added the ability to set a custom response to emote commands (#940)
+- Minor: Added the ability to set a custom response to emote commands. (#940)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
 - Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster (#924)
