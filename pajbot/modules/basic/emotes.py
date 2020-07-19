@@ -144,7 +144,9 @@ class EmotesModule(BaseModule):
             self.print_emotes(source, manager)
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(source="pajlada", streamer=self.bot.streamer_display)
+            bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
+                source="pajlada", streamer=self.bot.streamer_display
+            )
         else:
             bot_response = f"bot: {manager.friendly_name} emotes: {examples}"
 
@@ -154,20 +156,23 @@ class EmotesModule(BaseModule):
             delay_all=15,
             delay_user=30,
             examples=[
-                    CommandExample(
-                        None,
-                        f"Show all active {manager.friendly_name} emotes for this channel.",
-                        chat=f"user: !{manager.friendly_name.lower()}emotes\n"
-                        + bot_response
-                    ).parse()
+                CommandExample(
+                    None,
+                    f"Show all active {manager.friendly_name} emotes for this channel.",
+                    chat=f"user: !{manager.friendly_name.lower()}emotes\n" + bot_response,
+                ).parse()
             ],
         )
 
     def print_twitch_cmd(self):
         if self.settings["custom_sub_response"] != "":
-            bot_response = "bot: " + self.settings["custom_sub_response"].format(source="pajlada", streamer=self.bot.streamer_display)
+            bot_response = "bot: " + self.settings["custom_sub_response"].format(
+                source="pajlada", streamer=self.bot.streamer_display
+            )
         else:
-            bot_response = "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
+            bot_response = (
+                "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
+            )
 
         return Command.raw_command(
             self.print_twitch_emotes,
@@ -178,8 +183,7 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                    chat="user: !subemotes\n"
-                    + bot_response
+                    chat="user: !subemotes\n" + bot_response,
                 ).parse()
             ],
         )
