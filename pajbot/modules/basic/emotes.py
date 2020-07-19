@@ -164,7 +164,7 @@ class EmotesModule(BaseModule):
         )
 
     def print_twitch_cmd(self):
-        if self.settings["custom_sub_response"]:
+        if self.settings["custom_sub_response"] != "":
             bot_response = "bot: " + self.settings["custom_sub_response"].format(source="pajlada", streamer=self.bot.streamer_display)
         else:
             bot_response = "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
