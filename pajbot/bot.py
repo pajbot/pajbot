@@ -116,6 +116,7 @@ class Bot:
             self.streamer = self.channel[1:]
 
         self.bot_domain = self.config["web"]["domain"]
+        self.streamer_display = self.config["web"]["streamer_name"]
 
         log.debug("Loaded config")
 
@@ -273,6 +274,7 @@ class Bot:
             "version_brief": VERSION,
             "bot_name": self.nickname,
             "bot_domain": self.bot_domain,
+            "streamer_display": self.streamer_display,
         }
 
         self.data_cb = {
