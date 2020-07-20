@@ -87,9 +87,8 @@ class EmotesModule(BaseModule):
 
     def print_emotes(self, source, manager):
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            streamer = self.bot.streamer_display
             custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
-            self.bot.say(custom_message.format(streamer=streamer, source=source))
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer(), source=source))
         else:
             emotes = manager.channel_emotes
             messages = split_into_chunks_with_prefix(
@@ -101,9 +100,8 @@ class EmotesModule(BaseModule):
 
     def print_twitch_emotes(self, source, **rest):
         if self.settings["custom_sub_response"] != "":
-            streamer = self.bot.streamer_display
             custom_message = self.settings["custom_sub_response"]
-            self.bot.say(custom_message.format(streamer=streamer, source=source))
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer(), source=source))
         else:
             manager = self.bot.emote_manager.twitch_emote_manager
             messages = split_into_chunks_with_prefix(
@@ -145,7 +143,7 @@ class EmotesModule(BaseModule):
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
-                source="pajlada", streamer=self.bot.streamer_display
+                source="pajlada", streamer=StreamHelper.get_streamer()
             )
         else:
             bot_response = f"bot: {manager.friendly_name} emotes: {examples}"
@@ -167,7 +165,7 @@ class EmotesModule(BaseModule):
     def print_twitch_cmd(self):
         if self.settings["custom_sub_response"] != "":
             bot_response = "bot: " + self.settings["custom_sub_response"].format(
-                source="pajlada", streamer=self.bot.streamer_display
+                source="pajlada", streamer=StreamHelper.get_streamer()
             )
         else:
             bot_response = (
