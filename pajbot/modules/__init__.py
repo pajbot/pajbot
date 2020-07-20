@@ -73,6 +73,7 @@ from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
+from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
 
@@ -140,6 +141,7 @@ available_modules = [
     TypeEmoteQuestModule,
     TypeMeMessageQuestModule,
     VanishModule,
+    VIPRefreshModule,
     WarningModule,
     WinDuelPointsQuestModule,
     WinDuelsQuestModule,
