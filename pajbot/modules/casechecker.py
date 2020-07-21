@@ -66,6 +66,49 @@ class CaseCheckerModule(BaseModule):
             default="NO LOWERCASE CHARACTERS ALLOWED",
             constraints={},
         ),
+        ModuleSetting(
+            key="timeout_percentage_toggle",
+            label="Timeout any message that contains a percentage of uppercase letters",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="percentage_timeout_reason",
+            label="Percentage Timeout Reason",
+            type="text",
+            required=True,
+            placeholder="",
+            default="Too many uppercase letters",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="max_amount",
+            label="Maximum amount allowed in a message",
+            type="number",
+            required=True,
+            placeholder="",
+            default=50,
+            constraints={},
+        ),
+        ModuleSetting(
+            key="min_characters",
+            label="Minimum amount before checking for excessive use of uppercase letters",
+            type="number",
+            required=True,
+            placeholder="",
+            default=8,
+            constraints={},
+        ),
+        ModuleSetting(
+            key="max_percent",
+            label="Maximum percent of uppercase letters allowed in message",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 0, "max_value": 100},
+        ),
     ]
 
     def on_message(self, source, message, **rest):
@@ -88,6 +131,20 @@ class CaseCheckerModule(BaseModule):
             return False
 
         return True
+
+        amount_capitals = sum(c.isupper() for c in message)
+        if self.settings["timeout_percentage_toggle"] is True:
+            if amount_capitals >= self.settings["max_amount"]:
+                self.bot.timeout(
+                    source, self.settings["timeout_duration"], reason=self.settings["percentage_timeout_reason"]
+                )
+            elif (
+                amount_capitals >= self.settings["min_characters"]
+                and (amount_capitals / len(message)) * 100 >= self.settings["max_percent"]
+            ):
+                self.bot.timeout(
+                    source, self.settings["timeout_duration"], reason=self.settings["percentage_timeout_reason"]
+                )
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message)
