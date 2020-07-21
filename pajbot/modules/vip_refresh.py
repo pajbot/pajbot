@@ -43,7 +43,7 @@ class VIPRefreshModule(BaseModule):
 
         if msg_id == "vips_success":
             if message.startswith("The VIPs of this channel are: "):
-                message = message[30:]  # 36 = length of the above "prefix"
+                message = message[30:]  # 30 = length of the above "prefix"
                 return message.split(", ")
             log.warning(
                 f"Received vips_success NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
@@ -122,7 +122,7 @@ WHERE
                         CommandExample(
                             None,
                             f"Reload who is a Twitch channel VIP",
-                            chat=f"user:!reload vips\nbot>user: Reloading VIP status...",
+                            chat=f"user:!reload vips\nbot>user: Reloading list of VIPs...",
                         ).parse()
                     ],
                 )
@@ -136,7 +136,7 @@ WHERE
 
         HandlerManager.add_handler("on_pubnotice", self._on_pubnotice)
 
-        # every 10 minutes, send the /mods command (response is received via _on_pubnotice)
+        # every 10 minutes, send the /vips command (response is received via _on_pubnotice)
         self.scheduled_job = ScheduleManager.execute_every(
             self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_vips)
         )
