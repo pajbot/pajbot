@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added VIP support. VIPs will now show in the !debug command and on the userpage on the website. (#886)
+- Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. (#886)
 - Minor: Added a secondary optional message to send when the channel goes live (live alerts module) (#938)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
