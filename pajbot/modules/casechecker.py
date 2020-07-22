@@ -130,9 +130,7 @@ class CaseCheckerModule(BaseModule):
             )
             return False
 
-        return True
-
-        amount_capitals = sum(c.isupper() for c in message)
+        amount_capitals = sum(1 for c in message if c.isupper())
         if self.settings["timeout_percentage_toggle"] is True:
             if amount_capitals >= self.settings["max_amount"]:
                 self.bot.timeout(
@@ -145,6 +143,9 @@ class CaseCheckerModule(BaseModule):
                 self.bot.timeout(
                     source, self.settings["timeout_duration"], reason=self.settings["percentage_timeout_reason"]
                 )
+                return False
+
+        return True
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message)
