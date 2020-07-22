@@ -129,7 +129,9 @@ class CaseCheckerModule(BaseModule):
                 source, self.settings["timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True
             )
             return False
-
+        # The module will check first if the amount of uppercase letters in a message is more than the max set amount
+        # If not, the module will figure out the percentage of uppercase letters in the message
+        # If the percentage is higher than the max percent, then the user will be timed out
         amount_capitals = sum(1 for c in message if c.isupper())
         if self.settings["timeout_percentage_toggle"] is True:
             if amount_capitals >= self.settings["max_amount"]:
