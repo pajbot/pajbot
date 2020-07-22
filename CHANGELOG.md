@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: The bot will now whisper you if your `!tweet` from the bot fails/is successful. (#942)
 - Minor: Added a secondary optional message to send when the channel goes live (live alerts module) (#938)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
