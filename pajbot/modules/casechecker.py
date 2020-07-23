@@ -20,8 +20,12 @@ class CaseCheckerModule(BaseModule):
             key="offline_chat_only", label="Only enabled in offline chat", type="boolean", required=True, default=False
         ),
         ModuleSetting(
-            key="subscriber_exemption", label="Exempt subscribers from case-based timeouts", type="boolean", required=True, default=False
-        ), # TODO: add a vip_exemption option once troy's pr is accepted
+            key="subscriber_exemption",
+            label="Exempt subscribers from case-based timeouts",
+            type="boolean",
+            required=True,
+            default=False,
+        ),  # TODO: add a vip_exemption option once troy's pr is accepted
         ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
@@ -133,7 +137,9 @@ class CaseCheckerModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
-        if (self.settings["online_chat_only"] and not self.bot.is_online) or (self.settings["offline_chat_only"] and self.bot.is_online):
+        if (self.settings["online_chat_only"] and not self.bot.is_online) or (
+            self.settings["offline_chat_only"] and self.bot.is_online
+        ):
             return True
 
         if self.settings["subscriber_exemption"] and source.subscriber is True:
@@ -142,21 +148,47 @@ class CaseCheckerModule(BaseModule):
         amount_lowercase = sum(1 for c in message if c.islower())
         if self.settings["lowercase_timeouts"] is True:
             if amount_lowercase >= self.settings["max_lowercase"]:
-                self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
+                self.bot.timeout(
+                    source,
+                    self.settings["lowercase_timeout_duration"],
+                    reason=self.settings["lowercase_timeout_reason"],
+                    once=True,
+                )
                 return False
 
-            if (amount_lowercase >= self.settings["min_lowercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]):
-                self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
+            if (
+                amount_lowercase >= self.settings["min_lowercase_characters"]
+                and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]
+            ):
+                self.bot.timeout(
+                    source,
+                    self.settings["lowercase_timeout_duration"],
+                    reason=self.settings["lowercase_timeout_reason"],
+                    once=True,
+                )
                 return False
 
         amount_uppercase = sum(1 for c in message if c.isupper())
         if self.settings["uppercase_timeouts"] is True:
             if amount_lowercase >= self.settings["max_uppercase"]:
-                self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
+                self.bot.timeout(
+                    source,
+                    self.settings["uppercase_timeout_duration"],
+                    reason=self.settings["uppercase_timeout_reason"],
+                    once=True,
+                )
                 return False
 
-            if (amount_uppercase >= self.settings["min_uppercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]):
-                self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
+            if (
+                amount_uppercase >= self.settings["min_uppercase_characters"]
+                and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
+            ):
+                self.bot.timeout(
+                    source,
+                    self.settings["uppercase_timeout_duration"],
+                    reason=self.settings["uppercase_timeout_reason"],
+                    once=True,
+                )
                 return False
 
         return True
