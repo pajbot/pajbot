@@ -144,7 +144,8 @@ class CaseCheckerModule(BaseModule):
             if amount_lowercase >= self.settings["max_lowercase"]:
                 self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
                 return False
-            (amount_lowercase >= self.settings["min_lowercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]):
+
+            if (amount_lowercase >= self.settings["min_lowercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]):
                 self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
                 return False
 
@@ -153,7 +154,8 @@ class CaseCheckerModule(BaseModule):
             if amount_lowercase >= self.settings["max_uppercase"]:
                 self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
                 return False
-            (amount_uppercase >= self.settings["min_uppercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]):
+
+            if (amount_uppercase >= self.settings["min_uppercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]):
                 self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
                 return False
 
