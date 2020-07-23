@@ -57,6 +57,9 @@ class VIPRefreshModule(BaseModule):
 
         vip_logins = self._parse_pubnotice_for_vips(msg_id, message)
 
+        if vip_logins is not None:
+            self.bot.action_queue.submit(self._process_vip_logins, vip_logins)
+
     @time_method
     def _process_vip_logins(self, vip_logins):
         # Called on the action queue thread, to resolve the logins to user IDs
