@@ -25,7 +25,8 @@ class CaseCheckerModule(BaseModule):
             type="boolean",
             required=True,
             default=False,
-        ),  # TODO: add a vip_exemption option once troy's pr is accepted
+        ), 
+        # TODO: add a vip_exemption option once troy's pr is accepted
         ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
@@ -54,7 +55,7 @@ class CaseCheckerModule(BaseModule):
             required=False,
             placeholder="",
             default="Too many lowercase characters",
-            constraints={},
+            constraints={"max_str_len": 500},
         ),
         ModuleSetting(
             key="min_lowercase_characters",
@@ -63,7 +64,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=8,
-            constraints={},
+            constraints={"min_value": 0, "max_value": 500},
         ),
         ModuleSetting(
             key="lowercase_percentage",
@@ -81,7 +82,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=50,
-            constraints={},
+            constraints={"min_value": 0, "max_value": 500},
         ),
         ModuleSetting(
             key="uppercase_timeouts", label="Enable uppercase timeouts", type="boolean", required=True, default=False
@@ -102,7 +103,7 @@ class CaseCheckerModule(BaseModule):
             required=False,
             placeholder="",
             default="Too many uppercase characters",
-            constraints={},
+            constraints={"max_str_len": 500},
         ),
         ModuleSetting(
             key="min_uppercase_characters",
@@ -111,7 +112,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=8,
-            constraints={},
+            constraints={"min_value": 0, "max_value": 500},
         ),
         ModuleSetting(
             key="uppercase_percentage",
@@ -129,7 +130,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=50,
-            constraints={},
+            constraints={"min_value": 0, "max_value": 500},
         ),
     ]
 
