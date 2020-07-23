@@ -14,19 +14,14 @@ class CaseCheckerModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="timeout_uppercase",
-            label="Timeout any uppercase in messages",
-            type="boolean",
-            required=True,
-            default=False,
+            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
         ),
         ModuleSetting(
-            key="timeout_lowercase",
-            label="Timeout any lowercase in messages",
-            type="boolean",
-            required=True,
-            default=False,
+            key="offline_chat_only", label="Only enabled in offline chat", type="boolean", required=True, default=False
         ),
+        ModuleSetting(
+            key="subscriber_exemption", label="Exempt subscribers from case-based timeouts", type="boolean", required=True, default=False
+        ), # TODO: add a vip_exemption option once troy's pr is accepted
         ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
@@ -37,8 +32,11 @@ class CaseCheckerModule(BaseModule):
             constraints={"min_value": 100, "max_value": 1000},
         ),
         ModuleSetting(
-            key="timeout_duration",
-            label="Timeout duration",
+            key="lowercase_timeouts", label="Enable lowercase timeouts", type="boolean", required=True, default=False
+        ),
+        ModuleSetting(
+            key="lowercase_timeout_duration",
+            label="Lowercase Timeout duration",
             type="number",
             required=True,
             placeholder="",
@@ -46,54 +44,17 @@ class CaseCheckerModule(BaseModule):
             constraints={"min_value": 3, "max_value": 120},
         ),
         ModuleSetting(
-            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
-            key="uppercase_timeout_reason",
-            label="Uppercase Timeout Reason",
-            type="text",
-            required=False,
-            placeholder="",
-            default="no uppercase characters allowed",
-            constraints={},
-        ),
-        ModuleSetting(
             key="lowercase_timeout_reason",
             label="Lowercase Timeout Reason",
             type="text",
             required=False,
             placeholder="",
-            default="NO LOWERCASE CHARACTERS ALLOWED",
+            default="Too many lowercase characters ",
             constraints={},
         ),
         ModuleSetting(
-            key="timeout_percentage_toggle",
-            label="Timeout any message that contains a percentage of uppercase letters",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="percentage_timeout_reason",
-            label="Percentage Timeout Reason",
-            type="text",
-            required=True,
-            placeholder="",
-            default="Too many uppercase letters",
-            constraints={},
-        ),
-        ModuleSetting(
-            key="max_amount",
-            label="Maximum amount allowed in a message",
-            type="number",
-            required=True,
-            placeholder="",
-            default=50,
-            constraints={},
-        ),
-        ModuleSetting(
-            key="min_characters",
-            label="Minimum amount before checking for excessive use of uppercase letters",
+            key="min_lowercase_characters",
+            label="Minimum amount of lowercase characters before checking for a percentage",
             type="number",
             required=True,
             placeholder="",
@@ -101,7 +62,7 @@ class CaseCheckerModule(BaseModule):
             constraints={},
         ),
         ModuleSetting(
-            key="max_percent",
+            key="lowercase_percentage",
             label="Maximum percent of uppercase letters allowed in message",
             type="number",
             required=True,
@@ -109,42 +70,91 @@ class CaseCheckerModule(BaseModule):
             default=60,
             constraints={"min_value": 0, "max_value": 100},
         ),
+        ModuleSetting(
+            key="max_lowercase",
+            label="Maximum amount of lowercase characters allowed in a message",
+            type="number",
+            required=True,
+            placeholder="",
+            default=50,
+            constraints={},
+        ),
+        ModuleSetting(
+            key="uppercase_timeouts", label="Enable uppercase timeouts", type="boolean", required=True, default=False
+        ),
+        ModuleSetting(
+            key="uppercase_timeout_duration",
+            label="Uppercase Timeout duration",
+            type="number",
+            required=True,
+            placeholder="",
+            default=3,
+            constraints={"min_value": 3, "max_value": 120},
+        ),
+        ModuleSetting(
+            key="uppercase_timeout_reason",
+            label="Uppercase Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many uppercase characters",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="min_uppercase_characters",
+            label="Minimum amount of uppercase characters before checking for a percentage",
+            type="number",
+            required=True,
+            placeholder="",
+            default=8,
+            constraints={},
+        ),
+        ModuleSetting(
+            key="uppercase_percentage",
+            label="Maximum percent of uppercase letters allowed in message",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 0, "max_value": 100},
+        ),
+        ModuleSetting(
+            key="max_uppercase",
+            label="Maximum amount of uppercase characters allowed in a message",
+            type="number",
+            required=True,
+            placeholder="",
+            default=50,
+            constraints={},
+        ),
     ]
 
     def on_message(self, source, message, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
-        if self.settings["online_chat_only"] and not self.bot.is_online:
+        if (self.settings["online_chat_only"] and not self.bot.is_online) or (self.settings["offline_chat_only"] and self.bot.is_online):
             return True
 
-        if self.settings["timeout_uppercase"] and any(c.isupper() for c in message):
-            self.bot.timeout(
-                source, self.settings["timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True
-            )
-            return False
+        if self.settings["subscriber_exemption"] and source.subscriber is True:
+            return True
 
-        if self.settings["timeout_lowercase"] and any(c.islower() for c in message):
-            self.bot.timeout(
-                source, self.settings["timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True
-            )
-            return False
-        # The module will check first if the amount of uppercase letters in a message is more than the max set amount
-        # If not, the module will figure out the percentage of uppercase letters in the message
-        # If the percentage is higher than the max percent, then the user will be timed out
-        amount_capitals = sum(1 for c in message if c.isupper())
-        if self.settings["timeout_percentage_toggle"] is True:
-            if amount_capitals >= self.settings["max_amount"]:
-                self.bot.timeout(
-                    source, self.settings["timeout_duration"], reason=self.settings["percentage_timeout_reason"]
-                )
-            elif (
-                amount_capitals >= self.settings["min_characters"]
-                and (amount_capitals / len(message)) * 100 >= self.settings["max_percent"]
-            ):
-                self.bot.timeout(
-                    source, self.settings["timeout_duration"], reason=self.settings["percentage_timeout_reason"]
-                )
+        amount_lowercase = sum(1 for c in message if c.islower())
+        if self.settings["lowercase_timeouts"] is True:
+            if amount_lowercase >= self.settings["max_lowercase"]:
+                self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
+                return False
+            (amount_lowercase >= self.settings["min_lowercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]):
+                self.bot.timeout(source, self.settings["lowercase_timeout_duration"], reason=self.settings["lowercase_timeout_reason"], once=True)
+                return False
+
+        amount_uppercase = sum(1 for c in message if c.isupper())
+        if self.settings["uppercase_timeouts"] is True:
+            if amount_lowercase >= self.settings["max_uppercase"]:
+                self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
+                return False
+            (amount_uppercase >= self.settings["min_uppercase_characters"] and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]):
+                self.bot.timeout(source, self.settings["uppercase_timeout_duration"], reason=self.settings["uppercase_timeout_reason"], once=True)
                 return False
 
         return True
