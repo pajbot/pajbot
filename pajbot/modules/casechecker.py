@@ -53,7 +53,7 @@ class CaseCheckerModule(BaseModule):
             type="text",
             required=False,
             placeholder="",
-            default="Too many lowercase characters ",
+            default="Too many lowercase characters",
             constraints={},
         ),
         ModuleSetting(
@@ -67,7 +67,7 @@ class CaseCheckerModule(BaseModule):
         ),
         ModuleSetting(
             key="lowercase_percentage",
-            label="Maximum percent of uppercase letters allowed in message",
+            label="Maximum percent of lowercase letters allowed in message",
             type="number",
             required=True,
             placeholder="",
