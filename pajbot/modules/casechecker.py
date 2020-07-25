@@ -58,6 +58,15 @@ class CaseCheckerModule(BaseModule):
             constraints={"max_str_len": 500},
         ),
         ModuleSetting(
+            key="max_lowercase",
+            label="Maximum amount of lowercase characters allowed in a message.  This setting is checked prior to the percentage-based lowercase check.",
+            type="number",
+            required=True,
+            placeholder="",
+            default=50,
+            constraints={"min_value": 0, "max_value": 500},
+        ),
+        ModuleSetting(
             key="min_lowercase_characters",
             label="Minimum amount of lowercase characters before checking for a percentage",
             type="number",
@@ -74,15 +83,6 @@ class CaseCheckerModule(BaseModule):
             placeholder="",
             default=60,
             constraints={"min_value": 0, "max_value": 100},
-        ),
-        ModuleSetting(
-            key="max_lowercase",
-            label="Maximum amount of lowercase characters allowed in a message",
-            type="number",
-            required=True,
-            placeholder="",
-            default=50,
-            constraints={"min_value": 0, "max_value": 500},
         ),
         ModuleSetting(
             key="uppercase_timeouts", label="Enable uppercase timeouts", type="boolean", required=True, default=False
@@ -106,6 +106,15 @@ class CaseCheckerModule(BaseModule):
             constraints={"max_str_len": 500},
         ),
         ModuleSetting(
+            key="max_uppercase",
+            label="Maximum amount of uppercase characters allowed in a message. This setting is checked prior to the percentage-based uppercase check.",
+            type="number",
+            required=True,
+            placeholder="",
+            default=50,
+            constraints={"min_value": 0, "max_value": 500},
+        ),
+        ModuleSetting(
             key="min_uppercase_characters",
             label="Minimum amount of uppercase characters before checking for a percentage",
             type="number",
@@ -122,16 +131,7 @@ class CaseCheckerModule(BaseModule):
             placeholder="",
             default=60,
             constraints={"min_value": 0, "max_value": 100},
-        ),
-        ModuleSetting(
-            key="max_uppercase",
-            label="Maximum amount of uppercase characters allowed in a message",
-            type="number",
-            required=True,
-            placeholder="",
-            default=50,
-            constraints={"min_value": 0, "max_value": 500},
-        ),
+        ),   
     ]
 
     def on_message(self, source, message, **rest):
