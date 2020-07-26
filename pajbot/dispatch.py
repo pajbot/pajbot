@@ -365,8 +365,10 @@ class Dispatch:
             try:
                 log.info("sending tweet: %s", message[:140])
                 bot.twitter_manager.twitter_client.update_status(status=message)
+                bot.whisper(source, "Tweet sent successfully!")
             except Exception:
                 log.exception("Caught an exception")
+                bot.whisper(source, "An error occurred while trying to send your tweet.")
 
     @staticmethod
     def eval(bot, source, message, event, args):
