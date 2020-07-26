@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Refactored the case checker module - this changes the default behaviour of the module by forcing usage of a max/percentage-based upper/lowercase setting as opposed to timing out ANY upper/lowercase characters in a sentence. If the max upper/lowercase setting is met, the user is immediately timed out. If not, the bot will check the total upper/lowercase characters in a sentence to ensure it is above the minimum; if so, it will timeout based on if the percentage of upper/lowercase characters is above the pre-defined percentage. Users are able to re-create the original behaviour by simply setting the max upper/lowercase setting to 0. (#941)
 - Minor: Added a secondary optional message to send when the channel goes live (live alerts module) (#938)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
