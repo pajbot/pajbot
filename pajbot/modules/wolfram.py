@@ -120,7 +120,7 @@ class WolframModule(BaseModule):
             is_success = answer["success"]
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
 
-            if is_error and not self.app_id:
+            if is_error and self.app_id != "":
                 reply = base_reply + "No Wolfram AppID was found in the config file FeelsBadMan"
                 bot.send_message_to_user(source, reply, event, method="reply")
             else:
