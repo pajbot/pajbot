@@ -110,9 +110,9 @@ class EmotesModule(BaseModule):
 
         return Command.raw_command(
             do_print,
-            level=100,
-            delay_all=15,
-            delay_user=30,
+            level=self.settings["level"],
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             examples=[
                 CommandExample(
                     None,
@@ -126,9 +126,9 @@ class EmotesModule(BaseModule):
     def print_twitch_cmd(self):
         return Command.raw_command(
             self.print_twitch_emotes,
-            level=100,
-            delay_all=15,
-            delay_user=30,
+            level=self.settings["level"],
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             examples=[
                 CommandExample(
                     None,
