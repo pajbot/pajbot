@@ -72,7 +72,7 @@ class ClipCommandModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, source, **options):
+    def load_commands(self, **options):
         self.commands["clip"] = Command.raw_command(
             self.clip,
             sub_only=self.settings["subscribers_only"],
@@ -84,7 +84,7 @@ class ClipCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Make a new clip while the stream is online",
-                    chat="user:!clip\n" "bot: " + self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy"),
+                    chat="user:!clip\n" "bot: " + self.settings["online_response"].format(source="pajlada", streamer=self.bot.streamer_display, clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy"),
                     description="",
                 ).parse(),
             ],
