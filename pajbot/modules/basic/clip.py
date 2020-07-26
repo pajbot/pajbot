@@ -42,7 +42,7 @@ class ClipCommandModule(BaseModule):
             required=False,
             placeholder="",
             default="{source}, Cannot clip while {streamer} is offline! BibleThump",
-            constraints={"max_str_len": 400}
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="global_cd",
@@ -85,9 +85,15 @@ class ClipCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Make a new clip while the stream is online",
-                    chat="user:!clip\n" "bot: " + self.settings["online_response"].format(source="pajlada", streamer=StreamHelper.get_streamer(), clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy"),
+                    chat="user:!clip\n"
+                    "bot: "
+                    + self.settings["online_response"].format(
+                        source="pajlada",
+                        streamer=StreamHelper.get_streamer(),
+                        clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy",
+                    ),
                     description="",
-                ).parse(),
+                ).parse()
             ],
         )
 
@@ -97,9 +103,13 @@ class ClipCommandModule(BaseModule):
 
         if not self.bot.is_online:
             if self.settings["offline_response"] != "":
-                self.bot.say(self.settings["offline_response"].format(source=source, streamer=self.bot.streamer_display))
+                self.bot.say(
+                    self.settings["offline_response"].format(source=source, streamer=self.bot.streamer_display)
+                )
             return True
 
         clip_id = self.bot.twitch_helix_api.clip_id()
         clip_url = self.bot.twitch_helix_api.get_clips(clip_id)
-        self.bot.say(self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url))
+        self.bot.say(
+            self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url)
+        )
