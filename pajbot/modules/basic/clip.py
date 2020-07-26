@@ -5,6 +5,7 @@ from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger("pajbot")
 
@@ -84,7 +85,7 @@ class ClipCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Make a new clip while the stream is online",
-                    chat="user:!clip\n" "bot: " + self.settings["online_response"].format(source="pajlada", streamer=self.bot.streamer_display, clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy"),
+                    chat="user:!clip\n" "bot: " + self.settings["online_response"].format(source="pajlada", streamer=StreamHelper.get_streamer(), clip="https://clips.twitch.tv/ExpensiveWonderfulClamArsonNoSexy"),
                     description="",
                 ).parse(),
             ],
