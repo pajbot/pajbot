@@ -45,8 +45,16 @@ class WolframModule(BaseModule):
             constraints={"min_value": 0, "max_value": 240},
         ),
         ModuleSetting(
+            key="wolfram_appid",
+            label="Wolfram AppID required for queries | Get an AppID here: http://developer.wolframalpha.com/portal/myapps",
+            type="text",
+            required=True,
+            placeholder="ABCDEF-GHIJKLMNOP",
+            default="",
+        ),
+        ModuleSetting(
             key="wolfram_ip",
-            label="Tell Wolfram we have a different IP",
+            label="IP address used for location-based queries",
             type="text",
             required=True,
             placeholder="81.258.583.201",
@@ -54,7 +62,7 @@ class WolframModule(BaseModule):
         ),
         ModuleSetting(
             key="wolfram_location",
-            label="Tell Wolfram we have a different location (Only works if Wolfram IP is empty)",
+            label="Location used for location-based queries (Only works if Wolfram IP is empty) | More information available here: https://products.wolframalpha.com/api/documentation/#semantic-location",
             type="text",
             required=True,
             placeholder="Sweden",
@@ -71,15 +79,12 @@ class WolframModule(BaseModule):
             self.config_location = bot.config["main"].get("wolfram_location", None)
 
     def query(self, bot, source, message, event, args):
-        ip = self.settings["wolfram_ip"]
-        location = self.settings["wolfram_location"]
-
-        if self.config_ip:
-            # Override module settings "ip" with what's set in the config file
-            ip = self.config_ip
-        if self.config_location:
-            # Override module settings "location" with what's set in the config file
-            location = self.config_location
+        if self.settings["wolfram_appid"] != "":
+            self.app_id = self.settings["wolfram_appid"]
+        if self.settings["wolfram_ip"] != "":
+            self.config_ip = self.settings["wolfram_ip"]
+        if self.settings["wolfram_location"] != "":
+            self.config_location = self.settings["wolfram_location"]
 
         if not self.app_id:
             # XXX: Possibly notify user of misconfigured bot?
@@ -98,10 +103,10 @@ class WolframModule(BaseModule):
             }
 
             # location-specific/IP-specific results, such as "current time", etc.
-            if ip is not None:
-                query_parameters["ip"] = ip
-            elif location is not None:
-                query_parameters["location"] = location
+            if self.config_ip is not None:
+                query_parameters["ip"] = self.config_ip
+            elif self.config_location is not None:
+                query_parameters["location"] = self.config_location
 
             res = requests.get(
                 "https://api.wolframalpha.com/v2/query", params=query_parameters, headers={"User-Agent": bot.user_agent}
