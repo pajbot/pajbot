@@ -247,3 +247,15 @@ class TwitchHelixAPI(BaseTwitchAPI):
             else None
             for user_data in bulk_user_data
         ]
+
+    def create_clip(self, broadcaster_id, authorization):
+        response = self.post("/clips", {"broadcaster_id": broadcaster_id}, authorization=authorization)
+        clip_id = [entry["id"] for entry in response["data"]]
+
+        return clip_id
+
+    def get_clips(self, broadcaster_id, clip_id, authorization):
+        response = self.get("/clips", {"id": clip_id, "Client-ID": authorization.client_id})
+        clip_url = [entry["url"] for entry in response["data"]]
+
+        return clip_url
