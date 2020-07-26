@@ -25,7 +25,7 @@ class CaseCheckerModule(BaseModule):
             type="boolean",
             required=True,
             default=False,
-        ), 
+        ),
         # TODO: add a vip_exemption option once troy's pr is accepted
         ModuleSetting(
             key="bypass_level",
@@ -131,7 +131,7 @@ class CaseCheckerModule(BaseModule):
             placeholder="",
             default=60,
             constraints={"min_value": 0, "max_value": 100},
-        ),   
+        ),
     ]
 
     def on_message(self, source, message, **rest):
