@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unversioned
+
 - Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. If you experience any issues with the badges not showing on the webpage, typing `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*` in the root folder of your pajbot installation will clear the webapp cache and restart your webapp. (#886)
 
 ## v1.46
