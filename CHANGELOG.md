@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Moved Wolfram settings from the config to the module. If information exists in the `streamer.ini` config file, the module will use that. Else information in the module settings will override that of the config file
 - Minor: Added a secondary optional message to send when the channel goes live (live alerts module) (#938)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
