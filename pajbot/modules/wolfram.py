@@ -87,8 +87,8 @@ class WolframModule(BaseModule):
             self.config_location = self.settings["wolfram_location"]
 
         if not self.app_id:
-            streamer = bot.streamer_display
-            bot.say(f"{streamer}, The Wolfram module is enabled, but no AppID has been configured.")
+            bot.say(f"{source}, The Wolfram module is enabled, but no AppID has been configured.")
+            log.warning("The Wolfram module is enabled, but no AppID has been configured.")
             return False
 
         try:
