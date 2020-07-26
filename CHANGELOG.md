@@ -9,6 +9,7 @@
 - Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster (#924)
 - Minor: Removed the dubtrack module (#916)
 - Minor: It is no longer necessary to restart the bot during installation process after completing the `/bot_login` process. (#929)
+- Bugfix: Cooldown and level values are now used correctly in the emotes module. (#947)
 - Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
 - Bugfix: Validate playsound names during creation (#502, #934)
 
