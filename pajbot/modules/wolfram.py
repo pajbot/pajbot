@@ -14,7 +14,7 @@ class WolframModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Wolfram Alpha Query"
-    DESCRIPTION = "Lets users ask questions and have the Wolfram Alpha API answer. Requires Wolfram API token in the bot config file"
+    DESCRIPTION = "Lets users ask questions and have the Wolfram Alpha API answer. Requires Wolfram API token in the module settings"
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
@@ -87,7 +87,8 @@ class WolframModule(BaseModule):
             self.config_location = self.settings["wolfram_location"]
 
         if not self.app_id:
-            # XXX: Possibly notify user of misconfigured bot?
+            streamer = bot.streamer_display
+            bot.say(f"{streamer}, The Wolfram module is enabled, but no AppID has been configured.")
             return False
 
         try:
@@ -119,7 +120,10 @@ class WolframModule(BaseModule):
             is_success = answer["success"]
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
 
-            if is_error:
+            if is_error and not self.app_id:
+                reply = base_reply + "No Wolfram AppID was found in the config file FeelsBadMan"
+                bot.send_message_to_user(source, reply, event, method="reply")
+            else:
                 reply = base_reply + "your query errored FeelsBadMan"
                 bot.send_message_to_user(source, reply, event, method="reply")
                 return False
