@@ -8,6 +8,7 @@ from pajbot.modules.basic import BasicCommandsModule
 from pajbot.modules.basic.ab import AbCommandModule
 from pajbot.modules.basic.admincommands import AdminCommandsModule
 from pajbot.modules.basic.checkmod import CheckModModule
+from pajbot.modules.basic.clip import ClipCommandModule
 from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
@@ -87,6 +88,7 @@ available_modules = [
     ChatAlertModule,
     ChattersRefreshModule,
     CheckModModule,
+    ClipCommandModule,
     DBManageModule,
     DebugModule,
     DeckModule,
