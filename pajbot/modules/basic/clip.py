@@ -97,7 +97,7 @@ class ClipCommandModule(BaseModule):
             ],
         )
 
-    def clip(self, source, message):
+    def clip(self, source, **rest):
         if self.settings["subscribers_only"] and source.subscriber is False:
             return True
 
@@ -108,8 +108,10 @@ class ClipCommandModule(BaseModule):
                 )
             return True
 
-        clip_id = self.bot.twitch_helix_api.clip_id()
-        clip_url = self.bot.twitch_helix_api.get_clips(clip_id)
+        clip_id = self.bot.twitch_helix_api.create_clip(
+            self.bot.streamer_user_id, self.bot.twitch_helix_api.default_authorization
+        )
+        clip_url = self.bot.twitch_helix_api.get_clips()
         self.bot.say(
             self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url)
         )
