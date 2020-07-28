@@ -2,6 +2,9 @@
 
 ## Unversioned
 
+- Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
+- Bugfix: Bot will no longer set the `!remindme` message as " - instead it will recognize that there is no message and remind you with the timer (#953)
+
 ## v1.46
 
 - Minor: Added the ability to set a custom response to emote commands. (#940)
