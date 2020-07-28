@@ -402,7 +402,9 @@ class Dispatch:
 
     @staticmethod
     def remindme(bot, source, message, event, args):
+        syntax = "Syntax: !remindme TIME MESSAGE"
         if not message:
+            bot.say(f"{source}, No message provided! " + syntax)
             return False
 
         parts = message.split(" ")
@@ -412,10 +414,15 @@ class Dispatch:
 
         delay = int(parts[0])
         reminder_text = " ".join(parts[1:]).strip()
-        extra_message = f"{source}, your reminder from {delay} seconds ago is over: {reminder_text}"
+        extra_message = f"{source}, reminder from yourself ({delay}s ago): {reminder_text}"
+        no_message = f"{source}, reminder from yourself ({delay}s ago)"
 
-        bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
-        bot.execute_delayed(delay, bot.say, extra_message)
+        if reminder_text == "":
+            bot.say(f"{source}, I will remind you in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.say, no_message)
+        else:
+            bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.say, extra_message)
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):
