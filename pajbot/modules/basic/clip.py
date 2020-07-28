@@ -108,7 +108,7 @@ class ClipCommandModule(BaseModule):
                 )
             return True
 
-        clip_id = self.bot.twitch_helix_api.create_clip(self.bot.streamer_user_id, self.bot.bot_token_manager)
+        clip_id = self.bot.twitch_helix_api.create_clip(StreamHelper.get_streamer_id(), self.bot.bot_token_manager)
         clip_url = self.bot.twitch_helix_api.get_clips(clip_id, self.bot.bot_token_manager)
         self.bot.say(
             self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url)
