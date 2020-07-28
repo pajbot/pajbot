@@ -247,3 +247,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
             else None
             for user_data in bulk_user_data
         ]
+
+    def get_channel_information(self, broadcaster_id, authorization):
+        response = self.get("/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization)
+        game = [entry["game_name"] for entry in response["data"]]
+        title = [entry["title"] for entry in response["data"]]
+
+        return game, title
