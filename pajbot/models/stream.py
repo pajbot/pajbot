@@ -236,17 +236,16 @@ class StreamManager:
         key_prefix = self.bot.streamer + ":"
 
         stream_data = {key_prefix + "online": str(status["online"]), key_prefix + "viewers": status["viewers"]}
-        persistent_stream_data = self.bot.twitch_helix_api.get_channel_information(self.bot.streamer_user_id, self.bot.bot_token_manager)
-        if persistent_stream_data["game"]:
-            stream_data[key_prefix + "game"] = persistent_stream_data["game"]
+        if status["game"]:
+            stream_data[key_prefix + "game"] = status["game"]
         else:
             stream_data[key_prefix + "game"] = ""
 
         redis.hmset("stream_data", stream_data)
 
         self.num_viewers = status["viewers"]
-        self.game = persistent_stream_data["game"]
-        self.title = persistent_stream_data["title"]
+        self.game = status["game"]
+        self.title = status["title"]
 
         if status["online"]:
             if self.current_stream is None:
