@@ -254,7 +254,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return clip_id
 
-    def get_clips(self, broadcaster_id, clip_id, authorization):
+    def get_clips(self, clip_id, authorization):
         response = self.get("/clips", {"id": clip_id}, authorization=authorization)
         clip_url = [entry["url"] for entry in response["data"]]
 
