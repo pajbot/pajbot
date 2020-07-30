@@ -286,10 +286,14 @@ class RaffleModule(BaseModule):
             bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
             bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
 
-        bot.say(self.settings["message_start"].format(length=self.raffle_length, points=self.raffle_points, format=self.points_format))
-        bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.settings["message_running"].format(length=round(self.raffle_length * 0.75), points=self.raffle_points, format=self.points_format))
-        bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.settings["message_running"].format(length=round(self.raffle_length * 0.50), points=self.raffle_points, format=self.points_format))
-        bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.settings["message_running"].format(length=round(self.raffle_length * 0.25), points=self.raffle_points, format=self.points_format))
+        arguments = {"length": self.raffle_length, "points": self.raffle_points, "format": self.points_format}
+        bot.say(self.get_phrase("message_start", **arguments))
+        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points, "format": self.points_format}
+        bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
+        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points, "format": self.points_format}
+        bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
+        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points, "format": self.points_format}
+        bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
@@ -364,10 +368,20 @@ class RaffleModule(BaseModule):
                 0.75, self.bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"}
             )
 
-        self.bot.say(self.settings["message_start_multi"].format(length=self.raffle_length, points=self.raffle_points, format=self.points_format))
-        self.bot.execute_delayed(self.raffle_length * 0.25, self.bot.say, self.settings["message_running_multi"].format(length=round(self.raffle_length * 0.75), points=self.raffle_points, format=self.points_format))
-        self.bot.execute_delayed(self.raffle_length * 0.50, self.bot.say, self.settings["message_running_multi"].format(length=round(self.raffle_length * 0.50), points=self.raffle_points, format=self.points_format))
-        self.bot.execute_delayed(self.raffle_length * 0.75, self.bot.say, self.settings["message_running_multi"].format(length=round(self.raffle_length * 0.25), points=self.raffle_points, format=self.points_format))
+        arguments = {"length": self.raffle_length, "points": self.raffle_points, "format": self.points_format}
+        self.bot.say(self.get_phrase("message_start_multi", **arguments))
+        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points, "format": self.points_format}
+        self.bot.execute_delayed(
+            self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+        )
+        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points, "format": self.points_format}
+        self.bot.execute_delayed(
+            self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+        )
+        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points, "format": self.points_format}
+        self.bot.execute_delayed(
+            self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+        )
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 
