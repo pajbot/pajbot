@@ -24,7 +24,16 @@ class LiveAlertModule(BaseModule):
             placeholder="{streamer} is now live! PogChamp Streaming {game}: {title}",
             default="{streamer} is now live! PogChamp Streaming {game}: {title}",
             constraints={"max_str_len": 400},
-        )
+        ),
+        ModuleSetting(
+            key="extra_message",
+            label="Extra message to post after the initial live message is posted. Leave empty to disable | Available arguments: {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{streamer} TWEET THAT YOU'RE LIVE OMGScoots",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
     ]
 
     def __init__(self, bot):
@@ -32,13 +41,12 @@ class LiveAlertModule(BaseModule):
 
     def on_stream_start(self, **rest):
         live_chat_message = self.settings["live_message"]
-        self.bot.say(
-            live_chat_message.format(
-                streamer=self.bot.streamer_display,
-                game=self.bot.stream_manager.game,
-                title=self.bot.stream_manager.title,
-            )
-        )
+        streamer = self.bot.streamer_display
+        game = self.bot.stream_manager.game
+        title = self.bot.stream_manager.title
+        self.bot.say(live_chat_message.format(streamer=streamer, game=game, title=title))
+        if self.settings["extra_message"] != "":
+            self.bot.say(self.settings["extra_message"].format(streamer=streamer))
 
     def enable(self, bot):
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
