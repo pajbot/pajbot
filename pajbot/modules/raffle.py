@@ -325,10 +325,10 @@ class RaffleModule(BaseModule):
 
             self.raffle_users = set()
 
-        if self.raffle_points in [1, -1]:
-            self.points_format = "point"
-        else:
-            self.points_format = "points"
+            if self.raffle_points in [1, -1]:
+                self.points_format = "point"
+            else:
+                self.points_format = "points"
 
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
