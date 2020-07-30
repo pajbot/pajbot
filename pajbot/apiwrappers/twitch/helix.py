@@ -250,7 +250,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def create_clip(self, bot, broadcaster_id, authorization):
         if bot.module_manager["clip"].settings["delay_clip"] is True:
-            response = self.post("/clips", {"broadcaster_id": broadcaster_id, "has_delay": "true"}, authorization=authorization)
+            response = self.post(
+                "/clips", {"broadcaster_id": broadcaster_id, "has_delay": "true"}, authorization=authorization
+            )
         else:
             response = self.post("/clips", {"broadcaster_id": broadcaster_id}, authorization=authorization)
         clip_id = [entry["id"] for entry in response["data"]]

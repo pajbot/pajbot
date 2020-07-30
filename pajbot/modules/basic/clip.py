@@ -1,5 +1,7 @@
 import logging
 
+from requests import HTTPError
+
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -32,6 +34,13 @@ class ClipCommandModule(BaseModule):
             type="boolean",
             required=True,
             default=True,
+        ),
+        ModuleSetting(
+            key="thumbnail_check",
+            label="Delay the bot response by 5 seconds to ensure the clip thumbnail has been generated for webchat users.",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="online_response",
@@ -104,7 +113,7 @@ class ClipCommandModule(BaseModule):
             ],
         )
 
-    def clip(self, source, **rest):
+    def clip(self, bot, source, **rest):
         if self.settings["subscribers_only"] and source.subscriber is False:
             return True
 
@@ -115,8 +124,31 @@ class ClipCommandModule(BaseModule):
                 )
             return True
 
-        clip_id = self.bot.twitch_helix_api.create_clip(StreamHelper.get_streamer_id(), self.bot.bot_token_manager)
-        clip_url = "https://clips.twitch.tv/" + clip_id
-        self.bot.say(
-            self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url)
-        )
+        try:
+            clip_id = self.bot.twitch_helix_api.create_clip(
+                bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager
+            )
+        except HTTPError as e:
+            if e.response.status_code != 401:
+                self.bot.say(f"{source}, Failed to create clip! Please try again.")
+            else:
+                self.bot.say(
+                    "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem."
+                )
+            return True
+
+        clip_url = "https://clips.twitch.tv/" + clip_id[0]
+        if self.settings["thumbnail_check"] is True:
+            self.bot.execute_delayed(
+                5,
+                self.bot.say,
+                self.settings["online_response"].format(
+                    source=source, streamer=self.bot.streamer_display, clip=clip_url
+                ),
+            )
+        else:
+            self.bot.say(
+                self.settings["online_response"].format(
+                    source=source, streamer=self.bot.streamer_display, clip=clip_url
+                )
+            )
