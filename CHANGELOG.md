@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. (#950)
+
 ## v1.46
 
 - Minor: Added the ability to set a custom response to emote commands. (#940)
