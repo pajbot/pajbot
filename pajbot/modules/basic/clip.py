@@ -18,13 +18,20 @@ class ClipCommandModule(BaseModule):
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
-        # TODO: Add VIP support, add discord support, add thumbnail check, add delay support
+        # TODO: Add VIP support, add discord support, add thumbnail check
         ModuleSetting(
             key="subscribers_only",
             label="Only allow subscribers to use the !clip command.",
             type="boolean",
             required=True,
             default=False,
+        ),
+        ModuleSetting(
+            key="delay_clip",
+            label="Add a delay before the clip is captured (to account for the brief delay between the broadcaster's stream and the viewer's experience).",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="online_response",
@@ -109,7 +116,7 @@ class ClipCommandModule(BaseModule):
             return True
 
         clip_id = self.bot.twitch_helix_api.create_clip(StreamHelper.get_streamer_id(), self.bot.bot_token_manager)
-        clip_url = self.bot.twitch_helix_api.get_clips(clip_id, self.bot.bot_token_manager)
+        clip_url = "https://clips.twitch.tv/" + clip_id
         self.bot.say(
             self.settings["online_response"].format(source=source, streamer=self.bot.streamer_display, clip=clip_url)
         )

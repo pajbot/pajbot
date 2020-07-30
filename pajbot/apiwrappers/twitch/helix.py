@@ -248,14 +248,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for user_data in bulk_user_data
         ]
 
-    def create_clip(self, broadcaster_id, authorization):
-        response = self.post("/clips", {"broadcaster_id": broadcaster_id}, authorization=authorization)
+    def create_clip(self, bot, broadcaster_id, authorization):
+        if bot.module_manager["clip"].settings["delay_clip"] is True:
+            response = self.post("/clips", {"broadcaster_id": broadcaster_id, "has_delay": "true"}, authorization=authorization)
+        else:
+            response = self.post("/clips", {"broadcaster_id": broadcaster_id}, authorization=authorization)
         clip_id = [entry["id"] for entry in response["data"]]
 
         return clip_id
-
-    def get_clips(self, clip_id, authorization):
-        response = self.get("/clips", {"id": clip_id}, authorization=authorization)
-        clip_url = [entry["url"] for entry in response["data"]]
-
-        return clip_url
