@@ -445,7 +445,7 @@ class RaffleModule(BaseModule):
         emote = "PogChamp" if self.raffle_points > 0 else "LUL"
 
         # define the points format
-        if self.raffle_points in [1, -1]:
+        if points_per_user in [1, -1]:
             self.points_format = "point"
         else:
             self.points_format = "points"
