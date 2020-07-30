@@ -3,7 +3,7 @@
 ## Unversioned
 
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
-- Bugfix: Bot will no longer set the `!remindme` message as " - instead it will recognize that there is no message and remind you with the timer (#953)
+- Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)
 
 ## v1.46
 

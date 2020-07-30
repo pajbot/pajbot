@@ -402,9 +402,8 @@ class Dispatch:
 
     @staticmethod
     def remindme(bot, source, message, event, args):
-        syntax = "Syntax: !remindme TIME MESSAGE"
         if not message:
-            bot.say(f"{source}, No message provided! " + syntax)
+            bot.say(f"{source}, No message provided! Syntax: !remindme TIME MESSAGE")
             return False
 
         parts = message.split(" ")
