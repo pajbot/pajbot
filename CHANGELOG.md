@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Moved followage module to the basic-commands group (#954)
+
 ## v1.46
 
 - Minor: Added the ability to set a custom response to emote commands. (#940)
