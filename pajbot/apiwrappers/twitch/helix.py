@@ -255,6 +255,6 @@ class TwitchHelixAPI(BaseTwitchAPI):
             )
         else:
             response = self.post("/clips", {"broadcaster_id": broadcaster_id}, authorization=authorization)
-        clip_id = [entry["id"] for entry in response["data"]]
+        clip_id = response["data"][0]["id"]
 
         return clip_id
