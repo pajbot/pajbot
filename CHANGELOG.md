@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+- Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
+
 ## v1.46
 
 - Minor: Added the ability to set a custom response to emote commands. (#940)
