@@ -1,0 +1,76 @@
+---
+name: Python 4HEad
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: debian:buster
+
+    steps:
+      - name: Update apt database
+        run: apt-get update
+
+      - name: Install python and dependencies for python packages
+        run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
+
+      - uses: actions/checkout@v2
+
+      - name: Cache virtual environment
+        id: cache-venv
+        uses: actions/cache@v2
+        with:
+          path: ./venv
+          key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+
+      - name: Install dependencies
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: ./scripts/venvinstall.sh --dev
+
+      - name: Run tests
+        run: ./venv/bin/pytest
+
+  check_format:
+    runs-on: ubuntu-latest
+    container: debian:buster
+
+    steps:
+      - name: Update apt database
+        run: apt-get update
+
+      - name: Install python and dependencies for python packages
+        run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
+
+      - uses: actions/checkout@v2
+
+      - name: Cache virtual environment
+        id: cache-venv
+        uses: actions/cache@v2
+        with:
+          path: ./venv
+          key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+
+      - name: Install dependencies
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: ./scripts/venvinstall.sh --dev
+
+      - name: Install curl
+        run: apt-get install curl -y
+
+      - name: Install apt repository for Node.js 12
+        run: curl -sL https://deb.nodesource.com/setup_12.x | bash -
+
+      - name: Install Node.js 12
+        run: apt-get install nodejs -y
+
+      - name: Check code style
+        run: . venv/bin/activate && ./scripts/reformat.sh --check

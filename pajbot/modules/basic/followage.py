@@ -8,6 +8,7 @@ from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.utils import time_since
+from pajbot.modules.basic import BasicCommandsModule
 
 log = logging.getLogger("pajbot")
 
@@ -18,6 +19,7 @@ class FollowAgeModule(BaseModule):
     NAME = "Follow age"
     DESCRIPTION = "Enables the usage of the !followage and !followsince commands"
     CATEGORY = "Feature"
+    PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
         ModuleSetting(
             key="action_followage",
