@@ -249,7 +249,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         ]
 
     def create_clip(self, bot, broadcaster_id, authorization):
-        if bot.module_manager["clip"].settings["delay_clip"] is True:
+        # Force delay on for the broadcaster so it actually captures what they want it to
+        if bot.module_manager["clip"].settings["delay_clip"] or bot.source.streamer is True:
             response = self.post(
                 "/clips", {"broadcaster_id": broadcaster_id, "has_delay": "true"}, authorization=authorization
             )
