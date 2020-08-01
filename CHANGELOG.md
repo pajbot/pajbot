@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Moved followage module to the basic-commands group (#954)
 - Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
 
 ## v1.46

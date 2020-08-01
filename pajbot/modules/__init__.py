@@ -11,6 +11,7 @@ from pajbot.modules.basic.checkmod import CheckModModule
 from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
+from pajbot.modules.basic.followage import FollowAgeModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
@@ -31,7 +32,6 @@ from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
-from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
