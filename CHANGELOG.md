@@ -4,8 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
 - Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
+- Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)
 
 ## v1.46
 
