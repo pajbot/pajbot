@@ -5,8 +5,10 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. The broadcaster badge will now also show on the user's webpage. If you experience any issues with the badges not showing on the webpage, typing `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*` in the root folder of your pajbot installation will clear the webapp cache and restart your webapp. (#886)
+- Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
 - Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
+- Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)
 
 ## v1.46
 
