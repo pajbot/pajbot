@@ -414,7 +414,7 @@ class Dispatch:
         delay = int(parts[0])
         reminder_text = " ".join(parts[1:]).strip()
 
-        if delay <= 30:
+        if delay < 30:
             bot.say(f"{source}, You cannot set a reminder for less than 30 seconds!")
             return False
 
