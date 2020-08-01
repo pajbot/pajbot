@@ -42,8 +42,8 @@ class VIPRefreshModule(BaseModule):
             return []
 
         if msg_id == "vips_success":
-            if message.startswith("The VIPs of this channel are: "):
-                message = message[30:]  # 30 = length of the above "prefix"
+            if message.startswith("The VIPs of this channel are: ") and message.endswith("."):
+                message = message[30:-1]  # 30 = length of the above "prefix", -1 removes the dot at the end
                 return message.split(", ")
             log.warning(
                 f"Received vips_success NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
@@ -93,7 +93,7 @@ ON COMMIT DROP"""
                 text(
                     """
 WITH updated_users AS (
-    INSERT INTO "user"(id, login, name, vips)
+    INSERT INTO "user"(id, login, name, vip)
         SELECT id, login, name, TRUE FROM vips
     ON CONFLICT (id) DO UPDATE SET
         login = excluded.login,
