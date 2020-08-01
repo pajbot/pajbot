@@ -91,7 +91,6 @@ class User(Base):
     timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
     vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
     founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    streamer = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
     _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select")
 
@@ -111,7 +110,6 @@ class User(Base):
         self.timeout_end = None
         self.vip = False
         self.founder = False
-        self.streamer = False
 
         super().__init__(*args, **kwargs)
 
