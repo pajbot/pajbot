@@ -139,7 +139,7 @@ class ClipCommandModule(BaseModule):
             else:
                 self.bot.say(
                     "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem."
-               )
+                )
             return True
 
             clip_url = "https://clips.twitch.tv/" + clip_id
