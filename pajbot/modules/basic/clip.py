@@ -20,7 +20,7 @@ class ClipCommandModule(BaseModule):
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
-        # TODO: Add VIP support, add discord support, add thumbnail check
+        # TODO: Add discord support
         ModuleSetting(
             key="subscribers_only",
             label="Only allow subscribers to use the !clip command.",
@@ -125,30 +125,35 @@ class ClipCommandModule(BaseModule):
             return True
 
         try:
-            clip_id = self.bot.twitch_helix_api.create_clip(
-                bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager
-            )
+            if self.settings["delay_clip"] or (source.name == StreamHelper.get_streamer()) is True:
+                clip_id = self.bot.twitch_helix_api.create_clip(
+                    bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager, has_delay=True
+                )
+            else:
+                clip_id = self.bot.twitch_helix_api.create_clip(
+                    bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager
+                )
         except HTTPError as e:
             if e.response.status_code != 401:
                 self.bot.say(f"{source}, Failed to create clip! Please try again.")
             else:
                 self.bot.say(
                     "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem."
-                )
+               )
             return True
 
-        clip_url = "https://clips.twitch.tv/" + clip_id
-        if self.settings["thumbnail_check"] is True:
-            self.bot.execute_delayed(
-                5,
-                self.bot.say,
-                self.settings["online_response"].format(
-                    source=source, streamer=self.bot.streamer_display, clip=clip_url
-                ),
-            )
-        else:
-            self.bot.say(
-                self.settings["online_response"].format(
-                    source=source, streamer=self.bot.streamer_display, clip=clip_url
+            clip_url = "https://clips.twitch.tv/" + clip_id
+            if self.settings["thumbnail_check"] is True:
+                self.bot.execute_delayed(
+                    5,
+                    self.bot.say,
+                    self.settings["online_response"].format(
+                        source=source, streamer=self.bot.streamer_display, clip=clip_url
+                    ),
                 )
-            )
+            else:
+                self.bot.say(
+                    self.settings["online_response"].format(
+                        source=source, streamer=self.bot.streamer_display, clip=clip_url
+                    )
+                )
