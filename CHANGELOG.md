@@ -2,13 +2,26 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: Moved Wolfram settings from the config to the module. If information exists in the `streamer.ini` config file, the module will use that. Else information in the module settings will override that of the config file. (#946)
+- Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
+- Minor: Moved followage module to the basic-commands group (#954)
+- Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
+- Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)
+
+## v1.46
+
+- Minor: Added the ability to set a custom response to emote commands. (#940)
+- Minor: The bot will now whisper you if your `!tweet` from the bot fails/is successful. (#942)
+- Minor: Refactored the case checker module - this changes the default behaviour of the module by forcing usage of a max/percentage-based upper/lowercase setting as opposed to timing out ANY upper/lowercase characters in a sentence. If the max upper/lowercase setting is met, the user is immediately timed out. If not, the bot will check the total upper/lowercase characters in a sentence to ensure it is above the minimum; if so, it will timeout based on if the percentage of upper/lowercase characters is above the pre-defined percentage. Users are able to re-create the original behaviour by simply setting the max upper/lowercase setting to 0. (#941)
 - Minor: Added a secondary optional message to send when the channel goes live (live alerts module) (#938)
 - Minor: Added a new module to print a chat alert when a user announces they are new (#926)
 - Minor: Added a live alerts module to notify chat when the streamer goes live (#924)
 - Minor: Added a `streamer_display` variable to show the capitalized version of the broadcaster (#924)
-- Minor: Removed the dubtrack module (#916)
 - Minor: It is no longer necessary to restart the bot during installation process after completing the `/bot_login` process. (#929)
+- Minor: Removed the dubtrack module (#916)
+- Bugfix: Cooldown and level values are now used correctly in the emotes module. (#947)
 - Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
 - Bugfix: Validate playsound names during creation (#502, #934)
 
