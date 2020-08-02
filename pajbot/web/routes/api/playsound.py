@@ -11,6 +11,16 @@ from pajbot.web.utils import requires_level
 class PlaysoundAPI(Resource):
     @requires_level(500)
     def put(self, playsound_name, **options):
+        playsound_name = PlaysoundModule.massage_name(playsound_name)
+
+        if not PlaysoundModule.validate_name(playsound_name):
+            return (
+                {
+                    "error": "Invalid Playsound name. The playsound name may only contain lowercase latin letters, 0-9, -, or _. No spaces :rage:"
+                },
+                400,
+            )
+
         post_parser = RequestParser()
         post_parser.add_argument("link", required=True)
         args = post_parser.parse_args()

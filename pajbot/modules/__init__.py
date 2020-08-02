@@ -11,6 +11,7 @@ from pajbot.modules.basic.checkmod import CheckModModule
 from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
+from pajbot.modules.basic.followage import FollowAgeModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
@@ -18,11 +19,12 @@ from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
 from pajbot.modules.chat_alerts import ChatAlertModule
+from pajbot.modules.chat_alerts.livealert import LiveAlertModule
+from pajbot.modules.chat_alerts.newchatteralert import NewChatterAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.deck import DeckModule
-from pajbot.modules.dubtrack import DubtrackModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
@@ -30,7 +32,6 @@ from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
-from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
@@ -90,7 +91,6 @@ available_modules = [
     DBManageModule,
     DebugModule,
     DeckModule,
-    DubtrackModule,
     DuelModule,
     DummyModule,
     EightBallModule,
@@ -109,11 +109,13 @@ available_modules = [
     LineFarmingModule,
     LinkCheckerModule,
     LinkTrackerModule,
+    LiveAlertModule,
     MassPingProtectionModule,
     MassPointsModule,
     MathModule,
     MaxMsgLengthModule,
     ModeratorsRefreshModule,
+    NewChatterAlertModule,
     PNSLModule,
     PaidSubmodeModule,
     PaidTimeoutModule,
