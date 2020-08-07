@@ -274,7 +274,7 @@ class RouletteModule(BaseModule):
         # spam after bulk sub gifts.
         skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
 
-        self.last_sub = utils.now()
+        self.last_sub = now
         if (
             self.settings["only_roulette_after_sub"]
             and self.settings["alert_message_after_sub"] != ""
