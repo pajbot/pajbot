@@ -273,7 +273,6 @@ class RouletteModule(BaseModule):
         # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
         # spam after bulk sub gifts.
         skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
-        log.debug(f"skip message? {skip_message}")
 
         self.last_sub = utils.now()
         if (
