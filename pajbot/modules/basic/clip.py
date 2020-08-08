@@ -142,18 +142,18 @@ class ClipCommandModule(BaseModule):
                 )
             return True
 
-            clip_url = "https://clips.twitch.tv/" + clip_id
-            if self.settings["thumbnail_check"] is True:
-                self.bot.execute_delayed(
-                    5,
-                    self.bot.say,
-                    self.settings["online_response"].format(
-                        source=source, streamer=self.bot.streamer_display, clip=clip_url
-                    ),
+        clip_url = "https://clips.twitch.tv/" + clip_id
+        if self.settings["thumbnail_check"] is True:
+            self.bot.execute_delayed(
+                5,
+                self.bot.say,
+                self.settings["online_response"].format(
+                    source=source, streamer=self.bot.streamer_display, clip=clip_url
+                ),
+            )
+        else:
+            self.bot.say(
+                self.settings["online_response"].format(
+                    source=source, streamer=self.bot.streamer_display, clip=clip_url
                 )
-            else:
-                self.bot.say(
-                    self.settings["online_response"].format(
-                        source=source, streamer=self.bot.streamer_display, clip=clip_url
-                    )
-                )
+            )
