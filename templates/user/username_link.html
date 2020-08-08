@@ -1,7 +1,12 @@
 {% if user.moderator %}
 <div class="pui badge moderator"></div>
 {% endif %}
-{% if user.subscriber %}
+{% if user.vip %}
+<div class="pui badge vip"></div>
+{% endif %}
+{% if user.founder %}
+<div class="pui badge founder"></div>
+{% elif user.subscriber %}
 <div class="pui badge subscriber"></div>
 {% endif %}
 <a class="pui user l{{ user.level }}" href="/user/{{ user.login }}">{{ user.name }}</a>

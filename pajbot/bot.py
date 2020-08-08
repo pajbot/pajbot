@@ -661,6 +661,10 @@ class Bot:
             source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
             # Having the founder badge means that the subscriber tag is set to 0. Therefore it's more stable to just check badges
             source.subscriber = "founder" in badges or "subscriber" in badges
+            # once they are a founder they are always be a founder, regardless if they are a sub or not.
+            if not source.founder:
+                source.founder = "founder" in badges
+            source.vip = "vip" in badges
 
         if not whisper and source.banned:
             self.ban(
