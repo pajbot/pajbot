@@ -127,11 +127,11 @@ class ClipCommandModule(BaseModule):
         try:
             if self.settings["delay_clip"] or (source.name == StreamHelper.get_streamer()) is True:
                 clip_id = self.bot.twitch_helix_api.create_clip(
-                    bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager, has_delay=True
+                    StreamHelper.get_streamer_id(), self.bot.bot_token_manager, has_delay=True
                 )
             else:
                 clip_id = self.bot.twitch_helix_api.create_clip(
-                    bot, StreamHelper.get_streamer_id(), self.bot.bot_token_manager
+                    StreamHelper.get_streamer_id(), self.bot.bot_token_manager
                 )
         except HTTPError as e:
             if e.response.status_code != 401:
