@@ -267,26 +267,29 @@ class RouletteModule(BaseModule):
 
         self.last_add = utils.now()
 
-    def on_user_sub(self, **rest):
-        self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"] and self.settings["alert_message_after_sub"] != "":
-            self.bot.say(
-                self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
-            )
+    def on_user_sub_or_resub(self, **rest):
+        now = utils.now()
 
-    def on_user_resub(self, **rest):
-        self.last_sub = utils.now()
-        if self.settings["only_roulette_after_sub"] and self.settings["alert_message_after_sub"] != "":
+        # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
+        # spam after bulk sub gifts.
+        skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
+
+        self.last_sub = now
+        if (
+            self.settings["only_roulette_after_sub"]
+            and self.settings["alert_message_after_sub"] != ""
+            and not skip_message
+        ):
             self.bot.say(
                 self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
             )
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_user_sub", self.on_user_sub)
-        HandlerManager.add_handler("on_user_resub", self.on_user_resub)
+        HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)
+        HandlerManager.add_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.add_handler("on_tick", self.on_tick)
 
     def disable(self, bot):
-        HandlerManager.remove_handler("on_user_sub", self.on_user_sub)
-        HandlerManager.remove_handler("on_user_resub", self.on_user_resub)
+        HandlerManager.remove_handler("on_user_sub", self.on_user_sub_or_resub)
+        HandlerManager.remove_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.remove_handler("on_tick", self.on_tick)
