@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. In order for this to function, the bot will need to be re-authed via the `/bot_login` process. (#950)
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
 - Bugfix: Bot no longer keeps announcing that rouletting has been enabled for X seconds after a mass sub gift (It will only be announced once). (#958, #959)
