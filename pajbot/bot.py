@@ -145,7 +145,7 @@ class Bot:
             api=self.twitch_id_api, redis=RedisManager.get(), username=self.streamer, user_id=self.streamer_user_id
         )
 
-        StreamHelper.init_streamer(self.streamer, self.streamer_user_id)
+        StreamHelper.init_streamer(self.streamer, self.streamer_user_id, self.streamer_display)
 
         # SQL migrations
         with DBManager.create_dbapi_connection_scope() as sql_conn:
