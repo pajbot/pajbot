@@ -202,7 +202,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def fetch_all_subscribers(self, broadcaster_id, authorization):
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        return self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+        subscriber_ids = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+
+        # Dedupe the list of subscribers since the API can return the same IDs multiple times
+        subscriber_ids = list(set(subscriber_ids))
+
+        return subscriber_ids
 
     def _bulk_fetch_user_data(self, key_type, lookup_keys):
         all_entries = []
