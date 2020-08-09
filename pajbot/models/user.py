@@ -89,6 +89,8 @@ class User(Base):
     ignored = Column(BOOLEAN, nullable=False, server_default="FALSE")
     banned = Column(BOOLEAN, nullable=False, server_default="FALSE")
     timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
+    vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
+    founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
     _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select")
 
@@ -106,6 +108,8 @@ class User(Base):
         self.ignored = False
         self.banned = False
         self.timeout_end = None
+        self.vip = False
+        self.founder = False
 
         super().__init__(*args, **kwargs)
 
@@ -294,6 +298,8 @@ class User(Base):
             "ignored": self.ignored,
             "banned": self.banned,
             "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
+            "vip": self.vip,
+            "founder": self.founder,
         }
 
     def __eq__(self, other):

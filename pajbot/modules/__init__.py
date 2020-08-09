@@ -8,9 +8,11 @@ from pajbot.modules.basic import BasicCommandsModule
 from pajbot.modules.basic.ab import AbCommandModule
 from pajbot.modules.basic.admincommands import AdminCommandsModule
 from pajbot.modules.basic.checkmod import CheckModModule
+from pajbot.modules.basic.clip import ClipCommandModule
 from pajbot.modules.basic.dbmanage import DBManageModule
 from pajbot.modules.basic.debug import DebugModule
 from pajbot.modules.basic.emotes import EmotesModule
+from pajbot.modules.basic.followage import FollowAgeModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
@@ -31,7 +33,6 @@ from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.emotecombo import EmoteComboModule
 from pajbot.modules.emotesonscreen import EmotesOnScreenModule
-from pajbot.modules.followage import FollowAgeModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
@@ -73,6 +74,7 @@ from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
 from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
+from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
 
@@ -87,6 +89,7 @@ available_modules = [
     ChatAlertModule,
     ChattersRefreshModule,
     CheckModModule,
+    ClipCommandModule,
     DBManageModule,
     DebugModule,
     DeckModule,
@@ -140,6 +143,7 @@ available_modules = [
     TypeEmoteQuestModule,
     TypeMeMessageQuestModule,
     VanishModule,
+    VIPRefreshModule,
     WarningModule,
     WinDuelPointsQuestModule,
     WinDuelsQuestModule,
