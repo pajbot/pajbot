@@ -26,6 +26,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Cooldown and level values are now used correctly in the emotes module. (#947)
 - Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
 - Bugfix: Validate playsound names during creation (#502, #934)
+- Bugfix: Cleanly handle new response from Helix Subscriptions endpoint (#961, #962)
 
 ## v1.45
 
