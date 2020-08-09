@@ -63,7 +63,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             responses.extend(response)
 
             # all pages iterated, done
-            if len(response) <= 0:
+            if len(response) <= 0 or pagination_cursor is None:
                 break
 
         return responses
@@ -168,6 +168,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
         )
 
+        # Response with data
         # response =
         # {
         #   "data": [
@@ -186,9 +187,16 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #     "cursor": "xxxx"
         #   }
         # }
+        #
+        # Response at end
+        # response =
+        # {
+        #   "data": [],
+        #   "pagination": {},
+        # }
 
         subscribers = [entry["user_id"] for entry in response["data"]]
-        pagination_cursor = response["pagination"]["cursor"]
+        pagination_cursor = response["pagination"].get("cursor", None)
 
         return subscribers, pagination_cursor
 
