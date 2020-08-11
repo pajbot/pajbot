@@ -28,10 +28,8 @@
                         Super Moderator
                         {% elif user.level < 2000 %}
                         Broadcaster
-                        {% elif user.level < 2500 %}
-                        Admin
                         {% else %}
-                        ???
+                        Admin
                         {% endif %} ({{ user.level }})
                     </td>
                 </tr>
