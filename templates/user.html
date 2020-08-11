@@ -25,7 +25,9 @@
                         {% elif user.level < 1000 %}
                         Moderator
                         {% elif user.level < 1500 %}
-                        Super Moderator/Broadcaster
+                        Super Moderator
+                        {% elif user.level < 2000 %}
+                        Broadcaster
                         {% elif user.level < 2500 %}
                         Admin
                         {% else %}
