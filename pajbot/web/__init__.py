@@ -76,10 +76,11 @@ def init(args):
             config.write(configfile)
 
     streamer = config["main"]["streamer"]
+    streamer_display = config["web"]["streamer_name"]
     streamer_user_id = twitch_helix_api.get_user_id(streamer)
     if streamer_user_id is None:
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
-    StreamHelper.init_streamer(streamer, streamer_user_id)
+    StreamHelper.init_streamer(streamer, streamer_user_id, streamer_display)
 
     try:
         download_logo(twitch_helix_api, streamer, streamer_user_id)
@@ -143,11 +144,7 @@ def init(args):
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {
-            "name": config["web"]["streamer_name"],
-            "full_name": config["main"]["streamer"],
-            "id": streamer_user_id,
-        },
+        "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,
