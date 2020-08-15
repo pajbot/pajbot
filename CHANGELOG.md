@@ -8,6 +8,8 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. In order for this to function, the bot will need to be re-authed via the `/bot_login` process. (#950)
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
+- Minor: User detail page for broadcaster now shows broadcaster badge instead of moderator badge (#943, #965)
+- Minor: Badges display on the website have been updated to the redesigned style by Twitch. (#963)
 - Bugfix: Bot no longer keeps announcing that rouletting has been enabled for X seconds after a mass sub gift (It will only be announced once). (#958, #959)
 - Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
 - Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)

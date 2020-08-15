@@ -1,4 +1,6 @@
-{% if user.moderator %}
+{% if user.id == streamer.id %}
+<div class="pui badge broadcaster"></div>
+{% elif user.moderator %}
 <div class="pui badge moderator"></div>
 {% endif %}
 {% if user.vip %}
