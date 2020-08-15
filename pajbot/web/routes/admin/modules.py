@@ -43,7 +43,7 @@ def init(page):
                 403,
             )
 
-        if user.level < current_module.self.required_write_level:
+        if user.level < current_module.required_write_level:
             return (
                 render_template(
                     "errors/403.html", extra_message="You are not the required level to edit this setting."
