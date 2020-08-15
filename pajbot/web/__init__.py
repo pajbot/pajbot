@@ -144,11 +144,7 @@ def init(args):
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {
-            "name": streamer_display,
-            "full_name": config["main"]["streamer"],
-            "id": streamer_user_id,
-        },
+        "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,
