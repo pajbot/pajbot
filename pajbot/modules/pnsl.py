@@ -17,13 +17,6 @@ class PNSLModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="offline_only",
-            label="Only allow the PNSL commands to be run while the stream is offline",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
             key="level",
             label="Level required to use the command",
             type="number",
@@ -49,6 +42,13 @@ class PNSLModule(BaseModule):
             placeholder="",
             default=30,
             constraints={"min_value": 5, "max_value": 60},
+        ),
+        ModuleSetting(
+            key="offline_only",
+            label="Only allow the PNSL commands to be run while the stream is offline",
+            type="boolean",
+            required=True,
+            default=False,
         ),
     ]
 
