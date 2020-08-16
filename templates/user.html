@@ -24,10 +24,8 @@
                         Dank Helper
                         {% elif user.level < 1000 %}
                         Moderator
-                        {% elif user.level < 1500 %}
-                        Super Moderator
                         {% elif user.level < 2000 %}
-                        Broadcaster
+                        Super Moderator
                         {% else %}
                         Admin
                         {% endif %} ({{ user.level }})
