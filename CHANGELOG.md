@@ -2,9 +2,15 @@
 
 ## Unversioned
 
+## v1.47
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+Remember you might need to delete the web cache to get some of the updates working: `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*`
+
 - Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. The broadcaster badge will now also show on the user's webpage. If you experience any issues with the badges not showing on the webpage, typing `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*` in the root folder of your pajbot installation will clear the webapp cache and restart your webapp. (#886)
+- Minor: Added setting to disable the `!pnslrun`/`!runpnsl` command while stream is live (#978)
+- Minor: Made ranks for user levels on the website consistent. (#968)
 - Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. In order for this to function, the bot will need to be re-authed via the `/bot_login` process. (#950)
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
