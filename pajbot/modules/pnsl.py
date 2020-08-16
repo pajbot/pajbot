@@ -65,6 +65,7 @@ class PNSLModule(BaseModule):
         if self.settings["offline_only"] is True:
             if not self.bot.is_online:
                 bot.whisper(source, f"{bot.streamer} is online! Skipping PNSL list eval.")
+                return False
 
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
 
