@@ -5,11 +5,13 @@ class StreamHelper:
     """ Staticly available class with a bunch of useful variables.
     streamer: The name of the streamer in full lowercase
     streamer_id: The Twitch user ID of the streamer (a string)
+    streamer_display: Display name of streamer
     stream_id: The ID of the current stream. False if the stream is not live
     """
 
     streamer = "Unknown"
     streamer_id = "Unknown"
+    streamer_display = "Unknown"
     stream_manager = None
     social_keys_unsorted = {
         "twitter": {"format": "https://twitter.com/{}", "title": "Twitter"},
@@ -32,9 +34,10 @@ class StreamHelper:
         StreamHelper.stream_manager = stream_manager
 
     @staticmethod
-    def init_streamer(streamer, streamer_id):
+    def init_streamer(streamer, streamer_id, streamer_display):
         StreamHelper.streamer = streamer
         StreamHelper.streamer_id = streamer_id
+        StreamHelper.streamer_display = streamer_display
 
     @staticmethod
     def get_streamer():
@@ -43,6 +46,10 @@ class StreamHelper:
     @staticmethod
     def get_streamer_id():
         return StreamHelper.streamer_id
+
+    @staticmethod
+    def get_streamer_display():
+        return StreamHelper.streamer_display
 
     @staticmethod
     def get_current_stream_id():
