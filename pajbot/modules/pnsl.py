@@ -55,6 +55,9 @@ class PNSLModule(BaseModule):
                 self.pnsl_token = bot.config["pnsl"].get("token", None)
 
     def run_pnsl(self, bot, source, message, event, args):
+        if not self.bot.is_online:
+            bot.whisper(source, f"{bot.streamer} is online! Skipping P&SL list eval.")
+
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
 
         if not self.pnsl_token:
