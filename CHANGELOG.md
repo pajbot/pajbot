@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Enforce an offline requirement for use of the `!pnslrun/!runpnsl` command
+- Minor: Enforce an offline requirement for use of the `!pnslrun/!runpnsl` command (#978)
 - Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. The broadcaster badge will now also show on the user's webpage. If you experience any issues with the badges not showing on the webpage, typing `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*` in the root folder of your pajbot installation will clear the webapp cache and restart your webapp. (#886)
 - Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. In order for this to function, the bot will need to be re-authed via the `/bot_login` process. (#950)
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
