@@ -62,10 +62,9 @@ class PNSLModule(BaseModule):
                 self.pnsl_token = bot.config["pnsl"].get("token", None)
 
     def run_pnsl(self, bot, source, message, event, args):
-        if self.settings["offline_only"] is True:
-            if not self.bot.is_online:
-                bot.whisper(source, f"{bot.streamer} is online! Skipping PNSL list eval.")
-                return False
+        if self.settings["offline_only"] and self.bot.is_online:
+            bot.whisper(source, f"{bot.streamer_display} is live! Skipping PNSL list eval.")
+            return False
 
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
 
