@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
 - Bugfix: Handle new format of P&SL lists (#988, #989)
+- Bugfix: Fixed league rank module not working at all. (#990)
 
 ## v1.47
 
