@@ -73,6 +73,7 @@ class PNSLModule(BaseModule):
             return False
 
         guid = message.replace("https://bot.tetyys.com/BotList/", "")
+        guid = message.replace("https://bot.tetyys.com/api/v1/BotList/", "")
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
