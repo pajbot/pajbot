@@ -391,7 +391,7 @@ class Dispatch:
                 user = User.find_by_user_input(db_session, input)
 
                 if user is None:
-                    bot.say(f"That user was not found in the user database")
+                    bot.say("That user was not found in the user database")
         else:
             user = source
 
