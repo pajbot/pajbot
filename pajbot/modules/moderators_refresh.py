@@ -129,8 +129,8 @@ WHERE
                     examples=[
                         CommandExample(
                             None,
-                            f"Reload who is a Twitch channel moderator",
-                            chat=f"user:!reload moderators\nbot>user: Reloading moderator status...",
+                            "Reload who is a Twitch channel moderator",
+                            chat="user:!reload moderators\nbot>user: Reloading moderator status...",
                         ).parse()
                     ],
                 )
