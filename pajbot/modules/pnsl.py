@@ -43,6 +43,13 @@ class PNSLModule(BaseModule):
             default=30,
             constraints={"min_value": 5, "max_value": 60},
         ),
+        ModuleSetting(
+            key="offline_only",
+            label="Only allow the PNSL commands to be run while the stream is offline",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def __init__(self, bot):
@@ -55,6 +62,10 @@ class PNSLModule(BaseModule):
                 self.pnsl_token = bot.config["pnsl"].get("token", None)
 
     def run_pnsl(self, bot, source, message, event, args):
+        if self.settings["offline_only"] and self.bot.is_online:
+            bot.whisper(source, f"{bot.streamer_display} is live! Skipping PNSL list eval.")
+            return False
+
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
 
         if not self.pnsl_token:
