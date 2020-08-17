@@ -119,8 +119,8 @@ WHERE
                     examples=[
                         CommandExample(
                             None,
-                            f"Reload who is subscriber and who isn't",
-                            chat=f"user:!reload subscribers\nbot>user: Reloading list of subscribers...",
+                            "Reload who is subscriber and who isn't",
+                            chat="user:!reload subscribers\nbot>user: Reloading list of subscribers...",
                             description="",
                         ).parse()
                     ],

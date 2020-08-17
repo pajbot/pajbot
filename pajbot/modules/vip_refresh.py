@@ -125,8 +125,8 @@ WHERE
                     examples=[
                         CommandExample(
                             None,
-                            f"Reload who is a Twitch channel VIP",
-                            chat=f"user:!reload vips\nbot>user: Reloading list of VIPs...",
+                            "Reload who is a Twitch channel VIP",
+                            chat="user:!reload vips\nbot>user: Reloading list of VIPs...",
                         ).parse()
                     ],
                 )
