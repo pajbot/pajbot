@@ -83,7 +83,7 @@ class PNSLModule(BaseModule):
             bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
             return False
 
-        privmsg_list = res.text.splitlines()
+        privmsg_list = res.text.split("\n")
 
         log.info(f"[P&SL] User {source.name} running list {guid} with {len(privmsg_list)} entries")
 
