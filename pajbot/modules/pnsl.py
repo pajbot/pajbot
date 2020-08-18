@@ -73,6 +73,7 @@ class PNSLModule(BaseModule):
             return False
 
         guid = message.replace("https://bot.tetyys.com/BotList/", "")
+        guid = message.replace("https://bot.tetyys.com/api/v1/BotList/", "")
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
@@ -83,7 +84,7 @@ class PNSLModule(BaseModule):
             bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
             return False
 
-        privmsg_list = res.text.splitlines()
+        privmsg_list = res.text.split("\n")
 
         log.info(f"[P&SL] User {source.name} running list {guid} with {len(privmsg_list)} entries")
 
