@@ -435,6 +435,7 @@ img.emote {
 }
 
 .logo {
-  width: 64px;
-  height: 64px;
+  max-width: 64px;
+  max-height: 64px;
+  border-radius: .28571429rem;
 }
