@@ -12,7 +12,6 @@ irc==17.1
 isodate==0.6.0
 jsmin==2.2.2
 Markdown==3.1.1
-Pillow==7.1.0
 psycopg2==2.8.5
 pylast==3.1.0
 pyOpenSSL==19.1.0 # for twisted.internet.ssl
