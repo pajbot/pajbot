@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
 - Bugfix: Handle new format of P&SL lists (#988, #989)
 
 ## v1.47
