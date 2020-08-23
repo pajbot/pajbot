@@ -152,7 +152,7 @@ class LeagueRankModule(BaseModule):
         except ApiError as e:
             log.exception("babyrage")
             if e.response.status_code == 429:
-                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
+                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
                 bot.say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
             return False
@@ -170,7 +170,7 @@ class LeagueRankModule(BaseModule):
         except ApiError as e:
             log.exception("babyrage")
             if e.response.status_code == 429:
-                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
+                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
                 bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
             else:
