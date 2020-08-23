@@ -72,8 +72,9 @@ class PNSLModule(BaseModule):
             bot.whisper(source, f"Missing P&SL token in config.ini. talk to @{bot.admin} BabyRage")
             return False
 
-        guid = message.replace("https://bot.tetyys.com/BotList/", "")
-        guid = message.replace("https://bot.tetyys.com/api/v1/BotList/", "")
+        guid = message.replace("https://bot.tetyys.com/BotList/", "").replace(
+            "https://bot.tetyys.com/api/v1/BotList/", ""
+        )
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
