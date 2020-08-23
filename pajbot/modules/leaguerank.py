@@ -160,6 +160,10 @@ class LeagueRankModule(BaseModule):
         try:
             summoner_league = lw.league.by_summoner(region, summoner_id)
 
+            if len(summoner_league) == 0:
+                bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
+                return False
+
             tier = summoner_league[0]["tier"]
             rank = summoner_league[0]["rank"]
             league_points = summoner_league[0]["leaguePoints"]
