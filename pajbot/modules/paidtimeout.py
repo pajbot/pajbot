@@ -126,14 +126,13 @@ class PaidTimeoutModule(BaseModule):
                     source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
                 )
                 num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}")
+                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
             else:
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
                 bot.whisper(
-                    victim,
-                    f"{source} just timed you out for {_time} seconds. /w {bot.nickname} !$unbanme to unban yourself for points forsenMoney",
+                    victim, f"{source} just timed you out for {_time} seconds LUL",
                 )
-                bot.timeout(victim, _time, reason=f"Timed out by {source}")
+                bot.timeout(victim, _time, reason=f"Timed out by {source}", once=True)
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
             if self.settings["show_on_clr"]:
