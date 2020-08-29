@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class GetTimedOutQuestModule(BaseQuest):
 
     ID = "quest-" + __name__.split(".")[-1]
-    NAME = "Quest"
+    NAME = "Get timed out"
     DESCRIPTION = "Get timed out by someone"
     PARENT_MODULE = QuestModule
     OBJECTIVE = "Get timed out by another user"
