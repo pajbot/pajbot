@@ -26,7 +26,6 @@ jobs:
           key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: ./scripts/venvinstall.sh --dev
 
       - name: Run tests
@@ -53,7 +52,6 @@ jobs:
           key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: ./scripts/venvinstall.sh --dev
 
       - name: Install curl
