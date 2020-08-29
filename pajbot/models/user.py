@@ -406,3 +406,31 @@ class User(Base):
     @staticmethod
     def find_by_id(db_session, id):
         return db_session.query(User).filter_by(id=id).one_or_none()
+
+
+class UserChannelInformation:
+    """UserChannelInformation represents part of the information fetched
+    from the Helix Get Channel Information endpoint https://dev.twitch.tv/docs/api/reference#get-channel-information"""
+
+    def __init__(self, broadcaster_language, game_id, game_name, title):
+        self.broadcaster_language = broadcaster_language
+        self.game_id = game_id
+        self.game_name = game_name
+        self.title = title
+
+    def jsonify(self):
+        return {
+            "broadcaster_language": self.broadcaster_language,
+            "game_id": self.game_id,
+            "game_name": self.game_name,
+            "title": self.title,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return UserChannelInformation(
+            broadcaster_language=json_data["broadcaster_language"],
+            game_id=json_data["game_id"],
+            game_name=json_data["game_name"],
+            title=json_data["title"],
+        )

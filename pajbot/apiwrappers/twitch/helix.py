@@ -1,3 +1,5 @@
+from typing import Optional
+
 import logging
 import time
 
@@ -7,9 +9,9 @@ import math
 from requests import HTTPError
 
 from pajbot import utils
-from pajbot.apiwrappers.response_cache import DateTimeSerializer
+from pajbot.apiwrappers.response_cache import DateTimeSerializer, ClassInstanceSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
-from pajbot.models.user import UserBasics
+from pajbot.models.user import UserBasics, UserChannelInformation
 from pajbot.utils import iterate_in_chunks
 
 log = logging.getLogger(__name__)
@@ -127,6 +129,28 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
+
+    def fetch_channel_information(self, user_id):
+        response = self.get("/channels", {"broadcaster_id": user_id})
+
+        if len(response["data"]) <= 0:
+            return None
+
+        info = response["data"][0]
+
+        return UserChannelInformation(info["broadcaster_language"], info["game_id"], info["game_name"], info["title"])
+
+    def get_channel_information(self, user_id) -> Optional[UserChannelInformation]:
+        """Gets the channel information of a Twitch user for the given Twitch user ID,
+        utilizing a cache or the Twitch API on cache miss.
+        If no channel with the user exists, None is returned.
+        https://dev.twitch.tv/docs/api/reference#get-channel-information"""
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:channel-information:{user_id}",
+            serializer=ClassInstanceSerializer(UserChannelInformation),
+            fetch_fn=lambda: self.fetch_channel_information(user_id),
+            expiry=lambda response: 30 if response else 300,
+        )
 
     def fetch_follow_since(self, from_id, to_id):
         response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
