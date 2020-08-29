@@ -11,10 +11,12 @@ from requests import HTTPError
 from pajbot import utils
 from pajbot.apiwrappers.response_cache import DateTimeSerializer, ClassInstanceSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
-from pajbot.models.user import UserBasics, UserChannelInformation
+from pajbot.models.user import UserBasics, UserChannelInformation, UserStream
 from pajbot.utils import iterate_in_chunks
 
 log = logging.getLogger(__name__)
+
+
 
 
 class TwitchHelixAPI(BaseTwitchAPI):
@@ -292,3 +294,24 @@ class TwitchHelixAPI(BaseTwitchAPI):
         clip_id = response["data"][0]["id"]
 
         return clip_id
+
+    def _fetch_stream_by_user_id(self, user_id) -> UserStream:
+        response = self.get("/streams", {"user_id": user_id})
+
+        if len(response["data"]) <= 0:
+            # Stream is offline
+            return UserStream.offline()
+
+        stream = response["data"][0]
+
+        return UserStream(
+            stream["viewer_count"], stream["game_id"], stream["title"], stream["started_at"], stream["id"],
+        )
+
+    def get_stream_by_user_id(self, user_id) -> UserStream:
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:stream:by-id:{user_id}",
+            fetch_fn=lambda: self._fetch_stream_by_user_id(user_id),
+            serializer=ClassInstanceSerializer(UserStream),
+            expiry=lambda response: 30 if response is None else 300,
+        )

@@ -434,3 +434,38 @@ class UserChannelInformation:
             game_name=json_data["game_name"],
             title=json_data["title"],
         )
+
+
+class UserStream:
+    def __init__(self, viewer_count, game_id, title, started_at, id):
+        self.viewer_count = viewer_count
+        self.game_id = game_id
+        self.title = title
+        self.started_at = started_at
+        self.id = id
+
+        self.online = viewer_count > -1
+
+    @staticmethod
+    def offline():
+        return UserStream(-1, None, None, None, None)
+
+    def jsonify(self):
+        return {
+            "viewer_count": self.viewer_count,
+            "game_id": self.game_id,
+            "title": self.title,
+            "started_at": self.started_at,
+            "id": self.id,
+            "online": self.online,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return UserStream(
+            json_data["viewer_count"],
+            json_data["game_id"],
+            json_data["title"],
+            json_data["started_at"],
+            json_data["id"],
+        )
