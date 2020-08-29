@@ -107,19 +107,7 @@ class LeagueRankModule(BaseModule):
             return False
 
         # https://developer.riotgames.com/docs/lol#_routing-values
-        region_list = [
-            "br1",
-            "eun1",
-            "euw1",
-            "jp1",
-            "kr",
-            "la1",
-            "la2",
-            "na1",
-            "oc1",
-            "tr1",
-            "ru",
-        ]
+        region_list = ["br1", "eun1", "euw1", "jp1", "kr", "la1", "la2", "na1", "oc1", "tr1", "ru"]
 
         if message:
             summoner_name = message.split()[0]
