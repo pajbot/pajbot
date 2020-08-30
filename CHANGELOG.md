@@ -10,6 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Handle new format of P&SL lists (#988, #989)
 - Bugfix: Fixed league rank module not working at all. (#990)
 - Bugfix: Handle new format of P&SL lists (#988, #989, #994)
+- Bugfix: Fixed name of "get timed out" quest. (It just said "Quest" before) (#1003)
 
 ## v1.47
 
