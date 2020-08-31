@@ -78,11 +78,15 @@ class PNSLModule(BaseModule):
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
-        res = requests.get(base_url + "/" + guid, headers=headers)
-
-        if not res.ok:
-            error_data = res.json()
-            bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
+        try:
+            res = requests.get(base_url + "/" + guid, headers=headers)
+            res.raise_for_status()
+        except e:
+            try:
+                error_data = res.json()
+                bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
+            except:
+                bot.whisper(source, "Something went wrong with the P&SL request")
             return False
 
         privmsg_list = res.text.split("\n")
