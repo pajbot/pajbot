@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from requests import HTTPError
 
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
@@ -81,7 +82,7 @@ class PNSLModule(BaseModule):
         try:
             res = requests.get(base_url + "/" + guid, headers=headers)
             res.raise_for_status()
-        except e:
+        except HTTPError as e:
             log.exception("babyrage")
             try:
                 error_data = e.response.json()
