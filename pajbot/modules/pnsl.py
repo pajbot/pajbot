@@ -82,10 +82,12 @@ class PNSLModule(BaseModule):
             res = requests.get(base_url + "/" + guid, headers=headers)
             res.raise_for_status()
         except e:
+            log.exception("babyrage")
             try:
-                error_data = res.json()
+                error_data = e.response.json()
                 bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
             except:
+                log.exception("babyrage2")
                 bot.whisper(source, "Something went wrong with the P&SL request")
             return False
 
