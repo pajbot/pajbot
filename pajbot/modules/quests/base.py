@@ -62,8 +62,8 @@ class BaseQuest(BaseModule):
         self.bot.whisper(user, message)
 
     def start_quest(self):
-        """ This method is triggered by either the stream starting, or the bot loading up
-        while a quest/stream is already active """
+        """This method is triggered by either the stream starting, or the bot loading up
+        while a quest/stream is already active"""
         log.error("No start quest implemented for this quest.")
 
     def stop_quest(self):
@@ -109,8 +109,8 @@ class BaseQuest(BaseModule):
         return self.OBJECTIVE
 
     def get_limit(self):
-        """ Returns the quest limit specified in the module.
-        If no quest limit is set, return None. """
+        """Returns the quest limit specified in the module.
+        If no quest limit is set, return None."""
 
         try:
             return self.LIMIT
