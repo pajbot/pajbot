@@ -35,6 +35,33 @@ class ShowEmoteModule(BaseModule):
         ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
         ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
         ModuleSetting(
+            key="global_cd",
+            label="Global cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=5,
+            constraints={"min_value": 0, "max_value": 600},
+        ),
+        ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=15,
+            constraints={"min_value": 0, "max_value": 1200},
+        ),
+        ModuleSetting(
+            key="command_name",
+            label="Command name (i.e. #showemote)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="#showemote",
+            constraints={"min_str_len": 1, "max_str_len": 20},
+        ),
+        ModuleSetting(
             key="emote_whitelist",
             label="Whitelisted emotes (separate by spaces). Leave empty to use the blacklist.",
             type="text",
@@ -120,8 +147,10 @@ class ShowEmoteModule(BaseModule):
             bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
 
     def load_commands(self, **options):
-        self.commands["#showemote"] = Command.raw_command(
+        self.commands[self.settings["command_name"]] = Command.raw_command(
             self.show_emote,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
             description="Show an emote on stream!",
@@ -131,7 +160,8 @@ class ShowEmoteModule(BaseModule):
                 CommandExample(
                     None,
                     "Show an emote on stream.",
-                    chat="user:!#showemote Keepo\n" "bot>user: Successfully sent the emote Keepo to the stream!",
+                    chat=f"user:!{self.settings['command_name']} Keepo\n"
+                    "bot>user: Successfully sent the emote Keepo to the stream!",
                     description="",
                 ).parse()
             ],
