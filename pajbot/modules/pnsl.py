@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from requests import HTTPError
 
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule
@@ -78,11 +79,22 @@ class PNSLModule(BaseModule):
 
         headers = {"Authorization": f"Bearer {self.pnsl_token}"}
 
-        res = requests.get(base_url + "/" + guid, headers=headers)
-
-        if not res.ok:
-            error_data = res.json()
-            bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
+        try:
+            res = requests.get(base_url + "/" + guid, headers=headers)
+            res.raise_for_status()
+        except HTTPError as e:
+            log.exception("babyrage")
+            if e.response.status_code == 401:
+                bot.whisper(source, "Something went wrong with the P&SL request: Access Denied (401)")
+            else:
+                try:
+                    error_data = e.response.json()
+                    bot.whisper(
+                        source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}"
+                    )
+                except:
+                    log.exception("babyrage2")
+                    bot.whisper(source, "Something went wrong with the P&SL request")
             return False
 
         privmsg_list = res.text.split("\n")
