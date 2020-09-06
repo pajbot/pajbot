@@ -84,12 +84,17 @@ class PNSLModule(BaseModule):
             res.raise_for_status()
         except HTTPError as e:
             log.exception("babyrage")
-            try:
-                error_data = e.response.json()
-                bot.whisper(source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}")
-            except:
-                log.exception("babyrage2")
-                bot.whisper(source, "Something went wrong with the P&SL request")
+            if e.response.status_code == 401:
+                bot.whisper(source, "Something went wrong with the P&SL request: Access Denied (401)")
+            else:
+                try:
+                    error_data = e.response.json()
+                    bot.whisper(
+                        source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}"
+                    )
+                except:
+                    log.exception("babyrage2")
+                    bot.whisper(source, "Something went wrong with the P&SL request")
             return False
 
         privmsg_list = res.text.split("\n")
