@@ -54,6 +54,15 @@ class PlaysoundModule(BaseModule):
             constraints={"min_value": 0, "max_value": 600},
         ),
         ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=0,
+            constraints={"min_value": 0, "max_value": 600},
+        ),
+        ModuleSetting(
             key="global_volume",
             label="Global volume (0-100)",
             type="number",
@@ -73,7 +82,14 @@ class PlaysoundModule(BaseModule):
         ),
         ModuleSetting(
             key="global_cd_whisper",
-            label="Send user a whisper playsounds are on global cooldown",
+            label="Send user a whisper when playsounds are on global cooldown",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="user_cd_whisper",
+            label="Send user a whisper when they hit the user-specific cooldown",
             type="boolean",
             required=True,
             default=True,
@@ -87,7 +103,8 @@ class PlaysoundModule(BaseModule):
         if bot:
             bot.socket_manager.add_handler("playsound.play", self.on_web_playsound)
 
-        self.sample_cooldown = []
+        self.sample_cooldown = set()
+        self.user_cooldown = set()
         self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
@@ -139,6 +156,14 @@ class PlaysoundModule(BaseModule):
                     )
                 return False
 
+            if source.id in self.user_cooldown:
+                if self.settings["user_cd_whisper"]:
+                    bot.whisper(
+                        source,
+                        f"You can only play a sound every {self.settings['user_cd']} seconds. Please wait until the cooldown has run out.",
+                    )
+                return False
+
             cooldown = playsound.cooldown
             if cooldown is None:
                 cooldown = self.settings["default_sample_cd"]
@@ -169,8 +194,10 @@ class PlaysoundModule(BaseModule):
                 bot.whisper(source, f"Successfully played the sound {playsound_name} on stream!")
 
             self.global_cooldown = True
-            self.sample_cooldown.append(playsound.name)
+            self.user_cooldown.add(source.id)
+            self.sample_cooldown.add(playsound.name)
             bot.execute_delayed(cooldown, self.sample_cooldown.remove, playsound.name)
+            bot.execute_delayed(self.settings["user_cd"], self.user_cooldown.remove, source.id)
             bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd)
 
     @staticmethod
