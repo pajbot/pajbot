@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: The permaban module will now ban immediately on command use (#1014)
 - Minor: Added settings to change command name and cooldowns for showemote module. (#1007)
 - Minor: Removed excess message in whisper for paid timeout module. (#993)
 - Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
