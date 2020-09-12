@@ -29,6 +29,7 @@ venv/
 
 .idea/
 .vscode/
+.vscode-server/
 /.github/pull_request_template.md
 
 # Ignore generated code
