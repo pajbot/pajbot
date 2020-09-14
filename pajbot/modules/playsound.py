@@ -54,6 +54,15 @@ class PlaysoundModule(BaseModule):
             constraints={"min_value": 0, "max_value": 600},
         ),
         ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=0,
+            constraints={"min_value": 0, "max_value": 600},
+        ),
+        ModuleSetting(
             key="global_volume",
             label="Global volume (0-100)",
             type="number",
@@ -73,7 +82,14 @@ class PlaysoundModule(BaseModule):
         ),
         ModuleSetting(
             key="global_cd_whisper",
-            label="Send user a whisper playsounds are on global cooldown",
+            label="Send user a whisper when playsounds are on global cooldown",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="user_cd_whisper",
+            label="Send user a whisper when they hit the user-specific cooldown",
             type="boolean",
             required=True,
             default=True,
@@ -87,7 +103,8 @@ class PlaysoundModule(BaseModule):
         if bot:
             bot.socket_manager.add_handler("playsound.play", self.on_web_playsound)
 
-        self.sample_cooldown = []
+        self.sample_cooldown = set()
+        self.user_cooldown = set()
         self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
@@ -118,7 +135,7 @@ class PlaysoundModule(BaseModule):
         if not message:
             return
 
-        playsound_name = message.split(" ")[0].lower()
+        playsound_name = self.massage_name(message.split(" ")[0])
 
         with DBManager.create_session_scope() as session:
             # load playsound from the database
@@ -127,7 +144,7 @@ class PlaysoundModule(BaseModule):
             if playsound is None:
                 bot.whisper(
                     source,
-                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
+                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
                 )
                 return False
 
@@ -136,6 +153,14 @@ class PlaysoundModule(BaseModule):
                     bot.whisper(
                         source,
                         f"Another user played a sample too recently. Please try again after the global cooldown of {self.settings['global_cd']} seconds has run out.",
+                    )
+                return False
+
+            if source.id in self.user_cooldown:
+                if self.settings["user_cd_whisper"]:
+                    bot.whisper(
+                        source,
+                        f"You can only play a sound every {self.settings['user_cd']} seconds. Please wait until the cooldown has run out.",
                     )
                 return False
 
@@ -153,7 +178,7 @@ class PlaysoundModule(BaseModule):
             if not playsound.enabled:
                 bot.whisper(
                     source,
-                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.config['web']['domain']}/playsounds",
+                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
                 )
                 return False
 
@@ -169,8 +194,10 @@ class PlaysoundModule(BaseModule):
                 bot.whisper(source, f"Successfully played the sound {playsound_name} on stream!")
 
             self.global_cooldown = True
-            self.sample_cooldown.append(playsound.name)
+            self.user_cooldown.add(source.id)
+            self.sample_cooldown.add(playsound.name)
             bot.execute_delayed(cooldown, self.sample_cooldown.remove, playsound.name)
+            bot.execute_delayed(self.settings["user_cd"], self.user_cooldown.remove, source.id)
             bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd)
 
     @staticmethod
@@ -209,8 +236,17 @@ class PlaysoundModule(BaseModule):
         return options, name, link
 
     @staticmethod
+    def massage_name(name):
+        if name is not None:
+            return name.lower()
+
+        return name
+
+    re_valid_names = re.compile("^[a-z0-9\\-_]+$")
+
+    @staticmethod
     def validate_name(name):
-        return name is not None
+        return name is not None and PlaysoundModule.re_valid_names.match(name)
 
     re_valid_links = re.compile("^https://\\S*$")
 
@@ -290,6 +326,15 @@ class PlaysoundModule(BaseModule):
             )
             return
 
+        name = self.massage_name(name)
+
+        if not self.validate_name(name):
+            bot.whisper(
+                source,
+                "Invalid Playsound name. The playsound name may only contain lowercase latin letters, 0-9, -, or _. No spaces :rage:",
+            )
+            return
+
         with DBManager.create_session_scope() as session:
             count = session.query(Playsound).filter(Playsound.name == name).count()
             if count > 0:
@@ -366,7 +411,7 @@ class PlaysoundModule(BaseModule):
         """Method for removing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME
         """
-        playsound_name = message.split(" ")[0].lower()
+        playsound_name = PlaysoundModule.massage_name(message.split(" ")[0])
         # check for empty string
         if not playsound_name:
             bot.whisper(source, "Invalid usage. Correct syntax: !remove playsound <name>")
@@ -387,7 +432,7 @@ class PlaysoundModule(BaseModule):
         """Method for debugging (printing info about) playsounds.
         Usage: !debug playsound PLAYSOUNDNAME
         """
-        playsound_name = message.split(" ")[0].lower()
+        playsound_name = PlaysoundModule.massage_name(message.split(" ")[0])
         # check for empty string
         if not playsound_name:
             bot.whisper(source, "Invalid usage. Correct syntax: !debug playsound <name>")

@@ -63,7 +63,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             responses.extend(response)
 
             # all pages iterated, done
-            if len(response) <= 0:
+            if len(response) <= 0 or pagination_cursor is None:
                 break
 
         return responses
@@ -81,6 +81,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         if len(response["data"]) <= 0:
             return None
+
+        return response["data"][0]
+
+    def _fetch_user_data_from_authorization(self, authorization):
+        response = self.get("/users", authorization=authorization)
+
+        if len(response["data"]) <= 0:
+            raise ValueError("No user returned for given authorization")
 
         return response["data"][0]
 
@@ -146,6 +154,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
             return None
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
+    def fetch_user_basics_from_authorization(self, authorization):
+        """Fetch the UserBasics for the user identified by the given authorization object.
+        `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""
+        user_data = self._fetch_user_data_from_authorization(authorization)
+        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+
     def _fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
@@ -154,6 +168,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
         )
 
+        # Response with data
         # response =
         # {
         #   "data": [
@@ -172,15 +187,27 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #     "cursor": "xxxx"
         #   }
         # }
+        #
+        # Response at end
+        # response =
+        # {
+        #   "data": [],
+        #   "pagination": {},
+        # }
 
         subscribers = [entry["user_id"] for entry in response["data"]]
-        pagination_cursor = response["pagination"]["cursor"]
+        pagination_cursor = response["pagination"].get("cursor", None)
 
         return subscribers, pagination_cursor
 
     def fetch_all_subscribers(self, broadcaster_id, authorization):
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        return self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+        subscriber_ids = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+
+        # Dedupe the list of subscribers since the API can return the same IDs multiple times
+        subscriber_ids = list(set(subscriber_ids))
+
+        return subscriber_ids
 
     def _bulk_fetch_user_data(self, key_type, lookup_keys):
         all_entries = []
@@ -233,3 +260,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
             else None
             for user_data in bulk_user_data
         ]
+
+    def create_clip(self, broadcaster_id, authorization, has_delay=False):
+        response = self.post(
+            "/clips", {"broadcaster_id": broadcaster_id, "has_delay": has_delay}, authorization=authorization
+        )
+        clip_id = response["data"][0]["id"]
+
+        return clip_id

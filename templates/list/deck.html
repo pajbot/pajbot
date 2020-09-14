@@ -8,7 +8,7 @@
         {% endif %}
     </td>
     <td>
-        <a href="{{ deck.link }}" class="pemote">{% if deck.name|length > 0 %}{{ deck.name }}{% else %}<em>Unnamed</em>{% endif %}</a>
+        <a href="{{ deck.link }}">{% if deck.name|length > 0 %}{{ deck.name }}{% else %}<em>Unnamed</em>{% endif %}</a>
     </td>
     <td>
         <time datetime="{{deck.first_used }}" title="{{deck.first_used }}">{{ deck.first_used|time_ago }}</time> ago

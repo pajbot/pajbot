@@ -71,8 +71,6 @@ class APIBanphraseTest(Resource):
     def post(self, **options):
         args = self.post_parser.parse_args()
 
-        banphrase_manager = BanphraseManager(None).load()
-
         try:
             message = str(args["message"])
         except (ValueError, KeyError):
@@ -83,7 +81,11 @@ class APIBanphraseTest(Resource):
 
         ret = {"banned": False, "input_message": message}
 
-        res = banphrase_manager.check_message(message, None)
+        banphrase_manager = BanphraseManager(None).load()
+        try:
+            res = banphrase_manager.check_message(message, None)
+        finally:
+            banphrase_manager.db_session.close()
 
         if res is not False:
             ret["banned"] = True
@@ -99,8 +101,10 @@ class APIBanphraseDump(Resource):
     @staticmethod
     def get(**options):
         banphrase_manager = BanphraseManager(None).load()
-
-        return banphrase_manager.enabled_banphrases
+        try:
+            return banphrase_manager.enabled_banphrases
+        finally:
+            banphrase_manager.db_session.close()
 
 
 def init(api):

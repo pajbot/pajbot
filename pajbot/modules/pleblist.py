@@ -48,9 +48,10 @@ class PleblistModule(BaseModule):
     # Should !songrequest be a submodule in itself? Maybe.
 
     ID = __name__.split(".")[-1]
-    NAME = "Song requests"
+    NAME = "Song Requests"
     DESCRIPTION = ""
     CATEGORY = "Feature"
+    HIDDEN = True
     SETTINGS = [
         ModuleSetting(
             key="songrequest_command",

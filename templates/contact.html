@@ -4,8 +4,11 @@
 {% block body %}
 <div class="ui segment">
 <h2>Contact</h2>
-<p>Hi, I'm pajlada! I'm the current maintainer and developer of {{ bot.name }}.</p>
-<p>{{ bot.name }} is running on the <strong>pajbot</strong> source, which is coded in Python.</p>
-<p>Got any questions or comments about the bot or the website? <a href="http://twitch.tv/message/compose?to=pajlada">Let me know by sending me a twitch message!</a></p>
+{% if maintainer is not none %}
+<p>Hi, I'm {{ maintainer.name }}! I'm the host and maintainer of {{ bot.name }}.</p>
+<p>{{ maintainer.contact_string|safe }}</p>
+{% endif %}
+<p>{{ bot.name }} is running on the <a href="https://github.com/pajbot/pajbot"><strong>pajbot</strong></a> source, which is written in Python.</p>
+<p>Got any questions or comments about the bot or the website? <a href="https://discord.gg/qbRE8WR">You can join pajlada's Discord for support!</a></p>
 </div>
 {% endblock %}

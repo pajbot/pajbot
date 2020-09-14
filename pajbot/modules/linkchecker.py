@@ -4,7 +4,6 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
-from datetime import timedelta
 from sqlalchemy import Column, INT, TEXT
 
 import pajbot.managers
@@ -24,7 +23,7 @@ log = logging.getLogger(__name__)
 
 
 def is_subdomain(x, y):
-    """ Returns True if x is a subdomain of y, otherwise return False.
+    """Returns True if x is a subdomain of y, otherwise return False.
 
     Example:
     is_subdomain('pajlada.se', 'pajlada.se') = True
@@ -37,7 +36,7 @@ def is_subdomain(x, y):
 
 
 def is_subpath(x, y):
-    """ Returns True if x is a subpath of y, otherwise return False.
+    """Returns True if x is a subpath of y, otherwise return False.
 
     Example:
     is_subpath('/a/', '/b/') = False
@@ -151,7 +150,7 @@ class LinkCheckerModule(BaseModule):
     NAME = "Link Checker"
     DESCRIPTION = "Checks links if they're bad"
     ENABLED_DEFAULT = True
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="ban_pleb_links",
@@ -180,6 +179,33 @@ class LinkCheckerModule(BaseModule):
             placeholder="",
             default=500,
             constraints={"min_value": 100, "max_value": 1000},
+        ),
+        ModuleSetting(
+            key="banned_link_timeout_reason",
+            label="Banned Link Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been timed out for posting a banned link in chat",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="pleb_timeout_reason",
+            label="Pleb Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You cannot post non-verified links in chat if you're a pleb",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="sub_timeout_reason",
+            label="Subscriber Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You cannot post non-verified links in chat if you're a subscriber",
+            constraints={},
         ),
     ]
 
@@ -252,14 +278,13 @@ class LinkCheckerModule(BaseModule):
         if len(urls) > 0:
             do_timeout = False
             ban_reason = "You are not allowed to post links in chat"
-            whisper_reason = "??? KKona"
 
             if self.settings["ban_pleb_links"] is True and source.subscriber is False:
                 do_timeout = True
-                whisper_reason = "You cannot post non-verified links in chat if you're not a subscriber."
+                ban_reason = self.settings["pleb_timeout_reason"]
             elif self.settings["ban_sub_links"] is True and source.subscriber is True:
                 do_timeout = True
-                whisper_reason = "You cannot post non-verified links in chat."
+                ban_reason = self.settings["sub_timeout_reason"]
 
             if do_timeout is True:
                 # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
@@ -272,16 +297,20 @@ class LinkCheckerModule(BaseModule):
                         if is_subdomain(parsed_url.parsed.netloc, whitelist):
                             whitelisted = True
                             break
+
+                    if whitelisted is False and self.is_whitelisted(url):
+                        whitelisted = True
+
                     if whitelisted is False:
-                        self.bot.timeout(source, 30, reason=ban_reason)
-                        if source.time_in_chat_online >= timedelta(hours=1):
-                            self.bot.whisper(source, whisper_reason)
+                        self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
                         return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
             def action():
-                self.bot.timeout(source, self.settings["timeout_length"], reason="Banned link")
+                self.bot.timeout(
+                    source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                )
 
             # First we perform a basic check
             if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
@@ -306,7 +335,7 @@ class LinkCheckerModule(BaseModule):
     def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
         log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
-            action.run()
+            action()
         if want_to_cache:
             self.cache_url(url.url, False)
         if want_to_blacklist:
@@ -420,6 +449,7 @@ class LinkCheckerModule(BaseModule):
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
                 return self.RET_BAD_LINK
+
             return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
@@ -462,7 +492,9 @@ class LinkCheckerModule(BaseModule):
         connection_timeout = 2
         read_timeout = 1
         try:
-            r = requests.head(url.url, allow_redirects=True, timeout=connection_timeout)
+            r = requests.head(
+                url.url, allow_redirects=True, timeout=connection_timeout, headers={"User-Agent": self.bot.user_agent}
+            )
         except:
             self.cache_url(url.url, True)
             return
@@ -495,7 +527,12 @@ class LinkCheckerModule(BaseModule):
 
         html = ""
         try:
-            response = requests.get(url=url.url, stream=True, timeout=(connection_timeout, read_timeout))
+            response = requests.get(
+                url=url.url,
+                stream=True,
+                timeout=(connection_timeout, read_timeout),
+                headers={"User-Agent": self.bot.user_agent},
+            )
 
             content_length = response.headers.get("Content-Length")
             if content_length and int(response.headers.get("Content-Length")) > maximum_size:
@@ -562,7 +599,12 @@ class LinkCheckerModule(BaseModule):
                 continue
 
             try:
-                r = requests.head(url.url, allow_redirects=True, timeout=connection_timeout)
+                r = requests.head(
+                    url.url,
+                    allow_redirects=True,
+                    timeout=connection_timeout,
+                    headers={"User-Agent": self.bot.user_agent},
+                )
             except:
                 continue
 
@@ -797,5 +839,8 @@ class LinkCheckerModule(BaseModule):
         # Strip options of any values that are set as None
         options = {k: v for k, v in vars(args).items() if v is not None}
         response = " ".join(unknown)
+
+        if "level" in options:
+            options["level"] = int(options["level"])
 
         return options, response

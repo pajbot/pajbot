@@ -7,7 +7,6 @@ import irc
 import regex as re
 import requests
 
-from pajbot.constants import VERSION
 from pajbot.managers.schedule import ScheduleManager
 
 log = logging.getLogger(__name__)
@@ -66,6 +65,8 @@ def apply_substitutions(text, substitutions, bot, extra):
             log.error("Unknown param for response.")
             continue
         value = sub.cb(param, extra)
+        if value is None:
+            return None
         try:
             for f in sub.filters:
                 value = bot.apply_filter(value, f)
@@ -182,7 +183,7 @@ class MultiAction(BaseAction):
 
     @classmethod
     def ready_built(cls, commands, default=None, fallback=None):
-        """ Useful if you already have a dictionary
+        """Useful if you already have a dictionary
         with commands pre-built.
         """
 
@@ -194,7 +195,7 @@ class MultiAction(BaseAction):
         return multiaction
 
     def run(self, bot, source, message, event={}, args={}):
-        """ If there is more text sent to the multicommand after the
+        """If there is more text sent to the multicommand after the
         initial alias, we _ALWAYS_ assume it's trying the subaction command.
         If the extra text was not a valid command, we try to run the fallback command.
         In case there's no extra text sent, we will try to run the default command.
@@ -474,7 +475,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             headers = {
                 "Accept": "text/plain",
                 "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
-                "User-Agent": f"pajbot1/{VERSION} ({bot.nickname})",
+                "User-Agent": bot.user_agent,
             }
             r = requests.get(url, allow_redirects=True, headers=headers)
             r.raise_for_status()

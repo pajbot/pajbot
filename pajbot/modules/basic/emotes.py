@@ -14,9 +14,9 @@ log = logging.getLogger(__name__)
 
 class EmotesModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "!emotes"
+    NAME = "Emotes"
     ENABLED_DEFAULT = True
-    DESCRIPTION = "Refresh and list FFZ and BTTV emotes"
+    DESCRIPTION = "Refresh and list FFZ, BTTV and Sub emotes"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
@@ -47,31 +47,73 @@ class EmotesModule(BaseModule):
             default=100,
             constraints={"min_value": 100, "max_value": 2000},
         ),
+        ModuleSetting(
+            key="enable_subemotes", label="Enable !subemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_sub_response",
+            label="A custom message to override the default !subemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_ffz_response",
+            label="A custom message to override the default !ffzemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, Channel FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_bttv_response",
+            label="A custom message to override the default !bttvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
     ]
 
-    def print_emotes(self, manager):
-        emotes = manager.channel_emotes
-        messages = split_into_chunks_with_prefix(
-            [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
-            default=f"No {manager.friendly_name} Emotes active in this chat :(",
-        )
+    def print_emotes(self, source, manager):
+        if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
+            custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
+        else:
+            emotes = manager.channel_emotes
+            messages = split_into_chunks_with_prefix(
+                [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
+                default=f"No {manager.friendly_name} Emotes active in this chat :(",
+            )
+            for message in messages:
+                self.bot.say(message)
 
-        for message in messages:
-            self.bot.say(message)
-
-    def print_twitch_emotes(self, **rest):
-        manager = self.bot.emote_manager.twitch_emote_manager
-        messages = split_into_chunks_with_prefix(
-            [
-                {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
-                {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
-                {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
-            ],
-            default=f"Looks like {StreamHelper.get_streamer()} has no subscriber emotes! :(",
-        )
-
-        for message in messages:
-            self.bot.say(message)
+    def print_twitch_emotes(self, source, **rest):
+        if self.settings["custom_sub_response"] != "":
+            custom_message = self.settings["custom_sub_response"]
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
+        else:
+            manager = self.bot.emote_manager.twitch_emote_manager
+            messages = split_into_chunks_with_prefix(
+                [
+                    {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
+                    {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
+                    {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
+                ],
+                default=f"Looks like {StreamHelper.get_streamer_display()} has no subscriber emotes! :(",
+            )
+            for message in messages:
+                self.bot.say(message)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
@@ -96,37 +138,50 @@ class EmotesModule(BaseModule):
         )
 
     def print_cmd(self, manager, examples):
-        def do_print(**rest):
-            self.print_emotes(manager)
+        def do_print(source, **rest):
+            self.print_emotes(source, manager)
+
+        if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
+            bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
+                source="pajlada", streamer=StreamHelper.get_streamer_display()
+            )
+        else:
+            bot_response = f"bot: {manager.friendly_name} emotes: {examples}"
 
         return Command.raw_command(
             do_print,
-            level=100,
-            delay_all=15,
-            delay_user=30,
+            level=self.settings["level"],
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             examples=[
                 CommandExample(
                     None,
                     f"Show all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes\n"
-                    + f"bot: {manager.friendly_name} emotes: {examples}",
+                    chat=f"user: !{manager.friendly_name.lower()}emotes\n" + bot_response,
                 ).parse()
             ],
         )
 
     def print_twitch_cmd(self):
+        if self.settings["custom_sub_response"] != "":
+            bot_response = "bot: " + self.settings["custom_sub_response"].format(
+                source="pajlada", streamer=StreamHelper.get_streamer_display()
+            )
+        else:
+            bot_response = (
+                "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
+            )
+
         return Command.raw_command(
             self.print_twitch_emotes,
-            level=100,
-            delay_all=15,
-            delay_user=30,
+            level=self.settings["level"],
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             examples=[
                 CommandExample(
                     None,
-                    f"Show all active sub emotes for {StreamHelper.get_streamer()}.",
-                    chat="user: !subemotes\n"
-                    "bot: Subscriber emotes: forsenE forsenC forsenK forsenW "
-                    "Tier 2: forsenSnus Tier 3: forsen2499",
+                    f"Show all active sub emotes for {StreamHelper.get_streamer_display()}.",
+                    chat="user: !subemotes\n" + bot_response,
                 ).parse()
             ],
         )
@@ -150,32 +205,35 @@ class EmotesModule(BaseModule):
 
         # The ' ' is there to make things look good in the
         # web interface.
-        self.commands["bttvemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="bttvemotes",
-            commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
-        )
+        if self.settings["enable_bttvemotes"]:
+            self.commands["bttvemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="bttvemotes",
+                commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
+            )
 
-        self.commands["ffzemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="ffzemotes",
-            commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
-        )
+        if self.settings["enable_ffzemotes"]:
+            self.commands["ffzemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="ffzemotes",
+                commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
+            )
 
-        self.commands["subemotes"] = Command.multiaction_command(
-            delay_all=self.settings["global_cd"],
-            delay_user=self.settings["user_cd"],
-            level=self.settings["level"],
-            default=" ",
-            fallback=" ",
-            command="subemotes",
-            commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
-        )
+        if self.settings["enable_subemotes"]:
+            self.commands["subemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="subemotes",
+                commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
+            )

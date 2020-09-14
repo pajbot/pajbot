@@ -21,7 +21,7 @@ body {
 }
 
 #tip-alert.basic .note-wrapper {
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   font-size: 1.1em;
   font-weight: bold;
   margin: 0 auto;
@@ -36,24 +36,25 @@ body {
 }
 
 #tip-alert.split div.from {
-  font-family: 'Comfortaa', 'Verdana', serif;
+  font-family: "Comfortaa", "Verdana", serif;
   font-size: 1.75em;
   font-weight: bold;
   text-align: center;
-  text-shadow: -1px -1px 0 #000,   1px -1px 0 #000, -1px  1px 0 #000, 1px  1px 0 #000;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 #tip-alert.split div.note {
   font-size: 1.18em;
   line-height: 0.99em;
-  font-family: 'Verdana';
+  font-family: "Verdana";
   font-weight: normal;
   text-align: center;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px  1px 0 #000, 1px  1px 0 #000;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 #tip-alert .emote {
   height: 1.2em;
   margin: -5px 0;
 }
-

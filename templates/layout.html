@@ -11,7 +11,7 @@
     background-size: 100%;
 }
 </style>
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
 {% assets "base_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
@@ -21,28 +21,25 @@
 <header class="main header">
 {% block menu %}
     <div class="ui top fixed menu">
-        <div class="right menu">
+        <div class="menu" style="margin:auto;">
         {% for menuitem in nav_bar_header %}
         <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
             {% if menuitem.id == 'home' %}
-            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}_tn.png" alt="{{ streamer.name }} logo"/>
+            <img class="logo" src="/static/images/logo_{{ streamer.full_name }}.png" alt="{{ streamer.name }} logo"/>
             {% endif %}
             {{ menuitem.caption }}</a>
         {% endfor %}
-        </div>
-        <div class="left menu">
-            <div class="item">
-                <div class="ui transparent icon input">
-                    <form id="usersearch">
-                        <div class="ui action input">
-                            <input type="text" name="username" class="username" placeholder="Username">
-                            <button class="ui icon button">
-                                <i class="search icon"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="item{% if active_page == "user" %} active{% endif %}">
+          <div class="ui transparent icon input">
+              <form id="usersearch">
+                  <div class="ui action input">
+                      <input type="text" name="username" class="username" placeholder="Username">
+                      <button class="ui icon button">
+                          <i class="search icon"></i>
+                      </button>
+                  </div>
+              </form>
+          </div>
         </div>
     </div>
 {% endblock %}
@@ -75,13 +72,14 @@
         <div class="four wide column">{% if session.user %}
           <h4 class="ui inverted header">Hello {{ session.user.name }}</h4>
           <div class="ui inverted link list">
+           <a class="item" href="/user/{{ session.user.login }}"><i class="user icon"></i> Profile</a>
            {% if not session.user.level or session.user.level >= 500 %}
-             <a class="item" href="/admin/"><i class="rotated legal icon"></i> Admin Zone</a>
+             <a class="item" href="/admin/"><i class="legal icon"></i> Admin Zone</a>
            {% endif %}
-           <a class="item" href="/logout?n={{ request.path }}"><i class="sign out icon"></i> Log out</a>{% else %}
+           <a class="item" href="/logout?returnTo={{ request.path }}"><i class="sign out icon"></i> Log out</a>{% else %}
           <h4 class="ui inverted header">Login <i class="sign in icon"></i></h4>
           <div class="ui inverted link list">
-          <a href="/login?n={{ request.path }}" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
+          <a href="/login?returnTo={{ request.path }}" class="ui twitch button"><i class="twitch icon"></i>Connect with Twitch</a>{% endif %}
           </div>
         </div>
       </div>
@@ -96,30 +94,28 @@
 <script>
 var bot_name = '{{ bot.name }}';
 </script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.7/semantic.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 {%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
-<script async src="//cdn.pajlada.se/emote.js"></script>
 {%- assets 'autolinker' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.3.2/moment-duration-format.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/livestamp/1.1.2/livestamp.min.js"></script>
+{%- assets 'datetime' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets -%}
 {% if google_analytics %}
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 ga('create', '{{ google_analytics }}', 'auto');
-  ga('send', 'pageview');
-
+ga('send', 'pageview');
 </script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 {% endif %}
 {% block footer %}{% endblock %}
 </body>

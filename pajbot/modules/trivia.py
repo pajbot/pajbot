@@ -57,6 +57,15 @@ class TriviaModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 600},
         ),
+        ModuleSetting(
+            key="commands_level",
+            label="Minimum level to use !trivia start/stop",
+            type="number",
+            required=True,
+            placeholder="",
+            default=500,
+            constraints={"min_value": 100, "max_value": 1500},
+        ),
     ]
 
     def __init__(self, bot):
@@ -77,7 +86,7 @@ class TriviaModule(BaseModule):
             self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=12)
         ):
             url = "http://jservice.io/api/random"
-            r = requests.get(url)
+            r = requests.get(url, headers={"User-Agent": self.bot.user_agent})
             self.question = r.json()[0]
             self.question["answer"] = (
                 self.question["answer"]
@@ -231,10 +240,18 @@ class TriviaModule(BaseModule):
             can_execute_with_whisper=True,
             commands={
                 "start": Command.raw_command(
-                    self.command_start, level=500, delay_all=0, delay_user=10, can_execute_with_whisper=True
+                    self.command_start,
+                    level=self.settings["commands_level"],
+                    delay_all=0,
+                    delay_user=10,
+                    can_execute_with_whisper=True,
                 ),
                 "stop": Command.raw_command(
-                    self.command_stop, level=500, delay_all=0, delay_user=0, can_execute_with_whisper=True
+                    self.command_stop,
+                    level=self.settings["commands_level"],
+                    delay_all=0,
+                    delay_user=0,
+                    can_execute_with_whisper=True,
                 ),
             },
         )

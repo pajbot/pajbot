@@ -17,6 +17,9 @@ fi
 # Upgrade pip
 ./venv/bin/pip install pip --upgrade
 
+# Install wheel (see https://stackoverflow.com/q/53204916/4464702)
+./venv/bin/pip install wheel
+
 # Install requirements.txt
 ./venv/bin/pip install -r requirements.txt
 

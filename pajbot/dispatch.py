@@ -365,8 +365,10 @@ class Dispatch:
             try:
                 log.info("sending tweet: %s", message[:140])
                 bot.twitter_manager.twitter_client.update_status(status=message)
+                bot.whisper(source, "Tweet sent successfully!")
             except Exception:
                 log.exception("Caught an exception")
+                bot.whisper(source, "An error occurred while trying to send your tweet.")
 
     @staticmethod
     def eval(bot, source, message, event, args):
@@ -389,7 +391,7 @@ class Dispatch:
                 user = User.find_by_user_input(db_session, input)
 
                 if user is None:
-                    bot.say(f"That user was not found in the user database")
+                    bot.say("That user was not found in the user database")
         else:
             user = source
 
@@ -401,6 +403,7 @@ class Dispatch:
     @staticmethod
     def remindme(bot, source, message, event, args):
         if not message:
+            bot.say(f"{source}, No message provided! Syntax: !remindme TIME MESSAGE")
             return False
 
         parts = message.split(" ")
@@ -410,10 +413,17 @@ class Dispatch:
 
         delay = int(parts[0])
         reminder_text = " ".join(parts[1:]).strip()
-        extra_message = f"{source}, your reminder from {delay} seconds ago is over: {reminder_text}"
 
-        bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
-        bot.execute_delayed(delay, bot.say, extra_message)
+        if delay < 30:
+            bot.say(f"{source}, You cannot set a reminder for less than 30 seconds!")
+            return False
+
+        if reminder_text == "":
+            bot.say(f"{source}, I will remind you in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago)")
+        else:
+            bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):

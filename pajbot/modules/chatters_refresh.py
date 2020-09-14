@@ -14,10 +14,10 @@ log = logging.getLogger(__name__)
 
 class ChattersRefreshModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Chatters refresh"
-    DESCRIPTION = "Fetches a list of chatters and updates the database"
+    NAME = "Loyalty"
+    DESCRIPTION = "Earn points and build your watchtime while you watch your favourite streamer!"
     ENABLED_DEFAULT = True
-    CATEGORY = "Internal"
+    CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
             key="base_points_pleb",
@@ -132,8 +132,8 @@ ON CONFLICT (id) DO UPDATE SET
                     examples=[
                         CommandExample(
                             None,
-                            f"Reload who is currently chatting",
-                            chat=f"user:!reload chatters\nbot>user: Reloading list of chatters...",
+                            "Reload who is currently chatting",
+                            chat="user:!reload chatters\nbot>user: Reloading list of chatters...",
                             description="Note: Updates only last_seen values, does not award points for watching the stream.",
                         ).parse()
                     ],

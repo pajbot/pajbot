@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 class AbCommandModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "!ab"
-    DESCRIPTION = "Inject an emote inbetween each letter/word in message"
+    NAME = "Add Between"
+    DESCRIPTION = "Inject an emote inbetween each letter/word in message via the !ab command"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [

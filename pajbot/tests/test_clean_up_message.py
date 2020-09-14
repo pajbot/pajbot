@@ -11,6 +11,8 @@ def test_clean_up():
     assert ". /timeout pajlada 5" == clean_up_message("/timeout pajlada 5")
     assert ". .timeout pajlada 5" == clean_up_message("   .timeout pajlada 5")
     assert ". /timeout pajlada 5" == clean_up_message(" /timeout pajlada 5")
+    assert ".me" == clean_up_message(".me")
+    assert "/me" == clean_up_message("/me")
     assert ".me xD" == clean_up_message(".me xD")
     assert "/me xD" == clean_up_message("/me xD")
     assert "/me xD" == clean_up_message("   /me xD")

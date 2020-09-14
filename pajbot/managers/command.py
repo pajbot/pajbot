@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 class CommandManager(UserDict):
-    """ This class is responsible for compiling commands from multiple sources
+    """This class is responsible for compiling commands from multiple sources
     into one easily accessible source.
     The following sources are used:
      - internal_commands = Commands that are added in source
@@ -115,8 +115,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!twitterfollow forsensc2\n" "bot>user:Now following ForsenSC2",
-                    description="Follow ForsenSC2 on twitter so new tweets are output in chat.",
+                    chat="user:!twitterfollow forsen\n" "bot>user:Now following Forsen",
+                    description="Follow Forsen on twitter so new tweets are output in chat.",
                 ).parse()
             ],
         )
@@ -129,8 +129,8 @@ class CommandManager(UserDict):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!twitterunfollow forsensc2\n" "bot>user:No longer following ForsenSC2",
-                    description="Stop automatically printing tweets from ForsenSC2",
+                    chat="user:!twitterunfollow forsen\n" "bot>user:No longer following Forsen",
+                    description="Stop automatically printing tweets from Forsen",
                 ).parse()
             ],
         )
@@ -355,7 +355,7 @@ class CommandManager(UserDict):
         return len(aliases)
 
     def load_db_commands(self, **options):
-        """ This method is only meant to be run once.
+        """This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
 
@@ -382,9 +382,7 @@ class CommandManager(UserDict):
         return self.db_commands
 
     def rebuild(self):
-        """ Rebuild the internal commands list from all sources.
-
-        """
+        """Rebuild the internal commands list from all sources."""
 
         def merge_commands(in_dict, out):
             for alias, command in in_dict.items():

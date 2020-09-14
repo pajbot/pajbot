@@ -45,7 +45,7 @@ class PaidTimeoutModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=400,
-            constraints={"min_value": 1, "max_value": 10000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="second_command", label="Enable a second timeout command", type="boolean", required=True, default=False
@@ -75,7 +75,7 @@ class PaidTimeoutModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=400,
-            constraints={"min_value": 1, "max_value": 10000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="bypass_level",
@@ -126,14 +126,14 @@ class PaidTimeoutModule(BaseModule):
                     source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
                 )
                 num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}")
+                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
             else:
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
                 bot.whisper(
                     victim,
-                    f"{source} just timed you out for {_time} seconds. /w {bot.nickname} !$unbanme to unban yourself for points forsenMoney",
+                    f"{source} just timed you out for {_time} seconds LUL",
                 )
-                bot.timeout(victim, _time, reason=f"Timed out by {source}")
+                bot.timeout(victim, _time, reason=f"Timed out by {source}", once=True)
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
             if self.settings["show_on_clr"]:

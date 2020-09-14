@@ -21,7 +21,7 @@ class MassPingProtectionModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Mass Ping Protection"
     DESCRIPTION = "Times out users who post messages that mention too many users at once."
-    CATEGORY = "Filter"
+    CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
             key="max_ping_count",
@@ -51,13 +51,6 @@ class MassPingProtectionModule(BaseModule):
             constraints={"min_value": 0, "max_value": 600},
         ),
         ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
             type="number",
@@ -65,6 +58,31 @@ class MassPingProtectionModule(BaseModule):
             placeholder="",
             default=420,
             constraints={"min_value": 100, "max_value": 2000},
+        ),
+        ModuleSetting(
+            key="timeout_reason",
+            label="Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="Too many users pinged in message",
+            constraints={},
+        ),
+        ModuleSetting(
+            key="whisper_offenders",
+            label="Send offenders a whisper explaining the timeout",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
+        ModuleSetting(
+            key="whisper_timeout_reason",
+            label="Whisper Timeout Reason | Available arguments: {timeout_duration}",
+            type="text",
+            required=False,
+            placeholder="",
+            default="You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
+            constraints={},
         ),
     ]
 
@@ -75,31 +93,31 @@ class MassPingProtectionModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
 
             # quick EXPLAIN ANALYZE for this query:
-            # pajbot=> EXPLAIN ANALYZE SELECT count(*) AS count_1
+            #
+            # pajbot=# EXPLAIN ANALYZE SELECT count(*) AS count_1
             # FROM "user"
-            # WHERE ("user".login IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world') OR lower("user".name) IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world')) AND "user".last_seen IS NOT NULL AND now() - "user".last_seen > make_interval(weeks := 2);
+            # WHERE ("user".login IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world') OR lower("user".name) IN ('randers', 'lul', 'xd', 'penis', 'asd', 'hello', 'world')) AND "user".last_seen IS NOT NULL AND now() - "user".last_seen <= make_interval(weeks := 2);
             #                                                                              QUERY PLAN
             # --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            #  Aggregate  (cost=37.13..37.14 rows=1 width=8) (actual time=0.783..0.784 rows=1 loops=1)
-            #    ->  Bitmap Heap Scan on "user"  (cost=21.32..37.11 rows=5 width=0) (actual time=0.780..0.780 rows=0 loops=1)
+            #  Aggregate  (cost=37.45..37.46 rows=1 width=8) (actual time=0.113..0.113 rows=1 loops=1)
+            #    ->  Bitmap Heap Scan on "user"  (cost=21.53..37.43 rows=5 width=0) (actual time=0.110..0.110 rows=1 loops=1)
             #          Recheck Cond: ((login = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[])) OR (lower(name) = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[])))
-            #          Filter: ((last_seen IS NOT NULL) AND ((now() - last_seen) > '14 days'::interval))
-            #          Rows Removed by Filter: 1
-            #          Heap Blocks: exact=1
-            #          ->  BitmapOr  (cost=21.32..21.32 rows=14 width=0) (actual time=0.757..0.757 rows=0 loops=1)
-            #                ->  Bitmap Index Scan on user_login_idx  (cost=0.00..10.66 rows=7 width=0) (actual time=0.395..0.395 rows=1 loops=1)
+            #          Filter: ((last_seen IS NOT NULL) AND ((now() - last_seen) <= '14 days'::interval))
+            #          Heap Blocks: exact=6
+            #          ->  BitmapOr  (cost=21.53..21.53 rows=14 width=0) (actual time=0.101..0.101 rows=0 loops=1)
+            #                ->  Bitmap Index Scan on user_login_idx  (cost=0.00..10.76 rows=7 width=0) (actual time=0.054..0.054 rows=1 loops=1)
             #                      Index Cond: (login = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[]))
-            #                ->  Bitmap Index Scan on user_lower_idx  (cost=0.00..10.66 rows=7 width=0) (actual time=0.352..0.352 rows=1 loops=1)
+            #                ->  Bitmap Index Scan on user_lower_idx  (cost=0.00..10.76 rows=7 width=0) (actual time=0.046..0.047 rows=6 loops=1)
             #                      Index Cond: (lower(name) = ANY ('{randers,lul,xd,penis,asd,hello,world}'::text[]))
-            #  Planning Time: 0.766 ms
-            #  Execution Time: 0.952 ms
-            # (13 rows)
+            #  Planning Time: 0.092 ms
+            #  Execution Time: 0.140 ms
+            # (12 rows)
 
             return (
                 db_session.query(User)
                 .with_entities(count())
                 .filter(or_(User.login.in_(usernames), func.lower(User.name).in_(usernames)))
-                .filter(and_(User.last_seen.isnot(None), (func.now() - User.last_seen) > timedelta(weeks=2)))
+                .filter(and_(User.last_seen.isnot(None), (func.now() - User.last_seen) <= timedelta(weeks=2)))
                 .scalar()
             )
 
@@ -125,7 +143,8 @@ class MassPingProtectionModule(BaseModule):
 
             potential_users.add(matched_part)
 
-        # check how many words a known user (we have seen this username before)
+        # check how many of the words in `potential_users` refer to known users
+        # (i.e. we have seen this username before & user was recently seen in chat)
         return MassPingProtectionModule.count_known_users(potential_users)
 
     def determine_timeout_length(self, message, source, emote_instances):
@@ -153,13 +172,10 @@ class MassPingProtectionModule(BaseModule):
         if timeout_duration <= 0:
             return
 
-        self.bot.timeout(source, timeout_duration, reason="Too many users pinged in message")
+        self.bot.timeout(source, timeout_duration, reason=self.settings["timeout_reason"])
 
         if self.settings["whisper_offenders"]:
-            self.bot.whisper(
-                source,
-                f"You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
-            )
+            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(timeout_duration=timeout_duration))
 
         return False
 

@@ -1,6 +1,5 @@
 from requests import HTTPError
 
-from pajbot.apiwrappers.authentication.access_token import AccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AccessTokenManager
 from pajbot.apiwrappers.base import BaseAPI
@@ -22,8 +21,8 @@ class BaseTwitchAPI(BaseAPI):
         #   - None (-> default will be assigned)
         #   - False (-> No Authorization)
         #   - ClientCredentials (-> Client-ID)
-        #   - AccessTokenManager (-> Authorization)
-        #   - AccessToken (-> Authorization)
+        #   - AccessTokenManager (-> Authorization + Client-ID)
+        #   - a tuple of (ClientCredentials, AccessToken) (-> Authorization + Client-ID)
 
         if authorization is None:
             authorization = self.default_authorization
@@ -31,9 +30,17 @@ class BaseTwitchAPI(BaseAPI):
         if isinstance(authorization, ClientCredentials):
             auth_headers = {"Client-ID": authorization.client_id}
         elif isinstance(authorization, AccessTokenManager):
-            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}"}
-        elif isinstance(authorization, AccessToken):
-            auth_headers = {"Authorization": f"{self.authorization_header_prefix} {authorization.access_token}"}
+            auth_headers = {
+                "Client-ID": authorization.api.client_credentials.client_id,
+                "Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}",
+            }
+        elif isinstance(authorization, tuple):
+            (client_credentials, access_token) = authorization
+
+            auth_headers = {
+                "Client-ID": client_credentials.client_id,
+                "Authorization": f"{self.authorization_header_prefix} {access_token.access_token}",
+            }
         else:
             auth_headers = {}
 
