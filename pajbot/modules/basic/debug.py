@@ -57,6 +57,7 @@ class DebugModule(BaseModule):
         data["cd_all"] = command.delay_all
         data["cd_user"] = command.delay_user
         data["mod_only"] = command.mod_only
+        data["sub_only"] = command.sub_only
 
         if data["type"] == "message":
             data["response"] = command.action.response
@@ -101,7 +102,7 @@ class DebugModule(BaseModule):
                             None,
                             "Debug a command",
                             chat="user:!debug command ping\n"
-                            "bot>user: id=210, level=100, type=message, cost=0, cd_all=10, cd_user=30, mod_only=False, response=Snusbot has been online for $(tb:bot_uptime)",
+                            "bot>user: id=210, level=100, type=message, cost=0, cd_all=10, cd_user=30, mod_only=False, sub_only=False, response=Snusbot has been online for $(tb:bot_uptime)",
                             description="",
                         ).parse()
                     ],

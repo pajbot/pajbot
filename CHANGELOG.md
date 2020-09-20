@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: The `sub_only` command option will now show in the `!debug command` command. (#1027)
 - Minor: The permaban module will now ban immediately on command use (#1014)
 - Minor: Added settings to change command name and cooldowns for showemote module. (#1007)
 - Minor: Removed excess message in whisper for paid timeout module. (#993)
