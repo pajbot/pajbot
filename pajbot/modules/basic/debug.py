@@ -57,6 +57,7 @@ class DebugModule(BaseModule):
         data["cd_all"] = command.delay_all
         data["cd_user"] = command.delay_user
         data["mod_only"] = command.mod_only
+        data["sub_only"] = command.sub_only
 
         if data["type"] == "message":
             data["response"] = command.action.response
