@@ -43,9 +43,10 @@ sudo apt update
 sudo apt install python3 python3-dev python3-pip python3-venv
 ```
 
-Your python version should be atleast 3.6, check with
-```python3 --version```
-
+Now, double-check that you have Python 3.6 or newer installed:
+```bash
+python3 --version
+```
 
 We also need the following libraries and build tools:
 
