@@ -89,7 +89,7 @@ class EmoteTimeoutModule(BaseModule):
             type="text",
             required=False,
             placeholder="",
-            default="No emoji allowed",
+            default="No emojis allowed",
             constraints={},
         ),
     ]
