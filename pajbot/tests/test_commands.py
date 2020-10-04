@@ -70,10 +70,22 @@ def test_command_permission_mod_only():
             True,
         ],
         [
-            "User with level 500 can execute mod_only command with level 500",
+            "User with level 500 CANNOT execute mod_only command with level 500",
             Command(mod_only=True, level=500),
             User(False, 500),
-            True,
+            False,
+        ],
+        [
+            "User with level 500 CANNOT execute mod_only command with level 1000",
+            Command(mod_only=True, level=1000),
+            User(False, 500),
+            False,
+        ],
+        [
+            "User with level 1000 CANNOT execute mod_only command with level 500",
+            Command(mod_only=True, level=500),
+            User(False, 1000),
+            False,
         ],
         [
             "User with level 500 CANNOT execute mod_only command with level 501",
