@@ -375,7 +375,9 @@ class Command(Base):
         # self.level < Command.BYPASS_MOD_ONLY_LEVEL because otherwise the mod_only flag would have no purpose
         # when set on commands with level >= BYPASS_MOD_ONLY_LEVEL. (The mod_only requirement could always
         # be bypassed)
-        mod_only_bypass = source.level >= Command.BYPASS_MOD_ONLY_LEVEL and self.level < Command.BYPASS_MOD_ONLY_LEVEL
+        mod_only_bypass = (
+            source.level >= Command.BYPASS_MOD_ONLY_LEVEL and not self.level >= Command.BYPASS_MOD_ONLY_LEVEL
+        )
         if self.mod_only and source.moderator is False and not mod_only_bypass:
             # User is not a twitch moderator, or a bot moderator
             return False
