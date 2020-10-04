@@ -68,7 +68,7 @@ sudo adduser --system --group pajbot --home /opt/pajbot
 Download the latest stable version of pajbot:
 
 ```bash
-sudo -u pajbot git clone https://github.com/pajlada/pajbot.git /opt/pajbot --branch stable
+sudo -u pajbot git clone https://github.com/pajbot/pajbot.git /opt/pajbot --branch stable
 ```
 
 Install pajbot's dependencies like this:
