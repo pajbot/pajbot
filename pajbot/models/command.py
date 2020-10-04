@@ -372,7 +372,15 @@ class Command(Base):
             # User is not a sub or a moderator, and cannot use the command.
             return False
 
-        if self.mod_only and source.moderator is False and source.level < Command.BYPASS_MOD_ONLY_LEVEL:
+        # self.level < Command.BYPASS_MOD_ONLY_LEVEL because otherwise the mod_only flag would have no purpose
+        # when set on commands with level >= BYPASS_MOD_ONLY_LEVEL. (The mod_only requirement could always
+        # be bypassed)
+        if (
+            self.mod_only
+            and source.moderator is False
+            and self.level < Command.BYPASS_MOD_ONLY_LEVEL
+            and source.level < Command.BYPASS_MOD_ONLY_LEVEL
+        ):
             # User is not a twitch moderator, or a bot moderator
             return False
 

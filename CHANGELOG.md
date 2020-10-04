@@ -16,6 +16,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Handle new format of P&SL lists (#988, #989, #994)
 - Bugfix: Fixed name of "get timed out" quest. (It just said "Quest" before) (#1003)
 - Bugfix: Added proper error handling to P&SL module. (#991, #1005)
+- Bugfix: The `mod_only` setting now has an actual effect when applied to commands requiring level >= 500 (#1035, #1037)
 
 ## v1.47
 
