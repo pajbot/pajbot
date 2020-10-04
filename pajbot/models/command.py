@@ -345,11 +345,7 @@ class Command(Base):
     def is_enabled(self):
         return self.enabled == 1 and self.action is not None
 
-    def run(self, bot, source, message, event={}, args={}, whisper=False):
-        if self.action is None:
-            log.warning("This command is not available.")
-            return False
-
+    def can_run_command(self, source, whisper):
         if source.level < self.level:
             # User does not have a high enough power level to run this command
             return False
@@ -374,6 +370,16 @@ class Command(Base):
 
         if self.mod_only and source.moderator is False and source.level < Command.BYPASS_MOD_ONLY_LEVEL:
             # User is not a twitch moderator, or a bot moderator
+            return False
+
+        return True
+
+    def run(self, bot, source, message, event={}, args={}, whisper=False):
+        if self.action is None:
+            log.warning("This command is not available.")
+            return False
+
+        if not self.can_run_command(source, whisper):
             return False
 
         cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
