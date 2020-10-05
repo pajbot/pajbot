@@ -1,6 +1,6 @@
 APScheduler==3.6.3
 autobahn==20.7.1
-beautifulsoup4==4.9.2
+beautifulsoup4==4.9.3
 colorama==0.4.3
 cssmin==0.2.0
 Flask==1.1.2
