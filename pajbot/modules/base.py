@@ -49,7 +49,7 @@ class ModuleSetting:
         self.required_write_level = required_write_level
 
     def validate(self, value):
-        """ Validate the input for this module.
+        """Validate the input for this module.
         This will call the relevant submethod, located as validate_{type}.
         You always get a tuple back, with the first value being True or False depending
         on if the input value was validated properly.
@@ -141,8 +141,8 @@ class BaseModule:
             self.default_settings[setting.key] = setting.default
 
     def load(self, **options):
-        """ This method will load everything from the module into
-        their proper dictionaries, which we can then use later. """
+        """This method will load everything from the module into
+        their proper dictionaries, which we can then use later."""
 
         self.settings = self.module_settings()
 

@@ -55,8 +55,8 @@ class HSBetGame(Base):
         return and_(self.is_running, self.bet_deadline.isnot(None), self.bet_deadline >= functions.now())
 
     def get_points_by_outcome(self, db_session):
-        """ Returns how many points are bet on win and how many points
-        are bet on lose """
+        """Returns how many points are bet on win and how many points
+        are bet on lose"""
 
         rows = (
             db_session.query(HSBetBet.outcome, func.sum(HSBetBet.points))
@@ -72,8 +72,8 @@ class HSBetGame(Base):
         return points
 
     def get_bets_by_outcome(self, db_session):
-        """ Returns how many bets are bet on win and how many bets
-        are bet on lose """
+        """Returns how many bets are bet on win and how many bets
+        are bet on lose"""
 
         rows = (
             db_session.query(HSBetBet.outcome, func.count()).filter_by(game_id=self.id).group_by(HSBetBet.outcome).all()

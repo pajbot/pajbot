@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 
 def is_subdomain(x, y):
-    """ Returns True if x is a subdomain of y, otherwise return False.
+    """Returns True if x is a subdomain of y, otherwise return False.
 
     Example:
     is_subdomain('pajlada.se', 'pajlada.se') = True
@@ -36,7 +36,7 @@ def is_subdomain(x, y):
 
 
 def is_subpath(x, y):
-    """ Returns True if x is a subpath of y, otherwise return False.
+    """Returns True if x is a subpath of y, otherwise return False.
 
     Example:
     is_subpath('/a/', '/b/') = False

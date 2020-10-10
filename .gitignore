@@ -30,3 +30,4 @@ venv/
 
 .idea/
 .vscode/
+.vscode-server/

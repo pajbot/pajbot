@@ -81,10 +81,11 @@ ON COMMIT DROP"""
                 )
             )
 
-            db_session.execute(
-                text("INSERT INTO vips(id, login, name) VALUES (:id, :login, :name)"),
-                [basics.jsonify() for basics in vip_basics],
-            )
+            if len(vip_basics) > 0:
+                db_session.execute(
+                    text("INSERT INTO vips(id, login, name) VALUES (:id, :login, :name)"),
+                    [basics.jsonify() for basics in vip_basics],
+                )
 
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login
@@ -124,8 +125,8 @@ WHERE
                     examples=[
                         CommandExample(
                             None,
-                            f"Reload who is a Twitch channel VIP",
-                            chat=f"user:!reload vips\nbot>user: Reloading list of VIPs...",
+                            "Reload who is a Twitch channel VIP",
+                            chat="user:!reload vips\nbot>user: Reloading list of VIPs...",
                         ).parse()
                     ],
                 )

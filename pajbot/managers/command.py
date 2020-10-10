@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 class CommandManager(UserDict):
-    """ This class is responsible for compiling commands from multiple sources
+    """This class is responsible for compiling commands from multiple sources
     into one easily accessible source.
     The following sources are used:
      - internal_commands = Commands that are added in source
@@ -355,7 +355,7 @@ class CommandManager(UserDict):
         return len(aliases)
 
     def load_db_commands(self, **options):
-        """ This method is only meant to be run once.
+        """This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
 
@@ -382,9 +382,7 @@ class CommandManager(UserDict):
         return self.db_commands
 
     def rebuild(self):
-        """ Rebuild the internal commands list from all sources.
-
-        """
+        """Rebuild the internal commands list from all sources."""
 
         def merge_commands(in_dict, out):
             for alias, command in in_dict.items():
