@@ -1,4 +1,4 @@
-# pajbot [![CircleCI](https://circleci.com/gh/pajbot/pajbot.svg?style=svg)](https://circleci.com/gh/pajbot/pajbot)
+# pajbot ![Python 4HEad](https://github.com/pajbot/pajbot/workflows/Python%204HEad/badge.svg)
 
 pajbot is a twitch chat bot created by [pajlada](http://twitch.tv/pajlada).  
 [Website](https://pajbot.com)

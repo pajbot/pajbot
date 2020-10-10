@@ -89,6 +89,8 @@ class User(Base):
     ignored = Column(BOOLEAN, nullable=False, server_default="FALSE")
     banned = Column(BOOLEAN, nullable=False, server_default="FALSE")
     timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
+    vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
+    founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
     _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select")
 
@@ -106,6 +108,8 @@ class User(Base):
         self.ignored = False
         self.banned = False
         self.timeout_end = None
+        self.vip = False
+        self.founder = False
 
         super().__init__(*args, **kwargs)
 
@@ -210,32 +214,32 @@ class User(Base):
             raise
 
     def get_warning_keys(self, total_chances, prefix):
-        """ Returns a list of keys that are used to store the users warning status in redis.
-        Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1'] """
+        """Returns a list of keys that are used to store the users warning status in redis.
+        Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']"""
         return [f"warnings:{prefix}:{self.id}:{warning_id}" for warning_id in range(0, total_chances)]
 
     @staticmethod
     def get_warnings(redis, warning_keys):
-        """ Pass through a list of warning keys.
+        """Pass through a list of warning keys.
         Example of warning_keys syntax: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']
         Returns a list of values for the warning keys list above.
         Example: [b'1', None]
         Each instance of None in the list means one more Chance
-        before a full timeout is in order. """
+        before a full timeout is in order."""
 
         return redis.mget(warning_keys)
 
     @staticmethod
     def get_chances_used(warnings):
-        """ Returns a number between 0 and n where n is the amount of
-            chances a user has before he should face the full timeout length. """
+        """Returns a number between 0 and n where n is the amount of
+        chances a user has before he should face the full timeout length."""
 
         return len(warnings) - warnings.count(None)
 
     @staticmethod
     def add_warning(redis, timeout, warning_keys, warnings):
-        """ Returns a number between 0 and n where n is the amount of
-            chances a user has before he should face the full timeout length. """
+        """Returns a number between 0 and n where n is the amount of
+        chances a user has before he should face the full timeout length."""
 
         for i in range(0, len(warning_keys)):
             if warnings[i] is None:
@@ -245,7 +249,7 @@ class User(Base):
         return False
 
     def timeout(self, timeout_length, warning_module=None, use_warnings=True):
-        """ Returns a tuple with the follow data:
+        """Returns a tuple with the follow data:
         How long to timeout the user for, and what the punishment string is
         set to.
         The punishment string is used to clarify whether this was a warning or the real deal.
@@ -265,8 +269,8 @@ class User(Base):
             chances_used = self.get_chances_used(warnings)
 
             if chances_used < total_chances:
-                """ The user used up one of his warnings.
-                Calculate for how long we should time him out. """
+                """The user used up one of his warnings.
+                Calculate for how long we should time him out."""
                 timeout_length = warning_module.settings["base_timeout"] * (chances_used + 1)
                 punishment = f"timed out for {timeout_length} seconds (warning)"
 
@@ -294,6 +298,8 @@ class User(Base):
             "ignored": self.ignored,
             "banned": self.banned,
             "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
+            "vip": self.vip,
+            "founder": self.founder,
         }
 
     def __eq__(self, other):

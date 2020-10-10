@@ -4,9 +4,34 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Moved Wolfram settings from the config to the module. If information exists in the `streamer.ini` config file, the module will use that. Else information in the module settings will override that of the config file. (#946)
+- Minor: The `sub_only` command option will now show in the `!debug command` command. (#1027)
+- Minor: The permaban module will now ban immediately on command use (#1014)
+- Minor: Added settings to change command name and cooldowns for showemote module. (#1007)
+- Minor: Removed excess message in whisper for paid timeout module. (#993)
+- Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
+- Minor: Added user-specific cooldown to playsound module (#888, #1006)
+- Bugfix: Paid timeouts will now only timeout once. (#993)
+- Bugfix: Handle new format of P&SL lists (#988, #989)
+- Bugfix: Fixed league rank module not working at all. (#990)
+- Bugfix: Handle new format of P&SL lists (#988, #989, #994)
+- Bugfix: Fixed name of "get timed out" quest. (It just said "Quest" before) (#1003)
+- Bugfix: Added proper error handling to P&SL module. (#991, #1005)
+
+## v1.47
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+Remember you might need to delete the web cache to get some of the updates working: `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*`
+
+- Minor: Added VIP/Founder support. VIPs & Founders will now show in the !debug command, on the userpage on the website and on the API. The broadcaster badge will now also show on the user's webpage. If you experience any issues with the badges not showing on the webpage, typing `sudo rm -rf static/.webassets-cache/ static/gen && sudo systemctl restart pajbot-web@*` in the root folder of your pajbot installation will clear the webapp cache and restart your webapp. (#886)
+- Minor: Added setting to disable the `!pnslrun`/`!runpnsl` command while stream is live (#978)
+- Minor: Made ranks for user levels on the website consistent. (#968)
+- Minor: Added a clip command module which allows users to clip the last 30 seconds of the stream. In order for this to function, the bot will need to be re-authed via the `/bot_login` process. (#950)
 - Minor: Improved `!remindme` command - the bot will alert you of the correct syntax (if incorrect) (#953)
 - Minor: Moved followage module to the basic-commands group (#954)
+- Minor: User detail page for broadcaster now shows broadcaster badge instead of moderator badge (#943, #965)
+- Minor: Badges display on the website have been updated to the redesigned style by Twitch. (#963)
+- Bugfix: Bot no longer keeps announcing that rouletting has been enabled for X seconds after a mass sub gift (It will only be announced once). (#958, #959)
 - Bugfix: Updated `pillow` dependency to mitigate possible vulnerability (#949)
 - Bugfix: If you didn't specify a message alongside the `!remindme` command, the response was a bit awkwardly formatted. Added a nicer special case in case no message is specified. (#953)
 
@@ -24,6 +49,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Cooldown and level values are now used correctly in the emotes module. (#947)
 - Bugfix: Bot now properly attempts to reconnect if getting the login token failed (e.g. no token or refresh failed). (#929)
 - Bugfix: Validate playsound names during creation (#502, #934)
+- Bugfix: Cleanly handle new response from Helix Subscriptions endpoint (#961, #962)
 
 ## v1.45
 

@@ -65,6 +65,10 @@ class PermabanModule(BaseModule):
                 return False
 
             user.banned = True
+            bot.ban(
+                user,
+                reason=f"User has been added to the {bot.nickname} banlist. Contact a moderator level 1000 or higher for unban.",
+            )
             log_msg = f"{user} has been permabanned"
             bot.whisper(source, log_msg)
 

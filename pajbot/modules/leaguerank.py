@@ -32,7 +32,7 @@ class LeagueRankModule(BaseModule):
         ),
         ModuleSetting(
             key="default_region",
-            label="Default region",
+            label="Default region, valid options: br1, eun1, euw1, jp1, kr, la1, la2, na1, oc1, tr1, ru",
             type="text",
             required=True,
             placeholder="i.e. euw/eune/na/br/oce",
@@ -68,23 +68,23 @@ class LeagueRankModule(BaseModule):
                 CommandExample(
                     None,
                     "Check streamer's rank",
-                    chat="user:!rank\n"
-                    "bot: The Summoner Moregain Freeman on region EUW is currently in PLATINUM IV with 62 LP 4Head",
+                    chat="user:!lolrank\n"
+                    "bot: The Summoner Moregain Freeman on region EUW1 is currently in PLATINUM IV with 62 LP 4Head",
                     description="Bot says broadcaster's region, League-tier, division and LP",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check other player's rank on default region",
-                    chat="user:!rank forsen\n"
-                    "bot: The Summoner forsen on region EUW is currently in SILVER IV with 36 LP 4Head",
+                    chat="user:!lolrank forsen\n"
+                    "bot: The Summoner forsen on region EUW1 is currently in SILVER IV with 36 LP 4Head",
                     description="Bot says player's region, League-tier, division and LP",
                 ).parse(),
                 CommandExample(
                     None,
                     "Check other player's rank on another region",
-                    chat="user:!rank imaqtpie na\n"
-                    "bot: The Summoner Imaqtpie on region NA is currently in CHALLENGER I with 441 LP 4Head",
-                    description="Bot says player's region, League-tier, division and LP. Other regions to use as arguments: euw, eune, na, oce, br, kr, las, lan, ru, tr",
+                    chat="user:!lolrank imaqtpie na1\n"
+                    "bot: The Summoner Imaqtpie on region NA1 is currently in CHALLENGER I with 441 LP 4Head",
+                    description="Bot says player's region, League-tier, division and LP. Other regions to use as arguments: br1, eun1, euw1, jp1, kr, la1, la2, na1, oc1, tr1, ru",
                 ).parse(),
             ],
         )
@@ -93,7 +93,7 @@ class LeagueRankModule(BaseModule):
 
     def league_rank(self, bot, source, message, **rest):
         try:
-            from riotwatcher import RiotWatcher, LoLException
+            from riotwatcher import LolWatcher, ApiError
         except ImportError:
             log.error("Missing required module for League Rank module: riotwatcher")
             return False
@@ -106,7 +106,20 @@ class LeagueRankModule(BaseModule):
             log.error("Missing riot API key in settings.")
             return False
 
-        region_list = ["br", "eune", "euw", "kr", "lan", "las", "na", "oce", "ru", "tr"]
+        # https://developer.riotgames.com/docs/lol#_routing-values
+        region_list = [
+            "br1",
+            "eun1",
+            "euw1",
+            "jp1",
+            "kr",
+            "la1",
+            "la2",
+            "na1",
+            "oc1",
+            "tr1",
+            "ru",
+        ]
 
         if message:
             summoner_name = message.split()[0]
@@ -129,44 +142,41 @@ class LeagueRankModule(BaseModule):
         if len(summoner_name) == 0 or len(region) == 0:
             return False
 
-        error_404 = "Game data not found"
-        error_429 = "Too many requests"
-
         try:
-            rw = RiotWatcher(riot_api_key, default_region=region)
+            lw = LolWatcher(riot_api_key)
 
-            summoner = rw.get_summoner(name=summoner_name)
+            summoner = lw.summoner.by_name(region, summoner_name)
             summoner_id = str(summoner["id"])
             summoner_name = summoner["name"]
 
-        except LoLException as e:
-            if e == error_429:
-                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
-                return False
-            elif e == error_404:
+        except ApiError as e:
+            log.exception("babyrage")
+            if e.response.status_code == 429:
+                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
+            elif e.response.status_code == 404:
                 bot.say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
-                return False
-            else:
-                log.info(f"Something unknown went wrong: {e}")
-                return False
+            return False
 
         try:
-            summoner_league = rw.get_league_entry(summoner_ids=(summoner_id,))
+            summoner_league = lw.league.by_summoner(region, summoner_id)
 
-            tier = summoner_league[summoner_id][0]["tier"]
-            division = summoner_league[summoner_id][0]["entries"][0]["division"]
-            league_points = summoner_league[summoner_id][0]["entries"][0]["leaguePoints"]
-
-            bot.say(
-                f"The Summoner {summoner_name} on region {region.upper()} is currently in {tier} {division} with {league_points} LP 4Head"
-            )
-        except LoLException as e:
-            if e == error_429:
-                bot.say(f"Too many requests. Try again in {e.headers['Retry-After']} seconds")
-                return False
-            elif e == error_404:
+            if len(summoner_league) == 0:
                 bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
                 return False
+
+            tier = summoner_league[0]["tier"]
+            rank = summoner_league[0]["rank"]
+            league_points = summoner_league[0]["leaguePoints"]
+
+            bot.say(
+                f"The Summoner {summoner_name} on region {region.upper()} is currently in {tier} {rank} with {league_points} LP 4Head"
+            )
+        except ApiError as e:
+            log.exception("babyrage")
+            if e.response.status_code == 429:
+                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
+            elif e.response.status_code == 404:
+                bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
             else:
                 bot.say("Trouble fetching summoner rank.. Kappa Try again later!")
-                return False
+            return False

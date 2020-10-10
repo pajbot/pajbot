@@ -43,6 +43,12 @@ sudo apt update
 sudo apt install python3 python3-dev python3-pip python3-venv
 ```
 
+Now, double-check that you have Python 3.6 or newer installed:
+
+```bash
+python3 --version
+```
+
 We also need the following libraries and build tools:
 
 ```bash
@@ -62,7 +68,7 @@ sudo adduser --system --group pajbot --home /opt/pajbot
 Download the latest stable version of pajbot:
 
 ```bash
-sudo -u pajbot git clone https://github.com/pajlada/pajbot.git /opt/pajbot --branch stable
+sudo -u pajbot git clone https://github.com/pajbot/pajbot.git /opt/pajbot --branch stable
 ```
 
 Install pajbot's dependencies like this:

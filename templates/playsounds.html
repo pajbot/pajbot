@@ -29,7 +29,10 @@
 
                 <br>
                 There is a global cooldown of <b>{{ module_settings.global_cd }}
-                second{{ "s" if module_settings.global_cd != 1 }}</b>.
+                second{{ "s" if module_settings.global_cd != 1 }}</b>
+                {%- if module_settings.user_cd > 0 %}
+                and a per-user cooldown of <b>{{ module_settings.user_cd }} second{{ "s" if module_settings.user_cd != 1 }}</b>
+                {%- endif -%}.
                 Check the table below for the individual sample cooldown as it might be higher for individual samples.
             </p>
 
