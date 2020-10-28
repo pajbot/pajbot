@@ -11,15 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
-      - uses: peterjgrainger/action-changelog-reminder@v1.2.0
+        
+      - name: Changelog reminder
+        uses: peterjgrainger/action-changelog-reminder@v1.2.0
         with:
           changelog_regex: 'CHANGELOG.md'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      
-      - uses: dangoslen/changelog-enforcer@v1.4.0
+      - name: Changelog check
+        uses: dangoslen/changelog-enforcer@v1.4.0
         with:
           changeLogPath: 'CHANGELOG.md'
           skipLabel: 'Skip-Changelog'
