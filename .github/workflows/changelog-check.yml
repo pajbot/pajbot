@@ -17,3 +17,9 @@ jobs:
           changelog_regex: 'CHANGELOG.md'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      
+      - uses: dangoslen/changelog-enforcer@v1.4.0
+        with:
+          changeLogPath: 'CHANGELOG.md'
+          skipLabel: 'Skip-Changelog'
