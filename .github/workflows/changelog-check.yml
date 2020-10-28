@@ -10,15 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        
-        # Add a comment on the PR if there's no changelog modification
-      - name: Changelog reminder
-        uses: peterjgrainger/action-changelog-reminder@v1.2.0
-        with:
-          changelog_regex: 'CHANGELOG.md'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       # Gives an error if there's no change in the changelog (except using label)
       - name: Changelog check
         uses: dangoslen/changelog-enforcer@v1.4.0
