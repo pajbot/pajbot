@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - uses: mskelton/changelog-reminder-action@v1
+      - uses: peterjgrainger/action-changelog-reminder@v1.2.0
         with:
-          message: "Hey @${{ github.actor }}, it looks like you haven't modified the changelog!"
+          changelog_regex: 'CHANGELOG.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
