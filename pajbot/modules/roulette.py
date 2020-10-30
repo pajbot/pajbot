@@ -25,6 +25,14 @@ class RouletteModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
+            key="roulette_command",
+            label="Preferred roulette command",
+            type="options",
+            required=True,
+            default="roulette",
+            options=["roulette", "gamble"],
+        ),
+        ModuleSetting(
             key="message_won",
             label="Won message | Available arguments: {bet}, {points}, {user}",
             type="text",
@@ -141,7 +149,7 @@ class RouletteModule(BaseModule):
         self.last_add = None
 
     def load_commands(self, **options):
-        self.commands["roulette"] = Command.raw_command(
+        self.commands[self.settings["roulette_command"]] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
