@@ -25,6 +25,15 @@ class RouletteModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
+            key="command_name",
+            label="Command name (e.g. roulette)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="roulette",
+            constraints={"min_str_len": 2, "max_str_len": 15},
+        ),
+        ModuleSetting(
             key="message_won",
             label="Won message | Available arguments: {bet}, {points}, {user}",
             type="text",
@@ -141,7 +150,7 @@ class RouletteModule(BaseModule):
         self.last_add = None
 
     def load_commands(self, **options):
-        self.commands["roulette"] = Command.raw_command(
+        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
@@ -151,7 +160,8 @@ class RouletteModule(BaseModule):
                 CommandExample(
                     None,
                     "Roulette for 69 points",
-                    chat="user:!roulette 69\n" "bot:pajlada won 69 points in roulette! FeelsGoodMan",
+                    chat="user:!" + self.settings["command_name"] + " 69\n"
+                    "bot:pajlada won 69 points in roulette! FeelsGoodMan",
                     description="Do a roulette for 69 points",
                 ).parse()
             ],
@@ -168,7 +178,10 @@ class RouletteModule(BaseModule):
                 return False
 
         if message is None:
-            bot.whisper(source, "I didn't recognize your bet! Usage: !roulette 150 to bet 150 points")
+            bot.whisper(
+                source,
+                "I didn't recognize your bet! Usage: !" + self.settings["command_name"] + " 150 to bet 150 points",
+            )
             return False
 
         msg_split = message.split(" ")
