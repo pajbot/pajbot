@@ -26,7 +26,7 @@ class RouletteModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="command_name",
-            label="Command name (i.e. roulette)",
+            label="Command name (e.g. roulette)",
             type="text",
             required=True,
             placeholder="Command name (no !)",
