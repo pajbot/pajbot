@@ -99,8 +99,6 @@ class StreamManager:
 
         try:
             for video in data:
-                if video.video_type == "archive":
-                    continue
                 recorded_at = BaseTwitchAPI.parse_datetime(video.created_at)
                 time_diff = self.current_stream_chunk.chunk_start - recorded_at
                 if abs(time_diff.total_seconds()) < 60 * 5:
