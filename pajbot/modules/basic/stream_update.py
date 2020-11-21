@@ -1,6 +1,6 @@
-import logging
+from typing import Dict, Optional, Any
 
-from requests import HTTPError
+import logging
 
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.models.command import Command
@@ -8,6 +8,8 @@ from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.apiwrappers.twitch.helix import TwitchGame
+from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -49,34 +51,47 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
-    def generic_update(self, bot, source, message, field, api_fn):
+    def generic_update(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str]) -> None:
         if not message:
             bot.say(f"You must specify a {field} to update to!")
             return
 
-        if "channel_editor" in bot.streamer_access_token_manager.token.scope:
-            api_fn(self.bot.streamer_user_id, message, authorization=bot.streamer_access_token_manager)
-        else:
-            try:
-                api_fn(self.bot.streamer_user_id, message, authorization=bot.bot_token_manager)
-            except HTTPError as e:
-                if e.response.status_code == 401:
-                    bot.say(
-                        f"Error: Neither the streamer nor the bot token grants permission to update the {field}. The streamer needs to be re-authenticated to fix this problem."
-                    )
-                    return
-                else:
-                    raise e
+        if (
+            "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope
+            or not self.bot.twitch_helix_api.modify_channel_information(
+                self.bot.streamer_user_id,
+                authorization=bot.streamer_access_token_manager,
+                **extra_args,
+            )
+        ):
+            bot.say(
+                "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
+            )
+            return
 
         log_msg = f'{source} updated the {field} to "{message}"'
         bot.say(log_msg)
         AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
 
-    def update_game(self, bot, source, message, **rest):
-        self.generic_update(bot, source, message, "game", self.bot.twitch_v5_api.set_game)
+    def update_game(self, bot: Bot, source, message, **rest) -> Any:
+        if not message:
+            bot.say("You must specify a game to update to!")
+            return
 
-    def update_title(self, bot, source, message, **rest):
-        self.generic_update(bot, source, message, "title", self.bot.twitch_v5_api.set_title)
+        # Resolve game name to game ID
+        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(message)
+        if not game:
+            bot.say(f"Unable to find a game with the name '{message}'")
+            return
+
+        return self.generic_update(bot, source, message, "game", {"game_id": game.id})
+
+    def update_title(self, bot, source, message, **rest) -> Any:
+        if not message:
+            bot.say("You must specify a title to update to!")
+            return
+
+        return self.generic_update(bot, source, message, "title", {"title": message})
 
     def load_commands(self, **options):
         setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
