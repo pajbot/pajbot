@@ -332,7 +332,6 @@ class StreamManager:
         if self.current_stream_chunk is None or self.current_stream is None:
             return
 
-        log.info(f"Attempting to fetch video url for broadcast {self.current_stream_chunk.broadcast_id}")
         video: Optional[TwitchVideo] = self.fetch_video_url_stage2(data)
 
         if video is None:
