@@ -17,6 +17,33 @@ from pajbot.utils import iterate_in_chunks
 log = logging.getLogger(__name__)
 
 
+class TwitchGame:
+    def __init__(
+        self,
+        id: str,
+        name: str,
+        box_art_url: str,
+    ):
+        self.id: str = id
+        self.name: str = name
+        self.box_art_url: str = box_art_url
+
+    def jsonify(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "box_art_url": self.box_art_url,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return TwitchGame(
+            json_data["id"],
+            json_data["name"],
+            json_data["box_art_url"],
+        )
+
+
 class TwitchVideo:
     def __init__(
         self,
@@ -423,3 +450,54 @@ class TwitchHelixAPI(BaseTwitchAPI):
             serializer=ListSerializer(TwitchVideo),
             expiry=lambda response: 30 if response is None else 300,
         )
+
+    def _fetch_games(self, key_type, lookup_keys) -> List[TwitchGame]:
+        all_entries: List[TwitchGame] = []
+
+        # We can fetch a maximum of 100 users on each helix request
+        # so we do it in chunks of 100
+        for lookup_keys_chunk in iterate_in_chunks(lookup_keys, 100):
+            response = self.get("/games", {key_type: lookup_keys_chunk})
+
+            # using a response map means we don't rely on twitch returning the data entries in the exact
+            # order we requested them
+            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+
+            # then fill in the gaps with None
+            for lookup_key in lookup_keys_chunk:
+                value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
+                all_entries.append(value)
+
+        return all_entries
+
+    def get_games_by_id(self, game_ids: List[str]) -> List[TwitchGame]:
+        return self.cache.cache_bulk_fetch_fn(
+            game_ids,
+            redis_key_fn=lambda game_id: f"api:twitch:helix:game:by-id:{game_id}",
+            fetch_fn=lambda user_ids: self._fetch_games("id", game_ids),
+            serializer=ClassInstanceSerializer(TwitchGame),
+            expiry=lambda response: 300 if response is None else 7200,
+        )
+
+    def get_games_by_name(self, game_names: List[str]) -> List[TwitchGame]:
+        return self.cache.cache_bulk_fetch_fn(
+            game_names,
+            redis_key_fn=lambda game_name: f"api:twitch:helix:game:by-name:{game_name}",
+            fetch_fn=lambda user_ids: self._fetch_games("name", game_names),
+            serializer=ClassInstanceSerializer(TwitchGame),
+            expiry=lambda response: 300 if response is None else 7200,
+        )
+
+    def get_game_by_game_id(self, game_id: str) -> Optional[TwitchGame]:
+        games = self.get_games_by_id([game_id])
+        if len(games) == 0:
+            return None
+
+        return games[0]
+
+    def get_game_by_game_name(self, game_name: str) -> Optional[TwitchGame]:
+        games = self.get_games_by_name([game_name])
+        if len(games) == 0:
+            return None
+
+        return games[0]
