@@ -78,3 +78,6 @@ class BaseTwitchAPI(BaseAPI):
 
     def put(self, endpoint, params=None, headers=None, authorization=None, json=None):
         return self.request("PUT", endpoint, params, headers, authorization, json).json()
+
+    def patch(self, endpoint, params=None, headers=None, authorization=None, json=None):
+        return self.request("PATCH", endpoint, params, headers, authorization, json)
