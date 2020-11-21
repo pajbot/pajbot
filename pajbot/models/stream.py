@@ -131,6 +131,11 @@ class StreamManager:
             self.refresh_channel_information,
         )
 
+        self.bot.execute_now(
+            self.bot.action_queue.submit,
+            self.refresh_channel_information,
+        )
+
         # Polls Helix's "Get Streams" endpoint and updates the liveness of the stream.
         # If the stream is live, we also update some data such as title and stream id
         self.bot.execute_every(
