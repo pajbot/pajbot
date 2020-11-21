@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT
+from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -52,7 +52,7 @@ class StreamChunk(Base):
 
     id = Column(INT, primary_key=True)
     stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), nullable=False)
-    broadcast_id = Column(BIGINT, nullable=False)
+    broadcast_id = Column(TEXT, nullable=False)
     video_url = Column(TEXT, nullable=True)
     video_preview_image_url = Column(TEXT, nullable=True)
     chunk_start = Column(UtcDateTime(), nullable=False)
