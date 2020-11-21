@@ -1,9 +1,12 @@
+from typing import Optional, Any, List
+
 import json
 import logging
 
 from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.utils import find
+from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -104,22 +107,22 @@ class BaseModule:
         + "It's what will be shown on the website where you can enable "
         + "and disable modules."
     )
-    SETTINGS = []
+    SETTINGS: List[Any] = []
     ENABLED_DEFAULT = False
-    PARENT_MODULE = None
+    PARENT_MODULE: Optional[Any] = None
     CATEGORY = "Uncategorized"
     HIDDEN = False
     MODULE_TYPE = ModuleType.TYPE_NORMAL
     CONFIGURE_LEVEL = 500
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot):
         """ Initialize any dictionaries the module might or might not use. """
-        self.bot = bot
+        self.bot: Bot = bot
 
-        self.commands = {}
+        self.commands: Any = {}
         self.default_settings = {}
-        self.settings = {}
-        self.submodules = []
+        self.settings: Any = {}
+        self.submodules: Any = []
         self.parent_module = None
 
         # We store a dictionary with the default settings for convenience

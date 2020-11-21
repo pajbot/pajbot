@@ -42,7 +42,7 @@ class HSBetGame(Base):
     def is_running(self):
         return self.outcome is None
 
-    @is_running.expression
+    @is_running.expression  # type: ignore
     def is_running(self):
         return self.outcome.is_(None)
 
@@ -50,7 +50,7 @@ class HSBetGame(Base):
     def betting_open(self):
         return self.is_running and self.bet_deadline is not None and self.bet_deadline >= utils.now()
 
-    @betting_open.expression
+    @betting_open.expression  # type: ignore
     def betting_open(self):
         return and_(self.is_running, self.bet_deadline.isnot(None), self.bet_deadline >= functions.now())
 

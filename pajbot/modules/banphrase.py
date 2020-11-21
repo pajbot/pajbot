@@ -1,3 +1,5 @@
+from typing import List, Any
+
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
@@ -17,7 +19,7 @@ class BanphraseModule(BaseModule):
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
     CATEGORY = "Moderation"
-    SETTINGS = []
+    SETTINGS: List[Any] = []
 
     def is_message_bad(self, source, msg_raw, _event):
         res = self.bot.banphrase_manager.check_message(msg_raw, source)

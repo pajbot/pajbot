@@ -1,3 +1,4 @@
+from typing import List, Any
 import json
 import logging
 import threading
@@ -7,7 +8,7 @@ log = logging.getLogger("pajbot")
 
 
 class WebSocketServer:
-    clients = []
+    clients: List[Any] = []
 
     def __init__(self, manager, port, secure=False, key_path=None, crt_path=None, unix_socket_path=None):
         self.manager = manager

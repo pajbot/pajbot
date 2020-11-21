@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 import logging
 import operator
 
@@ -7,7 +9,7 @@ log = logging.getLogger("pajbot")
 
 
 class HandlerManager:
-    handlers = {}
+    handlers: Dict[Any, Any] = {}
 
     @staticmethod
     def init_handlers():

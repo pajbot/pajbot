@@ -131,7 +131,7 @@ class User(Base):
     def login(self):
         return self._login
 
-    @login.setter
+    @login.setter  # type: ignore
     def login(self, new_login):
         self._login = new_login
         # force SQLAlchemy to update the value in the database even if the value did not change
@@ -170,11 +170,11 @@ class User(Base):
     def timed_out(self):
         return self.timeout_end is not None and self.timeout_end > utils.now()
 
-    @timed_out.expression
+    @timed_out.expression  # type: ignore
     def timed_out(self):
         return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())
 
-    @timed_out.setter
+    @timed_out.setter  # type: ignore
     def timed_out(self, timed_out):
         # You can do user.timed_out = False to set user.timeout_end = None
         if timed_out is not False:

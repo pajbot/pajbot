@@ -1,3 +1,5 @@
+from typing import Optional
+
 import collections
 import json
 import logging
@@ -142,8 +144,8 @@ class SubstitutionFilter:
 
 
 class BaseAction:
-    type = None
-    subtype = None
+    type: Optional[str] = None
+    subtype: Optional[str] = None
 
     def reset(self):
         pass

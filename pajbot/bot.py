@@ -130,7 +130,7 @@ class Bot:
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
         self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
-        self.twitch_helix_api = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
+        self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
         self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
