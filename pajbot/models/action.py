@@ -354,6 +354,7 @@ def get_substitutions(string, bot):
         method_mapping["args"] = bot.get_args_value
         method_mapping["strictargs"] = bot.get_strictargs_value
         method_mapping["command"] = bot.get_command_value
+        method_mapping["broadcaster"] = bot.get_broadcaster_value
     except AttributeError:
         pass
 
