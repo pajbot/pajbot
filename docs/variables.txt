@@ -217,3 +217,11 @@ command:num_uses - int
 command:added_by - int - pajbot user ID of the user that added that command.
 command:edited_by - int - pajbot user ID of the user that edited that command last.
 command:last_date_used - datetime.datetime
+
+broadcaster
+====
+broadcaster:<attribute> - pajbot.models.user.UserBasics
+Valid attributes are:
+ - `id` for the broadcaster's Twitch ID
+ - `login` for the broadcaster's Twitch Login Name
+ - `name` for the broadcaster's Twitch Display Name

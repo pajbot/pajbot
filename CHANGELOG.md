@@ -11,6 +11,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Removed excess message in whisper for paid timeout module. (#993)
 - Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
 - Minor: Added user-specific cooldown to playsound module (#888, #1006)
+- Minor: Add \$(broadcaster) variable (#925, #1076)
 - Bugfix: Paid timeouts will now only timeout once. (#993)
 - Bugfix: Handle new format of P&SL lists (#988, #989)
 - Bugfix: Fixed league rank module not working at all. (#990)
