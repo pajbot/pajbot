@@ -277,32 +277,40 @@ class StreamManager:
         self.title = channel_information.title
 
     def refresh_stream_status_stage1(self):
-        status: UserStream = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer_user_id)
+        status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer_user_id)
         self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
-    def refresh_stream_status_stage2(self, status: UserStream):
+    def refresh_stream_status_stage2(self, status: Optional[UserStream]):
         redis = RedisManager.get()
         key_prefix = self.bot.streamer + ":"
 
-        game_info: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_id(status.game_id)
-        game_name: str = ""
-        if game_info is not None:
-            game_name = game_info.name
-
+        # Default data we want to update in case the stream is offline
         stream_data = {
-            f"{key_prefix}online": str(status.online),
-            f"{key_prefix}viewers": status.viewer_count,
-            f"{key_prefix}game": game_name,
+            f"{key_prefix}online": "False",
+            f"{key_prefix}viewers": 0,
         }
-        redis.hmset("stream_data", stream_data)
+        self.num_viewers = 0
 
-        self.num_viewers = status.viewer_count
+        if status:
+            # Update stream_data with fresh online data
+            stream_data[f"{key_prefix}online"] = "True"
+            stream_data[f"{key_prefix}viewers"] = status.viewer_count
 
-        self.game = game_name
-        self.title = status.title
+            game_info: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_id(status.game_id)
+            game_name: str = ""
+            if game_info is not None:
+                game_name = game_info.name
 
-        if status.online:
-            # stream reported as online
+            stream_data[f"{key_prefix}game"] = game_name
+
+            self.num_viewers = status.viewer_count
+            self.game = game_name
+            self.title = status.title
+
+            self.num_offlines = 0
+            self.first_offline = None
+
+            # Update stream chunk data
             if self.current_stream is None:
                 self.create_stream(status)
             if self.current_stream_chunk is None:
@@ -311,9 +319,6 @@ class StreamManager:
                 if self.current_stream_chunk.broadcast_id != status.id:
                     log.debug(f"Detected a new chunk! {self.current_stream_chunk.broadcast_id} != {status.id}")
                     self.create_stream_chunk(status)
-
-            self.num_offlines = 0
-            self.first_offline = None
         else:
             # stream reported as offline
             if self.online is True:
@@ -326,6 +331,8 @@ class StreamManager:
                 if self.num_offlines >= self.NUM_OFFLINES_REQUIRED:
                     log.info("Switching to offline state!")
                     self.go_offline()
+
+        redis.hmset("stream_data", stream_data)
 
     def refresh_video_url_stage1(self):
         self.fetch_video_url_stage1()

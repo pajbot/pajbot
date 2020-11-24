@@ -444,12 +444,6 @@ class UserStream:
         self.started_at = started_at
         self.id = id
 
-        self.online = viewer_count > -1
-
-    @staticmethod
-    def offline():
-        return UserStream(-1, None, None, None, None)
-
     def jsonify(self):
         return {
             "viewer_count": self.viewer_count,
@@ -457,7 +451,6 @@ class UserStream:
             "title": self.title,
             "started_at": self.started_at,
             "id": self.id,
-            "online": self.online,
         }
 
     @staticmethod

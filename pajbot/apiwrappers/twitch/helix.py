@@ -391,12 +391,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return clip_id
 
-    def _fetch_stream_by_user_id(self, user_id) -> UserStream:
+    def _fetch_stream_by_user_id(self, user_id) -> Optional[UserStream]:
         response = self.get("/streams", {"user_id": user_id})
 
         if len(response["data"]) <= 0:
             # Stream is offline
-            return UserStream.offline()
+            return None
 
         stream = response["data"][0]
 
@@ -408,7 +408,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             stream["id"],
         )
 
-    def get_stream_by_user_id(self, user_id) -> UserStream:
+    def get_stream_by_user_id(self, user_id) -> Optional[UserStream]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:stream:by-id:{user_id}",
             fetch_fn=lambda: self._fetch_stream_by_user_id(user_id),
