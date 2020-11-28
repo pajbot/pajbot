@@ -478,7 +478,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return self.cache.cache_bulk_fetch_fn(
             game_ids,
             redis_key_fn=lambda game_id: f"api:twitch:helix:game:by-id:{game_id}",
-            fetch_fn=lambda user_ids: self._fetch_games("id", game_ids),
+            fetch_fn=lambda game_ids: self._fetch_games("id", game_ids),
             serializer=ClassInstanceSerializer(TwitchGame),
             expiry=lambda response: 300 if response is None else 7200,
         )
@@ -487,7 +487,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return self.cache.cache_bulk_fetch_fn(
             game_names,
             redis_key_fn=lambda game_name: f"api:twitch:helix:game:by-name:{game_name}",
-            fetch_fn=lambda user_ids: self._fetch_games("name", game_names),
+            fetch_fn=lambda game_names: self._fetch_games("name", game_names),
             serializer=ClassInstanceSerializer(TwitchGame),
             expiry=lambda response: 300 if response is None else 7200,
         )
