@@ -451,8 +451,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_games(self, key_type, lookup_keys) -> List[TwitchGame]:
-        all_entries: List[TwitchGame] = []
+    def _fetch_games(self, key_type, lookup_keys) -> List[Optional[TwitchGame]]:
+        all_entries: List[Optional[TwitchGame]] = []
 
         # We can fetch a maximum of 100 users on each helix request
         # so we do it in chunks of 100
@@ -465,8 +465,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
             # then fill in the gaps with None
             for lookup_key in lookup_keys_chunk:
-                value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
-                all_entries.append(value)
+                game_dict = response_map.get(lookup_key, None)
+                if game_dict is None:
+                    all_entries.append(None)
+                else:
+                    value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
+                    all_entries.append(value)
 
         return all_entries
 
