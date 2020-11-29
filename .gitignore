@@ -21,6 +21,7 @@ config.ini
 !uwsgi_cache.ini
 !uwsgi_shared.ini
 !configs/example.ini
+!.mypy.ini
 
 # User created code
 userdispatch.py

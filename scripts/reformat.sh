@@ -38,3 +38,6 @@ npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css' '**/*.scss
 
 # Run linter
 flake8
+
+# Run mypy static typing checker
+mypy pajbot
