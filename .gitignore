@@ -31,3 +31,4 @@ venv/
 .idea/
 .vscode/
 .vscode-server/
+.vim/
