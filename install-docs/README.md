@@ -249,7 +249,7 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command commands|help --reply @$(source:name), $(tb:bot_name) commands available here: https://$(tb:bot_domain)/commands
   !add command ecount --reply @$(source:name), $(1) has been used $(ecount;1) times.
   !add command epm --reply @$(source:name), $(1) is currently being used $(epm;1) times per minute.
-  !add command uptime|downtime --reply @$(source:name), $(tb:broadcaster) has been $(tb:stream_status) for $(tb:status_length)
+  !add command uptime|downtime --reply @$(source:name), $(broadcaster:name) has been $(tb:stream_status) for $(tb:status_length)
   !add command points|p --reply @$(source:name), $(usersource;1:name) has $(usersource;1:points|number_format) points
   !add command lastseen --reply @$(source:name), $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
   !add command epmrecord --reply @$(source:name), $(1) per minute record is $(epmrecord;1).

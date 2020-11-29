@@ -23,7 +23,25 @@ fi
 # Install requirements.txt
 ./venv/bin/pip install -r requirements.txt
 
-# Install dev dependencies
-if [ "$1" = "--dev" ]; then
-    ./venv/bin/pip install -r requirements-dev.txt
-fi
+while :; do
+    case $1 in
+        --dev)
+            # Install dev dependencies
+            ./venv/bin/pip install -r requirements-dev.txt
+            ;;
+
+        --nvim)
+            # Install NVIM-specific dev dependencies
+            ./venv/bin/pip install pynvim
+            ;;
+
+        -?*)
+            >&2 printf 'WARN: Unknown option (ignored): %s\n' "$1"
+            ;;
+
+        *)
+            break
+    esac
+
+    shift
+done
