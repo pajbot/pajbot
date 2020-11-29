@@ -30,10 +30,12 @@ def init(app):
                 "top_5_losers": db_session.query(UserDuelStats).order_by(UserDuelStats.duels_lost.desc())[:5],
                 "top_5_winrate": db_session.query(UserDuelStats)
                 .filter(UserDuelStats.duels_won >= 5)
-                .order_by(UserDuelStats.winrate.desc())[:5],
+                .order_by(UserDuelStats.winrate.desc())
+                .order_by(UserDuelStats.duels_won.desc())[:5],
                 "bottom_5_winrate": db_session.query(UserDuelStats)
                 .filter(UserDuelStats.duels_lost >= 5)
-                .order_by(UserDuelStats.winrate.asc())[:5],
+                .order_by(UserDuelStats.winrate.asc())
+                .order_by(UserDuelStats.duels_won.asc())[:5],
             }
 
             return render_template("stats_duels.html", **data)
