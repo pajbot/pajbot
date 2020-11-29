@@ -1,3 +1,5 @@
+from typing import List, Any
+
 import logging
 from urllib.parse import urlsplit
 
@@ -44,7 +46,7 @@ class LinkTrackerModule(BaseModule):
     DESCRIPTION = "Tracks chat to see which links are most frequently posted in your chat"
     ENABLED_DEFAULT = True
     CATEGORY = "Feature"
-    SETTINGS = []
+    SETTINGS: List[Any] = []
 
     def __init__(self, bot):
         super().__init__(bot)

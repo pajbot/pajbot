@@ -1,3 +1,5 @@
+from typing import Any
+
 from enum import Enum
 
 
@@ -17,6 +19,10 @@ class WhisperOutputMode(Enum):
 
 
 class TMIRateLimits:
+    BASE: Any
+    KNOWN: Any
+    VERIFIED: Any
+
     def __init__(self, privmsg_per_30, whispers_per_second, whispers_per_minute):
         self.privmsg_per_30 = privmsg_per_30
         self.whispers_per_second = whispers_per_second

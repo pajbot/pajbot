@@ -1,3 +1,5 @@
+from typing import List, Any
+
 import datetime
 import logging
 import threading
@@ -208,7 +210,7 @@ class TwitterManager(GenericTwitterManager):
 
 # PBTwitterManager reads live tweets from a pajbot tweet-provider (https://github.com/pajbot/tweet-provider) instead of Twitter's streaming API
 class PBTwitterManager(GenericTwitterManager):
-    relevant_users = []
+    relevant_users: List[Any] = []
     bot = None
     client = None
     tweepy = None

@@ -1,3 +1,5 @@
+from typing import List, Any
+
 import logging
 
 from requests import HTTPError
@@ -20,7 +22,7 @@ class SubscriberFetchModule(BaseModule):
     ENABLED_DEFAULT = True
     CATEGORY = "Internal"
     HIDDEN = True
-    SETTINGS = []
+    SETTINGS: List[Any] = []
 
     def update_subs_cmd(self, bot, source, **rest):
         # TODO if you wanted to improve this: Provide the user with feedback

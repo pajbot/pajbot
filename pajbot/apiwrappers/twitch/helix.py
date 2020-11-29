@@ -1,3 +1,5 @@
+from typing import Dict, Optional, List
+
 import logging
 import time
 
@@ -7,12 +9,110 @@ import math
 from requests import HTTPError
 
 from pajbot import utils
-from pajbot.apiwrappers.response_cache import DateTimeSerializer
+from pajbot.apiwrappers.response_cache import DateTimeSerializer, ClassInstanceSerializer, ListSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
-from pajbot.models.user import UserBasics
+from pajbot.models.user import UserBasics, UserChannelInformation, UserStream
 from pajbot.utils import iterate_in_chunks
 
 log = logging.getLogger(__name__)
+
+
+class TwitchGame:
+    def __init__(
+        self,
+        id: str,
+        name: str,
+        box_art_url: str,
+    ):
+        self.id: str = id
+        self.name: str = name
+        self.box_art_url: str = box_art_url
+
+    def jsonify(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "box_art_url": self.box_art_url,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return TwitchGame(
+            json_data["id"],
+            json_data["name"],
+            json_data["box_art_url"],
+        )
+
+
+class TwitchVideo:
+    def __init__(
+        self,
+        id: str,
+        user_id: str,
+        user_name: str,
+        title: str,
+        description: str,
+        created_at: str,
+        published_at: str,
+        url: str,
+        thumbnail_url: str,
+        viewable: str,
+        view_count: int,
+        language: str,
+        video_type: str,
+        duration: str,
+    ):
+        self.id: str = id
+        self.user_id: str = user_id
+        self.user_name: str = user_name
+        self.title: str = title
+        self.description: str = description
+        self.created_at: str = created_at
+        self.published_at: str = published_at
+        self.url: str = url
+        self.thumbnail_url: str = thumbnail_url
+        self.viewable: str = viewable
+        self.view_count: int = view_count
+        self.language: str = language
+        self.video_type: str = video_type
+        self.duration: str = duration
+
+    def jsonify(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "user_name": self.user_name,
+            "title": self.title,
+            "description": self.description,
+            "created_at": self.created_at,
+            "published_at": self.published_at,
+            "url": self.url,
+            "thumbnail_url": self.thumbnail_url,
+            "viewable": self.viewable,
+            "view_count": self.view_count,
+            "language": self.language,
+            "video_type": self.video_type,
+            "duration": self.duration,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return TwitchVideo(
+            json_data["id"],
+            json_data["user_id"],
+            json_data["user_name"],
+            json_data["title"],
+            json_data["description"],
+            json_data["created_at"],
+            json_data["published_at"],
+            json_data["url"],
+            json_data["thumbnail_url"],
+            json_data["viewable"],
+            json_data["view_count"],
+            json_data["language"],
+            json_data["video_type"],
+            json_data["duration"],
+        )
 
 
 class TwitchHelixAPI(BaseTwitchAPI):
@@ -127,6 +227,28 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
+
+    def fetch_channel_information(self, user_id):
+        response = self.get("/channels", {"broadcaster_id": user_id})
+
+        if len(response["data"]) <= 0:
+            return None
+
+        info = response["data"][0]
+
+        return UserChannelInformation(info["broadcaster_language"], info["game_id"], info["game_name"], info["title"])
+
+    def get_channel_information(self, user_id) -> Optional[UserChannelInformation]:
+        """Gets the channel information of a Twitch user for the given Twitch user ID,
+        utilizing a cache or the Twitch API on cache miss.
+        If no channel with the user exists, None is returned.
+        https://dev.twitch.tv/docs/api/reference#get-channel-information"""
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:channel-information:{user_id}",
+            serializer=ClassInstanceSerializer(UserChannelInformation),
+            fetch_fn=lambda: self.fetch_channel_information(user_id),
+            expiry=lambda response: 30 if response else 300,
+        )
 
     def fetch_follow_since(self, from_id, to_id):
         response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
@@ -268,3 +390,150 @@ class TwitchHelixAPI(BaseTwitchAPI):
         clip_id = response["data"][0]["id"]
 
         return clip_id
+
+    def _fetch_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+        response = self.get("/streams", {"user_id": user_id})
+
+        if len(response["data"]) <= 0:
+            # Stream is offline
+            return None
+
+        stream = response["data"][0]
+
+        return UserStream(
+            stream["viewer_count"],
+            stream["game_id"],
+            stream["title"],
+            stream["started_at"],
+            stream["id"],
+        )
+
+    def get_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:stream:by-id:{user_id}",
+            fetch_fn=lambda: self._fetch_stream_by_user_id(user_id),
+            serializer=ClassInstanceSerializer(UserStream),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
+    def _fetch_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+        response = self.get("/videos", {"user_id": user_id})
+
+        videos = []
+
+        for video in response["data"]:
+            videos.append(
+                TwitchVideo(
+                    video["id"],
+                    video["user_id"],
+                    video["user_name"],
+                    video["title"],
+                    video["description"],
+                    video["created_at"],
+                    video["published_at"],
+                    video["url"],
+                    video["thumbnail_url"],
+                    video["viewable"],
+                    video["view_count"],
+                    video["language"],
+                    video["type"],
+                    video["duration"],
+                )
+            )
+
+        return videos
+
+    def get_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+        return self.cache.cache_fetch_fn(
+            redis_key=f"api:twitch:helix:videos:by-id:{user_id}",
+            fetch_fn=lambda: self._fetch_videos_by_user_id(user_id),
+            serializer=ListSerializer(TwitchVideo),
+            expiry=lambda response: 30 if response is None else 300,
+        )
+
+    def _fetch_games(self, key_type, lookup_keys) -> List[Optional[TwitchGame]]:
+        all_entries: List[Optional[TwitchGame]] = []
+
+        # We can fetch a maximum of 100 users on each helix request
+        # so we do it in chunks of 100
+        for lookup_keys_chunk in iterate_in_chunks(lookup_keys, 100):
+            response = self.get("/games", {key_type: lookup_keys_chunk})
+
+            # using a response map means we don't rely on twitch returning the data entries in the exact
+            # order we requested them
+            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+
+            # then fill in the gaps with None
+            for lookup_key in lookup_keys_chunk:
+                game_dict = response_map.get(lookup_key, None)
+                if game_dict is None:
+                    all_entries.append(None)
+                else:
+                    value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
+                    all_entries.append(value)
+
+        return all_entries
+
+    def get_games_by_id(self, game_ids: List[str]) -> List[TwitchGame]:
+        return self.cache.cache_bulk_fetch_fn(
+            game_ids,
+            redis_key_fn=lambda game_id: f"api:twitch:helix:game:by-id:{game_id}",
+            fetch_fn=lambda game_ids: self._fetch_games("id", game_ids),
+            serializer=ClassInstanceSerializer(TwitchGame),
+            expiry=lambda response: 300 if response is None else 7200,
+        )
+
+    def get_games_by_name(self, game_names: List[str]) -> List[TwitchGame]:
+        return self.cache.cache_bulk_fetch_fn(
+            game_names,
+            redis_key_fn=lambda game_name: f"api:twitch:helix:game:by-name:{game_name}",
+            fetch_fn=lambda game_names: self._fetch_games("name", game_names),
+            serializer=ClassInstanceSerializer(TwitchGame),
+            expiry=lambda response: 300 if response is None else 7200,
+        )
+
+    def get_game_by_game_id(self, game_id: str) -> Optional[TwitchGame]:
+        games = self.get_games_by_id([game_id])
+        if len(games) == 0:
+            return None
+
+        return games[0]
+
+    def get_game_by_game_name(self, game_name: str) -> Optional[TwitchGame]:
+        games = self.get_games_by_name([game_name])
+        if len(games) == 0:
+            return None
+
+        return games[0]
+
+    def modify_channel_information(
+        self, broadcaster_id: str, game_id: str = None, title: str = None, authorization=None
+    ) -> bool:
+        body: Dict[str, str] = {}
+
+        if game_id:
+            body["game_id"] = game_id
+
+        if title:
+            body["title"] = title
+
+        if not body:
+            log.error(
+                "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
+            )
+            return False
+
+        try:
+            response = self.patch(
+                "/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body
+            )
+        except HTTPError as e:
+            if e.response.status_code == 400:
+                log.error(
+                    "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
+                )
+                return False
+
+            raise e
+
+        return response.status_code == 204

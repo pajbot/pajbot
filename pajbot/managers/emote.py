@@ -1,3 +1,5 @@
+from typing import Optional
+
 import logging
 
 import random
@@ -15,7 +17,7 @@ log = logging.getLogger(__name__)
 class GenericChannelEmoteManager:
     # to be implemented
     api = None
-    friendly_name = None
+    friendly_name: Optional[str] = None
 
     def __init__(self):
         self._global_emotes = []
@@ -90,7 +92,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
         super().__init__()
 
-    @property
+    @property  # type: ignore
     def channel_emotes(self):
         return self.tier_one_emotes
 

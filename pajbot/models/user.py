@@ -131,7 +131,7 @@ class User(Base):
     def login(self):
         return self._login
 
-    @login.setter
+    @login.setter  # type: ignore
     def login(self, new_login):
         self._login = new_login
         # force SQLAlchemy to update the value in the database even if the value did not change
@@ -170,11 +170,11 @@ class User(Base):
     def timed_out(self):
         return self.timeout_end is not None and self.timeout_end > utils.now()
 
-    @timed_out.expression
+    @timed_out.expression  # type: ignore
     def timed_out(self):
         return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())
 
-    @timed_out.setter
+    @timed_out.setter  # type: ignore
     def timed_out(self, timed_out):
         # You can do user.timed_out = False to set user.timeout_end = None
         if timed_out is not False:
@@ -406,3 +406,59 @@ class User(Base):
     @staticmethod
     def find_by_id(db_session, id):
         return db_session.query(User).filter_by(id=id).one_or_none()
+
+
+class UserChannelInformation:
+    """UserChannelInformation represents part of the information fetched
+    from the Helix Get Channel Information endpoint https://dev.twitch.tv/docs/api/reference#get-channel-information"""
+
+    def __init__(self, broadcaster_language, game_id, game_name, title):
+        self.broadcaster_language = broadcaster_language
+        self.game_id = game_id
+        self.game_name = game_name
+        self.title = title
+
+    def jsonify(self):
+        return {
+            "broadcaster_language": self.broadcaster_language,
+            "game_id": self.game_id,
+            "game_name": self.game_name,
+            "title": self.title,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return UserChannelInformation(
+            broadcaster_language=json_data["broadcaster_language"],
+            game_id=json_data["game_id"],
+            game_name=json_data["game_name"],
+            title=json_data["title"],
+        )
+
+
+class UserStream:
+    def __init__(self, viewer_count, game_id, title, started_at, id):
+        self.viewer_count = viewer_count
+        self.game_id = game_id
+        self.title = title
+        self.started_at = started_at
+        self.id = id
+
+    def jsonify(self):
+        return {
+            "viewer_count": self.viewer_count,
+            "game_id": self.game_id,
+            "title": self.title,
+            "started_at": self.started_at,
+            "id": self.id,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return UserStream(
+            json_data["viewer_count"],
+            json_data["game_id"],
+            json_data["title"],
+            json_data["started_at"],
+            json_data["id"],
+        )
