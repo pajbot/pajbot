@@ -256,6 +256,8 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command profile --reply @$(source:name), https://$(tb:bot_domain)/user/$(usersource;1:username)
   !add command overlay|clr --reply @$(source:name), https://$(tb:bot_domain)/clr/overlay/12345
   !add command playsounds --reply @$(source:name), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
+  !add command title --reply @$(source:name), Current stream title: $(stream:title)
+  !add command game --reply @$(source:name), Current stream game: $(stream:game)
   ```
 
 - Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
