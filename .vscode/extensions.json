@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "esbenp.prettier-vscode",
+        "coenraads.bracket-pair-colorizer-2"
+    ]
+}
