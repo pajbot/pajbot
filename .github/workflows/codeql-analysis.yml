@@ -4,14 +4,14 @@ on:
   push:
     branches: [master]
     paths-ignore:
-    - '**docs'
-    - '.github/*'
+    - '**docs/**'
+    - '.github/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
     paths-ignore:
-    - '**docs'
-    - '.github/*'
+    - '**docs/*'
+    - '.github/**'
   schedule:
     # 3pm every Sunday
     - cron: '0 2 * * 5'
