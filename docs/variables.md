@@ -1,6 +1,7 @@
 # pajbot1 Variables
 
 Args: `$(1)`, `$(2)`, etc -> return the input arguments as-is (first argument has the index 1). Does not accept transforms like `$(1|upper)`
+
 ```
 `$(user;1:key|strftime(%Y)|upper)`
   ^ path
@@ -10,12 +11,13 @@ Args: `$(1)`, `$(2)`, etc -> return the input arguments as-is (first argument ha
                       ^ filter arguments
                           ^ filter
 ```
-Examples for valid substitutions:
-`$(user;1:points)` - get the user with the login name in argument 1 (after the command trigger), and get their points\
+
+Examples for valid substitutions: `$(user;1:points)` - get the user with the login name in argument 1 (after the command trigger), and get their points\
 `$(args:0-1|urlencode)` - urlencode the first parameter
 
 ## Available filters:
-"strftime": _filter_strftime,\
+
+"strftime": \_filter_strftime,\
 "lower": lambda var, args: var.lower(),\
 "upper": lambda var, args: var.upper(),\
 "title": lambda var, args: var.title(),\
@@ -23,38 +25,41 @@ Examples for valid substitutions:
 "swapcase": lambda var, args: var.swapcase(),\
 "time_since_minutes": lambda var, args: "no time"\
 if var == 0\
-else time_since(var * 60, 0, time_format="long"),\
+else time_since(var \* 60, 0, time_format="long"),\
 "time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),\
-"time_since_dt": _filter_time_since_dt,\
-"urlencode": _filter_urlencode,\
-"join": _filter_join,\
-"number_format": _filter_number_format,\
-"add": _filter_add,\
-"or_else": _filter_or_else,\
-"or_broadcaster": self._filter_or_broadcaster,\
-"or_streamer": self._filter_or_broadcaster,\
-"slice": _filter_slice,
+"time_since_dt": \_filter_time_since_dt,\
+"urlencode": \_filter_urlencode,\
+"join": \_filter_join,\
+"number_format": \_filter_number_format,\
+"add": \_filter_add,\
+"or_else": \_filter_or_else,\
+"or_broadcaster": self.\_filter_or_broadcaster,\
+"or_streamer": self.\_filter_or_broadcaster,\
+"slice": \_filter_slice,
 
-Special Substitutions
-======================
+# Special Substitutions
+
 `$(urlfetch <url>)` - HTTP GET the given URL, and returns the body of the response.
 
 Some useful "customapi" resources are:
 
 All resources from https://customapi.aidenwallis.co.uk/  
-All resources from https://docs.decapi.me/#toc  
+All resources from https://docs.decapi.me/#toc
 
 Customapis are generally a very powerful way of allowing pajbot to do more things without expanding the python code itself.
 
-!rq command with justlog:
-`$(usersource;1:name)`: `$(urlfetch https://api.gempir.com/channel/pajlada/userid/$(usersource;1:id)/random)`
+!rq command with justlog: `$(usersource;1:name)`: `$(urlfetch https://api.gempir.com/channel/pajlada/userid/$(usersource;1:id)/random)`
 
 ## Available paths:
+
 ### kvi - Key Value Integer
+
 `$(kvi:active_subs)` - int - Number of subscribers to the broadcaster.
 
 ### tb - Info about the bot instance
+
 #### Data from `extra`:
+
 `$(tb:trigger - String)` - Command trigger (e.g. "logs" for "!logs")\
 `$(tb:user - String)` - Sender login name\
 `$(tb:emote_instances)` - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]\
@@ -65,6 +70,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(tb:message)` - String - message after the command
 
 #### Data from `self.data`:
+
 `$(tb:version_brief)` - String - '1.30'\
 `$(tb:bot_name)` - String - 'BotFactory'\
 `$(tb:broadcaster)` - String - 'infinitegachi'\
@@ -73,6 +79,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(tb:streamer_display)` - String - Returns the capitalized streamer name specified in the config file
 
 #### Data from `self.data_cb`:
+
 `$(tb:bot_uptime)` - refers to pajbot.bot.Bot.c_uptime (returns String) - '4 minutes and 24.6 seconds'\
 `$(tb:curent_time)` - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
  -- since this returns an object you can format it with strftime\
@@ -81,18 +88,22 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(tb:status_length)` - refers to pajbot.bot.Bot.c_status_length (returns String) - '4 hours and 12 minutes'
 
 #### Other
+
 `$(tb:molly_age_in_years` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
 `$(time:<timezone>` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
 
 #### e - emotes
+
 `$(epm:<emote>` - String - "68" (how often the emote was used in the last 60 seconds)\
 `$(ecount:<emote>` - String - "10482" (how often the emote was used, over all time)\
 `$(epmrecord:<emote>)` - String - "103232" (highest ever epm value)
 
 #### lasttweet - last tweet
+
 `$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)"
 
 #### Source
+
 `$(source:<thing>)` - pajbot.models.user.User - same as tb:source\
 `$(source:id)` - String - Twitch User ID\
 `$(source:login)` - String - Twitch user login name\
@@ -113,12 +124,15 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(source:timeout_end)` - datetime.datetime? - End of paid timeout, if exists
 
 #### user
+
 `$(user;argId:<attribute>)` - pajbot.models.user.UserCombined - (find user with the name from the argument and get user attribute \<attribute\>)
 
 #### usersource
+
 `$(usersource;argId:<attribute>)` - pajbot.models.user.UserCombined - (find user with the name from the argument OR if that returns nothing get the user object for the sender, and get user attribute \<attribute\>)
 
 #### curdeck
+
 `$(curdeck:id)` - int - '237'\
 `$(curdeck:name)` - String - 'Freeze Mage'\
 `$(curdeck:link)` - String - 'Freeze Mage'\
@@ -130,6 +144,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(curdeck:first_used_ago)` - String - '8 months and 25 days'
 
 #### stream
+
 `$(stream:offline)` - bool\
 `$(stream:online)` - bool\
 `$(stream:num_viewers)` - int\
@@ -151,6 +166,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(last_stream:uptime)` - datetime.timedelta - how long the stream was live
 
 #### current_song
+
 (only works when online!)\
 `$(current_song:id - int)`\
 `$(current_song:stream_id)` - int\
@@ -168,14 +184,16 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 Use these sub-variables like this: `$(current_song:song_info.title)`
 
 #### args
-Note: argument IDs are 0-based!
-`$(args:2-5 - String)` - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
+
+Note: argument IDs are 0-based! `$(args:2-5 - String)` - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
 `$(args:3 - String)` - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
 
 #### strictargs
+
 Same as args, but if this substitution would return an empty string, the command is not executed.
 
 #### command
+
 Data about this command\
 `$(command:command_id)` - int\
 `$(command:num_uses)` - int\
@@ -184,8 +202,10 @@ Data about this command\
 `$(command:last_date_used)` - datetime.datetime
 
 #### broadcaster
+
 `$(broadcaster:<attribute>)` - pajbot.models.user.UserBasics\
 Valid attributes are:
- - `id` for the broadcaster's Twitch ID\
- - `login` for the broadcaster's Twitch Login Name\
- - `name` for the broadcaster's Twitch Display Name
+
+- `id` for the broadcaster's Twitch ID\
+- `login` for the broadcaster's Twitch Login Name\
+- `name` for the broadcaster's Twitch Display Name
