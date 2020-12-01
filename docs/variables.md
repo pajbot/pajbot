@@ -1,13 +1,8 @@
-pajbot1: Available Variable Syntax
+# pajbot1 Variables
 
+Args: `$(1)`, `$(2)`, etc -> return the input arguments as-is (first argument has the index 1). Does not accept transforms like $(1|upper)
 
-General command syntax:
-
-
-$(1), $(2), etc -> return the input arguments as-is (first argument has the index 1). Does not accept transforms like $(1|upper)
-
-
-$(user;1:key|strftime(%Y)|upper)
+`$(user;1:key|strftime(%Y)|upper)`
   ^ path
        ^ argument (number)
          ^ key
@@ -16,11 +11,10 @@ $(user;1:key|strftime(%Y)|upper)
                           ^ filter
 
 Examples for valid substitutions:
-$(user;1:points) - get the user with the login name in argument 1 (after the command trigger), and get their points
-$(args:0-1|urlencode) - urlencode the first parameter
+`$(user;1:points)` - get the user with the login name in argument 1 (after the command trigger), and get their points
+`$(args:0-1|urlencode)` - urlencode the first parameter
 
-Available filters:
-        available_filters = {
+## Available filters:
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
@@ -40,10 +34,8 @@ Available filters:
             "or_broadcaster": self._filter_or_broadcaster,
             "or_streamer": self._filter_or_broadcaster,
             "slice": _filter_slice,
-        }
 
-
-special substitutions:
+Special Substitutions
 ======================
 $(urlfetch <url>) - HTTP GET the given URL, and returns the body of the response.
 Some useful "customapi" resources are:
@@ -58,18 +50,13 @@ things without expanding the python code itself.
 !rq command with justlog:
 $(usersource;1:name): $(urlfetch https://api.gempir.com/channel/pajlada/userid/$(usersource;1:id)/random)
 
+## Available paths:
 
-
-available paths:
-
-kvi - Key Value Integer
-=======================
+### kvi - Key Value Integer
 kvi:active_subs - int - Number of subscribers to the broadcaster.
 
-
-tb - Info about the bot instance
-================================
-Data from `extra`:
+### tb - Info about the bot instance
+#### Data from `extra`:
 tb:trigger - String - Command trigger (e.g. "logs" for "!logs")
 tb:user - String - Sender login name
 tb:emote_instances - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]
@@ -79,7 +66,7 @@ tb:source - pajbot.models.user.UserCombined - (Command sender)
 tb:command - pajbot.models.command.Command
 tb:message - String - message after the command
 
-Data from `self.data`:
+#### Data from `self.data`:
 tb:version_brief - String - '1.30'
 tb:bot_name - String - 'BotFactory'
 tb:broadcaster - String - 'infinitegachi'
@@ -87,7 +74,7 @@ tb:version - String - '1.30 DEV (master, 8ceb7235, commit 1629)'
 tb:bot_domain - String - Returns the domain specified in the config file
 tb:streamer_display - String - Returns the capitalized streamer name specified in the config file
 
-Data from `self.data_cb`:
+#### Data from `self.data_cb`:
 tb:bot_uptime - refers to pajbot.bot.Bot.c_uptime (returns String) - '4 minutes and 24.6 seconds'
 tb:curent_time - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'
  -- since this returns an object you can format it with strftime
@@ -95,26 +82,19 @@ tb:curent_time - refers to pajbot.bot.Bot.c_current_time (returns datetime.datet
 tb:stream_status - refers to pajbot.bot.Bot.c_stream_status (returns String) - 'offline'/'online'
 tb:status_length - refers to pajbot.bot.Bot.c_status_length (returns String) - '4 hours and 12 minutes'
 
+#### Other
 tb:molly_age_in_years - String - '0.1971333233018455' (age of pajlada's puppy molly in years)
+time:<timezone> - String - '18:47' (timezone is e.g. 'Europe/Berlin')
 
-lasttweet - last tweet
-======================
-lasttweet:<TWITTERUSER> - String - "<tweet text> (5h44m ago)"
-
-epm - Emotes per minute
-=======================
+#### e - emotes
 epm:<emote> - String - "68" (how often the emote was used in the last 60 seconds)
-
-ecount - Total cumulative emote count
-=====================================
 ecount:<emote> - String - "10482" (how often the emote was used, over all time)
-
-epmrecord - All-time highest value of "epm" (emote per minute)
-==============================================================
 epmrecord:<emote> - String - "103232" (highest ever epm value)
 
-source
-======
+#### lasttweet - last tweet
+lasttweet:<TWITTERUSER> - String - "<tweet text> (5h44m ago)"
+
+#### Source
 source:<thing> - pajbot.models.user.User - same as tb:source
 source:id - String - Twitch User ID
 source:login - String - Twitch user login name
@@ -134,20 +114,13 @@ source:moderator - boolean
 source:timed_out - boolean - True if currently on paid timeout, False otherwise
 source:timeout_end - datetime.datetime? - End of paid timeout, if exists
 
-user
-====
+#### user
 user;argId:<attribute> - pajbot.models.user.UserCombined - (find user with the name from the argument and get user attribute <attribute>)
 
-usersource
-==========
+#### usersource
 usersource;argId:<attribute> - pajbot.models.user.UserCombined - (find user with the name from the argument OR if that returns nothing get the user object for the sender, and get user attribute <attribute>)
 
-time
-====
-time:<timezone> - String - '18:47' (timezone is e.g. 'Europe/Berlin')
-
-curdeck
-=======
+#### curdeck
 curdeck:id - int - '237'
 curdeck:name - String - 'Freeze Mage'
 curdeck:link - String - 'Freeze Mage'
@@ -158,8 +131,7 @@ curdeck:times_used - int
 curdeck:last_used_ago - String - '8 months and 25 days'
 curdeck:first_used_ago - String - '8 months and 25 days'
 
-stream
-======
+#### stream
 stream:offline - bool
 stream:online - bool
 stream:num_viewers - int
@@ -180,8 +152,7 @@ last_stream:stream_end - datetime.datetime
 last_stream:ended - bool - if that stream has ended (True)
 last_stream:uptime - datetime.timedelta - how long the stream was live
 
-current_song
-============
+#### current_song
 (only works when online!)
 current_song:id - int
 current_song:stream_id - int
@@ -204,13 +175,10 @@ Note: argument IDs are 0-based!
 args:2-5 - String - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')
 args:3 - String - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
 
-
-strictargs
-==========
+#### strictargs
 Same as args, but if this substitution would return an empty string, the command is not executed.
 
-command
-=======
+#### command
 Data about this command
 command:command_id - int
 command:num_uses - int
@@ -218,8 +186,7 @@ command:added_by - int - pajbot user ID of the user that added that command.
 command:edited_by - int - pajbot user ID of the user that edited that command last.
 command:last_date_used - datetime.datetime
 
-broadcaster
-====
+#### broadcaster
 broadcaster:<attribute> - pajbot.models.user.UserBasics
 Valid attributes are:
  - `id` for the broadcaster's Twitch ID
