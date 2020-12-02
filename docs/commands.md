@@ -1,6 +1,7 @@
 # Command Arguments
 
 ## Banphrases
+
 `--length`/`--time`/`--duration` - sets the timeout length of for the phrase (in seconds). Default = 600 seconds\
 `--notify`/`--no-notify` - choose whether to notify the user of the banned phrase. Default = notify\
 `--perma`/`--permanent`/`--no-perma`/`--no-permanent` - choose whether to permanently ban the user or not. Default = no-perma\
