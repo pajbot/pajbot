@@ -3,7 +3,7 @@
 Args: `$(1)`, `$(2)`, etc -> return the input arguments as-is (first argument has the index 1). Does not accept transforms like `$(1|upper)`
 
 ```
-`$(user;1:key|strftime(%Y)|upper)`
+$(user;1:key|strftime(%Y)|upper)
   ^ path
        ^ argument (number)
          ^ key
