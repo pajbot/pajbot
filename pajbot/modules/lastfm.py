@@ -61,7 +61,7 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, bot, **rest):
+    def song(self, bot, source, **rest):
         try:
             import pylast
         except ImportError:
