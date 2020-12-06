@@ -11,3 +11,16 @@
 `--removeaccents`/`--no-removeaccents` - choose if the bot should strip the accents before checking for the phrase. Default = no-removeaccents  
 `--operator contains/startswith/endswith/exact/regex` - choose the operator that should be used for banphrase checking. Default = contains  
 `--name` - name the banphrase. Default = No name
+
+## Commands
+
+`--whisper`/`--no-whisper` - whispers the response of the command. Default = no-whisper  
+`--reply`/`--no-reply` - context-dependant reply based on where the command is used. Default = no-reply  
+`--cd` - sets the global cooldown of the command (in seconds). Default = 5 seconds  
+`--usercd` - sets the per-user cooldown of the command (in seconds). Default = 15 seconds  
+`--level` - sets the required level to use the command. If the mod-only argument is used, the mod must also meet the level specified here in order to use the command. Default = 100  
+`--cost` - sets the points cost of the command. Default = 0  
+`--tokens-cost` - sets the tokens cost of the command. Default = 0  
+`--modonly`/`--no-modonly` - allows only moderators to use the command. If a level is also set for a command, but the mod does not meet the level requirement; they will not be able to use the command. Default = no-modonly  
+`--subonly`/`--no-subonly` - allows only subscribers to use the command. Default = no-subonly  
+`--checkmsg`/`--no-checkmsg` - choose whether to check the message against the banphrase api. If enabled, the bot will not post the message if it matches a phrase. Default = no-checkmsg
