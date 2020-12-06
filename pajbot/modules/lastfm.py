@@ -54,6 +54,24 @@ class LastfmModule(BaseModule):
             placeholder="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
             default="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
         ),
+        ModuleSetting(
+            key="global_cd",
+            label="Global cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=30,
+            constraints={"min_value": 0, "max_value": 120},
+        ),
+        ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 0, "max_value": 240},
+        ),
     ]
 
     def load_commands(self, **options):
@@ -61,8 +79,8 @@ class LastfmModule(BaseModule):
         #       This way, it can be run alongside other modules
         self.commands["song"] = Command.raw_command(
             self.song,
-            delay_all=12,
-            delay_user=25,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             description="Check what that is playing on the stream",
             examples=[
                 CommandExample(
