@@ -46,6 +46,14 @@ class LastfmModule(BaseModule):
             placeholder="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
             default="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
         ),
+        ModuleSetting(
+            key="cannot_fetch_song",
+            label="Message to send when unable to fetch the song | Availably arguments: {source}",
+            type="text",
+            required=True,
+            placeholder="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
+            default="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
+        ),
     ]
 
     def load_commands(self, **options):
@@ -98,4 +106,4 @@ class LastfmModule(BaseModule):
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            bot.me("I have trouble fetching the song name.. Please try again FeelsBadMan")
+            bot.me(self.settings["cannot_fetch_song"].format(source=source))
