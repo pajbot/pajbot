@@ -4,6 +4,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
@@ -30,6 +31,55 @@ class LastfmModule(BaseModule):
             placeholder="i.e. anniefuchsia",
             default="",
         ),
+        ModuleSetting(
+            key="no_song",
+            label="Message to send when no song is playing | Available arguments: {source}, {streamer}",
+            type="text",
+            required=True,
+            placeholder="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
+            default="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
+        ),
+        ModuleSetting(
+            key="current_song",
+            label="Message to send when a song is playing | Available arguments: {source}, {streamer}, {song}",
+            type="text",
+            required=True,
+            placeholder="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
+            default="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
+        ),
+        ModuleSetting(
+            key="cannot_fetch_song",
+            label="Message to send when unable to fetch the song | Availably arguments: {source}",
+            type="text",
+            required=True,
+            placeholder="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
+            default="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
+        ),
+        ModuleSetting(
+            key="global_cd",
+            label="Global cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=30,
+            constraints={"min_value": 0, "max_value": 120},
+        ),
+        ModuleSetting(
+            key="user_cd",
+            label="Per-user cooldown (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 0, "max_value": 240},
+        ),
+        ModuleSetting(
+            key="online_only",
+            label="Only allow the LastFM commands to be run while the stream is online",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
     ]
 
     def load_commands(self, **options):
@@ -37,14 +87,20 @@ class LastfmModule(BaseModule):
         #       This way, it can be run alongside other modules
         self.commands["song"] = Command.raw_command(
             self.song,
-            delay_all=12,
-            delay_user=25,
+            delay_all=self.settings["global_cd"],
+            delay_user=self.settings["user_cd"],
             description="Check what that is playing on the stream",
             examples=[
                 CommandExample(
                     None,
                     "Check the current song",
-                    chat="user:!song\n" "bot: Current Song is \u2669\u266a\u266b Adele - Hello \u266c\u266b\u2669",
+                    chat="user:!song\n"
+                    "bot: "
+                    + self.settings["current_song"].format(
+                        source="pajlada",
+                        streamer=StreamHelper.get_streamer(),
+                        song="Adele - Hello",
+                    ),
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
@@ -53,7 +109,10 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, bot, **rest):
+    def song(self, bot, source, **rest):
+        if self.settings["online_only"] and not self.bot.is_online:
+            return False
+
         try:
             import pylast
         except ImportError:
@@ -74,10 +133,14 @@ class LastfmModule(BaseModule):
             currentTrack = user.get_now_playing()
 
             if currentTrack is None:
-                bot.me(f"{bot.streamer} isn't playing music right now.. FeelsBadMan")
+                bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
             else:
-                bot.me(f"Current Song is \u2669\u266a\u266b {currentTrack} \u266c\u266b\u2669")
+                bot.me(
+                    self.settings["current_song"].format(
+                        source=source, streamer=self.bot.streamer_display, song=currentTrack
+                    )
+                )
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            bot.me("I have trouble fetching the song name.. Please try again FeelsBadMan")
+            bot.me(self.settings["cannot_fetch_song"].format(source=source))
