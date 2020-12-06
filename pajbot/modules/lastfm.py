@@ -39,7 +39,7 @@ class LastfmModule(BaseModule):
             default="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
         ),
         ModuleSetting(
-            key="song",
+            key="current_song",
             label="Message to send when a song is playing | Available arguments: {source}, {streamer}, {song}",
             type="text",
             required=True,
