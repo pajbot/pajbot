@@ -125,7 +125,9 @@ class LastfmModule(BaseModule):
                 bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
             else:
                 bot.me(
-                    self.settings["song"].format(source=source, streamer=self.bot.streamer_display, song=currentTrack)
+                    self.settings["current_song"].format(
+                        source=source, streamer=self.bot.streamer_display, song=currentTrack
+                    )
                 )
         except pylast.WSError:
             log.error("LastFm username not found")
