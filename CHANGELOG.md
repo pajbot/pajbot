@@ -8,6 +8,7 @@ In short: The Streamers must re-authenticate with the `/streamer_login` endpoint
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Replace Kraken Game/Title setting API calls with Helix ones. (#1001)
+- Minor: Changed 503 error code message for the clip helix endpoint. (#1091)
 - Minor: Added option to select your referred gambling command. (#1067)
 - Minor: The `sub_only` command option will now show in the `!debug command` command. (#1027)
 - Minor: The permaban module will now ban immediately on command use (#1014)
