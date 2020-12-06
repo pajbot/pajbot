@@ -30,6 +30,14 @@ class LastfmModule(BaseModule):
             placeholder="i.e. anniefuchsia",
             default="",
         ),
+        ModuleSetting(
+            key="no_song",
+            label="Message to send when no song is playing | Available arguments: {source}, {streamer}",
+            type="text",
+            required=True,
+            placeholder="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
+            default="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
+        ),
     ]
 
     def load_commands(self, **options):
@@ -74,7 +82,7 @@ class LastfmModule(BaseModule):
             currentTrack = user.get_now_playing()
 
             if currentTrack is None:
-                bot.me(f"{bot.streamer} isn't playing music right now.. FeelsBadMan")
+                bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
             else:
                 bot.me(f"Current Song is \u2669\u266a\u266b {currentTrack} \u266c\u266b\u2669")
         except pylast.WSError:
