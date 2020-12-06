@@ -134,7 +134,9 @@ class ClipCommandModule(BaseModule):
                     StreamHelper.get_streamer_id(), self.bot.bot_token_manager
                 )
         except HTTPError as e:
-            if e.response.status_code != 401:
+            if e.response.status_code == 503:
+                self.bot.say(f"{source}, Failed to create clip! Does the streamer have clips disabled?")
+            elif e.response.status_code != 401:
                 self.bot.say(f"{source}, Failed to create clip! Please try again.")
             else:
                 self.bot.say(
