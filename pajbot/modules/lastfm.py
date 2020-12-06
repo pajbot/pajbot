@@ -86,7 +86,13 @@ class LastfmModule(BaseModule):
                 CommandExample(
                     None,
                     "Check the current song",
-                    chat="user:!song\n" "bot: Current Song is \u2669\u266a\u266b Adele - Hello \u266c\u266b\u2669",
+                    chat="user:!song\n"
+                    "bot: "
+                    + self.settings["current_song"].format(
+                        source="pajlada",
+                        streamer=StreamHelper.get_streamer(),
+                        song="Adele - Hello",
+                    ),
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
