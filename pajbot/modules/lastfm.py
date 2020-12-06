@@ -4,6 +4,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
 
