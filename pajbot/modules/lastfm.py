@@ -73,6 +73,13 @@ class LastfmModule(BaseModule):
             default=60,
             constraints={"min_value": 0, "max_value": 240},
         ),
+        ModuleSetting(
+            key="online_only",
+            label="Only allow the LastFM commands to be run while the stream is online",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
     ]
 
     def load_commands(self, **options):
@@ -103,6 +110,9 @@ class LastfmModule(BaseModule):
         self.commands["playing"] = self.commands["song"]
 
     def song(self, bot, source, **rest):
+        if self.settings["online_only"] and not self.bot.is_online:
+            return False
+
         try:
             import pylast
         except ImportError:
