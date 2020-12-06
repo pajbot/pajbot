@@ -38,6 +38,14 @@ class LastfmModule(BaseModule):
             placeholder="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
             default="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
         ),
+        ModuleSetting(
+            key="song",
+            label="Message to send when a song is playing | Available arguments: {source}, {streamer}, {song}",
+            type="text",
+            required=True,
+            placeholder="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
+            default="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
+        ),
     ]
 
     def load_commands(self, **options):
@@ -84,7 +92,9 @@ class LastfmModule(BaseModule):
             if currentTrack is None:
                 bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
             else:
-                bot.me(f"Current Song is \u2669\u266a\u266b {currentTrack} \u266c\u266b\u2669")
+                bot.me(
+                    self.settings["song"].format(source=source, streamer=self.bot.streamer_display, song=currentTrack)
+                )
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
