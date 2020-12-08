@@ -8,6 +8,7 @@ In short: The Streamers must re-authenticate with the `/streamer_login` endpoint
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Replace Kraken Game/Title setting API calls with Helix ones. (#1001)
+- Minor: Set the banphrase module to hidden + always enabled.
 - Minor: Bot now provides more helpful error message when `!clip` is used in a channel with clips disabled. (#1091)
 - Minor: Added custom message options to the LastFM module. (#1090)
 - Minor: Added customizable cooldowns to the LastFM module. (#1090)
