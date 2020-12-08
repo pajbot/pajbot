@@ -154,13 +154,13 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Fetch all pages using a function that returns a list of responses and a pagination cursor
         as a tuple when called with the pagination cursor as an argument."""
         pagination_cursor = None
-        responses = []
+        responses = {}
 
         while True:
             response, pagination_cursor = page_fetch_fn(after_pagination_cursor=pagination_cursor, *args, **kwargs)
 
             # add this chunk's responses to the list of all responses
-            responses.extend(response)
+            responses.update(response)
 
             # all pages iterated, done
             if len(response) <= 0 or pagination_cursor is None:
@@ -317,19 +317,15 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #   "pagination": {},
         # }
 
-        subscribers = [entry["user_id"] for entry in response["data"]]
-        pagination_cursor = response["pagination"].get("cursor", None)
+        switcher = {"3000": 3, "2000": 2, "1000": 1}
+        subscribers = {entry["user_id"]: switcher[entry["tier"]] for entry in response["data"]}
+        pagination_cursor = response["pagination"]["cursor"]
 
         return subscribers, pagination_cursor
 
     def fetch_all_subscribers(self, broadcaster_id, authorization):
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        subscriber_ids = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
-
-        # Dedupe the list of subscribers since the API can return the same IDs multiple times
-        subscriber_ids = list(set(subscriber_ids))
-
-        return subscriber_ids
+        return self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
 
     def _bulk_fetch_user_data(self, key_type, lookup_keys):
         all_entries = []
@@ -346,6 +342,28 @@ class TwitchHelixAPI(BaseTwitchAPI):
             # then fill in the gaps with None
             for lookup_key in lookup_keys_chunk:
                 all_entries.append(response_map.get(lookup_key, None))
+
+        return all_entries
+
+    def bulk_fetch_user_bans(self, key_type, lookup_keys, streamer_id, access_token):
+        all_entries = {}
+
+        # We can fetch a maximum of 100 users on each helix request
+        # so we do it in chunks of 100
+        for lookup_keys_chunk in iterate_in_chunks(lookup_keys, 100):
+            response = self.get(
+                "/moderation/banned",
+                {"broadcaster_id": streamer_id, key_type: lookup_keys_chunk},
+                authorization=access_token,
+            )
+
+            # using a response map means we don't rely on twitch returning the data entries in the exact
+            # order we requested them
+            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+
+            # then fill in the gaps with None
+            for lookup_key in lookup_keys_chunk:
+                all_entries[lookup_key] = response_map.get(lookup_key, None)
 
         return all_entries
 

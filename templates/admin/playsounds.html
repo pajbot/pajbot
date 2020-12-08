@@ -15,23 +15,16 @@
             <div class="ui raised segment">
                 <p>
                     Playing a sound
-                    {% if module_settings.point_cost <= 0 and module_settings.token_cost <= 0 %}
+                    {% if module_settings.point_cost <= 0 %}
                         is <b>free</b>.
-                    {% elif module_settings.point_cost > 0 and module_settings.token_cost > 0 %}
-                        costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }} and
-                        {{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
-                    {% elif module_settings.point_cost > 0 %}
-                        costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }}</b>.
                     {% else %}
-                        costs <b>{{ module_settings.token_cost }} token{{ "s" if module_settings.token_cost != 1 }}</b>.
+                        costs <b>{{ module_settings.point_cost }} point{{ "s" if module_settings.point_cost != 1 }}</b>
+                        but has an override option in the table below.
                     {% endif %}
 
                     <br>
                     There is a global cooldown of <b>{{ module_settings.global_cd }}
-                    second{{ "s" if module_settings.global_cd != 1 }}</b>
-                    {%- if module_settings.user_cd > 0 %}
-                    and a per-user cooldown of <b>{{ module_settings.user_cd }} second{{ "s" if module_settings.user_cd != 1 }}</b>
-                    {%- endif -%}.
+                    second{{ "s" if module_settings.global_cd != 1 }}</b>.
                     <br>
                     If you don't specify an override cooldown in the table below (by leaving the input field empty),
                     the default cooldown for each sample will be <b>{{ module_settings.default_sample_cd }}
@@ -111,12 +104,15 @@
         <thead>
         <tr>
             <th class="collapsing">Name</th>
+            <th class="collapsing">New name</th>
             <th>Link</th>
             <th class="collapsing">Volume</th>
+            <th class="collapsing">Cost</th>
             <th class="collapsing">
                 Cooldown<br>
                 (seconds)
             </th>
+            <th class="collapsing">Tier</th>
             <th class="collapsing">Enabled</th>
             <th class="collapsing" style="min-width: 120px">Actions</th>
         </tr>
@@ -126,8 +122,14 @@
             <tr>
                 <td>{{ playsound.name }}</td>
                 <td>
-                    <form class="playsound-form" id="form-{{ playsound.name }}"></form>
-                    <input form="form-{{ playsound.name }}" type="hidden" name="name" value="{{ playsound.name }}">
+                    <div class="ui input">
+                        <form class="playsound-form" id="form-{{ playsound.name }}"></form>
+                        <input form="form-{{ playsound.name }}" type="hidden" name="name" value="{{ playsound.name }}">
+                        <input autocomplete="off" form="form-{{ playsound.name }}" type="text" 
+                               placeholder="New playsound name" name="rename" value="{{ playsound.name }}">
+                    </div>
+                </td>
+                <td>
                     <div class="audio-section">
                         <div class="grow ui input compact">
                             <input autocomplete="off" form="form-{{ playsound.name }}" class="link-input" type="url"
@@ -162,9 +164,21 @@
                     </div>
                 </td>
                 <td class="top aligned">
+                    <div class="ui input compact" style="width: 150px;">
+                        <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cost"
+                               step="100" value="{{ playsound.cost if playsound.cost }}">
+                    </div>
+                </td>
+                <td class="top aligned">
                     <div class="ui input compact cooldown-input">
                         <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="cooldown"
-                               value="{{ playsound.cooldown if playsound.cooldown is not none }}">
+                               value="{{ playsound.cooldown if playsound.cooldown }}">
+                    </div>
+                </td>
+                <td class="top aligned">
+                    <div class="ui input compact tier-input">
+                        <input autocomplete="off" form="form-{{ playsound.name }}" type="number" name="tier"
+                            min="1" max="3" value="{{ playsound.tier if playsound.tier }}">
                     </div>
                 </td>
                 <td class="top aligned">
@@ -199,12 +213,12 @@
             <p>Please confirm you want to delete that playsound. This action is irreversible.</p>
         </div>
         <div class="actions">
-            <div class="ui negative button">
-                No, Don't delete
-            </div>
             <div class="ui positive right labeled icon button">
                 Yes, delete
                 <i class="checkmark icon"></i>
+            </div>
+            <div class="ui negative button">
+                No, Don't delete
             </div>
         </div>
     </div>

@@ -126,7 +126,7 @@ class EightBallModule(BaseModule):
                     None,
                     "!8ball",
                     chat="user:!8ball Should I listen to gachimuchi?\n"
-                    "bot:pajlada, the 8-ball says... Of course you should!",
+                    "bot:troydota, the 8-ball says... Of course you should!",
                     description="Ask the 8ball an important question",
                 ).parse()
             ],

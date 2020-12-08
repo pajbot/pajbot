@@ -1,0 +1,18 @@
+[Unit]
+Description=troybot for %i
+After=network.target
+
+[Service]
+Type=simple
+User=troybot
+Group=troybot
+WorkingDirectory=/opt/troybot
+RuntimeDirectory=troybot/%i
+RuntimeDirectoryPreserve=yes
+ExecStart=/opt/troybot/venv/bin/python3 main.py --config "configs/%i.ini"
+SyslogIdentifier=troybot@%I
+RestartSec=2
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,9 @@
 'use strict';
 
+$('main.main.container')
+    .find('div.ui.container')
+    .removeClass('container');
+
 $(window).on('load', function() {
     $('#toggle-module-checkbox').change(function() {
         let checked = this.checked;
@@ -79,7 +83,12 @@ $(window).on('load', function() {
             .reduce((obj, item) => {
                 obj[item.name] = item.value;
 
-                if (item.name === 'volume' || item.name === 'cooldown') {
+                if (
+                    item.name === 'volume' ||
+                    item.name === 'cost' ||
+                    item.name === 'cooldown' ||
+                    item.name === 'tier'
+                ) {
                     let val = parseInt(item.value);
                     if (isNaN(val)) {
                         val = null;
@@ -243,7 +252,7 @@ $(window).on('load', function() {
         });
 
         $(form)
-            .closest('td')
+            .closest('tr')
             .find('.play-in-browser-wrapper')
             .each(function(index, wrapper) {
                 let playButton = $(wrapper).find('.play-on-stream');

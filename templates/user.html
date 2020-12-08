@@ -33,11 +33,15 @@
                 </tr>
                 <tr>
                     <td><strong>Points</strong></td>
-                    <td>{{ user.points }} (Rank {{ user.points_rank }})</td>
+                    <td>{{ user.points }}{{ ' (Rank ' + user.points_rank|string + ')' if not user.ignored else '' }}</td>
                 </tr>
                 <tr>
                     <td><strong>Messages sent</strong></td>
-                    <td>{{ user.num_lines }} (Rank {{ user.num_lines_rank }})</td>
+                    <td>{{ user.num_lines }}{{ ' (Rank ' + user.num_lines_rank|string + ')' if not user.ignored else '' }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Paid Timeouts recieved</strong></td>
+                    <td>{{ user.num_paid_timeouts }}{{ ' (Rank ' + user.num_paid_timeouts_rank|string + ')' if not user.ignored else '' }}</td>
                 </tr>
                 <tr>
                     <td><strong>Last seen</strong></td>

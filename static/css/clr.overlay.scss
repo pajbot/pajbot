@@ -70,6 +70,7 @@ div.notifications {
   font-size: 1.25em;
   font-weight: 600;
 }
+
 div.notifications div {
   color: white;
   font-size: 1.25em;
@@ -78,11 +79,19 @@ div.notifications div {
   -webkit-text-stroke: 1px black;
   text-shadow: 3px 3px 0 #000, 2px 2px 0 #000, -2px 2px 0 #000, -1px -1px 0 #000,
     1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  word-break: break-all;
 }
+
+.tts {
+  top: 5px;
+  position: fixed;
+}
+
 div.notifications div span.word1 {
   color: #dfffdf;
 }
-div.notifications div span.word4 {
+
+div.notifications:not(div.notifications.tts) div span.word4 {
   color: #ffdfdf;
 }
 
@@ -114,4 +123,55 @@ div.notifications div span.word4 {
   position: absolute;
   bottom: 0;
   right: 50;
+}
+
+#bet {
+  width: 500px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: none;
+  td, div {
+    font-size: 1.6em;
+    font-weight: bold;
+    font-family: "Roboto";
+  }
+  #lossbettors,
+  #winbettors {
+    color: #fff;
+    -webkit-text-stroke: 1px black;
+  }
+  #winpoints {
+    color: #fff;
+    -webkit-text-stroke: 1px black;
+  }
+  #losspoints {
+    color: #fff;
+    -webkit-text-stroke: 1px black;
+  }
+  .win {
+    color: #7cd444;
+  }
+  .lose {
+    color: #d62727;
+  }
+  div.left {
+    float: left;
+  }
+  div.right {
+    position: absolute;
+    bottom: 0;
+    right: 50;
+  }
+}
+
+#songrequest {
+  display: none;
+  position: fixed;
+  max-width: 1920px;
+  max-height: 1080px;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
 }

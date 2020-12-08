@@ -4,7 +4,6 @@ import pajbot.web.routes.api.banphrases
 import pajbot.web.routes.api.commands
 import pajbot.web.routes.api.common
 import pajbot.web.routes.api.modules
-import pajbot.web.routes.api.pleblist
 import pajbot.web.routes.api.social
 import pajbot.web.routes.api.timers
 import pajbot.web.routes.api.twitter
@@ -28,9 +27,6 @@ def init(app):
 
     # /commands
     pajbot.web.routes.api.commands.init(api)
-
-    # /pleblist
-    pajbot.web.routes.api.pleblist.init(api)
 
     # /social
     pajbot.web.routes.api.social.init(api)

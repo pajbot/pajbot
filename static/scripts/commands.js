@@ -152,7 +152,7 @@ function handle_command(base_key, command) {
                                 if (message.source.from == 'bot') {
                                     chat_html += bot_name;
                                 } else {
-                                    chat_html += 'pajlada';
+                                    chat_html += 'troydota';
                                 }
                                 chat_html += '</span>';
                             } else if (message.source.type == 'whisper') {
@@ -163,7 +163,7 @@ function handle_command(base_key, command) {
                                 if (message.source.from == 'bot') {
                                     chat_html += bot_name;
                                 } else {
-                                    chat_html += 'pajlada';
+                                    chat_html += 'troydota';
                                 }
                                 chat_html += '</span>';
                                 chat_html +=
@@ -175,7 +175,7 @@ function handle_command(base_key, command) {
                                 if (message.source.to == 'bot') {
                                     chat_html += bot_name;
                                 } else {
-                                    chat_html += 'pajlada';
+                                    chat_html += 'troydota';
                                 }
                                 chat_html += '</span>';
                             }

@@ -149,6 +149,7 @@ class DuelModule(BaseModule):
         """
 
         if message is None:
+            bot.whisper(source, f"Invalid Usage !duel USERNAME POINTS_TO_BET")
             return False
 
         max_pot = self.settings["max_pot"]
@@ -160,12 +161,13 @@ class DuelModule(BaseModule):
             user = User.find_by_user_input(db_session, input)
             if user is None:
                 # No user was found with this username
+                bot.whisper(source, f"The user, {input}, has never typed in chat before FailFish")
                 return False
 
             duel_price = 0
             if len(msg_split) > 1:
                 try:
-                    duel_price = int(msg_split[1])
+                    duel_price = min(source.points, user.points) if msg_split[1] == "all" else int(msg_split[1])
                     if duel_price < 0:
                         return False
 
@@ -188,6 +190,7 @@ class DuelModule(BaseModule):
 
             if user == source:
                 # You cannot duel yourself
+                bot.whisper(source, "You cannot duel yourself")
                 return False
 
             if user.last_active is None or (utils.now() - user.last_active) > timedelta(minutes=5):

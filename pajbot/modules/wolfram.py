@@ -198,14 +198,14 @@ class WolframModule(BaseModule):
                     None,
                     "Ask Wolfram Alpha how big the moon is",
                     chat="user:!query how big is the moon?\n"
-                    "bot:pajlada, Input interpretation: Moon | average radius ❚ Result: 1737.4 km (kilometers)",
+                    "bot:troydota, Input interpretation: Moon | average radius ❚ Result: 1737.4 km (kilometers)",
                     description="",
                 ).parse(),
                 CommandExample(
                     None,
                     "Ask Wolfram Alpha what time it is, relative to the location set in the module",
                     chat="user:!query what is the time?\n"
-                    "bot:pajlada, Input interpretation: current time ❚ Result: 2:22:02 pm CEST | Saturday, July 13, 2019",
+                    "bot:troydota, Input interpretation: current time ❚ Result: 2:22:02 pm CEST | Saturday, July 13, 2019",
                     description="",
                 ).parse(),
                 CommandExample(

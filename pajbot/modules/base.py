@@ -173,6 +173,18 @@ class BaseModule:
             else:
                 return db_module.enabled
 
+    def update_settings(self, **in_settings):
+        resp = self.parse_settings(**in_settings)
+        if resp is False:
+            raise ValueError()
+        with DBManager.create_session_scope() as db_session:
+            db_module = db_session.query(Module).filter_by(id=self.ID).one_or_none()
+            if not db_module:
+                raise ValueError()
+            db_module.settings = json.dumps(resp)
+        self.settings = resp
+        return resp
+
     def load_commands(self, **options):
         pass
 

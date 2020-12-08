@@ -45,12 +45,18 @@ class PlaysoundAPI(Resource):
     def post(self, playsound_name, **options):
         # require JSON so the cooldown can be null
         post_parser = RequestParser()
+
+        post_parser.add_argument("rename", required=False)
         post_parser.add_argument("link", required=True)
         post_parser.add_argument("volume", type=int, required=True)
         post_parser.add_argument("cooldown", type=int, required=False)
+        post_parser.add_argument("cost", type=int, required=False)
+        post_parser.add_argument("tier", type=int, required=False)
         post_parser.add_argument("enabled", type=bool, required=False)
 
         args = post_parser.parse_args()
+
+        rename = args["rename"]
 
         link = args["link"]
         if not PlaysoundModule.validate_link(link):
@@ -60,10 +66,19 @@ class PlaysoundAPI(Resource):
         if not PlaysoundModule.validate_volume(volume):
             return "Bad volume argument", 400
 
+        cost = args.get("cost", None)
+        if not PlaysoundModule.validate_cost(cost):
+            return "Bad cost argument", 400
+
         # cooldown is allowed to be null/None
         cooldown = args.get("cooldown", None)
         if not PlaysoundModule.validate_cooldown(cooldown):
             return "Bad cooldown argument", 400
+
+        # tier is allowed to be empty or > 0 but <= 3
+        tier = args.get("tier", None) or None
+        if not PlaysoundModule.validate_tier(tier):
+            return "Bad tier argument", 400
 
         enabled = args["enabled"]
         if enabled is None:
@@ -74,10 +89,20 @@ class PlaysoundAPI(Resource):
 
             if playsound is None:
                 return "Playsound does not exist", 404
+
+            if rename and rename != playsound_name:
+                count = db_session.query(Playsound).filter(Playsound.name == rename).count()
+                if count > 0:
+                    return "Playsound already exists", 400
+
+                playsound.name = rename
+
             # TODO admin audit logs
             playsound.link = link
             playsound.volume = volume
+            playsound.cost = cost
             playsound.cooldown = cooldown
+            playsound.tier = tier
             playsound.enabled = enabled
 
             db_session.add(playsound)

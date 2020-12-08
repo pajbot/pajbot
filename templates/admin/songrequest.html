@@ -1,0 +1,185 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_songrequest' %}
+{% block title %}Songrequest{% endblock %}
+{% block body %}
+<div class="ui grid">
+  <div class="four wide column">
+    <div class="video_wrapper">
+      <img id="current_thumbnail" class="video"></img>
+      <div id="video_player" class="video"></div>
+    </div>
+  </div>
+  <div class="eleven wide column">
+    <div class="info">
+      <p id="status" class="status font-weight-bold" ></p>
+      <p id="songname" class="songname font-weight-bold"><i class="youtube icon"></i><span id="song_title"></span></p>
+      <p id="url" class="url font-weight-bold">from url <a href=""></a></p>
+    </div>
+  </div>
+  <div class="one wide column right aligned">
+    <div class="module-control">
+      <div class="ui floating dropdown icon button">
+        <i class="ellipsis vertical icon"></i>
+        <div class="menu">
+          <div id="ban_current_video" class="item">Ban Video</div>
+          <div id="favourite_current_video" class="item">Favourite Video</div>
+        </div>
+      </div>
+      <div class="ui teal buttons">
+        <div class="ui floating dropdown icon button">
+          <i class="cog icon"></i>
+          <div class="menu">
+            <div id="video_showing_state" class="item">Show Video</div>
+            <div id="requests_open_state" class="item">Enable Requests</div>
+            <div id="auto_play_state" class="item">Enable Auto Play</div>
+            <div id="use_spotify_state" class="item">Enable Spotify</div>
+            <div id="backup_playlist_usage_state" class="item">Enable Backup Playlist</div>
+            <div id="change_player_state" class="item">Disable Player</div>
+            <div id="play_on_stream_state" class="item">Play on stream</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="four wide column">
+      <div class="control-buttons">
+        <div class="ui buttons">
+          <button class="ui labeled icon button" id="control_previous">
+            <i class="left chevron icon"></i>
+            Previous
+          </button>
+          <button class="ui button" id="control_state">
+            <i class="pause icon"></i>
+          </button>
+          <button class="ui right labeled icon button" id="control_next">
+            Next
+            <i class="right chevron icon"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="eight wide column">
+      <div class="ui grid">
+        <div class="two wide column center aligned">
+          <span id="videocurrenttime">0:00</span>
+        </div>
+        <div class="fourteen wide column">
+          <div class="ui progress" id="videotime">
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="four wide column">
+      <div class="ui grid">
+        <div class="two wide column center aligned">
+          <i class="volume up icon"></i>
+        </div>
+        <div class="fourteen wide column">
+          <div class="ui progress" id="volume">
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="messages-box">
+
+</div>
+<div class="ui tabular menu">
+  <div class="item active" data-tab="currentqueue-tab">Current Queue</div>
+  <div class="item" data-tab="historyqueue-tab">History Queue</div>
+  <div class="item" data-tab="backupqueue-tab">Backup Queue</div>
+  <div class="item" data-tab="likedqueue-tab">Liked Songs</div>
+  <div class="item" data-tab="bannedqueue-tab">Banned Songs</div>
+</div>
+<div class="ui tab active" data-tab="currentqueue-tab">
+  <form class="ui action input" id="new-media-form">
+    <input autocomplete="off" type="text" name="search" placeholder="Youtube Video"
+           required>
+    <button class="ui button positive" id="add-media-button" type="submit">Add Media</button>
+  </form>
+  <table class="ui table">
+    <thead class="display_none">
+      <tr>
+        <th class="one wide"></th>
+        <th class="fourteen wide"></th>
+        <th class="one wide"></th>
+      </tr>
+    </thead>
+    <tbody id="currentqueuebody">
+    </tbody>
+  </table>
+</div>
+<div class="ui tab" data-tab="historyqueue-tab">
+  <table class="ui table">
+    <thead class="display_none">
+      <tr>
+        <th class="one wide"></th>
+        <th class="fourteen wide"></th>
+        <th class="one wide"></th>
+      </tr>
+    </thead>
+    <tbody id="historybody">
+    </tbody>
+  </table>
+</div>
+<div class="ui tab" data-tab="backupqueue-tab">
+  <form class="ui action input" id="set-backup-playlist-form">
+    <input autocomplete="off" type="text" name="backup_playlist" placeholder="Youtube Playlist" id="backup_playlist_input">
+    <button class="ui button positive" id="set-backup-playlist-button" type="submit">Set Playlist</button>
+  </form>
+  <table class="ui table">
+    <thead class="display_none">
+      <tr>
+        <th class="one wide"></th>
+        <th class="fourteen wide"></th>
+        <th class="one wide"></th>
+      </tr>
+    </thead>
+    <tbody id="backupqueuebody">
+    </tbody>
+  </table>
+</div>
+<div class="ui tab" data-tab="likedqueue-tab">
+  <table class="ui table">
+    <thead class="display_none">
+      <tr>
+        <th class="one wide"></th>
+        <th class="fourteen wide"></th>
+        <th class="one wide"></th>
+      </tr>
+    </thead>
+    <tbody id="favouritelist">
+    </tbody>
+  </table>
+</div>
+<div class="ui tab" data-tab="bannedqueue-tab">
+  <table class="ui table">
+    <thead class="display_none">
+      <tr>
+        <th class="one wide"></th>
+        <th class="fourteen wide"></th>
+        <th class="one wide"></th>
+      </tr>
+    </thead>
+    <tbody id="bannedlist">
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block footer %}
+    <script type="text/javascript">
+        var ws_host = '{{ site.songrequestWS.host }}';
+        var auth = '{{ token_access }}';
+    </script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    {% assets 'songrequest_admin_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets 'songrequest_admin_css' %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+{% endblock %}

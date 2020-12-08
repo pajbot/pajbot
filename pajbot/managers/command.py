@@ -97,7 +97,7 @@ class CommandManager(UserDict):
         self.internal_commands["quit"] = Command.pajbot_command(
             self.bot,
             "quit",
-            level=1000,
+            level=2000,
             command="quit",
             description="Shut down the bot, this will most definitely restart it if set up properly",
         )
@@ -188,6 +188,7 @@ class CommandManager(UserDict):
                 ),
             },
         )
+
         self.internal_commands["edit"] = Command.multiaction_command(
             level=100,
             delay_all=0,
@@ -250,6 +251,7 @@ class CommandManager(UserDict):
                 ),
             },
         )
+
         self.internal_commands["remove"] = Command.multiaction_command(
             level=100,
             delay_all=0,
@@ -293,6 +295,7 @@ class CommandManager(UserDict):
                 ),
             },
         )
+
         self.internal_commands["rem"] = self.internal_commands["remove"]
         self.internal_commands["del"] = self.internal_commands["remove"]
         self.internal_commands["delete"] = self.internal_commands["remove"]

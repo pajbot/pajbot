@@ -26,12 +26,11 @@ class RouletteModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="command_name",
-            label="Command name (e.g. roulette)",
+            label="Name of roulette command",
             type="text",
             required=True,
-            placeholder="Command name (no !)",
+            placeholder="roulette",
             default="roulette",
-            constraints={"min_str_len": 2, "max_str_len": 15},
         ),
         ModuleSetting(
             key="message_won",
@@ -150,7 +149,7 @@ class RouletteModule(BaseModule):
         self.last_add = None
 
     def load_commands(self, **options):
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        roulette = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
@@ -160,12 +159,13 @@ class RouletteModule(BaseModule):
                 CommandExample(
                     None,
                     "Roulette for 69 points",
-                    chat="user:!" + self.settings["command_name"] + " 69\n"
-                    "bot:pajlada won 69 points in roulette! FeelsGoodMan",
+                    chat="user:!"+ self.settings["command_name"].split("|")[0].lower().replace("!", "").replace(" ", "") + " 69\n" "bot:troydota won 69 points in roulette! FeelsGoodMan",
                     description="Do a roulette for 69 points",
                 ).parse()
             ],
         )
+        for name in self.settings["command_name"].split("|"):
+            self.commands[name.lower().replace("!", "").replace(" ", "")] = roulette
 
     def rigged_random_result(self):
         return random.randint(1, 100) > self.settings["rigged_percentage"]
@@ -180,7 +180,7 @@ class RouletteModule(BaseModule):
         if message is None:
             bot.whisper(
                 source,
-                "I didn't recognize your bet! Usage: !" + self.settings["command_name"] + " 150 to bet 150 points",
+                "I didn't recognize your bet! Usage: !" + self.settings["command_name"].split("|")[0].lower().replace("!", "").replace(" ", "") + " 150 to bet 150 points",
             )
             return False
 

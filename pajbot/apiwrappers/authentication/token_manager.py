@@ -94,8 +94,8 @@ class AppAccessTokenManager(AccessTokenManager):
 
 
 class UserAccessTokenManager(AccessTokenManager):
-    def __init__(self, api, redis, username, user_id, token=None):
-        redis_key = f"authentication:user-access-token:{user_id}"
+    def __init__(self, api, redis, username, user_id, token=None, redis_prefix="user"):
+        redis_key = f"authentication:{redis_prefix}-access-token:{user_id}"
         storage = RedisTokenStorage(redis, UserAccessToken, redis_key, expire=False)
 
         super().__init__(api, storage, token)

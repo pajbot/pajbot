@@ -4,10 +4,13 @@ import logging
 import urllib.parse
 from functools import update_wrapper
 from functools import wraps
+from io import BytesIO
+from PIL import Image
 
 from flask import abort
 from flask import make_response
 from flask import request
+from flask import redirect
 from flask import session
 from flask_restful import reqparse
 
@@ -26,12 +29,12 @@ from pajbot.apiwrappers.twitch.badges import BadgeNotFoundError
 log = logging.getLogger(__name__)
 
 
-def requires_level(level):
+def requires_level(level, redirect_url="/"):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if "user" not in session:
-                abort(403)
+                return redirect("/login?returnTo=" + redirect_url)
             with DBManager.create_session_scope() as db_session:
                 user = db_session.query(User).filter_by(id=session["user"]["id"]).one_or_none()
                 if user is None:
@@ -67,6 +70,7 @@ def download_logo(twitch_helix_api, streamer, streamer_id):
     logo_url = twitch_helix_api.get_profile_image_url(streamer_id)
 
     logo_raw_path = f"static/images/logo_{streamer}.png"
+    logo_tn_path = f"static/images/logo_{streamer}_tn.png"
 
     # returns bytes
     logo_image_bytes = BaseAPI(None).get_binary(logo_url)
@@ -74,6 +78,14 @@ def download_logo(twitch_helix_api, streamer, streamer_id):
     # write full-size image...
     with open(logo_raw_path, "wb") as logo_raw_file:
         logo_raw_file.write(logo_image_bytes)
+
+    # decode downloaded image
+    read_stream = BytesIO(logo_image_bytes)
+    pil_image = Image.open(read_stream)
+
+    # downscale and save the thumbnail
+    pil_image.thumbnail((64, 64), Image.ANTIALIAS)
+    pil_image.save(logo_tn_path, "png")
 
 
 def download_sub_badge(twitch_badges_api, streamer, streamer_id, subscriber_badge_version):
