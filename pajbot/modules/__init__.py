@@ -26,14 +26,14 @@ from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.clr_overlay import CLROverlayModule
+from pajbot.modules.clr_overlay.emotecombo import EmoteComboModule
+from pajbot.modules.clr_overlay.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
-from pajbot.modules.emotecombo import EmoteComboModule
-from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
