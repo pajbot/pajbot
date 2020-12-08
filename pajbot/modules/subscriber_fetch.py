@@ -1,3 +1,5 @@
+from typing import List, Any
+
 import logging
 
 from requests import HTTPError

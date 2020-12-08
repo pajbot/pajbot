@@ -85,7 +85,7 @@ from pajbot.modules.spotifyquery import SpotifySongQuery
 from pajbot.modules.reward_tts_amazon import RewardTTSModuleAmazon
 from pajbot.modules.reward_tts_streamlabs import RewardTTSModuleStreamLabs
 from pajbot.modules.random_redeem_points import RandomRedeem
-from pajbot.modules.taxation import Taxation
+from pajbot.modules.taxation import TaxationModule
 from pajbot.modules.channel_point_timeout import ChannelPointTimeout
 from pajbot.modules.songrequest import SongrequestModule
 
@@ -157,7 +157,7 @@ available_modules = [
     StreamUpdateModule,
     SubAlertModule,
     SubscriberFetchModule,
-    Taxation,
+    TaxationModule,
     TopModule,
     TriviaModule,
     TypeEmoteQuestModule,

@@ -563,7 +563,7 @@ class PlaysoundModule(BaseModule):
             ],
         )
 
-        self.commands["#playsound"].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
+        self.commands["playsound"].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
 
         if not self.settings["disable_command"]:
             playsound_command = Command.raw_command(

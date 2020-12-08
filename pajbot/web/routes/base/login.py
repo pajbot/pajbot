@@ -58,6 +58,7 @@ def init(app):
         "channel_subscriptions",
         "moderation:read",
         "channel_editor",
+        "user:edit:broadcast",
     ]
 
     spotify_scopes = [

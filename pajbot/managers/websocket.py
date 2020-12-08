@@ -31,7 +31,7 @@ class WebSocketServer:
 
             def onOpen(self):
                 log.info("WebSocket connection open")
-                WebSocketServer.clients.append(self)
+                # WebSocketServer.clients.append(self)
 
             def onMessage(self, payload, isBinary):
                 if isBinary:
@@ -57,7 +57,8 @@ class WebSocketServer:
                 log.info(f"WebSocket {self.widget_id} connection closed: {reason}")
                 try:
                     WebSocketServer.clients.remove(self)
-                except:
+                except Exception as e:
+                    log.error(e)
                     pass
 
             def _auth(self, db_session, data):
@@ -171,7 +172,10 @@ class WebSocketManager:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
                 if not widget_id or client.widget_id == widget_id:
-                    client.sendMessage(payload, False)
+                    try:
+                        client.sendMessage(payload, False)
+                    except:
+                        pass
 
     @staticmethod
     def on_log_message(message, isError=False, printed=False):
