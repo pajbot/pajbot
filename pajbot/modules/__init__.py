@@ -25,6 +25,7 @@ from pajbot.modules.chat_alerts.newchatteralert import NewChatterAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
 from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
+from pajbot.modules.clr_overlay import CLROverlayModule
 from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
@@ -90,6 +91,7 @@ available_modules = [
     ChattersRefreshModule,
     CheckModModule,
     ClipCommandModule,
+    CLROverlayModule,
     DBManageModule,
     DebugModule,
     DeckModule,
