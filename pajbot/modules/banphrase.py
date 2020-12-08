@@ -5,8 +5,8 @@ import logging
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules.base import BaseModule
 from pajbot.models.command import Command, CommandExample
+from pajbot.modules.base import BaseModule, ModuleType
 
 log = logging.getLogger(__name__)
 
