@@ -17,6 +17,8 @@ class BanphraseModule(BaseModule):
     NAME = "Banphrases"
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
+    HIDDEN = True
+    MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     CATEGORY = "Moderation"
     SETTINGS: List[Any] = []
 
