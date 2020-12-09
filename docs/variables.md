@@ -206,6 +206,6 @@ Data about this command\
 `$(broadcaster:<attribute>)` - pajbot.models.user.UserBasics\
 Valid attributes are:
 
-- `id` for the broadcaster's Twitch ID\
-- `login` for the broadcaster's Twitch Login Name\
+- `id` for the broadcaster's Twitch ID
+- `login` for the broadcaster's Twitch Login Name
 - `name` for the broadcaster's Twitch Display Name
