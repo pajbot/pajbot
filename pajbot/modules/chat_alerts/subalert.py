@@ -331,10 +331,10 @@ class SubAlertModule(BaseModule):
         self.bot.whisper(user, f"You have been given {points_to_give} points for donating ${amount:.2f}")
     def enable(self, bot):
         HandlerManager.add_handler("on_usernotice", self.on_usernotice)
-        HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+        #HandlerManager.add_handler("on_usernotice", self.on_usernotice)
         HandlerManager.add_handler("on_donate", self.on_donate)
 
     def disable(self, bot):
         HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
-        HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
+        #HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
         HandlerManager.remove_handler("on_donate", self.on_donate)

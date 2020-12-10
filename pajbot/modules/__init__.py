@@ -88,7 +88,7 @@ from pajbot.modules.random_redeem_points import RandomRedeem
 from pajbot.modules.taxation import TaxationModule
 from pajbot.modules.channel_point_timeout import ChannelPointTimeout
 from pajbot.modules.songrequest import SongrequestModule
-
+from pajbot.modules.convert_points import ConvertPoints
 
 available_modules = [
     AnalogyModule,
@@ -104,6 +104,7 @@ available_modules = [
     ChattersRefreshModule,
     CheckModModule,
     ClipCommandModule,
+    ConvertPoints,
     DBManageModule,
     DebugModule,
     DeckModule,
