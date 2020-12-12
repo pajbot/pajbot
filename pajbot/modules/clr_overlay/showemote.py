@@ -4,6 +4,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.modules.clr_overlay import CLROverlayModule
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ class ShowEmoteModule(BaseModule):
     NAME = "Show Emote"
     DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
     CATEGORY = "Feature"
+    PARENT_MODULE = CLROverlayModule
     SETTINGS = [
         ModuleSetting(
             key="point_cost",
