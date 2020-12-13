@@ -13,4 +13,4 @@ singleQuote = true
 [[overrides]]
 files = ["*.md"]
 [overrides.options]
-proseWrap = "never"
+proseWrap = "preserve"
