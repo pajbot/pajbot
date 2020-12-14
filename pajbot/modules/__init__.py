@@ -107,7 +107,7 @@ available_modules = [
     CLROverlayModule,
     EmoteComboModule,
     EmotesOnScreenModule,
-    ShowEmoteModule
+    ShowEmoteModule,
     ConvertPoints,
     DBManageModule,
     DebugModule,
