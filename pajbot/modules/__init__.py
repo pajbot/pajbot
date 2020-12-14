@@ -31,8 +31,6 @@ from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
-from pajbot.modules.emotecombo import EmoteComboModule
-from pajbot.modules.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
@@ -67,7 +65,6 @@ from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.raffle import RaffleModule
 from pajbot.modules.repspam import RepspamModule
 from pajbot.modules.roulette import RouletteModule
-from pajbot.modules.showemote import ShowEmoteModule
 from pajbot.modules.slotmachine import SlotMachineModule
 from pajbot.modules.subscriber_fetch import SubscriberFetchModule
 from pajbot.modules.top import TopModule
@@ -76,6 +73,10 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
+from pajbot.modules.clr_overlay import CLROverlayModule
+from pajbot.modules.clr_overlay.emotecombo import EmoteComboModule
+from pajbot.modules.clr_overlay.emotesonscreen import EmotesOnScreenModule
+from pajbot.modules.clr_overlay.showemote import ShowEmoteModule
 
 from pajbot.modules.analogy import AnalogyModule
 from pajbot.modules.bet import BetModule
@@ -104,6 +105,7 @@ available_modules = [
     ChattersRefreshModule,
     CheckModModule,
     ClipCommandModule,
+    CLROverlayModule,
     ConvertPoints,
     DBManageModule,
     DebugModule,
@@ -111,11 +113,9 @@ available_modules = [
     DuelModule,
     DummyModule,
     EightBallModule,
-    EmoteComboModule,
     EmoteLimitModule,
     EmoteTimeoutModule,
     EmotesModule,
-    EmotesOnScreenModule,
     FollowAgeModule,
     GetTimedOutQuestModule,
     GivePointsModule,
@@ -150,7 +150,6 @@ available_modules = [
     RewardTTSModuleAmazon,
     RewardTTSModuleStreamLabs,
     RouletteModule,
-    ShowEmoteModule,
     SlotMachineModule,
     SongrequestModule,
     SpotifyStreamLabs,

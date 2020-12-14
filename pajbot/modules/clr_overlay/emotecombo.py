@@ -3,6 +3,7 @@ import logging
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules.base import ModuleSetting
+from pajbot.modules.clr_overlay import CLROverlayModule
 
 log = logging.getLogger(__name__)
 
@@ -11,9 +12,10 @@ WIDGET_ID = 5
 
 class EmoteComboModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Emote Combos - Overlay"
+    NAME = "Emote Combos"
     DESCRIPTION = "Shows emote combos on the CLR pajbot overlay"
     CATEGORY = "Feature"
+    PARENT_MODULE = CLROverlayModule
     SETTINGS = [
         ModuleSetting(
             key="min_emote_combo",
