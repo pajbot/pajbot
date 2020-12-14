@@ -42,5 +42,23 @@
                 {% endfor %}
         </table>
     {% endif %}
+    {% if 'channelpointtimeout' in modules %}
+        <h3>Top 5 Timedout Users</h3>
+        <table class="ui very basic table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Number of timeouts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in top_5_paid_timeouts %}
+                    <tr>
+                        <td>{% include 'user/username_link.html' %}</td>
+                        <td>{{ user.num_paid_timeouts }}</td>
+                    </tr>
+                {% endfor %}
+        </table>
+    {% endif %}
 </div>
 {% endblock %}

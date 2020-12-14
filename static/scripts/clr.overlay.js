@@ -146,10 +146,10 @@ function show_custom_image(data) {
 
 var message_id = 0;
 
-function add_notification({ message }) {
-    var new_notification = $('<div>' + message + '</div>').prependTo(
-        'div.notifications'
-    );
+function add_notification({ message, length, extra_classes }) {
+    var new_notification = $(
+        `<div class="${extra_classes}">${message}</div>`
+    ).prependTo('div.notifications');
     new_notification.textillate({
         autostart: false,
         in: {
@@ -178,13 +178,14 @@ function add_notification({ message }) {
                 },
                 1000
             );
-        }, 2000);
+        }, length * 1000);
     });
     new_notification.on('outAnimationEnd.tlt', function() {
         setTimeout(function() {
             new_notification.remove();
         }, 250);
     });
+    return new_notification;
 }
 
 function refresh_combo_count(count) {
@@ -391,6 +392,101 @@ function hsbet_new_game({ time_left, win, loss }) {
     });
 }
 
+let queue = [];
+var playing = false;
+function play_sound({ link, volume, use_queue }) {
+    if (use_queue && playing) {
+        console.log("Queued");
+        queue.push({link, volume, use_queue}); 
+        return;
+    } 
+    if (use_queue) {
+        playing = true;
+    }
+    let player = new Howl({
+        src: [link],
+        volume: volume * 0.01, // the given volume is between 0 and 100
+        onend: onend_playsounds,
+        onloaderror: e => console.warn('audio load error', e),
+        onplayerror: e => console.warn('audio play error', e),
+    });
+
+    player.play();
+}
+
+function onend_playsounds() {
+    console.log('Playsound audio finished playing');
+    playing = false;
+    if (queue.length > 0) {
+        let item = queue.pop();
+        console.log(item);
+        play_sound(item);
+    }
+}
+
+//Bet System
+function bet_close_bet() {
+    var bet_el = $('#bet');
+    bet_el.fadeOut(5000, function() {
+        bet_el.find('.left').css({
+            visibility: 'hidden',
+            opacity: 1,
+        });
+    });
+    bet_el.hide();
+}
+function bet_show_bets() {
+    var bet_el = $('#bet');
+    bet_el.find('.left').css({
+        visibility: 'visible',
+        opacity: 1,
+    });
+    bet_el.find('.left').show();
+    bet_el.show();
+}
+function bet_update_data({
+    win_bettors,
+    loss_bettors,
+    win_points,
+    loss_points,
+}) {
+    $('#winbettors').text(win_bettors);
+    $('#lossbettors').text(loss_bettors);
+    $('#winpoints').text(win_points);
+    $('#losspoints').text(loss_points);
+}
+function bet_new_game() {
+    var bet_el = $('#bet');
+    bet_el.find('.left').css({
+        visibility: 'visible',
+        opacity: 1,
+    });
+
+    bet_el.hide();
+
+    $('#winbettors').text('0');
+    $('#lossbettors').text('0');
+    $('#winpoints').text('0');
+    $('#losspoints').text('0');
+
+    bet_el.find('.left').show();
+    bet_el.fadeIn(1000, function() {
+        console.log('Faded in');
+    });
+}
+function bet_reload() {
+    var bet_el = $('#bet');
+    bet_el.find('.left').css({
+        visibility: 'hidden',
+        opacity: 1,
+    });
+    bet_el.hide();
+    $('#winbettors').text('0');
+    $('#lossbettors').text('0');
+    $('#winpoints').text('0');
+    $('#losspoints').text('0');
+}
+
 function play_sound({ link, volume }) {
     let player = new Howl({
         src: [link],
@@ -413,6 +509,9 @@ function handleWebsocketData(json_data) {
         case 'new_box':
             add_random_box(data);
             break;
+        case 'notification':
+            add_notification(data);
+            break;
         case 'new_emotes':
             add_emotes(data);
             break;
@@ -428,10 +527,10 @@ function handleWebsocketData(json_data) {
                     data.victim +
                     '</span> EleGiggle',
             });
-            setTimeout(function() {
+            // setTimeout(function() {
                 // TODO idk kev maybe this will just stay removed with new playsounds system
                 //play_sound('slap');
-            }, 100);
+            // }, 100);
             break;
         case 'play_sound':
             play_sound(data);
@@ -445,16 +544,194 @@ function handleWebsocketData(json_data) {
         case 'hsbet_update_data':
             hsbet_update_data(data);
             break;
+        case 'bet_new_game':
+            bet_new_game();
+            break;
+        case 'bet_show_bets':
+            bet_show_bets();
+            break;
+        case 'bet_update_data':
+            bet_update_data(data);
+            break;
+        case 'bet_close_game':
+            bet_close_bet();
+            break;
         case 'show_custom_image':
             show_custom_image(data);
             break;
         case 'refresh':
         case 'reload':
-            location.reload(true);
+            bet_reload();
+            break;
+        case 'songrequest_play':
+            play(data);
+            break;
+        case 'songrequest_pause':
+            pause();
+            break;
+        case 'songrequest_resume':
+            resume();
+            break;
+        case 'songrequest_volume':
+            volume(data);
+            break;
+        case 'songrequest_seek':
+            seek(data);
+            break;
+        case 'songrequest_show':
+            show();
+            break;
+        case 'songrequest_hide':
+            hide();
+            break;
+        case 'songrequest_stop':
+            stop();
+            break;
+        case 'highlight':
+            receive_highlight(data);
+            break;
+        case 'skip_highlight':
+            skip_highlight();
             break;
     }
 }
 
+function play({ video_id }) {
+    player.source = {
+        type: 'video',
+        sources: [
+            {
+                src: video_id,
+                provider: 'youtube',
+            },
+        ],
+    };
+    pause();
+    socket.send(JSON.stringify({ event: 'ready', data: { salt: salt_value } }));
+}
+
+function pause() {
+    player.pause();
+}
+
+function resume() {
+    player.play();
+}
+
+function seek({ seek_time }) {
+    player.currentTime = seek_time;
+    pause();
+    socket.send(JSON.stringify({ event: 'ready', data: { salt: salt_value } }));
+}
+var global_v = 0;
+function volume({ volume }) {
+    global_v = volume / 100;
+    player.volume = global_v;
+}
+
+function hide() {
+    $('#songrequest').hide();
+}
+
+function show() {
+    $('#songrequest').show();
+}
+
+function stop() {
+    player.source = null;
+    player.stop();
+}
+
+let highlightQueue = [];
+let notificationMessage = null;
+let playAudio = new Audio();
+
+playAudio.addEventListener('canplaythrough', function() {
+    setTimeout(function() {
+        playAudio.play();
+    }, 1000);
+});
+
+playAudio.addEventListener('ended', function() {
+    var currentNotif = notificationMessage;
+    setTimeout(function() {
+        currentNotif.textillate('out');
+        currentNotif.animate(
+            {
+                height: 0,
+                opacity: 0,
+            },
+            1000
+        );
+
+        if (highlightQueue.length > 0) {
+            PlayHighlights();
+        }
+    }, 2000);
+});
+
+function PlayHighlights() {
+    if (!playAudio.ended && !playAudio.paused) {
+        return;
+    }
+
+    var currentHighlight = highlightQueue.shift();
+    playAudio.src = 'data:audio/mp3;base64,' + currentHighlight.speech;
+    playAudio.load();
+
+    // playAudio.duration is sometimes infinite for some reason
+    notificationMessage = add_notification({
+        message: `<span class="user">${currentHighlight.user}</span>: ${currentHighlight.message}`,
+        length: 500,
+        extra_classes: 'tts',
+    });
+}
+
+function receive_highlight(data) {
+    highlightQueue.push(data);
+    if (highlightQueue.length == 1) {
+        PlayHighlights();
+    }
+}
+
+function skip_highlight() {
+    playAudio.pause();
+    playAudio.src = '#';
+    notificationMessage.textillate('out');
+    notificationMessage.animate(
+        {
+            height: 0,
+            opacity: 0,
+        },
+        1000
+    );
+
+    if (highlightQueue.length > 0) {
+        PlayHighlights();
+    }
+}
+
+// This is the bare minimum JavaScript. You can opt to pass no arguments to setup.
+jQuery(function($) {
+    player = new Plyr('#player', { controls: [] });
+    player.on('ready', event => {
+        player.play();
+    });
+    player.on('statechange', event => {
+        if (event.detail.code == 0) {
+            hide();
+            socket.send(
+                JSON.stringify({
+                    event: 'next_song',
+                    data: { salt: salt_value },
+                })
+            );
+        }
+        if (event.detail.code == 1) {
+            player.volume = global_v;
+        }
+    });
+});
 let socket = null;
 
 function connect_to_ws() {
@@ -467,6 +744,9 @@ function connect_to_ws() {
     socket.binaryType = 'arraybuffer';
     socket.onopen = function() {
         console.log('WebSocket Connected!');
+        socket.send(
+            JSON.stringify({ event: 'auth', data: { salt: salt_value } })
+        );
     };
     socket.onerror = function(event) {
         console.error('WebSocket error observed:', event);
@@ -488,5 +768,6 @@ function connect_to_ws() {
         );
         socket = null;
         setTimeout(connect_to_ws, 2500);
+        // location.reload(true);
     };
 }

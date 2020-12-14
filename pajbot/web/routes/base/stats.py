@@ -16,8 +16,9 @@ def init(app):
 
         # TODO: Make this hideable through some magic setting (NOT config.ini @_@)
         with DBManager.create_session_scope() as db_session:
-            top_5_line_farmers = db_session.query(User).order_by(User.num_lines.desc()).limit(5).all()
-            return render_template("stats.html", top_5_commands=top_5_commands, top_5_line_farmers=top_5_line_farmers)
+            top_5_line_farmers = db_session.query(User).filter_by(ignored=False).order_by(User.num_lines.desc()).limit(5).all()
+            top_5_paid_timeouts = db_session.query(User).filter_by(ignored=False).order_by(User.num_paid_timeouts.desc()).limit(5).all()
+            return render_template("stats.html", top_5_commands=top_5_commands, top_5_line_farmers=top_5_line_farmers, top_5_paid_timeouts=top_5_paid_timeouts)
 
     @app.route("/stats/duels/")
     def stats_duels():

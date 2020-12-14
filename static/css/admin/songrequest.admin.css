@@ -1,0 +1,92 @@
+#video_player {
+    pointer-events: none;
+    width: 100%;
+}
+
+.info {
+    line-height: 0.5;
+    font-size: 15px;
+    margin-left: 10px;
+}
+
+.status {
+    color: #15950c;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.songname {
+    font-size: 20px;
+    color: #fb4242;
+    font-weight: bolder;
+}
+
+.url {
+    color: #4a4a4a;
+    font-weight: bold;
+}
+
+.custom-progress-bar {
+    background-color: #828282 !important;
+}
+
+.url a:hover {
+    color: #ff7d7d !important;
+}
+.url a {
+    color: #4a4a4a !important;
+    text-decoration: none !important;
+    font-weight: bolder;
+}
+
+.show-video {
+    width: 200px;
+    padding: 0 !important;
+    line-height: 0 !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+div.control-buttons div,
+div.module-control button {
+    width: 100%;
+}
+
+.ui.progress[data-percent="0"] .bar {
+    background: transparent;
+}
+
+.display_none {
+    display: none;
+}
+
+.ui-sortable-helper {
+    display: table;
+}
+
+.youtube.icon {
+    color: red;
+}
+
+.video_wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9, for an aspect ratio of 1:1 change to this value to 100% */
+}
+
+.video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 320px;
+    min-height: 180px;
+}
+
+#new-media-form {
+    width: 100%;
+}
+
+#set-backup-playlist-form {
+    width: 100%;
+}

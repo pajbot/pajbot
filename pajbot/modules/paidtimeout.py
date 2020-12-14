@@ -78,6 +78,63 @@ class PaidTimeoutModule(BaseModule):
             constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
+            key="third_command", label="Enable a third timeout command", type="boolean", required=True, default=False
+        ),
+        ModuleSetting(
+            key="command_name3",
+            label="Command name (i.e. $timeout5)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="timeout5",
+        ),
+        ModuleSetting(
+            key="timeout_length3",
+            label="Timeout length for the third timeout command",
+            type="number",
+            required=True,
+            placeholder="Timeout length in seconds",
+            default=60,
+        ),
+        ModuleSetting(
+            key="cost3",
+            label="Point cost for the third timeout command",
+            type="number",
+            required=True,
+            placeholder="Point cost",
+            default=400,
+            constraints={"min_value": 1, "max_value": 1000000},
+        ),
+        ModuleSetting(
+            key="forth_command", label="Enable a forth timeout command", type="boolean", required=True, default=False
+        ),
+        ModuleSetting(
+            key="command_name4",
+            label="Command name (i.e. $timeout5)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="timeout5",
+            constraints={"min_str_len": 2, "max_str_len": 15},
+        ),
+        ModuleSetting(
+            key="timeout_length4",
+            label="Timeout length for the forth timeout command",
+            type="number",
+            required=True,
+            placeholder="Timeout length in seconds",
+            default=60,
+        ),
+        ModuleSetting(
+            key="cost4",
+            label="Point cost for the forth timeout command",
+            type="number",
+            required=True,
+            placeholder="Point cost",
+            default=400,
+            constraints={"min_value": 1, "max_value": 1000000},
+        ),
+        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module (people with this level or above are immune to paid timeouts)",
             type="number",
@@ -154,6 +211,18 @@ class PaidTimeoutModule(BaseModule):
 
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
+    def paid_timeout3(self, bot, source, message, **rest):
+        _time = self.settings["timeout_length3"]
+        _cost = self.settings["cost3"]
+
+        return self.base_paid_timeout(bot, source, message, _time, _cost)
+
+    def paid_timeout4(self, bot, source, message, **rest):
+        _time = self.settings["timeout_length4"]
+        _cost = self.settings["cost4"]
+
+        return self.base_paid_timeout(bot, source, message, _time, _cost)
+
     def load_commands(self, **options):
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.paid_timeout,
@@ -178,6 +247,38 @@ class PaidTimeoutModule(BaseModule):
                         None,
                         f"Timeout someone for {self.settings['timeout_length2']} seconds",
                         chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
+                        description="",
+                    ).parse()
+                ],
+            )
+
+        if self.settings["third_command"]:
+            self.commands[
+                self.settings["command_name3"].lower().replace("!", "").replace(" ", "")
+            ] = Command.raw_command(
+                self.paid_timeout3,
+                cost=self.settings["cost3"],
+                examples=[
+                    CommandExample(
+                        None,
+                        f"Timeout someone for {self.settings['timeout_length3']} seconds",
+                        chat=f"user:!{self.settings['command_name3']} paja\nbot>user: You just used {self.settings['cost3']} points to time out paja for an additional {self.settings['timeout_length3']} seconds.",
+                        description="",
+                    ).parse()
+                ],
+            )
+
+        if self.settings["forth_command"]:
+            self.commands[
+                self.settings["command_name4"].lower().replace("!", "").replace(" ", "")
+            ] = Command.raw_command(
+                self.paid_timeout4,
+                cost=self.settings["cost4"],
+                examples=[
+                    CommandExample(
+                        None,
+                        f"Timeout someone for {self.settings['timeout_length4']} seconds",
+                        chat=f"user:!{self.settings['command_name4']} paja\nbot>user: You just used {self.settings['cost4']} points to time out paja for an additional {self.settings['timeout_length4']} seconds.",
                         description="",
                     ).parse()
                 ],

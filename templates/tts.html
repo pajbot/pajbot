@@ -1,0 +1,298 @@
+{% extends "layout.html" %}
+{% set active_page = 'tts' %}
+{% block title %}TTS{% endblock %}
+{% block body %}
+<div class="ui segment">
+<h2>TTS</h2>
+<h3>HOW TO USE DIFFERENT VOICES FOR YOUR TTS-MESSAGE</h3>
+
+<p>Copy one of the available voices in the list below and put it with a colon in front of the text section. Like seen below.</p>
+    
+<p><b>Example</b></p>
+<img src="https://i.nuuls.com/THdTQ.png"/>
+</div>
+<table class="ui table">
+    <thead>
+        <tr>
+            <th>Language</th>
+            <th>Name/ID</th>
+            <th>Gender</th>
+        </tr>
+    </thead>
+    <tbody>
+         <tr>
+            <td>Arabic (arb)</td>
+            <td>Zeina</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Chinese, Mandarin(cmn-CN)</td>
+            <td>Zhiyu</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Danish (da-DK)</td>
+            <td>
+               <p>Naja</p>
+               <p>Mads</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Dutch (nl-NL)</td>
+            <td>
+               <p>Lotte</p>
+               <p>Ruben</p>
+            </td>
+            <td>
+               <p>Female</p>
+               <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>English (Australian)(en-AU)</td>
+            <td>
+               <p>Nicole</p>
+               <p>Russell</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>English (British)(en-GB)</td>
+            <td>
+                <p>Amy</p>
+                <p>Emma</p>
+                <p>Brian</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>English (Indian)(en-IN)</td>
+            <td>
+                <p>Aditi*</p>
+                <p>Raveena</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+            </td>
+         </tr>
+         <tr>
+            <td>English (US) (en-US)</td>
+            <td>
+                <p>Ivy</p>
+                <p>Joanna</p>
+                <p>Kendra</p>
+                <p>Kimberly</p>
+                <p>Salli</p>
+                <p>Joey</p>
+                <p>Justin</p>
+                <p>Matthew</p>
+            </td>
+            <td>
+                <p>Female (child)</p>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+                <p>Male (child)</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>English (Welsh)(en-GB-WLS)</td>
+            <td>Geraint</td>
+            <td>Male</td>
+         </tr>
+         <tr>
+            <td>French (fr-FR)</td>
+            <td>
+                <p>Céline/Celine</p>
+                <p>Léa</p>
+                <p>Mathieu</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>German (de-DE)</td>
+            <td>
+                <p>Marlene</p>
+                <p>Vicki</p>
+                <p>Hans</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>               
+         </tr>
+         <tr>
+            <td>Hindi (hi-IN)</td>
+            <td>Aditi*</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Icelandic (is-IS)</td>
+            <td>
+                <p>Dóra/Dora</p>
+                <p>Karl</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Italian (it-IT)</td>
+            <td>
+                <p>Carla</p>
+                <p>Bianca</p>
+                <p>Giorgio</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Japanese (ja-JP)</td>
+            <td>
+                <p>Mizuki</p>
+                <p>Takumi</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Korean (ko-KR)</td>
+            <td>Seoyeon</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Norwegian (nb-NO)</td>
+            <td>Liv</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Polish (pl-PL)</td>
+            <td>
+                <p>Ewa</p>
+                <p>Maja</p>
+                <p>Jacek</p>
+                <p>Jan</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Portuguese (Brazilian)(pt-BR)</td>
+            <td>
+                <p>Camila</p>
+                <p>Vitória/Vitoria</p>
+                <p>Ricardo</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Portuguese (European)(pt-PT)</td>
+            <td>
+                <p>Inês/Ines</p>
+                <p>Cristiano</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Romanian (ro-RO)</td>
+            <td>Carmen</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Russian (ru-RU)</td>
+            <td>
+                <p>Tatyana</p>
+                <p>Maxim</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Spanish (European)(es-ES)</td>
+            <td>
+                <p>Conchita</p>
+                <p>Lucia</p>
+                <p>Enrique</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Spanish (Mexican)(es-MX)</td>
+            <td>Mia</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>US Spanish (es-US)</td>
+            <td>
+                <p>Lupe**</p>
+                <p>Penélope/Penelope</p>
+                <p>Miguel</p>
+            </td>
+            <td>
+                <p>Female</p>
+                <p>Female</p>
+                <p>Male</p>
+            </td>
+         </tr>
+         <tr>
+            <td>Swedish (sv-SE)</td>
+            <td>Astrid</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Turkish (tr-TR)</td>
+            <td>Filiz</td>
+            <td>Female</td>
+         </tr>
+         <tr>
+            <td>Welsh (cy-GB)</td>
+            <td>Gwyneth</td>
+            <td>Female</td>
+         </tr>
+      </tbody>
+    </tbody>
+</table>
+{% endblock %}

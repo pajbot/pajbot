@@ -26,6 +26,7 @@ class UserRank(Base):
     user_id = Column(TEXT, primary_key=True, nullable=False)
     points_rank = Column(BIGINT, nullable=False)
     num_lines_rank = Column(BIGINT, nullable=False)
+    num_paid_timeouts_rank = Column(BIGINT, nullable=False)
 
 
 class UserBasics:
@@ -91,6 +92,8 @@ class User(Base):
     timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
     vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
     founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
+    tier = Column(INT, nullable=True)
+    num_paid_timeouts = Column(BIGINT, nullable=False, server_default="0", index=True)
 
     _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select")
 
@@ -110,6 +113,7 @@ class User(Base):
         self.timeout_end = None
         self.vip = False
         self.founder = False
+        self.tier = 0
 
         super().__init__(*args, **kwargs)
 
@@ -155,6 +159,15 @@ class User(Base):
             # user is relatively new, and they are not inside the user_rank materialized view yet.
             # on next refresh, they will be included.
             return 1337
+
+    @property
+    def num_paid_timeouts_rank(self):
+        if self._rank:
+            return self._rank.num_paid_timeouts_rank
+        else:
+            # user is relatively new, and they are not inside the user_rank materialized view yet.
+            # on next refresh, they will be included.
+            return 1536
 
     @property
     def minutes_in_chat_online(self):
@@ -300,6 +313,8 @@ class User(Base):
             "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
             "vip": self.vip,
             "founder": self.founder,
+            "num_paid_timeouts": self.num_paid_timeouts,
+            "num_paid_timeouts_rank": self.num_paid_timeouts_rank,
         }
 
     def __eq__(self, other):

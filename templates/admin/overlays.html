@@ -1,0 +1,73 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_overlays' %}
+{% block title %}Admin - Overlays{% endblock %}
+{% block body %}
+    <form action="/admin/overlays/create" method="GET">
+        <button class="ui button green"><i class="icon add"></i> <strong>Create Overlay</strong>
+        </button>
+    </form>
+    <h2>Overlays</h2>
+    <table class="ui selectable table basic">
+        <thead>
+        <tr>
+            <th class="collapsing">Widget Name</th>
+            <th>URL</th>
+            <th class="collapsing">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {%- for row in overlays -%}
+            <tr data-id="{{ row.id }}">
+                <td class="collapsing">{{ row.widget_name }}</td>
+                <td><a href={{"https://" + site.domain + "/clr/overlay/" + row.salt}}>{{ "https://" + site.domain + "/clr/overlay/" + row.salt }}</a></td>
+                {% include 'admin/helper/row_overlay_action.html' %}
+            </tr>
+        {% endfor -%}
+        </tbody>
+    </table>
+    <div class="ui modal remove-overlay">
+        <i class="close icon"></i>
+        <div class="header">Confirm Action</div>
+        <div class="content">
+            <div class="description">
+                Are you sure you want to remove this overlay? This action is irreversible.
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui approve button">Remove</div>
+            <div class="ui cancel button">Cancel</div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {% assets 'admin_create_row' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    <script type="text/javascript">
+        function enable_edit_row(base) {
+            $('button.edit-row').click(function() {
+                var id = $(this).parent().parent().data('id');
+                console.log(id)
+                document.location.href = '/admin/' + base + '/edit/' + id;
+            });
+        }
+
+        function enable_remove_row(modal_class, base) {
+            var id_remove = 0;
+            $('button.remove-row').click(function() {
+                id_remove = $(this).parent().parent().data('id');
+                $('.ui.modal.' + modal_class).modal('show');
+            });
+            $('.ui.modal.' + modal_class).modal({
+                onApprove: function(el) {
+                    document.location.href = '/admin/' + base + '/remove/' + id_remove;
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            enable_edit_row('overlays');
+            enable_remove_row('remove-overlay', 'overlays');
+        });
+    </script>
+{% endblock %}

@@ -59,7 +59,7 @@ class TopModule(BaseModule):
     def top_chatters(self, bot, **rest):
         data = []
         with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(User).order_by(User.num_lines.desc()).limit(self.settings["num_top"]):
+            for user in db_session.query(User).filter_by(ignored=False).order_by(User.num_lines.desc()).limit(self.settings["num_top"]):
                 data.append(f"{user} ({user.num_lines})")
 
         bot.say(f"Top {self.settings['num_top']} chatters: {', '.join(data)}")
@@ -68,7 +68,7 @@ class TopModule(BaseModule):
         data = []
         with DBManager.create_session_scope() as db_session:
             for user in (
-                db_session.query(User).order_by(User.time_in_chat_online.desc()).limit(self.settings["num_top"])
+                db_session.query(User).filter_by(ignored=False).order_by(User.time_in_chat_online.desc()).limit(self.settings["num_top"])
             ):
                 data.append(f"{user} ({time_since(user.time_in_chat_online.total_seconds(), 0, time_format='short')})")
 
@@ -78,7 +78,7 @@ class TopModule(BaseModule):
         data = []
         with DBManager.create_session_scope() as db_session:
             for user in (
-                db_session.query(User).order_by(User.time_in_chat_offline.desc()).limit(self.settings["num_top"])
+                db_session.query(User).filter_by(ignored=False).order_by(User.time_in_chat_offline.desc()).limit(self.settings["num_top"])
             ):
                 data.append(f"{user} ({time_since(user.time_in_chat_offline.total_seconds(), 0, time_format='short')})")
 
@@ -87,7 +87,7 @@ class TopModule(BaseModule):
     def top_points(self, bot, **rest):
         data = []
         with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(User).order_by(User.points.desc()).limit(self.settings["num_top"]):
+            for user in db_session.query(User).filter_by(ignored=False).order_by(User.points.desc()).limit(self.settings["num_top"]):
                 data.append(f"{user} ({user.points})")
 
         bot.say(f"Top {self.settings['num_top']} banks: {', '.join(data)}")

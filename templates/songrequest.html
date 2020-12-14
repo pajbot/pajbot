@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% set active_page = 'songrequest' %}
+{% block title %}Songrequest History{% endblock %}
+{% block body %}
+
+<div class="ui equal width grid">
+    <div class="column">
+        <table class="ui celled table">
+            <caption><h2>Current Song Queue</h2><br></caption>
+            <thead>
+                <tr>
+                    <th class="one wide">#</th>
+                    <th class="ten wide">Video</th>
+                    <th class="two wide">Requested By</th>
+                    <th class="one wide">Duration</th>
+                    <th class="two wide">Playing In</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for song in songs_queue %} 
+                <tr>
+                    <td>{{song["track_number"]}}</td> 
+                    <td><a target="_blank" href={{'https://youtu.be/' + song["song_info"]["video_id"]}}>{{song["song_info"]["title"]}}</a></td> 
+                    <td>{{song["requested_by"]}}</td>
+                    <td>{{song["formatted_duration"]}}</td>
+                    <td>{{song["playing_in"]}}</td>
+                </tr>
+                {%endfor%}
+                {% if not songs_queue %}
+                <tr>
+                    <td colspan="5">There are no songs in the current queue</td>
+                </tr>
+                {%endif%}
+            </tbody>
+        </table>
+    </div>
+    <div class="column">
+        <table class="ui celled table">
+            <caption><h2>History Song Queue</h2><br></caption>
+            <thead>
+                <tr>
+                    <th class="one wide">#</th>
+                    <th class="twelve wide">Video</th>
+                    <th class="two wide">Requested By</th>
+                    <th class="one wide">Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for song in songs_history%} 
+                <tr>
+                    <td>{{song["track_number"]}}</td> 
+                    <td><a target="_blank" href={{'https://youtu.be/' + song["song_info"]["video_id"]}}>{{song["song_info"]["title"]}}</a></td>
+                    <td>{{song["requested_by"]}}</td>
+                    <td>{{song["formatted_duration"]}}</td> 
+                </tr>
+                {%endfor%}
+                {% if not songs_history %}
+                <tr>
+                    <td colspan="4">There are no songs in the history queue</td> 
+                </tr>
+                {%endif%}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+    $('main.main.container')
+        .find('div.ui.container')
+        .removeClass('container');
+</script>
+{% endblock %}

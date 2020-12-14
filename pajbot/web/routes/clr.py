@@ -3,6 +3,8 @@ import logging
 from flask import Blueprint
 from flask import render_template
 
+from pajbot.managers.db import DBManager
+from pajbot.models.web_sockets import WebSocket
 from pajbot.web.utils import nocache
 
 page = Blueprint("clr", __name__, url_prefix="/clr")
@@ -11,22 +13,10 @@ config = None
 log = logging.getLogger("pajbot")
 
 
-@page.route("/overlay/<widget_id>")
-@page.route("/overlay/<widget_id>/<random_shit>")
+@page.route("/overlay/<salt>")
 @nocache
-def overlay(widget_id, **options):
-    return render_template("clr/overlay.html", widget={})
-
-
-@page.route("/fatoverlay/<widget_id>")
-@page.route("/fatoverlay/<widget_id>/<random_shit>")
-@nocache
-def fatoverlay(widget_id, **options):
-    return render_template("clr/fatoverlay.html", widget={})
-
-
-@page.route("/crazyoverlay/<widget_id>")
-@page.route("/crazyoverlay/<widget_id>/<random_shit>")
-@nocache
-def crazyoverlay(widget_id, **options):
-    return render_template("clr/crazyoverlay.html", widget={})
+def overlay(salt):
+    with DBManager.create_session_scope() as db_session:
+        if not db_session.query(WebSocket).filter_by(salt=salt).one_or_none():
+            return render_template("no_overlay.html"), 404
+    return render_template("clr/overlay.html", salt=salt)

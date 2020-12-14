@@ -4,15 +4,17 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.managers.handler import HandlerManager
 from pajbot.modules.clr_overlay import CLROverlayModule
 
 log = logging.getLogger(__name__)
 
+WIDGET_ID = 1
 
 class ShowEmoteModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Show Emote"
-    DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
+    DESCRIPTION = "Show a single emote on screen for a few seconds using !showemote"
     CATEGORY = "Feature"
     PARENT_MODULE = CLROverlayModule
     SETTINGS = [
@@ -24,15 +26,6 @@ class ShowEmoteModule(BaseModule):
             placeholder="Point cost",
             default=100,
             constraints={"min_value": 0, "max_value": 999999},
-        ),
-        ModuleSetting(
-            key="token_cost",
-            label="Token cost",
-            type="number",
-            required=True,
-            placeholder="Token cost",
-            default=0,
-            constraints={"min_value": 0, "max_value": 15},
         ),
         ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
         ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
@@ -113,6 +106,13 @@ class ShowEmoteModule(BaseModule):
             required=True,
             default=True,
         ),
+        ModuleSetting(
+            key="redeem_id_showemote",
+            label="ID of redemeed prize for showemote",
+            type="text",
+            required=False,
+            default="",
+        ),
     ]
 
     def is_emote_allowed(self, emote_code):
@@ -131,12 +131,13 @@ class ShowEmoteModule(BaseModule):
 
         first_emote = emote_instances[0].emote
 
-        # request to show emote is ignored but return False ensures user is refunded tokens/points
+        # request to show emote is ignored but return False ensures user is refunded points
         if not self.is_emote_allowed(first_emote.code):
             return False
 
         self.bot.websocket_manager.emit(
             "new_emotes",
+            WIDGET_ID,
             {
                 "emotes": [first_emote.jsonify()],
                 "opacity": self.settings["emote_opacity"],
@@ -153,7 +154,6 @@ class ShowEmoteModule(BaseModule):
             self.show_emote,
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
             description="Show an emote on stream!",
             sub_only=self.settings["sub_only"],
@@ -168,3 +168,30 @@ class ShowEmoteModule(BaseModule):
                 ).parse()
             ],
         )
+
+    def isReward(self, event):
+        for eventTag in event.tags:
+            if eventTag["key"] == "custom-reward-id":
+                return eventTag["value"]
+
+        return False
+
+    def on_message(self, source, message, event, emote_instances, **rest):
+        redeemed_id = self.isReward(event)
+        if not redeemed_id:
+            return
+
+        if redeemed_id == self.settings["redeem_id_showemote"]:
+            self.show_emote(self.bot, source, {"emote_instances": emote_instances})
+
+    def enable(self, bot):
+        if not bot:
+            return
+
+        HandlerManager.add_handler("on_message", self.on_message)
+
+    def disable(self, bot):
+        if not bot:
+            return
+
+        HandlerManager.remove_handler("on_message", self.on_message)

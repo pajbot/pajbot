@@ -22,9 +22,10 @@ def init(app):
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
     if "playsounds" in app.bot_modules:
         nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
-    if "pleblist" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
-
+    if "songrequest" in app.bot_modules:
+        nav_bar_header.append(MenuItem("/songrequest", "songrequest", "Songrequest"))
+    if "tts" in app.bot_modules:
+        nav_bar_header.append(MenuItem("/tts", "tts", "TTS"))
     nav_bar_admin_header = []
     nav_bar_admin_header.append(MenuItem("/", "home", "Home"))
     nav_bar_admin_header.append(MenuItem("/admin", "admin_home", "Admin Home"))
@@ -45,8 +46,11 @@ def init(app):
     nav_bar_admin_header.append(MenuItem("/admin/modules", "admin_modules", "Modules"))
     if "playsounds" in app.bot_modules:
         nav_bar_admin_header.append(MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds"))
+    if "songrequest" in app.bot_modules:
+        nav_bar_admin_header.append(MenuItem("/admin/songrequest", "admin_songrequest", "Songrequest"))
     if "predict" in app.module_manager:
         nav_bar_admin_header.append(MenuItem("/admin/predictions", "admin_predictions", "Predictions"))
+    nav_bar_admin_header.append(MenuItem("/admin/overlays", "admin_overlays", "Manage Overlays"))
     nav_bar_admin_header.append(MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"))
 
     @app.context_processor

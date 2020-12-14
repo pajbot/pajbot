@@ -22,6 +22,10 @@
     min-height: calc((0.375em * 2) + 1.2142em + 2px) !important;
 }
 
+.tier-input {
+    width: 50px;
+}
+
 .volume-slider {
     flex: 1;
     min-width: 150px;

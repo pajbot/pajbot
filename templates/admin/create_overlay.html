@@ -1,0 +1,20 @@
+{% extends "admin/layout.html" %}
+{% set active_page = 'admin_overlay' %}
+{% block title %}Create Overlay{% endblock %}
+{% block body %}
+<h2>Create Overlay</h2>
+<form class="ui form" method="POST" action="/admin/overlays/create">
+    <div class="fields">
+        <div class="field ui four wide required">
+            <label>Overlay widget</label>
+            <select class="ui dropdown" name="widget">
+                {%- for widget in widgets -%}
+                    <option value="{{ widget.id }}">{{ widget.name }}</option>
+                {% endfor -%}
+            </select>
+        </div>
+    </div>
+    <div class="ui submit button green" onClick="this.parentNode.submit()">Create</div>
+</div>
+</form>
+{% endblock %}

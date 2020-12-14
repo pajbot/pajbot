@@ -1,6 +1,7 @@
 import argparse
 import logging
 import urllib.parse
+from datetime import timedelta
 
 import requests
 from bs4 import BeautifulSoup
@@ -18,6 +19,7 @@ from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +53,7 @@ def is_subpath(x, y):
 
 
 def is_same_url(x, y):
-    """ Returns True if x and y should be parsed as the same URLs, otherwise return False.  """
+    """ Returns True if x and y should be parsed as the same URLs, otherwise return False.   """
     parsed_x = x.parsed
     parsed_y = y.parsed
     return (
@@ -216,6 +218,7 @@ class LinkCheckerModule(BaseModule):
 
         self.blacklisted_links = []
         self.whitelisted_links = []
+        self.permitted_users = []
 
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
 
@@ -272,38 +275,50 @@ class LinkCheckerModule(BaseModule):
         if whisper:
             return
 
-        if source.level >= self.settings["bypass_level"] or source.moderator is True:
+        if (
+            source.level >= self.settings["bypass_level"]
+            or source.moderator is True
+            or source.id in self.permitted_users
+            or len(urls) == 0
+        ):
             return
 
-        if len(urls) > 0:
-            do_timeout = False
-            ban_reason = "You are not allowed to post links in chat"
+        do_timeout = False
+        ban_reason = "You are not allowed to post links in chat"
 
-            if self.settings["ban_pleb_links"] is True and source.subscriber is False:
-                do_timeout = True
-                ban_reason = self.settings["pleb_timeout_reason"]
-            elif self.settings["ban_sub_links"] is True and source.subscriber is True:
-                do_timeout = True
-                ban_reason = self.settings["sub_timeout_reason"]
+        whisper_reason = (
+            self.settings["pleb_timeout_reason"]
+            if self.settings["ban_pleb_links"] is True and source.subscriber is False
+            else self.settings["sub_timeout_reason"]
+        )
+        do_timeout = (self.settings["ban_pleb_links"] is True and source.subscriber is False) or (
+            self.settings["ban_sub_links"] is True and source.subscriber is True
+        )
 
-            if do_timeout is True:
-                # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
-                for url in urls:
-                    parsed_url = Url(url)
-                    if len(parsed_url.parsed.netloc.split(".")) < 2:
-                        continue
-                    whitelisted = False
-                    for whitelist in self.super_whitelist:
-                        if is_subdomain(parsed_url.parsed.netloc, whitelist):
-                            whitelisted = True
-                            break
-
-                    if whitelisted is False and self.is_whitelisted(url):
+        if do_timeout:
+            # Check if the links are in our super-whitelist. i.e. on the pajlada.se domain o forsen.tv
+            for url in urls:
+                parsed_url = Url(url)
+                if len(parsed_url.parsed.netloc.split(".")) < 2:
+                    continue
+                whitelisted = False
+                for whitelist in self.super_whitelist:
+                    if is_subdomain(parsed_url.parsed.netloc, whitelist):
                         whitelisted = True
-
-                    if whitelisted is False:
-                        self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
-                        return False
+                        break
+                if whitelisted:
+                    continue
+                if self.is_whitelisted(url):
+                    continue
+                try:
+                    requests.head(url, allow_redirects=True, timeout=2, headers={"User-Agent": self.bot.user_agent})
+                except:
+                    self.cache_url(url, True)
+                    continue
+                self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                if source.time_in_chat_online >= timedelta(hours=1):
+                    self.bot.whisper(source, whisper_reason)
+                return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
@@ -449,16 +464,15 @@ class LinkCheckerModule(BaseModule):
             if not self.cache[url.url]:  # link is bad
                 self.counteract_bad_url(url, action, False, False)
                 return self.RET_BAD_LINK
+            return self.RET_GOOD_LINK
 
+        if self.is_whitelisted(url.url, url.parsed):
+            self.cache_url(url.url, True)
             return self.RET_GOOD_LINK
 
         if self.is_blacklisted(url.url, url.parsed, sublink):
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             return self.RET_BAD_LINK
-
-        if self.is_whitelisted(url.url, url.parsed):
-            self.cache_url(url.url, True)
-            return self.RET_GOOD_LINK
 
         return self.RET_FURTHER_ANALYSIS
 
@@ -739,6 +753,26 @@ class LinkCheckerModule(BaseModule):
                 )
             },
         )
+
+        self.commands["permit"] = Command.raw_command(
+            self.permit_link, level=500, delay_all=0, delay_user=0, description="Permit's a user to post links"
+        )
+
+    def permit_link(self, bot, source, message, **rest):
+        parts = message.split(" ")
+        user = User.find_or_create_from_user_input(self.db_session, self.bot.twitch_helix_api, parts[0])
+        try:
+            length = int(parts[1] if len(parts) > 1 else 300)
+        except:
+            length = 300
+
+        if user.id in self.permitted_users:
+            self.bot.say(f"{user} is already permitted")
+            return False
+
+        self.permitted_users.append(user.id)
+        self.bot.say(f"@{user} has been permitted to post links for {length} seconds (@{source})")
+        self.bot.execute_delayed(length, lambda: self.permitted_users.remove(user.id))
 
     def add_link_blacklist(self, bot, source, message, **rest):
         options, new_links = self.parse_link_blacklist_arguments(message)

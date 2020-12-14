@@ -4,6 +4,9 @@ import logging
 import threading
 from pathlib import Path
 
+from pajbot.managers.db import DBManager
+from pajbot.models.web_sockets import WebSocket
+
 log = logging.getLogger("pajbot")
 
 
@@ -17,6 +20,10 @@ class WebSocketServer:
         from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 
         class MyServerProtocol(WebSocketServerProtocol):
+            def __init__(self):
+                WebSocketServerProtocol.__init__(self)
+                self.widget_id = ""
+
             def onConnect(self, request):
                 # log.info(self.factory)
                 # log.info('Client connecting: {0}'.format(request.peer))
@@ -24,20 +31,67 @@ class WebSocketServer:
 
             def onOpen(self):
                 log.info("WebSocket connection open")
-                WebSocketServer.clients.append(self)
+                # WebSocketServer.clients.append(self)
 
             def onMessage(self, payload, isBinary):
                 if isBinary:
                     log.info(f"Binary message received: {len(payload)} bytes")
                 else:
                     log.info(f"Text message received: {payload.decode('utf8')}")
+                    with DBManager.create_session_scope() as db_session:
+                        try:
+                            message = json.loads(payload)
+                        except:
+                            self.sendClose()
+                            return
+                        switcher = {"auth": self._auth, "next_song": self._next_song, "ready": self._ready}
+                        if (
+                            not ("event" in message
+                            and "data" in message
+                            and message["event"] in switcher
+                            and switcher[message["event"]](db_session, message["data"]))
+                        ):
+                            self.sendClose()
 
             def onClose(self, wasClean, code, reason):
-                log.info(f"WebSocket connection closed: {reason}")
+                log.info(f"WebSocket {self.widget_id} connection closed: {reason}")
                 try:
                     WebSocketServer.clients.remove(self)
-                except:
+                except Exception as e:
+                    log.error(e)
                     pass
+
+            def _auth(self, db_session, data):
+                if "salt" not in data:
+                    return False
+
+                ws = db_session.query(WebSocket).filter_by(salt=data["salt"]).one_or_none()
+                if not ws:
+                    return False
+
+                self.widget_id = ws.widget_id
+                WebSocketServer.clients.append(self)
+                return True
+
+            def _next_song(self, db_session, data):
+                if "salt" not in data:
+                    return False
+
+                if not db_session.query(WebSocket).filter_by(salt=data["salt"]).one_or_none():
+                    return False
+
+                manager.bot.songrequest_manager.load_song()
+                return True
+
+            def _ready(self, db_session, data):
+                if "salt" not in data:
+                    return False
+
+                if not db_session.query(WebSocket).filter_by(salt=data["salt"]).one_or_none():
+                    return False
+
+                manager.bot.songrequest_manager.ready_function()
+                return True
 
         factory = WebSocketServerFactory()
         factory.setProtocolOptions(autoPingInterval=15, autoPingTimeout=5)
@@ -113,11 +167,15 @@ class WebSocketManager:
         except:
             log.exception("Uncaught exception in WebSocketManager")
 
-    def emit(self, event, data={}):
+    def emit(self, event, widget_id=None, data={}):
         if self.server:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
-                client.sendMessage(payload, False)
+                if not widget_id or client.widget_id == widget_id:
+                    try:
+                        client.sendMessage(payload, False)
+                    except:
+                        pass
 
     @staticmethod
     def on_log_message(message, isError=False, printed=False):

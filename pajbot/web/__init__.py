@@ -8,6 +8,8 @@ from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManage
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
+from pajbot.apiwrappers.spotify import SpotifyPlayerAPI, SpotifyTokenAPI
+from pajbot.managers.songrequest_queue_manager import SongRequestQueueManager
 from pajbot.constants import VERSION
 from pajbot.utils import extend_version_if_possible
 
@@ -59,10 +61,19 @@ def init(args):
     app_token_manager = AppAccessTokenManager(twitch_id_api, RedisManager.get())
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
     twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
+    spotify_player_api = SpotifyPlayerAPI(RedisManager.get())
+    spotify_token_api = SpotifyTokenAPI(
+        RedisManager.get(),
+        config["spotify"]["client_id"],
+        config["spotify"]["client_secret"],
+        config["spotify"]["redirect_uri"],
+    )
 
     app.api_client_credentials = api_client_credentials
     app.twitch_id_api = twitch_id_api
     app.twitch_helix_api = twitch_helix_api
+    app.spotify_player_api = spotify_player_api
+    app.spotify_token_api = spotify_token_api
 
     if "web" not in config:
         log.error("Missing [web] section in config.ini")
@@ -82,6 +93,7 @@ def init(args):
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
     StreamHelper.init_streamer(streamer, streamer_user_id, streamer_display)
 
+    SongRequestQueueManager.init(streamer)
     try:
         download_logo(twitch_helix_api, streamer, streamer_user_id)
     except:
@@ -143,6 +155,11 @@ def init(args):
             "domain": config["web"]["domain"],
             "deck_tab_images": config.getboolean("web", "deck_tab_images"),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
+            "songrequestWS": {
+                "host": config["songrequest-websocket"].get(
+                    "host", f"wss://{config['web']['domain']}/songrequest_websocket"
+                )
+            },
         },
         "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
         "modules": app.bot_modules,

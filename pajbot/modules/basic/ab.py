@@ -76,14 +76,14 @@ class AbCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Inject emote inbetween each letter in message",
-                    chat="user:!ab Keepo KEEPO\n" "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
+                    chat="user:!ab Keepo KEEPO\n" "bot:troydota, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
                     description="",
                 ).parse(),
                 CommandExample(
                     None,
                     "Inject emote inbetween each word in message",
                     chat="user:!ab Kreygasm NOW THATS WHAT I CALL MUSIC\n"
-                    "bot:pajlada, Kreygasm NOW Kreygasm THATS Kreygasm WHAT Kreygasm I Kreygasm CALL Kreygasm MUSIC Kreygasm",
+                    "bot:troydota, Kreygasm NOW Kreygasm THATS Kreygasm WHAT Kreygasm I Kreygasm CALL Kreygasm MUSIC Kreygasm",
                     description="",
                 ).parse(),
             ],
