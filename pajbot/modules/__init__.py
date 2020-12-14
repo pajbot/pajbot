@@ -77,10 +77,6 @@ from pajbot.modules.vanish import VanishModule
 from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
-from pajbot.modules.clr_overlay import CLROverlayModule
-from pajbot.modules.clr_overlay.emotecombo import EmoteComboModule
-from pajbot.modules.clr_overlay.emotesonscreen import EmotesOnScreenModule
-from pajbot.modules.clr_overlay.showemote import ShowEmoteModule
 
 from pajbot.modules.analogy import AnalogyModule
 from pajbot.modules.bet import BetModule
@@ -93,7 +89,6 @@ from pajbot.modules.random_redeem_points import RandomRedeem
 from pajbot.modules.taxation import TaxationModule
 from pajbot.modules.channel_point_timeout import ChannelPointTimeout
 from pajbot.modules.songrequest import SongrequestModule
-from pajbot.modules.convert_points import ConvertPoints
 
 available_modules = [
     AnalogyModule,
@@ -110,6 +105,9 @@ available_modules = [
     CheckModModule,
     ClipCommandModule,
     CLROverlayModule,
+    EmoteComboModule,
+    EmotesOnScreenModule,
+    ShowEmoteModule
     ConvertPoints,
     DBManageModule,
     DebugModule,
