@@ -11,11 +11,9 @@ updates:
       interval: "daily"
     labels:
       - "dependencies"
-      - "no changelog entry needed"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     labels:
       - "dependencies"
-      - "no changelog entry needed"
