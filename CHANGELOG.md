@@ -2,32 +2,33 @@
 
 ## Unversioned
 
+## v1.48
+
 Because the Game/Title setting API calls are now using the Helix calls, it's no longer possible to use the Bot token to update the game/title of a channel, instead the Streamer token **must** be used. In addition to this, the Streamer token needs a new permission `user:edit:broadcast`.  
 In short: The Streamers must re-authenticate with the `/streamer_login` endpoint for `!setgame` and `!settitle` to work.
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Replace Kraken Game/Title setting API calls with Helix ones. (#1001)
+- Minor: Added user-specific cooldown to playsound module (#888, #1006)
+- Minor: The permaban module will now ban immediately on command use (#1014)
 - Minor: Bot now provides more helpful error message when `!clip` is used in a channel with clips disabled. (#1091)
 - Minor: Added custom message options to the LastFM module. (#1090)
 - Minor: Added customizable cooldowns to the LastFM module. (#1090)
 - Minor: Added an online only option to the LastFM module. (#1090)
 - Minor: Added option to select your referred gambling command. (#1067)
 - Minor: The `sub_only` command option will now show in the `!debug command` command. (#1027)
-- Minor: The permaban module will now ban immediately on command use (#1014)
 - Minor: Added settings to change command name and cooldowns for showemote module. (#1007)
 - Minor: Replace Kraken Game/Title/Stream/Video fetching API calls with Helix ones (#1001)
 - Minor: Removed excess message in whisper for paid timeout module. (#993)
 - Minor: Move the streamer image resizing to the css file. Also added a rounded border to it. (#992)
-- Minor: Added user-specific cooldown to playsound module (#888, #1006)
 - Minor: Add \$(broadcaster) variable (#925, #1076)
 - Minor: Duel winrate now takes `duels_won` into consideration if winrate is equal (#1079)
 - Minor: Moved CLR-based modules to a sub-folder. (#1094)
-- Bugfix: Paid timeouts will now only timeout once. (#993)
-- Bugfix: Handle new format of P&SL lists (#988, #989)
 - Bugfix: Fixed league rank module not working at all. (#990)
-- Bugfix: Handle new format of P&SL lists (#988, #989, #994)
+- Bugfix: Paid timeouts will now only timeout once. (#993)
 - Bugfix: Fixed name of "get timed out" quest. (It just said "Quest" before) (#1003)
+- Bugfix: Handle new format of P&SL lists (#988, #989, #994)
 - Bugfix: Added proper error handling to P&SL module. (#991, #1005)
 
 ## v1.47
