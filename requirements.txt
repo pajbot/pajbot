@@ -28,7 +28,7 @@ service-identity==18.1.0 # for twisted SSL as well
 SQLAlchemy==1.3.22
 SQLAlchemy-Utc==0.11.0
 tempora==4.0.1
-tweepy==3.9.0
+tweepy==3.10.0
 Twisted==20.3.0
 Unidecode==1.1.2
 uWSGI==2.0.19.1
