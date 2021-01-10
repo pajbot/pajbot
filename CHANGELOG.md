@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Fixed double banphrase handling in the `safe_privmsg` function and `is_bad_message` function.
+
 ## v1.48
 
 Because the Game/Title setting API calls are now using the Helix calls, it's no longer possible to use the Bot token to update the game/title of a channel, instead the Streamer token **must** be used. In addition to this, the Streamer token needs a new permission `user:edit:broadcast`.  
