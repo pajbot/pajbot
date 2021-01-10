@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Fixed double banphrase handling in the `safe_privmsg` function and `is_bad_message` function.
+- Minor: Fixed double banphrase handling in the `safe_privmsg` function and `is_bad_message` function. (#1122)
 
 ## v1.48
 
