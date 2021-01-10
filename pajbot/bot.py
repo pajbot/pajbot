@@ -652,6 +652,10 @@ class Bot:
         if not self.is_bad_message(message):
             self.me(message, channel)
 
+    def safe_say(self, message, channel=None):
+        if not self.is_bad_message(message):
+            self.say(message, channel)
+
     def me(self, message, channel=None):
         self.say("/me " + message[:500], channel=channel)
 
