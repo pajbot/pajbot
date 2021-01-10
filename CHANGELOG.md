@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added a `safe_say` function.
+- Minor: Added a `safe_say` function. (#1123)
 
 ## v1.48
 
