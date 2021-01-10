@@ -625,15 +625,6 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def safe_privmsg(self, message, channel=None):
-        # Check for banphrases
-        res = self.banphrase_manager.check_message(message, None)
-        if res is not False:
-            self.privmsg(f"filtered message ({res.id})", channel)
-            return
-
-        self.privmsg(message, channel)
-
     def say(self, message, channel=None):
         if message is None:
             log.warning("message=None passed to Bot::say()")
@@ -646,7 +637,12 @@ class Bot:
         self.privmsg(message[:510], channel)
 
     def is_bad_message(self, message):
+        # Checks for banphrases
         return self.banphrase_manager.check_message(message, None) is not False
+
+    def safe_privmsg(self, message, channel=None):
+        if not self.is_bad_message(message):
+            self.privmsg(message, channel)
 
     def safe_me(self, message, channel=None):
         if not self.is_bad_message(message):
