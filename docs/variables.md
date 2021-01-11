@@ -81,7 +81,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 #### Data from `self.data_cb`:
 
 `$(tb:bot_uptime)` - refers to pajbot.bot.Bot.c_uptime (returns String) - '4 minutes and 24.6 seconds'\
-`$(tb:curent_time)` - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
+`$(tb:current_time)` - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
  -- since this returns an object you can format it with strftime\
  e.g. `$(tb:current_time|strftime(%A %Y-%m-%d %H:%M:%S))`\
 `$(tb:stream_status)` - refers to pajbot.bot.Bot.c_stream_status (returns String) - 'offline'/'online'\
