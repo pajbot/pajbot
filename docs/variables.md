@@ -89,13 +89,13 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### Other
 
-`$(tb:molly_age_in_years` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
-`$(time:<timezone>` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
+`$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
+`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
 
 #### e - emotes
 
-`$(epm:<emote>` - String - "68" (how often the emote was used in the last 60 seconds)\
-`$(ecount:<emote>` - String - "10482" (how often the emote was used, over all time)\
+`$(epm:<emote>)` - String - "68" (how often the emote was used in the last 60 seconds)\
+`$(ecount:<emote>)` - String - "10482" (how often the emote was used, over all time)\
 `$(epmrecord:<emote>)` - String - "103232" (highest ever epm value)
 
 #### lasttweet - last tweet
