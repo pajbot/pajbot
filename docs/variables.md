@@ -81,7 +81,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 #### Data from `self.data_cb`:
 
 `$(tb:bot_uptime)` - refers to pajbot.bot.Bot.c_uptime (returns String) - '4 minutes and 24.6 seconds'\
-`$(tb:curent_time)` - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
+`$(tb:current_time)` - refers to pajbot.bot.Bot.c_current_time (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
  -- since this returns an object you can format it with strftime\
  e.g. `$(tb:current_time|strftime(%A %Y-%m-%d %H:%M:%S))`\
 `$(tb:stream_status)` - refers to pajbot.bot.Bot.c_stream_status (returns String) - 'offline'/'online'\
@@ -89,13 +89,13 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### Other
 
-`$(tb:molly_age_in_years` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
-`$(time:<timezone>` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
+`$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
+`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
 
 #### e - emotes
 
-`$(epm:<emote>` - String - "68" (how often the emote was used in the last 60 seconds)\
-`$(ecount:<emote>` - String - "10482" (how often the emote was used, over all time)\
+`$(epm:<emote>)` - String - "68" (how often the emote was used in the last 60 seconds)\
+`$(ecount:<emote>)` - String - "10482" (how often the emote was used, over all time)\
 `$(epmrecord:<emote>)` - String - "103232" (highest ever epm value)
 
 #### lasttweet - last tweet
