@@ -348,6 +348,7 @@ def get_substitutions(string, bot):
         method_mapping["user"] = bot.get_user_value
         method_mapping["usersource"] = bot.get_usersource_value
         method_mapping["time"] = bot.get_time_value
+        method_mapping["date"] = bot.get_date_value
         method_mapping["curdeck"] = bot.decks.action_get_curdeck
         method_mapping["stream"] = bot.stream_manager.get_stream_value
         method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value

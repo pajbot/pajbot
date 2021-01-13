@@ -91,6 +91,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 `$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
 `$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
+`$(date:<timezone>)` - String - '2021-01-12' (timezone is e.g. 'Europe/Berlin')
 
 #### e - emotes
 
