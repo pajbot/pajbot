@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added `$(date:<timezone>)` variable.
+- Minor: Added `$(date:<timezone>)` variable. (#1125)
 
 ## v1.48
 
