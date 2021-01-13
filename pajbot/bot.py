@@ -389,6 +389,13 @@ class Bot:
 
         return None
 
+    def get_date_value(self, key, extra={}):
+        try:
+            tz = timezone(key)
+            return datetime.datetime.now(tz).strftime("%Y-%m-%d")
+        except:
+            log.exception("Unhandled exception in get_date_value")
+
     def get_current_song_value(self, key, extra={}):
         if self.stream_manager.online:
             current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)

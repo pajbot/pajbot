@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Added `$(date:<timezone>)` variable. (#1125)
+
 ## v1.48
 
 Because the Game/Title setting API calls are now using the Helix calls, it's no longer possible to use the Bot token to update the game/title of a channel, instead the Streamer token **must** be used. In addition to this, the Streamer token needs a new permission `user:edit:broadcast`.  
