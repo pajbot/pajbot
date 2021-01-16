@@ -246,7 +246,7 @@ class RaffleModule(BaseModule):
 
     def raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source}, a raffle is already running OMGScoots")
+            bot.safe_say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         self.raffle_users = set()
@@ -282,13 +282,13 @@ class RaffleModule(BaseModule):
             bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
-        bot.say(self.get_phrase("message_start", **arguments))
+        bot.safe_say(self.get_phrase("message_start", **arguments))
         arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
+        bot.execute_delayed(self.raffle_length * 0.25, bot.safe_say, self.get_phrase("message_running", **arguments))
         arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
+        bot.execute_delayed(self.raffle_length * 0.50, bot.safe_say, self.get_phrase("message_running", **arguments))
         arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
+        bot.execute_delayed(self.raffle_length * 0.75, bot.safe_say, self.get_phrase("message_running", **arguments))
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
@@ -354,25 +354,25 @@ class RaffleModule(BaseModule):
             )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
-        self.bot.say(self.get_phrase("message_start_multi", **arguments))
+        self.bot.safe_say(self.get_phrase("message_start_multi", **arguments))
         arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.25, self.bot.safe_say, self.get_phrase("message_running_multi", **arguments)
         )
         arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.50, self.bot.safe_say, self.get_phrase("message_running_multi", **arguments)
         )
         arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
         self.bot.execute_delayed(
-            self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.75, self.bot.safe_say, self.get_phrase("message_running_multi", **arguments)
         )
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 
     def multi_raffle(self, bot, source, message, **rest):
         if self.raffle_running is True:
-            bot.say(f"{source}, a raffle is already running OMGScoots")
+            bot.safe_say(f"{source}, a raffle is already running OMGScoots")
             return False
 
         points = 100

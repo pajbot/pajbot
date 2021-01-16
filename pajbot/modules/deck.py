@@ -129,7 +129,7 @@ class DeckModule(BaseModule):
             else:
                 bot.whisper(source, f"Updated an already-existing deck. Its ID is {deck.id}")
 
-            bot.say("Successfully updated the latest deck.")
+            bot.safe_say("Successfully updated the latest deck.")
             return True
 
         return False

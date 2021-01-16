@@ -508,7 +508,7 @@ class SayAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.say(resp)
+            return bot.safe_say(resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -516,7 +516,7 @@ class SayAction(MessageAction):
             kwargs={
                 "args": [],
                 "kwargs": {},
-                "method": bot.say,
+                "method": bot.safe_say,
                 "bot": bot,
                 "extra": extra,
                 "message": resp,
@@ -593,7 +593,7 @@ class ReplyAction(MessageAction):
 
         if irc.client.is_channel(event.target):
             if self.num_urlfetch_subs == 0:
-                return bot.say(resp, channel=event.target)
+                return bot.safe_say(resp, channel=event.target)
 
             return ScheduleManager.execute_now(
                 urlfetch_msg,
@@ -601,7 +601,7 @@ class ReplyAction(MessageAction):
                 kwargs={
                     "args": [],
                     "kwargs": {"channel": event.target},
-                    "method": bot.say,
+                    "method": bot.safe_say,
                     "bot": bot,
                     "extra": extra,
                     "message": resp,

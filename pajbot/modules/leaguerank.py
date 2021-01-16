@@ -152,31 +152,31 @@ class LeagueRankModule(BaseModule):
         except ApiError as e:
             log.exception("babyrage")
             if e.response.status_code == 429:
-                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
+                bot.safe_say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
-                bot.say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
+                bot.safe_say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
             return False
 
         try:
             summoner_league = lw.league.by_summoner(region, summoner_id)
 
             if len(summoner_league) == 0:
-                bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
+                bot.safe_say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
                 return False
 
             tier = summoner_league[0]["tier"]
             rank = summoner_league[0]["rank"]
             league_points = summoner_league[0]["leaguePoints"]
 
-            bot.say(
+            bot.safe_say(
                 f"The Summoner {summoner_name} on region {region.upper()} is currently in {tier} {rank} with {league_points} LP 4Head"
             )
         except ApiError as e:
             log.exception("babyrage")
             if e.response.status_code == 429:
-                bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
+                bot.safe_say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
-                bot.say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
+                bot.safe_say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
             else:
-                bot.say("Trouble fetching summoner rank.. Kappa Try again later!")
+                bot.safe_say("Trouble fetching summoner rank.. Kappa Try again later!")
             return False

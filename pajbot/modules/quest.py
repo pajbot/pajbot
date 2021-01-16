@@ -71,7 +71,7 @@ class QuestModule(BaseModule):
             else:
                 bot.whisper(source, "You have no progress on the current quest.")
         else:
-            bot.say(f"{source}, There is no quest active right now.")
+            bot.safe_say(f"{source}, There is no quest active right now.")
 
     def get_current_quest(self, bot, event, source, **rest):
         if self.current_quest:
@@ -86,14 +86,14 @@ class QuestModule(BaseModule):
         # todo use bot.send_message_to_user or similar
 
         if self.settings["action_tokens"] == "say":
-            bot.say(message_tokens)
+            bot.safe_say(message_tokens)
         elif self.settings["action_tokens"] == "whisper":
             bot.whisper(source, message_tokens)
         elif self.settings["action_tokens"] == "me":
             bot.me(message_tokens)
         elif self.settings["action_tokens"] == "reply":
             if event.type in ["action", "pubmsg"]:
-                bot.say(message_tokens)
+                bot.safe_say(message_tokens)
             elif event.type == "whisper":
                 bot.whisper(source, message_tokens)
 
@@ -128,8 +128,8 @@ class QuestModule(BaseModule):
 
         redis.set(self.current_quest_key, self.current_quest.ID)
 
-        self.bot.say("Stream started, new quest has been chosen!")
-        self.bot.say(f"Current quest objective: {self.current_quest.get_objective()}")
+        self.bot.safe_say("Stream started, new quest has been chosen!")
+        self.bot.safe_say(f"Current quest objective: {self.current_quest.get_objective()}")
 
         return True
 
@@ -144,7 +144,7 @@ class QuestModule(BaseModule):
 
         self.current_quest.stop_quest()
         self.current_quest = None
-        self.bot.say("Stream ended, quest has been reset.")
+        self.bot.safe_say("Stream ended, quest has been reset.")
 
         redis = RedisManager.get()
 

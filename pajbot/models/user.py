@@ -312,7 +312,7 @@ class User(Base):
 
     def __str__(self):
         # this is here so we can use the user object directly in string substitutions
-        # e.g. bot.say(f"{user}, successfully done something!")
+        # e.g. bot.safe_say(f"{user}, successfully done something!")
         # would substitute the user's display name in the place of {user}.
         return self.name
 

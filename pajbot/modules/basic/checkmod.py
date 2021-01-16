@@ -25,14 +25,14 @@ class CheckModModule(BaseModule):
                 user = User.find_by_user_input(db_session, username)
 
                 if user is None:
-                    bot.say(f"{username} was not found in the user database")
+                    bot.safe_say(f"{username} was not found in the user database")
         else:
             user = source
 
         if user.moderator:
-            bot.say(f"{user} is a moderator PogChamp")
+            bot.safe_say(f"{user} is a moderator PogChamp")
         else:
-            bot.say(f"{user} is not a moderator FeelsBadMan")
+            bot.safe_say(f"{user} is not a moderator FeelsBadMan")
 
     def load_commands(self, **options):
         self.commands["checkmod"] = Command.raw_command(self.check_mod, level=100, delay_all=3, delay_user=6)

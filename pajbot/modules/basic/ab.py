@@ -62,7 +62,7 @@ class AbCommandModule(BaseModule):
         if len(msg_parts) >= 2:
             outer_str = msg_parts[0]
             inner_str = f" {outer_str} ".join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
-            bot.say(f"{source}, {outer_str} {inner_str} {outer_str}")
+            bot.safe_say(f"{source}, {outer_str} {inner_str} {outer_str}")
 
     def load_commands(self, **options):
         self.commands["ab"] = Command.raw_command(

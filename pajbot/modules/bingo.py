@@ -165,7 +165,7 @@ class BingoModule(BaseModule):
 
     def bingo_start(self, bot, source, message, event, args):
         if self.bingo_running:
-            bot.say(f"{source}, a bingo is already running FailFish")
+            bot.safe_say(f"{source}, a bingo is already running FailFish")
             return False
 
         emote_instances = args["emote_instances"]
@@ -177,7 +177,7 @@ class BingoModule(BaseModule):
 
         words_in_message = [s for s in message.split(" ") if len(s) > 0]
         if len(words_in_message) <= 0:
-            bot.say(f"{source}, You must at least give me some emote sets or emotes to choose from! FailFish")
+            bot.safe_say(f"{source}, You must at least give me some emote sets or emotes to choose from! FailFish")
             return False
 
         emote_index_offset = len("!bingo start ")
@@ -218,7 +218,7 @@ class BingoModule(BaseModule):
             unparsed_options.append(word)
 
         if len(unparsed_options) > 0:
-            bot.say(
+            bot.safe_say(
                 "{}, I don't know what to do with the argument{} {} BabyRage".format(
                     source,
                     "" if len(unparsed_options) == 1 else "s",  # pluralization
@@ -233,25 +233,25 @@ class BingoModule(BaseModule):
 
         max_points = self.settings["max_points"]
         if points_reward > max_points:
-            bot.say(
+            bot.safe_say(
                 f"{source}, You can't start a bingo with that many points. FailFish {max_points} are allowed at most."
             )
             return False
 
         allow_negative_bingo = self.settings["allow_negative_bingo"]
         if points_reward < 0 and not allow_negative_bingo:
-            bot.say(f"{source}, You can't start a bingo with negative points. FailFish")
+            bot.safe_say(f"{source}, You can't start a bingo with negative points. FailFish")
             return False
 
         min_points = -self.settings["max_negative_points"]
         if points_reward < min_points:
-            bot.say(
+            bot.safe_say(
                 f"{source}, You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most."
             )
             return False
 
         if len(selected_sets) <= 0:
-            bot.say(f"{source}, You must at least give me some emotes or emote sets to choose from! FailFish")
+            bot.safe_say(f"{source}, You must at least give me some emotes or emote sets to choose from! FailFish")
             return False
 
         selected_set_names = []
@@ -283,7 +283,7 @@ class BingoModule(BaseModule):
 
     def bingo_cancel(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.safe_say(f"{source}, no bingo is running FailFish")
             return False
 
         self.active_game = None
@@ -291,7 +291,7 @@ class BingoModule(BaseModule):
 
     def bingo_help_random(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.safe_say(f"{source}, no bingo is running FailFish")
             return False
 
         correct_emote_code = self.active_game.correct_emote.code
@@ -303,7 +303,7 @@ class BingoModule(BaseModule):
 
     def bingo_help_first(self, bot, source, message, event, args):
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.safe_say(f"{source}, no bingo is running FailFish")
             return False
 
         correct_emote_code = self.active_game.correct_emote.code

@@ -177,7 +177,7 @@ class AdminCommandsModule(BaseModule):
             )
 
             for message in messages:
-                bot.say(message)
+                bot.safe_say(message)
         elif sub_command == "disable":
             if len(msg_args) < 2:
                 return
@@ -185,15 +185,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say(f"No module with the id {module_id} found")
+                bot.safe_say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say(f"Unable to disable module {module_id}")
+                bot.safe_say(f"Unable to disable module {module_id}")
                 return
 
             if not module_manager.disable_module(module_id):
-                bot.say(f"Unable to disable module {module_id}, maybe it's not enabled?")
+                bot.safe_say(f"Unable to disable module {module_id}, maybe it's not enabled?")
                 return
 
             # Rebuild command cache
@@ -205,7 +205,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Disabled", module_id)
 
-            bot.say(f"Disabled module {module_id}")
+            bot.safe_say(f"Disabled module {module_id}")
 
         elif sub_command == "enable":
             if len(msg_args) < 2:
@@ -214,15 +214,15 @@ class AdminCommandsModule(BaseModule):
 
             module = module_manager.get_module(module_id)
             if not module:
-                bot.say(f"No module with the id {module_id} found")
+                bot.safe_say(f"No module with the id {module_id} found")
                 return
 
             if module.MODULE_TYPE > ModuleType.TYPE_NORMAL:
-                bot.say(f"Unable to enable module {module_id}")
+                bot.safe_say(f"Unable to enable module {module_id}")
                 return
 
             if not module_manager.enable_module(module_id):
-                bot.say(f"Unable to enable module {module_id}, maybe it's already enabled?")
+                bot.safe_say(f"Unable to enable module {module_id}, maybe it's already enabled?")
                 return
 
             # Rebuild command cache
@@ -234,7 +234,7 @@ class AdminCommandsModule(BaseModule):
 
             AdminLogManager.post("Module toggled", source, "Enabled", module_id)
 
-            bot.say(f"Enabled module {module_id}")
+            bot.safe_say(f"Enabled module {module_id}")
 
     def load_commands(self, **options):
         self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")

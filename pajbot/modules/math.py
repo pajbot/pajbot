@@ -128,11 +128,11 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.say(f"{source}, {expr_res} {emote}")
+        bot.safe_say(f"{source}, {expr_res} {emote}")
 
     def math(self, bot, source, message, **rest):
         if source.id == "68706331":  # Karl_Kons
-            bot.say(f"{source}, 8 Kappa")
+            bot.safe_say(f"{source}, 8 Kappa")
             return
 
         if message:

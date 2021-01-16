@@ -44,9 +44,9 @@ class LiveAlertModule(BaseModule):
         streamer = self.bot.streamer_display
         game = self.bot.stream_manager.game
         title = self.bot.stream_manager.title
-        self.bot.say(live_chat_message.format(streamer=streamer, game=game, title=title))
+        self.bot.safe_say(live_chat_message.format(streamer=streamer, game=game, title=title))
         if self.settings["extra_message"] != "":
-            self.bot.say(self.settings["extra_message"].format(streamer=streamer))
+            self.bot.safe_say(self.settings["extra_message"].format(streamer=streamer))
 
     def enable(self, bot):
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)

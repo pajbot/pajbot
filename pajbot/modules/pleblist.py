@@ -127,7 +127,7 @@ class PleblistModule(BaseModule):
 
             db_session.add(song_request)
 
-            bot.say(f'{source} just requested the song "{song_info.title}" to be played KKona')
+            bot.safe_say(f'{source} just requested the song "{song_info.title}" to be played KKona')
 
     def pleblist_add_song(self, bot, source, message, **rest):
         if not message:

@@ -301,7 +301,7 @@ class DuelModule(BaseModule):
                     bot.websocket_manager.emit("notification", {"message": f"{winner} won the duel vs {loser}"})
             else:
                 message = self.get_phrase("message_won", **arguments)
-            bot.say(message)
+            bot.safe_say(message)
 
             del self.duel_requests[requestor.id]
             del self.duel_request_price[requestor.id]

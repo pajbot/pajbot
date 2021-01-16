@@ -391,19 +391,19 @@ class Dispatch:
                 user = User.find_by_user_input(db_session, input)
 
                 if user is None:
-                    bot.say("That user was not found in the user database")
+                    bot.safe_say("That user was not found in the user database")
         else:
             user = source
 
         if user.subscriber:
-            bot.say(f"{user} is a subscriber PogChamp")
+            bot.safe_say(f"{user} is a subscriber PogChamp")
         else:
-            bot.say(f"{user} is not a subscriber FeelsBadMan")
+            bot.safe_say(f"{user} is not a subscriber FeelsBadMan")
 
     @staticmethod
     def remindme(bot, source, message, event, args):
         if not message:
-            bot.say(f"{source}, No message provided! Syntax: !remindme TIME MESSAGE")
+            bot.safe_say(f"{source}, No message provided! Syntax: !remindme TIME MESSAGE")
             return False
 
         parts = message.split(" ")
@@ -415,15 +415,15 @@ class Dispatch:
         reminder_text = " ".join(parts[1:]).strip()
 
         if delay < 30:
-            bot.say(f"{source}, You cannot set a reminder for less than 30 seconds!")
+            bot.safe_say(f"{source}, You cannot set a reminder for less than 30 seconds!")
             return False
 
         if reminder_text == "":
-            bot.say(f"{source}, I will remind you in {delay} seconds. SeemsGood")
-            bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago)")
+            bot.safe_say(f"{source}, I will remind you in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.safe_say, f"{source}, reminder from yourself ({delay}s ago)")
         else:
-            bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
-            bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
+            bot.safe_say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
+            bot.execute_delayed(delay, bot.safe_say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):

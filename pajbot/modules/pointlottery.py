@@ -88,7 +88,7 @@ class PointLotteryModule(BaseModule):
 
     def process_start(self, bot, source, **end):
         if self.lottery_running:
-            bot.say(f"{source}, a lottery is already running OMGScoots")
+            bot.safe_say(f"{source}, a lottery is already running OMGScoots")
             return False
 
         self.lottery_users = []

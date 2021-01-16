@@ -157,7 +157,7 @@ class TwitterManager(GenericTwitterManager):
                     ):
                         log.debug("On status from tweepy: %s", status.text)
                         tweet_message = stringify_tweet(status)
-                        self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
+                        self.bot.safe_say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
 
                 def on_error(self, status_code):
                     log.warning("Unhandled in twitter stream: %s", status_code)
@@ -257,7 +257,7 @@ class PBTwitterManager(GenericTwitterManager):
                         and tweet["in_reply_to_screen_name"] is None
                     ):
                         tweet_message = tweet_provider_stringify_tweet(tweet)
-                        PBTwitterManager.bot.say(
+                        PBTwitterManager.bot.safe_say(
                             f"B) New cool tweet from {tweet['user']['screen_name']}: {tweet_message}"
                         )
                         log.debug(f"Got tweet: {message['data']}")

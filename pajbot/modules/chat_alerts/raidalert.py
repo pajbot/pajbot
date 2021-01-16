@@ -101,7 +101,7 @@ class RaidAlertModule(BaseModule):
             return
 
         if self.settings["chat_message"] is True:
-            self.bot.say(self.get_phrase("new_raid", **payload))
+            self.bot.safe_say(self.get_phrase("new_raid", **payload))
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
@@ -114,7 +114,7 @@ class RaidAlertModule(BaseModule):
 
         alert_message = self.settings["alert_message_points_given"]
         if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_raid"]))
+            self.bot.safe_say(alert_message.format(user=user, points=self.settings["grant_points_on_raid"]))
 
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:

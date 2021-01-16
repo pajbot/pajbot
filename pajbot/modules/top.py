@@ -62,7 +62,7 @@ class TopModule(BaseModule):
             for user in db_session.query(User).order_by(User.num_lines.desc()).limit(self.settings["num_top"]):
                 data.append(f"{user} ({user.num_lines})")
 
-        bot.say(f"Top {self.settings['num_top']} chatters: {', '.join(data)}")
+        bot.safe_say(f"Top {self.settings['num_top']} chatters: {', '.join(data)}")
 
     def top_watchers(self, bot, **rest):
         data = []
@@ -72,7 +72,7 @@ class TopModule(BaseModule):
             ):
                 data.append(f"{user} ({time_since(user.time_in_chat_online.total_seconds(), 0, time_format='short')})")
 
-        bot.say(f"Top {self.settings['num_top']} watchers: {', '.join(data)}")
+        bot.safe_say(f"Top {self.settings['num_top']} watchers: {', '.join(data)}")
 
     def top_offline(self, bot, **rest):
         data = []
@@ -82,7 +82,7 @@ class TopModule(BaseModule):
             ):
                 data.append(f"{user} ({time_since(user.time_in_chat_offline.total_seconds(), 0, time_format='short')})")
 
-        bot.say(f"Top {self.settings['num_top']} offline chatters: {', '.join(data)}")
+        bot.safe_say(f"Top {self.settings['num_top']} offline chatters: {', '.join(data)}")
 
     def top_points(self, bot, **rest):
         data = []
@@ -90,7 +90,7 @@ class TopModule(BaseModule):
             for user in db_session.query(User).order_by(User.points.desc()).limit(self.settings["num_top"]):
                 data.append(f"{user} ({user.points})")
 
-        bot.say(f"Top {self.settings['num_top']} banks: {', '.join(data)}")
+        bot.safe_say(f"Top {self.settings['num_top']} banks: {', '.join(data)}")
 
     def load_commands(self, **options):
         if self.settings["enable_topchatters"]:

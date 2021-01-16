@@ -152,7 +152,7 @@ class SubAlertModule(BaseModule):
 
         alert_message = self.settings["alert_message_points_given"]
         if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_sub"]))
+            self.bot.safe_say(alert_message.format(user=user, points=self.settings["grant_points_on_sub"]))
 
     def on_new_sub(self, user, sub_type, gifted_by=None):
         """
@@ -170,12 +170,12 @@ class SubAlertModule(BaseModule):
 
         if self.settings["chat_message"] is True:
             if sub_type == "Prime":
-                self.bot.say(self.get_phrase("new_prime_sub", **payload))
+                self.bot.safe_say(self.get_phrase("new_prime_sub", **payload))
             else:
                 if gifted_by:
-                    self.bot.say(self.get_phrase("new_gift_sub", **payload))
+                    self.bot.safe_say(self.get_phrase("new_gift_sub", **payload))
                 else:
-                    self.bot.say(self.get_phrase("new_sub", **payload))
+                    self.bot.safe_say(self.get_phrase("new_sub", **payload))
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
@@ -201,12 +201,12 @@ class SubAlertModule(BaseModule):
 
         if self.settings["chat_message"] is True:
             if sub_type == "Prime":
-                self.bot.say(self.get_phrase("resub_prime", **payload))
+                self.bot.safe_say(self.get_phrase("resub_prime", **payload))
             else:
                 if gifted_by:
-                    self.bot.say(self.get_phrase("resub_gift", **payload))
+                    self.bot.safe_say(self.get_phrase("resub_gift", **payload))
                 else:
-                    self.bot.say(self.get_phrase("resub", **payload))
+                    self.bot.safe_say(self.get_phrase("resub", **payload))
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(

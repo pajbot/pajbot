@@ -119,7 +119,7 @@ class ClipCommandModule(BaseModule):
 
         if not self.bot.is_online:
             if self.settings["offline_response"] != "":
-                self.bot.say(
+                self.bot.safe_say(
                     self.settings["offline_response"].format(source=source, streamer=self.bot.streamer_display)
                 )
             return True
@@ -135,11 +135,11 @@ class ClipCommandModule(BaseModule):
                 )
         except HTTPError as e:
             if e.response.status_code == 503:
-                self.bot.say(f"{source}, Failed to create clip! Does the streamer have clips disabled?")
+                self.bot.safe_say(f"{source}, Failed to create clip! Does the streamer have clips disabled?")
             elif e.response.status_code != 401:
-                self.bot.say(f"{source}, Failed to create clip! Please try again.")
+                self.bot.safe_say(f"{source}, Failed to create clip! Please try again.")
             else:
-                self.bot.say(
+                self.bot.safe_say(
                     "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem."
                 )
             return True
@@ -148,13 +148,13 @@ class ClipCommandModule(BaseModule):
         if self.settings["thumbnail_check"] is True:
             self.bot.execute_delayed(
                 5,
-                self.bot.say,
+                self.bot.safe_say,
                 self.settings["online_response"].format(
                     source=source, streamer=self.bot.streamer_display, clip=clip_url
                 ),
             )
         else:
-            self.bot.say(
+            self.bot.safe_say(
                 self.settings["online_response"].format(
                     source=source, streamer=self.bot.streamer_display, clip=clip_url
                 )

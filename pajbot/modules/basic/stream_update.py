@@ -53,7 +53,7 @@ class StreamUpdateModule(BaseModule):
 
     def generic_update(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str]) -> None:
         if not message:
-            bot.say(f"You must specify a {field} to update to!")
+            bot.safe_say(f"You must specify a {field} to update to!")
             return
 
         if (
@@ -64,31 +64,31 @@ class StreamUpdateModule(BaseModule):
                 **extra_args,
             )
         ):
-            bot.say(
+            bot.safe_say(
                 "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
             )
             return
 
         log_msg = f'{source} updated the {field} to "{message}"'
-        bot.say(log_msg)
+        bot.safe_say(log_msg)
         AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
 
     def update_game(self, bot: Bot, source, message, **rest) -> Any:
         if not message:
-            bot.say("You must specify a game to update to!")
+            bot.safe_say("You must specify a game to update to!")
             return
 
         # Resolve game name to game ID
         game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(message)
         if not game:
-            bot.say(f"Unable to find a game with the name '{message}'")
+            bot.safe_say(f"Unable to find a game with the name '{message}'")
             return
 
         return self.generic_update(bot, source, message, "game", {"game_id": game.id})
 
     def update_title(self, bot, source, message, **rest) -> Any:
         if not message:
-            bot.say("You must specify a title to update to!")
+            bot.safe_say("You must specify a title to update to!")
             return
 
         return self.generic_update(bot, source, message, "title", {"title": message})
