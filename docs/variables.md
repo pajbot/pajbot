@@ -60,8 +60,8 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### Data from `extra`:
 
-`$(tb:trigger - String)` - Command trigger (e.g. "logs" for "!logs")\
-`$(tb:user - String)` - Sender login name\
+`$(tb:trigger)` - String - Command trigger (e.g. "logs" for "!logs")\
+`$(tb:user)` - String - Sender login name\
 `$(tb:emote_instances)` - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]\
 `$(tb:emote_counts)` - List of EmoteInstanceCount objects - useful for debugging. Outputs something like this: {'Kappa': [twitch] Kappa @ [12-17], 'Keepo': [twitch] Keepo @ [18-23, 24-29]}\
 `$(tb:source)` - pajbot.models.user.UserCombined - (Command sender)\
@@ -90,7 +90,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 #### Other
 
 `$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
-`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
+`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')\
 `$(date:<timezone>)` - String - '2021-01-12' (timezone is e.g. 'Europe/Berlin')
 
 #### e - emotes
@@ -186,8 +186,8 @@ Use these sub-variables like this: `$(current_song:song_info.title)`
 
 #### args
 
-Note: argument IDs are 0-based! `$(args:2-5 - String)` - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
-`$(args:3 - String)` - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
+Note: argument IDs are 0-based! `$(args:2-5)` - String - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
+`$(args:3)` - String - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
 
 #### strictargs
 
