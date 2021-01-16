@@ -293,7 +293,7 @@ class RouletteModule(BaseModule):
             and self.settings["alert_message_after_sub"] != ""
             and not skip_message
         ):
-            self.bot.safe_say(
+            self.bot.say(
                 self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
             )
 

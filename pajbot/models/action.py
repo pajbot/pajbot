@@ -508,7 +508,7 @@ class SayAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.safe_say(resp)
+            return bot.say(resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -516,7 +516,7 @@ class SayAction(MessageAction):
             kwargs={
                 "args": [],
                 "kwargs": {},
-                "method": bot.safe_say,
+                "method": bot.say,
                 "bot": bot,
                 "extra": extra,
                 "message": resp,
@@ -536,7 +536,7 @@ class MeAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.safe_me(resp)
+            return bot.me(resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -544,7 +544,7 @@ class MeAction(MessageAction):
             kwargs={
                 "args": [],
                 "kwargs": {},
-                "method": bot.safe_me,
+                "method": bot.me,
                 "bot": bot,
                 "extra": extra,
                 "message": resp,

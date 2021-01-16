@@ -128,8 +128,8 @@ class QuestModule(BaseModule):
 
         redis.set(self.current_quest_key, self.current_quest.ID)
 
-        self.bot.safe_say("Stream started, new quest has been chosen!")
-        self.bot.safe_say(f"Current quest objective: {self.current_quest.get_objective()}")
+        self.bot.say("Stream started, new quest has been chosen!")
+        self.bot.say(f"Current quest objective: {self.current_quest.get_objective()}")
 
         return True
 
@@ -144,7 +144,7 @@ class QuestModule(BaseModule):
 
         self.current_quest.stop_quest()
         self.current_quest = None
-        self.bot.safe_say("Stream ended, quest has been reset.")
+        self.bot.say("Stream ended, quest has been reset.")
 
         redis = RedisManager.get()
 

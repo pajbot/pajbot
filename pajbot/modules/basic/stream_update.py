@@ -53,7 +53,7 @@ class StreamUpdateModule(BaseModule):
 
     def generic_update(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str]) -> None:
         if not message:
-            bot.safe_say(f"You must specify a {field} to update to!")
+            bot.say(f"You must specify a {field} to update to!")
             return
 
         if (
@@ -64,7 +64,7 @@ class StreamUpdateModule(BaseModule):
                 **extra_args,
             )
         ):
-            bot.safe_say(
+            bot.say(
                 "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
             )
             return
@@ -75,7 +75,7 @@ class StreamUpdateModule(BaseModule):
 
     def update_game(self, bot: Bot, source, message, **rest) -> Any:
         if not message:
-            bot.safe_say("You must specify a game to update to!")
+            bot.say("You must specify a game to update to!")
             return
 
         # Resolve game name to game ID
@@ -88,7 +88,7 @@ class StreamUpdateModule(BaseModule):
 
     def update_title(self, bot, source, message, **rest) -> Any:
         if not message:
-            bot.safe_say("You must specify a title to update to!")
+            bot.say("You must specify a title to update to!")
             return
 
         return self.generic_update(bot, source, message, "title", {"title": message})

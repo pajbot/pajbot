@@ -100,7 +100,7 @@ class PointLotteryModule(BaseModule):
             0.75, bot.websocket_manager.emit, "notification", {"message": "Type !pointlottery join to enter!"}
         )
 
-        bot.safe_me(
+        bot.me(
             "A lottery has begun. Type !pointlottery join {tickets} or !pointlottery {tickets} to join the lottery! "
             "The more tickets you buy, the more chances to win you have! "
             "1 ticket costs 1 point"
@@ -145,7 +145,7 @@ class PointLotteryModule(BaseModule):
         self.lottery_running = False
 
         if not self.lottery_users:
-            bot.safe_me("Wow, no one joined the lottery DansGame")
+            bot.me("Wow, no one joined the lottery DansGame")
             return False
 
         winner = self.weighted_choice(self.lottery_users)
