@@ -161,7 +161,9 @@ class LeagueRankModule(BaseModule):
             summoner_league = lw.league.by_summoner(region, summoner_id)
 
             if len(summoner_league) == 0:
-                bot.safe_say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
+                bot.safe_say(
+                    f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan"
+                )
                 return False
 
             tier = summoner_league[0]["tier"]
@@ -176,7 +178,9 @@ class LeagueRankModule(BaseModule):
             if e.response.status_code == 429:
                 bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
-                bot.safe_say(f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan")
+                bot.safe_say(
+                    f"The Summoner {summoner_name} on region {region.upper()} is currently UNRANKED.. FeelsBadMan"
+                )
             else:
                 bot.say("Trouble fetching summoner rank.. Kappa Try again later!")
             return False
