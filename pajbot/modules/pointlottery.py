@@ -165,7 +165,7 @@ class PointLotteryModule(BaseModule):
         if not self.lottery_running:
             return False
 
-        bot.safe_me(
+        bot.say(
             f"{len(self.lottery_users)} people have joined the lottery so far, for a total of {self.lottery_points} points"
         )
 

@@ -70,7 +70,7 @@ class StreamUpdateModule(BaseModule):
             return
 
         log_msg = f'{source} updated the {field} to "{message}"'
-        bot.safe_say(log_msg)
+        bot.say(log_msg)
         AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
 
     def update_game(self, bot: Bot, source, message, **rest) -> Any:
@@ -81,7 +81,7 @@ class StreamUpdateModule(BaseModule):
         # Resolve game name to game ID
         game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(message)
         if not game:
-            bot.safe_say(f"Unable to find a game with the name '{message}'")
+            bot.say(f"Unable to find a game with the name '{message}'")
             return
 
         return self.generic_update(bot, source, message, "game", {"game_id": game.id})
