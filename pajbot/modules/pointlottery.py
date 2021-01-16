@@ -100,7 +100,7 @@ class PointLotteryModule(BaseModule):
             0.75, bot.websocket_manager.emit, "notification", {"message": "Type !pointlottery join to enter!"}
         )
 
-        bot.me(
+        bot.safe_me(
             "A lottery has begun. Type !pointlottery join {tickets} or !pointlottery {tickets} to join the lottery! "
             "The more tickets you buy, the more chances to win you have! "
             "1 ticket costs 1 point"
@@ -121,18 +121,18 @@ class PointLotteryModule(BaseModule):
                 tickets = int(message.split(" ")[1])
 
             if not source.can_afford(tickets):
-                bot.me(f"Sorry, {source}, you don't have enough points! FeelsBadMan")
+                bot.safe_me(f"Sorry, {source}, you don't have enough points! FeelsBadMan")
                 return False
 
             if tickets <= 0:
-                bot.me(f"Sorry, {source}, you have to buy at least 1 ticket! FeelsBadMan")
+                bot.safe_me(f"Sorry, {source}, you have to buy at least 1 ticket! FeelsBadMan")
                 return False
 
             source.points -= tickets
             self.lottery_points += tickets
             log.info(f"Lottery points is now at {self.lottery_points}")
         except (ValueError, TypeError, AttributeError):
-            bot.me(f"Sorry, {source}, I didn't recognize your command! FeelsBadMan")
+            bot.safe_me(f"Sorry, {source}, I didn't recognize your command! FeelsBadMan")
             return False
 
         # Added user to the lottery
@@ -145,7 +145,7 @@ class PointLotteryModule(BaseModule):
         self.lottery_running = False
 
         if not self.lottery_users:
-            bot.me("Wow, no one joined the lottery DansGame")
+            bot.safe_me("Wow, no one joined the lottery DansGame")
             return False
 
         winner = self.weighted_choice(self.lottery_users)
@@ -155,7 +155,7 @@ class PointLotteryModule(BaseModule):
         bot.websocket_manager.emit(
             "notification", {"message": f"{winner} won {self.lottery_points} points in the lottery!"}
         )
-        bot.me(f"The lottery has finished! {winner} won {self.lottery_points} points! PogChamp")
+        bot.safe_me(f"The lottery has finished! {winner} won {self.lottery_points} points! PogChamp")
 
         winner.points += self.lottery_points
 
@@ -165,7 +165,7 @@ class PointLotteryModule(BaseModule):
         if not self.lottery_running:
             return False
 
-        bot.me(
+        bot.safe_me(
             f"{len(self.lottery_users)} people have joined the lottery so far, for a total of {self.lottery_points} points"
         )
 

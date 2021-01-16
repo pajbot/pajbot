@@ -17,7 +17,7 @@ class Dispatch:
     def add_win(bot, source, message, event, args):
         # XXX: this is ugly as fuck
         bot.kvi["br_wins"].inc()
-        bot.me(f"{source} added a BR win!")
+        bot.safe_me(f"{source} added a BR win!")
 
     @staticmethod
     def add_command(bot, source, message, event, args):
@@ -216,7 +216,7 @@ class Dispatch:
     def remove_win(bot, source, message, event, args):
         # XXX: This is also ugly as fuck
         bot.kvi["br_wins"].dec()
-        bot.me(f"{source} removed a BR win!")
+        bot.safe_me(f"{source} removed a BR win!")
 
     @staticmethod
     def add_alias(bot, source, message, event, args):

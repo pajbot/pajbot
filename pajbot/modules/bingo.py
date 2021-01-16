@@ -274,7 +274,7 @@ class BingoModule(BaseModule):
             # the space at the end is so the ! from the below message doesn't stop the last emote from showing up in chat
             user_messages.append(f"these emotes: {' '.join(selected_discrete_emote_codes)} ")
 
-        bot.me(
+        bot.safe_me(
             f"A bingo has started! ThunBeast Guess the right emote to win {points_reward} points! B) Only one emote per message! Select from {' and '.join(user_messages)}!"
         )
 
@@ -287,7 +287,7 @@ class BingoModule(BaseModule):
             return False
 
         self.active_game = None
-        bot.me(f"Bingo cancelled by {source} FeelsBadMan")
+        bot.safe_me(f"Bingo cancelled by {source} FeelsBadMan")
 
     def bingo_help_random(self, bot, source, message, event, args):
         if not self.bingo_running:
@@ -297,7 +297,7 @@ class BingoModule(BaseModule):
         correct_emote_code = self.active_game.correct_emote.code
         random_letter = random.choice(correct_emote_code)
 
-        bot.me(
+        bot.safe_me(
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {random_letter} {random_letter} {random_letter} {random_letter} {random_letter} for the target"
         )
 
@@ -309,7 +309,7 @@ class BingoModule(BaseModule):
         correct_emote_code = self.active_game.correct_emote.code
         first_letter = correct_emote_code[0]
 
-        bot.me(
+        bot.safe_me(
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {first_letter} {first_letter} {first_letter} {first_letter} {first_letter} for the target"
         )
 
@@ -344,7 +344,7 @@ class BingoModule(BaseModule):
         source.points += points_reward
         self.active_game = None
 
-        self.bot.me(
+        self.bot.safe_me(
             f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp"
         )
 

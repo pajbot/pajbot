@@ -90,7 +90,7 @@ class QuestModule(BaseModule):
         elif self.settings["action_tokens"] == "whisper":
             bot.whisper(source, message_tokens)
         elif self.settings["action_tokens"] == "me":
-            bot.me(message_tokens)
+            bot.safe_me(message_tokens)
         elif self.settings["action_tokens"] == "reply":
             if event.type in ["action", "pubmsg"]:
                 bot.safe_say(message_tokens)

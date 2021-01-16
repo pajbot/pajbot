@@ -536,7 +536,7 @@ class MeAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.me(resp)
+            return bot.safe_me(resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -544,7 +544,7 @@ class MeAction(MessageAction):
             kwargs={
                 "args": [],
                 "kwargs": {},
-                "method": bot.me,
+                "method": bot.safe_me,
                 "bot": bot,
                 "extra": extra,
                 "message": resp,

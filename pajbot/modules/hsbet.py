@@ -103,15 +103,15 @@ class HSBetModule(BaseModule):
                 return f"{points_stats[HSGameOutcome.win]}/{points_stats[HSGameOutcome.loss]}"
 
             if (seconds_until_bet_closes % 10) == 0 and seconds_until_bet_closes > 0:
-                self.bot.me(
+                self.bot.safe_me(
                     f"The hearthstone betting closes in {seconds_until_bet_closes} seconds. Current win/lose points: {win_lose_statistic()}"
                 )
             elif seconds_until_bet_closes == 5:
-                self.bot.me(
+                self.bot.safe_me(
                     f"The hearthstone betting closes in 5 seconds... Current win/lose points: {win_lose_statistic()}"
                 )
             elif seconds_until_bet_closes == 0:
-                self.bot.me(
+                self.bot.safe_me(
                     f"The hearthstone betting has been closed! No longer accepting bets. Closing with win/lose points: {win_lose_statistic()}"
                 )
 
@@ -196,12 +196,12 @@ class HSBetModule(BaseModule):
             else:
                 end_message += " Nobody won any points. KKona"
 
-            self.bot.me(end_message)
+            self.bot.safe_me(end_message)
 
             # so we can create a new game
             db_session.flush()
 
-            self.bot.me("A new game has begun! Vote with !hsbet win/lose POINTS")
+            self.bot.safe_me("A new game has begun! Vote with !hsbet win/lose POINTS")
             current_game = self.get_current_game(db_session)
             time_limit = self.settings["time_until_bet_closes"]
             current_game.bet_deadline = utils.now() + datetime.timedelta(seconds=time_limit)
@@ -294,7 +294,7 @@ class HSBetModule(BaseModule):
             payload = {"time_left": time_limit, **{key.name: value for key, value in bets_statistics.items()}}
             self.bot.websocket_manager.emit("hsbet_new_game", data=payload)
 
-            bot.me(
+            bot.safe_me(
                 f"The bet for the current hearthstone game is open again! You have {time_limit} seconds to vote !hsbet win/lose POINTS"
             )
 

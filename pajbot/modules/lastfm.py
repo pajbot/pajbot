@@ -133,9 +133,9 @@ class LastfmModule(BaseModule):
             currentTrack = user.get_now_playing()
 
             if currentTrack is None:
-                bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
+                bot.safe_me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
             else:
-                bot.me(
+                bot.safe_me(
                     self.settings["current_song"].format(
                         source=source, streamer=self.bot.streamer_display, song=currentTrack
                     )
@@ -143,4 +143,4 @@ class LastfmModule(BaseModule):
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            bot.me(self.settings["cannot_fetch_song"].format(source=source))
+            bot.safe_me(self.settings["cannot_fetch_song"].format(source=source))

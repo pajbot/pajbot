@@ -280,9 +280,9 @@ class SlotMachineModule(BaseModule):
             if bot.is_online:
                 self.add_message(bot, arguments)
             else:
-                bot.me(out_message)
+                bot.safe_me(out_message)
         if self.settings["options_output"] == "1. Show results in chat":
-            bot.me(out_message)
+            bot.safe_me(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
             bot.whisper(source, out_message)
         if (
@@ -290,7 +290,7 @@ class SlotMachineModule(BaseModule):
             == "3. Show results in chat if it's over X points else it will be whispered."
         ):
             if abs(points) >= self.settings["min_show_points"]:
-                bot.me(out_message)
+                bot.safe_me(out_message)
             else:
                 bot.whisper(source, out_message)
 
@@ -310,7 +310,7 @@ class SlotMachineModule(BaseModule):
 
     def flush_output_buffer(self):
         msg = self.output_buffer
-        self.bot.me(msg)
+        self.bot.safe_me(msg)
         self.output_buffer = ""
         self.output_buffer_args = []
 
