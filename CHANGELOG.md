@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added an option to allow mass pings while the streamer is on/offline.
+- Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
 
 ## v1.48
