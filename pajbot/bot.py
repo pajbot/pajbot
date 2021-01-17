@@ -533,7 +533,6 @@ class Bot:
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
-    @staticmethod
     def get_datetime_value(self, key, extra=[]):
         try:
             tz = timezone(key)
