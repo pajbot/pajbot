@@ -29,7 +29,7 @@ class MassPingProtectionModule(BaseModule):
             type="options",
             required=True,
             default="Neither offline nor online",
-            options=["Online","Offline","Neither offline nor online"]
+            options=["Online", "Offline", "Neither offline nor online"]
         ),
         ModuleSetting(
             key="max_ping_count",
