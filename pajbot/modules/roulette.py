@@ -29,8 +29,8 @@ class RouletteModule(BaseModule):
             label="Only allow rouletting while the stream is:",
             type="options",
             required=True,
-            default="Either Online or Offline",
-            options=["Offline","Online","Either Online or Offline"]
+            default="Either online or offline",
+            options=["Offline","Online","Either online or offline"]
         ),
         ModuleSetting(
             key="command_name",
