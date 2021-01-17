@@ -533,6 +533,14 @@ class Bot:
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
+    @staticmethod
+    def get_datetime_value(key, extra={}):
+        try:
+            tz = timezone(key)
+            return datetime.datetime.replace(tzinfo=tz).strftime(extra)
+        except:
+            log.exception("Unhandled exception in get_datetime_value")
+
     @property
     def is_online(self):
         return self.stream_manager.online
