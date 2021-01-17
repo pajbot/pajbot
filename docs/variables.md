@@ -17,25 +17,22 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-"strftime": \_filter_strftime,\
-"lower": lambda var, args: var.lower(),\
-"upper": lambda var, args: var.upper(),\
-"title": lambda var, args: var.title(),\
-"capitalize": lambda var, args: var.capitalize(),\
-"swapcase": lambda var, args: var.swapcase(),\
-"time_since_minutes": lambda var, args: "no time"\
-if var == 0\
-else time_since(var \* 60, 0, time_format="long"),\
-"time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),\
-"time_since_dt": \_filter_time_since_dt,\
-"urlencode": \_filter_urlencode,\
-"join": \_filter_join,\
-"number_format": \_filter_number_format,\
-"add": \_filter_add,\
-"or_else": \_filter_or_else,\
-"or_broadcaster": self.\_filter_or_broadcaster,\
-"or_streamer": self.\_filter_or_broadcaster,\
-"slice": \_filter_slice,
+`strftime` - allows you to format raw time strings - Help: https://strftime.org\
+`lower` - converts the variable all to lowercase\
+`upper` - converts the variable all to uppercase\
+`title` - converts the first letter in each word to upper case\
+`capitalize` - converts the first letter of the first word to upper case\
+`swapcase` - swaps all upper case to lower case and vice versa\
+`time_since_minutes` - outputs the time since a certain input time in minutes\
+`time_since` - outputs the time since a certain input time\
+`time_since_dt` - outputs the date since a certain input date\
+`urlencode` - replace spaces with a `+`\
+`join` - join characters together using `,`\
+`number_format` - format numbers using `,`\
+`add` - ????\
+`or_else` - if nothing, return what is specified\
+`or_broadcaster`/`or_streamer` - if nothing, return the streamer's name\
+`slice` - ????
 
 # Special Substitutions
 
