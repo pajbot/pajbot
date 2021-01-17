@@ -537,7 +537,7 @@ class Bot:
     def get_datetime_value(key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.datetime.now(tz).strftime(extra["command"])
+            return datetime.datetime.now(tz).strftime(str)
         except:
             log.exception("Unhandled exception in get_datetime_value")
 
