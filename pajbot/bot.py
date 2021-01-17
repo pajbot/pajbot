@@ -534,10 +534,10 @@ class Bot:
         return diff.total_seconds() / 3600 / 24 / 365
 
     @staticmethod
-    def get_datetime_value(key, args):
+    def get_datetime_value(key, extra={}):
         try:
             tz = timezone(key)
-            return datetime.datetime.now(tz).strftime(args[0])
+            return datetime.datetime.now(tz).strftime(extra["argument"])
         except:
             log.exception("Unhandled exception in get_datetime_value")
 
