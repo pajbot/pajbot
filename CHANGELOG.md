@@ -2,7 +2,7 @@
 
 ## Unversioned
 
-- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter.
+- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
 
 ## v1.48
