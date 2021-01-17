@@ -423,7 +423,9 @@ class Dispatch:
             bot.execute_delayed(delay, bot.safe_say, f"{source}, reminder from yourself ({delay}s ago)")
         else:
             bot.safe_say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
-            bot.execute_delayed(delay, bot.safe_say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
+            bot.execute_delayed(
+                delay, bot.safe_say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}"
+            )
 
     @staticmethod
     def twitter_follow(bot, source, message, event, args):
