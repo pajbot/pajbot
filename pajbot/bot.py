@@ -534,7 +534,7 @@ class Bot:
         return diff.total_seconds() / 3600 / 24 / 365
 
     @staticmethod
-    def get_datetime_value(key):
+    def get_datetime_value(self, key, extra=[]):
         try:
             tz = timezone(key)
             return datetime.datetime.now(tz)
