@@ -30,7 +30,7 @@ class RouletteModule(BaseModule):
             type="options",
             required=True,
             default="Either online or offline",
-            options=["Offline","Online","Either online or offline"]
+            options=["Offline", "Online", "Either online or offline"]
         ),
         ModuleSetting(
             key="command_name",
