@@ -24,6 +24,20 @@ class MassPingProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
+            key="allow_online",
+            label="Allow mass pings to be sent while the stream is online",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="allow_offline",
+            label="Allow mass pings to be sent while the stream is offline",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="max_ping_count",
             label="Maximum number of pings allowed in each message",
             type="number",
@@ -165,6 +179,12 @@ class MassPingProtectionModule(BaseModule):
 
     def on_message(self, source, message, emote_instances, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
+            return
+
+        if self.settings["allow_online"] is True and self.bot.is_online:
+            return
+
+        if self.settings["allow_offline"] is True and not self.bot.is_online:
             return
 
         timeout_duration = self.determine_timeout_length(message, source, emote_instances)
