@@ -29,7 +29,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding\
 `join` - join characters together using `,`\
 `number_format` - format numbers using `,`\
-`add` - ????\
+`add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
 `or_else` - if the previous filter failed, return what is specified\
 `or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name\
 `slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
