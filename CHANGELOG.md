@@ -2,6 +2,9 @@
 
 ## Unversioned
 
+- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
+- Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
+- Minor: Added an option to allow rouletting while the streamer is on/offline. (#1131)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
 
 ## v1.48
