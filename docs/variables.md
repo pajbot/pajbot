@@ -18,8 +18,8 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 ## Available filters:
 
 `strftime` - allows you to format raw time strings - Help: https://strftime.org\
-`lower` - converts the variable all to lowercase\
-`upper` - converts the variable all to uppercase\
+`lower` - converts the output of the variable to lowercase\
+`upper` - converts the output of the variable to uppercase\
 `title` - converts the first letter in each word to upper case\
 `capitalize` - converts the first letter of the first word to upper case\
 `swapcase` - swaps all upper case to lower case and vice versa\
