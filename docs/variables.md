@@ -26,13 +26,13 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `time_since_minutes` - outputs the time since a certain input time in minutes\
 `time_since` - outputs the time since a certain input time\
 `time_since_dt` - outputs the date since a certain input date\
-`urlencode` - replace spaces with a `+`\
+`urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding\
 `join` - join characters together using `,`\
 `number_format` - format numbers using `,`\
 `add` - ????\
-`or_else` - if nothing, return what is specified\
-`or_broadcaster`/`or_streamer` - if nothing, return the streamer's name\
-`slice` - ????
+`or_else` - if the previous filter failed, return what is specified\
+`or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name\
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
 
 # Special Substitutions
 
