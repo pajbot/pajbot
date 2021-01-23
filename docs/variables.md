@@ -17,25 +17,27 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-"strftime": \_filter_strftime,\
-"lower": lambda var, args: var.lower(),\
-"upper": lambda var, args: var.upper(),\
-"title": lambda var, args: var.title(),\
-"capitalize": lambda var, args: var.capitalize(),\
-"swapcase": lambda var, args: var.swapcase(),\
-"time_since_minutes": lambda var, args: "no time"\
-if var == 0\
-else time_since(var \* 60, 0, time_format="long"),\
-"time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),\
-"time_since_dt": \_filter_time_since_dt,\
-"urlencode": \_filter_urlencode,\
-"join": \_filter_join,\
-"number_format": \_filter_number_format,\
-"add": \_filter_add,\
-"or_else": \_filter_or_else,\
-"or_broadcaster": self.\_filter_or_broadcaster,\
-"or_streamer": self.\_filter_or_broadcaster,\
-"slice": \_filter_slice,
+`strftime` - allows you to format raw time strings - Help: https://strftime.org\
+`lower` - converts the output of the variable to lowercase\
+`upper` - converts the output of the variable to uppercase\
+`title` - converts the first letter in each word to upper case\
+`capitalize` - converts the first letter of the first word to upper case\
+`swapcase` - swaps all upper case to lower case and vice versa\
+`time_since_minutes` - outputs the time since a certain input time in minutes\
+`time_since` - outputs the time since a certain input time\
+`time_since_dt` - outputs the date since a certain input date\
+`urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding\
+`join` - join characters together using `,`\
+`number_format` - format numbers using `,`\
+`or_else` - if the previous filter failed, return what is specified\
+`or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name\
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')\
+Math - add, subtract, multiply, divide:
+
+- `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
+- `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
+- `multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.
+- `divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
 
 # Special Substitutions
 

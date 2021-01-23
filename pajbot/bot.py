@@ -939,6 +939,9 @@ class Bot:
             "or_broadcaster": self._filter_or_broadcaster,
             "or_streamer": self._filter_or_broadcaster,
             "slice": _filter_slice,
+            "subtract": _filter_subtract,
+            "multiply": _filter_multiply,
+            "divide": _filter_divide,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -996,6 +999,27 @@ def lowercase_first_letter(s):
 def _filter_add(var, args):
     try:
         return str(int(var) + int(args[0]))
+    except:
+        return ""
+
+
+def _filter_subtract(var, args):
+    try:
+        return str(int(var) - int(args[0]))
+    except:
+        return ""
+
+
+def _filter_multiply(var, args):
+    try:
+        return str(int(var) * int(args[0]))
+    except:
+        return ""
+
+
+def _filter_divide(var, args):
+    try:
+        return str(int(var) / int(args[0]))
     except:
         return ""
 
