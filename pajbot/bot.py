@@ -941,6 +941,7 @@ class Bot:
             "slice": _filter_slice,
             "subtract": _filter_subtract,
             "multiply": _filter_multiply,
+            "divide": _filter_divide,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -1010,6 +1011,12 @@ def _filter_subtract(var, args):
 def _filter_multiply(var, args):
     try:
         return str(int(var) * int(args[0]))
+    except:
+        return ""
+
+def _filter_divide(var, args):
+    try:
+        return str(int(var) / int(args[0]))
     except:
         return ""
 
