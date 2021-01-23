@@ -17,7 +17,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-`strftime` - allows you to format raw time strings - Help: https://strftime.org\
+`strftime` - allows you to format raw time strings - Help: https://strftime.org  
 `lower` - converts the output of the variable to lowercase\
 `upper` - converts the output of the variable to uppercase\
 `title` - converts the first letter in each word to upper case\
