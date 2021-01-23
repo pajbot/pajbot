@@ -17,7 +17,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-### Uncategorized
+#### Uncategorized
 
 `strftime` - allows you to format raw time strings - Help: https://strftime.org  
 `lower` - converts the output of the variable to lowercase  
@@ -35,7 +35,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name  
 `slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
 
-### Math - add, subtract, multiply, divide
+#### Math
 
 - `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
 - `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
