@@ -17,13 +17,6 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-### Arithmetic
-
-- `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
-- `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
-- `multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.
-- `divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
-
 ### Uncategorized
 
 `strftime` - allows you to format raw time strings - Help: https://strftime.org  
@@ -41,6 +34,13 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `or_else` - if the previous filter failed, return what is specified  
 `or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name  
 `slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
+
+### Math - add, subtract, multiply, divide
+
+- `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
+- `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
+- `multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.
+- `divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
 
 # Special Substitutions
 
