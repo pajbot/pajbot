@@ -1002,17 +1002,20 @@ def _filter_add(var, args):
     except:
         return ""
 
+
 def _filter_subtract(var, args):
     try:
         return str(int(var) - int(args[0]))
     except:
         return ""
 
+
 def _filter_multiply(var, args):
     try:
         return str(int(var) * int(args[0]))
     except:
         return ""
+
 
 def _filter_divide(var, args):
     try:
