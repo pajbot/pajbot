@@ -940,6 +940,7 @@ class Bot:
             "or_streamer": self._filter_or_broadcaster,
             "slice": _filter_slice,
             "subtract": _filter_subtract,
+            "multiply": _filter_multiply,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -1003,6 +1004,12 @@ def _filter_add(var, args):
 def _filter_subtract(var, args):
     try:
         return str(int(var) - int(args[0]))
+    except:
+        return ""
+
+def _filter_multiply(var, args):
+    try:
+        return str(int(var) * int(args[0]))
     except:
         return ""
 
