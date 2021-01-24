@@ -31,7 +31,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 `time_since_minutes` - outputs the time since a certain input time in minutes  
 `time_since` - outputs the time since a certain input time  
-`time_since_dt` - outputs the date since a certain input date  
+`time_since_dt` - outputs the date since a certain input date
 
 #### Letter Case
 
@@ -39,7 +39,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `upper` - converts the output of the variable to uppercase  
 `title` - converts the first letter in each word to upper case  
 `capitalize` - converts the first letter of the first word to upper case  
-`swapcase` - swaps all upper case to lower case and vice versa  
+`swapcase` - swaps all upper case to lower case and vice versa
 
 #### Math
 
