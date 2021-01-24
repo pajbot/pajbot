@@ -17,25 +17,27 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-"strftime": \_filter_strftime,\
-"lower": lambda var, args: var.lower(),\
-"upper": lambda var, args: var.upper(),\
-"title": lambda var, args: var.title(),\
-"capitalize": lambda var, args: var.capitalize(),\
-"swapcase": lambda var, args: var.swapcase(),\
-"time_since_minutes": lambda var, args: "no time"\
-if var == 0\
-else time_since(var \* 60, 0, time_format="long"),\
-"time_since": lambda var, args: "no time" if var == 0 else time_since(var, 0, time_format="long"),\
-"time_since_dt": \_filter_time_since_dt,\
-"urlencode": \_filter_urlencode,\
-"join": \_filter_join,\
-"number_format": \_filter_number_format,\
-"add": \_filter_add,\
-"or_else": \_filter_or_else,\
-"or_broadcaster": self.\_filter_or_broadcaster,\
-"or_streamer": self.\_filter_or_broadcaster,\
-"slice": \_filter_slice,
+`strftime` - allows you to format raw time strings - Help: https://strftime.org\
+`lower` - converts the output of the variable to lowercase\
+`upper` - converts the output of the variable to uppercase\
+`title` - converts the first letter in each word to upper case\
+`capitalize` - converts the first letter of the first word to upper case\
+`swapcase` - swaps all upper case to lower case and vice versa\
+`time_since_minutes` - outputs the time since a certain input time in minutes\
+`time_since` - outputs the time since a certain input time\
+`time_since_dt` - outputs the date since a certain input date\
+`urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding\
+`join` - join characters together using `,`\
+`number_format` - format numbers using `,`\
+`or_else` - if the previous filter failed, return what is specified\
+`or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name\
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')\
+Math - add, subtract, multiply, divide:
+
+- `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
+- `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
+- `multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.
+- `divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
 
 # Special Substitutions
 
@@ -60,8 +62,8 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### Data from `extra`:
 
-`$(tb:trigger - String)` - Command trigger (e.g. "logs" for "!logs")\
-`$(tb:user - String)` - Sender login name\
+`$(tb:trigger)` - String - Command trigger (e.g. "logs" for "!logs")\
+`$(tb:user)` - String - Sender login name\
 `$(tb:emote_instances)` - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]\
 `$(tb:emote_counts)` - List of EmoteInstanceCount objects - useful for debugging. Outputs something like this: {'Kappa': [twitch] Kappa @ [12-17], 'Keepo': [twitch] Keepo @ [18-23, 24-29]}\
 `$(tb:source)` - pajbot.models.user.UserCombined - (Command sender)\
@@ -90,8 +92,11 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 #### Other
 
 `$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
-`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')
-`$(date:<timezone>)` - String - '2021-01-12' (timezone is e.g. 'Europe/Berlin')
+`$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')\
+`$(date:<timezone>)` - String - '2021-01-12' (timezone is e.g. 'Europe/Berlin')\
+`$(datetime:<timezone>)` - refers to pajbot.bot.Bot.get_datetime_value (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
+ -- since this returns an object you can format it with strftime\
+ e.g. `$(datetime:Europe/Berlin|strftime(%A %Y-%m-%d %H:%M:%S))`
 
 #### e - emotes
 
@@ -186,8 +191,8 @@ Use these sub-variables like this: `$(current_song:song_info.title)`
 
 #### args
 
-Note: argument IDs are 0-based! `$(args:2-5 - String)` - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
-`$(args:3 - String)` - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
+Note: argument IDs are 0-based! `$(args:2-5)` - String - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\
+`$(args:3)` - String - (joins args 3 and all args until the end together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '4 5 6 7 8')
 
 #### strictargs
 

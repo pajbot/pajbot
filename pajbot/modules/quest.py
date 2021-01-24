@@ -16,7 +16,7 @@ class QuestModule(BaseModule):
 
     ID = __name__.split(".")[-1]
     NAME = "Quest system"
-    DESCRIPTION = "Give users a single quest at the start of each day"
+    DESCRIPTION = "Give users a single quest at the start of each stream"
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
