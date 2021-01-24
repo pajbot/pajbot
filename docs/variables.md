@@ -106,7 +106,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### lasttweet - last tweet
 
-`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)"
+`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)". You can use arguments to allow users to choose their own twitter user to fetch. E.g. `$(lasttweet;1)` would fetch the twitter user in the first argument.
 
 #### Source
 
