@@ -1,5 +1,6 @@
 from typing import Optional
 
+import cgi
 import collections
 import json
 import logging
@@ -476,17 +477,24 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
         return False
 
     for needle, url in urlfetch_subs.items():
-        try:
-            headers = {
-                "Accept": "text/plain",
-                "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
-                "User-Agent": bot.user_agent,
-            }
-            r = requests.get(url, allow_redirects=True, headers=headers)
-            r.raise_for_status()
+        headers = {
+            "Accept": "text/plain",
+            "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
+            "User-Agent": bot.user_agent,
+        }
+        r = requests.get(url, allow_redirects=True, headers=headers)
+        if r.status_code == requests.codes.ok:
+            # For "legacy" reasons, we don't check the content type of ok status codes
             value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
-        except:
-            return False
+        else:
+            # An error code was returned, ensure the response is plain text
+            content_type = r.headers["Content-Type"]
+            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+                # The content type is not plain text, return a generic error showing the status code returned
+                value = f"urlfetch error {r.status_code}"
+            else:
+                value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
+
         message = message.replace(needle, value)
 
     if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
