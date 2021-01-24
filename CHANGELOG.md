@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Major: `$(urlfetch)` now handles non-200 error codes differently by returning the body if the returned content type is plain text, or a generic "urlfetch error 404" if the content type was not plain text.
 - Minor: Added `subtract`, `multiply` & `divide` filters. (#1136)
 - Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
