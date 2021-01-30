@@ -258,6 +258,8 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command playsounds --reply @$(source:name), available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   !add command title --reply @$(source:name), Current stream title: $(stream:title)
   !add command game --reply @$(source:name), Current stream game: $(stream:game)
+  !add command timeonline|watchtime --reply @$(source:name), $(usersource;1:username_raw) has spent $(usersource;1:minutes_in_chat_online|time_since_minutes) in online chat.
+  !add command timeoffline --reply @$(source:name), $(usersource;1:username_raw) has spent $(usersource;1:minutes_in_chat_offline|time_since_minutes) in offline chat.
   ```
 
 - Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
