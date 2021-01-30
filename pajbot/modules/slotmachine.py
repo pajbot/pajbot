@@ -386,9 +386,7 @@ class SlotMachineModule(BaseModule):
             and self.settings["alert_message_after_sub"] != ""
             and not skip_message
         ):
-            self.bot.say(
-                self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_slots_time"])
-            )
+            self.bot.say(self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_slots_time"]))
 
     def enable(self, bot):
         HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)
