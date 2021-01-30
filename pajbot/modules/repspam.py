@@ -17,12 +17,12 @@ class RepspamModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="stream_status",
-            label="Allow repetitive spam while the stream is:",
+            key="enabled_by_stream_status",
+            label="Enable moderation of repetitive spam when the stream is:",
             type="options",
             required=True,
-            default="Neither offline nor online",
-            options=["Online", "Offline", "Neither offline nor online"],
+            default="Offline and Online",
+            options=["Online Only", "Offline Only", "Offline and Online"],
         ),
         ModuleSetting(
             key="bypass_level",
@@ -107,10 +107,10 @@ class RepspamModule(BaseModule):
         return len(word) <= 0
 
     def on_message(self, source, message, whisper, **rest):
-        if self.settings["stream_status"] == "Online" and self.bot.is_online:
+        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
-        if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
+        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
             return
 
         if whisper:
