@@ -17,12 +17,12 @@ class AsciiProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="stream_status",
-            label="Allow ASCII characters while the stream is:",
+            key="enabled_by_stream_status",
+            label="Enable moderation of ASCII characters when the stream is:",
             type="options",
             required=True,
-            default="Neither offline nor online",
-            options=["Online", "Offline", "Neither offline nor online"],
+            default="Offline and Online",
+            options=["Online Only", "Offline Only", "Offline and Online"],
         ),
         ModuleSetting(
             key="min_msg_length",
@@ -90,10 +90,10 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def on_pubmsg(self, source, message, **rest):
-        if self.settings["stream_status"] == "Online" and self.bot.is_online:
+        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
-        if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
+        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
             return
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
