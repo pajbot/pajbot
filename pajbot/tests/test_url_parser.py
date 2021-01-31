@@ -30,24 +30,30 @@ def test_is_same_url():
 
 def test_find_unique_urls():
     from pajbot.modules.linkchecker import find_unique_urls
-    from pajbot.bot import URL_REGEX
 
-    assert find_unique_urls(URL_REGEX, "pajlada.se test http://pajlada.se") == {"http://pajlada.se"}
-    assert find_unique_urls(URL_REGEX, "pajlada.se pajlada.com foobar.se") == {
+    assert find_unique_urls("pajlada.se test http://pajlada.se") == {"http://pajlada.se"}
+    assert find_unique_urls("pajlada.se pajlada.com foobar.se") == {
         "http://pajlada.se",
         "http://pajlada.com",
         "http://foobar.se",
     }
-    assert find_unique_urls(URL_REGEX, "foobar.com foobar.com") == {"http://foobar.com"}
-    assert find_unique_urls(URL_REGEX, "foobar.com foobar.se"), {"http://foobar.com" == "http://foobar.se"}
-    assert find_unique_urls(URL_REGEX, "www.foobar.com foobar.se"), {"http://www.foobar.com" == "http://foobar.se"}
+    assert find_unique_urls("foobar.com foobar.com") == {"http://foobar.com"}
+    assert find_unique_urls("foobar.com foobar.se"), {"http://foobar.com" == "http://foobar.se"}
+    assert find_unique_urls("www.foobar.com foobar.se"), {"http://www.foobar.com" == "http://foobar.se"}
 
     # TODO: Edge case, this behaviour should probably be changed. These URLs should be considered the same.
     # Use is_same_url method?
-    assert find_unique_urls(URL_REGEX, "pajlada.se/ pajlada.se"), {"http://pajlada.se/" == "http://pajlada.se"}
+    assert find_unique_urls("pajlada.se/ pajlada.se"), {"http://pajlada.se/" == "http://pajlada.se"}
 
     # TODO: The protocol of a URL is entirely thrown away, this behaviour should probably be changed.
-    assert find_unique_urls(URL_REGEX, "https://pajlada.se/ https://pajlada.se") == {
+    assert find_unique_urls("https://pajlada.se/ https://pajlada.se") == {
         "https://pajlada.se/",
         "https://pajlada.se",
     }
+
+    assert find_unique_urls("foo 192.168.0.1 bar") == {
+        "http://192.168.0.1",
+    }
+
+    assert find_unique_urls("omg this isn't chatting, this is meme-ing...my vanity") == set()
+    assert find_unique_urls("foo 1.40 bar") == set()
