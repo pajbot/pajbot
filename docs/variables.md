@@ -17,27 +17,36 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 ## Available filters:
 
-`strftime` - allows you to format raw time strings - Help: https://strftime.org\
-`lower` - converts the output of the variable to lowercase\
-`upper` - converts the output of the variable to uppercase\
-`title` - converts the first letter in each word to upper case\
-`capitalize` - converts the first letter of the first word to upper case\
-`swapcase` - swaps all upper case to lower case and vice versa\
-`time_since_minutes` - outputs the time since a certain input time in minutes\
-`time_since` - outputs the time since a certain input time\
-`time_since_dt` - outputs the date since a certain input date\
-`urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding\
-`join` - join characters together using `,`\
-`number_format` - format numbers using `,`\
-`or_else` - if the previous filter failed, return what is specified\
-`or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name\
-`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')\
-Math - add, subtract, multiply, divide:
+#### Uncategorized
 
-- `add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.
-- `subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.
-- `multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.
-- `divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
+`strftime` - allows you to format raw time strings - Help: https://strftime.org  
+`urlencode` - URL encodes the value. see https://en.wikipedia.org/wiki/Percent-encoding  
+`join` - join characters together using `,`  
+`number_format` - format numbers using `,`  
+`or_else` - if the previous filter failed, return what is specified  
+`or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name  
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
+
+#### Time Since
+
+`time_since_minutes` - outputs the time since a certain input time in minutes  
+`time_since` - outputs the time since a certain input time  
+`time_since_dt` - outputs the date since a certain input date
+
+#### Letter Case
+
+`lower` - converts the output of the variable to lowercase  
+`upper` - converts the output of the variable to uppercase  
+`title` - converts the first letter in each word to upper case  
+`capitalize` - converts the first letter of the first word to upper case  
+`swapcase` - swaps all upper case to lower case and vice versa
+
+#### Math
+
+`add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.  
+`subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.  
+`multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.  
+`divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
 
 # Special Substitutions
 
@@ -106,7 +115,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### lasttweet - last tweet
 
-`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)"
+`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)". You can use arguments to allow users to choose their own twitter user to fetch. E.g. `$(lasttweet;1)` would fetch the twitter user in the first argument.
 
 #### Source
 
