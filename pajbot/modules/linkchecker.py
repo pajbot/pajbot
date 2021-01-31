@@ -165,6 +165,7 @@ class LinkCheckerModule(BaseModule):
         ModuleSetting(
             key="ban_sub_links", label="Disallow links from subscribers", type="boolean", required=True, default=False
         ),
+        ModuleSetting(key="vip_exemption", label="Allow links from VIPs", type="boolean", required=True, default=False),
         ModuleSetting(
             key="timeout_length",
             label="Timeout length",
@@ -276,6 +277,9 @@ class LinkCheckerModule(BaseModule):
             return
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
+            return
+
+        if self.settings["vip_exemption"] and source.vip is True:
             return
 
         if len(urls) > 0:
