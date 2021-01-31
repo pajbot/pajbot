@@ -285,7 +285,7 @@ class LinkCheckerModule(BaseModule):
             if self.settings["ban_pleb_links"] is True and source.subscriber is False:
                 do_timeout = True
                 ban_reason = self.settings["pleb_timeout_reason"]
-            elif self.settings["ban_sub_links"] is True and source.subscriber is True:
+            elif self.settings["ban_sub_links"] and source.subscriber is True:
                 do_timeout = True
                 ban_reason = self.settings["sub_timeout_reason"]
 
