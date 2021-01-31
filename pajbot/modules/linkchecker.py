@@ -165,9 +165,7 @@ class LinkCheckerModule(BaseModule):
         ModuleSetting(
             key="ban_sub_links", label="Disallow links from subscribers", type="boolean", required=True, default=False
         ),
-        ModuleSetting(
-            key="vip_exemption", label="Allow links from VIPs", type="boolean", required=True, default=False
-        ),
+        ModuleSetting(key="vip_exemption", label="Allow links from VIPs", type="boolean", required=True, default=False),
         ModuleSetting(
             key="timeout_length",
             label="Timeout length",
