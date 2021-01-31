@@ -5,6 +5,7 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, INT, TEXT
+from urlextract import URLExtract
 
 import pajbot.managers
 import pajbot.models
@@ -20,6 +21,10 @@ from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
+
+
+extractor = URLExtract()
+extractor.update_when_older(14)
 
 
 def is_subdomain(x, y):
@@ -61,11 +66,9 @@ def is_same_url(x, y):
     )
 
 
-def find_unique_urls(regex, message):
-    _urls = regex.finditer(message)
+def find_unique_urls(message):
     urls = []
-    for i in _urls:
-        url = i.group(0)
+    for url in extractor.gen_urls(message):
         if not (url.startswith("http://") or url.startswith("https://")):
             url = "http://" + url
         if not (url[-1].isalpha() or url[-1].isnumeric() or url[-1] == "/"):

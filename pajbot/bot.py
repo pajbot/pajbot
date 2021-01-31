@@ -51,11 +51,6 @@ from pajbot import utils
 
 log = logging.getLogger(__name__)
 
-URL_REGEX = re.compile(
-    r"\(?(?:(http|https):\/\/)?(?:((?:[^\W\s]|\.|-|[:]{1})+)@{1})?((?:www.)?(?:[^\W\s]|\.|-)+[\.][^\W\s]{2,4}|localhost(?=\/)|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::(\d*))?([\/]?[^\s\?]*[\/]{1})*(?:\/?([^\s\n\?\[\]\{\}\#]*(?:(?=\.)){1}|[^\s\n\?\[\]\{\}\.\#]*)?([\.]{1}[^\s\?\#]*)?)?(?:\?{1}([^\s\n\#\[\]]*))?([\#][^\s\n]*)?\)?",
-    re.IGNORECASE,
-)
-
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
 
 
@@ -953,7 +948,7 @@ class Bot:
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
 
-        return find_unique_urls(URL_REGEX, message)
+        return find_unique_urls(message)
 
 
 def _filter_time_since_dt(var, args):
