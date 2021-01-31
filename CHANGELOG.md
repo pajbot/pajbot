@@ -13,7 +13,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
 - Minor: Added an option to allow rouletting while the streamer is on/offline. (#1131)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
-- Bugfix: Fix issue where we matched some normal messages as links (e.g. 1.40 or asd...xd)
+- Bugfix: Fix issue where we matched some normal messages as links, e.g. 1.40 or asd...xd (#1148)
 
 ## v1.48
 
