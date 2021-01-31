@@ -279,7 +279,7 @@ class LinkCheckerModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
-        if self.settings["vip_exemption"] is True and source.vip is True:
+        if self.settings["vip_exemption"] and source.vip is True:
             return
 
         if len(urls) > 0:
