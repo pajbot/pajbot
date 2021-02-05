@@ -52,7 +52,7 @@ python3 --version
 We also need the following libraries and build tools:
 
 ```bash
-sudo apt install libssl-dev libpq-dev build-essential
+sudo apt install libssl-dev libpq-dev build-essential git
 ```
 
 ## Set up a system user
