@@ -41,7 +41,7 @@ class CheerAlertModule(BaseModule):
             constraints={"min_value": 1, "max_value": 120},
         ),
         ModuleSetting(
-            key="1_bit",
+            key="1bit",
             label="Chat message for users who cheer 1 or more bits | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -50,7 +50,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="69_bits",
+            key="69bits",
             label="Chat message for users who cheer 69 bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -59,7 +59,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="100_bits",
+            key="100bits",
             label="Chat message for users who cheer 100 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -68,7 +68,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="420_bits",
+            key="420bits",
             label="Chat message for users who cheer 420 bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -77,7 +77,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="500_bits",
+            key="500bits",
             label="Chat message for users who cheer 500 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -86,7 +86,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="1500_bits",
+            key="1500bits",
             label="Chat message for users who cheer 1500 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -95,7 +95,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="5000_bits",
+            key="5000bits",
             label="Chat message for users who cheer 5000 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -104,7 +104,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="10000_bits",
+            key="10000bits",
             label="Chat message for users who cheer 10000 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -113,7 +113,7 @@ class CheerAlertModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="25000_bits",
+            key="25000bits",
             label="Chat message for users who cheer 25000 or more bits, leave empty to fallback to the previous bit amount message. | Available arguments: {username}, {num_bits}",
             type="text",
             required=True,
@@ -153,90 +153,90 @@ class CheerAlertModule(BaseModule):
         self.bot.websocket_manager.emit("cheer", payload)
 
         if self.settings["chat_message"]:
-            if num_bits >= 25000 and self.settings["25000_bits"] != "":
-                self.bot.say(self.get_phrase("25000_bits", **payload))
-            elif num_bits >= 10000 and self.settings["10000_bits"] != "":
-                self.bot.say(self.get_phrase("10000_bits", **payload))
-            elif num_bits >= 5000 and self.settings["5000_bits"] != "":
-                self.bot.say(self.get_phrase("5000_bits", **payload))
-            elif num_bits >= 1500 and self.settings["1500_bits"] != "":
-                self.bot.say(self.get_phrase("1500_bits", **payload))
-            elif num_bits >= 500 and self.settings["500_bits"] != "":
-                self.bot.say(self.get_phrase("500_bits", **payload))
-            elif num_bits == 420 and self.settings["420_bits"] != "":
+            if num_bits >= 25000 and self.settings["25000bits"] != "":
+                self.bot.say(self.get_phrase("25000bits", **payload))
+            elif num_bits >= 10000 and self.settings["10000bits"] != "":
+                self.bot.say(self.get_phrase("10000bits", **payload))
+            elif num_bits >= 5000 and self.settings["5000bits"] != "":
+                self.bot.say(self.get_phrase("5000bits", **payload))
+            elif num_bits >= 1500 and self.settings["1500bits"] != "":
+                self.bot.say(self.get_phrase("1500bits", **payload))
+            elif num_bits >= 500 and self.settings["500bits"] != "":
+                self.bot.say(self.get_phrase("500bits", **payload))
+            elif num_bits == 420 and self.settings["420bits"] != "":
                 self.bot.say(self.get_phrase("420_bits", **payload))
-            elif num_bits >= 100 and self.settings["100_bits"] != "":
-                self.bot.say(self.get_phrase("100_bits", **payload))
-            elif num_bits == 69 and self.settings["69_bits"] != "":
-                self.bot.say(self.get_phrase("69_bits", **payload))
-            elif self.settings["1_bit"] != "":
-                self.bot.say(self.get_phrase("1_bit", **payload))
+            elif num_bits >= 100 and self.settings["100bits"] != "":
+                self.bot.say(self.get_phrase("100bits", **payload))
+            elif num_bits == 69 and self.settings["69bits"] != "":
+                self.bot.say(self.get_phrase("69bits", **payload))
+            elif self.settings["1bit"] != "":
+                self.bot.say(self.get_phrase("1bit", **payload))
             else:
                 log.warning("Something went wrong with the bit amount announcement!!!!")
 
         if self.settings["whisper_message"]:
-            if num_bits >= 25000 and self.settings["25000_bits"] != "":
+            if num_bits >= 25000 and self.settings["25000bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("25000_bits", **payload),
+                    self.get_phrase("25000bits", **payload),
                 )
-            elif num_bits >= 10000 and self.settings["10000_bits"] != "":
+            elif num_bits >= 10000 and self.settings["10000bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("10000_bits", **payload),
+                    self.get_phrase("10000bits", **payload),
                 )
-            elif num_bits >= 5000 and self.settings["5000_bits"] != "":
+            elif num_bits >= 5000 and self.settings["5000bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("5000_bits", **payload),
+                    self.get_phrase("5000bits", **payload),
                 )
-            elif num_bits >= 1500 and self.settings["1500_bits"] != "":
+            elif num_bits >= 1500 and self.settings["1500bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("1500_bits", **payload),
+                    self.get_phrase("1500bits", **payload),
                 )
             elif num_bits >= 500 and self.settings["500_bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("500_bits", **payload),
+                    self.get_phrase("500bits", **payload),
                 )
-            elif num_bits == 420 and self.settings["420_bits"] != "":
+            elif num_bits == 420 and self.settings["420bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("420_bits", **payload),
+                    self.get_phrase("420bits", **payload),
                 )
-            elif num_bits >= 100 and self.settings["100_bits"] != "":
+            elif num_bits >= 100 and self.settings["100bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("100_bits", **payload),
+                    self.get_phrase("100bits", **payload),
                 )
-            elif num_bits == 69 and self.settings["69_bits"] != "":
+            elif num_bits == 69 and self.settings["69bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("69_bits", **payload),
+                    self.get_phrase("69bits", **payload),
                 )
-            elif self.settings["1_bit"] != "":
+            elif self.settings["1bit"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("1_bit", **payload),
+                    self.get_phrase("1bit", **payload),
                 )
             else:
                 log.warning("Something went wrong with the bit amount announcement!!!!")
