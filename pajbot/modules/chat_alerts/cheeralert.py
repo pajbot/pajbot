@@ -194,14 +194,14 @@ class CheerAlertModule(BaseModule):
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("5000_bits", **payload).
+                    self.get_phrase("5000_bits", **payload),
                 )
             elif num_bits >= 1500 and self.settings["1500_bits"] != "":
                 self.bot.execute_delayed(
                     self.settings["whisper_after"],
                     self.bot.whisper,
                     user,
-                    self.get_phrase("1500_bits", **payload).
+                    self.get_phrase("1500_bits", **payload),
                 )
             elif num_bits >= 500 and self.settings["500_bits"] != "":
                 self.bot.execute_delayed(
