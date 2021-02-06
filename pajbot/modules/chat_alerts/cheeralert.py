@@ -132,7 +132,7 @@ class CheerAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="alert_message_points_given",
-            label="Message to announce points were given to user, leave empty to disable message. | Available arguments: {user}, {points}, {num_bits}",
+            label="Message to announce points were given to user, leave empty to disable message. If the user cheers less than 100 bits, no message will be sent. | Available arguments: {user}, {points}, {num_bits}",
             type="text",
             required=True,
             default="{username} was given {points} points for cheering {num_bits}! FeelsAmazingMan",
