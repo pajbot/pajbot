@@ -47,7 +47,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="{username} thank you so much for cheering {num_bits} bits! PogChamp",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="69_bits",
@@ -56,7 +56,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! Kreygasm",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="100_bits",
@@ -65,7 +65,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="420_bits",
@@ -74,7 +74,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! CiGrip",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="500_bits",
@@ -83,7 +83,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="1500_bits",
@@ -92,7 +92,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="5000_bits",
@@ -101,7 +101,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="10000_bits",
@@ -110,7 +110,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="25000_bits",
@@ -119,7 +119,7 @@ class CheerAlertModule(BaseModule):
             required=True,
             placeholder="{username} thank you so much for cheering {num_bits} bits! PogChamp",
             default="",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="grant_points_per_100_bits",
