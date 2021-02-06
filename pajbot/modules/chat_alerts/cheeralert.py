@@ -132,7 +132,7 @@ class CheerAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="alert_message_points_given",
-            label="Message to announce points were given to user, leave empty to disable message. If the user cheers less than 100 bits, no message will be sent. | Available arguments: {user}, {points}, {num_bits}",
+            label="Message to announce points were given to user, leave empty to disable message. If the user cheers less than 100 bits, no message will be sent. | Available arguments: {username}, {points}, {num_bits}",
             type="text",
             required=True,
             default="{username} was given {points} points for cheering {num_bits}! FeelsAmazingMan",
@@ -251,7 +251,7 @@ class CheerAlertModule(BaseModule):
             user.points += points_to_grant
             alert_message = self.settings["alert_message_points_given"]
             if alert_message != "":
-                self.bot.say(alert_message.format(user=user, points=points_to_grant, num_bits=num_bits))
+                self.bot.say(alert_message.format(username=user, points=points_to_grant, num_bits=num_bits))
         else:
             return
 
