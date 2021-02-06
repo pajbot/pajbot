@@ -267,7 +267,7 @@ class CheerAlertModule(BaseModule):
             return
 
         if "display-name" not in tags:
-            log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
+            log.debug(f"cheeralert requires a display-name, but it is missing: {tags}")
             return
         self.on_cheer(source, num_bits)
 
