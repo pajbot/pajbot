@@ -265,7 +265,7 @@ class CheerAlertModule(BaseModule):
         else:
             log.debug("cheeralert required bits to equal more than 0, but it is equal to 0")
             return
-        
+
         if "display-name" not in tags:
             log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
             return
