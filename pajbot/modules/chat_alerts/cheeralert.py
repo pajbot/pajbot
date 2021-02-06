@@ -143,7 +143,7 @@ class CheerAlertModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
 
-    def on_cheer(self, user, num_bits, tags):
+    def on_cheer(self, user, num_bits):
         """
         A user just cheered bits.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -261,7 +261,7 @@ class CheerAlertModule(BaseModule):
             return
 
         if tags["bits"] != 0:
-            num_bits == int(tags["bits"])
+            num_bits = int(tags["bits"])
         else:
             log.debug("cheeralert required bits to equal more than 0, but it is equal to 0")
             return
