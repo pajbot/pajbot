@@ -248,13 +248,12 @@ class CheerAlertModule(BaseModule):
 
         if round_number > 0:
             points_to_grant = round_number * self.settings["grant_points_per_100_bits"]
+            user.points += points_to_grant
+            alert_message = self.settings["alert_message_points_given"]
+            if alert_message != "":
+                self.bot.say(alert_message.format(user=user, points=points_to_grant, num_bits=num_bits))
         else:
             return
-
-        user.points += points_to_grant
-        alert_message = self.settings["alert_message_points_given"]
-        if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=points_to_grant, num_bits=num_bits))
 
     def on_pubmsg(self, source, tags, **rest):
         if "bits" not in tags:
