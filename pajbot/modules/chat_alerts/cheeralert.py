@@ -136,7 +136,7 @@ class CheerAlertModule(BaseModule):
             type="text",
             required=True,
             default="{username} was given {points} points for cheering {num_bits}! FeelsAmazingMan",
-            constraints={"min_str_len": 0, "max_str_len": 300},
+            constraints={"max_str_len": 300},
         ),
     ]
 
