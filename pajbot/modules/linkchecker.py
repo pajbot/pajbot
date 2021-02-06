@@ -276,20 +276,20 @@ class LinkCheckerModule(BaseModule):
         if whisper:
             return
 
-        if source.level >= self.settings["bypass_level"] or source.moderator is True:
+        if source.level >= self.settings["bypass_level"] or source.moderator:
             return
 
-        if self.settings["vip_exemption"] and source.vip is True:
+        if self.settings["vip_exemption"] and source.vip:
             return
 
         if len(urls) > 0:
             do_timeout = False
             ban_reason = "You are not allowed to post links in chat"
 
-            if self.settings["ban_pleb_links"] is True and source.subscriber is False:
+            if source.subscriber is False and self.settings["ban_pleb_links"]:
                 do_timeout = True
                 ban_reason = self.settings["pleb_timeout_reason"]
-            elif self.settings["ban_sub_links"] and source.subscriber is True:
+            elif self.settings["ban_sub_links"] and source.subscriber:
                 do_timeout = True
                 ban_reason = self.settings["sub_timeout_reason"]
 
