@@ -2,18 +2,20 @@
 
 ## Unversioned
 
+## v1.49
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: `$(urlfetch)` now handles non-200 error codes differently by returning the body if the returned content type is plain text, or a generic "urlfetch error 404" if the content type was not plain text. (#1140)
-- Minor: Added a VIP exemption setting to the case checker module. (#1150)
-- Minor: Added a VIP exemption setting to the link checker module. (#1149)
+- Minor: Added a VIP exemption option to the case checker module. (#1150)
+- Minor: Added a VIP exemption option to the link checker module. (#1149)
 - Minor: Added an option to only enable slots after a re/sub. (#1146)
 - Minor: Added an option to allow ASCII characters while the streamer is on/offline. (#1145)
 - Minor: Added an option to allow repetitive spam while the streamer is on/offline. (#1144)
-- Minor: Added `subtract`, `multiply` & `divide` filters. (#1136)
-- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
 - Minor: Added an option to allow rouletting while the streamer is on/offline. (#1131)
+- Minor: Added `subtract`, `multiply` & `divide` filters. (#1136)
+- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
 - Bugfix: Fix issue where we matched some normal messages as links, e.g. 1.40 or asd...xd (#1148)
 
