@@ -253,11 +253,10 @@ class CheerAlertModule(BaseModule):
         if "bits" not in tags:
             return
 
-        if tags["bits"] != 0:
+        try:
             num_bits = int(tags["bits"])
-        else:
-            log.debug("cheeralert required bits to equal more than 0, but it is equal to 0")
-            return
+        except ValueError:
+            log.error("BabyRage error occurred with getting the bits integer")
 
         if "display-name" not in tags:
             log.debug(f"cheeralert requires a display-name, but it is missing: {tags}")
