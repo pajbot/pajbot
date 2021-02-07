@@ -171,8 +171,6 @@ class CheerAlertModule(BaseModule):
                 self.bot.say(self.get_phrase("sixnine_bits", **payload))
             elif self.settings["one_bit"] != "":
                 self.bot.say(self.get_phrase("one_bit", **payload))
-            else:
-                log.warning("Something went wrong with the bit amount announcement!!!!")
 
         if self.settings["whisper_message"]:
             if num_bits >= 25000 and self.settings["twentyfivethousand_bits"] != "":
@@ -238,8 +236,6 @@ class CheerAlertModule(BaseModule):
                     user,
                     self.get_phrase("one_bit", **payload),
                 )
-            else:
-                log.warning("Something went wrong with the bit amount announcement!!!!")
 
         if self.settings["grant_points_per_100_bits"] <= 0:
             return
