@@ -248,8 +248,6 @@ class CheerAlertModule(BaseModule):
             alert_message = self.settings["alert_message_points_given"]
             if alert_message != "":
                 self.bot.say(alert_message.format(username=user, points=points_to_grant, num_bits=num_bits))
-        else:
-            return
 
     def on_pubmsg(self, source, tags, **rest):
         if "bits" not in tags:
