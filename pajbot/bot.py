@@ -813,7 +813,7 @@ class Bot:
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             source = User.from_basics(db_session, UserBasics(id, login, name))
-            res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0])
+            res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0], tags=tags)
             if res is False:
                 return False
 
