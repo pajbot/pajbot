@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: Added a new module to print a chat/whsiper alert on cheer. (#1158)
 
 ## v1.49
