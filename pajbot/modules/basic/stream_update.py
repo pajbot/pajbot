@@ -23,6 +23,20 @@ class StreamUpdateModule(BaseModule):
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
         ModuleSetting(
+            key="allow_mods_change_title",
+            label="Allow all moderators to change the title (ignores the level setting)",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="allow_mods_change_game",
+            label="Allow all moderators to change the game (ignores the level setting)",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="setgame_trigger",
             label="Set game trigger (e.g. setgame)",
             type="text",
@@ -95,31 +109,63 @@ class StreamUpdateModule(BaseModule):
 
     def load_commands(self, **options):
         setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
-        self.commands[setgame_trigger] = Command.raw_command(
-            self.update_game,
-            level=self.settings["level"],
-            description="Update the stream's game",
-            examples=[
-                CommandExample(
-                    None,
-                    'Update the game to "World of Warcraft"',
-                    chat=f"user:!{setgame_trigger} World of Warcraft\n"
-                    'bot>user:pajlada updated the game to "World of Warcraft"',
-                ).parse()
-            ],
-        )
+        if self.settings["allow_mods_change_game"] is True:
+            self.commands[setgame_trigger] = Command.raw_command(
+                self.update_game,
+                level=100,
+                mod_only=True,
+                description="Update the stream's game",
+                examples=[
+                    CommandExample(
+                        None,
+                        'Update the game to "World of Warcraft"',
+                        chat=f"user:!{setgame_trigger} World of Warcraft\n"
+                        'bot>user:pajlada updated the game to "World of Warcraft"',
+                    ).parse()
+                ],
+            )
+        else:
+            self.commands[setgame_trigger] = Command.raw_command(
+                self.update_game,
+                level=self.settings["level"],
+                description="Update the stream's game",
+                examples=[
+                    CommandExample(
+                        None,
+                        'Update the game to "World of Warcraft"',
+                        chat=f"user:!{setgame_trigger} World of Warcraft\n"
+                        'bot>user:pajlada updated the game to "World of Warcraft"',
+                    ).parse()
+                ],
+            )
 
         settitle_trigger = self.settings["settitle_trigger"].lower().replace("!", "").replace(" ", "")
-        self.commands[settitle_trigger] = Command.raw_command(
-            self.update_title,
-            level=self.settings["level"],
-            description="Update the stream's title",
-            examples=[
-                CommandExample(
-                    None,
-                    'Update the title to "Games and shit"',
-                    chat=f"user:!{settitle_trigger} Games and shit\n"
-                    'bot>user:pajlada updated the title to "Games and shit"',
-                ).parse()
-            ],
-        )
+        if self.settings["allow_mods_change_title"] is True:
+            self.commands[settitle_trigger] = Command.raw_command(
+                self.update_title,
+                level=100,
+                mod_only=True,
+                description="Update the stream's title",
+                examples=[
+                    CommandExample(
+                        None,
+                        'Update the title to "Games and shit"',
+                        chat=f"user:!{settitle_trigger} Games and shit\n"
+                        'bot>user:pajlada updated the title to "Games and shit"',
+                    ).parse()
+                ],
+            )
+        else:
+            self.commands[settitle_trigger] = Command.raw_command(
+                self.update_title,
+                level=self.settings["level"],
+                description="Update the stream's title",
+                examples=[
+                    CommandExample(
+                        None,
+                        'Update the title to "Games and shit"',
+                        chat=f"user:!{settitle_trigger} Games and shit\n"
+                        'bot>user:pajlada updated the title to "Games and shit"',
+                    ).parse()
+                ],
+            )
