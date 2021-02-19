@@ -280,6 +280,7 @@ class Bot:
             "bot_uptime": self.c_uptime,
             "current_time": self.c_current_time,
             "molly_age_in_years": self.c_molly_age_in_years,
+            "lotte_age_in_years": self.c_lotte_age_in_years,
         }
 
         self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
@@ -526,6 +527,13 @@ class Bot:
         molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
         now = utils.now()
         diff = now - molly_birth
+        return diff.total_seconds() / 3600 / 24 / 365
+
+    @staticmethod
+    def c_lotte_age_in_years():
+        lotte_birth = datetime.datetime(2013, 2, 19, tzinfo=datetime.timezone.utc)
+        now = utils.now()
+        diff = now - lotte_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
     def get_datetime_value(self, key, extra=[]):

@@ -101,6 +101,7 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 #### Other
 
 `$(tb:molly_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy molly in years)\
+`$(tb:lotte_age_in_years)` - String - '0.1971333233018455' (age of pajlada's puppy lotte in years)\
 `$(time:<timezone>)` - String - '18:47' (timezone is e.g. 'Europe/Berlin')\
 `$(date:<timezone>)` - String - '2021-01-12' (timezone is e.g. 'Europe/Berlin')\
 `$(datetime:<timezone>)` - refers to pajbot.bot.Bot.get_datetime_value (returns datetime.datetime object) - '2019-01-06 16:27:38.696840'\
