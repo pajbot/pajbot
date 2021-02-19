@@ -228,7 +228,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
 
-    def fetch_channel_information(self, user_id):
+    def fetch_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         response = self.get("/channels", {"broadcaster_id": user_id})
 
         if len(response["data"]) <= 0:
