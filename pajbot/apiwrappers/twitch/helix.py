@@ -168,7 +168,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return responses
 
-    def _fetch_user_data_by_login(self, login):
+    def _fetch_user_data_by_login(self, login: str):
         response = self.get("/users", {"login": login})
 
         if len(response["data"]) <= 0:
