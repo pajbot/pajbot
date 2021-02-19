@@ -214,7 +214,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_login(login)
         return user_data["id"] if user_data is not None else None
 
-    def require_user_id(self, login):
+    def require_user_id(self, login: str) -> str:
         user_id = self.get_user_id(login)
         if user_id is None:
             raise ValueError(f'No user found under login name "{login}" on Twitch')
