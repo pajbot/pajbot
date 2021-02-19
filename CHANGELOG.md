@@ -7,6 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Math filters (`add`, `subtract`, `multiply`, and `divide`) are now able to read float values in addition to int values.
 - Minor: Added an option to the `stream_update` module that allows moderators to change the title/game (without the level requirement). (#1165)
 - Minor: Added a new module to print a chat/whsiper alert on cheer. (#1158)
+- Minor: Added the filter `timedelta_days` which returns the amount of days between now and a `datetime` object.
 - Minor: Added the filter `ceil` which returns the smallest integer greater than or equal to the parameter. (#1168)
 - Minor: Added the filter `floor` which returns the largest integer less than or equal to the parameter. (#1168)
 - Minor: Added the variable `datetimefromisoformat` which allows commands to generate a full datetime object from a given string, which can then be further expanded on using filters. (#1169)
