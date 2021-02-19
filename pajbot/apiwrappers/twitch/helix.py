@@ -383,7 +383,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for user_data in bulk_user_data
         ]
 
-    def create_clip(self, broadcaster_id, authorization, has_delay=False):
+    def create_clip(self, broadcaster_id: str, authorization, has_delay=False) -> str:
         response = self.post(
             "/clips", {"broadcaster_id": broadcaster_id, "has_delay": has_delay}, authorization=authorization
         )
