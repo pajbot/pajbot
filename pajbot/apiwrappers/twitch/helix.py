@@ -266,7 +266,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def get_profile_image_url(self, user_id):
+    def get_profile_image_url(self, user_id: str) -> Optional[str]:
         user_data = self._get_user_data_by_id(user_id)
         return user_data["profile_image_url"] if user_data is not None else None
 
