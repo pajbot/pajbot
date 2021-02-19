@@ -365,7 +365,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def bulk_get_user_basics_by_id(self, user_ids):
+    def bulk_get_user_basics_by_id(self, user_ids: List[str]) -> List[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_id(user_ids)
         return [
             UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
