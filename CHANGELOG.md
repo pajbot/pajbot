@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Major: Math filters (`add`, `subtract`, `multiply`, and `divide`) are now able to read float values in addition to int values.
 - Minor: Added an option to the `stream_update` module that allows moderators to change the title/game (without the level requirement). (#1165)
 - Minor: Added a new module to print a chat/whsiper alert on cheer. (#1158)
 - Minor: Added the filter `ceil` which returns the smallest integer greater than or equal to the parameter. (#1168)
