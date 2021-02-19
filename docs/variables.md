@@ -233,4 +233,6 @@ Generates a python `datetime` object from the given iso format: https://docs.pyt
 
 Example usage: `$(datetimefromisoformat:2013-02-19)` would return a datetime value that would stringify in chat to `2013-02-19 00:00:00+00:00`.
 
+If no timezone has been specified in the argument, the datetime object will be forced to the UTC timezone.
+
 stftime is a useful filter to call on this function
