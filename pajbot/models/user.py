@@ -29,7 +29,7 @@ class UserRank(Base):
 
 
 class UserBasics:
-    def __init__(self, id, login, name):
+    def __init__(self, id: str, login: str, name: str):
         self.id = id
         self.login = login
         self.name = name

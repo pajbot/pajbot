@@ -937,6 +937,7 @@ class Bot:
             else utils.time_since(var * 60, 0, time_format="long"),
             "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
+            "timedelta_days": _filter_timedelta_days,
             "urlencode": _filter_urlencode,
             "join": _filter_join,
             "number_format": _filter_number_format,
@@ -973,6 +974,14 @@ def _filter_time_since_dt(var, args):
         return "0 seconds"
     except:
         return "never FeelsBadMan ?"
+
+
+def _filter_timedelta_days(var, args):
+    try:
+        td = utils.now() - var
+        return str(td.days)
+    except:
+        return "0"
 
 
 def _filter_join(var, args):
