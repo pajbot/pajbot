@@ -15,4 +15,4 @@ def parse_number_from_string(var: str) -> Union[int, float]:
     except ValueError:
         pass
 
-    raise ValueError(f"could not convert string to int() with base 10 or float: {var}")
+    raise ValueError(f"could not convert string to number using int() or float(): {var}")
