@@ -258,7 +258,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return self.parse_datetime(response["data"][0]["followed_at"])
 
-    def get_follow_since(self, from_id, to_id):
+    def get_follow_since(self, from_id: str, to_id: str):
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
             serializer=DateTimeSerializer(),
