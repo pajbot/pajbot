@@ -270,7 +270,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         return user_data["profile_image_url"] if user_data is not None else None
 
-    def get_user_basics_by_login(self, login):
+    def get_user_basics_by_login(self, login: str) -> Optional[UserBasics]:
         user_data = self._get_user_data_by_login(login)
         if user_data is None:
             return None
