@@ -391,6 +391,17 @@ class Bot:
         except:
             log.exception("Unhandled exception in get_date_value")
 
+    def get_datetimefromisoformat_value(self, key, extra={}):
+        try:
+            dt = datetime.datetime.fromisoformat(key)
+            if dt.tzinfo is None:
+                # The date format passed through in key did not contain a timezone, so we replace it with UTC
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+
+            return dt
+        except:
+            log.exception("Unhandled exception in get_datetimefromisoformat_value")
+
     def get_current_song_value(self, key, extra={}):
         if self.stream_manager.online:
             current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)

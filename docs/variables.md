@@ -226,3 +226,13 @@ Valid attributes are:
 - `id` for the broadcaster's Twitch ID
 - `login` for the broadcaster's Twitch Login Name
 - `name` for the broadcaster's Twitch Display Name
+
+#### datetimefromisoformat
+
+Generates a python `datetime` object from the given iso format: https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
+
+Example usage: `$(datetimefromisoformat:2013-02-19)` would return a datetime value that would stringify in chat to `2013-02-19 00:00:00+00:00`.
+
+If no timezone has been specified in the argument, the datetime object will be forced to the UTC timezone.
+
+stftime is a useful filter to call on this function

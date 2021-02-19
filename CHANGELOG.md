@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added a new module to print a chat/whsiper alert on cheer. (#1158)
 - Minor: Added the filter `ceil` which returns the smallest integer greater than or equal to the parameter. (#1168)
 - Minor: Added the filter `floor` which returns the largest integer less than or equal to the parameter. (#1168)
+- Minor: Added the variable `datetimefromisoformat` which allows commands to generate a full datetime object from a given string, which can then be further expanded on using filters. (#1169)
 
 ## v1.49
 
