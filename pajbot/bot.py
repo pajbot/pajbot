@@ -1006,28 +1006,40 @@ def lowercase_first_letter(s):
 
 def _filter_add(var, args):
     try:
-        return str(int(var) + int(args[0]))
+        lh = utils.parse_number_from_string(var)
+        rh = utils.parse_number_from_string(args[0])
+
+        return str(lh + rh)
     except:
         return ""
 
 
 def _filter_subtract(var, args):
     try:
-        return str(int(var) - int(args[0]))
+        lh = utils.parse_number_from_string(var)
+        rh = utils.parse_number_from_string(args[0])
+
+        return str(lh - rh)
     except:
         return ""
 
 
 def _filter_multiply(var, args):
     try:
-        return str(int(var) * int(args[0]))
+        lh = utils.parse_number_from_string(var)
+        rh = utils.parse_number_from_string(args[0])
+
+        return str(lh * rh)
     except:
         return ""
 
 
 def _filter_divide(var, args):
     try:
-        return str(int(var) / int(args[0]))
+        lh = utils.parse_number_from_string(var)
+        rh = utils.parse_number_from_string(args[0])
+
+        return str(lh / rh)
     except:
         return ""
 
