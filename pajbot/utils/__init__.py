@@ -20,3 +20,4 @@ from .time_limit import time_limit
 from .time_method import time_method
 from .time_since import time_since
 from .wait_for_redis_data_loaded import wait_for_redis_data_loaded
+from .parse_number_from_string import parse_number_from_string
