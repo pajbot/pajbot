@@ -416,7 +416,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+    def _fetch_videos_by_user_id(self, user_id: str) -> List[TwitchVideo]:
         response = self.get("/videos", {"user_id": user_id})
 
         videos = []
