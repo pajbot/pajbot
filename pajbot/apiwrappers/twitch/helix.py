@@ -276,7 +276,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             return None
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-    def fetch_user_basics_from_authorization(self, authorization):
+    def fetch_user_basics_from_authorization(self, authorization) -> UserBasics:
         """Fetch the UserBasics for the user identified by the given authorization object.
         `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""
         user_data = self._fetch_user_data_from_authorization(authorization)
