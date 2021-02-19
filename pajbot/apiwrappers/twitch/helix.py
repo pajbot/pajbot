@@ -391,7 +391,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return clip_id
 
-    def _fetch_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+    def _fetch_stream_by_user_id(self, user_id: str) -> Optional[UserStream]:
         response = self.get("/streams", {"user_id": user_id})
 
         if len(response["data"]) <= 0:
