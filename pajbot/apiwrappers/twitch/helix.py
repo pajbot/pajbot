@@ -238,7 +238,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return UserChannelInformation(info["broadcaster_language"], info["game_id"], info["game_name"], info["title"])
 
-    def get_channel_information(self, user_id) -> Optional[UserChannelInformation]:
+    def get_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         """Gets the channel information of a Twitch user for the given Twitch user ID,
         utilizing a cache or the Twitch API on cache miss.
         If no channel with the user exists, None is returned.
