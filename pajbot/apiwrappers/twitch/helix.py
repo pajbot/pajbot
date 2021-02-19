@@ -451,7 +451,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_games(self, key_type, lookup_keys) -> List[Optional[TwitchGame]]:
+    def _fetch_games(self, key_type: str, lookup_keys: List[str]) -> List[Optional[TwitchGame]]:
         all_entries: List[Optional[TwitchGame]] = []
 
         # We can fetch a maximum of 100 users on each helix request
