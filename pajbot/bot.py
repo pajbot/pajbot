@@ -393,7 +393,12 @@ class Bot:
 
     def get_datetimefromisoformat_value(self, key, extra={}):
         try:
-            return datetime.datetime.fromisoformat(key).replace(tzinfo=datetime.timezone.utc)
+            dt = datetime.datetime.fromisoformat(key)
+            if dt.tzinfo is None:
+                # The date format passed through in key did not contain a timezone, so we replace it with UTC
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+
+            return dt
         except:
             log.exception("Unhandled exception in get_datetimefromisoformat_value")
 
