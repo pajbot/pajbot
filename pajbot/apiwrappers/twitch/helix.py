@@ -443,7 +443,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return videos
 
-    def get_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+    def get_videos_by_user_id(self, user_id: str) -> List[TwitchVideo]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:videos:by-id:{user_id}",
             fetch_fn=lambda: self._fetch_videos_by_user_id(user_id),
