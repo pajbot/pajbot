@@ -206,7 +206,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def get_user_id(self, login):
+    def get_user_id(self, login: str) -> Optional[str]:
         """Gets the twitch user ID as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
         If the user is not found, None is returned."""
