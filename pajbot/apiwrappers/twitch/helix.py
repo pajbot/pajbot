@@ -374,7 +374,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for user_data in bulk_user_data
         ]
 
-    def bulk_get_user_basics_by_login(self, logins):
+    def bulk_get_user_basics_by_login(self, logins: List[str]) -> List[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_login(logins)
         return [
             UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
