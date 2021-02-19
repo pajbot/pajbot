@@ -44,7 +44,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 #### Math
 
 `add` - tries to convert the variable result into a number, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.  
-`subtract` - tries to convert the variable result into a number, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.  
+`subtract` - tries to convert the variable result into a number, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5.3))` would subtract 5.3 from the amount of subs you have.  
 `multiply` - tries to convert the variable result into a number, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.  
 `divide` - tries to convert the variable result into a number, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.  
 `ceil` - returns the smallest integer greater than or equal to the variable result - e.g. `$(kvi:active_subs|divide(5)|ceil)` would divide the amount of subs you have into 5, and return the number rounded up to the nearest whole number.  
