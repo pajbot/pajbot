@@ -408,7 +408,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             stream["id"],
         )
 
-    def get_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+    def get_stream_by_user_id(self, user_id: str) -> Optional[UserStream]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:stream:by-id:{user_id}",
             fetch_fn=lambda: self._fetch_stream_by_user_id(user_id),
