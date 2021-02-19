@@ -937,6 +937,8 @@ class Bot:
             "subtract": _filter_subtract,
             "multiply": _filter_multiply,
             "divide": _filter_divide,
+            "floor": _filter_floor,
+            "ceil": _filter_ceil,
         }
         if f.name in available_filters:
             return available_filters[f.name](resp, f.arguments)
@@ -1015,6 +1017,24 @@ def _filter_multiply(var, args):
 def _filter_divide(var, args):
     try:
         return str(int(var) / int(args[0]))
+    except:
+        return ""
+
+
+def _filter_floor(var, args):
+    import math
+
+    try:
+        return str(math.floor(float(var)))
+    except:
+        return ""
+
+
+def _filter_ceil(var, args):
+    import math
+
+    try:
+        return str(math.ceil(float(var)))
     except:
         return ""
 
