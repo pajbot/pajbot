@@ -2,15 +2,34 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+- Major: Math filters (`add`, `subtract`, `multiply`, and `divide`) are now able to read float values in addition to int values.
+- Minor: Added support for the `delete` moderation action in the ASCII module. (#1174)
+- Minor: Added an option to the `stream_update` module that allows moderators to change the title/game (without the level requirement). (#1165)
+- Minor: Added a new module to print a chat/whsiper alert on cheer. (#1158)
+- Minor: Added the filter `timedelta_days` which returns the amount of days between now and a `datetime` object. (#1173)
+- Minor: Added the filter `ceil` which returns the smallest integer greater than or equal to the parameter. (#1168)
+- Minor: Added the filter `floor` which returns the largest integer less than or equal to the parameter. (#1168)
+- Minor: Added the variable `datetimefromisoformat` which allows commands to generate a full datetime object from a given string, which can then be further expanded on using filters. (#1169)
+- Minor: Filter arguments now allow the period character `.` (#1171)
+
+## v1.49
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Major: `$(urlfetch)` now handles non-200 error codes differently by returning the body if the returned content type is plain text, or a generic "urlfetch error 404" if the content type was not plain text. (#1140)
+- Minor: Added a VIP exemption option to the case checker module. (#1150)
+- Minor: Added a VIP exemption option to the link checker module. (#1149)
 - Minor: Added an option to only enable slots after a re/sub. (#1146)
 - Minor: Added an option to allow ASCII characters while the streamer is on/offline. (#1145)
 - Minor: Added an option to allow repetitive spam while the streamer is on/offline. (#1144)
-- Minor: Added `subtract`, `multiply` & `divide` filters. (#1136)
-- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added an option to allow mass pings while the streamer is on/offline. (#1129)
 - Minor: Added an option to allow rouletting while the streamer is on/offline. (#1131)
+- Minor: Added `subtract`, `multiply` & `divide` filters. (#1136)
+- Minor: Added `$(datetime:<timezone>)` variable. This allows users to parse their own timezone's time and use the `strftime` filter. (#1132)
 - Minor: Added `$(date:<timezone>)` variable. (#1125)
+- Bugfix: Fix issue where we matched some normal messages as links, e.g. 1.40 or asd...xd (#1148)
 
 ## v1.48
 

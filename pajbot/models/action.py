@@ -124,7 +124,7 @@ class IfSubstitution:
 class Substitution:
     argument_substitution_regex = re.compile(r"\$\((\d+)\)")
     substitution_regex = re.compile(
-        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
+        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-.]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
     urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
@@ -350,6 +350,7 @@ def get_substitutions(string, bot):
         method_mapping["usersource"] = bot.get_usersource_value
         method_mapping["time"] = bot.get_time_value
         method_mapping["date"] = bot.get_date_value
+        method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
         method_mapping["datetime"] = bot.get_datetime_value
         method_mapping["curdeck"] = bot.decks.action_get_curdeck
         method_mapping["stream"] = bot.stream_manager.get_stream_value

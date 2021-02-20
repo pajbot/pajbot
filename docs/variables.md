@@ -31,7 +31,8 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 `time_since_minutes` - outputs the time since a certain input time in minutes  
 `time_since` - outputs the time since a certain input time  
-`time_since_dt` - outputs the date since a certain input date
+`time_since_dt` - outputs the date since a certain input date  
+`timedelta_days` - outputs the number of days between the variable result `datetime` object and now - e.g. `$(datetimefromisoformat:2020-09-10|timedelta_days)` would return the amount of days since the date 2020-09-10
 
 #### Letter Case
 
@@ -43,10 +44,12 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 
 #### Math
 
-`add` - tries to convert the variable result into an integer, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.  
-`subtract` - tries to convert the variable result into an integer, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5))` would subtract 5 from the amount of subs you have.  
-`multiply` - tries to convert the variable result into an integer, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.  
-`divide` - tries to convert the variable result into an integer, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.
+`add` - tries to convert the variable result into a number, then adds it to the defined filter argument - e.g `$(kvi:active_subs|add(5))` would add 5 to the amount of active subs you have.  
+`subtract` - tries to convert the variable result into a number, then subtracts the filter argument from it - e.g. `$(kvi:active_subs|subtract(5.3))` would subtract 5.3 from the amount of subs you have.  
+`multiply` - tries to convert the variable result into a number, then multiplies it by the filter argument - e.g. `$(kvi:active_subs|multiply(5))` would multiply the amount of subs you have by 5.  
+`divide` - tries to convert the variable result into a number, then divides it into the defined filter argument - e.g. `$(kvi:active_subs|divide(5))` would divide the amount of subs you have into 5.  
+`ceil` - returns the smallest integer greater than or equal to the variable result - e.g. `$(kvi:active_subs|divide(5)|ceil)` would divide the amount of subs you have into 5, and return the number rounded up to the nearest whole number.  
+`floor` - returns the largest integer less than or equal to the variable result - e.g. `$(kvi:active_subs|divide(5)|floor)` would divide the amount of subs you have into 5, and return the number rounded down to the nearest whole number.
 
 # Special Substitutions
 
@@ -224,3 +227,13 @@ Valid attributes are:
 - `id` for the broadcaster's Twitch ID
 - `login` for the broadcaster's Twitch Login Name
 - `name` for the broadcaster's Twitch Display Name
+
+#### datetimefromisoformat
+
+Generates a python `datetime` object from the given iso format: https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat
+
+Example usage: `$(datetimefromisoformat:2013-02-19)` would return a datetime value that would stringify in chat to `2013-02-19 00:00:00+00:00`.
+
+If no timezone has been specified in the argument, the datetime object will be forced to the UTC timezone.
+
+stftime is a useful filter to call on this function

@@ -34,6 +34,14 @@ class AsciiProtectionModule(BaseModule):
             constraints={"min_value": 20, "max_value": 1000},
         ),
         ModuleSetting(
+            key="moderation_action",
+            label="Moderation action to apply",
+            type="options",
+            required=True,
+            default="Timeout",
+            options=["Delete", "Timeout"],
+        ),
+        ModuleSetting(
             key="timeout_length",
             label="Timeout length",
             type="number",
@@ -89,7 +97,7 @@ class AsciiProtectionModule(BaseModule):
             return True
         return False
 
-    def on_pubmsg(self, source, message, **rest):
+    def on_pubmsg(self, source, message, tags, **rest):
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
@@ -105,14 +113,16 @@ class AsciiProtectionModule(BaseModule):
         if AsciiProtectionModule.check_message(message) is False:
             return
 
-        duration, punishment = self.bot.timeout_warn(
-            source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-        )
-
-        """ We only send a notification to the user if he has spent more than
-        one hour watching the stream. """
-        if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
+        if self.settings["moderation_action"] == "Delete":
+            self.bot.delete_message(tags["id"])
+        else:
+            duration, punishment = self.bot.timeout_warn(
+                source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
+            )
+            """ We only send a notification to the user if he has spent more than
+            one hour watching the stream. """
+            if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
+                self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
 
         return False
 

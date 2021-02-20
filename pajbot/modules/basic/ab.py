@@ -1,6 +1,5 @@
 import logging
 
-from pajbot.bot import URL_REGEX
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -54,7 +53,7 @@ class AbCommandModule(BaseModule):
             return False
 
         # check if there is a link in the message
-        check_message = find_unique_urls(URL_REGEX, message)
+        check_message = find_unique_urls(message)
         if len(check_message) > 0:
             return False
 
