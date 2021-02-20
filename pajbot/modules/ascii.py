@@ -38,7 +38,7 @@ class AsciiProtectionModule(BaseModule):
             label="Moderation action to apply",
             type="options",
             required=True,
-            default="Delete",
+            default="Timeout",
             options=["Delete", "Timeout"],
         ),
         ModuleSetting(
