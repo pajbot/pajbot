@@ -124,7 +124,7 @@ class AsciiProtectionModule(BaseModule):
             if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
                 self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
 
-            return False
+        return False
 
     def enable(self, bot):
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
