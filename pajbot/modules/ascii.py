@@ -97,7 +97,7 @@ class AsciiProtectionModule(BaseModule):
             return True
         return False
 
-    def on_pubmsg(self, source, message, msg_id, **rest):
+    def on_pubmsg(self, source, message, tags, **rest):
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
@@ -114,7 +114,7 @@ class AsciiProtectionModule(BaseModule):
             return
 
         if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(msg_id)
+            self.bot.delete_message(tags["id"])
         else:
             duration, punishment = self.bot.timeout_warn(
                 source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
