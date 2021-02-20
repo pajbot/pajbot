@@ -119,13 +119,12 @@ class AsciiProtectionModule(BaseModule):
             duration, punishment = self.bot.timeout_warn(
                 source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
             )
+            """ We only send a notification to the user if he has spent more than
+            one hour watching the stream. """
+            if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
+                self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
 
-        """ We only send a notification to the user if he has spent more than
-        one hour watching the stream. """
-        if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
-
-        return False
+            return False
 
     def enable(self, bot):
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
