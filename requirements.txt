@@ -11,7 +11,7 @@ httplib2==0.19.0
 irc==19.0.1
 isodate==0.6.0
 jsmin==2.2.2
-Markdown==3.3.3
+Markdown==3.3.4
 psycopg2==2.8.6
 pylast==4.1.0
 pyOpenSSL==20.0.1 # for twisted.internet.ssl
