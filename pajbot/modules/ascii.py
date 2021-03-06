@@ -17,6 +17,14 @@ class AsciiProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
+            key="enabled_by_stream_status",
+            label="Enable moderation of ASCII characters when the stream is:",
+            type="options",
+            required=True,
+            default="Offline and Online",
+            options=["Online Only", "Offline Only", "Offline and Online"],
+        ),
+        ModuleSetting(
             key="min_msg_length",
             label="Minimum message length to be considered bad",
             type="number",
@@ -24,6 +32,14 @@ class AsciiProtectionModule(BaseModule):
             placeholder="",
             default=70,
             constraints={"min_value": 20, "max_value": 1000},
+        ),
+        ModuleSetting(
+            key="moderation_action",
+            label="Moderation action to apply",
+            type="options",
+            required=True,
+            default="Timeout",
+            options=["Delete", "Timeout"],
         ),
         ModuleSetting(
             key="timeout_length",
@@ -81,7 +97,13 @@ class AsciiProtectionModule(BaseModule):
             return True
         return False
 
-    def on_pubmsg(self, source, message, **rest):
+    def on_pubmsg(self, source, message, tags, **rest):
+        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
+            return
+
+        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
+            return
+
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
@@ -91,14 +113,16 @@ class AsciiProtectionModule(BaseModule):
         if AsciiProtectionModule.check_message(message) is False:
             return
 
-        duration, punishment = self.bot.timeout_warn(
-            source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-        )
-
-        """ We only send a notification to the user if he has spent more than
-        one hour watching the stream. """
-        if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
+        if self.settings["moderation_action"] == "Delete":
+            self.bot.delete_message(tags["id"])
+        else:
+            duration, punishment = self.bot.timeout_warn(
+                source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
+            )
+            """ We only send a notification to the user if he has spent more than
+            one hour watching the stream. """
+            if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
+                self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
 
         return False
 

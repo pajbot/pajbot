@@ -1,5 +1,6 @@
 from typing import Optional
 
+import cgi
 import collections
 import json
 import logging
@@ -123,7 +124,7 @@ class IfSubstitution:
 class Substitution:
     argument_substitution_regex = re.compile(r"\$\((\d+)\)")
     substitution_regex = re.compile(
-        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
+        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-.]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
     urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
@@ -348,6 +349,9 @@ def get_substitutions(string, bot):
         method_mapping["user"] = bot.get_user_value
         method_mapping["usersource"] = bot.get_usersource_value
         method_mapping["time"] = bot.get_time_value
+        method_mapping["date"] = bot.get_date_value
+        method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
+        method_mapping["datetime"] = bot.get_datetime_value
         method_mapping["curdeck"] = bot.decks.action_get_curdeck
         method_mapping["stream"] = bot.stream_manager.get_stream_value
         method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value
@@ -474,17 +478,24 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
         return False
 
     for needle, url in urlfetch_subs.items():
-        try:
-            headers = {
-                "Accept": "text/plain",
-                "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
-                "User-Agent": bot.user_agent,
-            }
-            r = requests.get(url, allow_redirects=True, headers=headers)
-            r.raise_for_status()
+        headers = {
+            "Accept": "text/plain",
+            "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
+            "User-Agent": bot.user_agent,
+        }
+        r = requests.get(url, allow_redirects=True, headers=headers)
+        if r.status_code == requests.codes.ok:
+            # For "legacy" reasons, we don't check the content type of ok status codes
             value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
-        except:
-            return False
+        else:
+            # An error code was returned, ensure the response is plain text
+            content_type = r.headers["Content-Type"]
+            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+                # The content type is not plain text, return a generic error showing the status code returned
+                value = f"urlfetch error {r.status_code}"
+            else:
+                value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
+
         message = message.replace(needle, value)
 
     if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:

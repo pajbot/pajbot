@@ -26,7 +26,13 @@ class CaseCheckerModule(BaseModule):
             required=True,
             default=False,
         ),
-        # TODO: add a vip_exemption option once troy's pr is accepted
+        ModuleSetting(
+            key="vip_exemption",
+            label="Exempt VIPs from case-based timeouts",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
         ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
@@ -144,6 +150,9 @@ class CaseCheckerModule(BaseModule):
             return True
 
         if self.settings["subscriber_exemption"] and source.subscriber is True:
+            return True
+
+        if self.settings["vip_exemption"] and source.vip is True:
             return True
 
         amount_lowercase = sum(1 for c in message if c.islower())

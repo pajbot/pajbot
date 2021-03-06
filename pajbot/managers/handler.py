@@ -15,7 +15,7 @@ class HandlerManager:
     def init_handlers():
         HandlerManager.handlers = {}
 
-        # on_pubmsg(source, message)
+        # on_pubmsg(source, message, tags)
         HandlerManager.create_handler("on_pubmsg")
 
         # on_message(source, message, emote_instances, emote_counts, whisper, urls, msg_id, event)

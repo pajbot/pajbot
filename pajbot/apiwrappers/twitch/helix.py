@@ -168,7 +168,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return responses
 
-    def _fetch_user_data_by_login(self, login):
+    def _fetch_user_data_by_login(self, login: str):
         response = self.get("/users", {"login": login})
 
         if len(response["data"]) <= 0:
@@ -206,7 +206,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def get_user_id(self, login):
+    def get_user_id(self, login: str) -> Optional[str]:
         """Gets the twitch user ID as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
         If the user is not found, None is returned."""
@@ -214,13 +214,13 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_login(login)
         return user_data["id"] if user_data is not None else None
 
-    def require_user_id(self, login):
+    def require_user_id(self, login: str) -> str:
         user_id = self.get_user_id(login)
         if user_id is None:
             raise ValueError(f'No user found under login name "{login}" on Twitch')
         return user_id
 
-    def get_login(self, user_id):
+    def get_login(self, user_id: str) -> Optional[str]:
         """Gets the twitch login name as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
         If the user is not found, None is returned."""
@@ -228,7 +228,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
 
-    def fetch_channel_information(self, user_id):
+    def fetch_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         response = self.get("/channels", {"broadcaster_id": user_id})
 
         if len(response["data"]) <= 0:
@@ -238,7 +238,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return UserChannelInformation(info["broadcaster_language"], info["game_id"], info["game_name"], info["title"])
 
-    def get_channel_information(self, user_id) -> Optional[UserChannelInformation]:
+    def get_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         """Gets the channel information of a Twitch user for the given Twitch user ID,
         utilizing a cache or the Twitch API on cache miss.
         If no channel with the user exists, None is returned.
@@ -258,7 +258,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return self.parse_datetime(response["data"][0]["followed_at"])
 
-    def get_follow_since(self, from_id, to_id):
+    def get_follow_since(self, from_id: str, to_id: str):
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
             serializer=DateTimeSerializer(),
@@ -266,17 +266,17 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def get_profile_image_url(self, user_id):
+    def get_profile_image_url(self, user_id: str) -> Optional[str]:
         user_data = self._get_user_data_by_id(user_id)
         return user_data["profile_image_url"] if user_data is not None else None
 
-    def get_user_basics_by_login(self, login):
+    def get_user_basics_by_login(self, login: str) -> Optional[UserBasics]:
         user_data = self._get_user_data_by_login(login)
         if user_data is None:
             return None
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-    def fetch_user_basics_from_authorization(self, authorization):
+    def fetch_user_basics_from_authorization(self, authorization) -> UserBasics:
         """Fetch the UserBasics for the user identified by the given authorization object.
         `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""
         user_data = self._fetch_user_data_from_authorization(authorization)
@@ -365,7 +365,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def bulk_get_user_basics_by_id(self, user_ids):
+    def bulk_get_user_basics_by_id(self, user_ids: List[str]) -> List[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_id(user_ids)
         return [
             UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
@@ -374,7 +374,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for user_data in bulk_user_data
         ]
 
-    def bulk_get_user_basics_by_login(self, logins):
+    def bulk_get_user_basics_by_login(self, logins: List[str]) -> List[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_login(logins)
         return [
             UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
@@ -383,7 +383,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for user_data in bulk_user_data
         ]
 
-    def create_clip(self, broadcaster_id, authorization, has_delay=False):
+    def create_clip(self, broadcaster_id: str, authorization, has_delay=False) -> str:
         response = self.post(
             "/clips", {"broadcaster_id": broadcaster_id, "has_delay": has_delay}, authorization=authorization
         )
@@ -391,7 +391,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return clip_id
 
-    def _fetch_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+    def _fetch_stream_by_user_id(self, user_id: str) -> Optional[UserStream]:
         response = self.get("/streams", {"user_id": user_id})
 
         if len(response["data"]) <= 0:
@@ -408,7 +408,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             stream["id"],
         )
 
-    def get_stream_by_user_id(self, user_id) -> Optional[UserStream]:
+    def get_stream_by_user_id(self, user_id: str) -> Optional[UserStream]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:stream:by-id:{user_id}",
             fetch_fn=lambda: self._fetch_stream_by_user_id(user_id),
@@ -416,7 +416,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+    def _fetch_videos_by_user_id(self, user_id: str) -> List[TwitchVideo]:
         response = self.get("/videos", {"user_id": user_id})
 
         videos = []
@@ -443,7 +443,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return videos
 
-    def get_videos_by_user_id(self, user_id) -> List[TwitchVideo]:
+    def get_videos_by_user_id(self, user_id: str) -> List[TwitchVideo]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:videos:by-id:{user_id}",
             fetch_fn=lambda: self._fetch_videos_by_user_id(user_id),
@@ -451,7 +451,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_games(self, key_type, lookup_keys) -> List[Optional[TwitchGame]]:
+    def _fetch_games(self, key_type: str, lookup_keys: List[str]) -> List[Optional[TwitchGame]]:
         all_entries: List[Optional[TwitchGame]] = []
 
         # We can fetch a maximum of 100 users on each helix request

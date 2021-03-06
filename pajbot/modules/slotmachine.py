@@ -1,3 +1,4 @@
+import datetime
 import logging
 from collections import Counter
 
@@ -189,10 +190,35 @@ class SlotMachineModule(BaseModule):
             default=100,
             constraints={"min_value": 1, "max_value": 150000},
         ),
+        ModuleSetting(
+            key="only_slots_after_sub",
+            label="Only allow slots after sub",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="after_sub_slots_time",
+            label="How long after a sub people can use the slot machine (seconds)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=30,
+            constraints={"min_value": 5, "max_value": 3600},
+        ),
+        ModuleSetting(
+            key="alert_message_after_sub",
+            label="Message to announce the allowance of slotmachine usage after re/sub, leave empty to disable the message. | Available arguments: {seconds}",
+            type="text",
+            required=True,
+            default="Slot machine is now allowed for {seconds} seconds! PogChamp",
+            constraints={"min_str_len": 0, "max_str_len": 300},
+        ),
     ]
 
     def __init__(self, bot):
         super().__init__(bot)
+        self.last_sub = None
         self.output_buffer = ""
         self.output_buffer_args = []
         self.last_add = None
@@ -217,6 +243,12 @@ class SlotMachineModule(BaseModule):
         self.commands["slots"] = self.commands["slotmachine"]
 
     def pull(self, bot, source, message, **rest):
+        if self.settings["only_slots_after_sub"]:
+            if self.last_sub is None:
+                return False
+            if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_slots_time"]):
+                return False
+
         if message is None:
             bot.whisper(source, "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points")
             return False
@@ -341,8 +373,27 @@ class SlotMachineModule(BaseModule):
 
         self.last_add = utils.now()
 
+    def on_user_sub_or_resub(self, **rest):
+        now = utils.now()
+
+        # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
+        # spam after bulk sub gifts.
+        skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
+
+        self.last_sub = now
+        if (
+            self.settings["only_slots_after_sub"]
+            and self.settings["alert_message_after_sub"] != ""
+            and not skip_message
+        ):
+            self.bot.say(self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_slots_time"]))
+
     def enable(self, bot):
+        HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)
+        HandlerManager.add_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.add_handler("on_tick", self.on_tick)
 
     def disable(self, bot):
+        HandlerManager.remove_handler("on_user_sub", self.on_user_sub_or_resub)
+        HandlerManager.remove_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.remove_handler("on_tick", self.on_tick)

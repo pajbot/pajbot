@@ -25,6 +25,14 @@ class RouletteModule(BaseModule):
     CATEGORY = "Game"
     SETTINGS = [
         ModuleSetting(
+            key="stream_status",
+            label="Only allow rouletting while the stream is:",
+            type="options",
+            required=True,
+            default="Either online or offline",
+            options=["Offline", "Online", "Either online or offline"],
+        ),
+        ModuleSetting(
             key="command_name",
             label="Command name (e.g. roulette)",
             type="text",
@@ -171,6 +179,12 @@ class RouletteModule(BaseModule):
         return random.randint(1, 100) > self.settings["rigged_percentage"]
 
     def roulette(self, bot, source, message, **rest):
+        if self.settings["stream_status"] == "Online" and not bot.is_online:
+            return
+
+        if self.settings["stream_status"] == "Offline" and bot.is_online:
+            return
+
         if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
                 return False
