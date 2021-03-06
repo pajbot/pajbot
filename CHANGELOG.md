@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+## v1.50
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Math filters (`add`, `subtract`, `multiply`, and `divide`) are now able to read float values in addition to int values.
