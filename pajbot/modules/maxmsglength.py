@@ -70,6 +70,13 @@ class MaxMsgLengthModule(BaseModule):
             default="You have been {punishment} because your message was too long.",
             constraints={},
         ),
+        ModuleSetting(
+            key="unicode_length",
+            label="Count the unicode length rather than the character length.",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def on_message(self, source, message, whisper, **rest):
@@ -78,8 +85,13 @@ class MaxMsgLengthModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator:
             return
 
+        if self.settings["unicode_length"]:
+            length = message.encode("utf-16") / 2 - 1
+        else:
+            length = len(message)
+
         if self.bot.is_online:
-            if len(message) > self.settings["max_msg_length"]:
+            if length > self.settings["max_msg_length"]:
                 duration, punishment = self.bot.timeout_warn(
                     source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
                 )
@@ -89,7 +101,7 @@ class MaxMsgLengthModule(BaseModule):
                     self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
                 return False
         else:
-            if len(message) > self.settings["max_msg_length_offline"]:
+            if length > self.settings["max_msg_length_offline"]:
                 duration, punishment = self.bot.timeout_warn(
                     source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
                 )
