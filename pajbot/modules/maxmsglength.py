@@ -86,7 +86,7 @@ class MaxMsgLengthModule(BaseModule):
             return
 
         if self.settings["unicode_length"]:
-            length = message.encode("utf-16") / 2 - 1
+            length = len(message.encode("utf-16")) / 2 - 1
         else:
             length = len(message)
 
