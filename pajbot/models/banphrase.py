@@ -157,6 +157,8 @@ class Banphrase(Base):
             "permanent": self.permanent,
             "operator": self.operator,
             "case_sensitive": self.case_sensitive,
+            "sub_immunity": self.sub_immunity,
+            "remove_accents": self.remove_accents,
         }
 
 
