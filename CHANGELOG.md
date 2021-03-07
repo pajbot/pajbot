@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Minor: Exposed `sub_immunity` and `remove_accents` fields in the Banphrase API response. (#1186)
+
 ## v1.50
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
