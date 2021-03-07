@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+## v1.50
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Math filters (`add`, `subtract`, `multiply`, and `divide`) are now able to read float values in addition to int values.
@@ -13,6 +15,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added the filter `floor` which returns the largest integer less than or equal to the parameter. (#1168)
 - Minor: Added the variable `datetimefromisoformat` which allows commands to generate a full datetime object from a given string, which can then be further expanded on using filters. (#1169)
 - Minor: Filter arguments now allow the period character `.` (#1171)
+- Bugfix: Escape message content in command examples. (#1181)
 
 ## v1.49
 
