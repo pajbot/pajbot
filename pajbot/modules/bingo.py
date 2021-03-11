@@ -219,12 +219,7 @@ class BingoModule(BaseModule):
 
         if len(unparsed_options) > 0:
             bot.say(
-                "{}, I don't know what to do with the argument{} {} BabyRage".format(
-                    source,
-                    "" if len(unparsed_options) == 1 else "s",  # pluralization
-                    join_to_sentence(['"' + s + '"' for s in unparsed_options]),
-                )
-            )
+                f"{source}, I don't know what to do with the argument{"" if len(unparsed_options) == 1 else "s"} {join_to_sentence([f'"{s}"' for s in unparsed_options])} BabyRage")
             return False
 
         default_points = self.settings["default_points"]
