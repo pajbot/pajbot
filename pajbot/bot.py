@@ -958,7 +958,7 @@ class Bot:
             return available_filters[f.name](resp, f.arguments)
         return resp
 
-    def _filter_or_broadcaster(self, var: int, args: List[str]):
+    def _filter_or_broadcaster(self, var: str, args: List[str]):
         return _filter_or_else(var, [self.streamer])
 
     def find_unique_urls(self, message):
