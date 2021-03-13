@@ -1,4 +1,5 @@
-from typing import Optional
+from __future__ import annotations
+from typing import Any, Optional, List, TYPE_CHECKING
 
 import cgi
 import collections
@@ -10,13 +11,16 @@ import irc
 import regex as re
 import requests
 
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+
 from pajbot.managers.schedule import ScheduleManager
 
 log = logging.getLogger(__name__)
 
 
 class ActionParser:
-    bot = None
+    bot: Optional[Bot] = None
 
     @staticmethod
     def parse(raw_data=None, data=None, command=""):
@@ -53,33 +57,6 @@ class ActionParser:
             raise Exception(f"Unknown action type: {data['type']}")
 
         return action
-
-
-def apply_substitutions(text, substitutions, bot, extra):
-    for needle, sub in substitutions.items():
-        if sub.key and sub.argument:
-            param = sub.key
-            extra["argument"] = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
-        elif sub.key:
-            param = sub.key
-        elif sub.argument:
-            param = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
-        else:
-            log.error("Unknown param for response.")
-            continue
-        value = sub.cb(param, extra)
-        if value is None:
-            return None
-        try:
-            for f in sub.filters:
-                value = bot.apply_filter(value, f)
-        except:
-            log.exception("Exception caught in filter application")
-        if value is None:
-            return None
-        text = text.replace(needle, str(value))
-
-    return text
 
 
 class IfSubstitution:
@@ -121,6 +98,12 @@ class IfSubstitution:
         self.false_subs = get_substitutions(self.false_response, bot)
 
 
+class SubstitutionFilter:
+    def __init__(self, name: str, arguments: List[str]):
+        self.name = name
+        self.arguments = arguments
+
+
 class Substitution:
     argument_substitution_regex = re.compile(r"\$\((\d+)\)")
     substitution_regex = re.compile(
@@ -130,18 +113,12 @@ class Substitution:
     urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
     urlfetch_substitution_regex_all = re.compile(r"\$\(urlfetch (.+?)\)")
 
-    def __init__(self, cb, needle, key=None, argument=None, filters=[]):
+    def __init__(self, cb, needle, key=None, argument=None, filters: List[SubstitutionFilter] = []):
         self.cb = cb
         self.key = key
         self.argument = argument
         self.filters = filters
         self.needle = needle
-
-
-class SubstitutionFilter:
-    def __init__(self, name, arguments):
-        self.name = name
-        self.arguments = arguments
 
 
 class BaseAction:
@@ -250,14 +227,14 @@ class RawFuncAction(BaseAction):
         return self.cb(bot=bot, source=source, message=message, event=event, args=args)
 
 
-def get_argument_substitutions(string):
+def get_argument_substitutions(string: str) -> List[Substitution]:
     """
     Returns a list of `Substitution` objects that are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same number.
     This means string "$(1) $(1) $(2)" will only return two Substitutions.
     """
 
-    argument_substitutions = []
+    argument_substitutions: List[Substitution] = []
 
     for sub_key in Substitution.argument_substitution_regex.finditer(string):
         needle = sub_key.group(0)
@@ -289,11 +266,11 @@ def get_substitution_arguments(sub_key):
     matched_filters = sub_key.captures(4)
     matched_filter_arguments = sub_key.captures(5)
 
-    filters = []
+    filters: List[SubstitutionFilter] = []
     filter_argument_index = 0
     for f in matched_filters:
         f = f[1:]
-        filter_arguments = []
+        filter_arguments: List[str] = []
         if "(" in f:
             f = f[: -len(matched_filter_arguments[filter_argument_index])]
             filter_arguments = [matched_filter_arguments[filter_argument_index][1:-1]]
@@ -307,7 +284,7 @@ def get_substitution_arguments(sub_key):
     return sub_string, path, argument, key, filters, if_arguments
 
 
-def get_substitutions(string, bot):
+def get_substitutions(string: str, bot: Bot) -> dict[str, Substitution]:
     """
     Returns a dictionary of `Substitution` objects thare are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same string.
@@ -420,16 +397,17 @@ def is_message_good(bot, message, extra):
 class MessageAction(BaseAction):
     type = "message"
 
-    def __init__(self, response, bot):
+    def __init__(self, response: str, bot: Optional[Bot]):
         self.response = response
+
+        self.argument_subs: List[Substitution] = []
+        self.subs: dict[str, Substitution] = {}
+        self.num_urlfetch_subs = 0
+
         if bot:
             self.argument_subs = get_argument_substitutions(self.response)
             self.subs = get_substitutions(self.response, bot)
             self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
-        else:
-            self.argument_subs = []
-            self.subs = {}
-            self.num_urlfetch_subs = 0
 
     @staticmethod
     def get_argument_value(message, index):
@@ -442,7 +420,7 @@ class MessageAction(BaseAction):
             pass
         return ""
 
-    def get_response(self, bot, extra):
+    def get_response(self, bot: Bot, extra) -> Optional[str]:
         resp = self.response
 
         resp = apply_substitutions(resp, self.subs, bot, extra)
@@ -635,3 +613,30 @@ class ReplyAction(MessageAction):
                 "num_urlfetch_subs": self.num_urlfetch_subs,
             },
         )
+
+
+def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, extra):
+    for needle, sub in substitutions.items():
+        if sub.key and sub.argument:
+            param = sub.key
+            extra["argument"] = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
+        elif sub.key:
+            param = sub.key
+        elif sub.argument:
+            param = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
+        else:
+            log.error("Unknown param for response.")
+            continue
+        value: Any = sub.cb(param, extra)
+        if value is None:
+            return None
+        try:
+            for f in sub.filters:
+                value = bot.apply_filter(value, f)
+        except:
+            log.exception("Exception caught in filter application")
+        if value is None:
+            return None
+        text = text.replace(needle, str(value))
+
+    return text
