@@ -1,3 +1,5 @@
+from typing import List
+
 import cgi
 import datetime
 import logging
@@ -956,8 +958,8 @@ class Bot:
             return available_filters[f.name](resp, f.arguments)
         return resp
 
-    def _filter_or_broadcaster(self, var, args):
-        return _filter_or_else(var, self.streamer)
+    def _filter_or_broadcaster(self, var: int, args: List[str]):
+        return _filter_or_else(var, [self.streamer])
 
     def find_unique_urls(self, message):
         from pajbot.modules.linkchecker import find_unique_urls
