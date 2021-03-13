@@ -3,6 +3,7 @@
 ## Unversioned
 
 - Minor: Exposed `sub_immunity` and `remove_accents` fields in the Banphrase API response. (#1186)
+- Bugfix: Fix `or_broadcaster`/`or_streamer` returning only the first character of the broadcasters name instead of the full name. (#1189)
 
 ## v1.50
 
