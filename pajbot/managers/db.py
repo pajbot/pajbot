@@ -2,6 +2,7 @@ import logging
 from contextlib import contextmanager
 
 from psycopg2.extensions import STATUS_IN_TRANSACTION
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import inspect
@@ -23,9 +24,9 @@ class ServerNoticeLogger:
 
 
 class DBManager:
-    engine = None
-    Session = None
-    ScopedSession = None
+    engine: sqlalchemy.engine.base.Engine = None
+    Session: sessionmaker = None
+    ScopedSession: scoped_session = None
 
     @staticmethod
     def init(url):

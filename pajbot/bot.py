@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List, Callable
 
 import cgi
 import datetime
@@ -39,7 +39,7 @@ from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
 from pajbot.migration.redis import RedisMigratable
-from pajbot.models.action import ActionParser
+from pajbot.models.action import ActionParser, SubstitutionFilter
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
@@ -106,11 +106,11 @@ class Bot:
 
         # streamer
         if "streamer" in config["main"]:
-            self.streamer = config["main"]["streamer"]
+            self.streamer: str = config["main"]["streamer"]
             self.channel = "#" + self.streamer
         elif "target" in config["main"]:
             self.channel = config["main"]["target"]
-            self.streamer = self.channel[1:]
+            self.streamer: str = self.channel[1:]
 
         self.bot_domain = self.config["web"]["domain"]
         self.streamer_display = self.config["web"]["streamer_name"]
@@ -926,8 +926,8 @@ class Bot:
 
         sys.exit(0)
 
-    def apply_filter(self, resp, f):
-        available_filters = {
+    def apply_filter(self, resp, f: SubstitutionFilter) -> Any:
+        available_filters: dict[str, Callable[[Any, List[str]], Any]] = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
@@ -958,7 +958,7 @@ class Bot:
             return available_filters[f.name](resp, f.arguments)
         return resp
 
-    def _filter_or_broadcaster(self, var: str, args: List[str]):
+    def _filter_or_broadcaster(self, var: Any, args: List[str]) -> Any:
         return _filter_or_else(var, [self.streamer])
 
     def find_unique_urls(self, message):
@@ -967,7 +967,7 @@ class Bot:
         return find_unique_urls(message)
 
 
-def _filter_time_since_dt(var, args):
+def _filter_time_since_dt(var: Any, args: List[str]) -> Any:
     try:
         ts = utils.time_since(utils.now().timestamp(), var.timestamp())
         if ts:
@@ -978,7 +978,7 @@ def _filter_time_since_dt(var, args):
         return "never FeelsBadMan ?"
 
 
-def _filter_timedelta_days(var, args):
+def _filter_timedelta_days(var: Any, args: List[str]) -> Any:
     try:
         td = utils.now() - var
         return str(td.days)
@@ -986,7 +986,7 @@ def _filter_timedelta_days(var, args):
         return "0"
 
 
-def _filter_join(var, args):
+def _filter_join(var: Any, args: List[str]) -> Any:
     try:
         separator = args[0]
     except IndexError:
@@ -995,7 +995,7 @@ def _filter_join(var, args):
     return separator.join(var.split(" "))
 
 
-def _filter_number_format(var, args):
+def _filter_number_format(var: Any, args: List[str]) -> Any:
     try:
         return f"{int(var):,d}"
     except:
@@ -1003,11 +1003,11 @@ def _filter_number_format(var, args):
     return var
 
 
-def _filter_strftime(var, args):
+def _filter_strftime(var: Any, args: List[str]) -> Any:
     return var.strftime(args[0])
 
 
-def _filter_urlencode(var, args):
+def _filter_urlencode(var: Any, args: List[str]) -> Any:
     return urllib.parse.urlencode({"x": var})[2:]
 
 
@@ -1015,7 +1015,7 @@ def lowercase_first_letter(s):
     return s[:1].lower() + s[1:] if s else ""
 
 
-def _filter_add(var, args):
+def _filter_add(var: Any, args: List[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1025,7 +1025,7 @@ def _filter_add(var, args):
         return ""
 
 
-def _filter_subtract(var, args):
+def _filter_subtract(var: Any, args: List[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1035,7 +1035,7 @@ def _filter_subtract(var, args):
         return ""
 
 
-def _filter_multiply(var, args):
+def _filter_multiply(var: Any, args: List[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1045,7 +1045,7 @@ def _filter_multiply(var, args):
         return ""
 
 
-def _filter_divide(var, args):
+def _filter_divide(var: Any, args: List[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1055,7 +1055,7 @@ def _filter_divide(var, args):
         return ""
 
 
-def _filter_floor(var, args):
+def _filter_floor(var: Any, args: List[str]) -> Any:
     import math
 
     try:
@@ -1064,7 +1064,7 @@ def _filter_floor(var, args):
         return ""
 
 
-def _filter_ceil(var, args):
+def _filter_ceil(var: Any, args: List[str]) -> Any:
     import math
 
     try:
@@ -1073,14 +1073,14 @@ def _filter_ceil(var, args):
         return ""
 
 
-def _filter_or_else(var, args):
+def _filter_or_else(var: Any, args: List[str]) -> Any:
     if var is None or len(var) <= 0:
         return args[0]
     else:
         return var
 
 
-def _filter_slice(var, args):
+def _filter_slice(var: Any, args: List[str]) -> Any:
     m = SLICE_REGEX.match(args[0])
     if m:
         groups = m.groups()

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import logging
 import ssl
 
@@ -6,7 +8,7 @@ from irc.client import InvalidCharacters, MessageTooLong, ServerConnection, Serv
 from irc.connection import Factory
 from ratelimiter import RateLimiter
 
-from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.schedule import ScheduleManager, ScheduledJob
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ class IRCManager:
         self.bot = bot
 
         self.conn = None
-        self.ping_task = None
+        self.ping_task: Optional[ScheduledJob] = None
 
         self.num_privmsg_sent = 0
         self.num_whispers_sent_minute = 0
@@ -153,8 +155,9 @@ class IRCManager:
     def _on_disconnect(self, _conn, event):
         log.error(f"Disconnected from IRC ({event.arguments[0]})")
         self.conn = None
-        self.ping_task.remove()  # Stops the scheduled task from further executing
-        self.ping_task = None
+        if self.ping_task is not None:
+            self.ping_task.remove()  # Stops the scheduled task from further executing
+            self.ping_task = None
         self.start()
 
     def _on_welcome(self, conn, _event):
