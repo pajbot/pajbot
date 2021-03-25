@@ -271,7 +271,7 @@ In the above examples, we never handled the case where the user we were looking 
 - **Return `None`** for methods that strictly _get_ data and where the absence of data is not generally an error case, but can happen normally (like for example `get_user`) - or e.g. in the case of the BTTV API wrapper - when a channel has no emotes
 - **Raise an exception** in all other cases, and in cases where the non-existance of data either means the method cannot continue normally.
 
-Take for example a method that seeks to fetch the currently playing song on Dubtrack - Say we first query the API for the current song, and then we query the API again in another call for the song's title, author, youtube link, etc. The second API call looks up the song using the internal ID the song is given by Dubtrack (which we got in the first API call's response) - in this case, getting a 404 Not Found error in the second API call would be an error condition. Getting the 404 Not Found error in the first stage (e.g. nothing currently playing), then the correct thing would be to return `None`.
+Take for example a method that seeks to fetch the currently playing song on QueUp - Say we first query the API for the current song, and then we query the API again in another call for the song's title, author, youtube link, etc. The second API call looks up the song using the internal ID the song is given by QueUp (which we got in the first API call's response) - in this case, getting a 404 Not Found error in the second API call would be an error condition. Getting the 404 Not Found error in the first stage (e.g. nothing currently playing), then the correct thing would be to return `None`.
 
 ## Summary
 
