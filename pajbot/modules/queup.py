@@ -404,7 +404,7 @@ class QueUpModule(BaseModule):
             commands=commands,
         )
 
-        if self.settings["if_dt_alias"]:
+        if self.settings["if_qu_alias"]:
             self.commands["qu"] = self.commands["queup"]
 
         if self.settings["if_song_alias"]:
