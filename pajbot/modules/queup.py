@@ -278,9 +278,7 @@ class QueUpModule(BaseModule):
         song_name = queue_song.song_name
         song_link = self.api.get_song_link(song_id)
 
-        return QueUpSongInfo(
-            song_id=song_id, song_name=song_name, song_link=song_link, requester_name=requester_name
-        )
+        return QueUpSongInfo(song_id=song_id, song_name=song_name, song_link=song_link, requester_name=requester_name)
 
     def get_current_song(self):
         room_id = self.api.get_room_id(self.settings["room_name"])
