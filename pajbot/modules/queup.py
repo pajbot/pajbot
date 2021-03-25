@@ -26,7 +26,6 @@ class QueUpSongInfo:
 
 
 class QueUpModule(BaseModule):
-    AUTHOR = "TalVivian @ github.com/TalVivian"
     ID = __name__.split(".")[-1]
     NAME = "QueUp"
     DESCRIPTION = "Gets currently playing song from QueUp"
