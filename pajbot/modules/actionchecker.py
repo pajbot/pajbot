@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class ActionCheckerModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "/me Moderation"
+    NAME = "Action Command Moderation"
     DESCRIPTION = "Dis/allows messages who use the /me command."
     CATEGORY = "Moderation"
     SETTINGS = [
