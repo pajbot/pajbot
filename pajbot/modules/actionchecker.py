@@ -1,5 +1,4 @@
 import logging
-import re
 
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
