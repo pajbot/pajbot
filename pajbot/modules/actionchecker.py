@@ -88,9 +88,7 @@ class ActionCheckerModule(BaseModule):
         elif self.settings["moderation_action"] == "Timeout":
             self.bot.timeout(user, self.settings["timeout_length"], reason, once=True)
 
-    def on_message(self, source, message, msg_id, **rest):
-        actionRegex = re.compile(r"^\u0001ACTION (.*)\u0001$")
-
+    def on_message(self, source, message, event, msg_id, **rest):
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
@@ -100,13 +98,10 @@ class ActionCheckerModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
-        if self.settings["disallow_action_messages"] and actionRegex.match(message):
+        if event.type == "action" and self.settings["disallow_action_messages"] is True:
             self.delete_or_timeout(source, msg_id, self.settings["disallow_timeout_reason"])
-            return
-
-        if self.settings["only_allow_action_messages"] and not actionRegex.match(message):
+        elif event.type != "action" and self.settings["only_allow_action_messages"] is True:
             self.delete_or_timeout(source, msg_id, self.settings["allow_timeout_reason"])
-            return
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message)
