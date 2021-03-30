@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Minor: Added an action message moderation module. This lets you disallow or force the use of the `/me` command by users, or else they would receive a timeout or message deletion. (#1199)
 - Minor: Add QueUp support (the new Dubtrack). (#1197)
 - Minor: Exposed `sub_immunity` and `remove_accents` fields in the Banphrase API response. (#1186)
 - Bugfix: Fix `or_broadcaster`/`or_streamer` returning only the first character of the broadcasters name instead of the full name. (#1189)
