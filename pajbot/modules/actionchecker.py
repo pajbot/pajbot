@@ -99,9 +99,10 @@ class ActionCheckerModule(BaseModule):
 
         if event.type == "action" and self.settings["disallow_action_messages"] is True:
             self.delete_or_timeout(source, msg_id, self.settings["disallow_timeout_reason"])
+            return False
         elif event.type != "action" and self.settings["only_allow_action_messages"] is True:
             self.delete_or_timeout(source, msg_id, self.settings["allow_timeout_reason"])
-        return False
+            return False
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message)
