@@ -439,3 +439,16 @@ img.emote {
   max-height: 64px;
   border-radius: 0.28571429rem;
 }
+
+html {
+  animation: rotation 120s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
