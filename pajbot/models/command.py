@@ -90,6 +90,7 @@ class CommandData(Base):
         uselist=False,
         cascade="",
         lazy="noload",
+        viewonly=True,
     )
 
     user2 = relationship(
@@ -99,6 +100,7 @@ class CommandData(Base):
         uselist=False,
         cascade="",
         lazy="noload",
+        viewonly=True,
     )
 
     def __init__(self, command_id, **options):
