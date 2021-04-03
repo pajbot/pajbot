@@ -3,7 +3,7 @@ import logging
 import markdown
 from flask import Markup
 from flask import render_template
-from sqlalchemy import text
+from sqlalchemy import text, column
 
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
@@ -38,7 +38,7 @@ def init(app):
             #  Execution Time: 0.089 ms
             #
             # (see also the extensive comment on migration revision ID 2, 0002_create_index_on_user_points.py)
-            rankings = db_session.query(User, "rank").from_statement(
+            rankings = db_session.query(User, column("rank")).from_statement(
                 text(
                     'SELECT * FROM (SELECT *, rank() OVER (ORDER BY points DESC) AS rank FROM "user") AS subquery LIMIT 30'
                 )
