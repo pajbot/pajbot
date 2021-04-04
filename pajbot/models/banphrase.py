@@ -187,6 +187,7 @@ class BanphraseData(Base):
         uselist=False,
         cascade="",
         lazy="noload",
+        viewonly=True,
     )
 
     user2 = relationship(
@@ -196,6 +197,7 @@ class BanphraseData(Base):
         uselist=False,
         cascade="",
         lazy="noload",
+        viewonly=True,
     )
 
     def __init__(self, banphrase_id, **options):
