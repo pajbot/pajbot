@@ -77,7 +77,7 @@ class HandlerManager:
 
     @staticmethod
     def create_handler(event):
-        """ Create an empty list for the given event """
+        """Create an empty list for the given event"""
         HandlerManager.handlers[event] = []
 
     @staticmethod

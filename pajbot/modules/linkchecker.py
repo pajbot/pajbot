@@ -56,7 +56,7 @@ def is_subpath(x, y):
 
 
 def is_same_url(x, y):
-    """ Returns True if x and y should be parsed as the same URLs, otherwise return False.  """
+    """Returns True if x and y should be parsed as the same URLs, otherwise return False."""
     parsed_x = x.parsed
     parsed_y = y.parsed
     return (
@@ -104,14 +104,14 @@ class LinkCheckerCache:
 
 class LinkCheckerLink:
     def is_subdomain(self, x):
-        """ Returns True if x is a subdomain of this link, otherwise return False.  """
+        """Returns True if x is a subdomain of this link, otherwise return False."""
         y = self.domain
         if y.startswith("www."):
             y = y[4:]
         return x.endswith("." + y) or x == y
 
     def is_subpath(self, x):
-        """ Returns True if x is a subpath of y, otherwise return False.  """
+        """Returns True if x is a subpath of y, otherwise return False."""
         y = self.path
         if y.endswith("/"):
             return x.startswith(y) or x == y[:-1]

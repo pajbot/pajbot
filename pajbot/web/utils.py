@@ -140,7 +140,7 @@ def jsonify_query(query):
 
 
 def jsonify_list(key, query, base_url=None, default_limit=None, max_limit=None, jsonify_method=jsonify_query):
-    """ Must be called in the context of a request """
+    """Must be called in the context of a request"""
     _total = query.count()
 
     paginate_args = paginate_parser.parse_args()
