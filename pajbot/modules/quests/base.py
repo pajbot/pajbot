@@ -67,7 +67,7 @@ class BaseQuest(BaseModule):
         log.error("No start quest implemented for this quest.")
 
     def stop_quest(self):
-        """ This method is ONLY called when the stream is stopped. """
+        """This method is ONLY called when the stream is stopped."""
         log.error("No stop quest implemented for this quest.")
 
     def get_user_progress(self, user, default=False):

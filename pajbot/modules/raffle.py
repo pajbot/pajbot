@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 def generate_winner_list(winners):
-    """ Takes a list of winners, and combines them into a string. """
+    """Takes a list of winners, and combines them into a string."""
     return ", ".join(winner.name for winner in winners)
 
 

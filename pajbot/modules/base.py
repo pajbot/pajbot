@@ -58,7 +58,7 @@ class ModuleSetting:
         return validator(value)
 
     def validate_text(self, value):
-        """ Validate a text value """
+        """Validate a text value"""
         value = value.strip()
         if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
             return (False, f"needs to be at least {self.constraints['min_str_len']} characters long")
@@ -67,7 +67,7 @@ class ModuleSetting:
         return True, value
 
     def validate_number(self, value):
-        """ Validate a number value """
+        """Validate a number value"""
         try:
             value = int(value)
         except ValueError:
@@ -81,11 +81,11 @@ class ModuleSetting:
 
     @staticmethod
     def validate_boolean(value):
-        """ Validate a boolean value """
+        """Validate a boolean value"""
         return True, value == "on"
 
     def validate_options(self, value):
-        """ Validate a options value """
+        """Validate a options value"""
         return value in self.options, value
 
 
@@ -116,7 +116,7 @@ class BaseModule:
     CONFIGURE_LEVEL = 500
 
     def __init__(self, bot: Bot):
-        """ Initialize any dictionaries the module might or might not use. """
+        """Initialize any dictionaries the module might or might not use."""
         self.bot: Bot = bot
 
         self.commands: Any = {}

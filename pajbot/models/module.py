@@ -88,7 +88,7 @@ class ModuleManager:
         return True
 
     def load(self, do_reload=True):
-        """ Load module classes """
+        """Load module classes"""
 
         from pajbot.modules import available_modules
 
