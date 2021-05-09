@@ -128,13 +128,9 @@ class QueUpAPI(BaseAPI):
             played_at = utils.datetime_from_utc_milliseconds(song_json["played"])
             length = datetime.timedelta(milliseconds=song_json["songLength"])
 
-            response = self.get(["song", song_id])
-
-            song_name = html.unescape(response["data"]["name"])
-
             return QueUpQueueSong(
                 song_id=song_id,
-                song_name=song_name,
+                song_name=None,
                 requester_id=requester_id,
                 requester_name=requester_name,
                 played_at=played_at,
@@ -150,3 +146,8 @@ class QueUpAPI(BaseAPI):
             serializer=ListSerializer(QueUpQueueSong),
             expiry=5,
         )
+
+    def hydrate_song(self, song: QueUpQueueSong):
+        if not song.song_name:
+            response = self.get(["song", song.song_id])
+            song.song_name = html.unescape(response["data"]["name"])
