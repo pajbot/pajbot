@@ -122,12 +122,15 @@ class QueUpAPI(BaseAPI):
         response = self.get(["room", room_id, "playlist", "history"])
 
         def parse_song(song_json):
-            song_id = song_json["_song"]["_id"]
-            song_name = html.unescape(song_json["_song"]["name"])
+            song_id = song_json["songid"]
             requester_id = song_json["_user"]["_id"]
             requester_name = song_json["_user"]["username"]
             played_at = utils.datetime_from_utc_milliseconds(song_json["played"])
-            length = datetime.timedelta(milliseconds=song_json["_song"]["songLength"])
+            length = datetime.timedelta(milliseconds=song_json["songLength"])
+
+            response = self.get(["song", song_id])
+
+            song_name = html.unescape(response["data"]["name"])
 
             return QueUpQueueSong(
                 song_id=song_id,
