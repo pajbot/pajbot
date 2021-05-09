@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Updated queup previous song API usage. It now requires you to search for the song through a separate endpoint.
+- Minor: Updated queup previous song API usage. It now requires you to search for the song through a separate endpoint. (#1237)
 
 ## v1.51
 
