@@ -16,7 +16,7 @@ jobs:
       - name: Install python and dependencies for python packages
         run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: Cache virtual environment
         id: cache-venv
@@ -43,7 +43,7 @@ jobs:
       - name: Install python and dependencies for python packages
         run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
 
       - name: Cache virtual environment
         id: cache-venv
