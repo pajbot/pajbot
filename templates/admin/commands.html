@@ -185,6 +185,10 @@ $(document).ready(function() {
                 onFailure: function(response, element) {
                     console.error('something went wrong');
                 },
+                beforeXHR: function(xhr) {
+                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                  return xhr;
+                },
             });
         }
     });
