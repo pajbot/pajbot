@@ -17,6 +17,8 @@ app = Flask(
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "templates"),
 )
 
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
 app.url_map.strict_slashes = False
 
 log = logging.getLogger(__name__)
