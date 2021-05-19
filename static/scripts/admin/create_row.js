@@ -22,6 +22,7 @@ function enable_remove_row(modal_class, action) {
             $.api({
                 on: 'now',
                 action: action,
+                method: 'post',
                 urlData: {
                     id: id_remove,
                 },

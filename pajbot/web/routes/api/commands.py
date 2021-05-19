@@ -53,7 +53,7 @@ class APICommand(Resource):
 
 class APICommandRemove(Resource):
     @pajbot.web.utils.requires_level(500)
-    def get(self, command_id, **options):
+    def post(self, command_id, **options):
         with DBManager.create_session_scope() as db_session:
             command = db_session.query(Command).filter_by(id=command_id).one_or_none()
             if command is None:
