@@ -5,7 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Security: Tighten CSRF protections.  
-  As a result, the Banphrase, Command, and Timer removal APIs have had their methods changed from GET to POST.
+  As a result, the Banphrase, Command, and Timer removal APIs have had their methods changed from GET to POST. (#1248)
 
 ## v1.51
 
