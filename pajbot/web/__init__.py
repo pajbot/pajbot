@@ -10,12 +10,17 @@ from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
 from pajbot.utils import extend_version_if_possible
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
     template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "templates"),
 )
+
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+csrf = CSRFProtect(app)
 
 app.url_map.strict_slashes = False
 
@@ -114,6 +119,9 @@ def init(args):
     pajbot.web.routes.admin.init(app)
     pajbot.web.routes.api.init(app)
     pajbot.web.routes.base.init(app)
+
+    # Make a CSRF exemption for the /api/v1/banphrases/test endpoint
+    csrf.exempt("pajbot.web.routes.api.banphrases.apibanphrasetest")
 
     pajbot.web.common.filters.init(app)
     pajbot.web.common.assets.init(app)

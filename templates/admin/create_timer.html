@@ -9,6 +9,7 @@
 {% endif %}
 <p>An interval set to 0 means it will not be run.</p>
 <form class="ui form" method="POST" action="/admin/timers/create">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token()  }}"/>
     {% if timer %}
     <input type="hidden" name="id" value="{{ timer.id }}" />
     {% endif %}

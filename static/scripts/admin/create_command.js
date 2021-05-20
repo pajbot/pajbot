@@ -195,5 +195,9 @@ $(document).ready(function() {
                 el.hide();
             }, 2000);
         },
+        beforeXHR: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', csrf_token);
+            return xhr;
+        },
     });
 });

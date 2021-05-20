@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 class APITimerRemove(Resource):
     @pajbot.web.utils.requires_level(500)
-    def get(self, timer_id, **options):
+    def post(self, timer_id, **options):
         with DBManager.create_session_scope() as db_session:
             timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
             if timer is None:
