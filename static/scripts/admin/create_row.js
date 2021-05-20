@@ -33,8 +33,8 @@ function enable_remove_row(modal_class, action) {
                     console.error('something went wrong');
                 },
                 beforeXHR: function(xhr) {
-                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
-                  return xhr;
+                    xhr.setRequestHeader('X-CSRFToken', csrf_token);
+                    return xhr;
                 },
             });
         },
@@ -89,8 +89,8 @@ function enable_toggle_row(action) {
             }
         },
         beforeXHR: function(xhr) {
-          xhr.setRequestHeader("X-CSRFToken", csrf_token);
-          return xhr;
+            xhr.setRequestHeader('X-CSRFToken', csrf_token);
+            return xhr;
         },
     });
 }
@@ -147,8 +147,8 @@ function enable_toggle_row_cb(action) {
             }
         },
         beforeXHR: function(xhr) {
-          xhr.setRequestHeader("X-CSRFToken", csrf_token);
-          return xhr;
+            xhr.setRequestHeader('X-CSRFToken', csrf_token);
+            return xhr;
         },
     });
 }
