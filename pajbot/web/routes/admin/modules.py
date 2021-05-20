@@ -71,7 +71,7 @@ def init(page):
 
                 return render_template("admin/configure_module.html", module=current_module, sub_modules=sub_modules)
 
-            form_values = {key: value for key, value in request.form.items()}
+            form_values = {key: value for key, value in request.form.items() if key != "csrf_token"}
             res = current_module.parse_settings(**form_values)
             if res is False:
                 return render_template("admin/module_404.html"), 404
