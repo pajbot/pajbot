@@ -38,7 +38,11 @@ function on_success(response, key)
                 },
                 onSuccess: function(response, element, xhr) {
                     element.closest('tr').hide();
-                }
+                },
+                beforeXHR: function(xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', csrf_token);
+                    return xhr;
+                },
             });
             $action_td.append($unfollow_btn);
 {% endif -%}
@@ -63,7 +67,11 @@ $(document).ready(function() {
             console.log(response);
             $('.twitter-follow input[type="text"]').val('');
             paginate_reload('.twitter_follows');
-        }
+        },
+        beforeXHR: function(xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            return xhr;
+        },
     });
 });
 </script>
