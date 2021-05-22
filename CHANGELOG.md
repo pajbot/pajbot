@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Twitter (un)follow buttons in admin zone work again. (#1250)
+
 ## v1.52
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
