@@ -582,8 +582,6 @@ class Bot:
     def execute_every(self, period, function, *args, **kwargs):
         self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
-    in_the_middle_of_processing_message = threading.local()
-
     def _ban(self, login, reason=None):
         message = f"/ban {login}"
         if reason is not None:
