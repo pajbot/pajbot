@@ -21,9 +21,7 @@ class EmoteTimeoutModule(BaseModule):
         ModuleSetting(
             key="timeout_bttv", label="Timeout any BTTV emotes", type="boolean", required=True, default=False
         ),
-        ModuleSetting(
-            key="timeout_7tv", label="Timeout any 7TV emotes", type="boolean", required=True, default=False
-        ),
+        ModuleSetting(key="timeout_7tv", label="Timeout any 7TV emotes", type="boolean", required=True, default=False),
         ModuleSetting(
             key="timeout_emoji", label="Timeout any unicode emoji", type="boolean", required=True, default=False
         ),
