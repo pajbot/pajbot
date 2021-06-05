@@ -32,15 +32,30 @@ class SevenTVAPI(BaseAPI):
 
     def fetch_global_emotes(self):
         """Returns a list of global 7TV emotes in the standard Emote format."""
-        query_string = """{
-            search_emotes(query: "", globalState: "only", limit: 150, pageSize: 150) {
+        query_string = """{{
+            search_emotes(query: "", globalState: "only", page: {page}, limit: {limit}, pageSize: {page_size}) {{
                 id
                 name
+            }}
+        }}"""
+
+        emotes_to_request = 150
+        current_page = 1
+        emotes_data = []
+        while True:
+            params = {
+                "query": query_string.format(page=current_page, limit=emotes_to_request, page_size=emotes_to_request)
             }
-        }"""
-        params = {"query": query_string}
-        response = self.post("gql", json=params)
-        return self.parse_emotes(response["data"]["search_emotes"])
+            response = self.post("gql", json=params)
+            emotes_data += response["data"]["search_emotes"]
+            if len(response["data"]["search_emotes"]) < emotes_to_request:
+                # We reached the end of the global emotes if the page isn't full
+                break
+            else:
+                # fetch the next page of emotes
+                current_page += 1
+
+        return self.parse_emotes(emotes_data)
 
     def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(
