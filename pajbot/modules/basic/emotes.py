@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager, SEVENTVEmoteManager
+from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager, SevenTVEmoteManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -206,7 +206,7 @@ class EmotesModule(BaseModule):
             self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager
         )
         cmd_reload_7tv_emotes = self.reload_cmd(
-            self.bot.emote_manager.seventv_emote_manager if self.bot else SEVENTVEmoteManager
+            self.bot.emote_manager.seventv_emote_manager if self.bot else SevenTVEmoteManager
         )
         cmd_reload_twitch_emotes = self.reload_cmd(
             self.bot.emote_manager.twitch_emote_manager if self.bot else TwitchEmoteManager
@@ -218,7 +218,7 @@ class EmotesModule(BaseModule):
             self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager, "FeelsOkayMan Kapp LULW"
         )
         cmd_print_7tv_emotes = self.print_cmd(
-            self.bot.emote_manager.seventv_emote_manager if self.bot else SEVENTVEmoteManager, "BasedGod WineTime"
+            self.bot.emote_manager.seventv_emote_manager if self.bot else SevenTVEmoteManager, "BasedGod WineTime"
         )
 
         # The ' ' is there to make things look good in the

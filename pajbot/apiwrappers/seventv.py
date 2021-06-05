@@ -3,7 +3,7 @@ from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
 
 
-class SEVENTVAPI(BaseAPI):
+class SevenTVAPI(BaseAPI):
     def __init__(self, redis):
         super().__init__(base_url="https://api.7tv.app/v2/", redis=redis)
 

@@ -142,13 +142,13 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         self.channel_emotes = self.api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
-class SEVENTVEmoteManager(GenericChannelEmoteManager):
+class SevenTVEmoteManager(GenericChannelEmoteManager):
     friendly_name = "7TV"
 
     def __init__(self):
-        from pajbot.apiwrappers.seventv import SEVENTVAPI
+        from pajbot.apiwrappers.seventv import SevenTVAPI
 
-        self.api = SEVENTVAPI(RedisManager.get())
+        self.api = SevenTVAPI(RedisManager.get())
         super().__init__()
 
 
@@ -160,7 +160,7 @@ class EmoteManager:
         self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
-        self.seventv_emote_manager = SEVENTVEmoteManager()
+        self.seventv_emote_manager = SevenTVEmoteManager()
 
         self.epm = {}
 
