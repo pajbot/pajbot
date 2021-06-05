@@ -142,6 +142,16 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         self.channel_emotes = self.api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
+class SEVENTVEmoteManager(GenericChannelEmoteManager):
+    friendly_name = "7TV"
+
+    def __init__(self):
+        from pajbot.apiwrappers.seventv import SEVENTVAPI
+
+        self.api = SEVENTVAPI(RedisManager.get())
+        super().__init__()
+
+
 class EmoteManager:
     def __init__(self, twitch_v5_api, action_queue):
         self.action_queue = action_queue
@@ -150,6 +160,7 @@ class EmoteManager:
         self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
+        self.seventv_emote_manager = SEVENTVEmoteManager()
 
         self.epm = {}
 
@@ -164,11 +175,13 @@ class EmoteManager:
     def update_all_emotes(self):
         self.action_queue.submit(self.bttv_emote_manager.update_all)
         self.action_queue.submit(self.ffz_emote_manager.update_all)
+        self.action_queue.submit(self.seventv_emote_manager.update_all)
         self.action_queue.submit(self.twitch_emote_manager.update_all)
 
     def load_all_emotes(self):
         self.action_queue.submit(self.bttv_emote_manager.load_all)
         self.action_queue.submit(self.ffz_emote_manager.load_all)
+        self.action_queue.submit(self.seventv_emote_manager.load_all)
         self.action_queue.submit(self.twitch_emote_manager.load_all)
 
     @staticmethod
@@ -221,11 +234,19 @@ class EmoteManager:
         if emote is not None:
             return emote
 
+        emote = self.seventv_emote_manager.match_channel_emote(word)
+        if emote is not None:
+            return emote
+
         emote = self.ffz_emote_manager.match_global_emote(word)
         if emote is not None:
             return emote
 
         emote = self.bttv_emote_manager.match_global_emote(word)
+        if emote is not None:
+            return emote
+
+        emote = self.seventv_emote_manager.match_global_emote(word)
         if emote is not None:
             return emote
 
@@ -238,7 +259,7 @@ class EmoteManager:
 
         # for the other providers, split the message by spaces
         # and then, if word is not a twitch emote, consider ffz channel -> bttv channel ->
-        # ffz global -> bttv global in that order.
+        # 7tv channel -> ffz global -> bttv global -> 7tv global in that order.
         third_party_emote_instances = []
 
         for current_word_index, word in iterate_split_with_index(message.split(" ")):
@@ -271,6 +292,8 @@ class EmoteManager:
         ffz_channel=False,
         bttv_global=False,
         bttv_channel=False,
+        seventv_global=False,
+        seventv_channel=False,
     ):
         emotes = []
         if twitch_global:
@@ -289,6 +312,10 @@ class EmoteManager:
             emotes += self.bttv_emote_manager.global_emotes
         if bttv_channel:
             emotes += self.bttv_emote_manager.channel_emotes
+        if seventv_global:
+            emotes += self.seventv_emote_manager.global_emotes
+        if seventv_channel:
+            emotes += self.seventv_emote_manager.channel_emotes
 
         if len(emotes) <= 0:
             return None

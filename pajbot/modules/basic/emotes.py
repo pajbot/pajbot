@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager
+from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager, SEVENTVEmoteManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.modules import BaseModule
@@ -16,7 +16,7 @@ class EmotesModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Emotes"
     ENABLED_DEFAULT = True
-    DESCRIPTION = "Refresh and list FFZ, BTTV and Sub emotes"
+    DESCRIPTION = "Refresh and list FFZ, BTTV, 7TV and Sub emotes"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
@@ -80,6 +80,18 @@ class EmotesModule(BaseModule):
             type="text",
             required=False,
             placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
+            default="",
+            constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="enable_7tvemotes", label="Enable !7tvemotes command", type="boolean", required=True, default=True
+        ),
+        ModuleSetting(
+            key="custom_7tv_response",
+            label="A custom message to override the default !7tvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
+            type="text",
+            required=False,
+            placeholder="@{source}, Channel 7TV emotes can be found here: https://7tv.app/users/60baa9493285d8b0b8d9e40f",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -193,6 +205,9 @@ class EmotesModule(BaseModule):
         cmd_reload_ffz_emotes = self.reload_cmd(
             self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager
         )
+        cmd_reload_7tv_emotes = self.reload_cmd(
+            self.bot.emote_manager.seventv_emote_manager if self.bot else SEVENTVEmoteManager
+        )
         cmd_reload_twitch_emotes = self.reload_cmd(
             self.bot.emote_manager.twitch_emote_manager if self.bot else TwitchEmoteManager
         )
@@ -201,6 +216,9 @@ class EmotesModule(BaseModule):
         )
         cmd_print_ffz_emotes = self.print_cmd(
             self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager, "FeelsOkayMan Kapp LULW"
+        )
+        cmd_print_7tv_emotes = self.print_cmd(
+            self.bot.emote_manager.seventv_emote_manager if self.bot else SEVENTVEmoteManager, "BasedGod WineTime"
         )
 
         # The ' ' is there to make things look good in the
@@ -225,6 +243,17 @@ class EmotesModule(BaseModule):
                 fallback=" ",
                 command="ffzemotes",
                 commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
+            )
+
+        if self.settings["enable_7tvemotes"]:
+            self.commands["7tvemotes"] = Command.multiaction_command(
+                delay_all=self.settings["global_cd"],
+                delay_user=self.settings["user_cd"],
+                level=self.settings["level"],
+                default=" ",
+                fallback=" ",
+                command="7tvemotes",
+                commands={"reload": cmd_reload_7tv_emotes, " ": cmd_print_7tv_emotes},
             )
 
         if self.settings["enable_subemotes"]:
