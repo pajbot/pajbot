@@ -86,7 +86,7 @@ query fetchUserEmotes($id: String!) {
 }"""
 
         params = {
-            "query": query_string, 
+            "query": query_string,
             "variables": {
                 "id": channel_name,
             },
