@@ -235,7 +235,7 @@ class LinkCheckerModule(BaseModule):
         if not bot:
             return
 
-        HandlerManager.add_handler("on_message", self.on_message, priority=100)
+        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
         HandlerManager.add_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
