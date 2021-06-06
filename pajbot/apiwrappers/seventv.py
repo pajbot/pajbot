@@ -33,7 +33,7 @@ class SevenTVAPI(BaseAPI):
     def fetch_global_emotes(self):
         """Returns a list of global 7TV emotes in the standard Emote format."""
         query_string = """
-query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limit: Int, pageSize: Int) {
+query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limit: Int, $pageSize: Int) {
     search_emotes(query: $query, globalState: $globalState, page: $page, limit: $limit, pageSize: $pageSize) {
         id
         name
