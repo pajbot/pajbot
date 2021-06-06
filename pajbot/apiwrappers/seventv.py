@@ -32,19 +32,26 @@ class SevenTVAPI(BaseAPI):
 
     def fetch_global_emotes(self):
         """Returns a list of global 7TV emotes in the standard Emote format."""
-        query_string = """{{
-            search_emotes(query: "", globalState: "only", page: {page}, limit: {limit}, pageSize: {page_size}) {{
-                id
-                name
-            }}
-        }}"""
+        query_string = """
+query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limit: Int, pageSize: Int) {
+    search_emotes(query: $query, globalState: $globalState, page: $page, limit: $limit, pageSize: $pageSize) {
+        id
+        name
+    }
+}"""
 
         emotes_to_request = 150
         current_page = 1
         emotes_data = []
         while True:
             params = {
-                "query": query_string.format(page=current_page, limit=emotes_to_request, page_size=emotes_to_request)
+                "query": query_string,
+                "variables": {
+                    "query": "",
+                    "globalState": "only",
+                    "page": current_page,
+                    "limit": emotes_to_request,
+                },
             }
             response = self.post("gql", json=params)
             emotes_data += response["data"]["search_emotes"]
@@ -68,18 +75,22 @@ class SevenTVAPI(BaseAPI):
 
     def fetch_channel_emotes(self, channel_name):
         """Returns a list of channel-specific 7TV emotes in the standard Emote format."""
-        query_string = """{{
-            user(id: "{channel_name}") {{
-                emotes {{
-                    id
-                    name
-                }}
-            }}
-        }}""".format(
-            channel_name=channel_name
-        )
+        query_string = """
+query fetchUserEmotes($id: String!) {
+    user(id: $id) {
+        emotes {
+            id
+            name
+        }
+    }
+}"""
 
-        params = {"query": query_string}
+        params = {
+            "query": query_string,
+            "variables": {
+                "id": channel_name,
+            },
+        }
         response = self.post("gql", json=params)
 
         if response["data"]["user"] is None:
