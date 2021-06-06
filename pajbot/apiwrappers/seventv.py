@@ -85,7 +85,12 @@ query fetchUserEmotes($id: String!) {
     }
 }"""
 
-        params = {"query": query_string, "variables": {"id": channel_name}}
+        params = {
+            "query": query_string, 
+            "variables": {
+                "id": channel_name,
+            },
+        }
         response = self.post("gql", json=params)
 
         if response["data"]["user"] is None:
