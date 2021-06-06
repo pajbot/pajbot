@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Major: Added support for 7tv.app emotes (#1256, #1260)
+- Major: Added support for 7tv.app emotes (#1256, #1260, #1261)
 - Bugfix: Users can no longer bypass long massping timeouts by also typing a banphrase in their message. (#1117, #1209, #1253)
 - Bugfix: Twitter (un)follow buttons in admin zone work again. (#1250)
 
