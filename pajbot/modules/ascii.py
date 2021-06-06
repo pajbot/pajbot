@@ -127,7 +127,7 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
+        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg, priority=150, run_if_propagation_stopped=True)
 
     def disable(self, bot):
         HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)

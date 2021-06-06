@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Tuple, Callable, List
 
 import logging
 import operator
@@ -9,10 +9,13 @@ log = logging.getLogger("pajbot")
 
 
 class HandlerManager:
-    handlers: Dict[Any, Any] = {}
+    """This Dict maps event name -> List of event handlers
+    Event handler is a triple: (Callable event handler, priority, run_if_propagation_stopped)"""
+
+    handlers: Dict[str, List[Tuple[Callable[..., bool], int, bool]]] = {}
 
     @staticmethod
-    def init_handlers():
+    def init_handlers() -> None:
         HandlerManager.handlers = {}
 
         # on_pubmsg(source, message, tags)
@@ -76,28 +79,25 @@ class HandlerManager:
         HandlerManager.create_handler("on_quit")
 
     @staticmethod
-    def create_handler(event):
+    def create_handler(event: str) -> None:
         """Create an empty list for the given event"""
         HandlerManager.handlers[event] = []
 
     @staticmethod
-    def add_handler(event, method, priority=0):
+    def add_handler(
+        event: str, method: Callable[..., bool], priority: int = 0, run_if_propagation_stopped: bool = False
+    ) -> None:
         try:
-            HandlerManager.handlers[event].append((method, priority))
+            HandlerManager.handlers[event].append((method, priority, run_if_propagation_stopped))
             HandlerManager.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
-            log.error(f"add_handler No handler for {event} found.")
+            log.error(f"HandlerManager.add_handler: No handler for {event} found.")
 
     @staticmethod
-    def method_matches(h, method):
-        return h[0] == method
-
-    @staticmethod
-    def remove_handler(event, method):
-        handler = None
+    def remove_handler(event: str, method: Callable[..., bool]) -> None:
         try:
-            handler = find(lambda h: HandlerManager.method_matches(h, method), HandlerManager.handlers[event])
+            handler = find(lambda h: h[0] == method, HandlerManager.handlers[event])
             if handler is not None:
                 HandlerManager.handlers[event].remove(handler)
         except KeyError:
@@ -105,12 +105,16 @@ class HandlerManager:
             log.error(f"remove_handler No handler for {event} found.")
 
     @staticmethod
-    def trigger(event_name, stop_on_false=True, *args, **kwargs):
+    def trigger(event_name: str, stop_on_false: bool = True, *args: Any, **kwargs: Any) -> bool:
         if event_name not in HandlerManager.handlers:
-            log.error(f"No handler set for event {event_name}")
+            log.error(f"HandlerManager.trigger: No handler set for event {event_name}")
             return False
 
-        for handler, _ in HandlerManager.handlers[event_name]:
+        propagation_stopped = False
+        for handler, _, run_if_propagation_stopped in HandlerManager.handlers[event_name]:
+            if propagation_stopped and not run_if_propagation_stopped:
+                continue
+
             res = None
             try:
                 res = handler(*args, **kwargs)
@@ -118,7 +122,7 @@ class HandlerManager:
                 log.exception(f"Unhandled exception from {handler} in {event_name}")
 
             if res is False and stop_on_false is True:
-                # Abort if handler returns false and stop_on_false is enabled
-                return False
+                # Abort if handler returns False and stop_on_false is enabled
+                propagation_stopped = True
 
         return True
