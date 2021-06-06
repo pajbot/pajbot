@@ -9,6 +9,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
+from flask import escape
 
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
@@ -174,4 +175,4 @@ def init(app):
         if return_to.startswith("/admin"):
             return_to = "/"
 
-        return redirect(return_to)
+        return redirect(escape(return_to))
