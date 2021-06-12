@@ -28,6 +28,7 @@ while :; do
         --dev)
             # Install dev dependencies
             ./venv/bin/pip install -r requirements-dev.txt
+            yes | ./venv/bin/mypy --install-types
             ;;
 
         --nvim)
