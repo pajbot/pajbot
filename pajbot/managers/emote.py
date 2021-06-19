@@ -186,7 +186,7 @@ class EmoteManager:
 
     @staticmethod
     def twitch_emote_url(emote_id, size):
-        return f"https://static-cdn.jtvnw.net/emoticons/v1/{emote_id}/{size}"
+        return f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/{size}"
 
     @staticmethod
     def twitch_emote(emote_id, code):
