@@ -63,7 +63,7 @@
                 <tr>
                     <td><strong>Time spent in offline chat</strong></td>
                     {% if user.time_in_chat_offline > user.time_in_chat_online * 2 %}
-                    <td>{{ user.time_in_chat_offline|format_timedelta }} <img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v1/58765/3.0" alt="NotLikeThis"></td>
+                    <td>{{ user.time_in_chat_offline|format_timedelta }} <img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/58765/default/dark/3.0" alt="NotLikeThis"></td>
                     {% else %}
                     <td>{{ user.time_in_chat_offline|format_timedelta }}</td>
                     {% endif %}
