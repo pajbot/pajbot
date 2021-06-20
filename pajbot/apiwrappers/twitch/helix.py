@@ -11,6 +11,7 @@ from requests import HTTPError
 from pajbot import utils
 from pajbot.apiwrappers.response_cache import DateTimeSerializer, ClassInstanceSerializer, ListSerializer
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
+from pajbot.models.emote import Emote
 from pajbot.models.user import UserBasics, UserChannelInformation, UserStream
 from pajbot.utils import iterate_in_chunks
 
@@ -537,3 +538,20 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise e
 
         return response.status_code == 204
+
+    def fetch_global_emotes(self) -> List[Emote]:
+        # circular import prevention
+        from pajbot.managers.emote import EmoteManager
+
+        resp = self.get("/chat/emotes/global")
+
+        return [EmoteManager.twitch_emote(str(emote["id"]), emote["name"]) for emote in resp["data"]]
+
+    def get_global_emotes(self, force_fetch=False) -> List[Emote]:
+        return self.cache.cache_fetch_fn(
+            redis_key="api:twitch:helix:global-emotes",
+            fetch_fn=lambda: self.fetch_global_emotes(),
+            serializer=ListSerializer(Emote),
+            expiry=60 * 60,
+            force_fetch=force_fetch,
+        )
