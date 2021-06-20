@@ -561,7 +561,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_id, channel_name) -> Tuple[List[Emote], List[Emote], List[Emote]]:
+    def fetch_channel_emotes(self, channel_id: str, channel_name: str) -> Tuple[List[Emote], List[Emote], List[Emote]]:
         """Returns a tuple of three lists of emotes, each one corresponding to tier 1, tier 2 and tier 3 respectively.
         Tier 2 and Tier 3 ONLY contain the respective extra emotes added to that tier."""
         # circular import prevention
@@ -597,7 +597,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return ret_data
 
     def get_channel_emotes(
-        self, channel_id, channel_name, force_fetch=False
+        self, channel_id: str, channel_name: str, force_fetch=False
     ) -> Tuple[List[Emote], List[Emote], List[Emote]]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:channel-emotes:{channel_name}",
