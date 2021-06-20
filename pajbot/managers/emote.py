@@ -9,7 +9,6 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
-from pajbot.apiwrappers.twitchemotesapi import TwitchEmotesAPI
 
 log = logging.getLogger(__name__)
 
@@ -82,7 +81,6 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
     def __init__(self, twitch_helix_api):
-        self.api = TwitchEmotesAPI(RedisManager.get())
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
@@ -103,12 +101,12 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         self.global_emotes = self.twitch_helix_api.get_global_emotes(force_fetch=True)
 
     def load_channel_emotes(self):
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer
         )
 
     def update_channel_emotes(self):
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer, force_fetch=True
         )
 
