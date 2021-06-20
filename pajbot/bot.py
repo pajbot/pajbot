@@ -21,7 +21,6 @@ from pajbot.apiwrappers.authentication.client_credentials import ClientCredentia
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
-from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
 from pajbot.constants import VERSION
 from pajbot.eventloop import SafeDefaultScheduler
@@ -130,7 +129,6 @@ class Bot:
         self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
-        self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
@@ -210,7 +208,7 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
+        self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
