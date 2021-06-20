@@ -567,42 +567,34 @@ class TwitchHelixAPI(BaseTwitchAPI):
         # circular import prevention
         from pajbot.managers.emote import EmoteManager
 
-        try:
-            resp = self.get("/chat/emotes", {"broadcaster_id": channel_id})
+        resp = self.get("/chat/emotes", {"broadcaster_id": channel_id})
 
-            emotes = resp["data"]
-            if len(emotes) <= 0:
-                log.warning(f"No subscription emotes found for channel {channel_name}")
-                return [], [], []
+        emotes = resp["data"]
+        if len(emotes) <= 0:
+            log.warning(f"No subscription emotes found for channel {channel_name}")
+            return [], [], []
 
-            ret_data: Tuple[List[Emote], List[Emote], List[Emote]] = ([], [], [])
-            for emote in emotes:
-                if emote["emote_type"] == "subscriptions":
-                    tier = 0
-                    if emote["tier"] == "1000":  # tier 1 emotes
-                        tier = 1
-                    elif emote["tier"] == "2000":  # tier 2 emotes
-                        tier = 2
-                    elif emote["tier"] == "3000":  # tier 3 emotes
-                        tier = 3
-                    else:
-                        log.warning(f"Unknown channel emote tier fetched: '{emote}'")
-                        continue
-
-                    ret_data[tier - 1].append(EmoteManager.twitch_emote(str(emote["id"]), emote["name"]))
-                elif emote["emote_type"] == "bitstier":
-                    # TODO: Figure out where bit emotes fit into pajbot
-                    pass
+        ret_data: Tuple[List[Emote], List[Emote], List[Emote]] = ([], [], [])
+        for emote in emotes:
+            if emote["emote_type"] == "subscriptions":
+                tier = 0
+                if emote["tier"] == "1000":  # tier 1 emotes
+                    tier = 1
+                elif emote["tier"] == "2000":  # tier 2 emotes
+                    tier = 2
+                elif emote["tier"] == "3000":  # tier 3 emotes
+                    tier = 3
                 else:
-                    log.warning(f"Unknown channel emote type fetched: '{emote}'")
-            return ret_data
+                    log.warning(f"Unknown channel emote tier fetched: '{emote}'")
+                    continue
 
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                log.warning(f"No sub emotes found for channel {channel_name}")
-                return [], [], []
+                ret_data[tier - 1].append(EmoteManager.twitch_emote(str(emote["id"]), emote["name"]))
+            elif emote["emote_type"] == "bitstier":
+                # TODO: Figure out where bit emotes fit into pajbot
+                pass
             else:
-                raise e
+                log.warning(f"Unknown channel emote type fetched: '{emote}'")
+        return ret_data
 
     def get_channel_emotes(
         self, channel_id, channel_name, force_fetch=False
