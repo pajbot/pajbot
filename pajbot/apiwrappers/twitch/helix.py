@@ -579,9 +579,6 @@ class TwitchHelixAPI(BaseTwitchAPI):
             for emote in emotes:
                 if emote["emote_type"] == "subscriptions":
                     tier = 0
-                    # emote tier 1000 is tier 1
-                    # emote tier 2000 is tier 2
-                    # emote tier 3000 is tier 3
                     if emote["tier"] == "1000":  # tier 1 emotes
                         tier = 1
                     elif emote["tier"] == "2000":  # tier 2 emotes
