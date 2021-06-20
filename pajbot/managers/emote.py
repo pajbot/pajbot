@@ -9,7 +9,6 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
-from pajbot.apiwrappers.twitchemotesapi import TwitchEmotesAPI
 
 log = logging.getLogger(__name__)
 
@@ -81,9 +80,8 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_v5_api):
-        self.api = TwitchEmotesAPI(RedisManager.get())
-        self.twitch_v5_api = twitch_v5_api
+    def __init__(self, twitch_helix_api):
+        self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
         self.tier_one_emotes = []
@@ -97,18 +95,18 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         return self.tier_one_emotes
 
     def load_global_emotes(self):
-        self.global_emotes = self.twitch_v5_api.get_global_emotes()
+        self.global_emotes = self.twitch_helix_api.get_global_emotes()
 
     def update_global_emotes(self):
-        self.global_emotes = self.twitch_v5_api.get_global_emotes(force_fetch=True)
+        self.global_emotes = self.twitch_helix_api.get_global_emotes(force_fetch=True)
 
     def load_channel_emotes(self):
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer
         )
 
     def update_channel_emotes(self):
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.api.get_channel_emotes(
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer, force_fetch=True
         )
 
@@ -153,11 +151,11 @@ class SevenTVEmoteManager(GenericChannelEmoteManager):
 
 
 class EmoteManager:
-    def __init__(self, twitch_v5_api, action_queue):
+    def __init__(self, twitch_helix_api, action_queue):
         self.action_queue = action_queue
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.twitch_emote_manager = TwitchEmoteManager(twitch_v5_api)
+        self.twitch_emote_manager = TwitchEmoteManager(twitch_helix_api)
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
         self.seventv_emote_manager = SevenTVEmoteManager()
@@ -189,7 +187,7 @@ class EmoteManager:
         return f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/{size}"
 
     @staticmethod
-    def twitch_emote(emote_id, code):
+    def twitch_emote(emote_id, code) -> Emote:
         return Emote(
             code=code,
             provider="twitch",
