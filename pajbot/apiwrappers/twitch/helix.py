@@ -600,7 +600,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         self, channel_id: str, channel_name: str, force_fetch=False
     ) -> Tuple[List[Emote], List[Emote], List[Emote]]:
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:twitch:helix:channel-emotes:{channel_name}",
+            redis_key=f"api:twitch:helix:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id, channel_name),
             serializer=TwitchChannelEmotesSerializer(),
             expiry=60 * 60,
