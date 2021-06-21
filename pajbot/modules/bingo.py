@@ -64,7 +64,7 @@ def remove_emotes_suffix(word):
 class BingoModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Bingo"
-    DESCRIPTION = "Chat Bingo Game for Twitch, FFZ and BTTV Emotes"
+    DESCRIPTION = "Chat Bingo Game for Twitch, FFZ, BTTV and 7TV Emotes"
     ENABLED_DEFAULT = False
     CATEGORY = "Game"
     SETTINGS = [
@@ -131,7 +131,7 @@ class BingoModule(BaseModule):
         }
 
     @staticmethod
-    def make_bttv_ffz_sets(manager):
+    def make_bttv_ffz_7tv_sets(manager):
         friendly_name = manager.friendly_name
         channel_emotes = (f"Channel {friendly_name} emotes", manager.channel_emotes)
         global_emotes = (f"Global {friendly_name} emotes", manager.global_emotes)
@@ -149,12 +149,14 @@ class BingoModule(BaseModule):
         # we first make a dict containing lists as the list of emotes (because it's less to type...)
         list_dict = {
             **self.make_twitch_sets(self.bot.emote_manager.twitch_emote_manager),
-            **self.make_bttv_ffz_sets(self.bot.emote_manager.ffz_emote_manager),
-            **self.make_bttv_ffz_sets(self.bot.emote_manager.bttv_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.ffz_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.bttv_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.seventv_emote_manager),
             "all": (
-                "FFZ and BTTV Channel emotes + Tier 1 subemotes",
+                "FFZ, BTTV and 7TV Channel emotes + Tier 1 subemotes",
                 self.bot.emote_manager.ffz_emote_manager.channel_emotes
                 + self.bot.emote_manager.bttv_emote_manager.channel_emotes
+                + self.bot.emote_manager.seventv_emote_manager.channel_emotes
                 + self.bot.emote_manager.twitch_emote_manager.tier_one_emotes,
             ),
         }
@@ -327,7 +329,7 @@ class BingoModule(BaseModule):
         typed_emote_code = typed_emote.code
 
         # we check for BOTH exact match (which works by comparing provider and ID, see __eq__ and __hash__ in
-        # the Emote class) and for code-only match because we want to allow equal-named sub and ffz/bttv emotes
+        # the Emote class) and for code-only match because we want to allow equal-named sub and ffz/bttv/7tv emotes
         # to be treated equally (e.g. sub-emote pajaL vs bttv emote pajaL)
         # The reason exact match can differ from code match is in case of regex twitch emotes, such as :) and :-)
         # If the "correct_emote" was chosen from the list of global twitch emotes, then its code will be the regex

@@ -10,6 +10,7 @@ import urllib
 import irc.client
 import random
 import requests
+import threading
 from pytz import timezone
 
 import pajbot.migration_revisions.db
@@ -20,7 +21,6 @@ from pajbot.apiwrappers.authentication.client_credentials import ClientCredentia
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
-from pajbot.apiwrappers.twitch.kraken_v5 import TwitchKrakenV5API
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
 from pajbot.constants import VERSION
 from pajbot.eventloop import SafeDefaultScheduler
@@ -41,6 +41,7 @@ from pajbot.migration.migrate import Migration
 from pajbot.migration.redis import RedisMigratable
 from pajbot.models.action import ActionParser, SubstitutionFilter
 from pajbot.models.banphrase import BanphraseManager
+from pajbot.models.moderation_action import Ban, Timeout, Unban, Untimeout, new_message_processing_scope
 from pajbot.models.module import ModuleManager
 from pajbot.models.pleblist import PleblistManager
 from pajbot.models.sock import SocketManager
@@ -128,7 +129,6 @@ class Bot:
         self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
-        self.twitch_v5_api = TwitchKrakenV5API(self.api_client_credentials, RedisManager.get())
 
         self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
         if self.bot_user_id is None:
@@ -208,7 +208,7 @@ class Bot:
                 api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
             )
 
-        self.emote_manager = EmoteManager(self.twitch_v5_api, self.action_queue)
+        self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
@@ -285,6 +285,8 @@ class Bot:
         }
 
         self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
+
+        self.thread_locals = threading.local()
 
     @property
     def password(self):
@@ -585,32 +587,51 @@ class Bot:
         self.privmsg(message)
 
     def ban(self, user, reason=None):
-        self.timeout(user, 30, reason, once=True)
-        self.execute_delayed(1, self._ban, user.login, reason)
+        self.ban_login(user.login, reason)
+
+    def ban_login(self, login: str, reason=None):
+        if self.thread_locals.moderation_actions is not None:
+            self.thread_locals.moderation_actions.add(login, Ban(reason))
+        else:
+            self.timeout_login(login, 30, reason, once=True)
+            self.execute_delayed(1, self._ban, login, reason)
 
     def unban(self, user):
-        self.privmsg(f"/unban {user.login}")
+        self.unban_login(user.login)
+
+    def unban_login(self, login: str):
+        if self.thread_locals.moderation_actions is not None:
+            self.thread_locals.moderation_actions.add(login, Unban())
+        else:
+            self.privmsg(f"/unban {login}")
 
     def untimeout(self, user):
-        self.privmsg(f"/untimeout {user.login}")
+        self.untimeout_login(user.login)
 
-    def _timeout(self, login, duration, reason=None):
+    def untimeout_login(self, login: str):
+        if self.thread_locals.moderation_actions is not None:
+            self.thread_locals.moderation_actions.add(login, Untimeout())
+        else:
+            self.privmsg(f"/untimeout {login}")
+
+    def _timeout(self, login: str, duration: int, reason=None):
         message = f"/timeout {login} {duration}"
         if reason is not None:
             message += f" {reason}"
         self.privmsg(message)
 
     def timeout(self, user, duration, reason=None, once=False):
-        self._timeout(user.login, duration, reason)
-        if not once:
-            self.execute_delayed(1, self._timeout, user.login, duration, reason)
+        self.timeout_login(user.login, duration, reason, once)
 
-    def timeout_login(self, login, duration, reason=None, once=False):
-        self._timeout(login, duration, reason)
-        if not once:
-            self.execute_delayed(1, self._timeout, login, duration, reason)
+    def timeout_login(self, login: str, duration: int, reason=None, once=False):
+        if self.thread_locals.moderation_actions is not None:
+            self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
+        else:
+            self._timeout(login, duration, reason)
+            if not once:
+                self.execute_delayed(1, self._timeout, login, duration, reason)
 
-    def timeout_warn(self, user, duration, reason=None):
+    def timeout_warn(self, user, duration: int, reason=None):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
         self.timeout(user, duration, reason)
         return (duration, punishment)
@@ -777,10 +798,12 @@ class Bot:
                 msg = event.arguments[0]
             else:
                 msg = None  # e.g. user didn't type an extra message to share with the streamer
-            HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
 
-            if msg is not None:
-                self.parse_message(msg, source, event, tags)
+            with new_message_processing_scope(self):
+                HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
+
+                if msg is not None:
+                    self.parse_message(msg, source, event, tags)
 
     def on_action(self, chatconn, event):
         self.on_pubmsg(chatconn, event)
@@ -826,11 +849,13 @@ class Bot:
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             source = User.from_basics(db_session, UserBasics(id, login, name))
-            res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0], tags=tags)
-            if res is False:
-                return False
 
-            self.parse_message(event.arguments[0], source, event, tags=tags)
+            with new_message_processing_scope(self):
+                res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0], tags=tags)
+                if res is False:
+                    return False
+
+                self.parse_message(event.arguments[0], source, event, tags=tags)
 
     def on_pubnotice(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
