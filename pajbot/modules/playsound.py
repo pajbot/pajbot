@@ -7,6 +7,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.playsound import Playsound
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command
 
 log = logging.getLogger(__name__)
 
@@ -148,7 +149,7 @@ class PlaysoundModule(BaseModule):
                 )
                 return False
 
-            if self.global_cooldown and source.level < self.bot.Command.BYPASS_DELAY_LEVEL:
+            if self.global_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 if self.settings["global_cd_whisper"]:
                     bot.whisper(
                         source,
@@ -156,7 +157,7 @@ class PlaysoundModule(BaseModule):
                     )
                 return False
 
-            if source.id in self.user_cooldown and source.level < self.bot.command.BYPASS_DELAY_LEVEL:
+            if source.id in self.user_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 if self.settings["user_cd_whisper"]:
                     bot.whisper(
                         source,
