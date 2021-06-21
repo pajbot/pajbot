@@ -94,7 +94,17 @@ class APICommandUpdate(Resource):
         if len(args) == 0:
             return {"error": "Missing parameter to edit."}, 400
 
-        valid_names = ["enabled", "level", "delay_all", "delay_user", "cost", "can_execute_with_whisper", "sub_only", "mod_only", "run_through_banphrases"]
+        valid_names = [
+            "enabled",
+            "level",
+            "delay_all",
+            "delay_user",
+            "cost",
+            "can_execute_with_whisper",
+            "sub_only",
+            "mod_only",
+            "run_through_banphrases",
+        ]
 
         valid_action_names = ["type", "message"]
 
