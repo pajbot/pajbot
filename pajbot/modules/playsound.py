@@ -169,7 +169,7 @@ class PlaysoundModule(BaseModule):
             if cooldown is None:
                 cooldown = self.settings["default_sample_cd"]
 
-            if playsound_name in self.sample_cooldown:
+            if playsound_name in self.sample_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 bot.whisper(
                     source,
                     f"The playsound {playsound.name} was played too recently. Please wait until its cooldown of {cooldown} seconds has run out.",
