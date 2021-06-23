@@ -87,7 +87,7 @@ class PaidUntimeoutModule(BaseModule):
             # Request to be unbanned out is ignored, but the return False ensures the user is refunded their points
             return False
 
-        if (source.banned or source.timed_out):
+        if source.banned or source.timed_out:
             bot.unban(source)
             bot.whisper(source, "You have been unbanned.")
             source.timed_out = False
