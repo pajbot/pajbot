@@ -908,6 +908,9 @@ class Bot:
     def on_roomstate(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        if event.target != self.channel:
+            return
+
         if tags.get("subs-only", False) is True:
             self.subs_only = True
 
