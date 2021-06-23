@@ -89,6 +89,15 @@ class SubAlertModule(BaseModule):
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
+            key="extend_sub",
+            label="Chat message for users that extend their sub (subtember-related) | Available arguments: {username}",
+            type="text",
+            required=True,
+            placeholder="Thank you for extending your sub {username}! PogChamp",
+            default="Thank you for extending your sub {username}! PogChamp",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
             key="substreak_string",
             label="Sub streak string. Empty if streak was not shared | Available arguments: {username}, {num_months}",
             type="text",
@@ -138,6 +147,14 @@ class SubAlertModule(BaseModule):
             required=True,
             placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
             default="Thank you for upgrading your gift sub {username}! PogChamp <3",
+        ),
+        ModuleSetting(
+            key="extend_sub_whisper",
+            label="Whisper message for users that extend their sub (subtember-related) | Available arguments: {username}",
+            type="text",
+            required=True,
+            placeholder="Thank you for extending your sub {username}! PogChamp",
+            default="Thank you for extending your sub {username}! PogChamp",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -243,6 +260,18 @@ class SubAlertModule(BaseModule):
                 self.settings["gift_upgrade_whisper"].format(user=user),
             )
 
+    def on_extend_sub(self, user):
+        if self.settings["chat_message"] is True:
+            self.bot.say(self.settings["extend_sub"].format(user=user))
+
+        if self.settings["whisper_message"] is True:
+            self.bot.execute_delayed(
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.settings["extend_sub_whisper"].format(user=user),
+            )
+
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
             return
@@ -313,6 +342,8 @@ class SubAlertModule(BaseModule):
             HandlerManager.trigger("on_user_sub", user=source)
         elif tags["msg-id"] == "giftpaidupgrade":
             self.on_gift_upgrade(source)
+        elif tags["msg-id"] == "extendsub":
+            self.on_extend_sub(source)
         else:
             log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
