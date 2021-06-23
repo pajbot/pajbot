@@ -7,6 +7,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.playsound import Playsound
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command
 
 log = logging.getLogger(__name__)
 
@@ -148,7 +149,7 @@ class PlaysoundModule(BaseModule):
                 )
                 return False
 
-            if self.global_cooldown:
+            if self.global_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 if self.settings["global_cd_whisper"]:
                     bot.whisper(
                         source,
@@ -156,7 +157,7 @@ class PlaysoundModule(BaseModule):
                     )
                 return False
 
-            if source.id in self.user_cooldown:
+            if source.id in self.user_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 if self.settings["user_cd_whisper"]:
                     bot.whisper(
                         source,
@@ -168,7 +169,7 @@ class PlaysoundModule(BaseModule):
             if cooldown is None:
                 cooldown = self.settings["default_sample_cd"]
 
-            if playsound_name in self.sample_cooldown:
+            if playsound_name in self.sample_cooldown and source.level < Command.BYPASS_DELAY_LEVEL:
                 bot.whisper(
                     source,
                     f"The playsound {playsound.name} was played too recently. Please wait until its cooldown of {cooldown} seconds has run out.",
