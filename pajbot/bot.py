@@ -911,8 +911,8 @@ class Bot:
         if event.target != self.channel:
             return
 
-        if tags.get("subs-only", "0") == "1":
-            self.subs_only = True
+        if "subs-only" in tags:
+            self.subs_only = tags["subs-only"] == "1"
 
         log.debug(f"subs only: {self.subs_only}")
 
