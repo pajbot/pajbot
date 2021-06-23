@@ -240,7 +240,7 @@ class SubAlertModule(BaseModule):
                 self.settings["whisper_after"],
                 self.bot.whisper,
                 user,
-                self.settings["gift_upgrade_whisper"].format(user=user)
+                self.settings["gift_upgrade_whisper"].format(user=user),
             )
 
     def on_usernotice(self, source, tags, **rest):
