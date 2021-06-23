@@ -69,15 +69,21 @@ class PaidUntimeoutModule(BaseModule):
 
     @staticmethod
     def untimeout_source(bot, source, **rest):
-        bot.untimeout(source)
-        bot.whisper(source, "You have been unbanned.")
-        source.timed_out = False
+        if not source.timed_out:
+            bot.whisper(source, "I can't untime you out if you aren't timed out FailFish")
+        else:
+            bot.untimeout(source)
+            bot.whisper(source, "You have been unbanned.")
+            source.timed_out = False
 
     @staticmethod
     def unban_source(bot, source, **rest):
-        bot.unban(source)
-        bot.whisper(source, "You have been unbanned.")
-        source.timed_out = False
+        if not source.banned:
+            bot.whisper(source, "I can't unban you if you aren't banned in the first place FailFish")
+        else:
+            bot.unban(source)
+            bot.whisper(source, "You have been unbanned.")
+            source.timed_out = False
 
     def load_commands(self, **options):
         if self.settings["untimeout_enable"]:
