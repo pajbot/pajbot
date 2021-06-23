@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Added support for 7tv.app emotes (#1256, #1260, #1261)
+- Minor: Added support for the `giftpaidupgrade` msg-id to the `subalert` module. (#1306)
 - Minor: Migrate from Kraken to Helix for global emote fetching. (#1289)
 - Minor: Migrate from `twitchemotes.com` to Helix for channel emote fetching. (#1290)
 - Minor: Added `mod_only` & `run_through_banphrases` fields to edit command page. (#1293)
