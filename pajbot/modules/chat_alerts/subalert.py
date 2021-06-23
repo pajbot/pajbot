@@ -80,6 +80,15 @@ class SubAlertModule(BaseModule):
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
+            key="gift_upgrade",
+            label="Updgraded gift sub chat message | Available arguments: {username}",
+            type="text",
+            required=True,
+            placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
+            default="Thank you for upgrading your gift sub {username}! PogChamp <3",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
             key="substreak_string",
             label="Sub streak string. Empty if streak was not shared | Available arguments: {username}, {num_months}",
             type="text",
@@ -120,6 +129,15 @@ class SubAlertModule(BaseModule):
             required=True,
             placeholder="Thank you for subscribing for {num_months} months in a row {username} <3",
             default="Thank you for subscribing for {num_months} months in a row {username} <3",
+            constraints={"min_str_len": 10, "max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="gift_upgrade_whisper",
+            label="Whisper message for upgraded gift subs | Available arguments: {username}",
+            type="text",
+            required=True,
+            placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
+            default="Thank you for upgrading your gift sub {username}! PogChamp <3",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -213,6 +231,18 @@ class SubAlertModule(BaseModule):
                 self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("resub_whisper", **payload)
             )
 
+    def on_gift_upgrade(self, user):
+        if self.settings["chat_message"] is True:
+            self.bot.say(self.settings["gift_upgrade"].format(user=user))
+
+        if self.settings["whisper_message"] is True:
+            self.bot.execute_delayed(
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.settings["gift_upgrade_whisper"].format(user=user),
+            )
+
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
             return
@@ -281,6 +311,8 @@ class SubAlertModule(BaseModule):
 
             self.on_new_sub(source, tags["msg-param-sub-plan"])
             HandlerManager.trigger("on_user_sub", user=source)
+        elif tags["msg-id"] == "giftpaidupgrade":
+            self.on_gift_upgrade(source)
         else:
             log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
