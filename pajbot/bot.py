@@ -903,6 +903,14 @@ class Bot:
 
         self.welcome_messages_sent = True
 
+    def on_roomstate(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        if tags.get("subs-only", False) is True:
+            self.subs_only = True
+
+        log.debug(f"subs only: {self.subs_only}")
+
     def commit_all(self):
         for key, manager in self.commitable.items():
             manager.commit()
