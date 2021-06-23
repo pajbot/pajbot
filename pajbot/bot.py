@@ -914,8 +914,6 @@ class Bot:
         if "subs-only" in tags:
             self.subs_only = tags["subs-only"] == "1"
 
-        log.debug(f"subs only: {self.subs_only}")
-
     def commit_all(self):
         for key, manager in self.commitable.items():
             manager.commit()
