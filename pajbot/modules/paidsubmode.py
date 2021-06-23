@@ -53,12 +53,12 @@ class PaidSubmodeModule(BaseModule):
     ]
 
     def paid_subon(self, bot, source, **rest):
-        if bot.sub_only is False:
+        if bot.subs_only is False:
             bot.whisper(source, "Why would you try to enable subonly, if it's already enabled? FailFish")
             # Request to enable submode is ignored, but the return False ensures the user is refunded their points
             return False
 
-        if bot.sub_only is True:
+        if bot.subs_only is True:
             _cost = self.settings["subon_cost"]
 
             # Test this a bit. Make sure twitch doesn't bug out
@@ -69,12 +69,12 @@ class PaidSubmodeModule(BaseModule):
             return True
 
     def paid_suboff(self, bot, source, **rest):
-        if bot.sub_only is False:
+        if bot.subs_only is False:
             bot.whisper(source, "Why would you try to disable subonly, if it's not on in the first place? FailFish")
             # Request to disable submode is ignored, but the return False ensures the user is refunded their points
             return False
 
-        if bot.sub_only is True:
+        if bot.subs_only is True:
             _cost = self.settings["suboff_cost"]
 
             # Test this a bit. Make sure twitch doesn't bug out
