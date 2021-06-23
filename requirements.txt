@@ -25,7 +25,7 @@ requests==2.25.1
 retry==0.9.2
 riotwatcher==3.1.1
 service-identity==21.1.0 # for twisted SSL as well
-SQLAlchemy==1.4.18
+SQLAlchemy==1.4.19
 SQLAlchemy-Utc==0.12.0
 tempora==4.1.1
 tweepy==3.10.0
