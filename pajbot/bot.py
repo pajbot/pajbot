@@ -288,6 +288,8 @@ class Bot:
 
         self.thread_locals = threading.local()
 
+        self.subs_only = False
+
     @property
     def password(self):
         return f"oauth:{self.bot_token_manager.token.access_token}"
