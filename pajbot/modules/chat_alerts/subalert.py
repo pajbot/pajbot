@@ -90,7 +90,7 @@ class SubAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="extend_sub",
-            label="Chat message for users that extend their sub (subtember-related) | Available arguments: {username}",
+            label="Chat message for users that extend their sub (subtember-related). Leave empty to disable | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="Thank you for extending your sub {username}! PogChamp",
@@ -150,7 +150,7 @@ class SubAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="extend_sub_whisper",
-            label="Whisper message for users that extend their sub (subtember-related) | Available arguments: {username}",
+            label="Whisper message for users that extend their sub (subtember-related). Leave empty to disable | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="Thank you for extending your sub {username}! PogChamp",
