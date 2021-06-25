@@ -95,7 +95,7 @@ class SubAlertModule(BaseModule):
             required=True,
             placeholder="Thank you for extending your sub {username}! PogChamp",
             default="Thank you for extending your sub {username}! PogChamp",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="substreak_string",
@@ -155,7 +155,7 @@ class SubAlertModule(BaseModule):
             required=True,
             placeholder="Thank you for extending your sub {username}! PogChamp",
             default="Thank you for extending your sub {username}! PogChamp",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="grant_points_on_sub",
@@ -261,10 +261,10 @@ class SubAlertModule(BaseModule):
             )
 
     def on_extend_sub(self, user):
-        if self.settings["chat_message"] is True:
+        if self.settings["extend_sub"] != "":
             self.bot.say(self.settings["extend_sub"].format(user=user))
 
-        if self.settings["whisper_message"] is True:
+        if self.settings["extend_sub_whisper"] != "":
             self.bot.execute_delayed(
                 self.settings["whisper_after"],
                 self.bot.whisper,
