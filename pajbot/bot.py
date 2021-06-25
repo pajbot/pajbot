@@ -788,6 +788,9 @@ class Bot:
     def on_usernotice(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
+        if event.target != self.channel:
+            return
+
         id = tags["user-id"]
         login = tags["login"]
         name = tags["display-name"]
