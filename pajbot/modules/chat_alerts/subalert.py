@@ -81,12 +81,12 @@ class SubAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="gift_upgrade",
-            label="Updgraded gift sub chat message | Available arguments: {username}",
+            label="Updgraded gift sub chat message. Leave empty to disable | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
             default="Thank you for upgrading your gift sub {username}! PogChamp <3",
-            constraints={"min_str_len": 10, "max_str_len": 400},
+            constraints={"max_str_len": 400},
         ),
         ModuleSetting(
             key="extend_sub",
@@ -142,7 +142,7 @@ class SubAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="gift_upgrade_whisper",
-            label="Whisper message for upgraded gift subs | Available arguments: {username}",
+            label="Whisper message for upgraded gift subs. Leave empty to disable | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
@@ -249,10 +249,10 @@ class SubAlertModule(BaseModule):
             )
 
     def on_gift_upgrade(self, user):
-        if self.settings["chat_message"] is True:
+        if self.settings["gift_upgrade"] != "":
             self.bot.say(self.settings["gift_upgrade"].format(user=user))
 
-        if self.settings["whisper_message"] is True:
+        if self.settings["gift_upgrade_whisper"] != "":
             self.bot.execute_delayed(
                 self.settings["whisper_after"],
                 self.bot.whisper,
