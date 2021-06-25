@@ -288,6 +288,8 @@ class Bot:
 
         self.thread_locals = threading.local()
 
+        self.subs_only = False
+
     @property
     def password(self):
         return f"oauth:{self.bot_token_manager.token.access_token}"
@@ -905,6 +907,15 @@ class Bot:
             self.privmsg(p.format(nickname=self.nickname, version=self.version_long))
 
         self.welcome_messages_sent = True
+
+    def on_roomstate(self, chatconn, event):
+        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+
+        if event.target != self.channel:
+            return
+
+        if "subs-only" in tags:
+            self.subs_only = tags["subs-only"] == "1"
 
     def commit_all(self):
         for key, manager in self.commitable.items():
