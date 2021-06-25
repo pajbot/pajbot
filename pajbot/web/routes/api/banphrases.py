@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 class APIBanphraseRemove(Resource):
     @pajbot.web.utils.requires_level(500)
-    def get(self, banphrase_id, **options):
+    def post(self, banphrase_id, **options):
         with DBManager.create_session_scope() as db_session:
             banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
             if banphrase is None:

@@ -48,6 +48,7 @@
     <h3>Settings</h3>
 {% if module.SETTINGS|length > 0 %}
 <form class="ui form" method="POST" action="/admin/modules/edit/{{ module.ID }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token()  }}"/>
     {%- for setting in module.SETTINGS %}
     <div class="{{ 'required' if setting.required else ''}} {{ 'inline' if setting.type in ['boolean'] else '' }} field eight wide">
         <label for="key_{{ setting.key }}">{{ setting.label }}</label>

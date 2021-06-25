@@ -4,6 +4,7 @@
 {% block body %}
 <h2>Create Command</h2>
 <form class="ui form" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token()  }}"/>
     <div class="fields">
         <div class="required field field-alias four wide">
             <label>Aliases</label>

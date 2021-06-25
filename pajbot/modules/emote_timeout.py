@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class EmoteTimeoutModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Emote Timeout"
-    DESCRIPTION = "Times out users who post emoji or Twitch, BTTV or FFZ emotes"
+    DESCRIPTION = "Times out users who post emoji or Twitch, BTTV, FFZ or 7TV emotes"
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
@@ -21,6 +21,7 @@ class EmoteTimeoutModule(BaseModule):
         ModuleSetting(
             key="timeout_bttv", label="Timeout any BTTV emotes", type="boolean", required=True, default=False
         ),
+        ModuleSetting(key="timeout_7tv", label="Timeout any 7TV emotes", type="boolean", required=True, default=False),
         ModuleSetting(
             key="timeout_emoji", label="Timeout any unicode emoji", type="boolean", required=True, default=False
         ),
@@ -84,6 +85,15 @@ class EmoteTimeoutModule(BaseModule):
             constraints={},
         ),
         ModuleSetting(
+            key="7tv_timeout_reason",
+            label="7TV Emote Timeout Reason",
+            type="text",
+            required=False,
+            placeholder="",
+            default="No 7TV emotes allowed",
+            constraints={},
+        ),
+        ModuleSetting(
             key="emoji_timeout_reason",
             label="Emoji Timeout Reason",
             type="text",
@@ -122,6 +132,10 @@ class EmoteTimeoutModule(BaseModule):
             self.delete_or_timeout(source, msg_id, self.settings["bttv_timeout_reason"])
             return False
 
+        if self.settings["timeout_7tv"] and any(e.emote.provider == "7tv" for e in emote_instances):
+            self.delete_or_timeout(source, msg_id, self.settings["7tv_timeout_reason"])
+            return False
+
         if self.settings["timeout_emoji"] and any(emoji in message for emoji in ALL_EMOJI):
             self.delete_or_timeout(source, msg_id, self.settings["emoji_timeout_reason"])
             return False
@@ -129,7 +143,7 @@ class EmoteTimeoutModule(BaseModule):
         return True
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_message", self.on_message)
+        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
 
     def disable(self, bot):
         HandlerManager.remove_handler("on_message", self.on_message)

@@ -1,8 +1,8 @@
 class Emote:
-    """Emote encapsulates an emote that can be from either Twitch, FFZ or BTTV.
+    """Emote encapsulates an emote that can be from either Twitch, FFZ, BTTV or 7TV.
     :ivar code: Word/code that this emote replaces in the chat message, e.g. "Kappa"
     :type code: str
-    :ivar provider: String identifier marking the emote provider. Valid values: "twitch", "ffz", "bttv"
+    :ivar provider: String identifier marking the emote provider. Valid values: "twitch", "ffz", "bttv", "7tv"
     :type provider: str
     :ivar id: Provider-specific ID, e.g. the emote ID for twitch, or the has for bttv.
     :type id: str

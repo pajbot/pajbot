@@ -98,6 +98,7 @@
     <div>
         <div>
             <form class="ui action input" id="new-playsound-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()  }}"/>
                 <input autocomplete="off" type="text" name="name" placeholder="New playsound name" style="width: 300px;"
                        required>
                 <input autocomplete="off" type="url" name="link" class="link-input middle-input"

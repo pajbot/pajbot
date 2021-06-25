@@ -22,6 +22,7 @@ function enable_remove_row(modal_class, action) {
             $.api({
                 on: 'now',
                 action: action,
+                method: 'post',
                 urlData: {
                     id: id_remove,
                 },
@@ -30,6 +31,10 @@ function enable_remove_row(modal_class, action) {
                 },
                 onFailure: function(response, element) {
                     console.error('something went wrong');
+                },
+                beforeXHR: function(xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', csrf_token);
+                    return xhr;
                 },
             });
         },
@@ -82,6 +87,10 @@ function enable_toggle_row(action) {
                     .removeClass('red')
                     .addClass('green');
             }
+        },
+        beforeXHR: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', csrf_token);
+            return xhr;
         },
     });
 }
@@ -136,6 +145,10 @@ function enable_toggle_row_cb(action) {
                     .removeClass('red')
                     .addClass('green');
             }
+        },
+        beforeXHR: function(xhr) {
+            xhr.setRequestHeader('X-CSRFToken', csrf_token);
+            return xhr;
         },
     });
 }

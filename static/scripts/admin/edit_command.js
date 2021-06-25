@@ -181,6 +181,10 @@ $(document).ready(function() {
                 changed_rows = [];
                 $('button.save-changes').addClass('disabled');
             },
+            beforeXHR: function(xhr) {
+                xhr.setRequestHeader('X-CSRFToken', csrf_token);
+                return xhr;
+            },
         })
         .state({
             onActivate: function() {

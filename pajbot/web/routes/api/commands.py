@@ -53,7 +53,7 @@ class APICommand(Resource):
 
 class APICommandRemove(Resource):
     @pajbot.web.utils.requires_level(500)
-    def get(self, command_id, **options):
+    def post(self, command_id, **options):
         with DBManager.create_session_scope() as db_session:
             command = db_session.query(Command).filter_by(id=command_id).one_or_none()
             if command is None:
@@ -83,8 +83,10 @@ class APICommandUpdate(Resource):
         self.post_parser.add_argument("data_cost", required=False)
         self.post_parser.add_argument("data_can_execute_with_whisper", required=False)
         self.post_parser.add_argument("data_sub_only", required=False)
+        self.post_parser.add_argument("data_mod_only", required=False)
         self.post_parser.add_argument("data_action_type", required=False)
         self.post_parser.add_argument("data_action_message", required=False)
+        self.post_parser.add_argument("run_through_banphrases", required=False)
 
     @pajbot.web.utils.requires_level(500)
     def post(self, command_id, **extra_args):
@@ -92,7 +94,17 @@ class APICommandUpdate(Resource):
         if len(args) == 0:
             return {"error": "Missing parameter to edit."}, 400
 
-        valid_names = ["enabled", "level", "delay_all", "delay_user", "cost", "can_execute_with_whisper", "sub_only"]
+        valid_names = [
+            "enabled",
+            "level",
+            "delay_all",
+            "delay_user",
+            "cost",
+            "can_execute_with_whisper",
+            "sub_only",
+            "mod_only",
+            "run_through_banphrases",
+        ]
 
         valid_action_names = ["type", "message"]
 

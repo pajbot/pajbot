@@ -5,6 +5,22 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Minor: Updated queup previous song API usage. It now requires you to search for the song through a separate endpoint. (#1237)
+- Major: Added support for 7tv.app emotes (#1256, #1260, #1261)
+- Minor: Added support for the `giftpaidupgrade` msg-id to the `subalert` module. (#1306)
+- Minor: Migrate from Kraken to Helix for global emote fetching. (#1289)
+- Minor: Migrate from `twitchemotes.com` to Helix for channel emote fetching. (#1290)
+- Minor: Added `mod_only` & `run_through_banphrases` fields to edit command page. (#1293)
+- Bugfix: Fixed issue where bot would take points and attempt to untimeout/unban a user that isn't timed out or banned in the paidtimeout module. (#1308)
+- Bugfix: Fixed issue where level 2000 users couldn't bypass the cooldown of the playsounds module. (#1292)
+- Bugfix: Users can no longer bypass long massping timeouts by also typing a banphrase in their message. (#1117, #1209, #1253)
+- Bugfix: Twitter (un)follow buttons in admin zone work again. (#1250)
+
+## v1.52
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+- Security: Tighten CSRF protections.  
+  As a result, the Banphrase, Command, and Timer removal APIs have had their methods changed from GET to POST. (#1248)
 
 ## v1.51
 

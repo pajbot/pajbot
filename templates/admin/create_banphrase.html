@@ -8,6 +8,7 @@
 <h2>Create Banphrase</h2>
 {% endif %}
 <form class="ui form" method="POST" action="/admin/banphrases/create">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token()  }}"/>
     {% if banphrase %}
     <input type="hidden" name="id" value="{{ banphrase.id }}" />
     {% endif %}
