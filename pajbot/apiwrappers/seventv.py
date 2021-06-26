@@ -51,6 +51,7 @@ query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limi
                     "globalState": "only",
                     "page": current_page,
                     "limit": emotes_to_request,
+                    "pageSize": emotes_to_request,
                 },
             }
             response = self.post("gql", json=params)
