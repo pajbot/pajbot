@@ -146,7 +146,7 @@ class SubAlertModule(BaseModule):
             type="text",
             required=True,
             placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",
-            default="Thank you for upgrading your gift sub {username}! PogChamp <3",
+            default="",
         ),
         ModuleSetting(
             key="extend_sub_whisper",
@@ -154,7 +154,7 @@ class SubAlertModule(BaseModule):
             type="text",
             required=True,
             placeholder="Thank you for extending your sub {username}! PogChamp",
-            default="Thank you for extending your sub {username}! PogChamp",
+            default="",
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
