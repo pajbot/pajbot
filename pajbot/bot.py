@@ -823,35 +823,6 @@ class Bot:
         if event.source.user == self.nickname:
             return False
 
-        if self.streamer == "forsen":
-            if "zonothene" in login:
-                self._ban(login)
-                return True
-
-            raw_m = event.arguments[0].lower()
-            if raw_m.startswith("!lastseen forsen"):
-                if len(raw_m) > len("!lastseen forsen2"):
-                    if raw_m[16] == " ":
-                        return True
-                else:
-                    return True
-
-            if raw_m.startswith("!lastseen @forsen"):
-                if len(raw_m) > len("!lastseen @forsen2"):
-                    if raw_m[17] == " ":
-                        return True
-                else:
-                    return True
-
-        if self.streamer == "nymn":
-            if "hades_k" in login:
-                self.timeout_login(login, 3600, reason="Bad username")
-                return True
-
-            if "hades_b" in login:
-                self.timeout_login(login, 3600, reason="Bad username")
-                return True
-
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             source = User.from_basics(db_session, UserBasics(id, login, name))
 
