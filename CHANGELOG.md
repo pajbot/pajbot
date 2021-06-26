@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Major: Added support for 7tv.app emotes (#1256, #1260, #1261, #1317)
+- Minor: Added `can_execute_with_whisper`, `sub_only`, `mod_only` & `run_through_banphrases` fields to create command page. (#1310)
 - Minor: Added ability to multiply number of raiders by the points awarded. (#1319)
 - Minor: Added support for the `extendsub` msg-id to the `subalert` module. (#1311, #1318)
 - Minor: Added support for the `giftpaidupgrade` msg-id to the `subalert` module. (#1306, #1315, #1318)

@@ -91,6 +91,10 @@ def init(page):
         delay_user = request.form.get("usercd", Command.DEFAULT_CD_USER)
         level = request.form.get("level", Command.DEFAULT_LEVEL)
         cost = request.form.get("cost", 0)
+        can_execute_with_whisper = request.form.get("whisperable", "off")
+        sub_only = request.form.get("subonly", "off")
+        mod_only = request.form.get("modonly", "off")
+        run_through_banphrases = request.form.get("checkmsg", "off")
 
         try:
             delay_all = int(delay_all)
@@ -99,6 +103,11 @@ def init(page):
             cost = int(cost)
         except ValueError:
             abort(403)
+
+        can_execute_with_whisper = can_execute_with_whisper == "on"
+        sub_only = sub_only == "on"
+        mod_only = mod_only == "on"
+        run_through_banphrases = run_through_banphrases == "on"
 
         if not alias_str:
             abort(403)
@@ -116,7 +125,17 @@ def init(page):
         if user is None:
             abort(403)
 
-        options = {"delay_all": delay_all, "delay_user": delay_user, "level": level, "cost": cost, "added_by": user.id}
+        options = {
+            "delay_all": delay_all,
+            "delay_user": delay_user,
+            "level": level,
+            "cost": cost,
+            "added_by": user.id,
+            "can_execute_with_whisper": can_execute_with_whisper,
+            "sub_only": sub_only,
+            "mod_only": mod_only,
+            "run_through_banphrases": run_through_banphrases,
+        }
 
         valid_action_types = ["say", "me", "whisper", "reply"]
         action_type = request.form.get("reply", "say").lower()
