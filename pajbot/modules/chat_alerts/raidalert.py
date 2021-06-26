@@ -117,10 +117,9 @@ class RaidAlertModule(BaseModule):
         if self.settings["grant_points_on_raid"] <= 0:
             return
 
+        awarded_points = self.settings["grant_points_on_raid"]
         if self.settings["multiply_points_by_raiders"] is True:
-            awarded_points = self.settings["grant_points_on_raid"] * num_viewers
-        else:
-            awarded_points = self.settings["grant_points_on_raid"]
+            awarded_points *= num_viewers
 
         user.points += awarded_points
 
