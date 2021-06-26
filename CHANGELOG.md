@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Major: Added support for 7tv.app emotes (#1256, #1260, #1261)
+- Major: Added support for 7tv.app emotes (#1256, #1260, #1261, #1317)
 - Minor: Added support for the `extendsub` msg-id to the `subalert` module.
 - Minor: Added support for the `giftpaidupgrade` msg-id to the `subalert` module. (#1306, #1315)
 - Minor: Migrate from Kraken to Helix for global emote fetching. (#1289)
