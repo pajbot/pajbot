@@ -58,6 +58,13 @@ class RaidAlertModule(BaseModule):
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
+            key="multiply_points_by_raiders",
+            label="Multiply the number of points specified by the number of raiders",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="grant_points_on_raid",
             label="Give points to user when they raid. 0 = off",
             type="number",
@@ -110,11 +117,15 @@ class RaidAlertModule(BaseModule):
         if self.settings["grant_points_on_raid"] <= 0:
             return
 
-        user.points += self.settings["grant_points_on_raid"]
+        awarded_points = self.settings["grant_points_on_raid"]
+        if self.settings["multiply_points_by_raiders"] is True:
+            awarded_points *= num_viewers
+
+        user.points += awarded_points
 
         alert_message = self.settings["alert_message_points_given"]
         if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_raid"]))
+            self.bot.say(alert_message.format(user=user, points=awarded_points))
 
     def on_usernotice(self, source, tags, **rest):
         if "msg-id" not in tags:
