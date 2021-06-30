@@ -82,7 +82,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !add command ALIAS [options] RESPONSE")
+                bot.whisper(source, "Usage: !edit command ALIAS [options] RESPONSE")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -184,7 +184,7 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(" ")
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !add funccommand ALIAS [options] CALLBACK")
+                bot.whisper(source, "Usage: !edit funccommand ALIAS [options] CALLBACK")
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
