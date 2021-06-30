@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
+
 ## v1.53
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
