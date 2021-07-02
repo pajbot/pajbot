@@ -24,6 +24,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fixed issue where level 2000 users couldn't bypass the cooldown of the playsounds module. (#1292)
 - Bugfix: Users can no longer bypass long massping timeouts by also typing a banphrase in their message. (#1117, #1209, #1253)
 - Bugfix: Twitter (un)follow buttons in admin zone work again. (#1250)
+- Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
 
 ## v1.52
 
