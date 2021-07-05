@@ -54,6 +54,7 @@ class AccessTokenManager(ABC):
     def fetch_new(self):
         """Attempts to create a new token if possible. Raises a NoTokenError if creating
         a new token is not possible."""
+        pass
 
     def initialize(self):
         """called initially when no token is present, fetches from storage or a new token if possible."""
