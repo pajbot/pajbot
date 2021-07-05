@@ -51,8 +51,8 @@ def is_subpath(x, y):
     """
     if y.endswith("/"):
         return x.startswith(y) or x == y[:-1]
-    else:
-        return x.startswith(y + "/") or x == y
+
+    return x.startswith(y + "/") or x == y
 
 
 def is_same_url(x, y):
@@ -115,8 +115,8 @@ class LinkCheckerLink:
         y = self.path
         if y.endswith("/"):
             return x.startswith(y) or x == y[:-1]
-        else:
-            return x.startswith(y + "/") or x == y
+
+        return x.startswith(y + "/") or x == y
 
 
 class BlacklistedLink(Base, LinkCheckerLink):
@@ -414,9 +414,9 @@ class LinkCheckerModule(BaseModule):
                 if link.is_subpath(path):
                     if not sublink:
                         return True
-                    elif (
-                        link.level >= 1
-                    ):  # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
+
+                    # if it's a sublink, but the blacklisting level is 0, we don't consider it blacklisted
+                    if link.level >= 1:
                         return True
 
         return False

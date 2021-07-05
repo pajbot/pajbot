@@ -132,8 +132,8 @@ class IRCManager:
                 and self.num_whispers_sent_second < self.bot.tmi_rate_limits.whispers_per_second
                 and self.num_whispers_sent_minute < self.bot.tmi_rate_limits.whispers_per_minute
             )
-        else:
-            return self.num_privmsg_sent < self.bot.tmi_rate_limits.privmsg_per_30
+
+        return self.num_privmsg_sent < self.bot.tmi_rate_limits.privmsg_per_30
 
     def _reduce_num_privmsg_sent(self):
         self.num_privmsg_sent -= 1
