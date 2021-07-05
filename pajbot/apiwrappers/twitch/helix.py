@@ -152,6 +152,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         and if no pagination cursor is present, returns an empty dict."""
         if after_pagination_cursor is None:
             return {}  # no extra query parameters
+
         return {"after": after_pagination_cursor}  # fetch results after this cursor
 
     @staticmethod
