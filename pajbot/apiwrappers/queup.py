@@ -92,6 +92,7 @@ class QueUpAPI(BaseAPI):
             if e.response.status_code == 404:
                 # No songs in active queue.
                 return None
+
             raise e
 
         song_id = response["data"]["song"]["songid"]

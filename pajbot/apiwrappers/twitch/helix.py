@@ -142,6 +142,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 time_to_wait = rate_limit_reset - utils.now()
                 time.sleep(math.ceil(time_to_wait.total_seconds()))
                 return super().request(method, endpoint, params, headers, authorization, json)
+
             raise e
 
     @staticmethod
