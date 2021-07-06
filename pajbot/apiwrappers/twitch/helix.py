@@ -142,8 +142,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 time_to_wait = rate_limit_reset - utils.now()
                 time.sleep(math.ceil(time_to_wait.total_seconds()))
                 return super().request(method, endpoint, params, headers, authorization, json)
-            else:
-                raise e
+
+            raise e
 
     @staticmethod
     def _with_pagination(after_pagination_cursor=None):
@@ -152,8 +152,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         and if no pagination cursor is present, returns an empty dict."""
         if after_pagination_cursor is None:
             return {}  # no extra query parameters
-        else:
-            return {"after": after_pagination_cursor}  # fetch results after this cursor
+
+        return {"after": after_pagination_cursor}  # fetch results after this cursor
 
     @staticmethod
     def _fetch_all_pages(page_fetch_fn, *args, **kwargs):

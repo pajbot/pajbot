@@ -49,8 +49,8 @@ class BTTVAPI(BaseAPI):
             if e.response.status_code == 404:
                 # user does not have any BTTV emotes
                 return []
-            else:
-                raise e
+
+            raise e
         return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(response["sharedEmotes"])
 
     def get_channel_emotes(self, channel_id, force_fetch=False):

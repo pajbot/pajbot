@@ -22,8 +22,8 @@ def generate_winner_list(winners):
 def format_win(points_amount):
     if points_amount >= 0:
         return f"won {points_amount}"
-    else:
-        return f"lost {-points_amount}"
+
+    return f"lost {-points_amount}"
 
 
 class RaffleModule(BaseModule):

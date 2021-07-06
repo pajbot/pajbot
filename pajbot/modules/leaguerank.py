@@ -134,8 +134,6 @@ class LeagueRankModule(BaseModule):
                     f"Region is not valid. Please enter a valid region, region is optional and the default region is {def_region.upper()}",
                 )
                 return False
-            else:
-                pass
         else:
             region = def_region.lower()
 

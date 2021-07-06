@@ -50,8 +50,8 @@ class FFZAPI(BaseAPI):
             if e.response.status_code == 404:
                 # user does not have any FFZ emotes
                 return []
-            else:
-                raise e
+
+            raise e
 
         return self.parse_sets(response["sets"])
 

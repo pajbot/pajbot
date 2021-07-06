@@ -47,12 +47,14 @@ class PBMath:
     def eval_(node):
         if isinstance(node, ast.Num):  # <number>
             return node.n
-        elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
+
+        if isinstance(node, ast.BinOp):  # <left> <operator> <right>
             return PBMath.operators[type(node.op)](PBMath.eval_(node.left), PBMath.eval_(node.right))
-        elif isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
+
+        if isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
             return PBMath.operators[type(node.op)](PBMath.eval_(node.operand))
-        else:
-            raise TypeError(node)
+
+        raise TypeError(node)
 
 
 class MathModule(BaseModule):
