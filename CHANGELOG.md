@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Increased the point limit for the Duel module from 69000 to 1000000. (#) 
+- Minor: Increased the point limit for the Duel module from 69000 to 1000000. (#1348) 
 - Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
 - Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
 
