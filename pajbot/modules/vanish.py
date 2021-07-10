@@ -48,7 +48,7 @@ class VanishModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=0,
-            constraints={"min_value": 0, "max_value": 5000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="timeout_reason",
