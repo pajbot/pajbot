@@ -4,8 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Changed the base timeout length limits for the Mass Ping Protection module from [30s,1hr] to [1s,2w]. (#)
-- Minor: Changed the extra timeout length limits for the Mass Ping Protection module from [0s,10m] to [0s,2w]. (#)
+- Minor: Changed the base timeout length limits for the Mass Ping Protection module from [30s,1hr] to [1s,2w]. (#1356)
+- Minor: Changed the extra timeout length limits for the Mass Ping Protection module from [0s,10m] to [0s,2w]. (#1356)
 - Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
 - Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
 
