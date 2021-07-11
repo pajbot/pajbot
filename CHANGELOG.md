@@ -4,7 +4,9 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Increased the maximum token limit for the Quest system module from 5000 to 1000000. (#1337) B)
+- Minor: Increased the maximum token limit for the Quest system module from 5000 to 1000000. (#1337)
+- Minor: Increased the maximum point limit for the Pleblist from 250000 to 1000000. (#1336)
+- Minor: Increased the maximum point/token limits for the Show Emote sub-module to 1000000. (#1334)
 - Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
 - Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
 
