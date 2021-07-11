@@ -31,7 +31,7 @@ class DuelModule(BaseModule):
             required=True,
             placeholder="",
             default=420,
-            constraints={"min_value": 0, "max_value": 69000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="message_won",
