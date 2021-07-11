@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the point limit for the Subscription Alert sub-module from 50000 to 1000000. (#1357)
 - Minor: Increased the point limit for the Raid Alert sub-module from 50000 to 1000000. (#1358)
 - Minor: Increased the timeout length limit for the Link Checker module from 1h to 2w. (#1351)
 - Minor: Changed the timeout length limits for the Emote Timeout module from [3s,2m] to [1s,2w]. (#1349)
