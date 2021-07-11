@@ -46,7 +46,7 @@ class TriviaModule(BaseModule):
             required=True,
             placeholder="",
             default=0,
-            constraints={"min_value": 0, "max_value": 50},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="question_delay",

@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the point bounty limit for the Trivia module from 50 to 1000000. (#1342)
 - Minor: Increased the point limit for the Vanish module from 5000 to 1000000. (#1343)
 - Minor: Increased the point limit for the Bingo module from 35000 to 1000000. (#1344)
 - Minor: Changed the timeout length limits for the Case Checker module from [3s,2m] to [1s,2w]. (#1345)
