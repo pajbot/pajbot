@@ -23,7 +23,7 @@ class ShowEmoteModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=100,
-            constraints={"min_value": 0, "max_value": 999999},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="token_cost",
@@ -32,7 +32,7 @@ class ShowEmoteModule(BaseModule):
             required=True,
             placeholder="Token cost",
             default=0,
-            constraints={"min_value": 0, "max_value": 15},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
         ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
