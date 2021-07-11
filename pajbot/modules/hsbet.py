@@ -60,7 +60,7 @@ class HSBetModule(BaseModule):
             required=True,
             placeholder="Max bet",
             default=5000,
-            constraints={"min_value": 500, "max_value": 30000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
     ]
 
