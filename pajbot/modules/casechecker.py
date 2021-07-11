@@ -52,7 +52,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=3,
-            constraints={"min_value": 3, "max_value": 120},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="lowercase_timeout_reason",
@@ -100,7 +100,7 @@ class CaseCheckerModule(BaseModule):
             required=True,
             placeholder="",
             default=3,
-            constraints={"min_value": 3, "max_value": 120},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="uppercase_timeout_reason",
