@@ -75,7 +75,7 @@ class BingoModule(BaseModule):
             required=True,
             placeholder="",
             default=100,
-            constraints={"min_value": 0, "max_value": 35000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="max_points",
@@ -84,7 +84,7 @@ class BingoModule(BaseModule):
             required=True,
             placeholder="",
             default=3000,
-            constraints={"min_value": 0, "max_value": 35000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="allow_negative_bingo", label="Allow negative bingo", type="boolean", required=True, default=True
@@ -96,7 +96,7 @@ class BingoModule(BaseModule):
             required=True,
             placeholder="",
             default=1500,
-            constraints={"min_value": 1, "max_value": 35000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
     ]
 
