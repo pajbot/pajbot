@@ -47,7 +47,7 @@ class MassPingProtectionModule(BaseModule):
             required=True,
             placeholder="",
             default=120,
-            constraints={"min_value": 30, "max_value": 3600},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="extra_timeout_length_per_ping",
@@ -56,7 +56,7 @@ class MassPingProtectionModule(BaseModule):
             required=True,
             placeholder="",
             default=30,
-            constraints={"min_value": 0, "max_value": 600},
+            constraints={"min_value": 0, "max_value": 1209600},
         ),
         ModuleSetting(
             key="bypass_level",
