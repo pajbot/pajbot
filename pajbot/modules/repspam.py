@@ -49,7 +49,7 @@ class RepspamModule(BaseModule):
             required=True,
             placeholder="",
             default=3,
-            constraints={"min_value": 1, "max_value": 10},
+            constraints={"min_value": 1, "max_value": 100},
         ),
         ModuleSetting(
             key="max_spam_repetitions",
@@ -58,7 +58,7 @@ class RepspamModule(BaseModule):
             required=True,
             placeholder="",
             default=4,
-            constraints={"min_value": 1, "max_value": 20},
+            constraints={"min_value": 1, "max_value": 100},
         ),
         ModuleSetting(
             key="min_unique_words_in_spam",
@@ -76,7 +76,7 @@ class RepspamModule(BaseModule):
             required=True,
             placeholder="Timeout length in seconds",
             default=10,
-            constraints={"min_value": 5, "max_value": 600},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="timeout_reason",

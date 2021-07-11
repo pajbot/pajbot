@@ -5,6 +5,14 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Minor: Increased the maximum point limits for the Raffle module to 1000000. (#1338)
+- Minor: Changed the timeout length limit for the Repetitive Spam module from [5s,10m] to [1s,2w]. (#1339)
+- Minor: Increased the Repetitive Spam module unique words and message repetitions limits to 100. (#1339)
+- Minor: Changed the timeout length limits for the Maximum Message Length module from [30s,1hr] to [1s,2w]. (#1352)
+- Minor: Changed the timeout length limits for the Paid Timeout module from [1s,1hr] to [1s,2w]. (#1333)
+- Minor: Increased the maximum point/token limits for the Playsound module to 1000000. (#1335)
+- Minor: Increased the maximum token limit for the Quest system module from 5000 to 1000000. (#1337)
+- Minor: Increased the maximum point limit for the Pleblist from 250000 to 1000000. (#1336)
+- Minor: Increased the maximum point/token limits for the Show Emote sub-module to 1000000. (#1334)
 - Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
 - Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
 
