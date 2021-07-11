@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the point limits for the Hearthstone Betting module from [500,30000] to [1,1000000]. (#1350)
 - Minor: Changed the timeout length limits for the Action Command Moderation module from [30s,1hr] to [1s,2w]. (#1354)
 - Minor: Changed the base timeout length limits for the Mass Ping Protection module from [30s,1hr] to [1s,2w]. (#1356)
 - Minor: Changed the extra timeout length limits for the Mass Ping Protection module from [0s,10m] to [0s,2w]. (#1356)
