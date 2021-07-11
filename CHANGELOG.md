@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the point limits for the Slot Machine module to 1000000. (#1341)
 - Minor: Increased the point bounty limit for the Trivia module from 50 to 1000000. (#1342)
 - Minor: Increased the point limit for the Vanish module from 5000 to 1000000. (#1343)
 - Minor: Increased the point limit for the Bingo module from 35000 to 1000000. (#1344)
