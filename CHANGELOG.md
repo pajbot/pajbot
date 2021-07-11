@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the timeout length limits for the Paid Timeout module from [1s,1hr] to [1s,2w]. (#1333)
 - Minor: Increased the maximum point/token limits for the Playsound module to 1000000. (#1335)
 - Minor: Increased the maximum token limit for the Quest system module from 5000 to 1000000. (#1337)
 - Minor: Increased the maximum point limit for the Pleblist from 250000 to 1000000. (#1336)
