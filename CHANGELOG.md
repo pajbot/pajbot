@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the timeout length limits for the Case Checker module from [3s,2m] to [1s,2w]. (#1345)
 - Minor: Increased the point limit for the Cheer Alert sub-module from 50000 to 1000000. (#1346)
 - Minor: Increased the maximum point limit for the New Chatter Alert sub-module from 50000 to 1000000. (#1347)
 - Minor: Changed the point limits for the Hearthstone Betting module from [500,30000] to [1,1000000]. (#1350)
