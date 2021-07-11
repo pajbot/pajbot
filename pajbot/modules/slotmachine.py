@@ -105,7 +105,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=125,
-            constraints={"min_value": 0, "max_value": 100000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="ltbw",
@@ -114,7 +114,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=175,
-            constraints={"min_value": 0, "max_value": 100000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="htsw",
@@ -123,7 +123,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=225,
-            constraints={"min_value": 0, "max_value": 100000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="htbw",
@@ -132,7 +132,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=400,
-            constraints={"min_value": 0, "max_value": 100000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="online_global_cd",
@@ -159,7 +159,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=1,
-            constraints={"min_value": 1, "max_value": 3000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="can_execute_with_whisper",
@@ -188,7 +188,7 @@ class SlotMachineModule(BaseModule):
             required=True,
             placeholder="",
             default=100,
-            constraints={"min_value": 1, "max_value": 150000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="only_slots_after_sub",
