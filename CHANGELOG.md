@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the timeout length limit for the Repetitive Spam module from [5s,10m] to [1s,2w]. (#1339)
+- Minor: Increased the Repetitive Spam module unique words and message repetitions limits to 100. (#1339)
 - Minor: Changed the timeout length limits for the Maximum Message Length module from [30s,1hr] to [1s,2w]. (#1352)
 - Minor: Changed the timeout length limits for the Paid Timeout module from [1s,1hr] to [1s,2w]. (#1333)
 - Minor: Increased the maximum point/token limits for the Playsound module to 1000000. (#1335)
