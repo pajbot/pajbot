@@ -23,7 +23,7 @@ class MaxMsgLengthModule(BaseModule):
             required=True,
             placeholder="",
             default=400,
-            constraints={"min_value": 40, "max_value": 1000},
+            constraints={"min_value": 1, "max_value": 500},
         ),
         ModuleSetting(
             key="max_msg_length_offline",
@@ -32,7 +32,7 @@ class MaxMsgLengthModule(BaseModule):
             required=True,
             placeholder="",
             default=400,
-            constraints={"min_value": 40, "max_value": 1000},
+            constraints={"min_value": 1, "max_value": 500},
         ),
         ModuleSetting(
             key="timeout_length",
@@ -41,7 +41,7 @@ class MaxMsgLengthModule(BaseModule):
             required=True,
             placeholder="Timeout length in seconds",
             default=120,
-            constraints={"min_value": 30, "max_value": 3600},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="bypass_level",
