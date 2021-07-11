@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the timeout length limit for the Link Checker module from 1h to 2w. (#1351)
 - Minor: Changed the timeout length limits for the Emote Timeout module from [3s,2m] to [1s,2w]. (#1349)
 - Minor: Increased the point limit for the Duel module from 69000 to 1000000. (#1348)
 - Minor: Increased the maximum point limits for the Raffle module to 1000000. (#1338)

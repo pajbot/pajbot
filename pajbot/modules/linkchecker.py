@@ -173,7 +173,7 @@ class LinkCheckerModule(BaseModule):
             required=True,
             placeholder="Timeout length in seconds",
             default=60,
-            constraints={"min_value": 1, "max_value": 3600},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="bypass_level",
