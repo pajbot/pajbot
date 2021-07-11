@@ -80,7 +80,7 @@ class RaffleModule(BaseModule):
             required=True,
             placeholder="",
             default=3000,
-            constraints={"min_value": 0, "max_value": 35000},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="max_length",
@@ -101,7 +101,7 @@ class RaffleModule(BaseModule):
             required=True,
             placeholder="",
             default=3000,
-            constraints={"min_value": 1, "max_value": 35000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="multi_enabled",
@@ -142,7 +142,7 @@ class RaffleModule(BaseModule):
             required=True,
             placeholder="",
             default=10000,
-            constraints={"min_value": 1, "max_value": 100000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="multi_raffle_on_sub",
