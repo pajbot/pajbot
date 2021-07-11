@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the base timeout length limits for the Mass Ping Protection module from [30s,1hr] to [1s,2w]. (#1356)
+- Minor: Changed the extra timeout length limits for the Mass Ping Protection module from [0s,10m] to [0s,2w]. (#1356)
 - Minor: Increased the point limit for the Subscription Alert sub-module from 50000 to 1000000. (#1357)
 - Minor: Increased the point limit for the Raid Alert sub-module from 50000 to 1000000. (#1358)
 - Minor: Increased the timeout length limit for the Link Checker module from 1h to 2w. (#1351)
