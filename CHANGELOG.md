@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the point limit for the Duel module from 69000 to 1000000. (#1348)
 - Minor: Increased the maximum point limits for the Raffle module to 1000000. (#1338)
 - Minor: Changed the timeout length limit for the Repetitive Spam module from [5s,10m] to [1s,2w]. (#1339)
 - Minor: Increased the Repetitive Spam module unique words and message repetitions limits to 100. (#1339)
