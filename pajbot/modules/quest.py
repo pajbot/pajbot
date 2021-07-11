@@ -50,7 +50,7 @@ class QuestModule(BaseModule):
             type="number",
             required=True,
             default=15,
-            constraints={"min_value": 1, "max_value": 5000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
     ]
 
