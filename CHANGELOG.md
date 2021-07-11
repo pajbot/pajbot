@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Increased the point limit for the Cheer Alert sub-module from 50000 to 1000000. (#1346)
 - Minor: Increased the maximum point limit for the New Chatter Alert sub-module from 50000 to 1000000. (#1347)
 - Minor: Changed the point limits for the Hearthstone Betting module from [500,30000] to [1,1000000]. (#1350)
 - Minor: Changed the timeout length limits for the Action Command Moderation module from [30s,1hr] to [1s,2w]. (#1354)
