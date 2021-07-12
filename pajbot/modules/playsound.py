@@ -25,7 +25,7 @@ class PlaysoundModule(BaseModule):
             required=True,
             placeholder="Point cost",
             default=200,
-            constraints={"min_value": 0, "max_value": 999999},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="token_cost",
@@ -34,7 +34,7 @@ class PlaysoundModule(BaseModule):
             required=True,
             placeholder="Token cost",
             default=0,
-            constraints={"min_value": 0, "max_value": 15},
+            constraints={"min_value": 0, "max_value": 1000000},
         ),
         ModuleSetting(
             key="global_cd",

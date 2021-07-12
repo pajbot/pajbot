@@ -93,7 +93,7 @@ class RouletteModule(BaseModule):
             required=True,
             placeholder="",
             default=1,
-            constraints={"min_value": 1, "max_value": 3000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="can_execute_with_whisper",
@@ -122,7 +122,7 @@ class RouletteModule(BaseModule):
             required=True,
             placeholder="",
             default=100,
-            constraints={"min_value": 1, "max_value": 150000},
+            constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
             key="only_roulette_after_sub",
