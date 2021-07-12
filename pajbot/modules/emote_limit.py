@@ -20,7 +20,7 @@ class EmoteLimitModule(BaseModule):
             required=True,
             placeholder="",
             default=15,
-            constraints={"min_value": 1, "max_value": 40},
+            constraints={"min_value": 1, "max_value": 167},
         ),
         ModuleSetting(
             key="bypass_level",
@@ -46,7 +46,7 @@ class EmoteLimitModule(BaseModule):
             required=True,
             placeholder="",
             default=60,
-            constraints={"min_value": 3, "max_value": 3600},
+            constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
             key="allow_subs_to_bypass",
