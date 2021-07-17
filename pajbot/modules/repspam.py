@@ -148,5 +148,5 @@ class RepspamModule(BaseModule):
                 continue
 
             # found a group of equally repeating words (a repeating spam) that repeats more than allowed
-            self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
+            self.bot.timeout_warn(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
             return False
