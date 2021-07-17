@@ -309,13 +309,13 @@ class LinkCheckerModule(BaseModule):
                         whitelisted = True
 
                     if whitelisted is False:
-                        self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                        self.bot.timeout_warn(source, self.settings["timeout_length"], reason=ban_reason)
                         return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
             def action():
-                self.bot.timeout(
+                self.bot.timeout_warn(
                     source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
                 )
 
