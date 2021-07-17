@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added option to disable timeouts in the ASCII Protection module. (#1361)
 - Minor: Changed the timeout length limits for the ASCII Protection module from [30s,1hr] to [1s,2w]. (#1353)
 - Minor: Changed the timeout length limits for the Emote Limit module from [3s,1hr] to [1s,2w]. (#1355)
 - Minor: Increased the maximum emote limit for the Emote Limit module from 40 to 167. (#1355)
