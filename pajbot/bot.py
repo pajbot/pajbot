@@ -633,9 +633,9 @@ class Bot:
             if not once:
                 self.execute_delayed(1, self._timeout, login, duration, reason)
 
-    def timeout_warn(self, user, duration: int, reason=None):
+    def timeout_warn(self, user, duration: int, reason=None, once=False):
         duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
-        self.timeout(user, duration, reason)
+        self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
     def delete_message(self, msg_id):
