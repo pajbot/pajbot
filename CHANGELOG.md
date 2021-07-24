@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added optional warning support to the actionchecker module. (#1362)
 - Minor: Added optional warning support to the casechecker module. (#1365)
 - Minor: Added optional warning support to the emote_limit module. (#1366)
 - Minor: Added optional warning support to the emote_timeout module. (#1367)
