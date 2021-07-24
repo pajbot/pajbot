@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Added warning support to the actionchecker module. (#1362)
+- Minor: Added optional warning support to the actionchecker module. (#1362)
 - Minor: Added option to disable warnings in the maxmsglength module. (#1369)
 - Minor: Added option to disable warnings in the ASCII Protection module. (#1361)
 - Minor: Changed the timeout length limits for the ASCII Protection module from [30s,1hr] to [1s,2w]. (#1353)
