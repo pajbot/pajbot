@@ -102,13 +102,23 @@ class EmoteTimeoutModule(BaseModule):
             default="No emoji allowed",
             constraints={},
         ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def delete_or_timeout(self, user, msg_id, reason):
         if self.settings["moderation_action"] == "Delete":
             self.bot.delete_message(msg_id)
         elif self.settings["moderation_action"] == "Timeout":
-            self.bot.timeout(user, self.settings["timeout_duration"], reason, once=True)
+            if self.settings["disable_warnings"] is True:
+                self.bot.timeout(user, self.settings["timeout_duration"], reason, once=True)
+            else:
+                self.bot.timeout_warn(user, self.settings["timeout_duration"], reason, once=True)
 
     def on_message(self, source, message, emote_instances, msg_id, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
