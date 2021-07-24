@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added optional warning support to the repspam module. (#1370)
 - Minor: Added optional warning support to the linkchecker module. (#1368)
 - Minor: Added option to disable warnings in the maxmsglength module. (#1369)
 - Minor: Added option to disable warnings in the ASCII Protection module. (#1361)
