@@ -158,5 +158,7 @@ class RepspamModule(BaseModule):
             if self.settings["disable_warnings"] is True:
                 self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
             else:
-                self.bot.timeout_warn(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
+                self.bot.timeout_warn(
+                    source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True
+                )
             return False
