@@ -87,6 +87,13 @@ class RepspamModule(BaseModule):
             default="No repetitive messages OMGScoods",
             constraints={},
         ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def enable(self, bot):
@@ -148,5 +155,10 @@ class RepspamModule(BaseModule):
                 continue
 
             # found a group of equally repeating words (a repeating spam) that repeats more than allowed
-            self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
+            if self.settings["disable_warnings"] is True:
+                self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
+            else:
+                self.bot.timeout_warn(
+                    source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True
+                )
             return False
