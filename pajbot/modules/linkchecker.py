@@ -211,6 +211,13 @@ class LinkCheckerModule(BaseModule):
             default="You cannot post non-verified links in chat if you're a subscriber",
             constraints={},
         ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
     ]
 
     def __init__(self, bot):
@@ -309,15 +316,23 @@ class LinkCheckerModule(BaseModule):
                         whitelisted = True
 
                     if whitelisted is False:
-                        self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                        if self.settings["disable_warnings"] is True:
+                            self.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                        else:
+                            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=ban_reason)
                         return False
 
         for url in urls:
             # Action which will be taken when a bad link is found
             def action():
-                self.bot.timeout(
-                    source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
-                )
+                if self.settings["disable_warnings"] is True:
+                    self.bot.timeout(
+                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                    )
+                else:
+                    self.bot.timeout_warn(
+                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                    )
 
             # First we perform a basic check
             if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
