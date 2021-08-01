@@ -43,6 +43,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Increased the maximum point/token limits for the Show Emote sub-module to 1000000. (#1334)
 - Bugfix: Corrected wrong usage examples for editing command aliases. (#1325)
 - Bugfix: Users with level > 2000 are now also shown as admins on the web moderators page. (#1324, #1326)
+- Bugfix: Pyramid parser did not handle double spaces in messages correctly. (#1374)
 
 ## v1.53
 

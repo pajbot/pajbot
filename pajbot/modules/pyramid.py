@@ -75,7 +75,9 @@ class PyramidModule(BaseModule):
         message = unidecode(message).strip()
 
         try:
-            msg_parts = message.split(" ")
+            # Filter out any empty parts
+            # This makes sure "foo  bar" returns ["foo", "bar"] instead of ["foo", "", "bar"]
+            msg_parts = [part for part in message.split(" ") if part]
             if len(self.data) > 0:
                 cur_len = len(msg_parts)
                 last_len = len(self.data[-1])
