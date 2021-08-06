@@ -410,7 +410,7 @@ class PlaysoundModule(BaseModule):
     @staticmethod
     def remove_playsound_command(bot, source, message, **rest):
         """Method for removing playsounds.
-        Usage: !edit playsound PLAYSOUNDNAME
+        Usage: !remove playsound PLAYSOUNDNAME
         """
         playsound_name = PlaysoundModule.massage_name(message.split(" ")[0])
         # check for empty string
