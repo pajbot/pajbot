@@ -6,6 +6,7 @@ from pajbot.models.playsound import Playsound
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules import PlaysoundModule
 from pajbot.web.utils import requires_level
+from pajbot.managers.adminlog import AdminLogManager
 
 
 class PlaysoundAPI(Resource):
@@ -38,6 +39,8 @@ class PlaysoundAPI(Resource):
             # the rest of the parameters are initialized with defaults
             playsound = Playsound(name=playsound_name, link=link)
             db_session.add(playsound)
+            log_msg = f"The {playsound_name} playsound has been added"
+            AdminLogManager.add_entry("Playsound added", options["user"], log_msg)
 
             return "OK", 200
 
@@ -74,13 +77,21 @@ class PlaysoundAPI(Resource):
 
             if playsound is None:
                 return "Playsound does not exist", 404
-            # TODO admin audit logs
+
+            old_link = playsound.link
+
+            if link != playsound.link:
+                log_msg = f"The {playsound_name} playsound has been updated from {old_link} to {link}"
+            else:
+                log_msg = f"The {playsound_name} playsound has been updated"
+
             playsound.link = link
             playsound.volume = volume
             playsound.cooldown = cooldown
             playsound.enabled = enabled
 
             db_session.add(playsound)
+            AdminLogManager.add_entry("Playsound edited", options["user"], log_msg)
 
         return "OK", 200
 
@@ -92,6 +103,8 @@ class PlaysoundAPI(Resource):
             if playsound is None:
                 return "Playsound does not exist", 404
 
+            log_msg = f"The {playsound.name} playsound has been removed"
+            AdminLogManager.add_entry("Playsound removed", options["user"], log_msg)
             db_session.delete(playsound)
 
             return "OK", 200
