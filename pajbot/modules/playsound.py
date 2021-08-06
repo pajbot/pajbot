@@ -363,7 +363,7 @@ class PlaysoundModule(BaseModule):
 
             session.add(playsound)
             bot.whisper(source, "Successfully added your playsound.")
-            log_msg = f'The {name} playsound has been added'
+            log_msg = f"The {name} playsound has been added"
             AdminLogManager.add_entry("Playsound added", source, log_msg)
 
     def edit_playsound_command(self, bot, source, message, **rest):
@@ -410,9 +410,9 @@ class PlaysoundModule(BaseModule):
                 return
 
             if link in message:
-                log_msg = f'The {name} playsound has been updated from {old_link} to {link}'
+                log_msg = f"The {name} playsound has been updated from {old_link} to {link}"
             else:
-                log_msg = f'The {name} playsound has been updated'
+                log_msg = f"The {name} playsound has been updated"
 
             session.add(playsound)
             bot.whisper(source, "Successfully edited your playsound.")
@@ -438,7 +438,7 @@ class PlaysoundModule(BaseModule):
 
             session.delete(playsound)
             bot.whisper(source, "Successfully deleted your playsound.")
-            log_msg = f'The {playsound_name} playsound has been removed'
+            log_msg = f"The {playsound_name} playsound has been removed"
             AdminLogManager.add_entry("Playsound removed", source, log_msg)
 
     @staticmethod
