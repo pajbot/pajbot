@@ -8,6 +8,7 @@ from pajbot.models.playsound import Playsound
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.models.command import Command
+from pajbot.managers.adminlog import AdminLogManager
 
 log = logging.getLogger(__name__)
 
@@ -362,6 +363,8 @@ class PlaysoundModule(BaseModule):
 
             session.add(playsound)
             bot.whisper(source, "Successfully added your playsound.")
+            log_msg = f"The {name} playsound has been added"
+            AdminLogManager.add_entry("Playsound added", source, log_msg)
 
     def edit_playsound_command(self, bot, source, message, **rest):
         """Method for editing playsounds.
@@ -392,6 +395,8 @@ class PlaysoundModule(BaseModule):
                 )
                 return
 
+            old_link = playsound.link
+
             if not self.update_link(bot, source, playsound, link):
                 return
 
@@ -404,13 +409,19 @@ class PlaysoundModule(BaseModule):
             if not self.update_enabled(bot, source, playsound, options):
                 return
 
+            if link in message:
+                log_msg = f"The {name} playsound has been updated from {old_link} to {link}"
+            else:
+                log_msg = f"The {name} playsound has been updated"
+
             session.add(playsound)
             bot.whisper(source, "Successfully edited your playsound.")
+            AdminLogManager.add_entry("Playsound edited", source, log_msg)
 
     @staticmethod
     def remove_playsound_command(bot, source, message, **rest):
         """Method for removing playsounds.
-        Usage: !edit playsound PLAYSOUNDNAME
+        Usage: !remove playsound PLAYSOUNDNAME
         """
         playsound_name = PlaysoundModule.massage_name(message.split(" ")[0])
         # check for empty string
@@ -427,6 +438,8 @@ class PlaysoundModule(BaseModule):
 
             session.delete(playsound)
             bot.whisper(source, "Successfully deleted your playsound.")
+            log_msg = f"The {playsound_name} playsound has been removed"
+            AdminLogManager.add_entry("Playsound removed", source, log_msg)
 
     @staticmethod
     def debug_playsound_command(bot, source, message, **rest):

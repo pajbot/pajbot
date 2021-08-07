@@ -6,6 +6,7 @@ from pajbot.models.playsound import Playsound
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules import PlaysoundModule
 from pajbot.web.utils import requires_level
+from pajbot.managers.adminlog import AdminLogManager
 
 
 class PlaysoundAPI(Resource):
@@ -38,6 +39,8 @@ class PlaysoundAPI(Resource):
             # the rest of the parameters are initialized with defaults
             playsound = Playsound(name=playsound_name, link=link)
             db_session.add(playsound)
+            log_msg = f"The {playsound_name} playsound has been added"
+            AdminLogManager.add_entry("Playsound added", options["user"], log_msg)
 
             return "OK", 200
 
@@ -74,13 +77,36 @@ class PlaysoundAPI(Resource):
 
             if playsound is None:
                 return "Playsound does not exist", 404
-            # TODO admin audit logs
+
+            raw_edited_data = {
+                "link": (playsound.link, link),
+                "volume": (playsound.volume, volume),
+                "cooldown": (playsound.cooldown, cooldown),
+            }
+            # make a dictionary with all the changed values (except for enabled, which has a special case below)
+            filtered_edited_data = {k: v for k, v in raw_edited_data.items() if v[0] != v[1]}
+
+            log_msg = f"The {playsound_name} playsound has been updated: "
+            log_msg_changes = []
+
+            if playsound.enabled != enabled:
+                log_msg_changes.append("enabled" if enabled else "disabled")
+
+            # iterate over changed values and push them to the log msg
+            for edited_key, values in filtered_edited_data.items():
+                log_msg_changes.append(f"{edited_key} {values[0]} to {values[1]}")
+
+            log_msg += ", ".join(log_msg_changes)
+
             playsound.link = link
             playsound.volume = volume
             playsound.cooldown = cooldown
             playsound.enabled = enabled
 
             db_session.add(playsound)
+
+            if len(log_msg_changes):
+                AdminLogManager.add_entry("Playsound edited", options["user"], log_msg)
 
         return "OK", 200
 
@@ -92,6 +118,8 @@ class PlaysoundAPI(Resource):
             if playsound is None:
                 return "Playsound does not exist", 404
 
+            log_msg = f"The {playsound.name} playsound has been removed"
+            AdminLogManager.add_entry("Playsound removed", options["user"], log_msg)
             db_session.delete(playsound)
 
             return "OK", 200
