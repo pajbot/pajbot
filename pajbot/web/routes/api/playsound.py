@@ -78,12 +78,25 @@ class PlaysoundAPI(Resource):
             if playsound is None:
                 return "Playsound does not exist", 404
 
-            old_link = playsound.link
+            raw_edited_data = {
+                "link": (playsound.link, link),
+                "volume": (playsound.volume, volume),
+                "cooldown": (playsound.cooldown, cooldown),
+            }
+            # make a dictionary with all the changed values (except for enabled, which has a special case below)
+            filtered_edited_data = {k: v for k, v in raw_edited_data.items() if v[0] != v[1]}
 
-            if link != playsound.link:
-                log_msg = f"The {playsound_name} playsound has been updated from {old_link} to {link}"
-            else:
-                log_msg = f"The {playsound_name} playsound has been updated"
+            log_msg = f"The {playsound_name} playsound has been updated: "
+            log_msg_changes = []
+
+            if playsound.enabled != enabled:
+                log_msg_changes.append("enabled" if enabled else "disabled")
+
+            # iterate over changed values and push them to the log msg
+            for edited_key, values in filtered_edited_data.items():
+                log_msg_changes.append(f"{edited_key} {values[0]} to {values[1]}")
+
+            log_msg += ", ".join(log_msg_changes)
 
             playsound.link = link
             playsound.volume = volume
@@ -91,7 +104,9 @@ class PlaysoundAPI(Resource):
             playsound.enabled = enabled
 
             db_session.add(playsound)
-            AdminLogManager.add_entry("Playsound edited", options["user"], log_msg)
+
+            if len(log_msg_changes):
+                AdminLogManager.add_entry("Playsound edited", options["user"], log_msg)
 
         return "OK", 200
 
