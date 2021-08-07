@@ -1,8 +1,6 @@
 import logging
 import re
 
-from unidecode import unidecode
-
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
@@ -64,6 +62,8 @@ class PyramidModule(BaseModule):
         ),
     ]
 
+    CHATTERINO_CHARACTER = "\U000e0000"
+
     def __init__(self, bot):
         super().__init__(bot)
         self.data = []
@@ -72,7 +72,7 @@ class PyramidModule(BaseModule):
 
     def on_pubmsg(self, source, message, **rest):
         # remove the invisible Chatterino suffix
-        message = unidecode(message).strip()
+        message = message.strip(PyramidModule.CHATTERINO_CHARACTER)
 
         try:
             # Filter out any empty parts
