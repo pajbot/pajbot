@@ -149,7 +149,7 @@ class PyramidModule(BaseModule):
         except:
             # Let's just catch all exceptions, in case I fucked up in the above spaghetti code
             log.exception(
-                "Unhandled exception in pyramid parser. Message={message}, self.data={self.data}, msg_parts={msg_parts}"
+                f"Unhandled exception in pyramid parser. Message={message}, self.data={self.data}, msg_parts={msg_parts}"
             )
 
     def enable(self, bot):
