@@ -12,5 +12,5 @@ types-pkg-resources==0.1.3
 types-pytz==2021.1.2
 types-redis==3.5.4
 types-requests==2.25.2
-types-retry==0.1.3
+types-retry==0.1.5
 types-toml==0.1.5
