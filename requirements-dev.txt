@@ -4,7 +4,7 @@ pytest==6.2.4
 mypy==0.910
 
 # mypy type stubs
-types-cryptography==3.3.3
+types-cryptography==3.3.5
 types-enum34==0.1.8
 types-ipaddress==0.1.5
 types-Markdown==3.3.0
