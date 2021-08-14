@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Fix: Don't allow following of empty Twitter usernames through the admin page. (#1395)
+
 ## v1.54
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!

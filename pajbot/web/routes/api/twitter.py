@@ -69,18 +69,23 @@ class APITwitterFollow(Resource):
     @requires_level(1000)
     def post(self, **options):
         args = self.post_parser.parse_args()
+        twitter_username = args["username"].lower()
+
+        if len(twitter_username) == 0:
+            return {"message": "username must contain at least 1 character"}, 400
+
         with DBManager.create_session_scope() as db_session:
-            twitter_user = db_session.query(TwitterUser).filter_by(username=args["username"]).one_or_none()
+            twitter_user = db_session.query(TwitterUser).filter_by(username=twitter_username).one_or_none()
             if twitter_user is not None:
                 return {"message": f"We are already following {args['username']}"}, 409
 
-            twitter_user = TwitterUser(args["username"].lower())
+            twitter_user = TwitterUser(twitter_username)
 
             db_session.add(twitter_user)
             db_session.flush()
             db_session.commit()
 
-            SocketClientManager.send("twitter.follow", {"username": args["username"]})
+            SocketClientManager.send("twitter.follow", {"username": twitter_username})
 
             return {"message": f"Successfully followed {args['username']}"}, 200
 
