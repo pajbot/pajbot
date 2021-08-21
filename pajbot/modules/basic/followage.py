@@ -16,7 +16,7 @@ log = logging.getLogger("pajbot")
 class FollowAgeModule(BaseModule):
 
     ID = __name__.split(".")[-1]
-    NAME = "Follow age"
+    NAME = "Followage"
     DESCRIPTION = "Enables the usage of the !followage and !followsince commands"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
@@ -64,32 +64,32 @@ class FollowAgeModule(BaseModule):
             self.follow_age,
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            description="Check your or someone elses follow age for a channel",
+            description="Check your or someone elses followage for a channel",
             can_execute_with_whisper=True,
             examples=[
                 CommandExample(
                     None,
-                    "Check your own follow age",
+                    "Check your own followage",
                     chat="user:!followage\n" "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
                     description="Check how long you have been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
-                    "Check someone elses follow age",
+                    "Check someone elses followage",
                     chat="user:!followage NightNacht\n"
                     "bot:pajlada, NightNacht has been following Karl_Kons for 5 months and 4 days",
                     description="Check how long any user has been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
-                    "Check someones follow age for a certain streamer",
+                    "Check someones followage for a certain streamer",
                     chat="user:!followage NightNacht forsen\n"
                     "bot:pajlada, NightNacht has been following forsen for 1 year and 4 months",
                     description="Check how long NightNacht has been following forsen",
                 ).parse(),
                 CommandExample(
                     None,
-                    "Check your own follow age for a certain streamer",
+                    "Check your own followage for a certain streamer",
                     chat="user:!followage pajlada forsen\n"
                     "bot:pajlada, you have been following forsen for 1 year and 3 months",
                     description="Check how long you have been following forsen",
