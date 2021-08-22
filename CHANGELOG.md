@@ -10,6 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Impoved emote scaling in the CLR overlay. (#1400)
 - Minor: Added playsound admin panel logging. (#1381, #1382)
 - Minor: Added optional warning support to the actionchecker module. (#1362)
 - Minor: Added optional warning support to the casechecker module. (#1365)
