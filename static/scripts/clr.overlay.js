@@ -54,7 +54,7 @@ async function getEmoteURL({ urls }) {
             img: img
         });
         img.onerror = () => reject();
-        img.src = url;
+        img.src = urls[String(largestSize)];
     });
 }
 
@@ -75,7 +75,7 @@ async function add_emotes({
         let imgElement = $('<img class="absemote">')
             .css({
                 transform: `scale(${(emoteScale / 100) * needsScale})`,
-                "image-rendering": (img.height < 112 ? "pixelated" : "auto")
+                "image-rendering": (img.height < 100 ? "pixelated" : "auto")
             })
             .attr({ src: url });
 
@@ -237,7 +237,7 @@ async function refresh_combo_emote(emote) {
         this.attr('src', url);
         this.css({
             zoom: String(needsScale),
-            "image-rendering": (img.height < 112 ? "pixelated" : "auto"),
+            "image-rendering": (img.height < 100 ? "pixelated" : "auto"),
         });
     });
 }
