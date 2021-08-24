@@ -20,6 +20,15 @@ class PlaysoundModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
+            key="command_name",
+            label="Command name (e.g. #playound)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="#playsound",
+            constraints={"min_str_len": 2, "max_str_len": 15},
+        ),
+        ModuleSetting(
             key="point_cost",
             label="Point cost",
             type="number",
@@ -95,15 +104,6 @@ class PlaysoundModule(BaseModule):
             type="boolean",
             required=True,
             default=True,
-        ),
-        ModuleSetting(
-            key="command_name",
-            label="Command name (e.g. #playound)",
-            type="text",
-            required=True,
-            placeholder="Command name (no !)",
-            default="#playsound",
-            constraints={"min_str_len": 2, "max_str_len": 15},
         ),
     ]
 
