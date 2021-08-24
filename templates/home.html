@@ -6,6 +6,7 @@
 {% set streamer_name = streamer.full_name' %}
 {% else %}
 {% set streamer_name = streamer.full_name's%}
+{% endif %}
 <h4>
     This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer_name }}</a> channel.
 </h4>
