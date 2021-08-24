@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added option to customize the playsound command. (#1404)
 - Bugfix: CLR overlay scrollbar is now hidden. (#1401)
 - Fix: Don't allow following of empty Twitter usernames through the admin page. (#1395)
 
