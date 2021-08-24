@@ -477,7 +477,7 @@ class PlaysoundModule(BaseModule):
         from pajbot.models.command import Command
         from pajbot.models.command import CommandExample
 
-        self.commands[self.settings["command_name"].lower().replace("!","")] = Command.raw_command(
+        self.commands[self.settings["command_name"].lower().replace("!", "")] = Command.raw_command(
             self.play_sound,
             tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
@@ -490,12 +490,15 @@ class PlaysoundModule(BaseModule):
                 CommandExample(
                     None,
                     'Play the "doot" sample',
-                    chat="user:!" + self.settings["command_name"] + " doot\n" "bot>user:Successfully played the sound doot on stream!",
+                    chat="user:!" + self.settings["command_name"] + " doot\n"
+                    "bot>user:Successfully played the sound doot on stream!",
                 ).parse()
             ],
         )
 
-        self.commands[self.settings["command_name"].lower().replace("!","")].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
+        self.commands[
+            self.settings["command_name"].lower().replace("!", "")
+        ].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
 
         self.commands["add"] = Command.multiaction_command(
             level=100,
