@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List, Tuple
+from typing import Optional, List, Tuple
 
 import logging
 import time

@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Any
+from typing import Optional, Any
 
 import logging
 
@@ -10,7 +10,6 @@ from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.apiwrappers.twitch.helix import TwitchGame
-from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
