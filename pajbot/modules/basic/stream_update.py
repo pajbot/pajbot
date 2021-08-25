@@ -118,11 +118,9 @@ class StreamUpdateModule(BaseModule):
         except HTTPError as e:
             if e.response.status_code == 400:
                 bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
-                return
-
-            if e.response.status_code == 500:
+            elif e.response.status_code == 500:
                 bot.say(f"{source}, Failed to update the title! Please try again.")
-                return
+            return False
 
         log_msg = f'{source} updated the title to "{message}"'
         bot.say(log_msg)
