@@ -66,16 +66,13 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
+    def update_game(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str], **rest) -> Any:
+        if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
                 "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
             )
             return
 
-        log_msg = f'{source} updated the {field} to "{message}"'
-        bot.say(log_msg)
-        AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
-
-    def update_game(self, bot: Bot, source, message, **rest) -> Any:
         if not message:
             bot.say("You must specify a game to update to!")
             return
@@ -86,14 +83,51 @@ class StreamUpdateModule(BaseModule):
             bot.say(f"Unable to find a game with the name '{message}'")
             return
 
-        return self.generic_update(bot, source, message, "game", {"game_id": game.id})
+        try:
+            self.bot.twitch_helix_api.modify_channel_information(
+                self.bot.streamer_user_id,
+                authorization=bot.streamer_access_token_manager,
+                **extra_args,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 500:
+                bot.say(f"{source}, Failed to update game! Please try again.")
+                return
 
-    def update_title(self, bot, source, message, **rest) -> Any:
+        log_msg = f'{source} updated the game to "{message}"'
+        bot.say(log_msg)
+        AdminLogManager.add_entry(f"Game set", source, log_msg)
+
+    def update_title(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str], **rest) -> Any:
+        if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
+            bot.say(
+                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+            )
+            return
+
         if not message:
             bot.say("You must specify a title to update to!")
             return
 
-        return self.generic_update(bot, source, message, "title", {"title": message})
+        try:
+            self.bot.twitch_helix_api.modify_channel_information(
+                self.bot.streamer_user_id,
+                authorization=bot.streamer_access_token_manager,
+                **extra_args,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 400:
+                if e.response.reason == "Status contains banned words.":
+                    bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
+                    return
+
+            if e.response.status_code == 500:
+                bot.say(f"{source}, Failed to update the title! Please try again.")
+                return
+
+        log_msg = f'{source} updated the title to "{message}"'
+        bot.say(log_msg)
+        AdminLogManager.add_entry(f"Title set", source, log_msg)
 
     def load_commands(self, **options):
         setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
