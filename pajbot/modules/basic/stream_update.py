@@ -2,6 +2,7 @@ from typing import Dict, Optional, Any
 
 import logging
 
+from requests.exceptions import HTTPError
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
