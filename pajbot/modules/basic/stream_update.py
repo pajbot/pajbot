@@ -96,7 +96,7 @@ class StreamUpdateModule(BaseModule):
 
         log_msg = f'{source} updated the game to "{message}"'
         bot.say(log_msg)
-        AdminLogManager.add_entry(f"Game set", source, log_msg)
+        AdminLogManager.add_entry("Game set", source, log_msg)
 
     def update_title(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str], **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
@@ -127,7 +127,7 @@ class StreamUpdateModule(BaseModule):
 
         log_msg = f'{source} updated the title to "{message}"'
         bot.say(log_msg)
-        AdminLogManager.add_entry(f"Title set", source, log_msg)
+        AdminLogManager.add_entry("Title set", source, log_msg)
 
     def load_commands(self, **options):
         setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
