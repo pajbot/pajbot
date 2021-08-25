@@ -86,8 +86,8 @@ class StreamUpdateModule(BaseModule):
         try:
             self.bot.twitch_helix_api.modify_channel_information(
                 self.bot.streamer_user_id,
-                authorization=bot.streamer_access_token_manager,
                 {"game_id": game.id},
+                authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
             if e.response.status_code == 500:
@@ -112,8 +112,8 @@ class StreamUpdateModule(BaseModule):
         try:
             self.bot.twitch_helix_api.modify_channel_information(
                 self.bot.streamer_user_id,
-                authorization=bot.streamer_access_token_manager,
                 {"title": message},
+                authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
             if e.response.status_code == 400:
