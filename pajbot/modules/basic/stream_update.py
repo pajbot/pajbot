@@ -91,6 +91,7 @@ class StreamUpdateModule(BaseModule):
             )
         except HTTPError as e:
             if e.response.status_code == 500:
+                log.error("Failed to update channel")
                 bot.say(f"{source}, Failed to update game! Please try again.")
                 return
 
@@ -117,8 +118,10 @@ class StreamUpdateModule(BaseModule):
             )
         except HTTPError as e:
             if e.response.status_code == 400:
+                log.error("Title contains banned words")
                 bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
             elif e.response.status_code == 500:
+                log.error("Failed to update channel")
                 bot.say(f"{source}, Failed to update the title! Please try again.")
             return
 

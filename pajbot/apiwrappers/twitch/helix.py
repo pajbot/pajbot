@@ -512,8 +512,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return games[0]
 
-    def modify_channel_information(
-        self, broadcaster_id: str, authorization=None, body=None):
+    def modify_channel_information(self, broadcaster_id: str, authorization=None, body=None):
 
         if not body:
             log.error(
@@ -521,20 +520,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             )
             return False
 
-        try:
-            response = self.patch(
-                "/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body
-            )
-        except HTTPError as e:
-            if e.response.status_code == 400:
-                log.error("Title contains banned words")
-                return False
-
-            if e.response.status_code == 500:
-                log.error("Failed to update channel")
-                return False
-
-            raise e
+        response = self.patch("/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body)
 
         return response.status_code == 204
 
