@@ -527,16 +527,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
             )
         except HTTPError as e:
             if e.response.status_code == 400:
-                if e.response.reason == "request must contain at least 1 channel property for updating":
-                    log.error(
-                        "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
-                    )
-                    return False
+                log.error("Title contained banned words")
+                return False
 
-                if e.response.reason == "Status contains banned words.":
-                    log.error("Title contained banned words")
-                    return False
-            elif e.response.status_code == 500:
+            if e.response.status_code == 500:
                 log.error("Failed to update channel")
                 return False
 
