@@ -66,7 +66,7 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
-    def update_game(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str], **rest) -> Any:
+    def update_game(self, bot, source, message, **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
                 "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
@@ -87,7 +87,7 @@ class StreamUpdateModule(BaseModule):
             self.bot.twitch_helix_api.modify_channel_information(
                 self.bot.streamer_user_id,
                 authorization=bot.streamer_access_token_manager,
-                **extra_args,
+                body={"game_id": game.id},
             )
         except HTTPError as e:
             if e.response.status_code == 500:
@@ -98,7 +98,7 @@ class StreamUpdateModule(BaseModule):
         bot.say(log_msg)
         AdminLogManager.add_entry("Game set", source, log_msg)
 
-    def update_title(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str], **rest) -> Any:
+    def update_title(self, bot, source, message, **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
                 "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
@@ -113,7 +113,7 @@ class StreamUpdateModule(BaseModule):
             self.bot.twitch_helix_api.modify_channel_information(
                 self.bot.streamer_user_id,
                 authorization=bot.streamer_access_token_manager,
-                **extra_args,
+                body={"title": message},
             )
         except HTTPError as e:
             if e.response.status_code == 400:
