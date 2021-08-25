@@ -65,19 +65,6 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
-    def generic_update(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str]) -> None:
-        if not message:
-            bot.say(f"You must specify a {field} to update to!")
-            return
-
-        if (
-            "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope
-            or not self.bot.twitch_helix_api.modify_channel_information(
-                self.bot.streamer_user_id,
-                authorization=bot.streamer_access_token_manager,
-                **extra_args,
-            )
-        ):
             bot.say(
                 "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
             )
