@@ -527,7 +527,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             )
         except HTTPError as e:
             if e.response.status_code == 400:
-                log.error("Title contained banned words")
+                log.error("Title contains banned words")
                 return False
 
             if e.response.status_code == 500:
