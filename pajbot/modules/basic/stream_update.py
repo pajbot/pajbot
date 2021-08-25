@@ -79,7 +79,7 @@ class StreamUpdateModule(BaseModule):
             )
         ):
             bot.say(
-                "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
+                f"Error: The streamer grants permission to update the {field}. The streamer needs to be re-authenticated to fix this problem."
             )
             return
 
