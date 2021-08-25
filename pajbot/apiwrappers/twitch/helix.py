@@ -513,15 +513,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return games[0]
 
     def modify_channel_information(
-        self, broadcaster_id: str, game_id: str = None, title: str = None, authorization=None
-    ) -> bool:
-        body: Dict[str, str] = {}
-
-        if game_id:
-            body["game_id"] = game_id
-
-        if title:
-            body["title"] = title
+        self, broadcaster_id: str, authorization=None, body=None):
 
         if not body:
             log.error(
