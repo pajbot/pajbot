@@ -666,7 +666,7 @@ class Bot:
             self.me(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
-                self.say(message)
+                self.say(f"@{user.name}, {lowercase_first_letter(message)}")
             elif event.type == "whisper":
                 self.whisper(user, message)
         else:
