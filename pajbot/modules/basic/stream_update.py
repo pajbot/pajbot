@@ -10,6 +10,7 @@ from pajbot.modules import BaseModule
 from pajbot.modules import ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.apiwrappers.twitch.helix import TwitchGame
+from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
-    def update_game(self, bot, source, message, **rest) -> Any:
+    def update_game(self, bot: Bot, source, message, **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
                 "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
@@ -98,7 +99,7 @@ class StreamUpdateModule(BaseModule):
         bot.say(log_msg)
         AdminLogManager.add_entry("Game set", source, log_msg)
 
-    def update_title(self, bot, source, message, **rest) -> Any:
+    def update_title(self, bot: Bot, source, message, **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
                 "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
