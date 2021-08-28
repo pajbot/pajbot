@@ -3,7 +3,7 @@
 {% block title %}Home{% endblock %}
 {% block body %}
 <h4>
-    This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'s</a> channel.
+    This is the website for <strong>{{ bot.name }}</strong> that moderates <a href="http://twitch.tv/{{ streamer.full_name }}">{{ streamer.name }}'{{% "" if lower(streamer.name).endswith('s') else "s" %}}</a> channel.
 </h4>
 {% if stream_data['online'] == 'True' %}
 <h4>The stream is currently <strong><a href="http://twitch.tv/{{ streamer.full_name }}">LIVE</a></strong> with <strong>{{ stream_data['viewers']}}</strong> viewers ({{ stream_data['game'] }}).</h4>
