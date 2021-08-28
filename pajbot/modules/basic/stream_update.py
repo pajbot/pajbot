@@ -91,9 +91,11 @@ class StreamUpdateModule(BaseModule):
             )
         except HTTPError as e:
             if e.response.status_code == 500:
-                log.error("Failed to update channel")
+                log.error(f"Failed to update game to '{game}' - internal server error")
                 bot.say(f"{source}, Failed to update game! Please try again.")
-                return
+            else:
+                log.exception(f"Unhandled HTTPError when updating to {game}")
+            return
 
         log_msg = f'{source} updated the game to "{message}"'
         bot.say(log_msg)
@@ -106,26 +108,30 @@ class StreamUpdateModule(BaseModule):
             )
             return
 
-        if not message:
+        title = message
+
+        if not title:
             bot.say("You must specify a title to update to!")
             return
 
         try:
             self.bot.twitch_helix_api.modify_channel_information(
                 self.bot.streamer_user_id,
-                {"title": message},
+                {"title": title},
                 authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
             if e.response.status_code == 400:
-                log.error("Title contains banned words")
+                log.error(f"Title '{title}' contains banned words")
                 bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
             elif e.response.status_code == 500:
-                log.error("Failed to update channel")
+                log.error(f"Failed to update title to '{title}' - internal server error")
                 bot.say(f"{source}, Failed to update the title! Please try again.")
+            else:
+                log.exception(f"Unhandled HTTPError when updating to {title}")
             return
 
-        log_msg = f'{source} updated the title to "{message}"'
+        log_msg = f'{source} updated the title to "{title}"'
         bot.say(log_msg)
         AdminLogManager.add_entry("Title set", source, log_msg)
 
