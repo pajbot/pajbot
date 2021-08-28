@@ -659,14 +659,14 @@ class Bot:
 
     def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
-            self.say(user.name + ", " + lowercase_first_letter(message))
+            self.say(f"@{user.name}, {lowercase_first_letter(message)}")
         elif method == "whisper":
             self.whisper(user, message)
         elif method == "me":
             self.me(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
-                self.say(message)
+                self.say(f"@{user.name}, {lowercase_first_letter(message)}")
             elif event.type == "whisper":
                 self.whisper(user, message)
         else:
