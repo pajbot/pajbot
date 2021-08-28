@@ -1,7 +1,8 @@
-from typing import Dict, Optional, Any
+from typing import Optional, Any
 
 import logging
 
+from requests.exceptions import HTTPError
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
@@ -65,47 +66,76 @@ class StreamUpdateModule(BaseModule):
         ),
     ]
 
-    def generic_update(self, bot: Bot, source, message: str, field: str, extra_args: Dict[str, str]) -> None:
-        if not message:
-            bot.say(f"You must specify a {field} to update to!")
-            return
-
-        if (
-            "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope
-            or not self.bot.twitch_helix_api.modify_channel_information(
-                self.bot.streamer_user_id,
-                authorization=bot.streamer_access_token_manager,
-                **extra_args,
-            )
-        ):
-            bot.say(
-                "Error: The streamer grants permission to update the game. The streamer needs to be re-authenticated to fix this problem."
-            )
-            return
-
-        log_msg = f'{source} updated the {field} to "{message}"'
-        bot.say(log_msg)
-        AdminLogManager.add_entry(f"{field.capitalize()} set", source, log_msg)
-
     def update_game(self, bot: Bot, source, message, **rest) -> Any:
-        if not message:
+        if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
+            bot.say(
+                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+            )
+            return
+
+        game_name = message
+
+        if not game_name:
             bot.say("You must specify a game to update to!")
             return
 
         # Resolve game name to game ID
-        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(message)
+        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(game_name)
         if not game:
-            bot.say(f"Unable to find a game with the name '{message}'")
+            bot.say(f"Unable to find a game with the name '{game_name}'")
             return
 
-        return self.generic_update(bot, source, message, "game", {"game_id": game.id})
+        try:
+            self.bot.twitch_helix_api.modify_channel_information(
+                self.bot.streamer_user_id,
+                {"game_id": game.id},
+                authorization=bot.streamer_access_token_manager,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 500:
+                log.error(f"Failed to update game to '{game_name}' - internal server error")
+                bot.say(f"{source}, Failed to update game! Please try again.")
+            else:
+                log.exception(f"Unhandled HTTPError when updating to {game_name}")
+            return
 
-    def update_title(self, bot, source, message, **rest) -> Any:
-        if not message:
+        log_msg = f'{source} updated the game to "{game_name}"'
+        bot.say(log_msg)
+        AdminLogManager.add_entry("Game set", source, log_msg)
+
+    def update_title(self, bot: Bot, source, message, **rest) -> Any:
+        if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
+            bot.say(
+                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+            )
+            return
+
+        title = message
+
+        if not title:
             bot.say("You must specify a title to update to!")
             return
 
-        return self.generic_update(bot, source, message, "title", {"title": message})
+        try:
+            self.bot.twitch_helix_api.modify_channel_information(
+                self.bot.streamer_user_id,
+                {"title": title},
+                authorization=bot.streamer_access_token_manager,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 400:
+                log.error(f"Title '{title}' contains banned words")
+                bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
+            elif e.response.status_code == 500:
+                log.error(f"Failed to update title to '{title}' - internal server error")
+                bot.say(f"{source}, Failed to update the title! Please try again.")
+            else:
+                log.exception(f"Unhandled HTTPError when updating to {title}")
+            return
+
+        log_msg = f'{source} updated the title to "{title}"'
+        bot.say(log_msg)
+        AdminLogManager.add_entry("Title set", source, log_msg)
 
     def load_commands(self, **options):
         setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
