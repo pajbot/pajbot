@@ -512,35 +512,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return games[0]
 
-    def modify_channel_information(
-        self, broadcaster_id: str, game_id: str = None, title: str = None, authorization=None
-    ) -> bool:
-        body: Dict[str, str] = {}
-
-        if game_id:
-            body["game_id"] = game_id
-
-        if title:
-            body["title"] = title
-
+    def modify_channel_information(self, broadcaster_id: str, body: Dict[str, str], authorization=None) -> bool:
         if not body:
             log.error(
                 "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
             )
             return False
 
-        try:
-            response = self.patch(
-                "/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body
-            )
-        except HTTPError as e:
-            if e.response.status_code == 400:
-                log.error(
-                    "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
-                )
-                return False
-
-            raise e
+        response = self.patch("/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body)
 
         return response.status_code == 204
 

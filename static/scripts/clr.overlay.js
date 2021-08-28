@@ -41,19 +41,26 @@ function add_random_box({ color }) {
     }, 5000);
 }
 
-function getEmoteURL({ urls }) {
-    let sortedSizes = Object.keys(urls)
-        .map(size => parseInt(size))
-        .sort();
-    let largestSize = sortedSizes[sortedSizes.length - 1];
-    return {
-        url: urls[String(largestSize)],
-        needsScale: 4 / largestSize,
-    };
+async function getEmoteURL({ urls }) {
+    return new Promise((resolve, reject) => {
+        let sortedSizes = Object.keys(urls)
+            .map(size => parseInt(size))
+            .sort();
+        let largestSize = sortedSizes[sortedSizes.length - 1];
+        let img = new Image();
+        img.onload = () =>
+            resolve({
+                url: urls[String(largestSize)],
+                needsScale: 4 / largestSize,
+                img: img,
+            });
+        img.onerror = () => reject();
+        img.src = urls[String(largestSize)];
+    });
 }
 
 // opacity = number between 0 and 100
-function add_emotes({
+async function add_emotes({
     emotes,
     opacity,
     persistence_time: persistenceTime,
@@ -61,7 +68,7 @@ function add_emotes({
 }) {
     for (let emote of emotes) {
         // largest URL available
-        let { url, needsScale } = getEmoteURL(emote);
+        let { url, needsScale, img } = await getEmoteURL(emote);
 
         let posX = `${Math.random() * 100}%`;
         let posY = `${Math.random() * 100}%`;
@@ -69,6 +76,7 @@ function add_emotes({
         let imgElement = $('<img class="absemote">')
             .css({
                 transform: `scale(${(emoteScale / 100) * needsScale})`,
+                'image-rendering': img.height < 100 ? 'pixelated' : 'auto',
             })
             .attr({ src: url });
 
@@ -218,8 +226,8 @@ $.fn.detachThenReattach = function(fn) {
     });
 };
 
-function refresh_combo_emote(emote) {
-    let { url, needsScale } = getEmoteURL(emote);
+async function refresh_combo_emote(emote) {
+    let { url, needsScale, img } = await getEmoteURL(emote);
     let $emoteCombo = $('#emote_combo img');
 
     // Fix for issue #378
@@ -228,7 +236,10 @@ function refresh_combo_emote(emote) {
     // from resetting on all other emotes with the same URL on the screen
     $emoteCombo.detachThenReattach(function() {
         this.attr('src', url);
-        this.css('zoom', String(needsScale));
+        this.css({
+            zoom: String(needsScale),
+            'image-rendering': img.height < 100 ? 'pixelated' : 'auto',
+        });
     });
 }
 
