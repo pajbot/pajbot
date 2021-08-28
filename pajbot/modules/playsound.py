@@ -21,7 +21,7 @@ class PlaysoundModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="command_name",
-            label="Command name (e.g. #playound)",
+            label="Command name (e.g. #playsound)",
             type="text",
             required=True,
             placeholder="Command name (no !)",
