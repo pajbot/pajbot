@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple
+from typing import Dict, Optional, List, Tuple
 
 import logging
 import time
@@ -512,8 +512,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return games[0]
 
-    def modify_channel_information(self, broadcaster_id: str, authorization=None, body=None):
-
+    def modify_channel_information(self, broadcaster_id: str, authorization=None, body: Dict[str, str] = None) -> bool:
         if not body:
             log.error(
                 "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
