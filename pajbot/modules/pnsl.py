@@ -33,7 +33,7 @@ class PNSLModule(BaseModule):
             required=True,
             placeholder="",
             default=30,
-            constraints={"min_value": 1, "max_value": 500},
+            constraints={"min_value": 1, "max_value": 100},
         ),
         ModuleSetting(
             key="chunk_delay",
