@@ -20,6 +20,15 @@ class PlaysoundModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
+            key="command_name",
+            label="Command name (e.g. #playsound)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="#playsound",
+            constraints={"min_str_len": 2, "max_str_len": 15},
+        ),
+        ModuleSetting(
             key="point_cost",
             label="Point cost",
             type="number",
@@ -468,7 +477,7 @@ class PlaysoundModule(BaseModule):
         from pajbot.models.command import Command
         from pajbot.models.command import CommandExample
 
-        self.commands["#playsound"] = Command.raw_command(
+        self.commands[self.settings["command_name"].lower().replace("!", "")] = Command.raw_command(
             self.play_sound,
             tokens_cost=self.settings["token_cost"],
             cost=self.settings["point_cost"],
@@ -481,12 +490,15 @@ class PlaysoundModule(BaseModule):
                 CommandExample(
                     None,
                     'Play the "doot" sample',
-                    chat="user:!#playsound doot\n" "bot>user:Successfully played the sound doot on stream!",
+                    chat="user:!" + self.settings["command_name"] + " doot\n"
+                    "bot>user:Successfully played the sound doot on stream!",
                 ).parse()
             ],
         )
 
-        self.commands["#playsound"].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
+        self.commands[
+            self.settings["command_name"].lower().replace("!", "")
+        ].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
 
         self.commands["add"] = Command.multiaction_command(
             level=100,
