@@ -73,14 +73,16 @@ class StreamUpdateModule(BaseModule):
             )
             return
 
-        if not message:
+        game_name = message
+
+        if not game_name:
             bot.say("You must specify a game to update to!")
             return
 
         # Resolve game name to game ID
-        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(message)
+        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(game_name)
         if not game:
-            bot.say(f"Unable to find a game with the name '{message}'")
+            bot.say(f"Unable to find a game with the name '{game_name}'")
             return
 
         try:
@@ -91,13 +93,13 @@ class StreamUpdateModule(BaseModule):
             )
         except HTTPError as e:
             if e.response.status_code == 500:
-                log.error(f"Failed to update game to '{game}' - internal server error")
+                log.error(f"Failed to update game to '{game_name}' - internal server error")
                 bot.say(f"{source}, Failed to update game! Please try again.")
             else:
-                log.exception(f"Unhandled HTTPError when updating to {game}")
+                log.exception(f"Unhandled HTTPError when updating to {game_name}")
             return
 
-        log_msg = f'{source} updated the game to "{message}"'
+        log_msg = f'{source} updated the game to "{game_name}"'
         bot.say(log_msg)
         AdminLogManager.add_entry("Game set", source, log_msg)
 
