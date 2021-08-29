@@ -82,20 +82,8 @@ class QuestModule(BaseModule):
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
     def get_user_tokens(self, bot, event, source, **rest):
-        message_tokens = f"{source}, you have {source.tokens} tokens."
-        # todo use bot.send_message_to_user or similar
-
-        if self.settings["action_tokens"] == "say":
-            bot.say(message_tokens)
-        elif self.settings["action_tokens"] == "whisper":
-            bot.whisper(source, message_tokens)
-        elif self.settings["action_tokens"] == "me":
-            bot.me(message_tokens)
-        elif self.settings["action_tokens"] == "reply":
-            if event.type in ["action", "pubmsg"]:
-                bot.say(message_tokens)
-            elif event.type == "whisper":
-                bot.whisper(source, message_tokens)
+        message_tokens = f"You have {source.tokens} tokens."
+        bot.send_message_to_user(source, message_tokens, event, method=self.settings["action_tokens"])
 
     def load_commands(self, **options):
         self.commands["myprogress"] = Command.raw_command(
