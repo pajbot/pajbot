@@ -82,7 +82,7 @@ class QuestModule(BaseModule):
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
     def get_user_tokens(self, bot, event, source, **rest):
-        message_tokens = f"{source}, you have {source.tokens} tokens."
+        message_tokens = f"You have {source.tokens} tokens."
         bot.send_message_to_user(source, message_tokens, event, method=self.settings["action_tokens"])
 
     def load_commands(self, **options):
