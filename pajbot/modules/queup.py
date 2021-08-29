@@ -1,6 +1,9 @@
+from enum import auto
 import logging
 
 import datetime
+
+from psycopg2.extensions import STATUS_ASYNC
 
 from pajbot import utils
 from pajbot.apiwrappers.queup import QueUpAPI
@@ -151,6 +154,14 @@ class QueUpModule(BaseModule):
             required=True,
             default=True,
         ),
+        ModuleSetting(
+            key="response_method",
+            label="Method of response to command usage",
+            type="options",
+            required=True,
+            default="say",
+            options=["say", "whisper", "reply"],
+        ),
     ]
 
     def __init__(self, bot):
@@ -164,10 +175,10 @@ class QueUpModule(BaseModule):
         self.is_first_automatic_fetch = True
         self.last_seen_song_id = None
 
-    def cmd_link(self, bot, **rest):
-        bot.say(self.get_phrase("phrase_room_link", room_name=self.settings["room_name"]))
+    def cmd_link(self, bot, source, event, **rest):
+        bot.send_message_to_user(source, self.get_phrase("phrase_room_link", room_name=self.settings["room_name"]), event, method=self.settings["response_method"])
 
-    def cmd_song(self, **rest):
+    def cmd_song(self, source, event, **rest):
         def on_success(song_info):
             if song_info is not None:
                 response = self.get_phrase(
@@ -179,15 +190,15 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_current_song")
 
-            self.bot.say(response)
+            self.bot.send_message_to_user(source, response, event, self.settings["response_method"])
 
         def on_error(e):
             log.exception("QueUp API fetch for current song failed", exc_info=e)
-            self.bot.say("There was an error fetching the current QueUp song :/")
+            self.bot.send_message_to_user(source, "There was an error fetching the previous QueUp song :/", event, self.settings["response_method"])
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
-    def cmd_previous_song(self, **rest):
+    def cmd_previous_song(self, source, event, **rest):
         def on_success(song_info):
             if song_info is not None:
                 response = self.get_phrase(
@@ -199,15 +210,15 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_previous_song")
 
-            self.bot.say(response)
+            self.bot.send_message_to_user(source, response, event, self.settings["response_method"])
 
         def on_error(e):
             log.exception("QueUp API fetch for previous song failed", exc_info=e)
-            self.bot.say("There was an error fetching the previous QueUp song :/")
+            self.bot.send_message_to_user(source, "There was an error fetching the previous QueUp song :/", event, self.settings["response_method"])
 
         self.api_request_and_callback(self.get_previous_song, on_success, on_error)
 
-    def on_scheduled_new_song_check(self):
+    def on_scheduled_new_song_check(self, source, event):
         def on_success(song_info):
             if song_info is not None:
                 new_song_id = song_info.song_id
@@ -240,7 +251,7 @@ class QueUpModule(BaseModule):
                 requester_name=song_info.requester_name,
             )
 
-            self.bot.say(auto_msg)
+            self.bot.send_message_to_user(source, auto_msg, event, self.settings["response_method"])
 
         def on_error(e):
             log.exception("Automatic QueUp song polling failed", exc_info=e)
@@ -324,6 +335,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get link to your queup",
+                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -338,6 +350,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get current song",
+                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -364,6 +377,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get previous song",
+                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -398,6 +412,7 @@ class QueUpModule(BaseModule):
             default="link",  # If the user does not input any argument
             fallback="link",  # If the user inputs an invalid argument
             command="queup",
+            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             commands=commands,
         )
 
