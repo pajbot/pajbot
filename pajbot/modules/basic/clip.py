@@ -130,7 +130,7 @@ class ClipCommandModule(BaseModule):
             if self.settings["offline_response"] != "":
                 bot.send_message_to_user(
                     source,
-                    self.settings["offline_response"].format(streamer=bot.streamer_display),
+                    self.settings["offline_response"].format(source="{source}", streamer=bot.streamer_display),
                     event,
                     method=self.settings["response_method"],
                 )
@@ -171,10 +171,10 @@ class ClipCommandModule(BaseModule):
             self.bot.execute_delayed(
                 5,
                 bot.send_message_to_user(
-                    source, self.settings["online_response"].format(streamer=bot.streamer_display, clip=clip_url)
+                    source, self.settings["online_response"].format(source="{source}", streamer=bot.streamer_display, clip=clip_url)
                 ),
             )
         else:
             bot.send_message_to_user(
-                source, self.settings["online_response"].format(streamer=bot.streamer_display, clip=clip_url)
+                source, self.settings["online_response"].format(source="{source}", streamer=bot.streamer_display, clip=clip_url)
             )
