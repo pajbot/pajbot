@@ -44,21 +44,29 @@ class ClipCommandModule(BaseModule):
         ),
         ModuleSetting(
             key="online_response",
-            label="Message response while the streamer is online | Available arguments: {source}, {streamer}, {clip}",
+            label="Message response while the streamer is online | Available arguments: {streamer}, {clip}",
             type="text",
             required=True,
             placeholder="",
-            default="{source}, New clip PogChamp 👉 {clip}",
+            default="New clip PogChamp 👉 {clip}",
             constraints={"min_str_len": 1, "max_str_len": 400},
         ),
         ModuleSetting(
             key="offline_response",
-            label="Message response if the streamer is offline. Remove text to disable message | Available arguments: {source}, {streamer}",
+            label="Message response if the streamer is offline. Remove text to disable message | Available arguments: {streamer}",
             type="text",
             required=False,
             placeholder="",
-            default="{source}, Cannot clip while {streamer} is offline! BibleThump",
+            default="Cannot clip while {streamer} is offline! BibleThump",
             constraints={"max_str_len": 400},
+        ),
+        ModuleSetting(
+            key="response_method",
+            label="Method of response to command usage",
+            type="options",
+            required=True,
+            default="say",
+            options=["say", "whisper", "reply"],
         ),
         ModuleSetting(
             key="global_cd",
@@ -96,6 +104,7 @@ class ClipCommandModule(BaseModule):
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
             level=self.settings["level"],
+            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             command="clip",
             examples=[
                 CommandExample(
@@ -113,14 +122,17 @@ class ClipCommandModule(BaseModule):
             ],
         )
 
-    def clip(self, bot, source, **rest):
+    def clip(self, bot, event, source, **rest):
         if self.settings["subscribers_only"] and source.subscriber is False:
             return True
 
         if not self.bot.is_online:
             if self.settings["offline_response"] != "":
-                self.bot.say(
-                    self.settings["offline_response"].format(source=source, streamer=self.bot.streamer_display)
+                bot.send_message_to_user(
+                    source,
+                    self.settings["offline_response"].format(source="{source}", streamer=bot.streamer_display),
+                    event,
+                    method=self.settings["response_method"],
                 )
             return True
 
@@ -135,12 +147,25 @@ class ClipCommandModule(BaseModule):
                 )
         except HTTPError as e:
             if e.response.status_code == 503:
-                self.bot.say(f"{source}, Failed to create clip! Does the streamer have clips disabled?")
+                bot.send_message_to_user(
+                    source,
+                    "Failed to create clip! Does the streamer have clips disabled?",
+                    event,
+                    method=self.settings["response_method"],
+                )
             elif e.response.status_code != 401:
-                self.bot.say(f"{source}, Failed to create clip! Please try again.")
+                bot.send_message_to_user(
+                    source,
+                    "Failed to create clip! Please try again.",
+                    event,
+                    method=self.settings["response_method"],
+                )
             else:
-                self.bot.say(
-                    "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem."
+                bot.send_message_to_user(
+                    source,
+                    "Error: The bot token does not grant permission to create clips. The bot needs to be re-authenticated to fix this problem.",
+                    event,
+                    method=self.settings["response_method"],
                 )
             return True
 
@@ -148,14 +173,19 @@ class ClipCommandModule(BaseModule):
         if self.settings["thumbnail_check"] is True:
             self.bot.execute_delayed(
                 5,
-                self.bot.say,
+                bot.send_message_to_user,
+                source,
                 self.settings["online_response"].format(
-                    source=source, streamer=self.bot.streamer_display, clip=clip_url
+                    source="{source}", streamer=bot.streamer_display, clip=clip_url
                 ),
+                event,
+                method=self.settings["response_method"],
             )
         else:
-            self.bot.say(
+            bot.send_message_to_user(
+                source,
                 self.settings["online_response"].format(
-                    source=source, streamer=self.bot.streamer_display, clip=clip_url
-                )
+                    source="{source}", streamer=bot.streamer_display, clip=clip_url
+                ),
+                event,
             )
