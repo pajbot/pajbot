@@ -198,16 +198,16 @@ class FollowAgeModule(BaseModule):
             # Following
             suffix = f"been following {to_user} {format_cb(follow_since)}"
             if is_self:
-                message = "You have " + suffix
+                message = f"You have {suffix}"
             else:
-                message = from_user.name + " has " + suffix
+                message = f"{from_user.name} has {suffix}"
         else:
             # Not following
             suffix = f"not following {to_user}"
             if is_self:
-                message = "You are " + suffix
+                message = f"You are {suffix}"
             else:
-                message = from_user.name + " is " + suffix
+                message = f"{from_user.name} is {suffix}"
 
         bot.execute_now(bot.send_message_to_user, source, message, event, method=message_method)
 
