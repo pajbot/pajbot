@@ -110,7 +110,7 @@ class EmotesModule(BaseModule):
             custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
             self.bot.send_message_to_user(
                 source,
-                custom_message.format(streamer=StreamHelper.get_streamer_display()),
+                custom_message.format(source="{source}", streamer=StreamHelper.get_streamer_display()),
                 event,
                 method=self.settings["response_method"],
             )
@@ -128,7 +128,7 @@ class EmotesModule(BaseModule):
             custom_message = self.settings["custom_sub_response"]
             self.bot.send_message_to_user(
                 source,
-                custom_message.format(streamer=StreamHelper.get_streamer_display()),
+                custom_message.format(source="{source}", streamer=StreamHelper.get_streamer_display()),
                 event,
                 method=self.settings["response_method"],
             )
