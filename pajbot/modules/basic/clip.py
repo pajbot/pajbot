@@ -170,11 +170,19 @@ class ClipCommandModule(BaseModule):
         if self.settings["thumbnail_check"] is True:
             self.bot.execute_delayed(
                 5,
-                bot.send_message_to_user(
-                    source, self.settings["online_response"].format(source="{source}", streamer=bot.streamer_display, clip=clip_url)
+                bot.send_message_to_user,
+                source,
+                self.settings["online_response"].format(
+                    source="{source}", streamer=bot.streamer_display, clip=clip_url
                 ),
+                event,
+                method=self.settings["response_method"],
             )
         else:
             bot.send_message_to_user(
-                source, self.settings["online_response"].format(source="{source}", streamer=bot.streamer_display, clip=clip_url)
+                source,
+                self.settings["online_response"].format(
+                    source="{source}", streamer=bot.streamer_display, clip=clip_url
+                ),
+                event,
             )
