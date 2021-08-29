@@ -1,9 +1,6 @@
-from enum import auto
 import logging
 
 import datetime
-
-from psycopg2.extensions import STATUS_ASYNC
 
 from pajbot import utils
 from pajbot.apiwrappers.queup import QueUpAPI
