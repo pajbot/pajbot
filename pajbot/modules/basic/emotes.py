@@ -121,7 +121,12 @@ class EmotesModule(BaseModule):
                 default=f"No {manager.friendly_name} Emotes active in this chat :(",
             )
             for message in messages:
-                self.bot.send_message_to_user(source, message, event, method=self.settings["response_method"])
+                self.bot.send_message_to_user(
+                    source,
+                    message,
+                    event,
+                    method=self.settings["response_method"],
+                )
 
     def print_twitch_emotes(self, source, event, **rest):
         if self.settings["custom_sub_response"] != "":
@@ -143,7 +148,12 @@ class EmotesModule(BaseModule):
                 default=f"Looks like {StreamHelper.get_streamer_display()} has no subscriber emotes! :(",
             )
             for message in messages:
-                self.bot.send_message_to_user(source, message, event, method=self.settings["response_method"])
+                self.bot.send_message_to_user(
+                    source,
+                    message,
+                    event,
+                    method=self.settings["response_method"],
+                )
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
