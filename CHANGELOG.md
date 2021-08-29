@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added the ability to change the bot response method in the queup module. (#1422)
 - Minor: Added the ability to change the bot response method in the emotes module. (#1418)
 - Minor: Added the ability to change the bot response method in the clip module. (#1417)
   This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
