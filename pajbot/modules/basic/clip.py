@@ -155,7 +155,10 @@ class ClipCommandModule(BaseModule):
                 )
             elif e.response.status_code != 401:
                 bot.send_message_to_user(
-                    source, "Failed to create clip! Please try again.", event, method=self.settings["response_method"]
+                    source,
+                    "Failed to create clip! Please try again.",
+                    event,
+                    method=self.settings["response_method"],
                 )
             else:
                 bot.send_message_to_user(
