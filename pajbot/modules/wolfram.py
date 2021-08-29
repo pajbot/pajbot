@@ -121,7 +121,9 @@ class WolframModule(BaseModule):
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
 
             if is_error:
-                bot.send_message_to_user(source, "Your query errored FeelsBadMan", event, method=self.settings["response_method"])
+                bot.send_message_to_user(
+                    source, "Your query errored FeelsBadMan", event, method=self.settings["response_method"]
+                )
                 return False
 
             if not is_success:
