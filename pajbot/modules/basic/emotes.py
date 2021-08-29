@@ -108,7 +108,12 @@ class EmotesModule(BaseModule):
     def print_emotes(self, source, event, manager):
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
-            self.bot.send_message_to_user(source, custom_message.format(streamer=StreamHelper.get_streamer_display()), event, method=self.settings["response_method"])
+            self.bot.send_message_to_user(
+                source,
+                custom_message.format(streamer=StreamHelper.get_streamer_display()),
+                event,
+                method=self.settings["response_method"],
+            )
         else:
             emotes = manager.channel_emotes
             messages = split_into_chunks_with_prefix(
@@ -121,7 +126,12 @@ class EmotesModule(BaseModule):
     def print_twitch_emotes(self, source, event, **rest):
         if self.settings["custom_sub_response"] != "":
             custom_message = self.settings["custom_sub_response"]
-            self.bot.send_message_to_user(source, custom_message.format(streamer=StreamHelper.get_streamer_display()), event, method=self.settings["response_method"])
+            self.bot.send_message_to_user(
+                source,
+                custom_message.format(streamer=StreamHelper.get_streamer_display()),
+                event,
+                method=self.settings["response_method"],
+            )
         else:
             manager = self.bot.emote_manager.twitch_emote_manager
             messages = split_into_chunks_with_prefix(
