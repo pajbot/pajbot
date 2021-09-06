@@ -317,7 +317,7 @@ class LinkCheckerModule(BaseModule):
 
                     if whitelisted is False:
                         if self.settings["disable_warnings"] is True:
-                            self.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                            self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
                         else:
                             self.bot.timeout_warn(source, self.settings["timeout_length"], reason=ban_reason)
                         return False
