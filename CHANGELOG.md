@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Fixed Linkchecker not timing out with disable warnings checked (#1433)
 - Minor: Added the ability to change the bot response method in the emotes module. (#1418)
   - This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
 - Minor: Added the ability to change the bot response method in the clip module. (#1417)
