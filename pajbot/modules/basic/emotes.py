@@ -178,8 +178,8 @@ class EmotesModule(BaseModule):
         )
 
     def print_cmd(self, manager, examples):
-        def do_print(source, **rest):
-            self.print_emotes(source, manager)
+        def do_print(source, event, **rest):
+            self.print_emotes(source, event, manager)
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
