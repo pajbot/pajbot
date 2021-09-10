@@ -125,6 +125,17 @@ class IRCManager:
     def whisper(self, username, message):
         self.privmsg(f"#{self.bot.nickname}", f"/w {username} {message}", is_whisper=True)
 
+    def send_raw(self, message):
+        if self.conn is None or not self._can_send(False):
+            log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
+            self.bot.execute_delayed(2, self.send_raw, message)
+            return
+
+        self.conn.send_raw(message)
+
+        self.num_privmsg_sent += 1
+        self.bot.execute_delayed(31, self._reduce_num_privmsg_sent)
+
     def _can_send(self, is_whisper):
         if is_whisper:
             return (
