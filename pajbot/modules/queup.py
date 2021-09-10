@@ -347,7 +347,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get link to your queup",
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+                can_execute_with_whisper=(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -362,7 +362,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get current song",
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+                can_execute_with_whisper=(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -389,7 +389,7 @@ class QueUpModule(BaseModule):
                 delay_all=self.settings["global_cd"],
                 delay_user=self.settings["user_cd"],
                 description="Get previous song",
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+                can_execute_with_whisper=(self.settings["response_method"] == "reply"),
                 examples=[
                     CommandExample(
                         None,
@@ -424,7 +424,7 @@ class QueUpModule(BaseModule):
             default="link",  # If the user does not input any argument
             fallback="link",  # If the user inputs an invalid argument
             command="queup",
-            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+            can_execute_with_whisper=(self.settings["response_method"] == "reply"),
             commands=commands,
         )
 
