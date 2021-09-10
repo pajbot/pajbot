@@ -99,7 +99,7 @@ class MathModule(BaseModule):
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
             description="Calculate some simple math",
-            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+            can_execute_with_whisper=(self.settings["response_method"] == "reply"),
             examples=[],
         )
 
