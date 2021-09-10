@@ -1050,10 +1050,6 @@ def _filter_urlencode(var: Any, args: List[str]) -> Any:
     return urllib.parse.urlencode({"x": var})[2:]
 
 
-def lowercase_first_letter(s):
-    return s[:1].lower() + s[1:] if s else ""
-
-
 def _filter_add(var: Any, args: List[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
