@@ -199,7 +199,7 @@ class WolframModule(BaseModule):
             level=self.settings["level"],
             description="Ask Wolfram Alpha a question",
             command="query",
-            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
+            can_execute_with_whisper=(self.settings["response_method"] == "reply"),
             examples=[
                 CommandExample(
                     None,
