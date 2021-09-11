@@ -95,6 +95,7 @@ class StreamUpdateModule(BaseModule):
             if e.response.status_code == 401:
                 log.error(f"Failed to update game to '{game_name}' - auth error")
                 bot.say(auth_error)
+                bot.streamer_access_token_manager.invalidate_token()
             elif e.response.status_code == 500:
                 log.error(f"Failed to update game to '{game_name}' - internal server error")
                 bot.say(f"{source}, Failed to update game! Please try again.")
@@ -129,6 +130,7 @@ class StreamUpdateModule(BaseModule):
             if e.response.status_code == 401:
                 log.error(f"Failed to update title to '{title}' - auth error")
                 bot.say(auth_error)
+                bot.streamer_access_token_manager.invalidate_token()
             elif e.response.status_code == 400:
                 log.error(f"Title '{title}' contains banned words")
                 bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
