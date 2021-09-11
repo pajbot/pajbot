@@ -67,6 +67,12 @@ class AccessTokenManager(ABC):
             self._token = self.fetch_new()
             self.storage.save(self._token)
 
+    def invalidate_token(self):
+        """invalidate_token gives consumes the ability to say that this token
+        has been invalidated externally, and that any further uses
+        of the token must attempt to fetch it from the token storage"""
+        self._token = None
+
     @property
     def token(self):
         """Get a valid token, attempts to load from storage/request a new token on the first call,

@@ -52,10 +52,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_sub_response",
-            label="A custom message to override the default !subemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {streamer}",
+            label="A custom message to override the default !subemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
-            placeholder="Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
+            placeholder="@{source}, Channel sub emotes can be found here: https://twitchemotes.com/channels/11148817",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -64,10 +64,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_ffz_response",
-            label="A custom message to override the default !ffzemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {streamer}",
+            label="A custom message to override the default !ffzemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
-            placeholder="Channel FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
+            placeholder="@{source}, Channel FFZ emotes can be found here: https://www.frankerfacez.com/channel/pajlada",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -76,10 +76,10 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_bttv_response",
-            label="A custom message to override the default !bttvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {streamer}",
+            label="A custom message to override the default !bttvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
-            placeholder="Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
+            placeholder="@{source}, Channel BTTV emotes can be found here: https://betterttv.com/users/550daf6562e6bd0027aedb5e",
             default="",
             constraints={"max_str_len": 400},
         ),
@@ -88,32 +88,19 @@ class EmotesModule(BaseModule):
         ),
         ModuleSetting(
             key="custom_7tv_response",
-            label="A custom message to override the default !7tvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {streamer}",
+            label="A custom message to override the default !7tvemotes output format. Leave empty to use default format (1 or multiple messages showing all emotes). | Available arguments: {source}, {streamer}",
             type="text",
             required=False,
-            placeholder="Channel 7TV emotes can be found here: https://7tv.app/users/60baa9493285d8b0b8d9e40f",
+            placeholder="@{source}, Channel 7TV emotes can be found here: https://7tv.app/users/60baa9493285d8b0b8d9e40f",
             default="",
             constraints={"max_str_len": 400},
         ),
-        ModuleSetting(
-            key="response_method",
-            label="Method of response to command usage",
-            type="options",
-            required=True,
-            default="say",
-            options=["say", "whisper", "reply"],
-        ),
     ]
 
-    def print_emotes(self, source, event, manager):
+    def print_emotes(self, source, manager):
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
-            self.bot.send_message_to_user(
-                source,
-                custom_message.format(source="{source}", streamer=StreamHelper.get_streamer_display()),
-                event,
-                method=self.settings["response_method"],
-            )
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
         else:
             emotes = manager.channel_emotes
             messages = split_into_chunks_with_prefix(
@@ -121,22 +108,12 @@ class EmotesModule(BaseModule):
                 default=f"No {manager.friendly_name} Emotes active in this chat :(",
             )
             for message in messages:
-                self.bot.send_message_to_user(
-                    source,
-                    message,
-                    event,
-                    method=self.settings["response_method"],
-                )
+                self.bot.say(message)
 
-    def print_twitch_emotes(self, source, event, **rest):
+    def print_twitch_emotes(self, source, **rest):
         if self.settings["custom_sub_response"] != "":
             custom_message = self.settings["custom_sub_response"]
-            self.bot.send_message_to_user(
-                source,
-                custom_message.format(source="{source}", streamer=StreamHelper.get_streamer_display()),
-                event,
-                method=self.settings["response_method"],
-            )
+            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
         else:
             manager = self.bot.emote_manager.twitch_emote_manager
             messages = split_into_chunks_with_prefix(
@@ -148,12 +125,7 @@ class EmotesModule(BaseModule):
                 default=f"Looks like {StreamHelper.get_streamer_display()} has no subscriber emotes! :(",
             )
             for message in messages:
-                self.bot.send_message_to_user(
-                    source,
-                    message,
-                    event,
-                    method=self.settings["response_method"],
-                )
+                self.bot.say(message)
 
     def reload_cmd(self, manager):
         # manager is an instance of the manager in the bot and the class of the manager on the web interface
@@ -178,8 +150,8 @@ class EmotesModule(BaseModule):
         )
 
     def print_cmd(self, manager, examples):
-        def do_print(source, event, **rest):
-            self.print_emotes(source, event, manager)
+        def do_print(source, **rest):
+            self.print_emotes(source, manager)
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
@@ -193,7 +165,6 @@ class EmotesModule(BaseModule):
             level=self.settings["level"],
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             examples=[
                 CommandExample(
                     None,
@@ -218,7 +189,6 @@ class EmotesModule(BaseModule):
             level=self.settings["level"],
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             examples=[
                 CommandExample(
                     None,
@@ -262,7 +232,6 @@ class EmotesModule(BaseModule):
                 fallback=" ",
                 command="bttvemotes",
                 commands={"reload": cmd_reload_bttv_emotes, " ": cmd_print_bttv_emotes},
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             )
 
         if self.settings["enable_ffzemotes"]:
@@ -274,7 +243,6 @@ class EmotesModule(BaseModule):
                 fallback=" ",
                 command="ffzemotes",
                 commands={"reload": cmd_reload_ffz_emotes, " ": cmd_print_ffz_emotes},
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             )
 
         if self.settings["enable_7tvemotes"]:
@@ -286,7 +254,6 @@ class EmotesModule(BaseModule):
                 fallback=" ",
                 command="7tvemotes",
                 commands={"reload": cmd_reload_7tv_emotes, " ": cmd_print_7tv_emotes},
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             )
 
         if self.settings["enable_subemotes"]:
@@ -298,5 +265,4 @@ class EmotesModule(BaseModule):
                 fallback=" ",
                 command="subemotes",
                 commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
-                can_execute_with_whisper=bool(self.settings["response_method"] == "reply"),
             )
