@@ -4,14 +4,15 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Added the ability to change the bot response method in the emotes module. (#1418, #1438)
-  - This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
-- Minor: Added the ability to change the bot response method in the clip module. (#1417)
-  - This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
+- Minor: Added the ability to change the bot response method in the wolfram module. (#1423)
+- Minor: Added the ability to change the bot response method in the math module. (#1421)
+- Minor: Added the ability to change the bot response method in the clip module. (#1417)  
+  This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
 - Minor: Added option to customize the playsound command. (#1404)
 - Minor: Improved emote scaling in the CLR overlay. (#1400)
 - Minor: Add option to combine roulette output in offline chat too.
 - Minor: Add option to select which emotes are used for wins and losses in combined roulette output.
+- Bugfix: Fixed 401 errors not being handled correctly for `!setgame` and `!settitle` commands. (#1449)
 - Bugfix: Fixed Linkchecker not timing out with disable warnings checked. (#1433)
 - Bugfix: Fixed incorrect error messages for blocked titles. (#1407)
 - Bugfix: CLR overlay scrollbar is now hidden. (#1401)

@@ -60,6 +60,14 @@ class WolframModule(BaseModule):
             placeholder="Sweden",
             default="",
         ),
+        ModuleSetting(
+            key="response_method",
+            label="Method of response to command usage",
+            type="options",
+            required=True,
+            default="say",
+            options=["say", "whisper", "reply"],
+        ),
     ]
 
     def __init__(self, bot):
@@ -108,20 +116,19 @@ class WolframModule(BaseModule):
             )
             answer = res.json()["queryresult"]
 
-            base_reply = f"{source}, "
-
             is_error = answer["error"]
             is_success = answer["success"]
             log.debug("Result status: error: %s, success: %s", is_error, is_success)
 
             if is_error:
-                reply = base_reply + "your query errored FeelsBadMan"
-                bot.send_message_to_user(source, reply, event, method="reply")
+                bot.send_message_to_user(
+                    source, "Your query errored FeelsBadMan", event, method=self.settings["response_method"]
+                )
                 return False
 
             if not is_success:
                 log.debug(answer)
-                reply = base_reply + "Wolfram|Alpha didn't understand your query FeelsBadMan"
+                reply = "Wolfram|Alpha didn't understand your query FeelsBadMan"
                 didyoumeans = answer.get("didyoumeans", None)
                 if didyoumeans is not None and len(didyoumeans) > 0:
                     reply += " Did you mean: "
@@ -133,7 +140,7 @@ class WolframModule(BaseModule):
                         didyoumeans = [didyoumeans]
                     reply += " | ".join(list(map(lambda x: x.get("val", None), didyoumeans)))
                 log.debug(reply)
-                bot.send_message_to_user(source, reply, event, method="reply")
+                bot.send_message_to_user(source, reply, event, method=self.settings["response_method"])
                 return False
 
             # pods and subpods explanation: https://products.wolframalpha.com/api/documentation/#subpod-states
@@ -176,11 +183,10 @@ class WolframModule(BaseModule):
 
             stringified_pods = map(stringify_pod, selected_pods)
             complete_answer = " ❚ ".join(stringified_pods)
-            reply = base_reply + complete_answer
 
-            reply = (reply[:499] + "…") if len(reply) > 500 else reply
+            reply = (complete_answer[:499] + "…") if len(complete_answer) > 500 else complete_answer
 
-            bot.send_message_to_user(source, reply, event, method="reply")
+            bot.send_message_to_user(source, reply, event, method=self.settings["response_method"])
 
         except:
             log.exception("wolfram query errored")
@@ -193,6 +199,7 @@ class WolframModule(BaseModule):
             level=self.settings["level"],
             description="Ask Wolfram Alpha a question",
             command="query",
+            can_execute_with_whisper=(self.settings["response_method"] == "reply"),
             examples=[
                 CommandExample(
                     None,
