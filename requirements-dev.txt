@@ -10,7 +10,7 @@ types-ipaddress==1.0.0
 types-Markdown==3.3.2
 types-pkg-resources==0.1.3
 types-pytz==2021.1.2
-types-redis==3.5.7
+types-redis==3.5.8
 types-requests==2.25.6
 types-retry==0.1.5
 types-toml==0.1.5
