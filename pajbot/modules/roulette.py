@@ -113,6 +113,7 @@ class RouletteModule(BaseModule):
                 "2. Show results in whispers",
                 "3. Show results in chat if it's over X points else it will be whispered.",
                 "4. Combine output in chat",
+                "5. Combine output in chat AND offline chat",
             ],
         ),
         ModuleSetting(
@@ -147,6 +148,22 @@ class RouletteModule(BaseModule):
             required=True,
             default="Rouletting is now allowed for {seconds} seconds! PogChamp",
             constraints={"min_str_len": 0, "max_str_len": 300},
+        ),
+        ModuleSetting(
+            key="combined_output_win_emote",
+            label="Emote to use for a combined message win",
+            type="text",
+            required=True,
+            default="forsenPls",
+            constraints={"min_str_len": 0, "max_str_len": 50},
+        ),
+        ModuleSetting(
+            key="combined_output_loss_emote",
+            label="Emote to use for a combined message loss",
+            type="text",
+            required=True,
+            default="forsenSWA",
+            constraints={"min_str_len": 0, "max_str_len": 50},
         ),
     ]
 
@@ -229,6 +246,8 @@ class RouletteModule(BaseModule):
         else:
             out_message = self.get_phrase("message_lost", **arguments)
 
+        if self.settings["options_output"] == "5. Combine output in chat AND offline chat":
+            self.add_message(bot, arguments)
         if self.settings["options_output"] == "4. Combine output in chat":
             if bot.is_online:
                 self.add_message(bot, arguments)
@@ -270,8 +289,8 @@ class RouletteModule(BaseModule):
     def add_message(self, bot, arguments):
         parts = []
         new_buffer = "Roulette: "
-        win_emote = "forsenPls"
-        lose_emote = "forsenSWA"
+        win_emote = self.settings["combined_output_win_emote"]
+        lose_emote = self.settings["combined_output_loss_emote"]
         for arg in self.output_buffer_args:
             parts.append(
                 f"{win_emote if arg['win'] else lose_emote} {arg['user']} {'+' if arg['win'] else '-'}{arg['bet']}"

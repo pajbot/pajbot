@@ -169,7 +169,7 @@ class ClipCommandModule(BaseModule):
                 )
             return True
 
-        clip_url = "https://clips.twitch.tv/" + clip_id
+        clip_url = f"https://clips.twitch.tv/{clip_id}"
         if self.settings["thumbnail_check"] is True:
             self.bot.execute_delayed(
                 5,
