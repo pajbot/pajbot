@@ -659,7 +659,7 @@ class Bot:
 
     def send_message_to_user(self, user, message, event, method="say"):
         if method == "say":
-            self.say(f"@{user.name}, {lowercase_first_letter(message)}")
+            self.say(f"@{user.name}, {message}")
         elif method == "whisper":
             self.whisper(user, message)
         elif method == "me":
@@ -1065,10 +1065,6 @@ def _filter_strftime(var: Any, args: List[str]) -> Any:
 
 def _filter_urlencode(var: Any, args: List[str]) -> Any:
     return urllib.parse.urlencode({"x": var})[2:]
-
-
-def lowercase_first_letter(s):
-    return s[:1].lower() + s[1:] if s else ""
 
 
 def _filter_add(var: Any, args: List[str]) -> Any:
