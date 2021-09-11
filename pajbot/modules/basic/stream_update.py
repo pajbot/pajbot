@@ -107,7 +107,7 @@ class StreamUpdateModule(BaseModule):
         AdminLogManager.add_entry("Game set", source, log_msg)
 
     def update_title(self, bot: Bot, source, message, **rest) -> Any:
-        auth_error = "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+        auth_error = "Error: The streamer must grant permissions to update the title. The streamer needs to be re-authenticated to fix this problem."
 
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(auth_error)
