@@ -1,3 +1,5 @@
+from typing import List
+
 import argparse
 import logging
 import urllib.parse
@@ -503,6 +505,23 @@ class LinkCheckerModule(BaseModule):
         except:
             log.exception("LinkChecker unhandled exception while _check_url")
 
+    def _bs_get_site_links(self, html) -> List[str]:
+        # Checks the HTML content of the site and parses out any links
+        urls: List[str] = []
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        for link in soup.find_all("a"):  # get a list of links to external sites
+            url = link.get("href")
+            if url is None:
+                continue
+            if url.startswith("//"):
+                urls.append("http:" + url)
+            elif url.startswith("http://") or url.startswith("https://"):
+                urls.append(url)
+
+        return urls
+
     def _check_url(self, url, action):
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
@@ -587,22 +606,14 @@ class LinkCheckerModule(BaseModule):
             log.exception("Unhandled exception")
             return
 
-        try:
-            soup = BeautifulSoup(html, "html.parser")
-        except:
-            return
-
         original_url = url
         original_redirected_url = redirected_url
         urls = []
-        for link in soup.find_all("a"):  # get a list of links to external sites
-            url = link.get("href")
-            if url is None:
-                continue
-            if url.startswith("//"):
-                urls.append("http:" + url)
-            elif url.startswith("http://") or url.startswith("https://"):
-                urls.append(url)
+
+        try:
+            urls = self._bs_get_site_links(html)
+        except:
+            log.exception("Something went wrong parsing links")
 
         for url in urls:  # check if the site links to anything dangerous
             url = Url(url)
