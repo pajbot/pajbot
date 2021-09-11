@@ -12,6 +12,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Improved emote scaling in the CLR overlay. (#1400)
 - Minor: Add option to combine roulette output in offline chat too.
 - Minor: Add option to select which emotes are used for wins and losses in combined roulette output.
+- Bugfix: Fixed 401 errors not being handled correctly for `!setgame` and `!settitle` commands. (#1449)
 - Bugfix: Fixed Linkchecker not timing out with disable warnings checked. (#1433)
 - Bugfix: Fixed incorrect error messages for blocked titles. (#1407)
 - Bugfix: CLR overlay scrollbar is now hidden. (#1401)

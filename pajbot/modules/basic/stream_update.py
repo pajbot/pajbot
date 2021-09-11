@@ -67,10 +67,10 @@ class StreamUpdateModule(BaseModule):
     ]
 
     def update_game(self, bot: Bot, source, message, **rest) -> Any:
+        auth_error = "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
-            bot.say(
-                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
-            )
+            bot.say(auth_error)
             return
 
         game_name = message
@@ -92,7 +92,11 @@ class StreamUpdateModule(BaseModule):
                 authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
-            if e.response.status_code == 500:
+            if e.response.status_code == 401:
+                log.error(f"Failed to update game to '{game_name}' - auth error")
+                bot.say(auth_error)
+                bot.streamer_access_token_manager.invalidate_token()
+            elif e.response.status_code == 500:
                 log.error(f"Failed to update game to '{game_name}' - internal server error")
                 bot.say(f"{source}, Failed to update game! Please try again.")
             else:
@@ -104,10 +108,10 @@ class StreamUpdateModule(BaseModule):
         AdminLogManager.add_entry("Game set", source, log_msg)
 
     def update_title(self, bot: Bot, source, message, **rest) -> Any:
+        auth_error = "Error: The streamer must grant permissions to update the title. The streamer needs to be re-authenticated to fix this problem."
+
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
-            bot.say(
-                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
-            )
+            bot.say(auth_error)
             return
 
         title = message
@@ -123,7 +127,11 @@ class StreamUpdateModule(BaseModule):
                 authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
-            if e.response.status_code == 400:
+            if e.response.status_code == 401:
+                log.error(f"Failed to update title to '{title}' - auth error")
+                bot.say(auth_error)
+                bot.streamer_access_token_manager.invalidate_token()
+            elif e.response.status_code == 400:
                 log.error(f"Title '{title}' contains banned words")
                 bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
             elif e.response.status_code == 500:
