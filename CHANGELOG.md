@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added the ability to change the bot response method in the math module. (#1421)
 - Minor: Added the ability to change the bot response method in the clip module. (#1417)  
   This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
 - Minor: Added option to customize the playsound command. (#1404)
