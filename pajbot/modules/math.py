@@ -83,6 +83,14 @@ class MathModule(BaseModule):
             default=6,
             constraints={"min_value": 0, "max_value": 240},
         ),
+        ModuleSetting(
+            key="response_method",
+            label="Method of response to command usage",
+            type="options",
+            required=True,
+            default="say",
+            options=["say", "whisper", "reply"],
+        ),
     ]
 
     def load_commands(self, **options):
@@ -91,11 +99,11 @@ class MathModule(BaseModule):
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
             description="Calculate some simple math",
+            can_execute_with_whisper=(self.settings["response_method"] == "reply"),
             examples=[],
         )
 
-    @staticmethod
-    def do_math(bot, source, message):
+    def do_math(self, bot, event, source, message):
         expr_res = None
         with time_limit(1):
             try:
@@ -130,11 +138,11 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.say(f"{source}, {expr_res} {emote}")
+        bot.send_message_to_user(source, f"{expr_res} {emote}", event, method=self.settings["response_method"])
 
-    def math(self, bot, source, message, **rest):
+    def math(self, bot, event, source, message, **rest):
         if source.id == "68706331":  # Karl_Kons
-            bot.say(f"{source}, 8 Kappa")
+            bot.send_message_to_user(source, "8 Kappa", event, method=self.settings["response_method"])
             return
 
         if message:
@@ -144,4 +152,4 @@ class MathModule(BaseModule):
             message = message.replace("^", "**")
             message = message.replace(",", ".")
 
-            self.do_math(bot, source, message)
+            self.do_math(bot, event, source, message)
