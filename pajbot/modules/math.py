@@ -152,4 +152,4 @@ class MathModule(BaseModule):
             message = message.replace("^", "**")
             message = message.replace(",", ".")
 
-            self.do_math(bot, source, message)
+            self.do_math(bot, event, source, message)
