@@ -10,6 +10,8 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   - This removes the need for the `{source}` argument in the responses, so if you've made any custom responses you will need to validate that things look as expected.
 - Minor: Added option to customize the playsound command. (#1404)
 - Minor: Improved emote scaling in the CLR overlay. (#1400)
+- Minor: Add option to combine roulette output in offline chat too.
+- Minor: Add option to select which emotes are used for wins and losses in combined roulette output.
 - Bugfix: Fixed Linkchecker not timing out with disable warnings checked. (#1433)
 - Bugfix: Fixed incorrect error messages for blocked titles. (#1407)
 - Bugfix: CLR overlay scrollbar is now hidden. (#1401)
