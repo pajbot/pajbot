@@ -106,7 +106,7 @@ class StreamUpdateModule(BaseModule):
     def update_title(self, bot: Bot, source, message, **rest) -> Any:
         if "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope:
             bot.say(
-                "Error: The streamer must grant permissions to update the game. The streamer needs to be re-authenticated to fix this problem."
+                "Error: The streamer must grant permissions to update the title. The streamer needs to be re-authenticated to fix this problem."
             )
             return
 
