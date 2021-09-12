@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: debian:buster
+    container: debian:bullseye
 
     steps:
       - name: Update apt database
@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: ./venv
-          key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+          key: v2-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -34,7 +34,7 @@ jobs:
 
   check_format:
     runs-on: ubuntu-latest
-    container: debian:buster
+    container: debian:bullseye
 
     steps:
       - name: Update apt database
@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: ./venv
-          key: v1-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+          key: v2-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
