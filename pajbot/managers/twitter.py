@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 
 class GenericTwitterManager:
-    def __init__(self, bot):
+    def __init__(self, bot) -> None:
         self.bot = bot
 
         self.twitter_client = None
@@ -118,7 +118,7 @@ class GenericTwitterManager:
 
         return "FeelsBadMan"
 
-    def quit(self):
+    def quit(self) -> None:
         pass
 
 

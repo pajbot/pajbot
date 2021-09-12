@@ -15,6 +15,7 @@ from pytz import timezone
 
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
+import pajbot.config as cfg
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -33,7 +34,6 @@ from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.managers.twitter import TwitterManager, PBTwitterManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
@@ -62,13 +62,12 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def __init__(self, config, args):
-        self.config = config
+    def __init__(self, config, args) -> None:
         self.args = args
 
         ScheduleManager.init()
 
-        DBManager.init(self.config["main"]["db"])
+        DBManager.init(config["main"]["db"])
 
         # redis
         redis_options = {}
@@ -78,6 +77,8 @@ class Bot:
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
+
+        self.control_hub: Optional[str] = config["main"].get("control_hub", None)
 
         if config["main"].getboolean("verified", False):
             self.tmi_rate_limits = TMIRateLimits.VERIFIED
@@ -106,23 +107,18 @@ class Bot:
         self.welcome_messages_sent = False
 
         # streamer
-        if "streamer" in config["main"]:
-            self.streamer: str = config["main"]["streamer"]
-            self.channel = "#" + self.streamer
-        elif "target" in config["main"]:
-            self.channel = config["main"]["target"]
-            self.streamer: str = self.channel[1:]
+        self.streamer, self.channel = cfg.load_streamer_and_channel(config)
 
-        self.bot_domain = self.config["web"]["domain"]
-        self.streamer_display = self.config["web"]["streamer_name"]
+        self.bot_domain = config["web"]["domain"]
+        self.streamer_display = config["web"]["streamer_name"]
 
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
-            self.config["twitchapi"]["client_id"],
-            self.config["twitchapi"]["client_secret"],
-            self.config["twitchapi"]["redirect_uri"],
+            config["twitchapi"]["client_id"],
+            config["twitchapi"]["client_secret"],
+            config["twitchapi"]["redirect_uri"],
         )
 
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
@@ -184,14 +180,14 @@ class Bot:
         self.kvi = KVIManager()
 
         # bot access token
-        if "password" in self.config["main"]:
+        if "password" in config["main"]:
             log.warning(
                 "DEPRECATED - Using bot password/oauth token from file. "
                 "You should authenticate in web gui using route /bot_login "
                 "and remove password from config file"
             )
 
-            access_token = self.config["main"]["password"]
+            access_token = config["main"]["password"]
 
             if access_token.startswith("oauth:"):
                 access_token = access_token[6:]
@@ -211,10 +207,7 @@ class Bot:
         self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
-        if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
-            self.twitter_manager = PBTwitterManager(self)
-        else:
-            self.twitter_manager = TwitterManager(self)
+        self.twitter_manager = cfg.load_twitter_manager(config)(self)
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
@@ -230,7 +223,7 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        self.admin = self.config["main"].get("admin", None)
+        self.admin = config["main"].get("admin", None)
         if self.admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
@@ -260,8 +253,8 @@ class Bot:
 
         self.irc = IRCManager(self)
 
-        relay_host = self.config["main"].get("relay_host", None)
-        relay_password = self.config["main"].get("relay_password", None)
+        relay_host = config["main"].get("relay_host", None)
+        relay_password = config["main"].get("relay_password", None)
         if relay_host is not None or relay_password is not None:
             log.warning(
                 "DEPRECATED - Relaybroker support is no longer implemented. relay_host and relay_password are ignored"
@@ -962,21 +955,20 @@ class Bot:
         if "subs-only" in tags:
             self.subs_only = tags["subs-only"] == "1"
 
-    def commit_all(self):
+    def commit_all(self) -> None:
         for key, manager in self.commitable.items():
             manager.commit()
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 
     @staticmethod
-    def do_tick():
+    def do_tick() -> None:
         HandlerManager.trigger("on_tick")
 
-    def quit(self, message, event, **options):
-        quit_chub = self.config["main"].get("control_hub", None)
+    def quit(self, message, event, **options) -> None:
         quit_delay = 0
 
-        if quit_chub is not None and event.target == f"#{quit_chub}":
+        if self.control_hub is not None and event.target == f"#{self.control_hub}":
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -988,14 +980,15 @@ class Bot:
 
         self.execute_delayed(quit_delay, self.quit_bot)
 
-    def quit_bot(self, **options):
+    def quit_bot(self, **options) -> None:
         self.commit_all()
         HandlerManager.trigger("on_quit")
         phrase_data = {"nickname": self.nickname, "version": self.version_long}
 
         try:
-            ScheduleManager.base_scheduler.print_jobs()
-            ScheduleManager.base_scheduler.shutdown(wait=False)
+            if ScheduleManager.base_scheduler:
+                ScheduleManager.base_scheduler.print_jobs()
+                ScheduleManager.base_scheduler.shutdown(wait=False)
         except:
             log.exception("Error while shutting down the apscheduler")
 

@@ -7,7 +7,7 @@ import sys
 log = logging.getLogger(__name__)
 
 
-def load_config(path):
+def load_config(path: str) -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     config.read_dict({"web": {"deck_tab_images": "1"}})
 

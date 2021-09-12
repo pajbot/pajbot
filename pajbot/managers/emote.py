@@ -24,8 +24,10 @@ class EmoteAPI(Protocol):
 
 
 class GenericChannelEmoteManager:
+    friendly_name: str
+
     # to be implemented
-    def __init__(self, friendly_name: str, api: Optional[EmoteAPI]) -> None:
+    def __init__(self, api: Optional[EmoteAPI]) -> None:
         self._global_emotes: List[Emote] = []
         self._channel_emotes: List[Emote] = []
         self.streamer = StreamHelper.get_streamer()
@@ -33,7 +35,6 @@ class GenericChannelEmoteManager:
         self.global_lookup_table: Dict[str, Emote] = {}
         self.channel_lookup_table: Dict[str, Emote] = {}
 
-        self.friendly_name = friendly_name
         self.api = api
 
     @property
@@ -100,6 +101,8 @@ class GenericChannelEmoteManager:
 
 
 class TwitchEmoteManager(GenericChannelEmoteManager):
+    friendly_name = "Twitch"
+
     def __init__(self, twitch_helix_api) -> None:
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
@@ -108,7 +111,7 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         self.tier_two_emotes: List[Emote] = []
         self.tier_three_emotes: List[Emote] = []
 
-        super().__init__("Twitch", None)
+        super().__init__(None)
 
     @property  # type: ignore
     def channel_emotes(self) -> List[Emote]:
@@ -132,13 +135,17 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
 
 class FFZEmoteManager(GenericChannelEmoteManager):
+    friendly_name = "FFZ"
+
     def __init__(self) -> None:
         from pajbot.apiwrappers.ffz import FFZAPI
 
-        super().__init__("FFZ", FFZAPI(RedisManager.get()))
+        super().__init__(FFZAPI(RedisManager.get()))
 
 
 class BTTVEmoteManager(GenericChannelEmoteManager):
+    friendly_name = "BTTV"
+
     def __init__(self) -> None:
         from pajbot.apiwrappers.bttv import BTTVAPI
 
@@ -147,7 +154,7 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
         self.bttv_api = BTTVAPI(RedisManager.get())
 
-        super().__init__("BTTV", self.bttv_api)
+        super().__init__(self.bttv_api)
 
     def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
@@ -158,10 +165,12 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
 
 class SevenTVEmoteManager(GenericChannelEmoteManager):
+    friendly_name = "7TV"
+
     def __init__(self) -> None:
         from pajbot.apiwrappers.seventv import SevenTVAPI
 
-        super().__init__("7TV", SevenTVAPI(RedisManager.get()))
+        super().__init__(SevenTVAPI(RedisManager.get()))
 
 
 class EmoteManager:
