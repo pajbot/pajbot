@@ -1,3 +1,5 @@
+from typing import Any, Optional
+
 import json
 import logging
 import threading
@@ -56,17 +58,17 @@ class SocketManager:
 
 
 class SocketClientManager:
-    streamer_name = None
+    streamer_name: Optional[str] = None
 
     @classmethod
-    def init(cls, streamer_name):
+    def init(cls, streamer_name: str):
         cls.streamer_name = streamer_name
 
     @classmethod
-    def send(cls, topic, data):
+    def send(cls, topic: str, data: Any) -> bool:
         if cls.streamer_name is None:
             raise ValueError("streamer_name not set in SocketClientManager")
 
         topic = f"{cls.streamer_name}:{topic}"
 
-        RedisManager.publish(topic, json.dumps(data))
+        return RedisManager.publish(topic, json.dumps(data)) > 0

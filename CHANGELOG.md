@@ -17,6 +17,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fixed Linkchecker not timing out with disable warnings checked. (#1433)
 - Bugfix: Fixed incorrect error messages for blocked titles. (#1407)
 - Bugfix: CLR overlay scrollbar is now hidden. (#1401)
+- Bugfix: Fixed communication between the web server and the bot (e.g. command updating). (#1450)
 - Fix: Don't allow following of empty Twitter usernames through the admin page. (#1395)
 - Dev: Updated whisper rate limits to align with Twitch specification of: 3 per second, up to 100 per minute. (#1409)
 
