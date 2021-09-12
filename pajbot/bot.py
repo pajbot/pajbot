@@ -64,6 +64,7 @@ class Bot:
 
     def __init__(self, config, args) -> None:
         self.args = args
+        self.config = config
 
         ScheduleManager.init()
 

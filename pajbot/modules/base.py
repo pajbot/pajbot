@@ -7,6 +7,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.utils import find
 from pajbot.bot import Bot
+from pajbot.config import Config
 
 log = logging.getLogger(__name__)
 
@@ -115,8 +116,9 @@ class BaseModule:
     MODULE_TYPE = ModuleType.TYPE_NORMAL
     CONFIGURE_LEVEL = 500
 
-    def __init__(self, bot: Bot):
-        """Initialize any dictionaries the module might or might not use."""
+    def __init__(self, bot: Bot, config: Optional[Config] = None):
+        """Initialize any dictionaries the module might or might not use.
+        This is called once on bot startup, and once in the website whenever the module list is accessed"""
         self.bot: Bot = bot
 
         self.commands: Any = {}

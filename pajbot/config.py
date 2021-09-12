@@ -1,6 +1,8 @@
-from typing import Tuple, Type
+from typing import Any, Dict, Tuple, Type
 
 from pajbot.managers.twitter import GenericTwitterManager, PBTwitterManager, TwitterManager
+
+Config = Dict[str, Dict[str, Any]]
 
 
 def load_streamer_and_channel(config) -> Tuple[str, str]:

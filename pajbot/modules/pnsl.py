@@ -53,8 +53,10 @@ class PNSLModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot) -> None:
         super().__init__(bot)
+
+        log.info("PNSL module ctor")
 
         self.pnsl_token = None
 

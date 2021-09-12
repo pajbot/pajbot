@@ -19,14 +19,14 @@ class Module(Base):
     enabled = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
     settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
 
-    def __init__(self, module_id, **options):
+    def __init__(self, module_id, **options) -> None:
         self.id = module_id
         self.enabled = options.get("enabled", False)
         self.settings = None
 
 
 class ModuleManager:
-    def __init__(self, socket_manager, bot=None):
+    def __init__(self, socket_manager, bot=None) -> None:
         # List of all enabled modules
         self.modules = []
 
@@ -105,6 +105,7 @@ class ModuleManager:
                     db_session.add(mod)
 
         if do_reload is True:
+            # Mark modules as enabled/disabled if their state has changed
             self.reload()
 
         return self
