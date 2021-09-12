@@ -666,11 +666,28 @@ class Bot:
             self.me(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
-                self.say(f"@{user.name}, {message}")
+                msg_id = next(tag["value"] for tag in event.tags if tag["key"] == "id")
+                self.reply(msg_id, message)
             elif event.type == "whisper":
                 self.whisper(user, message)
         else:
             log.warning("Unknown send_message method: %s", method)
+
+    def reply(self, msg_id, message, channel=None):
+        if self.silent:
+            return
+
+        if not message:
+            log.warning("message=None passed to Bot::reply()")
+            return
+
+        if not channel:
+            channel = self.channel
+
+        message = utils.clean_up_message(message)
+        message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
+
+        self.irc.send_raw(message[:510])
 
     def say(self, message, channel=None):
         if message is None:

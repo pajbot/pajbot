@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added Twitch reply thread support. (#1442)
 - Minor: Added the ability to change the bot response method in the wolfram module. (#1423)
 - Minor: Added the ability to change the bot response method in the math module. (#1421)
 - Minor: Added the ability to change the bot response method in the clip module. (#1417)  

@@ -581,7 +581,7 @@ class ReplyAction(MessageAction):
 
         if irc.client.is_channel(event.target):
             if self.num_urlfetch_subs == 0:
-                return bot.say(resp, channel=event.target)
+                return bot.reply(extra["msg_id"], resp, channel=event.target)
 
             return ScheduleManager.execute_now(
                 urlfetch_msg,
