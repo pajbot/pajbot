@@ -45,7 +45,7 @@ class TwitchIDAPI(BaseAPI):
         #   "expires_in": 14310,
         #   "refresh_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         #   "scope": [
-        #     "user_read"
+        #     "user:read:email"
         #   ],
         #   "token_type": "bearer"
         # }
@@ -69,7 +69,7 @@ class TwitchIDAPI(BaseAPI):
         #   "expires_in": 14346,
         #   "refresh_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         #   "scope": [
-        #     "user_read"
+        #     "user:read:email"
         #   ],
         #   "token_type": "bearer"
         # }

@@ -36,7 +36,6 @@ def init(app):
         return redirect(authorize_url)
 
     bot_scopes = [
-        "user_read",
         "user:edit",
         "user:read:email",
         "channel:moderate",
@@ -44,12 +43,11 @@ def init(app):
         "chat:read",
         "whispers:read",
         "whispers:edit",
-        "channel_editor",
         "channel:read:subscriptions",
         "clips:edit",
     ]
 
-    streamer_scopes = ["channel:read:subscriptions", "channel_editor", "user:edit:broadcast"]
+    streamer_scopes = ["channel:read:subscriptions", "channel:manage:broadcast"]
 
     @app.route("/login")
     def login():
