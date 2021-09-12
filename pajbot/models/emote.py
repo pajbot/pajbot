@@ -1,3 +1,6 @@
+from typing import Dict, List
+
+
 class Emote:
     """Emote encapsulates an emote that can be from either Twitch, FFZ, BTTV or 7TV.
     :ivar code: Word/code that this emote replaces in the chat message, e.g. "Kappa"
@@ -9,7 +12,7 @@ class Emote:
     :var urls: Dict mapping size (e.g. "1", "2", or "4") to an URL depicting the emote
     :type urls: dict[str, str]"""
 
-    def __init__(self, code, provider, id, urls):
+    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str]) -> None:
         self.code = code
         self.provider = provider
         if not isinstance(id, str):
@@ -17,16 +20,16 @@ class Emote:
         self.id = id
         self.urls = urls
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Emote):
             return False
 
         return self.provider == other.provider and self.id == other.id
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.provider, self.id))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"[{self.provider}] {self.code}"
 
     def jsonify(self):
@@ -46,21 +49,21 @@ class EmoteInstance:
     :ivar emote: The emote.
     :type emote: Emote"""
 
-    def __init__(self, start, end, emote):
+    def __init__(self, start: int, end: int, emote: Emote) -> None:
         self.start = start
         self.end = end
         self.emote = emote
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, EmoteInstance):
             return False
 
         return self.start == other.start and self.end == other.end and self.emote == other.emote
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.start, self.end, self.emote))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.emote} @ {self.start}-{self.end}"
 
     def jsonify(self):
@@ -77,21 +80,21 @@ class EmoteInstanceCount:
     :type emote_instances: list[EmoteInstance]
     """
 
-    def __init__(self, count, emote, emote_instances):
+    def __init__(self, count: int, emote: Emote, emote_instances: List[EmoteInstance]) -> None:
         self.count = count
         self.emote = emote
         self.emote_instances = emote_instances
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, EmoteInstanceCount):
             return False
 
         return self.count == other.count and self.emote == other.emote and self.emote_instances == other.emote_instances
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.count, self.emote, self.emote_instances))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         indices = [f"{instance.start}-{instance.end}" for instance in self.emote_instances]
 
         return f"{self.emote} @ [{', '.join(indices)}]"

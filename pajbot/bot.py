@@ -1,4 +1,4 @@
-from typing import Any, List, Callable
+from typing import Any, List, Callable, Optional
 
 import cgi
 import datetime
@@ -317,14 +317,14 @@ class Bot:
         # formats the number with grouping (e.g. 112,556) and zero decimal places
         return f"{epm:,.0f}"
 
-    def get_emote_epm_record(self, key, extra={}):
+    def get_emote_epm_record(self, key, extra={}) -> Optional[str]:
         val = self.epm_manager.get_emote_epm_record(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
         return f"{val:,.0f}"
 
-    def get_emote_count(self, key, extra={}):
+    def get_emote_count(self, key, extra={}) -> Optional[str]:
         val = self.ecount_manager.get_emote_count(key)
         if val is None:
             return None

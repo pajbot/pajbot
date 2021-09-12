@@ -29,7 +29,7 @@ class DBManager:
     ScopedSession: scoped_session = None
 
     @staticmethod
-    def init(url):
+    def init(url) -> None:
         DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)
 
         # https://docs.sqlalchemy.org/en/13/core/events.html#sqlalchemy.events.PoolEvents.connect
