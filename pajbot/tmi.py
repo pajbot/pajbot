@@ -7,6 +7,7 @@ class WhisperOutputMode(Enum):
     DISABLED = 0
     NORMAL = 1
     CHAT = 2
+    CONTROL = 3
 
     @staticmethod
     def from_config_value(config_value):
