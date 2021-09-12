@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional, List
+from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy import BOOLEAN, INT, TEXT
 from sqlalchemy import Column
@@ -285,7 +285,7 @@ class StreamManager:
         key_prefix = self.bot.streamer + ":"
 
         # Default data we want to update in case the stream is offline
-        stream_data = {
+        stream_data: Dict[Union[bytes, str], Any] = {
             f"{key_prefix}online": "False",
             f"{key_prefix}viewers": 0,
         }
