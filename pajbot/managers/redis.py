@@ -1,6 +1,9 @@
+from typing import Optional
+
 import logging
 
 import redis
+from redis import Redis
 
 log = logging.getLogger(__name__)
 
@@ -12,14 +15,17 @@ class RedisManager:
     get-method is called.
     """
 
-    redis = None
+    redis: Optional[Redis] = None
 
     @staticmethod
     def init(**options):
-        RedisManager.redis = redis.Redis(**{"decode_responses": True, **options})
+        RedisManager.redis = Redis(**{"decode_responses": True, **options})
 
     @staticmethod
-    def get():
+    def get() -> Redis:
+        if RedisManager.redis is None:
+            raise ValueError("RedisManager.get called before RedisManager.init")
+
         return RedisManager.redis
 
     @staticmethod
@@ -27,5 +33,8 @@ class RedisManager:
         return redis.utils.pipeline(RedisManager.get())
 
     @classmethod
-    def publish(cls, channel, message):
-        cls.redis.publish(channel, message)
+    def publish(cls, channel: str, message: str) -> int:
+        if cls.redis is None:
+            raise ValueError("RedisManager.publish called before RedisManager.init")
+
+        return cls.redis.publish(channel, message)
