@@ -7,6 +7,7 @@ Replace `v1.23` with the new version in the commands/examples below.
 - Update `CHANGELOG.md`, replace `## Unversioned` with `## v1.23` and add a new empty `## Unversioned` section above `## v1.23`.
 - Look through the changelog entries of this version, and reorder any entries so the most important changes are at the top of each category
 - Update `pajbot/constants.py` with the new version
+- Update the SECURITY.md supported versions (We only support the latest release version)
 
 ## After the Pull Request has been accepted
 
