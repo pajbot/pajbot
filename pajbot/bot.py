@@ -592,7 +592,7 @@ class Bot:
         self.ban_login(user.login, reason)
 
     def ban_login(self, login: str, reason=None):
-        if self.thread_locals.moderation_actions is not None:
+        if "moderation_actions" in self.thread_locals:
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
@@ -602,7 +602,7 @@ class Bot:
         self.unban_login(user.login)
 
     def unban_login(self, login: str):
-        if self.thread_locals.moderation_actions is not None:
+        if "moderation_actions" in self.thread_locals:
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
             self.privmsg(f"/unban {login}")
@@ -611,7 +611,7 @@ class Bot:
         self.untimeout_login(user.login)
 
     def untimeout_login(self, login: str):
-        if self.thread_locals.moderation_actions is not None:
+        if "moderation_actions" in self.thread_locals:
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
             self.privmsg(f"/untimeout {login}")
@@ -626,7 +626,7 @@ class Bot:
         self.timeout_login(user.login, duration, reason, once)
 
     def timeout_login(self, login: str, duration: int, reason=None, once=False):
-        if self.thread_locals.moderation_actions is not None:
+        if "moderation_actions" in self.thread_locals:
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
         else:
             self._timeout(login, duration, reason)
