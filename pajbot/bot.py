@@ -649,8 +649,13 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
             chub = self.config["main"].get("control_hub", None)
             if chub is not None:
-                chub = f"#{chub}"
-            self.privmsg(f"{user}, {message}", chub)
+                self.privmsg(f"{user}, {message}", f"#{chub}")
+            else:
+                log.warning(
+                    "Whisper output mode set to `control_hub` but no control hub configured in config, "
+                    f"the following whisper will not be sent: To {user}: {message}"
+                )
+
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
@@ -662,8 +667,12 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
             chub = self.config["main"].get("control_hub", None)
             if chub is not None:
-                chub = f"#{chub}"
-            self.privmsg(f"{login}, {message}", chub)
+                self.privmsg(f"{login}, {message}", f"#{chub}")
+            else:
+                log.warning(
+                    "Whisper output mode set to `control_hub` but no control hub configured in config, "
+                    f"the following whisper will not be sent: To {login}: {message}"
+                )
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
 
