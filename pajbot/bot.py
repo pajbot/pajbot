@@ -582,6 +582,15 @@ class Bot:
     def execute_every(self, period, function, *args, **kwargs):
         self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
+    def _has_moderation_actions(self) -> bool:
+        """this returns True if the moderation_actions value
+        is set on the given thread, and if it's something other than None,
+        i.e. if the timeout is running inside a new_message_processing_scope context"""
+
+        if "moderation_actions" not in self.thread_locals.__dict__:
+            return False
+        return self.thread_locals.moderation_actions is not None
+
     def _ban(self, login, reason=None):
         message = f"/ban {login}"
         if reason is not None:
@@ -592,7 +601,7 @@ class Bot:
         self.ban_login(user.login, reason)
 
     def ban_login(self, login: str, reason=None):
-        if self.thread_locals.moderation_actions is not None:
+        if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
@@ -602,7 +611,7 @@ class Bot:
         self.unban_login(user.login)
 
     def unban_login(self, login: str):
-        if self.thread_locals.moderation_actions is not None:
+        if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
             self.privmsg(f"/unban {login}")
@@ -611,7 +620,7 @@ class Bot:
         self.untimeout_login(user.login)
 
     def untimeout_login(self, login: str):
-        if self.thread_locals.moderation_actions is not None:
+        if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
             self.privmsg(f"/untimeout {login}")
@@ -626,7 +635,7 @@ class Bot:
         self.timeout_login(user.login, duration, reason, once)
 
     def timeout_login(self, login: str, duration: int, reason=None, once=False):
-        if self.thread_locals.moderation_actions is not None:
+        if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
         else:
             self._timeout(login, duration, reason)
