@@ -4,7 +4,7 @@
 {% block body %}
 <h2>Modules</h2>
 <div id="modules">
-    <table class="display order-column" id="module_list" style="width:100%">
+    <table class="display order-column" id="module_list">
         <thead>
             <tr>
                 <th>Module</th>
@@ -48,7 +48,8 @@ $(document).ready(function() {
         ],
         "order": [[0, "asc"]],
         "paging": false,
-        "stripeClasses": []
+        "stripeClasses": [],
+        "autoWidth": false
     });
 });
 </script>
