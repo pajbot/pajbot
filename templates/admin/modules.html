@@ -4,14 +4,14 @@
 {% block body %}
 <h2>Modules</h2>
 <div id="modules">
-    <table class="ui sortable very basic table collapsing">
+    <table class="order-column" id="module_list">
         <thead>
             <tr>
-                <th class="collapsing">Module</th>
-                <th class="collapsing">Category</th>
+                <th>Module</th>
+                <th>Category</th>
                 <th>Description</th>
-                <th class="no-sort collapsing">Enabled</th>
-                <th class="no-sort collapsing">Actions</th>
+                <th>Enabled</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -40,9 +40,15 @@
 {% assets 'admin_create_row' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-<script type="text/javascript" src="/static/scripts/tablesort.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+    $('#module_list').DataTable({
+        columnDefs: [
+            {orderable: false, targets: [3, 4]}
+        ],
+        "order": [[0, "asc"]],
+        "paging": false,
+    });
 });
 </script>
 {% endblock %}
