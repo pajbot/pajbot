@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Fixed `!debug playsound` not having default cooldown values. (#1474)
+
 ## v1.55
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
