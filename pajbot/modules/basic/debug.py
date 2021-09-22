@@ -151,7 +151,6 @@ class DebugModule(BaseModule):
                     level=250,
                     description="Debug a playsound",
                     examples=[
-                        # //
                         CommandExample(
                             None,
                             "Debug a playsound",
