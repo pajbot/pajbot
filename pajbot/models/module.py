@@ -1,13 +1,15 @@
+from typing import List, Optional
+
 import json
 import logging
 
-import sqlalchemy
-from sqlalchemy import BOOLEAN, TEXT
-from sqlalchemy import Column
-
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
+from pajbot.managers.db import Base, DBManager
+from pajbot.modules import BaseModule
 from pajbot.utils import find
+
+import sqlalchemy
+from sqlalchemy import BOOLEAN, TEXT, Column
+
 
 log = logging.getLogger("pajbot")
 
@@ -28,20 +30,20 @@ class Module(Base):
 class ModuleManager:
     def __init__(self, socket_manager, bot=None) -> None:
         # List of all enabled modules
-        self.modules = []
+        self.modules: List[BaseModule] = []
 
         # List of all available modules, both enabled and disabled
-        self.all_modules = []
+        self.all_modules: List[BaseModule] = []
 
         self.bot = bot
 
         if socket_manager:
             socket_manager.add_handler("module.update", self.on_module_update)
 
-    def get_module(self, module_id):
+    def get_module(self, module_id: str) -> Optional[BaseModule]:
         return find(lambda m: m.ID == module_id, self.all_modules)
 
-    def on_module_update(self, data):
+    def on_module_update(self, data) -> None:
         new_state = data.get("new_state", None)
         if new_state is True:
             self.enable_module(data["id"])
@@ -53,7 +55,7 @@ class ModuleManager:
             if module:
                 module.load()
 
-    def enable_module(self, module_id):
+    def enable_module(self, module_id) -> bool:
         module = self.get_module(module_id)
         if module is None:
             log.error(f"No module with the ID {module_id} found.")
@@ -71,7 +73,7 @@ class ModuleManager:
 
         return True
 
-    def disable_module(self, module_id):
+    def disable_module(self, module_id) -> bool:
         module = self.get_module(module_id)
         if not module:
             log.error(f"No module with the ID {module_id} found.")
@@ -110,14 +112,12 @@ class ModuleManager:
 
         return self
 
-    def reload(self):
-        # TODO: Make disable/enable better, so we don't need to disable modules
-        # that we're just going to enable again further down below.
+    def _disable_all_modules(self) -> None:
         for module in self.modules:
             module.disable(self.bot)
 
-        self.modules = []
-
+    def _load_enabled_modules(self) -> None:
+        """Load modules from the database and put them into the modules list"""
         with DBManager.create_session_scope() as db_session:
             for enabled_module in db_session.query(Module).filter_by(enabled=True):
                 module = self.get_module(enabled_module.id)
@@ -132,7 +132,8 @@ class ModuleManager:
                     self.modules.append(module.load(**options))
                     module.enable(self.bot)
 
-        to_be_removed = []
+    def _disable_orphan_modules(self) -> None:
+        to_be_removed: List[BaseModule] = []
         self.modules.sort(key=lambda m: 1 if m.PARENT_MODULE is not None else 0)
         for module in self.modules:
             if module.PARENT_MODULE is None:
@@ -151,6 +152,17 @@ class ModuleManager:
             module.disable(self.bot)
             self.modules.remove(module)
 
+    def reload(self) -> None:
+        # TODO: Make disable/enable better, so we don't need to disable modules
+        # that we're just going to enable again further down below.
+        self._disable_all_modules()
+
+        self.modules.clear()
+
+        self._load_enabled_modules()
+
+        self._disable_orphan_modules()
+
         # Perform a last on_loaded call on each module.
         # This is used for things that require submodules to be loaded properly
         # i.e. the quest system
@@ -163,7 +175,7 @@ class ModuleManager:
                 return enabled_module
         return None
 
-    def __contains__(self, module):
+    def __contains__(self, module) -> bool:
         """We override the contains operator for the ModuleManager.
         This allows us to use the following syntax to check if a module is enabled:
         if 'duel' in module_manager:

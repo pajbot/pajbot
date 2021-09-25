@@ -101,7 +101,7 @@ class BaseModule:
     to be operable.
     """
 
-    ID = __name__.split(".")[-1]
+    ID: str = __name__.split(".")[-1]
     NAME = "Base Module"
     DESCRIPTION = (
         "This is the description for the base module. "
@@ -125,7 +125,7 @@ class BaseModule:
         self.default_settings = {}
         self.settings: Any = {}
         self.submodules: Any = []
-        self.parent_module = None
+        self.parent_module: Optional[BaseModule] = None
 
         # We store a dictionary with the default settings for convenience
         for setting in self.SETTINGS:
