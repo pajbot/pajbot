@@ -5,10 +5,8 @@ from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.command import CommandExample
 from pajbot.models.user import User
-from pajbot.models.playsound import Playsound
 from pajbot.modules import BaseModule
 from pajbot.modules import ModuleType
-from pajbot.modules.playsound import PlaysoundModule
 from pajbot.modules.basic import BasicCommandsModule
 
 log = logging.getLogger(__name__)
@@ -88,29 +86,6 @@ class DebugModule(BaseModule):
 
             bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
 
-    @staticmethod
-    def debug_playsound_command(bot, source, message, **rest):
-        """Method for debugging (printing info about) playsounds.
-        Usage: !debug playsound PLAYSOUNDNAME
-        """
-        playsound_name = PlaysoundModule.massage_name(message.split(" ")[0])
-        # check for empty string
-        if not playsound_name:
-            bot.whisper(source, "Invalid usage. Correct syntax: !debug playsound <name>")
-            return
-
-        with DBManager.create_session_scope() as session:
-            playsound = session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
-
-            if playsound is None:
-                bot.whisper(source, "No playsound with that name exists.")
-                return
-
-            bot.whisper(
-                source,
-                f"name={playsound.name}, link={playsound.link}, volume={playsound.volume}, cooldown={playsound.cooldown}, enabled={playsound.enabled}",
-            )
-
     def load_commands(self, **options):
         self.commands["debug"] = Command.multiaction_command(
             level=100,
@@ -142,20 +117,6 @@ class DebugModule(BaseModule):
                             "Debug a user",
                             chat="user:!debug user snusbot\n"
                             "bot>user: id=123, login=snusbot, name=Snusbot, level=100, num_lines=45, points=225, tokens=0, last_seen=2016-04-05 17:56:23 CEST, last_active=2016-04-05 17:56:07 CEST, ignored=False, banned=False",
-                            description="",
-                        ).parse()
-                    ],
-                ),
-                "playsound": Command.raw_command(
-                    self.debug_playsound_command,
-                    level=250,
-                    description="Debug a playsound",
-                    examples=[
-                        CommandExample(
-                            None,
-                            "Debug a playsound",
-                            chat="user:!debug playsound doot\n"
-                            "bot>user: name=doot, link=https://playsound.pajbot.com/common/doot.ogg, volume=100, cooldown=None, enabled=True",
                             description="",
                         ).parse()
                     ],
