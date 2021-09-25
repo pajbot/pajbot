@@ -634,9 +634,7 @@ class PlaysoundModule(BaseModule):
                 "playsound": Command.raw_command(
                     self.debug_playsound_command,
                     level=250,
-                    delay_all=5,
-                    delay_user=15,
-                    description="Prints data about a playsound",
+                    description="Debug a playsound",
                     examples=[
                         CommandExample(
                             None,
