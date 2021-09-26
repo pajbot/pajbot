@@ -1,6 +1,10 @@
-from typing import Literal, Union
+from __future__ import annotations
+from typing import Literal, Optional, Union, TYPE_CHECKING
 
 import collections
+
+if TYPE_CHECKING:
+    from pajbot.models.stream import StreamManager
 
 
 class StreamHelper:
@@ -14,7 +18,7 @@ class StreamHelper:
     streamer = "Unknown"
     streamer_id = "Unknown"
     streamer_display = "Unknown"
-    stream_manager = None
+    stream_manager: Optional[StreamManager] = None
     social_keys_unsorted = {
         "twitter": {"format": "https://twitter.com/{}", "title": "Twitter"},
         "github": {"format": "https://github.com/{}", "title": "Github"},
