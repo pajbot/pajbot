@@ -1,15 +1,18 @@
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional
 
 import json
 import logging
 
 from pajbot.managers.db import Base, DBManager
-from pajbot.modules import BaseModule
 from pajbot.utils import find
 
 import sqlalchemy
 from sqlalchemy import BOOLEAN, TEXT, Column
 
+if TYPE_CHECKING:
+    from pajbot.modules import BaseModule
 
 log = logging.getLogger("pajbot")
 
