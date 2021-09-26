@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Regex banphrases now support more complex regex features. (#1469)
 - Bugfix: Made `!debug playsound` use default cooldown values (5s global / 15s user). (#1474)
 
 ## v1.55
