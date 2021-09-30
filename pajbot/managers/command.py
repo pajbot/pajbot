@@ -246,7 +246,7 @@ class CommandManager(UserDict):
                     ],
                 ),
                 "funccommand": Command.dispatch_command(
-                    "edit_funccommand", level=2000, description="Add a command that uses a command"
+                    "edit_funccommand", level=2000, description="Edit a command that uses a command"
                 ),
             },
         )
