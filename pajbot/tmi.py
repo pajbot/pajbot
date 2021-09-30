@@ -15,7 +15,7 @@ class WhisperOutputMode(Enum):
             return WhisperOutputMode[config_value.upper()]
         except KeyError:
             raise ValueError(
-                f'whisper_output_mode config option "{config_value}" was not recognized. Must be `disabled`, `normal` or `chat`'
+                f'whisper_output_mode config option "{config_value}" was not recognized. Must be `disabled`, `normal`, `chat` or `control`'
             )
 
 
