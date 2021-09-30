@@ -288,7 +288,8 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "List all available modules",
-                    chat="user:!module list\n" "bot>user:Available modules: ab actionchecker admincommands ascii banphrase basiccommands-group bingo casechecker chatalerts-group ...",
+                    chat="user:!module list\n"
+                    "bot>user:Available modules: ab actionchecker admincommands ascii banphrase basiccommands-group bingo casechecker chatalerts-group chatters_refresh checkmod",
                     description="This prints all available modules to chat, regardless of whether they're enabled or not.",
                 ).parse(),
                 CommandExample(
