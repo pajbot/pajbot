@@ -22,7 +22,7 @@ from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManage
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
-from pajbot.constants import CHARACTER_LIMIT, VERSION
+from pajbot.constants import VERSION
 from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
@@ -49,7 +49,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import TMIRateLimits, WhisperOutputMode
+from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 from pajbot import utils
 
 log = logging.getLogger(__name__)
