@@ -22,7 +22,7 @@ from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManage
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
-from pajbot.constants import VERSION
+from pajbot.constants import VERSION, CHARACTER_LIMIT
 from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
@@ -715,7 +715,7 @@ class Bot:
         message = utils.clean_up_message(message)
         message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
 
-        self.irc.send_raw(message[:510])
+        self.irc.send_raw(message[:CHARACTER_LIMIT])
 
     def say(self, message, channel=None):
         if message is None:
@@ -726,7 +726,7 @@ class Bot:
             return
 
         message = utils.clean_up_message(message)
-        self.privmsg(message[:510], channel)
+        self.privmsg(message[:CHARACTER_LIMIT], channel)
 
     def is_bad_message(self, message):
         # Checks for banphrases
@@ -745,7 +745,7 @@ class Bot:
             self.say(message, channel)
 
     def me(self, message, channel=None):
-        self.say("/me " + message[:500], channel=channel)
+        self.say("/me " + message[:CHARACTER_LIMIT], channel=channel)
 
     def connect(self):
         self.irc.start()
