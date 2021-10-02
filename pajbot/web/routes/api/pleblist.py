@@ -162,9 +162,6 @@ class APIPleblistNext(Resource):
             current_song.date_played = utils.now()
             session.commit()
 
-            # TODO: Add more data.
-            # Was this song forcefully skipped? Or did it end naturally.
-
             return {"success": "got em!"}, 200
 
 
@@ -211,8 +208,6 @@ class APIPleblistBlacklist(Resource):
             current_stream = session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start).first()
             if current_stream is None:
                 return {"error": "Stream offline"}, 400
-
-            # TODO: implement this
 
             return {"error": "NOT IMPLEMENTED"}, 400
 
