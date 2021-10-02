@@ -1,25 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ContextManager, Literal, Mapping, Optional, TypedDict, Union, Any
+from typing import TYPE_CHECKING
 
 import logging
 
+from pajbot import utils
+from pajbot.managers.db import Base, DBManager
+from pajbot.models.command import Command
+from pajbot.modules.base import BaseModule, ModuleSetting
+
 import sqlalchemy
-from sqlalchemy import BOOLEAN, INT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
+from sqlalchemy import BOOLEAN, INT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
-from pajbot import utils
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
-from pajbot.models.command import Command
-from pajbot.modules.base import BaseModule
-from pajbot.modules.base import ModuleSetting
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User
+    from pajbot.models.user import User  # noqa: F401 (imported but unused)
 
 log = logging.getLogger(__name__)
 

@@ -253,8 +253,8 @@ class LinkCheckerModule(BaseModule):
             self.db_session = None
         self.db_session = DBManager.create_session()
         self.blacklisted_links = []
-        for link in self.db_session.query(BlacklistedLink):
-            self.blacklisted_links.append(link)
+        for blacklisted_link in self.db_session.query(BlacklistedLink):
+            self.blacklisted_links.append(blacklisted_link)
 
         self.whitelisted_links = []
         for link in self.db_session.query(WhitelistedLink):
@@ -776,6 +776,9 @@ class LinkCheckerModule(BaseModule):
     def add_link_blacklist(self, bot: Bot, source, message, **rest) -> bool:
         options, new_links = self.parse_link_blacklist_arguments(message)
 
+        if options is False:
+            return False
+
         if new_links:
             parts = new_links.split(" ")
             try:
@@ -808,6 +811,9 @@ class LinkCheckerModule(BaseModule):
         return True
 
     def remove_link_blacklist(self, bot, source, message, **rest) -> bool:
+        if self.db_session is None:
+            raise ValueError("LinkChecker module db not initialized")
+
         if not message:
             bot.whisper(source, "Usage: !remove link blacklist ID")
             return False
@@ -834,6 +840,9 @@ class LinkCheckerModule(BaseModule):
         return True
 
     def remove_link_whitelist(self, bot, source, message, **rest) -> bool:
+        if self.db_session is None:
+            raise ValueError("LinkChecker module db not initialized")
+
         if not message:
             bot.whisper(source, "Usage: !remove link whitelist ID")
             return False

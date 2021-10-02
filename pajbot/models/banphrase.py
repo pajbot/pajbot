@@ -16,7 +16,7 @@ from sqlalchemy.orm import relationship
 from unidecode import unidecode
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User
+    from pajbot.models.user import User  # noqa: F401 (imported but unused)
 
 log = logging.getLogger("pajbot")
 

@@ -195,7 +195,8 @@ class BaseModule:
     def parse_settings(self, **in_settings: dict[str, Any]) -> Union[Literal[False], dict[str, Any]]:
         ret = {}
         for key, value in in_settings.items():
-            setting = find(lambda setting, setting_key=key: setting.key == setting_key, self.SETTINGS)
+            # XXX: Ensure this still works. It's not async, so it SHOULD work
+            setting = find(lambda setting: setting.key == key, self.SETTINGS)
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False

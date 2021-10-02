@@ -83,14 +83,14 @@ class StreamUpdateModule(BaseModule):
             return
 
         # Resolve game name to game ID
-        game: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_name(game_name)
+        game: Optional[TwitchGame] = bot.twitch_helix_api.get_game_by_game_name(game_name)
         if not game:
             bot.say(f"Unable to find a game with the name '{game_name}'")
             return
 
         try:
-            self.bot.twitch_helix_api.modify_channel_information(
-                self.bot.streamer_user_id,
+            bot.twitch_helix_api.modify_channel_information(
+                bot.streamer_user_id,
                 {"game_id": game.id},
                 authorization=bot.streamer_access_token_manager,
             )
@@ -127,8 +127,8 @@ class StreamUpdateModule(BaseModule):
             return
 
         try:
-            self.bot.twitch_helix_api.modify_channel_information(
-                self.bot.streamer_user_id,
+            bot.twitch_helix_api.modify_channel_information(
+                bot.streamer_user_id,
                 {"title": title},
                 authorization=bot.streamer_access_token_manager,
             )

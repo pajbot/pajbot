@@ -11,7 +11,7 @@ import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.action import ActionParser, RawFuncAction, Substitution
+from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
 
 from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import reconstructor, relationship
@@ -19,7 +19,7 @@ from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.models.user import User
+    from pajbot.models.user import User  # noqa: F401 (imported but unused)
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
     if command.command is None:
         command.command = alias
 
-    if command.action is not None and command.action.type == "multi":
+    if command.action is not None and command.action.type == "multi" and isinstance(command.action, MultiAction):
         if command.command is not None:
             command.main_alias = command.command.split("|")[0]
         for inner_alias, inner_command in command.action.commands.items():
@@ -71,7 +71,7 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
         command.main_alias = "!" + first_alias
         if not command.parsed_description:
             if command.action is not None:
-                if command.action.type == "message":
+                if command.action.type == "message" and isinstance(command.action, MessageAction):
                     command.parsed_description = command.action.response
                     if not command.action.response:
                         return
@@ -229,7 +229,7 @@ class Command(Base):
         self.id = options.get("id", None)
 
         self.level = Command.DEFAULT_LEVEL
-        self.action = None
+        self.action: Optional[BaseAction] = None
         self.extra_args = {"command": self}
         self.delay_all = Command.DEFAULT_CD_ALL
         self.delay_user = Command.DEFAULT_CD_USER

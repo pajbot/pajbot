@@ -151,7 +151,7 @@ class DBManager:
 
     @staticmethod
     @contextmanager
-    def create_dbapi_connection_scope(autocommit=False) -> Psycopg2Connection:
+    def create_dbapi_connection_scope(autocommit=False) -> Iterator[Psycopg2Connection]:
         if DBManager.engine is None:
             raise ValueError("DBManager not initialized")
 

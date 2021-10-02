@@ -10,9 +10,9 @@ import re
 from pajbot.migration.revision import Revision
 
 if TYPE_CHECKING:
+    from pajbot.bot import Bot
     from pajbot.migration.db import DatabaseMigratable
     from pajbot.migration.redis import RedisMigratable
-    from pajbot.bot import Bot
 
 MODULE_NAME_REGEX = re.compile(r"^(\d*)(?:\D(.+))?$")
 
@@ -34,7 +34,8 @@ class Migration:
         revisions = self.get_revisions()
 
         with self.migratable.create_resource() as resource:
-            current_revision_id = self.migratable.get_current_revision(resource)
+            # NOTE: I don't know how to prove migratable is the same type from start to finish without adding a bunch of ugly ifs
+            current_revision_id = self.migratable.get_current_revision(resource)  # type:ignore
         log.debug("migrate %s: current revision ID is %s", self.migratable.describe_resource(), current_revision_id)
 
         if current_revision_id is not None:
@@ -54,7 +55,8 @@ class Migration:
             with self.migratable.create_resource() as resource:
                 log.debug("migrate %s: running migration %s: %s", self.migratable.describe_resource(), rev.id, rev.name)
                 rev.up_action(resource, self.context)
-                self.migratable.set_revision(resource, rev.id)
+                # NOTE: I don't know how to prove migratable is the same type from start to finish without adding a bunch of ugly ifs
+                self.migratable.set_revision(resource, rev.id)  # type:ignore
 
     def get_revisions(self) -> List[Revision]:
         package = self.revisions_package

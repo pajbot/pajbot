@@ -14,9 +14,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions
 from sqlalchemy_utc import UtcDateTime
 
-
 if TYPE_CHECKING:
-    from pajbot.models.user import User
+    from pajbot.models.user import User  # noqa: F401 (imported but unused)
 
 
 class HSGameOutcome(enum.Enum):

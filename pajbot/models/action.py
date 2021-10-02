@@ -23,13 +23,15 @@ class ActionParser:
     bot: Optional[Bot] = None
 
     @staticmethod
-    def parse(raw_data=None, data=None, command=""):
+    def parse(raw_data=None, data=None, command="") -> Optional[BaseAction]:
         try:
             from pajbot.userdispatch import UserDispatch
 
             Dispatch = UserDispatch
         except ImportError:
-            from pajbot.dispatch import Dispatch
+            from pajbot.dispatch import Dispatch as NormalDispatch
+
+            Dispatch = NormalDispatch
         except:
             log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
             sys.exit(1)
@@ -38,25 +40,25 @@ class ActionParser:
             data = json.loads(raw_data)
 
         if data["type"] == "say":
-            action = SayAction(data["message"], ActionParser.bot)
+            return SayAction(data["message"], ActionParser.bot)
         elif data["type"] == "me":
-            action = MeAction(data["message"], ActionParser.bot)
+            return MeAction(data["message"], ActionParser.bot)
         elif data["type"] == "whisper":
-            action = WhisperAction(data["message"], ActionParser.bot)
+            return WhisperAction(data["message"], ActionParser.bot)
         elif data["type"] == "reply":
-            action = ReplyAction(data["message"], ActionParser.bot)
+            return ReplyAction(data["message"], ActionParser.bot)
         elif data["type"] == "func":
             try:
-                action = FuncAction(getattr(Dispatch, data["cb"]))
+                return FuncAction(getattr(Dispatch, data["cb"]))
             except AttributeError as e:
                 log.error(f'AttributeError caught when parsing action for action "{command}": {e}')
                 return None
         elif data["type"] == "multi":
-            action = MultiAction(data["args"], data["default"])
+            return MultiAction(data["args"], data["default"])
         else:
             raise Exception(f"Unknown action type: {data['type']}")
 
-        return action
+        return None
 
 
 class IfSubstitution:
