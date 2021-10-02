@@ -745,7 +745,7 @@ class Bot:
             self.say(message, channel)
 
     def me(self, message, channel=None):
-        self.say("/me " + message[:CHARACTER_LIMIT], channel=channel)
+        self.say("/me " + message[:CHARACTER_LIMIT - 4], channel=channel)
 
     def connect(self):
         self.irc.start()
