@@ -7,6 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Regex banphrases now support more complex regex features. (#1469)
 - Bugfix: Made `!debug playsound` use default cooldown values (5s global / 15s user). (#1474)
 - Bugfix: Corrected error shown when `whisper_output_mode` setting is invalid. (#1487)
+- Bugfix: Corrected description of `!edit funccommand`. (#1488)
 
 ## v1.55
 
