@@ -3,6 +3,7 @@ import logging
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.managers.adminlog import AdminLogManager
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +32,9 @@ class TwitterModule(BaseModule):
         if message:
             username = message.split(" ")[0].strip().lower()
             if bot.twitter_manager.follow_user(username):
-                bot.whisper(source, f"Now following {username}")
+                log_msg = f"Now following {username}"
+                bot.whisper(source, log_msg)
+                AdminLogManager.add_entry("Twitter user followed", source, log_msg)
             else:
                 bot.whisper(
                     source,
@@ -43,7 +46,9 @@ class TwitterModule(BaseModule):
         if message:
             username = message.split(" ")[0].strip().lower()
             if bot.twitter_manager.unfollow_user(username):
-                bot.whisper(source, f"No longer following {username}")
+                log_msg = f"No longer following {username}"
+                bot.whisper(source, log_msg)
+                AdminLogManager.add_entry("Twitter user unfollowed", source, log_msg)
             else:
                 bot.whisper(
                     source,
