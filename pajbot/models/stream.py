@@ -31,7 +31,9 @@ class Stream(Base):
     stream_end = Column(UtcDateTime(), nullable=True)
     ended = Column(BOOLEAN, nullable=False, default=False)
 
-    stream_chunks = relationship("StreamChunk", backref="stream", cascade="save-update, merge, expunge", lazy="joined")
+    stream_chunks = relationship(
+        "StreamChunk", uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"
+    )
 
     def __init__(self, created_at, **options):
         self.id = None
@@ -202,7 +204,7 @@ class StreamManager:
         if stream_chunk:
             self.current_stream.stream_chunks.append(stream_chunk)
 
-    def create_stream(self, status: UserStream):
+    def create_stream(self, status: UserStream) -> None:
         log.info("Attempting to create a stream!")
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status.id).one_or_none()
@@ -235,7 +237,10 @@ class StreamManager:
 
             log.info("Successfully created a stream")
 
-    def go_offline(self):
+    def go_offline(self) -> None:
+        if self.current_stream is None or self.current_stream_chunk is None:
+            return
+
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             self.current_stream.ended = True
             self.current_stream.stream_end = self.first_offline
@@ -254,7 +259,7 @@ class StreamManager:
 
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
-    def refresh_channel_information(self):
+    def refresh_channel_information(self) -> None:
         channel_information: Optional[UserChannelInformation] = self.bot.twitch_helix_api.get_channel_information(
             self.bot.streamer_user_id
         )
@@ -266,7 +271,7 @@ class StreamManager:
         redis = RedisManager.get()
         key_prefix = self.bot.streamer + ":"
 
-        stream_data = {
+        stream_data: Dict[Union[bytes, str], Any] = {
             f"{key_prefix}game": channel_information.game_name,
             f"{key_prefix}title": channel_information.title,
         }
@@ -276,11 +281,11 @@ class StreamManager:
         self.game = channel_information.game_name
         self.title = channel_information.title
 
-    def refresh_stream_status_stage1(self):
+    def refresh_stream_status_stage1(self) -> None:
         status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer_user_id)
         self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
-    def refresh_stream_status_stage2(self, status: Optional[UserStream]):
+    def refresh_stream_status_stage2(self, status: Optional[UserStream]) -> None:
         redis = RedisManager.get()
         key_prefix = self.bot.streamer + ":"
 
@@ -334,10 +339,10 @@ class StreamManager:
 
         redis.hmset("stream_data", stream_data)
 
-    def refresh_video_url_stage1(self):
+    def refresh_video_url_stage1(self) -> None:
         self.fetch_video_url_stage1()
 
-    def refresh_video_url_stage2(self, data):
+    def refresh_video_url_stage2(self, data) -> None:
         if self.online is False:
             return
 
@@ -368,7 +373,7 @@ class StreamManager:
 
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 stream_chunk = StreamChunk(
-                    self.current_stream, self.current_stream_chunk.broadcast_id, video.recorded_at
+                    self.current_stream, self.current_stream_chunk.broadcast_id, video.created_at
                 )
                 self.current_stream_chunk = stream_chunk
                 self.current_stream_chunk.video_url = video.url
@@ -381,16 +386,16 @@ class StreamManager:
                 db_session.expunge_all()
             log.info("Successfully commited video url data in a new chunk.")
 
-    def get_stream_value(self, key, extra={}):
+    def get_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         return getattr(self, key, None)
 
-    def get_current_stream_value(self, key, extra={}):
+    def get_current_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         if self.current_stream is not None:
             return getattr(self.current_stream, key, None)
 
         return None
 
-    def get_last_stream_value(self, key, extra={}):
+    def get_last_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         if self.last_stream is not None:
             return getattr(self.last_stream, key, None)
 

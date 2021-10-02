@@ -1,18 +1,22 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import argparse
 import logging
-import regex as re
-
-import sqlalchemy
 from datetime import timedelta
-from sqlalchemy import BOOLEAN, INT, TEXT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
+
+from pajbot.managers.db import Base, DBManager
+from pajbot.utils import find
+
+import regex as re
+import sqlalchemy
+from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from unidecode import unidecode
 
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
-from pajbot.utils import find
+if TYPE_CHECKING:
+    from pajbot.models.user import User
 
 log = logging.getLogger("pajbot")
 

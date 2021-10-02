@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
-from sqlalchemy import Column, INT, TEXT, ForeignKey
+from pajbot import utils
+from pajbot.managers.db import Base, DBManager
+
+from sqlalchemy import INT, TEXT, Column, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
 
-from pajbot import utils
-from pajbot.managers.db import Base, DBManager
+if TYPE_CHECKING:
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 

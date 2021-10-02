@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, ContextManager, Literal, Mapping, Optional, TypedDict, Union, Any
+
 import logging
 
 import sqlalchemy
@@ -13,6 +17,9 @@ from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.modules.base import BaseModule
 from pajbot.modules.base import ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 

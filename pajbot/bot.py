@@ -74,7 +74,7 @@ class Bot:
         redis_options = {}
         if "redis" in config:
             redis_options = dict(config.items("redis"))
-        RedisManager.init(**redis_options)
+        RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")

@@ -13,6 +13,7 @@ from sqlalchemy import BOOLEAN, TEXT, Column
 
 if TYPE_CHECKING:
     from pajbot.modules import BaseModule
+    from pajbot.bot import Bot
 
 log = logging.getLogger("pajbot")
 
@@ -31,7 +32,7 @@ class Module(Base):
 
 
 class ModuleManager:
-    def __init__(self, socket_manager, bot=None) -> None:
+    def __init__(self, socket_manager, bot: Optional[Bot] = None) -> None:
         # List of all enabled modules
         self.modules: List[BaseModule] = []
 

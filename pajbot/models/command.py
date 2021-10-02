@@ -1,32 +1,37 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
+
 import datetime
 import json
 import logging
 import re
 
-from sqlalchemy import INT, BOOLEAN, TEXT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import reconstructor
-from sqlalchemy.orm import relationship
-
-from sqlalchemy_utc import UtcDateTime
-
 import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.action import ActionParser
-from pajbot.models.action import RawFuncAction
-from pajbot.models.action import Substitution
+from pajbot.models.action import ActionParser, RawFuncAction, Substitution
+
+from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias, command, list):
+def parse_command_for_web(alias: str, i_command: Command, command_list: list[WebCommand]) -> None:
     import markdown
     from flask import Markup
 
-    if command in list:
+    command = WebCommand()
+    command.set(**vars(i_command))
+
+    if command in command_list:
         return
 
     command.json_description = None
@@ -55,7 +60,9 @@ def parse_command_for_web(alias, command, list):
             command.main_alias = command.command.split("|")[0]
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(
-                alias if command.command is None else command.main_alias + " " + inner_alias, inner_command, list
+                alias if command.command is None else command.main_alias + " " + inner_alias,
+                inner_command,
+                command_list,
             )
     else:
         test = re.compile(r"[^\w]")
@@ -70,7 +77,7 @@ def parse_command_for_web(alias, command, list):
                         return
             if command.description is not None:
                 command.parsed_description = command.description
-        list.append(command)
+        command_list.append(command)
 
 
 class CommandData(Base):
@@ -103,7 +110,7 @@ class CommandData(Base):
         viewonly=True,
     )
 
-    def __init__(self, command_id, **options):
+    def __init__(self, command_id: int, **options) -> None:
         self.command_id = command_id
         self.num_uses = 0
         self.added_by = None
@@ -112,24 +119,24 @@ class CommandData(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options: Any) -> None:
         self.num_uses = options.get("num_uses", self.num_uses)
         self.added_by = options.get("added_by", self.added_by)
         self.edited_by = options.get("edited_by", self.edited_by)
         self._last_date_used = options.get("last_date_used", self._last_date_used)
 
     @property
-    def last_date_used(self):
+    def last_date_used(self) -> Optional[datetime.datetime]:
         if isinstance(self._last_date_used, datetime.datetime):
             return self._last_date_used
 
         return None
 
     @last_date_used.setter
-    def last_date_used(self, value):
+    def last_date_used(self, value: Optional[datetime.datetime]) -> None:
         self._last_date_used = value
 
-    def jsonify(self):
+    def jsonify(self) -> dict[str, Any]:
         return {
             "num_uses": self.num_uses,
             "added_by": self.added_by,
@@ -147,23 +154,23 @@ class CommandExample(Base):
     chat = Column(TEXT, nullable=False)
     description = Column(TEXT, nullable=False)
 
-    def __init__(self, command_id, title, chat="", description=""):
-        self.id = None
-        self.command_id = command_id
+    def __init__(self, command_id: Optional[int], title: str, chat: str = "", description: str = "") -> None:
+        if command_id:
+            self.command_id = command_id
         self.title = title
         self.chat = chat
         self.description = description
-        self.chat_messages = []
+        self.chat_messages: list[dict[str, Any]] = []
 
     @reconstructor
-    def init_on_load(self):
+    def init_on_load(self) -> None:
         self.parse()
 
-    def add_chat_message(self, type, message, user_from, user_to=None):
+    def add_chat_message(self, type: str, message: str, user_from: str, user_to: Optional[str] = None) -> None:
         chat_message = {"source": {"type": type, "from": user_from, "to": user_to}, "message": message}
         self.chat_messages.append(chat_message)
 
-    def parse(self):
+    def parse(self) -> CommandExample:
         self.chat_messages = []
         for line in self.chat.split("\n"):
             users, message = line.split(":", 1)
@@ -174,7 +181,7 @@ class CommandExample(Base):
                 self.add_chat_message("say", message, users)
         return self
 
-    def jsonify(self):
+    def jsonify(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "command_id": self.command_id,
@@ -218,7 +225,7 @@ class Command(Base):
 
     notify_on_error = False
 
-    def __init__(self, **options):
+    def __init__(self, **options) -> None:
         self.id = options.get("id", None)
 
         self.level = Command.DEFAULT_LEVEL
@@ -235,18 +242,18 @@ class Command(Base):
         self.sub_only = False
         self.mod_only = False
         self.run_through_banphrases = False
-        self.command = None
+        # self.command = None
 
         self.last_run = 0
-        self.last_run_by_user = {}
+        self.last_run_by_user: dict[str, datetime.datetime] = {}
 
-        self.data = None
+        # self.data = None
         self.run_in_thread = False
         self.notify_on_error = False
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options: Any) -> None:
         self.level = options.get("level", self.level)
         if "action" in options:
             self.action_json = json.dumps(options["action"])
@@ -282,7 +289,7 @@ class Command(Base):
         return f"Command(!{self.command})"
 
     @reconstructor
-    def init_on_load(self):
+    def init_on_load(self) -> None:
         self.last_run = 0
         self.last_run_by_user = {}
         self.extra_args = {"command": self}
@@ -297,7 +304,7 @@ class Command(Base):
                 )
 
     @classmethod
-    def from_json(cls, json_object):
+    def from_json(cls, json_object) -> Command:
         cmd = cls()
         if "level" in json_object:
             cmd.level = json_object["level"]
@@ -305,7 +312,7 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def dispatch_command(cls, cb, **options):
+    def dispatch_command(cls, cb: Any, **options: Any) -> Command:
         cmd = cls(**options)
         cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}', command=cmd.command)
         return cmd
@@ -321,30 +328,31 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def pajbot_command(cls, bot, method_name, level=1000, **options):
+    def pajbot_command(cls, bot: Optional[Bot], method_name: str, level: int = 1000, **options) -> Command:
         cmd = cls(**options)
         cmd.level = level
         cmd.description = options.get("description", None)
         cmd.can_execute_with_whisper = True
         try:
-            cmd.action = RawFuncAction(getattr(bot, method_name))
+            if bot:
+                cmd.action = RawFuncAction(getattr(bot, method_name))
         except:
             pass
         return cmd
 
     @classmethod
-    def multiaction_command(cls, default=None, fallback=None, **options):
+    def multiaction_command(cls, default=None, fallback=None, **options) -> Command:
         from pajbot.models.action import MultiAction
 
         cmd = cls(**options)
         cmd.action = MultiAction.ready_built(options.get("commands"), default=default, fallback=fallback)
         return cmd
 
-    def load_args(self, level, action):
+    def load_args(self, level: int, action) -> None:
         self.level = level
         self.action = action
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         return self.enabled == 1 and self.action is not None
 
     def can_run_command(self, source, whisper):
@@ -497,3 +505,10 @@ class Command(Base):
             payload["data"] = None
 
         return payload
+
+
+class WebCommand(Command):
+    json_description: Optional[dict[str, Any]]
+    parsed_description: Optional[str]
+    main_alias: Optional[str]
+    resolve_string: Optional[str]

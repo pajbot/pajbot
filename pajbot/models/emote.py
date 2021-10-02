@@ -1,4 +1,6 @@
-from typing import Dict, List
+from __future__ import annotations
+
+from typing import Any, Dict, List
 
 
 class Emote:
@@ -32,11 +34,11 @@ class Emote:
     def __repr__(self) -> str:
         return f"[{self.provider}] {self.code}"
 
-    def jsonify(self):
+    def jsonify(self) -> dict[str, Any]:
         return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls}
 
     @staticmethod
-    def from_json(json_data):
+    def from_json(json_data) -> Emote:
         return Emote(**json_data)
 
 
@@ -66,7 +68,7 @@ class EmoteInstance:
     def __repr__(self) -> str:
         return f"{self.emote} @ {self.start}-{self.end}"
 
-    def jsonify(self):
+    def jsonify(self) -> dict[str, Any]:
         return {"start": self.start, "end": self.end, "emote": self.emote.jsonify()}
 
 
@@ -99,7 +101,7 @@ class EmoteInstanceCount:
 
         return f"{self.emote} @ [{', '.join(indices)}]"
 
-    def jsonify(self):
+    def jsonify(self) -> dict[str, Any]:
         return {
             "count": self.count,
             "emote": self.emote.jsonify(),
