@@ -236,6 +236,34 @@ class AdminCommandsModule(BaseModule):
 
             bot.say(f"Enabled module {module_id}")
 
+    @staticmethod
+    def twitter_follow(bot, source, message, event, args):
+        if message:
+            username = message.split(" ")[0].strip().lower()
+            if bot.twitter_manager.follow_user(username):
+                log_msg = f"Now following {username}"
+                bot.whisper(source, log_msg)
+                AdminLogManager.add_entry("Twitter user followed", source, log_msg)
+            else:
+                bot.whisper(
+                    source,
+                    f"An error occured while attempting to follow {username}, perhaps we are already following this person?",
+                )
+
+    @staticmethod
+    def twitter_unfollow(bot, source, message, event, args):
+        if message:
+            username = message.split(" ")[0].strip().lower()
+            if bot.twitter_manager.unfollow_user(username):
+                log_msg = f"No longer following {username}"
+                bot.whisper(source, log_msg)
+                AdminLogManager.add_entry("Twitter user unfollowed", source, log_msg)
+            else:
+                bot.whisper(
+                    source,
+                    f"An error occured while attempting to unfollow {username}, perhaps we are not following this person?",
+                )
+
     def load_commands(self, **options):
         self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")
         self.commands["editpoints"] = Command.raw_command(
@@ -280,4 +308,32 @@ class AdminCommandsModule(BaseModule):
 
         self.commands["module"] = Command.raw_command(
             self.cmd_module, level=500, description="Modify module", delay_all=0, delay_user=0
+        )
+
+        self.commands["twitterfollow"] = Command.raw_command(
+            self.twitter_follow,
+            level=1000,
+            description="Start listening for tweets for the given user",
+            examples=[
+                CommandExample(
+                    None,
+                    "Default usage",
+                    chat="user:!twitterfollow forsen\n" "bot>user:Now following Forsen",
+                    description="Follow Forsen on twitter so new tweets are output in chat.",
+                ).parse()
+            ],
+        )
+
+        self.commands["twitterunfollow"] = Command.raw_command(
+            self.twitter_unfollow,
+            level=1000,
+            description="Stop listening for tweets for the given user",
+            examples=[
+                CommandExample(
+                    None,
+                    "Default usage",
+                    chat="user:!twitterunfollow forsen\n" "bot>user:No longer following Forsen",
+                    description="Stop automatically printing tweets from Forsen",
+                ).parse()
+            ],
         )
