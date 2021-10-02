@@ -58,8 +58,6 @@ class FollowAgeModule(BaseModule):
     ]
 
     def load_commands(self, **options):
-        # TODO: Have delay modifiable in settings
-
         self.commands["followage"] = Command.raw_command(
             self.follow_age,
             delay_all=self.settings["global_cd"],

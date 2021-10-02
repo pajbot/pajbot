@@ -153,13 +153,7 @@ function add_to_pleblist(song) {
                 console.log('JUST EMULATING A SKIP BRO');
                 next_song();
                 settings.urlData.id = -1;
-                /**
-                 * XXX: We modify the song ID instead of just aborting the request here
-                 * because of a bug in semantic ui which doesn't let us abort requests
-                 * in beforeSend. If I wasn't as lazy I'd just make an on_click button which
-                 * doesn't call the api()-method until we've made sure we shouldn't do next_song()
-                 **/
-                return settings; /* XXX: Should return null and abort the request here */
+                return settings;
             }
             settings.data.password = secret_password;
             return settings;
