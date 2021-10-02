@@ -22,7 +22,7 @@ from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManage
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.apiwrappers.twitch.tmi import TwitchTMIAPI
-from pajbot.constants import VERSION, CHARACTER_LIMIT
+from pajbot.constants import CHARACTER_LIMIT, VERSION
 from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
