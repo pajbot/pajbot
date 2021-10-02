@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Moved `!twitterfollow` & `!twitterunfollow` commands to a module and added admin panel logging. (#1493)
+- Minor: Moved `!twitterfollow` & `!twitterunfollow` commands to the AdminCommands module; also added command logging. (#1493)
 - Minor: Regex banphrases now support more complex regex features. (#1469)
 - Bugfix: Made `!debug playsound` use default cooldown values (5s global / 15s user). (#1474)
 - Bugfix: Corrected error shown when `whisper_output_mode` setting is invalid. (#1487)
