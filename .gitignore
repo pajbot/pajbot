@@ -29,6 +29,7 @@ userdispatch.py
 
 # Ignore virtual environment folder
 venv/
+.venv/
 
 .idea/
 .vscode/
