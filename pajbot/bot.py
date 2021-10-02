@@ -49,7 +49,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import TMIRateLimits, WhisperOutputMode
+from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 from pajbot import utils
 
 log = logging.getLogger(__name__)
@@ -715,7 +715,7 @@ class Bot:
         message = utils.clean_up_message(message)
         message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
 
-        self.irc.send_raw(message[:510])
+        self.irc.send_raw(message[:CHARACTER_LIMIT])
 
     def say(self, message, channel=None):
         if message is None:
@@ -726,7 +726,7 @@ class Bot:
             return
 
         message = utils.clean_up_message(message)
-        self.privmsg(message[:510], channel)
+        self.privmsg(message[:CHARACTER_LIMIT], channel)
 
     def is_bad_message(self, message):
         # Checks for banphrases
@@ -745,7 +745,7 @@ class Bot:
             self.say(message, channel)
 
     def me(self, message, channel=None):
-        self.say("/me " + message[:500], channel=channel)
+        self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
     def connect(self):
         self.irc.start()

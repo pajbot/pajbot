@@ -15,7 +15,7 @@ class WhisperOutputMode(Enum):
             return WhisperOutputMode[config_value.upper()]
         except KeyError:
             raise ValueError(
-                f'whisper_output_mode config option "{config_value}" was not recognized. Must be `disabled`, `normal` or `chat`'
+                f'whisper_output_mode config option "{config_value}" was not recognized. Must be `disabled`, `normal`, `chat` or `control`'
             )
 
 
@@ -33,3 +33,5 @@ class TMIRateLimits:
 TMIRateLimits.BASE = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
 TMIRateLimits.KNOWN = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
 TMIRateLimits.VERIFIED = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
+
+CHARACTER_LIMIT = 500

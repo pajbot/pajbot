@@ -1,6 +1,6 @@
 import argparse
 import logging
-import re
+import regex as re
 
 import sqlalchemy
 from datetime import timedelta

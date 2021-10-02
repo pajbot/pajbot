@@ -634,15 +634,13 @@ class PlaysoundModule(BaseModule):
                 "playsound": Command.raw_command(
                     self.debug_playsound_command,
                     level=250,
-                    delay_all=0,
-                    delay_user=0,
-                    description="Prints data about a playsound",
+                    description="Debug a playsound",
                     examples=[
                         CommandExample(
                             None,
                             'Get information about the "doot" playsound',
                             chat="user:!debug playsound doot\n"
-                            "bot>user: name=doot, link=https://i.nuuls.com/Bb4aX.mp3, volume=100, "
+                            "bot>user: name=doot, link=https://playsound.pajbot.com/common/doot.ogg, volume=100, "
                             "cooldown=None, enabled=True",
                         ).parse()
                     ],

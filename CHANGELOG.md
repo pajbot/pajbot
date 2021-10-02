@@ -4,6 +4,17 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Moved `!twitterfollow` & `!twitterunfollow` commands to the AdminCommands module; also added command logging. (#1493)
+- Minor: Regex banphrases now support more complex regex features. (#1469)
+- Bugfix: Messages are now trimmed to the Twitch character limit. (#1494)
+- Bugfix: Made `!debug playsound` use default cooldown values (5s global / 15s user). (#1474)
+- Bugfix: Corrected error shown when `whisper_output_mode` setting is invalid. (#1487)
+- Bugfix: Corrected description of `!edit funccommand`. (#1488)
+
+## v1.55
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: Added option to send whispers to control hub. (#1456)
 - Minor: Added Twitch reply thread support. (#1442)
 - Minor: Added the ability to change the bot response method in the wolfram module. (#1423)
