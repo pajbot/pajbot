@@ -22,7 +22,7 @@ class TwitterModule(BaseModule):
             required=True,
             placeholder="",
             default=1000,
-            constraints={"min_value": 1000}
+            constraints={"min_value": 1000},
         ),
     ]
 

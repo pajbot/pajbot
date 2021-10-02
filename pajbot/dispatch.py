@@ -424,5 +424,3 @@ class Dispatch:
         else:
             bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
             bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
-
-    
