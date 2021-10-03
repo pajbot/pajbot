@@ -107,34 +107,6 @@ class CommandManager(UserDict):
             "ceaseallactionscurrentlybeingacteduponwiththecodeandiapologizeforbeingawhitecisgenderedmaleinthepatriarchy"
         ] = self.internal_commands["quit"]
 
-        self.internal_commands["twitterfollow"] = Command.dispatch_command(
-            "twitter_follow",
-            level=1000,
-            description="Start listening for tweets for the given user",
-            examples=[
-                CommandExample(
-                    None,
-                    "Default usage",
-                    chat="user:!twitterfollow forsen\n" "bot>user:Now following Forsen",
-                    description="Follow Forsen on twitter so new tweets are output in chat.",
-                ).parse()
-            ],
-        )
-
-        self.internal_commands["twitterunfollow"] = Command.dispatch_command(
-            "twitter_unfollow",
-            level=1000,
-            description="Stop listening for tweets for the given user",
-            examples=[
-                CommandExample(
-                    None,
-                    "Default usage",
-                    chat="user:!twitterunfollow forsen\n" "bot>user:No longer following Forsen",
-                    description="Stop automatically printing tweets from Forsen",
-                ).parse()
-            ],
-        )
-
         self.internal_commands["add"] = Command.multiaction_command(
             level=100,
             delay_all=0,
@@ -246,7 +218,7 @@ class CommandManager(UserDict):
                     ],
                 ),
                 "funccommand": Command.dispatch_command(
-                    "edit_funccommand", level=2000, description="Add a command that uses a command"
+                    "edit_funccommand", level=2000, description="Edit a command that uses a command"
                 ),
             },
         )

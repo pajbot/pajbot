@@ -43,8 +43,6 @@ def find_youtube_id_in_string(string):
 
 
 class PleblistModule(BaseModule):
-    # TODO: Submodule for !song command
-    # Should !songrequest be a submodule in itself? Maybe.
     ID = __name__.split(".")[-1]
     NAME = "Song Requests"
     DESCRIPTION = ""
@@ -90,7 +88,6 @@ class PleblistModule(BaseModule):
             song_info = PleblistManager.get_song_info(youtube_id, db_session)
             if song_info is None or force:
                 try:
-                    # XXX: Should this be a setting in the module? idk
                     PleblistManager.init(bot.config["youtube"]["developer_key"])
                 except:
                     log.error("No youtube key set up.")

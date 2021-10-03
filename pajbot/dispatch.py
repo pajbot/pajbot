@@ -424,29 +424,3 @@ class Dispatch:
         else:
             bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
             bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
-
-    @staticmethod
-    def twitter_follow(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            username = message.split(" ")[0].strip().lower()
-            if bot.twitter_manager.follow_user(username):
-                bot.whisper(source, f"Now following {username}")
-            else:
-                bot.whisper(
-                    source,
-                    f"An error occured while attempting to follow {username}, perhaps we are already following this person?",
-                )
-
-    @staticmethod
-    def twitter_unfollow(bot, source, message, event, args):
-        # XXX: This should be a module
-        if message:
-            username = message.split(" ")[0].strip().lower()
-            if bot.twitter_manager.unfollow_user(username):
-                bot.whisper(source, f"No longer following {username}")
-            else:
-                bot.whisper(
-                    source,
-                    f"An error occured while attempting to unfollow {username}, perhaps we are not following this person?",
-                )
