@@ -307,7 +307,32 @@ class AdminCommandsModule(BaseModule):
         self.commands["unmute"] = self.commands["unsilence"]
 
         self.commands["module"] = Command.raw_command(
-            self.cmd_module, level=500, description="Modify module", delay_all=0, delay_user=0
+            self.cmd_module,
+            level=500,
+            description="Modify module",
+            delay_all=0,
+            delay_user=0,
+            examples=[
+                CommandExample(
+                    None,
+                    "List all available modules",
+                    chat="user:!module list\n"
+                    "bot>user:Available modules: ab actionchecker admincommands ascii banphrase basiccommands-group bingo casechecker chatalerts-group chatters_refresh checkmod",
+                    description="This prints all available modules to chat, regardless of whether they're enabled or not.",
+                ).parse(),
+                CommandExample(
+                    None,
+                    "Disable a module",
+                    chat="user:!module disable massping\n" "bot>user:Disabled module massping",
+                    description="This disables massping module.",
+                ).parse(),
+                CommandExample(
+                    None,
+                    "Enable a module",
+                    chat="user:!module enable playsound\n" "bot>user:Enabled module playsound",
+                    description="This enables playsound module.",
+                ).parse(),
+            ],
         )
 
         self.commands["twitterfollow"] = Command.raw_command(
