@@ -471,7 +471,7 @@ class Command(Base):
 
     def jsonify(self):
         """jsonify will only be called from the web interface.
-        we assume that commands have been run throug the parse_command_for_web method"""
+        we assume that commands have been run through the parse_command_for_web method"""
         payload = {
             "id": self.id,
             "level": self.level,
