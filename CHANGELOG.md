@@ -7,6 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Moved `!twitterfollow` & `!twitterunfollow` commands to the AdminCommands module; also added command logging. (#1493)
 - Minor: Regex banphrases now support more complex regex features. (#1469)
 - Minor: Added usage examples for `!module` command. (#1484)
+- Minor: Made `/streamer_login` and `/bot_login` endpoints always prompt for user authorization. (#1500)
 - Bugfix: Messages are now trimmed to the Twitch character limit. (#1494)
 - Bugfix: Made `!debug playsound` use default cooldown values (5s global / 15s user). (#1474)
 - Bugfix: Corrected error shown when `whisper_output_mode` setting is invalid. (#1487)
