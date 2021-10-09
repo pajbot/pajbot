@@ -28,21 +28,21 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
     import markdown
     from flask import Markup
 
+    for c in command_list:
+        if c.id == i_command.id:
+            return
+
     command = WebCommand(alias, i_command)
-
-    if command in command_list:
-        return
-
-    command.json_description = None
-    command.parsed_description = ""
 
     try:
         if command.description is not None:
-            command.json_description = json.loads(command.description)
-            if "description" in command.json_description:
-                command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
-            if command.json_description.get("hidden", False) is True:
-                return
+            json_description = json.loads(command.description)
+            if isinstance(json_description, dict):
+                command.json_description = json_description
+                if "description" in command.json_description:
+                    command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
+                if command.json_description.get("hidden", False) is True:
+                    return
     except ValueError:
         # Invalid JSON
         pass
@@ -477,10 +477,6 @@ class Command(Base):
 
 
 class WebCommand:
-    json_description: Optional[dict[str, Any]]
-    parsed_description: Optional[str]
-    resolve_string: Optional[str]
-
     def __init__(self, alias: str, command: Command) -> None:
         self._command = command
 
@@ -490,6 +486,10 @@ class WebCommand:
             self.command = self._command.command
 
         self.main_alias = f"!{self.command}"
+
+        self.parsed_description = ""
+        self.json_description: Optional[dict[str, Any]] = None
+        self.resolve_string: Optional[str] = None
 
     @property
     def description(self) -> Optional[str]:
