@@ -58,7 +58,7 @@ def init(args):
     if "redis" in config:
         redis_options = dict(config["redis"])
 
-    RedisManager.init(**redis_options)
+    RedisManager.init(redis_options)
 
     twitch_id_api = TwitchIDAPI(api_client_credentials)
     app_token_manager = AppAccessTokenManager(twitch_id_api, RedisManager.get())
@@ -149,7 +149,7 @@ def init(args):
         "bot": {"name": config["main"]["nickname"]},
         "site": {
             "domain": config["web"]["domain"],
-            "deck_tab_images": config.getboolean("web", "deck_tab_images"),  # TODO: How does this get parsed in?
+            "deck_tab_images": config["web"].get("deck_tab_images", "0") == "1",
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
