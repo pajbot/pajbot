@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, List, Optional, Union
 
 import datetime
@@ -5,10 +7,9 @@ import json
 import logging
 import threading
 
-from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.twitter import TwitterUser
-from pajbot.utils import stringify_tweet, time_since, tweet_provider_stringify_tweet
+from pajbot.utils import now, stringify_tweet, time_since, tweet_provider_stringify_tweet
 
 import tweepy
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
@@ -16,6 +17,7 @@ from twisted.internet.protocol import ReconnectingClientFactory
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
+    from pajbot.models.sock import HandlerParam
 
 log = logging.getLogger(__name__)
 
@@ -56,30 +58,30 @@ class ClientProtocol(WebSocketClientProtocol):
         else:
             log.debug(f"Unhandled message from tweet-provider: {message}")
 
-    def onClose(self, wasClean: bool, code, reason) -> None:
-        log.info("Disconnected from tweet-provider: {0}".format(reason))
+    def onClose(self, wasClean: bool, code: int, reason: str) -> None:
+        log.info(f"Disconnected from tweet-provider: {reason}")
 
 
 class ClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
     protocol = ClientProtocol
     maxDelay = 30
 
-    def clientConnectionFailed(self, connector, reason):
+    def clientConnectionFailed(self, connector, reason) -> None:
         log.debug(f"Connection failed to PBTwitterManager: {reason}")
         self.retry(connector)
 
-    def clientConnectionLost(self, connector, reason):
+    def clientConnectionLost(self, connector, reason) -> None:
         log.debug(f"Connection lost to PBTwitterManager: {reason}")
         self.retry(connector)
 
 
-class MyStreamListener(tweepy.StreamListener):
+class MyStreamListener(tweepy.Stream):
     def __init__(self, bot: Bot):
-        tweepy.StreamListener.__init__(self)
+        super().__init__(self)
         self.relevant_users: List[str] = []
         self.bot = bot
 
-    def on_status(self, status):
+    def on_status(self, status: tweepy.models.Status) -> None:
         if (
             status.user.screen_name.lower() in self.relevant_users
             and not status.text.startswith("RT ")
@@ -89,9 +91,10 @@ class MyStreamListener(tweepy.StreamListener):
             tweet_message = stringify_tweet(status)
             self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
 
-    def on_error(self, status_code):
+    def on_request_error(self, status_code: int) -> None:
         log.warning("Unhandled in twitter stream: %s", status_code)
-        return super().on_error(status_code)
+
+        super().on_error(status_code)
 
 
 class GenericTwitterManager:
@@ -118,13 +121,12 @@ class GenericTwitterManager:
             self.twitter_client = tweepy.API(self.twitter_auth)
         except:
             log.exception("Twitter authentication failed.")
-            self.twitter_client = None
 
-    def on_twitter_follow(self, _data) -> None:
+    def on_twitter_follow(self, _data: HandlerParam) -> None:
         log.info("TWITTER FOLLOW")
         self.reload()
 
-    def on_twitter_unfollow(self, _data) -> None:
+    def on_twitter_unfollow(self, _data: HandlerParam) -> None:
         log.info("TWITTER UNFOLLOW")
         self.reload()
 
@@ -182,14 +184,14 @@ class GenericTwitterManager:
     def get_last_tweet(self, username: str) -> str:
         if self.twitter_client:
             try:
-                public_tweets = self.twitter_client.user_timeline(username)
+                public_tweets = self.twitter_client.user_timeline(screen_name=username)
                 for tweet in public_tweets:
                     if not tweet.text.startswith("RT ") and tweet.in_reply_to_screen_name is None:
                         # Tweepy returns naive datetime object (but it's always UTC)
                         # .replace() makes it timezone-aware :)
                         created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
                         tweet_message = stringify_tweet(tweet)
-                        return f"{tweet_message} ({time_since(utils.now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
+                        return f"{tweet_message} ({time_since(now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
             except Exception:
                 log.exception("Exception caught while getting last tweet")
                 return "FeelsBadMan"
@@ -204,10 +206,10 @@ class GenericTwitterManager:
 
 # TwitterManager loads live tweets from Twitter's Streaming API
 class TwitterManager(GenericTwitterManager):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
 
-        self.twitter_stream = None
+        self.twitter_stream: Optional[tweepy.Stream] = None
         self.listener = None
 
         if "twitter" not in bot.config:
@@ -220,24 +222,32 @@ class TwitterManager(GenericTwitterManager):
         except:
             log.exception("Twitter authentication failed.")
 
-    def initialize_listener(self):
+    def initialize_listener(self) -> None:
         if self.listener is None:
 
             self.listener = MyStreamListener(self.bot)
             self.reload()
 
-    def initialize_twitter_stream(self):
+    def initialize_twitter_stream(self) -> None:
         if self.twitter_stream is None:
             self.twitter_stream = tweepy.Stream(self.twitter_auth, self.listener, retry_420=3 * 60)
 
-    def _run_twitter_stream(self):
+    def _run_twitter_stream(self) -> None:
+        if self.twitter_client is None:
+            log.warn("Unable to run twitter stream: local twitter client not configured")
+            return
+
         self.initialize_listener()
         self.initialize_twitter_stream()
+
+        if self.twitter_stream is None:
+            log.warn("Unable to run twitter stream: twitter stream failed to initialize")
+            return
 
         user_ids = []
         with DBManager.create_session_scope() as db_session:
             for user in db_session.query(TwitterUser):
-                twitter_user = self.twitter_client.get_user(user.username)
+                twitter_user = self.twitter_client.get_user(screen_name=user.username)
                 if twitter_user:
                     user_ids.append(twitter_user.id_str)
 
@@ -249,7 +259,7 @@ class TwitterManager(GenericTwitterManager):
         except:
             log.exception("Exception caught in twitter stream _run")
 
-    def check_twitter_connection(self):
+    def check_twitter_connection(self) -> None:
         """Check if the twitter stream is running.
         If it's not running, try to restart it.
         """
@@ -263,7 +273,7 @@ class TwitterManager(GenericTwitterManager):
         except:
             log.exception("Caught exception while checking twitter connection")
 
-    def quit(self):
+    def quit(self) -> None:
         if self.twitter_stream:
             self.twitter_stream.disconnect()
 
@@ -274,7 +284,7 @@ class PBTwitterManager(GenericTwitterManager):
     client: Optional[ClientProtocol] = None
     tweepy: Optional[tweepy.API] = None
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
 
         PBTwitterManager.bot = bot
@@ -300,20 +310,40 @@ class PBTwitterManager(GenericTwitterManager):
 
         reactor.connectTCP(tweet_provider_host, tweet_provider_port, factory)  # type:ignore
 
-    def follow_user(self, username):
+    def follow_user(self, username: str) -> bool:
+        if self.twitter_client is None:
+            log.warn("Unable to forward follow to twitter_manager: local twitter client not configured")
+            return False
+
+        ws_client = PBTwitterManager.client
+
+        if ws_client is None:
+            log.warn("Unable to forward follow to twitter_manager: not connected")
+            return False
+
         ret = super().follow_user(username)
         if ret is True:
             user = self.twitter_client.get_user(screen_name=username)
             msg = {"type": "insert_subscriptions", "data": [user.id]}
-            PBTwitterManager.client.sendMessage(json.dumps(msg).encode("utf8"))
+            ws_client.sendMessage(json.dumps(msg).encode("utf8"))
 
         return ret
 
-    def unfollow_user(self, username):
+    def unfollow_user(self, username: str) -> bool:
+        if self.twitter_client is None:
+            log.warn("Unable to forward unfollow to twitter_manager: local twitter client not configured")
+            return False
+
+        ws_client = PBTwitterManager.client
+
+        if ws_client is None:
+            log.warn("Unable to forward unfollow to twitter_manager: not connected")
+            return False
+
         ret = super().unfollow_user(username)
         if ret is True:
             user = self.twitter_client.get_user(screen_name=username)
             msg = {"type": "remove_subscriptions", "data": [user.id]}
-            PBTwitterManager.client.sendMessage(json.dumps(msg).encode("utf8"))
+            ws_client.sendMessage(json.dumps(msg).encode("utf8"))
 
         return ret
