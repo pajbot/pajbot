@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, Optional, List, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import cgi
 import collections
@@ -23,7 +24,9 @@ class ActionParser:
     bot: Optional[Bot] = None
 
     @staticmethod
-    def parse(raw_data=None, data=None, command="") -> Optional[BaseAction]:
+    def parse(
+        str_data: Optional[str] = None, dict_data: Optional[Dict[str, str]] = None, command=""
+    ) -> Optional[BaseAction]:
         try:
             from pajbot.userdispatch import UserDispatch
 
@@ -36,8 +39,19 @@ class ActionParser:
             log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
             sys.exit(1)
 
-        if not data:
-            data = json.loads(raw_data)
+        data: Dict[str, str] = {}
+
+        if dict_data is not None:
+            data = dict_data
+        else:
+            if not str_data:
+                raise Exception("raw_data must be set if input_data is not set")
+
+            json_data = json.loads(str_data)
+            if not isinstance(json_data, dict):
+                raise Exception("raw_data must be a JSON object string")
+
+            data = json_data
 
         if data["type"] == "say":
             return SayAction(data["message"], ActionParser.bot)

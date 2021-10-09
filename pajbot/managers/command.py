@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Literal, Optional, Union
 
 import argparse
 import logging
@@ -416,7 +416,7 @@ class CommandManager(UserDict):
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
 
-    def parse_for_web(self) -> list[WebCommand]:
+    def parse_for_web(self) -> List[WebCommand]:
         commands: list[WebCommand] = []
 
         for alias, command in self.data.items():

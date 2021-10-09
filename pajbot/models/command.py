@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import datetime
 import json
@@ -28,8 +28,7 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
     import markdown
     from flask import Markup
 
-    command = WebCommand()
-    command.set(**vars(i_command))
+    command = WebCommand(alias, i_command)
 
     if command in command_list:
         return
@@ -136,7 +135,7 @@ class CommandData(Base):
     def last_date_used(self, value: Optional[datetime.datetime]) -> None:
         self._last_date_used = value
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "num_uses": self.num_uses,
             "added_by": self.added_by,
@@ -181,7 +180,7 @@ class CommandExample(Base):
                 self.add_chat_message("say", message, users)
         return self
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "command_id": self.command_id,
@@ -255,13 +254,15 @@ class Command(Base):
 
     def set(self, **options: Any) -> None:
         self.level = options.get("level", self.level)
-        if "action" in options:
-            self.action_json = json.dumps(options["action"])
-            self.action = ActionParser.parse(self.action_json, command=self.command)
-        if "extra_args" in options:
+        action_dict = options.get("action", None)
+        if action_dict:
+            self.action_json = json.dumps(action_dict)
+            self.action = ActionParser.parse(str_data=self.action_json, command=self.command)
+        extra_args = options.get("extra_extra_args", None)
+        if extra_args:
             self.extra_args = {"command": self}
-            self.extra_args.update(options["extra_args"])
-            self.extra_extra_args = json.dumps(options["extra_args"])
+            self.extra_args.update(extra_args)
+            self.extra_extra_args = json.dumps(extra_args)
         self.command = options.get("command", self.command)
         self.description = options.get("description", self.description)
         self.delay_all = options.get("delay_all", self.delay_all)
@@ -308,7 +309,7 @@ class Command(Base):
         cmd = cls()
         if "level" in json_object:
             cmd.level = json_object["level"]
-        cmd.action = ActionParser.parse(data=json_object["action"], command=cmd.command)
+        cmd.action = ActionParser.parse(dict_data=json_object["action"], command=cmd.command)
         return cmd
 
     @classmethod
@@ -450,8 +451,86 @@ class Command(Base):
             self.last_run = cur_time
             self.last_run_by_user[source.id] = cur_time
 
-    def autogenerate_examples(self):
-        if not self.examples and self.id is not None and self.action and self.action.type == "message":
+    def jsonify(self) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "id": self.id,
+            "level": self.level,
+            "description": self.description,
+            "long_description": self.long_description,
+            "cd_all": self.delay_all,
+            "cd_user": self.delay_user,
+            "enabled": self.enabled,
+            "cost": self.cost,
+            "tokens_cost": self.tokens_cost,
+            "can_execute_with_whisper": self.can_execute_with_whisper,
+            "sub_only": self.sub_only,
+            "mod_only": self.mod_only,
+            "data": None,
+        }
+
+        if self.data:
+            payload["data"] = self.data.jsonify()
+        else:
+            payload["data"] = None
+
+        return payload
+
+
+class WebCommand:
+    json_description: Optional[dict[str, Any]]
+    parsed_description: Optional[str]
+    resolve_string: Optional[str]
+
+    def __init__(self, alias: str, command: Command) -> None:
+        self._command = command
+
+        self.command: str = alias
+
+        if self._command.command:
+            self.command = self._command.command
+
+        self.main_alias = f"!{self.command}"
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._command.description
+
+    @property
+    def action(self) -> Optional[BaseAction]:
+        return self._command.action
+
+    @property
+    def level(self) -> int:
+        return self._command.level
+
+    @property
+    def mod_only(self) -> bool:
+        return self._command.mod_only
+
+    @property
+    def cost(self) -> int:
+        return self._command.cost
+
+    @property
+    def data(self) -> Optional[CommandData]:
+        return self._command.data
+
+    @property
+    def id(self):
+        return self._command.id
+
+    def autogenerate_examples(self) -> List[CommandExample]:
+        if self._command.examples:
+            # Command has a 'hard-coded' list of examples, return it!
+            return self._command.examples
+
+        if (
+            self.id is not None
+            and self.action
+            and self.action.type == "message"
+            and isinstance(self.action, MessageAction)
+            and self.main_alias
+        ):
             examples = []
 
             example = CommandExample(self.id, "Default usage")
@@ -465,7 +544,7 @@ class Command(Base):
                 example.add_chat_message(subtype, clean_response, "bot", "user")
             examples.append(example)
 
-            if self.can_execute_with_whisper is True:
+            if self._command.can_execute_with_whisper is True:
                 example = CommandExample(self.id, "Default usage through whisper")
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
@@ -475,40 +554,18 @@ class Command(Base):
                     example.add_chat_message(subtype, clean_response, "bot", "user")
                 examples.append(example)
             return examples
-        return self.examples
 
-    def jsonify(self):
-        """jsonify will only be called from the web interface.
-        we assume that commands have been run through the parse_command_for_web method"""
-        payload = {
-            "id": self.id,
-            "level": self.level,
+        return []
+
+    def jsonify(self) -> Dict[str, Any]:
+        b = self._command.jsonify()
+
+        return {
+            **b,
+            "json_description": self.json_description,
+            "parsed_description": self.parsed_description,
             "main_alias": self.main_alias,
-            "aliases": self.command.split("|"),
-            "description": self.description,
-            "long_description": self.long_description,
-            "cd_all": self.delay_all,
-            "cd_user": self.delay_user,
-            "enabled": self.enabled,
-            "cost": self.cost,
-            "tokens_cost": self.tokens_cost,
-            "can_execute_with_whisper": self.can_execute_with_whisper,
-            "sub_only": self.sub_only,
-            "mod_only": self.mod_only,
             "resolve_string": self.resolve_string,
+            "aliases": self.command.split("|"),
             "examples": [example.jsonify() for example in self.autogenerate_examples()],
         }
-
-        if self.data:
-            payload["data"] = self.data.jsonify()
-        else:
-            payload["data"] = None
-
-        return payload
-
-
-class WebCommand(Command):
-    json_description: Optional[dict[str, Any]]
-    parsed_description: Optional[str]
-    main_alias: Optional[str]
-    resolve_string: Optional[str]
