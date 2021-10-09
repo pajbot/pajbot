@@ -386,16 +386,16 @@ class StreamManager:
                 db_session.expunge_all()
             log.info("Successfully commited video url data in a new chunk.")
 
-    def get_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
+    def get_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
         return getattr(self, key, None)
 
-    def get_current_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
+    def get_current_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
         if self.current_stream is not None:
             return getattr(self.current_stream, key, None)
 
         return None
 
-    def get_last_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
+    def get_last_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
         if self.last_stream is not None:
             return getattr(self.last_stream, key, None)
 
