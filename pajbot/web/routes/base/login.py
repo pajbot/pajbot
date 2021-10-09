@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def init(app):
-    def twitch_login(scopes):
+    def twitch_login(scopes, should_verify):
         csrf_token = base64.b64encode(os.urandom(64)).decode("utf-8")
         session["csrf_token"] = csrf_token
 
@@ -30,6 +30,7 @@ def init(app):
             "response_type": "code",
             "scope": " ".join(scopes),
             "state": json.dumps(state),
+            "force_verify": "true" if should_verify else "false",
         }
 
         authorize_url = "https://id.twitch.tv/oauth2/authorize?" + urllib.parse.urlencode(params)
@@ -51,15 +52,15 @@ def init(app):
 
     @app.route("/login")
     def login():
-        return twitch_login(scopes=[])
+        return twitch_login(scopes=[], should_verify=False)
 
     @app.route("/bot_login")
     def bot_login():
-        return twitch_login(scopes=bot_scopes)
+        return twitch_login(scopes=bot_scopes, should_verify=True)
 
     @app.route("/streamer_login")
     def streamer_login():
-        return twitch_login(scopes=streamer_scopes)
+        return twitch_login(scopes=streamer_scopes, should_verify=True)
 
     @app.route("/login/authorized")
     def authorized():
