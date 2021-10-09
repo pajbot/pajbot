@@ -288,17 +288,17 @@ class Bot:
     def password(self):
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
-    def start(self):
+    def start(self) -> None:
         """Start the IRC client."""
         self.reactor.process_forever()
 
     def get_kvi_value(self, key, extra={}):
         return self.kvi[key].get()
 
-    def get_last_tweet(self, key, extra={}):
+    def get_last_tweet(self, key, extra={}) -> str:
         return self.twitter_manager.get_last_tweet(key)
 
-    def get_emote_epm(self, key, extra={}):
+    def get_emote_epm(self, key, extra={}) -> Optional[str]:
         epm = self.epm_manager.get_emote_epm(key)
 
         # maybe we simply haven't seen this emote yet (during the bot runtime) but it's a valid emote?
@@ -519,27 +519,27 @@ class Bot:
             log.exception("BabyRage")
             self.whisper_login(event.source.user.lower(), "Exception BabyRage")
 
-    def privmsg(self, message, channel=None):
+    def privmsg(self, message: str, channel: Optional[str] = None) -> None:
         if channel is None:
             channel = self.channel
 
         self.irc.privmsg(channel, message, is_whisper=False)
 
-    def c_uptime(self):
+    def c_uptime(self) -> str:
         return utils.time_ago(self.start_time)
 
     @staticmethod
-    def c_current_time():
+    def c_current_time() -> datetime.datetime:
         return utils.now()
 
     @staticmethod
-    def c_molly_age_in_years():
+    def c_molly_age_in_years() -> float:
         molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
         now = utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
-    def get_datetime_value(self, key, extra=[]):
+    def get_datetime_value(self, key, extra=[]) -> Optional[datetime.datetime]:
         try:
             tz = timezone(key)
             return datetime.datetime.now(tz)
@@ -549,14 +549,14 @@ class Bot:
         return None
 
     @property
-    def is_online(self):
+    def is_online(self) -> bool:
         return self.stream_manager.online
 
-    def c_stream_status(self):
+    def c_stream_status(self) -> str:
         return "online" if self.stream_manager.online else "offline"
 
-    def c_status_length(self):
-        if self.stream_manager.online:
+    def c_status_length(self) -> str:
+        if self.stream_manager.online and self.stream_manager.current_stream:
             return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
         if self.stream_manager.last_stream is not None:
@@ -564,16 +564,16 @@ class Bot:
 
         return "No recorded stream FeelsBadMan "
 
-    def execute_now(self, function, *args, **kwargs):
+    def execute_now(self, function, *args, **kwargs) -> None:
         self.execute_delayed(0, function, *args, **kwargs)
 
-    def execute_at(self, at, function, *args, **kwargs):
+    def execute_at(self, at, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_at(at, lambda: function(*args, **kwargs))
 
-    def execute_delayed(self, delay, function, *args, **kwargs):
+    def execute_delayed(self, delay, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
 
-    def execute_every(self, period, function, *args, **kwargs):
+    def execute_every(self, period, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
     def _has_moderation_actions(self) -> bool:
@@ -585,47 +585,47 @@ class Bot:
             return False
         return self.thread_locals.moderation_actions is not None
 
-    def _ban(self, login, reason=None):
+    def _ban(self, login: str, reason: Optional[str] = None) -> None:
         message = f"/ban {login}"
         if reason is not None:
             message += f" {reason}"
         self.privmsg(message)
 
-    def ban(self, user, reason=None):
+    def ban(self, user: User, reason: Optional[str] = None) -> None:
         self.ban_login(user.login, reason)
 
-    def ban_login(self, login: str, reason=None):
+    def ban_login(self, login: str, reason=None) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
             self.execute_delayed(1, self._ban, login, reason)
 
-    def unban(self, user):
+    def unban(self, user: User) -> None:
         self.unban_login(user.login)
 
-    def unban_login(self, login: str):
+    def unban_login(self, login: str) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
             self.privmsg(f"/unban {login}")
 
-    def untimeout(self, user):
+    def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
 
-    def untimeout_login(self, login: str):
+    def untimeout_login(self, login: str) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
             self.privmsg(f"/untimeout {login}")
 
-    def _timeout(self, login: str, duration: int, reason=None):
+    def _timeout(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         message = f"/timeout {login} {duration}"
         if reason is not None:
             message += f" {reason}"
         self.privmsg(message)
 
-    def timeout(self, user, duration, reason=None, once=False):
+    def timeout(self, user: User, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         self.timeout_login(user.login, duration, reason, once)
 
     def timeout_login(self, login: str, duration: int, reason=None, once=False):
@@ -644,7 +644,7 @@ class Bot:
     def delete_message(self, msg_id):
         self.privmsg(f"/delete {msg_id}")
 
-    def whisper(self, user, message):
+    def whisper(self, user: User, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(user.login, message)
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
@@ -662,7 +662,7 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
-    def whisper_login(self, login, message):
+    def whisper_login(self, login: str, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(login, message)
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
@@ -679,7 +679,7 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
 
-    def send_message_to_user(self, user, message, event, method="say"):
+    def send_message_to_user(self, user: User, message: str, event, method="say") -> None:
         if method == "say":
             self.say(f"@{user.name}, {message}")
         elif method == "whisper":
@@ -695,7 +695,7 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def reply(self, msg_id, message, channel=None):
+    def reply(self, msg_id: str, message: str, channel: Optional[str] = None) -> None:
         if self.silent:
             return
 
@@ -711,7 +711,7 @@ class Bot:
 
         self.irc.send_raw(message[:CHARACTER_LIMIT])
 
-    def say(self, message, channel=None):
+    def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::say()")
             return
@@ -722,26 +722,26 @@ class Bot:
         message = utils.clean_up_message(message)
         self.privmsg(message[:CHARACTER_LIMIT], channel)
 
-    def is_bad_message(self, message):
+    def is_bad_message(self, message: str) -> bool:
         # Checks for banphrases
         return self.banphrase_manager.check_message(message, None) is not False
 
-    def safe_privmsg(self, message, channel=None):
+    def safe_privmsg(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.privmsg(message, channel)
 
-    def safe_me(self, message, channel=None):
+    def safe_me(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.me(message, channel)
 
-    def safe_say(self, message, channel=None):
+    def safe_say(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.say(message, channel)
 
-    def me(self, message, channel=None):
+    def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def connect(self):
+    def connect(self) -> None:
         self.irc.start()
 
     def parse_message(self, message, source, event, tags={}, whisper=False):
