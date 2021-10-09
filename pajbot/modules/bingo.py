@@ -180,7 +180,12 @@ class BingoModule(BaseModule):
 
         words_in_message = [s for s in message.split(" ") if len(s) > 0]
         if len(words_in_message) <= 0:
-            bot.send_message_to_user(source, "You must at least give me some emote sets or emotes to choose from! FailFish", event, method="reply")
+            bot.send_message_to_user(
+                source,
+                "You must at least give me some emote sets or emotes to choose from! FailFish",
+                event,
+                method="reply",
+            )
             return False
 
         emote_index_offset = len("!bingo start ")
@@ -236,21 +241,38 @@ class BingoModule(BaseModule):
 
         max_points = self.settings["max_points"]
         if points_reward > max_points:
-            bot.send_message_to_user(source, f"You can't start a bingo with that many points. FailFish {max_points} are allowed at most.", event, method="reply")
+            bot.send_message_to_user(
+                source,
+                f"You can't start a bingo with that many points. FailFish {max_points} are allowed at most.",
+                event,
+                method="reply",
+            )
             return False
 
         allow_negative_bingo = self.settings["allow_negative_bingo"]
         if points_reward < 0 and not allow_negative_bingo:
-            bot.send_message_to_user(source, "You can't start a bingo with negative points. FailFish", event, method="reply")
+            bot.send_message_to_user(
+                source, "You can't start a bingo with negative points. FailFish", event, method="reply"
+            )
             return False
 
         min_points = -self.settings["max_negative_points"]
         if points_reward < min_points:
-            bot.send_message_to_user(source, "You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most.", event, method="reply")
+            bot.send_message_to_user(
+                source,
+                "You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most.",
+                event,
+                method="reply",
+            )
             return False
 
         if len(selected_sets) <= 0:
-            bot.send_message_to_user(source, "You must at least give me some emotes or emote sets to choose from! FailFish", event, method="reply")
+            bot.send_message_to_user(
+                source,
+                "You must at least give me some emotes or emote sets to choose from! FailFish",
+                event,
+                method="reply",
+            )
             return False
 
         selected_set_names = []
