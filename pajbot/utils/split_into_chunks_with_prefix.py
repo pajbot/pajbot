@@ -1,8 +1,8 @@
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 def split_into_chunks_with_prefix(
-    chunks: List[dict[str, Any]], separator: str = " ", limit: int = 500, default: Optional[str] = None
+    chunks: List[Dict[str, Any]], separator: str = " ", limit: int = 500, default: Optional[str] = None
 ) -> List[str]:
     messages = []
     current_message = ""

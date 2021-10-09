@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import json
 import logging
@@ -8,13 +8,13 @@ from pajbot.managers.redis import RedisManager
 
 log = logging.getLogger(__name__)
 
-HandlerParam = dict[str, Any]
+HandlerParam = Dict[str, Any]
 Handler = Callable[[HandlerParam], None]
 
 
 class SocketManager:
     def __init__(self, streamer_name: str, callback: Callable[[Handler, Any], None]) -> None:
-        self.handlers: dict[str, list[Handler]] = {}
+        self.handlers: Dict[str, List[Handler]] = {}
         self.pubsub = RedisManager.get().pubsub()
         self.running = True
         self.streamer_name = streamer_name

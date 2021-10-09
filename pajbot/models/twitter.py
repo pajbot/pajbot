@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 from pajbot.managers.db import Base
 
@@ -14,5 +14,5 @@ class TwitterUser(Base):
     def __init__(self, username: str) -> None:
         self.username = username
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {"id": self.id, "username": self.username}
