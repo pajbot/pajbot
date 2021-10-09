@@ -14,17 +14,19 @@ from pajbot.models.duel import UserDuelStats
 
 from redis import Redis
 from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT, Column, Interval, and_, or_
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import RelationshipProperty, Session, foreign, relationship
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import functions
 from sqlalchemy.sql.functions import func
 from sqlalchemy_utc import UtcDateTime
 
-
 if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.modules.warning import WarningModule
+
+    hybrid_property = property
+else:
+    from sqlalchemy.ext.hybrid import hybrid_property
 
 
 log = logging.getLogger(__name__)
@@ -139,7 +141,7 @@ class User(Base):
     def login(self) -> str:
         return self._login
 
-    @login.setter  # type:ignore[no-redef]
+    @login.setter
     def login(self, new_login: str) -> None:
         self._login = new_login
         # force SQLAlchemy to update the value in the database even if the value did not change
