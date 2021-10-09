@@ -103,6 +103,7 @@ class BingoModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.active_game = None
+        self.no_bingo_running = "No bingo is running FailFish"
 
     @property
     def bingo_running(self):
