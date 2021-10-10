@@ -1,16 +1,14 @@
-from typing import Optional, Any
+from typing import Any
 
 import logging
 
-from requests.exceptions import HTTPError
-from pajbot.managers.adminlog import AdminLogManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
-from pajbot.modules.basic import BasicCommandsModule
-from pajbot.apiwrappers.twitch.helix import TwitchGame
 from pajbot.bot import Bot
+from pajbot.managers.adminlog import AdminLogManager
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules.basic import BasicCommandsModule
+
+from requests.exceptions import HTTPError
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +81,7 @@ class StreamUpdateModule(BaseModule):
             return
 
         # Resolve game name to game ID
-        game: Optional[TwitchGame] = bot.twitch_helix_api.get_game_by_game_name(game_name)
+        game = bot.twitch_helix_api.get_game_by_game_name(game_name)
         if not game:
             bot.say(f"Unable to find a game with the name '{game_name}'")
             return
