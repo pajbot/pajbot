@@ -1,15 +1,17 @@
-from flask import render_template
+from typing import Any, Dict, List
 
 import pajbot.web.utils
 from pajbot.utils import find
 
+from flask import render_template
+
 
 def init(app):
-    def get_commands_list():
+    def get_commands_list() -> List[Dict[str, Any]]:
         return pajbot.web.utils.get_cached_commands()
 
     @app.route("/commands")
-    def commands():
+    def commands() -> str:
         custom_commands = []
         point_commands = []
         moderator_commands = []

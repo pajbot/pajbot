@@ -1,35 +1,37 @@
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
 
 import argparse
 import logging
 import urllib.parse
-
-import requests
-from bs4 import BeautifulSoup
-from sqlalchemy import Column, INT, TEXT
-from urlextract import URLExtract
 
 import pajbot.managers
 import pajbot.models
 import pajbot.utils
 from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
+from pajbot.managers.db import Base, DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
+
+import requests
+from bs4 import BeautifulSoup
+from sqlalchemy import INT, TEXT, Column
+from sqlalchemy.orm import Session
+from urlextract import URLExtract
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
-
 
 extractor = URLExtract()
 extractor.update_when_older(14)
 
 
-def is_subdomain(x, y):
+def is_subdomain(x: str, y: str) -> bool:
     """Returns True if x is a subdomain of y, otherwise return False.
 
     Example:
@@ -42,7 +44,7 @@ def is_subdomain(x, y):
     return x.endswith("." + y) or x == y
 
 
-def is_subpath(x, y):
+def is_subpath(x: str, y: str) -> bool:
     """Returns True if x is a subpath of y, otherwise return False.
 
     Example:
@@ -57,7 +59,7 @@ def is_subpath(x, y):
     return x.startswith(y + "/") or x == y
 
 
-def is_same_url(x, y):
+def is_same_url(x: Url, y: Url) -> bool:
     """Returns True if x and y should be parsed as the same URLs, otherwise return False."""
     parsed_x = x.parsed
     parsed_y = y.parsed
@@ -68,7 +70,7 @@ def is_same_url(x, y):
     )
 
 
-def find_unique_urls(message):
+def find_unique_urls(message: str) -> set[str]:
     urls = []
     for url in extractor.gen_urls(message):
         if not (url.startswith("http://") or url.startswith("https://")):
@@ -81,39 +83,47 @@ def find_unique_urls(message):
 
 
 class Url:
-    def __init__(self, url):
+    def __init__(self, url: str) -> None:
         self.url = url
         self.parsed = urllib.parse.urlparse(url)
 
 
 class LinkCheckerCache:
-    def __init__(self):
-        self.cache = {}
+    def __init__(self) -> None:
+        self.cache: Dict[str, bool] = {}
         return
 
-    def __getitem__(self, url):
+    def __getitem__(self, url: str) -> bool:
         return self.cache[url.strip("/").lower()]
 
-    def __setitem__(self, url, safe):
+    def __setitem__(self, url: str, safe: bool) -> None:
         self.cache[url.strip("/").lower()] = safe
 
-    def __contains__(self, url):
+    def __contains__(self, url: str) -> bool:
         return url.strip("/").lower() in self.cache
 
-    def __delitem__(self, url):
+    def __delitem__(self, url: str) -> None:
         del self.cache[url.strip("/").lower()]
 
 
 class LinkCheckerLink:
-    def is_subdomain(self, x):
+    id = Column(INT, primary_key=True)
+    domain = Column(TEXT)
+    path = Column(TEXT)
+
+    def is_subdomain(self, x: str) -> bool:
         """Returns True if x is a subdomain of this link, otherwise return False."""
+        if self.domain is None:
+            return False
         y = self.domain
         if y.startswith("www."):
             y = y[4:]
         return x.endswith("." + y) or x == y
 
-    def is_subpath(self, x):
+    def is_subpath(self, x: str) -> bool:
         """Returns True if x is a subpath of y, otherwise return False."""
+        if self.path is None:
+            return False
         y = self.path
         if y.endswith("/"):
             return x.startswith(y) or x == y[:-1]
@@ -124,13 +134,9 @@ class LinkCheckerLink:
 class BlacklistedLink(Base, LinkCheckerLink):
     __tablename__ = "link_blacklist"
 
-    id = Column(INT, primary_key=True)
-    domain = Column(TEXT)
-    path = Column(TEXT)
     level = Column(INT)
 
-    def __init__(self, domain, path, level):
-        self.id = None
+    def __init__(self, domain: str, path: str, level: int) -> None:
         self.domain = domain
         self.path = path
         self.level = level
@@ -139,12 +145,7 @@ class BlacklistedLink(Base, LinkCheckerLink):
 class WhitelistedLink(LinkCheckerLink, Base):
     __tablename__ = "link_whitelist"
 
-    id = Column(INT, primary_key=True)
-    domain = Column(TEXT)
-    path = Column(TEXT)
-
     def __init__(self, domain, path):
-        self.id = None
         self.domain = domain
         self.path = path
 
@@ -222,25 +223,24 @@ class LinkCheckerModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
-        self.db_session = None
-        self.links = {}
+        self.db_session: Optional[Session] = None
 
-        self.blacklisted_links = []
-        self.whitelisted_links = []
+        self.blacklisted_links: List[BlacklistedLink] = []
+        self.whitelisted_links: List[WhitelistedLink] = []
 
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
+
+        self.safe_browsing_api: Optional[SafeBrowsingAPI] = None
 
         if bot and "safebrowsingapi" in bot.config["main"]:
             # XXX: This should be loaded as a setting instead.
             # There needs to be a setting for settings to have them as "passwords"
             # so they're not displayed openly
             self.safe_browsing_api = SafeBrowsingAPI(bot.config["main"]["safebrowsingapi"])
-        else:
-            self.safe_browsing_api = None
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
@@ -253,8 +253,8 @@ class LinkCheckerModule(BaseModule):
             self.db_session = None
         self.db_session = DBManager.create_session()
         self.blacklisted_links = []
-        for link in self.db_session.query(BlacklistedLink):
-            self.blacklisted_links.append(link)
+        for blacklisted_link in self.db_session.query(BlacklistedLink):
+            self.blacklisted_links.append(blacklisted_link)
 
         self.whitelisted_links = []
         for link in self.db_session.query(WhitelistedLink):
@@ -773,8 +773,11 @@ class LinkCheckerModule(BaseModule):
             },
         )
 
-    def add_link_blacklist(self, bot, source, message, **rest):
+    def add_link_blacklist(self, bot: Bot, source, message, **rest) -> bool:
         options, new_links = self.parse_link_blacklist_arguments(message)
+
+        if options is False:
+            return False
 
         if new_links:
             parts = new_links.split(" ")
@@ -793,7 +796,7 @@ class LinkCheckerModule(BaseModule):
             bot.whisper(source, "Usage: !add link blacklist LINK")
             return False
 
-    def add_link_whitelist(self, bot, source, message, **rest):
+    def add_link_whitelist(self, bot: Bot, source, message, **rest) -> bool:
         parts = message.split(" ")
         try:
             for link in parts:
@@ -805,8 +808,12 @@ class LinkCheckerModule(BaseModule):
             return False
 
         bot.whisper(source, "Successfully added your links")
+        return True
 
-    def remove_link_blacklist(self, bot, source, message, **rest):
+    def remove_link_blacklist(self, bot, source, message, **rest) -> bool:
+        if self.db_session is None:
+            raise ValueError("LinkChecker module db not initialized")
+
         if not message:
             bot.whisper(source, "Usage: !remove link blacklist ID")
             return False
@@ -830,7 +837,12 @@ class LinkCheckerModule(BaseModule):
         AdminLogManager.post("Blacklist link removed", source, link.domain)
         bot.whisper(source, f"Successfully removed blacklisted link with id {link.id}")
 
-    def remove_link_whitelist(self, bot, source, message, **rest):
+        return True
+
+    def remove_link_whitelist(self, bot, source, message, **rest) -> bool:
+        if self.db_session is None:
+            raise ValueError("LinkChecker module db not initialized")
+
         if not message:
             bot.whisper(source, "Usage: !remove link whitelist ID")
             return False
@@ -854,8 +866,12 @@ class LinkCheckerModule(BaseModule):
         AdminLogManager.post("Whitelist link removed", source, link.domain)
         bot.whisper(source, f"Successfully removed whitelisted link with id {link.id}")
 
+        return True
+
     @staticmethod
-    def parse_link_blacklist_arguments(message):
+    def parse_link_blacklist_arguments(
+        message: str,
+    ) -> Tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--deep", dest="level", action="store_true")
         parser.add_argument("--shallow", dest="level", action="store_false")

@@ -2,6 +2,7 @@ black==21.9b0
 flake8==3.9.2
 pytest==6.2.5
 mypy==0.910
+isort==5.9.3
 
 # mypy type stubs
 types-cryptography==3.3.5
@@ -13,4 +14,6 @@ types-pytz==2021.1.2
 types-redis==3.5.9
 types-requests==2.25.9
 types-retry==0.9.0
-types-toml==0.10.0
+# sqlalchemy2-stubs==0.0.2a15
+sqlalchemy-stubs==0.4
+types-psycopg2==2.9.0

@@ -1,11 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import math
 
 from pajbot.exc import InvalidPointAmount
 
+if TYPE_CHECKING:
+    from pajbot.models.user import User
+
 ALLIN_PHRASES = {"all", "allin"}
 
 
-def parse_points_amount(user, point_string):
+def parse_points_amount(user: User, point_string: str) -> int:
     if point_string.startswith("0b"):
         try:
             bet = int(point_string, 2)
@@ -36,14 +43,14 @@ def parse_points_amount(user, point_string):
             num_m = point_string.count("m")
             point_string = point_string.replace("k", "")
             point_string = point_string.replace("m", "")
-            bet = float(point_string)
+            bet_f = float(point_string)
 
             if num_k:
-                bet *= 1000 ** num_k
+                bet_f *= 1000 ** num_k
             if num_m:
-                bet *= 1000000 ** num_m
+                bet_f *= 1000000 ** num_m
 
-            return round(bet)
+            return round(bet_f)
         except (ValueError, TypeError):
             raise InvalidPointAmount("Non-recognizable point amount (examples: 100, 10k, 1m, 0.5k)")
     elif point_string.lower() in ALLIN_PHRASES:

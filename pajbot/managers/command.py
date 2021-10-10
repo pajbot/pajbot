@@ -1,15 +1,23 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+
 import argparse
 import logging
 from collections import UserDict
 
+from pajbot.managers.db import DBManager
+from pajbot.models.command import Command, CommandData, CommandExample, WebCommand, parse_command_for_web
+from pajbot.utils import find
+
 from sqlalchemy.orm import joinedload
 
-from pajbot.managers.db import DBManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandData
-from pajbot.models.command import CommandExample
-from pajbot.models.command import parse_command_for_web
-from pajbot.utils import find
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.models.module import ModuleManager
+    from pajbot.models.sock import HandlerParam, SocketManager
+
+    from sqlalchemy.orm import Session
 
 log = logging.getLogger(__name__)
 
@@ -24,13 +32,18 @@ class CommandManager(UserDict):
 
     """
 
-    def __init__(self, socket_manager=None, module_manager=None, bot=None):
+    def __init__(
+        self,
+        socket_manager: Optional[SocketManager] = None,
+        module_manager: Optional[ModuleManager] = None,
+        bot: Optional[Bot] = None,
+    ) -> None:
         UserDict.__init__(self)
-        self.db_session = DBManager.create_session()
+        self.db_session: Session = DBManager.create_session()
 
-        self.internal_commands = {}
-        self.db_commands = {}
-        self.module_commands = {}
+        self.internal_commands: Dict[str, Command] = {}
+        self.db_commands: Dict[str, Command] = {}
+        self.module_commands: Dict[str, Command] = {}
         self.data = {}
 
         self.bot = bot
@@ -41,12 +54,12 @@ class CommandManager(UserDict):
             socket_manager.add_handler("command.update", self.on_command_update)
             socket_manager.add_handler("command.remove", self.on_command_remove)
 
-    def on_module_reload(self, _data):
+    def on_module_reload(self, _data: HandlerParam) -> None:
         log.debug("Rebuilding commands...")
         self.rebuild()
         log.debug("Done rebuilding commands")
 
-    def on_command_update(self, data):
+    def on_command_update(self, data: HandlerParam) -> None:
         try:
             command_id = int(data["command_id"])
         except (KeyError, ValueError):
@@ -63,7 +76,7 @@ class CommandManager(UserDict):
 
         self.rebuild()
 
-    def on_command_remove(self, data):
+    def on_command_remove(self, data: HandlerParam) -> None:
         try:
             command_id = int(data["command_id"])
         except (KeyError, ValueError):
@@ -82,13 +95,13 @@ class CommandManager(UserDict):
 
         self.rebuild()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.db_session.close()
 
-    def commit(self):
+    def commit(self) -> None:
         self.db_session.commit()
 
-    def load_internal_commands(self):
+    def load_internal_commands(self) -> Dict[str, Command]:
         if self.internal_commands:
             return self.internal_commands
 
@@ -103,9 +116,6 @@ class CommandManager(UserDict):
         )
 
         self.internal_commands["1quit"] = self.internal_commands["quit"]
-        self.internal_commands[
-            "ceaseallactionscurrentlybeingacteduponwiththecodeandiapologizeforbeingawhitecisgenderedmaleinthepatriarchy"
-        ] = self.internal_commands["quit"]
 
         self.internal_commands["add"] = Command.multiaction_command(
             level=100,
@@ -274,7 +284,7 @@ class CommandManager(UserDict):
 
         return self.internal_commands
 
-    def create_command(self, alias_str, **options):
+    def create_command(self, alias_str: str, **options: Any) -> Tuple[Command, bool, str]:
         aliases = alias_str.lower().replace("!", "").split("|")
         for alias in aliases:
             if alias in self.data:
@@ -295,13 +305,13 @@ class CommandManager(UserDict):
         self.rebuild()
         return command, True, ""
 
-    def edit_command(self, command_to_edit, **options):
+    def edit_command(self, command_to_edit: Command, **options: Any) -> None:
         command_to_edit.set(**options)
         command_to_edit.data.set(**options)
         DBManager.session_add_expunge(command_to_edit)
         self.commit()
 
-    def remove_command_aliases(self, command):
+    def remove_command_aliases(self, command: Command) -> None:
         aliases = command.command.split("|")
         for alias in aliases:
             if alias in self.db_commands:
@@ -309,7 +319,7 @@ class CommandManager(UserDict):
             else:
                 log.warning(f"For some reason, {alias} was not in the list of commands when we removed it.")
 
-    def remove_command(self, command):
+    def remove_command(self, command: Command) -> None:
         self.remove_command_aliases(command)
 
         with DBManager.create_session_scope() as db_session:
@@ -319,14 +329,14 @@ class CommandManager(UserDict):
 
         self.rebuild()
 
-    def add_db_command_aliases(self, command):
+    def add_db_command_aliases(self, command: Command) -> int:
         aliases = command.command.split("|")
         for alias in aliases:
             self.db_commands[alias] = command
 
         return len(aliases)
 
-    def load_db_commands(self, **options):
+    def load_db_commands(self, **options: Any) -> Dict[str, Command]:
         """This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
@@ -353,10 +363,10 @@ class CommandManager(UserDict):
 
         return self.db_commands
 
-    def rebuild(self):
+    def rebuild(self) -> None:
         """Rebuild the internal commands list from all sources."""
 
-        def merge_commands(in_dict, out):
+        def merge_commands(in_dict, out) -> None:
             for alias, command in in_dict.items():
                 if command.action:
                     # Resets any previous modifications to the action.
@@ -387,7 +397,7 @@ class CommandManager(UserDict):
             for enabled_module in self.module_manager.modules:
                 merge_commands(enabled_module.commands, self.data)
 
-    def load(self, **options):
+    def load(self, **options: Any) -> CommandManager:
         self.load_internal_commands()
         self.load_db_commands(**options)
 
@@ -395,7 +405,7 @@ class CommandManager(UserDict):
 
         return self
 
-    def load_by_id(self, command_id):
+    def load_by_id(self, command_id: int) -> None:
         self.db_session.commit()
         command = self.db_session.query(Command).filter_by(id=command_id, enabled=True).one_or_none()
         if command:
@@ -406,8 +416,8 @@ class CommandManager(UserDict):
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
 
-    def parse_for_web(self):
-        commands = []
+    def parse_for_web(self) -> List[WebCommand]:
+        commands: List[WebCommand] = []
 
         for alias, command in self.data.items():
             parse_command_for_web(alias, command, commands)
@@ -415,7 +425,9 @@ class CommandManager(UserDict):
         return commands
 
     @staticmethod
-    def parse_command_arguments(message):
+    def parse_command_arguments(
+        message: str,
+    ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--whisper", dest="whisper", action="store_true")
         parser.add_argument("--no-whisper", dest="whisper", action="store_false")

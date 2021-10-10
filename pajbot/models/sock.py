@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import json
 import logging
@@ -8,10 +8,13 @@ from pajbot.managers.redis import RedisManager
 
 log = logging.getLogger(__name__)
 
+HandlerParam = Dict[str, Any]
+Handler = Callable[[HandlerParam], None]
+
 
 class SocketManager:
-    def __init__(self, streamer_name, callback):
-        self.handlers = {}
+    def __init__(self, streamer_name: str, callback: Callable[[Handler, Any], None]) -> None:
+        self.handlers: Dict[str, List[Handler]] = {}
         self.pubsub = RedisManager.get().pubsub()
         self.running = True
         self.streamer_name = streamer_name
@@ -23,10 +26,10 @@ class SocketManager:
         self.thread.daemon = True
         self.thread.start()
 
-    def quit(self):
+    def quit(self) -> None:
         self.running = False
 
-    def add_handler(self, topic, method):
+    def add_handler(self, topic: str, method: Handler) -> None:
         topic = f"{self.streamer_name}:{topic}"
 
         if topic not in self.handlers:
@@ -35,7 +38,7 @@ class SocketManager:
         else:
             self.handlers[topic].append(method)
 
-    def start(self):
+    def start(self) -> None:
         while self.running:
             message = self.pubsub.get_message(ignore_subscribe_messages=True, timeout=1)
             if not message:
@@ -61,7 +64,7 @@ class SocketClientManager:
     streamer_name: Optional[str] = None
 
     @classmethod
-    def init(cls, streamer_name: str):
+    def init(cls, streamer_name: str) -> None:
         cls.streamer_name = streamer_name
 
     @classmethod

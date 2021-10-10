@@ -1,16 +1,16 @@
 import logging
 import sys
 
-from colorama import Style, Fore
+from colorama import Fore, Style
 
 
-def init_logging(app="pajbot"):
+def init_logging(app: str = "pajbot") -> logging.Logger:
     class LogFilter(logging.Filter):
-        def __init__(self, level):
+        def __init__(self, level: int) -> None:
             super().__init__()
             self.level = level
 
-        def filter(self, record):
+        def filter(self, record: logging.LogRecord) -> bool:
             return record.levelno < self.level
 
     colors = {
@@ -22,7 +22,7 @@ def init_logging(app="pajbot"):
     }
 
     class ColoredFormatter(logging.Formatter):
-        def format(self, record):
+        def format(self, record: logging.LogRecord) -> str:
             levelname = record.levelname
             if levelname in colors:
                 levelname_color = Style.BRIGHT + colors[levelname] + levelname + Style.RESET_ALL

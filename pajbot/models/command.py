@@ -1,44 +1,48 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 import datetime
 import json
 import logging
 import re
 
-from sqlalchemy import INT, BOOLEAN, TEXT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import reconstructor
-from sqlalchemy.orm import relationship
-
-from sqlalchemy_utc import UtcDateTime
-
 import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.action import ActionParser
-from pajbot.models.action import RawFuncAction
-from pajbot.models.action import Substitution
+from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
+from pajbot.models.user import User
+
+from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
+from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias, command, list):
+def parse_command_for_web(alias: str, i_command: Command, command_list: List[WebCommand]) -> None:
     import markdown
     from flask import Markup
 
-    if command in list:
-        return
+    for c in command_list:
+        if c.id == i_command.id:
+            return
 
-    command.json_description = None
-    command.parsed_description = ""
+    command = WebCommand(alias, i_command)
 
     try:
         if command.description is not None:
-            command.json_description = json.loads(command.description)
-            if "description" in command.json_description:
-                command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
-            if command.json_description.get("hidden", False) is True:
-                return
+            json_description = json.loads(command.description)
+            if isinstance(json_description, dict):
+                command.json_description = json_description
+                if "description" in command.json_description:
+                    command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
+                if command.json_description.get("hidden", False) is True:
+                    return
     except ValueError:
         # Invalid JSON
         pass
@@ -50,12 +54,14 @@ def parse_command_for_web(alias, command, list):
     if command.command is None:
         command.command = alias
 
-    if command.action is not None and command.action.type == "multi":
+    if command.action is not None and command.action.type == "multi" and isinstance(command.action, MultiAction):
         if command.command is not None:
             command.main_alias = command.command.split("|")[0]
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(
-                alias if command.command is None else command.main_alias + " " + inner_alias, inner_command, list
+                alias if command.command is None else command.main_alias + " " + inner_alias,
+                inner_command,
+                command_list,
             )
     else:
         test = re.compile(r"[^\w]")
@@ -64,13 +70,13 @@ def parse_command_for_web(alias, command, list):
         command.main_alias = "!" + first_alias
         if not command.parsed_description:
             if command.action is not None:
-                if command.action.type == "message":
+                if command.action.type == "message" and isinstance(command.action, MessageAction):
                     command.parsed_description = command.action.response
                     if not command.action.response:
                         return
             if command.description is not None:
                 command.parsed_description = command.description
-        list.append(command)
+        command_list.append(command)
 
 
 class CommandData(Base):
@@ -84,7 +90,7 @@ class CommandData(Base):
     _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
 
     user = relationship(
-        "User",
+        User,
         primaryjoin="User.id==CommandData.edited_by",
         foreign_keys="User.id",
         uselist=False,
@@ -94,7 +100,7 @@ class CommandData(Base):
     )
 
     user2 = relationship(
-        "User",
+        User,
         primaryjoin="User.id==CommandData.added_by",
         foreign_keys="User.id",
         uselist=False,
@@ -103,7 +109,7 @@ class CommandData(Base):
         viewonly=True,
     )
 
-    def __init__(self, command_id, **options):
+    def __init__(self, command_id: int, **options) -> None:
         self.command_id = command_id
         self.num_uses = 0
         self.added_by = None
@@ -112,24 +118,24 @@ class CommandData(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options: Any) -> None:
         self.num_uses = options.get("num_uses", self.num_uses)
         self.added_by = options.get("added_by", self.added_by)
         self.edited_by = options.get("edited_by", self.edited_by)
         self._last_date_used = options.get("last_date_used", self._last_date_used)
 
     @property
-    def last_date_used(self):
+    def last_date_used(self) -> Optional[datetime.datetime]:
         if isinstance(self._last_date_used, datetime.datetime):
             return self._last_date_used
 
         return None
 
     @last_date_used.setter
-    def last_date_used(self, value):
+    def last_date_used(self, value: Optional[datetime.datetime]) -> None:
         self._last_date_used = value
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "num_uses": self.num_uses,
             "added_by": self.added_by,
@@ -147,23 +153,23 @@ class CommandExample(Base):
     chat = Column(TEXT, nullable=False)
     description = Column(TEXT, nullable=False)
 
-    def __init__(self, command_id, title, chat="", description=""):
-        self.id = None
-        self.command_id = command_id
+    def __init__(self, command_id: Optional[int], title: str, chat: str = "", description: str = "") -> None:
+        if command_id:
+            self.command_id = command_id
         self.title = title
         self.chat = chat
         self.description = description
-        self.chat_messages = []
+        self.chat_messages: List[Dict[str, Any]] = []
 
     @reconstructor
-    def init_on_load(self):
+    def init_on_load(self) -> None:
         self.parse()
 
-    def add_chat_message(self, type, message, user_from, user_to=None):
+    def add_chat_message(self, type: str, message: str, user_from: str, user_to: Optional[str] = None) -> None:
         chat_message = {"source": {"type": type, "from": user_from, "to": user_to}, "message": message}
         self.chat_messages.append(chat_message)
 
-    def parse(self):
+    def parse(self) -> CommandExample:
         self.chat_messages = []
         for line in self.chat.split("\n"):
             users, message = line.split(":", 1)
@@ -174,7 +180,7 @@ class CommandExample(Base):
                 self.add_chat_message("say", message, users)
         return self
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "command_id": self.command_id,
@@ -204,8 +210,8 @@ class Command(Base):
     run_through_banphrases = Column(BOOLEAN, nullable=False, default=False, server_default="0")
     long_description = ""
 
-    data = relationship("CommandData", uselist=False, cascade="", lazy="joined")
-    examples = relationship("CommandExample", uselist=True, cascade="", lazy="noload")
+    data = relationship(CommandData, uselist=False, cascade="", lazy="joined")
+    examples = relationship(CommandExample, uselist=True, cascade="", lazy="noload")
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
@@ -218,11 +224,11 @@ class Command(Base):
 
     notify_on_error = False
 
-    def __init__(self, **options):
+    def __init__(self, **options) -> None:
         self.id = options.get("id", None)
 
         self.level = Command.DEFAULT_LEVEL
-        self.action = None
+        self.action: Optional[BaseAction] = None
         self.extra_args = {"command": self}
         self.delay_all = Command.DEFAULT_CD_ALL
         self.delay_user = Command.DEFAULT_CD_USER
@@ -235,26 +241,21 @@ class Command(Base):
         self.sub_only = False
         self.mod_only = False
         self.run_through_banphrases = False
-        self.command = None
 
         self.last_run = 0
-        self.last_run_by_user = {}
+        self.last_run_by_user: Dict[str, datetime.datetime] = {}
 
-        self.data = None
         self.run_in_thread = False
         self.notify_on_error = False
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options: Any) -> None:
         self.level = options.get("level", self.level)
-        if "action" in options:
-            self.action_json = json.dumps(options["action"])
-            self.action = ActionParser.parse(self.action_json, command=self.command)
-        if "extra_args" in options:
-            self.extra_args = {"command": self}
-            self.extra_args.update(options["extra_args"])
-            self.extra_extra_args = json.dumps(options["extra_args"])
+        action_dict = options.get("action", None)
+        if action_dict:
+            self.action_json = json.dumps(action_dict)
+            self.action = ActionParser.parse(str_data=self.action_json, command=self.command)
         self.command = options.get("command", self.command)
         self.description = options.get("description", self.description)
         self.delay_all = options.get("delay_all", self.delay_all)
@@ -282,7 +283,7 @@ class Command(Base):
         return f"Command(!{self.command})"
 
     @reconstructor
-    def init_on_load(self):
+    def init_on_load(self) -> None:
         self.last_run = 0
         self.last_run_by_user = {}
         self.extra_args = {"command": self}
@@ -297,15 +298,15 @@ class Command(Base):
                 )
 
     @classmethod
-    def from_json(cls, json_object):
+    def from_json(cls, json_object) -> Command:
         cmd = cls()
         if "level" in json_object:
             cmd.level = json_object["level"]
-        cmd.action = ActionParser.parse(data=json_object["action"], command=cmd.command)
+        cmd.action = ActionParser.parse(dict_data=json_object["action"], command=cmd.command)
         return cmd
 
     @classmethod
-    def dispatch_command(cls, cb, **options):
+    def dispatch_command(cls, cb: Any, **options: Any) -> Command:
         cmd = cls(**options)
         cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}', command=cmd.command)
         return cmd
@@ -321,30 +322,31 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def pajbot_command(cls, bot, method_name, level=1000, **options):
+    def pajbot_command(cls, bot: Optional[Bot], method_name: str, level: int = 1000, **options) -> Command:
         cmd = cls(**options)
         cmd.level = level
         cmd.description = options.get("description", None)
         cmd.can_execute_with_whisper = True
         try:
-            cmd.action = RawFuncAction(getattr(bot, method_name))
+            if bot:
+                cmd.action = RawFuncAction(getattr(bot, method_name))
         except:
             pass
         return cmd
 
     @classmethod
-    def multiaction_command(cls, default=None, fallback=None, **options):
+    def multiaction_command(cls, default=None, fallback=None, **options) -> Command:
         from pajbot.models.action import MultiAction
 
         cmd = cls(**options)
         cmd.action = MultiAction.ready_built(options.get("commands"), default=default, fallback=fallback)
         return cmd
 
-    def load_args(self, level, action):
+    def load_args(self, level: int, action) -> None:
         self.level = level
         self.action = action
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         return self.enabled == 1 and self.action is not None
 
     def can_run_command(self, source, whisper):
@@ -442,8 +444,86 @@ class Command(Base):
             self.last_run = cur_time
             self.last_run_by_user[source.id] = cur_time
 
-    def autogenerate_examples(self):
-        if not self.examples and self.id is not None and self.action and self.action.type == "message":
+    def jsonify(self) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "id": self.id,
+            "level": self.level,
+            "description": self.description,
+            "long_description": self.long_description,
+            "cd_all": self.delay_all,
+            "cd_user": self.delay_user,
+            "enabled": self.enabled,
+            "cost": self.cost,
+            "tokens_cost": self.tokens_cost,
+            "can_execute_with_whisper": self.can_execute_with_whisper,
+            "sub_only": self.sub_only,
+            "mod_only": self.mod_only,
+            "data": None,
+        }
+
+        if self.data:
+            payload["data"] = self.data.jsonify()
+        else:
+            payload["data"] = None
+
+        return payload
+
+
+class WebCommand:
+    def __init__(self, alias: str, command: Command) -> None:
+        self._command = command
+
+        self.command: str = alias
+
+        if self._command.command:
+            self.command = self._command.command
+
+        self.main_alias = f"!{self.command}"
+
+        self.parsed_description = ""
+        self.json_description: Optional[Dict[str, Any]] = None
+        self.resolve_string: Optional[str] = None
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._command.description
+
+    @property
+    def action(self) -> Optional[BaseAction]:
+        return self._command.action
+
+    @property
+    def level(self) -> int:
+        return self._command.level
+
+    @property
+    def mod_only(self) -> bool:
+        return self._command.mod_only
+
+    @property
+    def cost(self) -> int:
+        return self._command.cost
+
+    @property
+    def data(self) -> Optional[CommandData]:
+        return self._command.data
+
+    @property
+    def id(self):
+        return self._command.id
+
+    def autogenerate_examples(self) -> List[CommandExample]:
+        if self._command.examples:
+            # Command has a 'hard-coded' list of examples, return it!
+            return self._command.examples
+
+        if (
+            self.id is not None
+            and self.action
+            and self.action.type == "message"
+            and isinstance(self.action, MessageAction)
+            and self.main_alias
+        ):
             examples = []
 
             example = CommandExample(self.id, "Default usage")
@@ -457,7 +537,7 @@ class Command(Base):
                 example.add_chat_message(subtype, clean_response, "bot", "user")
             examples.append(example)
 
-            if self.can_execute_with_whisper is True:
+            if self._command.can_execute_with_whisper is True:
                 example = CommandExample(self.id, "Default usage through whisper")
                 subtype = self.action.subtype if self.action.subtype != "reply" else "say"
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
@@ -467,33 +547,18 @@ class Command(Base):
                     example.add_chat_message(subtype, clean_response, "bot", "user")
                 examples.append(example)
             return examples
-        return self.examples
 
-    def jsonify(self):
-        """jsonify will only be called from the web interface.
-        we assume that commands have been run through the parse_command_for_web method"""
-        payload = {
-            "id": self.id,
-            "level": self.level,
+        return []
+
+    def jsonify(self) -> Dict[str, Any]:
+        b = self._command.jsonify()
+
+        return {
+            **b,
+            "json_description": self.json_description,
+            "parsed_description": self.parsed_description,
             "main_alias": self.main_alias,
-            "aliases": self.command.split("|"),
-            "description": self.description,
-            "long_description": self.long_description,
-            "cd_all": self.delay_all,
-            "cd_user": self.delay_user,
-            "enabled": self.enabled,
-            "cost": self.cost,
-            "tokens_cost": self.tokens_cost,
-            "can_execute_with_whisper": self.can_execute_with_whisper,
-            "sub_only": self.sub_only,
-            "mod_only": self.mod_only,
             "resolve_string": self.resolve_string,
+            "aliases": self.command.split("|"),
             "examples": [example.jsonify() for example in self.autogenerate_examples()],
         }
-
-        if self.data:
-            payload["data"] = self.data.jsonify()
-        else:
-            payload["data"] = None
-
-        return payload

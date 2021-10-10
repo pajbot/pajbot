@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import enum
 
+from pajbot import utils
+from pajbot.managers.db import Base
+from pajbot.models.user import User
+
 import sqlalchemy
-from sqlalchemy import Column, INT, and_, func
-from sqlalchemy import ForeignKey
+from sqlalchemy import INT, Column, ForeignKey, and_, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import functions
 from sqlalchemy_utc import UtcDateTime
-
-from pajbot import utils
-from pajbot.managers.db import Base
 
 
 class HSGameOutcome(enum.Enum):
@@ -96,5 +98,5 @@ class HSBetBet(Base):
     points = Column(INT, nullable=False)
     profit = Column(INT, nullable=True)
 
-    user = relationship("User")
-    game = relationship("HSBetGame", back_populates="bets")
+    user = relationship(User)
+    game = relationship(HSBetGame, back_populates="bets")
