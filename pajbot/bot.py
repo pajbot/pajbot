@@ -81,9 +81,9 @@ class Bot:
 
         self.control_hub: Optional[str] = config["main"].get("control_hub", None)
 
-        if config["main"].get("verified", False) is True:
+        if cfg.get_boolean(config["main"], "verified", False):
             self.tmi_rate_limits = TMIRateLimits.VERIFIED
-        elif config["main"].get("known", False) is True:
+        elif cfg.get_boolean(config["main"], "known", False):
             self.tmi_rate_limits = TMIRateLimits.KNOWN
         else:
             self.tmi_rate_limits = TMIRateLimits.BASE
