@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional, Protocol, Tuple
 
 import logging
-
 import random
 
 from pajbot.managers.redis import RedisManager
@@ -10,9 +9,9 @@ from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
 
-log = logging.getLogger(__name__)
-
 EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
+
+log = logging.getLogger(__name__)
 
 
 class EmoteAPI(Protocol):
