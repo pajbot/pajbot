@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added `!topemotes` command to Top module (#1503)
+
 ## v1.56
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
