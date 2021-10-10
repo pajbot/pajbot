@@ -1,20 +1,18 @@
-from typing import Any, List, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 import cgi
 import datetime
 import logging
+import random
 import re
 import sys
+import threading
 import urllib
 
-import irc.client
-import random
-import requests
-import threading
-from pytz import timezone
-
+import pajbot.config as cfg
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
+from pajbot import utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -27,13 +25,12 @@ from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
-from pajbot.managers.emote import EmoteManager, EpmManager, EcountManager
+from pajbot.managers.emote import EcountManager, EmoteManager, EpmManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.managers.twitter import TwitterManager, PBTwitterManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
 from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
@@ -50,7 +47,10 @@ from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
-from pajbot import utils
+
+import irc.client
+import requests
+from pytz import timezone
 
 log = logging.getLogger(__name__)
 
@@ -62,26 +62,28 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def __init__(self, config, args):
-        self.config = config
+    def __init__(self, config, args) -> None:
         self.args = args
+        self.config = config
 
         ScheduleManager.init()
 
-        DBManager.init(self.config["main"]["db"])
+        DBManager.init(config["main"]["db"])
 
         # redis
         redis_options = {}
         if "redis" in config:
             redis_options = dict(config.items("redis"))
-        RedisManager.init(**redis_options)
+        RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.nickname = config["main"].get("nickname", "pajbot")
 
-        if config["main"].getboolean("verified", False):
+        self.control_hub: Optional[str] = config["main"].get("control_hub", None)
+
+        if cfg.get_boolean(config["main"], "verified", False):
             self.tmi_rate_limits = TMIRateLimits.VERIFIED
-        elif config["main"].getboolean("known", False):
+        elif cfg.get_boolean(config["main"], "known", False):
             self.tmi_rate_limits = TMIRateLimits.KNOWN
         else:
             self.tmi_rate_limits = TMIRateLimits.BASE
@@ -106,23 +108,18 @@ class Bot:
         self.welcome_messages_sent = False
 
         # streamer
-        if "streamer" in config["main"]:
-            self.streamer: str = config["main"]["streamer"]
-            self.channel = "#" + self.streamer
-        elif "target" in config["main"]:
-            self.channel = config["main"]["target"]
-            self.streamer: str = self.channel[1:]
+        self.streamer, self.channel = cfg.load_streamer_and_channel(config)
 
-        self.bot_domain = self.config["web"]["domain"]
-        self.streamer_display = self.config["web"]["streamer_name"]
+        self.bot_domain = config["web"]["domain"]
+        self.streamer_display = config["web"]["streamer_name"]
 
         log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
-            self.config["twitchapi"]["client_id"],
-            self.config["twitchapi"]["client_secret"],
-            self.config["twitchapi"]["redirect_uri"],
+            config["twitchapi"]["client_id"],
+            config["twitchapi"]["client_secret"],
+            config["twitchapi"]["redirect_uri"],
         )
 
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
@@ -184,14 +181,14 @@ class Bot:
         self.kvi = KVIManager()
 
         # bot access token
-        if "password" in self.config["main"]:
+        if "password" in config["main"]:
             log.warning(
                 "DEPRECATED - Using bot password/oauth token from file. "
                 "You should authenticate in web gui using route /bot_login "
                 "and remove password from config file"
             )
 
-            access_token = self.config["main"]["password"]
+            access_token = config["main"]["password"]
 
             if access_token.startswith("oauth:"):
                 access_token = access_token[6:]
@@ -211,10 +208,7 @@ class Bot:
         self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
-        if "twitter" in self.config and self.config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
-            self.twitter_manager = PBTwitterManager(self)
-        else:
-            self.twitter_manager = TwitterManager(self)
+        self.twitter_manager = cfg.load_twitter_manager(config)(self)
         self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
@@ -230,7 +224,7 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        self.admin = self.config["main"].get("admin", None)
+        self.admin = config["main"].get("admin", None)
         if self.admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
@@ -260,8 +254,8 @@ class Bot:
 
         self.irc = IRCManager(self)
 
-        relay_host = self.config["main"].get("relay_host", None)
-        relay_password = self.config["main"].get("relay_password", None)
+        relay_host = config["main"].get("relay_host", None)
+        relay_password = config["main"].get("relay_password", None)
         if relay_host is not None or relay_password is not None:
             log.warning(
                 "DEPRECATED - Relaybroker support is no longer implemented. relay_host and relay_password are ignored"
@@ -294,17 +288,17 @@ class Bot:
     def password(self):
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
-    def start(self):
+    def start(self) -> None:
         """Start the IRC client."""
         self.reactor.process_forever()
 
     def get_kvi_value(self, key, extra={}):
         return self.kvi[key].get()
 
-    def get_last_tweet(self, key, extra={}):
+    def get_last_tweet(self, key, extra={}) -> str:
         return self.twitter_manager.get_last_tweet(key)
 
-    def get_emote_epm(self, key, extra={}):
+    def get_emote_epm(self, key, extra={}) -> Optional[str]:
         epm = self.epm_manager.get_emote_epm(key)
 
         # maybe we simply haven't seen this emote yet (during the bot runtime) but it's a valid emote?
@@ -317,14 +311,14 @@ class Bot:
         # formats the number with grouping (e.g. 112,556) and zero decimal places
         return f"{epm:,.0f}"
 
-    def get_emote_epm_record(self, key, extra={}):
+    def get_emote_epm_record(self, key, extra={}) -> Optional[str]:
         val = self.epm_manager.get_emote_epm_record(key)
         if val is None:
             return None
         # formats the number with grouping (e.g. 112,556) and zero decimal places
         return f"{val:,.0f}"
 
-    def get_emote_count(self, key, extra={}):
+    def get_emote_count(self, key, extra={}) -> Optional[str]:
         val = self.ecount_manager.get_emote_count(key)
         if val is None:
             return None
@@ -525,27 +519,27 @@ class Bot:
             log.exception("BabyRage")
             self.whisper_login(event.source.user.lower(), "Exception BabyRage")
 
-    def privmsg(self, message, channel=None):
+    def privmsg(self, message: str, channel: Optional[str] = None) -> None:
         if channel is None:
             channel = self.channel
 
         self.irc.privmsg(channel, message, is_whisper=False)
 
-    def c_uptime(self):
+    def c_uptime(self) -> str:
         return utils.time_ago(self.start_time)
 
     @staticmethod
-    def c_current_time():
+    def c_current_time() -> datetime.datetime:
         return utils.now()
 
     @staticmethod
-    def c_molly_age_in_years():
+    def c_molly_age_in_years() -> float:
         molly_birth = datetime.datetime(2018, 10, 29, tzinfo=datetime.timezone.utc)
         now = utils.now()
         diff = now - molly_birth
         return diff.total_seconds() / 3600 / 24 / 365
 
-    def get_datetime_value(self, key, extra=[]):
+    def get_datetime_value(self, key, extra=[]) -> Optional[datetime.datetime]:
         try:
             tz = timezone(key)
             return datetime.datetime.now(tz)
@@ -555,14 +549,14 @@ class Bot:
         return None
 
     @property
-    def is_online(self):
+    def is_online(self) -> bool:
         return self.stream_manager.online
 
-    def c_stream_status(self):
+    def c_stream_status(self) -> str:
         return "online" if self.stream_manager.online else "offline"
 
-    def c_status_length(self):
-        if self.stream_manager.online:
+    def c_status_length(self) -> str:
+        if self.stream_manager.online and self.stream_manager.current_stream:
             return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
         if self.stream_manager.last_stream is not None:
@@ -570,16 +564,16 @@ class Bot:
 
         return "No recorded stream FeelsBadMan "
 
-    def execute_now(self, function, *args, **kwargs):
+    def execute_now(self, function, *args, **kwargs) -> None:
         self.execute_delayed(0, function, *args, **kwargs)
 
-    def execute_at(self, at, function, *args, **kwargs):
+    def execute_at(self, at, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_at(at, lambda: function(*args, **kwargs))
 
-    def execute_delayed(self, delay, function, *args, **kwargs):
+    def execute_delayed(self, delay, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
 
-    def execute_every(self, period, function, *args, **kwargs):
+    def execute_every(self, period, function, *args, **kwargs) -> None:
         self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
     def _has_moderation_actions(self) -> bool:
@@ -591,47 +585,47 @@ class Bot:
             return False
         return self.thread_locals.moderation_actions is not None
 
-    def _ban(self, login, reason=None):
+    def _ban(self, login: str, reason: Optional[str] = None) -> None:
         message = f"/ban {login}"
         if reason is not None:
             message += f" {reason}"
         self.privmsg(message)
 
-    def ban(self, user, reason=None):
+    def ban(self, user: User, reason: Optional[str] = None) -> None:
         self.ban_login(user.login, reason)
 
-    def ban_login(self, login: str, reason=None):
+    def ban_login(self, login: str, reason=None) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
             self.execute_delayed(1, self._ban, login, reason)
 
-    def unban(self, user):
+    def unban(self, user: User) -> None:
         self.unban_login(user.login)
 
-    def unban_login(self, login: str):
+    def unban_login(self, login: str) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
             self.privmsg(f"/unban {login}")
 
-    def untimeout(self, user):
+    def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
 
-    def untimeout_login(self, login: str):
+    def untimeout_login(self, login: str) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
             self.privmsg(f"/untimeout {login}")
 
-    def _timeout(self, login: str, duration: int, reason=None):
+    def _timeout(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         message = f"/timeout {login} {duration}"
         if reason is not None:
             message += f" {reason}"
         self.privmsg(message)
 
-    def timeout(self, user, duration, reason=None, once=False):
+    def timeout(self, user: User, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         self.timeout_login(user.login, duration, reason, once)
 
     def timeout_login(self, login: str, duration: int, reason=None, once=False):
@@ -650,7 +644,7 @@ class Bot:
     def delete_message(self, msg_id):
         self.privmsg(f"/delete {msg_id}")
 
-    def whisper(self, user, message):
+    def whisper(self, user: User, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(user.login, message)
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
@@ -668,7 +662,7 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
-    def whisper_login(self, login, message):
+    def whisper_login(self, login: str, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(login, message)
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
@@ -685,7 +679,7 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
 
-    def send_message_to_user(self, user, message, event, method="say"):
+    def send_message_to_user(self, user: User, message: str, event, method="say") -> None:
         if method == "say":
             self.say(f"@{user.name}, {message}")
         elif method == "whisper":
@@ -701,7 +695,7 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def reply(self, msg_id, message, channel=None):
+    def reply(self, msg_id: str, message: str, channel: Optional[str] = None) -> None:
         if self.silent:
             return
 
@@ -717,7 +711,7 @@ class Bot:
 
         self.irc.send_raw(message[:CHARACTER_LIMIT])
 
-    def say(self, message, channel=None):
+    def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::say()")
             return
@@ -728,26 +722,26 @@ class Bot:
         message = utils.clean_up_message(message)
         self.privmsg(message[:CHARACTER_LIMIT], channel)
 
-    def is_bad_message(self, message):
+    def is_bad_message(self, message: str) -> bool:
         # Checks for banphrases
         return self.banphrase_manager.check_message(message, None) is not False
 
-    def safe_privmsg(self, message, channel=None):
+    def safe_privmsg(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.privmsg(message, channel)
 
-    def safe_me(self, message, channel=None):
+    def safe_me(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.me(message, channel)
 
-    def safe_say(self, message, channel=None):
+    def safe_say(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.say(message, channel)
 
-    def me(self, message, channel=None):
+    def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def connect(self):
+    def connect(self) -> None:
         self.irc.start()
 
     def parse_message(self, message, source, event, tags={}, whisper=False):
@@ -962,21 +956,20 @@ class Bot:
         if "subs-only" in tags:
             self.subs_only = tags["subs-only"] == "1"
 
-    def commit_all(self):
+    def commit_all(self) -> None:
         for key, manager in self.commitable.items():
             manager.commit()
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 
     @staticmethod
-    def do_tick():
+    def do_tick() -> None:
         HandlerManager.trigger("on_tick")
 
-    def quit(self, message, event, **options):
-        quit_chub = self.config["main"].get("control_hub", None)
+    def quit(self, message, event, **options) -> None:
         quit_delay = 0
 
-        if quit_chub is not None and event.target == f"#{quit_chub}":
+        if self.control_hub is not None and event.target == f"#{self.control_hub}":
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -988,14 +981,15 @@ class Bot:
 
         self.execute_delayed(quit_delay, self.quit_bot)
 
-    def quit_bot(self, **options):
+    def quit_bot(self, **options) -> None:
         self.commit_all()
         HandlerManager.trigger("on_quit")
         phrase_data = {"nickname": self.nickname, "version": self.version_long}
 
         try:
-            ScheduleManager.base_scheduler.print_jobs()
-            ScheduleManager.base_scheduler.shutdown(wait=False)
+            if ScheduleManager.base_scheduler:
+                ScheduleManager.base_scheduler.print_jobs()
+                ScheduleManager.base_scheduler.shutdown(wait=False)
         except:
             log.exception("Error while shutting down the apscheduler")
 
@@ -1011,7 +1005,7 @@ class Bot:
         sys.exit(0)
 
     def apply_filter(self, resp, f: SubstitutionFilter) -> Any:
-        available_filters: dict[str, Callable[[Any, List[str]], Any]] = {
+        available_filters: Dict[str, Callable[[Any, List[str]], Any]] = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),

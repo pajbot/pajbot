@@ -1,21 +1,32 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple
+
 import logging
 from contextlib import contextmanager
-
 from datetime import timedelta
-from sqlalchemy import BOOLEAN, INT, TEXT, BIGINT, Interval, or_, and_
-from sqlalchemy.sql.functions import func
-from sqlalchemy import Column
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, foreign
-from sqlalchemy.orm.attributes import flag_modified
-from sqlalchemy.sql import functions
-from sqlalchemy_utc import UtcDateTime
 
 from pajbot import utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.redis import RedisManager
 from pajbot.models.duel import UserDuelStats
+
+from redis import Redis
+from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT, Column, Interval, and_, or_
+from sqlalchemy.orm import RelationshipProperty, Session, foreign, relationship
+from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.sql import functions
+from sqlalchemy.sql.functions import func
+from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+    from pajbot.modules.warning import WarningModule
+
+    hybrid_property = property
+else:
+    from sqlalchemy.ext.hybrid import hybrid_property
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +45,7 @@ class UserBasics:
         self.login = login
         self.name = name
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
 
@@ -92,9 +103,9 @@ class User(Base):
     vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
     founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
-    _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
+    _rank = relationship(UserRank, primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self) -> None:
         self.level = 100
         self.points = 0
         self.subscriber = False
@@ -111,35 +122,33 @@ class User(Base):
         self.vip = False
         self.founder = False
 
-        super().__init__(*args, **kwargs)
-
-    _duel_stats = relationship(
+    _duel_stats: RelationshipProperty[UserDuelStats] = relationship(
         UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
     )
 
     @hybrid_property
-    def username(self):
+    def username(self) -> str:
         # retained for backwards compatibility with commands that still use $(source:username) (and similar)
         return self.login
 
     @hybrid_property
-    def username_raw(self):
+    def username_raw(self) -> str:
         # retained for backwards compatibility with commands that still use $(source:username_raw) (and similar)
         return self.name
 
     @hybrid_property
-    def login(self):
+    def login(self) -> str:
         return self._login
 
-    @login.setter  # type: ignore
-    def login(self, new_login):
+    @login.setter
+    def login(self, new_login: str) -> None:
         self._login = new_login
         # force SQLAlchemy to update the value in the database even if the value did not change
         # see above comment for details on why this is implemented this way
         flag_modified(self, "_login")
 
     @property
-    def points_rank(self):
+    def points_rank(self) -> int:
         if self._rank:
             return self._rank.points_rank
         else:
@@ -148,7 +157,7 @@ class User(Base):
             return 420
 
     @property
-    def num_lines_rank(self):
+    def num_lines_rank(self) -> int:
         if self._rank:
             return self._rank.num_lines_rank
         else:
@@ -157,24 +166,24 @@ class User(Base):
             return 1337
 
     @property
-    def minutes_in_chat_online(self):
+    def minutes_in_chat_online(self) -> int:
         # retained for backwards compatibility with commands that still use this property
         return int(self.time_in_chat_online.total_seconds() / 60)
 
     @property
-    def minutes_in_chat_offline(self):
+    def minutes_in_chat_offline(self) -> int:
         # retained for backwards compatibility with commands that still use this property
         return int(self.time_in_chat_offline.total_seconds() / 60)
 
     @hybrid_property
-    def timed_out(self):
+    def timed_out(self) -> bool:
         return self.timeout_end is not None and self.timeout_end > utils.now()
 
-    @timed_out.expression  # type: ignore
+    @timed_out.expression
     def timed_out(self):
         return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())
 
-    @timed_out.setter  # type: ignore
+    @timed_out.setter
     def timed_out(self, timed_out):
         # You can do user.timed_out = False to set user.timeout_end = None
         if timed_out is not False:
@@ -182,19 +191,19 @@ class User(Base):
         self.timeout_end = None
 
     @property
-    def duel_stats(self):
+    def duel_stats(self) -> UserDuelStats:
         if self._duel_stats is None:
             self._duel_stats = UserDuelStats()
         return self._duel_stats
 
-    def can_afford(self, points_to_spend):
+    def can_afford(self, points_to_spend: int) -> bool:
         return self.points >= points_to_spend
 
-    def can_afford_with_tokens(self, cost):
+    def can_afford_with_tokens(self, cost: int) -> bool:
         return self.tokens >= cost
 
     @contextmanager
-    def spend_currency_context(self, points, tokens):
+    def spend_currency_context(self, points: int, tokens: int) -> Iterator[None]:
         try:
             with self._spend_currency_context(points, "points"), self._spend_currency_context(tokens, "tokens"):
                 yield
@@ -202,7 +211,7 @@ class User(Base):
             pass
 
     @contextmanager
-    def _spend_currency_context(self, amount, currency):
+    def _spend_currency_context(self, amount: int, currency: str) -> Iterator[None]:
         # self.{points,tokens} -= spend_amount
         setattr(self, currency, getattr(self, currency) - amount)
 
@@ -213,13 +222,13 @@ class User(Base):
             setattr(self, currency, getattr(self, currency) + amount)
             raise
 
-    def get_warning_keys(self, total_chances, prefix):
+    def get_warning_keys(self, total_chances: int, prefix: str) -> List[str]:
         """Returns a list of keys that are used to store the users warning status in redis.
         Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']"""
         return [f"warnings:{prefix}:{self.id}:{warning_id}" for warning_id in range(0, total_chances)]
 
     @staticmethod
-    def get_warnings(redis, warning_keys):
+    def get_warnings(redis: Redis, warning_keys: List[str]) -> List[Optional[str]]:
         """Pass through a list of warning keys.
         Example of warning_keys syntax: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']
         Returns a list of values for the warning keys list above.
@@ -230,14 +239,14 @@ class User(Base):
         return redis.mget(warning_keys)
 
     @staticmethod
-    def get_chances_used(warnings):
+    def get_chances_used(warnings) -> int:
         """Returns a number between 0 and n where n is the amount of
         chances a user has before he should face the full timeout length."""
 
         return len(warnings) - warnings.count(None)
 
     @staticmethod
-    def add_warning(redis, timeout, warning_keys, warnings):
+    def add_warning(redis: Redis, timeout: int, warning_keys: List[str], warnings: List[Optional[str]]) -> bool:
         """Returns a number between 0 and n where n is the amount of
         chances a user has before he should face the full timeout length."""
 
@@ -248,7 +257,9 @@ class User(Base):
 
         return False
 
-    def timeout(self, timeout_length, warning_module=None, use_warnings=True):
+    def timeout(
+        self, timeout_length: int, warning_module: Optional[WarningModule] = None, use_warnings: bool = True
+    ) -> Tuple[int, str]:
         """Returns a tuple with the follow data:
         How long to timeout the user for, and what the punishment string is
         set to.
@@ -278,7 +289,7 @@ class User(Base):
 
         return (timeout_length, punishment)
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "login": self.login,
@@ -302,32 +313,35 @@ class User(Base):
             "founder": self.founder,
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, User):
             return False
         return self.id == other.id
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
-    def __str__(self):
+    def __str__(self) -> str:
         # this is here so we can use the user object directly in string substitutions
         # e.g. bot.say(f"{user}, successfully done something!")
         # would substitute the user's display name in the place of {user}.
         return self.name
 
     @staticmethod
-    def _create(db_session, id, login, name):
-        user = User(id=id, login=login, name=name)
+    def _create(db_session: Session, id: str, login: str, name: str) -> User:
+        user = User()
+        user.id = id
+        user._login = login
+        user.name = name
         db_session.add(user)
         return user
 
     @staticmethod
-    def from_basics(db_session, basics):
+    def from_basics(db_session: Session, basics: UserBasics) -> User:
         user_from_db = db_session.query(User).filter_by(id=basics.id).one_or_none()
         if user_from_db is not None:
             # Update the existing user with the new data
-            user_from_db.login = basics.login
+            user_from_db._login = basics.login
             user_from_db.name = basics.name
             return user_from_db
 
@@ -335,7 +349,7 @@ class User(Base):
         return User._create(db_session, basics.id, basics.login, basics.name)
 
     @staticmethod
-    def find_or_create_from_login(db_session, twitch_helix_api, login):
+    def find_or_create_from_login(db_session, twitch_helix_api: TwitchHelixAPI, login: str) -> Optional[User]:
         user_from_db = (
             db_session.query(User).filter_by(login=login).order_by(User.login_last_updated.desc()).one_or_none()
         )
@@ -350,7 +364,7 @@ class User(Base):
         return User.from_basics(db_session, basics)
 
     @staticmethod
-    def find_or_create_from_user_input(db_session, twitch_helix_api, input, always_fresh=False):
+    def find_or_create_from_user_input(db_session, twitch_helix_api, input: str, always_fresh=False) -> Optional[User]:
         input = User._normalize_user_username_input(input)
 
         if not always_fresh:
@@ -372,7 +386,7 @@ class User(Base):
         return User.from_basics(db_session, basics)
 
     @staticmethod
-    def _normalize_user_username_input(input):
+    def _normalize_user_username_input(input: str) -> str:
         # Remove some characters commonly present when people autocomplete names, e.g.
         #  - @Pajlada
         #  - pajlada,
@@ -381,7 +395,7 @@ class User(Base):
         return input.lower().strip().lstrip("@").rstrip(",")
 
     @staticmethod
-    def find_by_user_input(db_session, input):
+    def find_by_user_input(db_session: Session, input: str) -> Optional[User]:
         input = User._normalize_user_username_input(input)
 
         # look for a match in both the login and name
@@ -394,7 +408,7 @@ class User(Base):
         )
 
     @staticmethod
-    def find_by_login(db_session, login):
+    def find_by_login(db_session: Session, login: str) -> Optional[User]:
         return (
             db_session.query(User)
             .filter_by(login=login)
@@ -404,7 +418,7 @@ class User(Base):
         )
 
     @staticmethod
-    def find_by_id(db_session, id):
+    def find_by_id(db_session: Session, id: int) -> Optional[User]:
         return db_session.query(User).filter_by(id=id).one_or_none()
 
 
@@ -412,13 +426,13 @@ class UserChannelInformation:
     """UserChannelInformation represents part of the information fetched
     from the Helix Get Channel Information endpoint https://dev.twitch.tv/docs/api/reference#get-channel-information"""
 
-    def __init__(self, broadcaster_language, game_id, game_name, title):
+    def __init__(self, broadcaster_language: str, game_id: str, game_name: str, title: str):
         self.broadcaster_language = broadcaster_language
         self.game_id = game_id
         self.game_name = game_name
         self.title = title
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "broadcaster_language": self.broadcaster_language,
             "game_id": self.game_id,
@@ -427,7 +441,7 @@ class UserChannelInformation:
         }
 
     @staticmethod
-    def from_json(json_data):
+    def from_json(json_data: Dict[str, Any]) -> UserChannelInformation:
         return UserChannelInformation(
             broadcaster_language=json_data["broadcaster_language"],
             game_id=json_data["game_id"],
@@ -437,14 +451,14 @@ class UserChannelInformation:
 
 
 class UserStream:
-    def __init__(self, viewer_count, game_id, title, started_at, id):
+    def __init__(self, viewer_count: int, game_id: str, title: str, started_at: str, id: str):
         self.viewer_count = viewer_count
         self.game_id = game_id
         self.title = title
         self.started_at = started_at
         self.id = id
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "viewer_count": self.viewer_count,
             "game_id": self.game_id,
@@ -454,7 +468,7 @@ class UserStream:
         }
 
     @staticmethod
-    def from_json(json_data):
+    def from_json(json_data: Dict[str, Any]) -> UserStream:
         return UserStream(
             json_data["viewer_count"],
             json_data["game_id"],

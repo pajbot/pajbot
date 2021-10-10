@@ -1,8 +1,10 @@
+from typing import Optional
+
 # list of twitch commands permitted, without leading slash or dot
 permitted_commands = {"me"}
 
 
-def clean_up_message(message):
+def clean_up_message(message: str) -> str:
     # remove leading whitespace
     message = message.lstrip()
 
@@ -14,6 +16,9 @@ def clean_up_message(message):
     # 'a b ' -> ['a', 'b ']
     # 'a b c' -> ['a', 'b c']
     parts = message.split(" ", 1)
+
+    payload: Optional[str] = None
+    command: Optional[str] = None
 
     # if part 0 is a twitch command, we determine command and payload.
     if parts[0][:1] in [".", "/"]:
@@ -46,5 +51,9 @@ def clean_up_message(message):
         # we have command and NO payload (e.g. ".me")
         return command
 
-    # we have payload and NO command (e.g. "asd", "\U000e0000!ping")
-    return payload
+    if payload:
+        # we have payload and NO command (e.g. "asd", "\U000e0000!ping")
+        return payload
+
+    # TODO: Prove this can't happen to the compiler
+    return ""

@@ -3,7 +3,7 @@ import pytest
 from pajbot.utils import iterate_split_with_index
 
 
-def test_iterates_correctly():
+def test_iterates_correctly() -> None:
     # a bcd ef
     generator = iterate_split_with_index(["a", "bcd", "ef"])
     assert next(generator) == (0, "a")
@@ -13,7 +13,7 @@ def test_iterates_correctly():
         next(generator)
 
 
-def test_empty_item():
+def test_empty_item() -> None:
     # a bcd ef
     generator = iterate_split_with_index(["a", "", "ef"])
     assert next(generator) == (0, "a")
@@ -23,7 +23,7 @@ def test_empty_item():
         next(generator)
 
 
-def test_zero_items():
+def test_zero_items() -> None:
     generator = iterate_split_with_index([])
     with pytest.raises(StopIteration):
         next(generator)

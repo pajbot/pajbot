@@ -1,3 +1,5 @@
+from typing import List
+
 from requests import HTTPError
 
 from pajbot.apiwrappers.base import BaseAPI
@@ -6,11 +8,11 @@ from pajbot.models.emote import Emote
 
 
 class FFZAPI(BaseAPI):
-    def __init__(self, redis):
+    def __init__(self, redis) -> None:
         super().__init__(base_url="https://api.frankerfacez.com/v1/", redis=redis)
 
     @staticmethod
-    def parse_sets(emote_sets):
+    def parse_sets(emote_sets) -> List[Emote]:
         emotes = []
         for emote_set in emote_sets.values():
             for emote in emote_set["emoticons"]:
@@ -21,7 +23,7 @@ class FFZAPI(BaseAPI):
 
         return emotes
 
-    def fetch_global_emotes(self):
+    def fetch_global_emotes(self) -> List[Emote]:
         """Returns a list of global FFZ emotes in the standard Emote format."""
         response = self.get("/set/global")
 
@@ -33,7 +35,7 @@ class FFZAPI(BaseAPI):
 
         return self.parse_sets(global_sets)
 
-    def get_global_emotes(self, force_fetch=False):
+    def get_global_emotes(self, force_fetch=False) -> List[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key="api:ffz:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),

@@ -1,11 +1,13 @@
+from typing import List
+
 from pajbot.apiwrappers.base import BaseAPI
 
 
 class TwitchTMIAPI(BaseAPI):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(base_url="https://tmi.twitch.tv/")
 
-    def get_chatter_logins_by_login(self, login):
+    def get_chatter_logins_by_login(self, login: str) -> List[str]:
         response = self.get(["group", "user", login, "chatters"])
 
         # response =

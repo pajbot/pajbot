@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import time
 
 import logging
 from redis import BusyLoadingError
 
+if TYPE_CHECKING:
+    from pajbot.managers.redis import RedisType
+
 log = logging.getLogger(__name__)
 
 
-def wait_for_redis_data_loaded(redis):
+def wait_for_redis_data_loaded(redis: RedisType) -> None:
     while True:
         try:
             redis.ping()

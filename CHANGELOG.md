@@ -4,6 +4,12 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added `!topemotes` command to Top module (#1503)
+
+## v1.56
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: Moved `!twitterfollow` & `!twitterunfollow` commands to the AdminCommands module; also added command logging. (#1493)
 - Minor: Regex banphrases now support more complex regex features. (#1469)
 - Minor: Added usage examples for `!module` command. (#1484)
