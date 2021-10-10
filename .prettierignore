@@ -25,7 +25,8 @@ config.ini
 userdispatch.py
 
 # Ignore virtual environment folder
-venv/
+venv*/
+.venv/
 
 .idea/
 .vscode/
