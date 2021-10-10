@@ -35,7 +35,7 @@ class BaseAPI:
         return quote(param, safe="")
 
     @staticmethod
-    def fill_in_url_scheme(url, default_scheme="https"):
+    def fill_in_url_scheme(url: str, default_scheme: str = "https") -> str:
         """Fill in the scheme part of a given URL string, e.g.
         with given inputs of url = "//example.com/abc" and
         default_scheme="https", the output would be
