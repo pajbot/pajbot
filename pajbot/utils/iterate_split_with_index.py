@@ -1,4 +1,4 @@
-from typing import Iterator, Tuple, List
+from typing import Iterator, List, Tuple
 
 
 def iterate_split_with_index(split_parts: List[str], separator_length: int = 1) -> Iterator[Tuple[int, str]]:
