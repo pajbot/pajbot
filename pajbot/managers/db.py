@@ -1,14 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Iterator, Optional
+
 import logging
 from contextlib import contextmanager
 
-from psycopg2.extensions import STATUS_IN_TRANSACTION
 import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy import event
-from sqlalchemy import inspect
+from psycopg2.extensions import STATUS_IN_TRANSACTION
+from sqlalchemy import create_engine, event, inspect
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, scoped_session, sessionmaker
+
+if TYPE_CHECKING:
+    from psycopg2 import connection as Psycopg2Connection
+
 
 Base = declarative_base()
 
@@ -16,7 +21,7 @@ log = logging.getLogger("pajbot")
 
 
 class ServerNoticeLogger:
-    def append(self, notice):
+    def append(self, notice: str) -> None:
         # notice is stripped of whitespace since it usually ends in a newline
         # These are notices like "NOTICE:  relation "schema_version" already exists, skipping",
         # but they can also be warnings, etc.
@@ -24,46 +29,52 @@ class ServerNoticeLogger:
 
 
 class DBManager:
-    engine: sqlalchemy.engine.base.Engine = None
-    Session: sessionmaker = None
-    ScopedSession: scoped_session = None
+    engine: Optional[sqlalchemy.engine.base.Engine] = None
+    _sessionmaker: Optional[sessionmaker] = None
+    ScopedSession: Optional[scoped_session] = None
 
     @staticmethod
-    def init(url):
+    def init(url: str) -> None:
         DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)
 
         # https://docs.sqlalchemy.org/en/13/core/events.html#sqlalchemy.events.PoolEvents.connect
         @event.listens_for(DBManager.engine, "connect")
-        def on_connect(dbapi_connection, connection_record):
+        def on_connect(dbapi_connection, connection_record) -> None:
             # http://initd.org/psycopg/docs/connection.html#connection.notices
             # > The notices attribute is writable: the user may replace it with any Python object
             # > exposing an append() method. If appending raises an exception the notice is silently dropped.
             # This replaces the list object with a logger that logs the incoming notices
             dbapi_connection.notices = ServerNoticeLogger()
 
-        DBManager.Session = sessionmaker(bind=DBManager.engine, autoflush=False)
+        DBManager._sessionmaker = sessionmaker(bind=DBManager.engine, autoflush=False)
         DBManager.ScopedSession = scoped_session(sessionmaker(bind=DBManager.engine))
 
     @staticmethod
-    def create_session(**options):
+    def create_session(**options) -> Session:
         """
         Useful options:
         expire_on_commit=False
         """
 
-        return DBManager.Session(**options)
+        if DBManager._sessionmaker is None:
+            raise ValueError("DBManager not initialized")
+
+        return DBManager._sessionmaker(**options)
 
     @staticmethod
-    def create_scoped_session(**options):
+    def create_scoped_session(**options) -> Session:
         """
         Useful options:
         expire_on_commit=False
         """
+
+        if DBManager.ScopedSession is None:
+            raise ValueError("DBManager not initialized")
 
         return DBManager.ScopedSession(**options)
 
     @staticmethod
-    def session_add_expunge(db_object, **options):
+    def session_add_expunge(db_object, **options) -> None:
         """
         Useful shorthand method of creating a session,
         adding an object to the session,
@@ -89,7 +100,7 @@ class DBManager:
 
     @staticmethod
     @contextmanager
-    def create_session_scope(**options):
+    def create_session_scope(**options) -> Iterator[Session]:
         session = DBManager.create_session(**options)
         try:
             yield session
@@ -140,7 +151,10 @@ class DBManager:
 
     @staticmethod
     @contextmanager
-    def create_dbapi_connection_scope(autocommit=False):
+    def create_dbapi_connection_scope(autocommit=False) -> Iterator[Psycopg2Connection]:
+        if DBManager.engine is None:
+            raise ValueError("DBManager not initialized")
+
         # This method's contextmanager just checks the connection out, sets autocommit if desired, and
         # returns the connection to the pool when the contextmanager exits
         # It does not perform transaction control! create_dbapi_session_scope is more useful since it provides
@@ -208,7 +222,7 @@ class DBManager:
                         yield cursor
 
     @staticmethod
-    def debug(raw_object):
+    def debug(raw_object: object) -> None:
         try:
             inspected_object = inspect(raw_object)
             log.debug(f"Object:     {raw_object}")

@@ -1,18 +1,18 @@
+from __future__ import annotations
+
 import argparse
 import logging
-import regex as re
-
-import sqlalchemy
 from datetime import timedelta
-from sqlalchemy import BOOLEAN, INT, TEXT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
+
+from pajbot.managers.db import Base, DBManager
+from pajbot.models.user import User
+from pajbot.utils import find
+
+import regex as re
+import sqlalchemy
+from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from unidecode import unidecode
-
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
-from pajbot.utils import find
 
 log = logging.getLogger("pajbot")
 
@@ -181,7 +181,7 @@ class BanphraseData(Base):
     edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship(
-        "User",
+        User,
         primaryjoin="User.id==BanphraseData.added_by",
         foreign_keys="User.id",
         uselist=False,
@@ -191,7 +191,7 @@ class BanphraseData(Base):
     )
 
     user2 = relationship(
-        "User",
+        User,
         primaryjoin="User.id==BanphraseData.edited_by",
         foreign_keys="User.id",
         uselist=False,

@@ -1,9 +1,16 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, ContextManager, Dict, Optional
 
 import logging
 
 import redis
 from redis import Redis
+from redis.client import Pipeline
+
+if TYPE_CHECKING:
+    _StrType = str
+    RedisType = Redis[_StrType]
 
 log = logging.getLogger(__name__)
 
@@ -15,21 +22,29 @@ class RedisManager:
     get-method is called.
     """
 
-    redis: Optional[Redis] = None
+    redis: Optional[RedisType] = None
 
     @staticmethod
-    def init(**options):
-        RedisManager.redis = Redis(**{"decode_responses": True, **options})
+    def init(options: Dict[Any, Any]) -> None:
+        if RedisManager.redis is not None:
+            raise ValueError("RedisManager.init has already been called once")
+
+        if "decode_responses" in options:
+            raise ValueError("You may not change decode_responses in RedisManager.init options")
+
+        options["decode_responses"] = True
+
+        RedisManager.redis = Redis(**options)
 
     @staticmethod
-    def get() -> Redis:
+    def get() -> RedisType:
         if RedisManager.redis is None:
             raise ValueError("RedisManager.get called before RedisManager.init")
 
         return RedisManager.redis
 
     @staticmethod
-    def pipeline_context():
+    def pipeline_context() -> ContextManager[Pipeline[_StrType]]:
         return redis.utils.pipeline(RedisManager.get())
 
     @classmethod

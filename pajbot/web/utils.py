@@ -1,3 +1,5 @@
+from typing import Any, Dict, List
+
 import datetime
 import json
 import logging
@@ -94,26 +96,29 @@ def download_sub_badge(twitch_badges_api, streamer, streamer_id, subscriber_badg
 
 
 @time_method
-def get_cached_commands():
+def get_cached_commands() -> List[Dict[str, Any]]:
     CACHE_TIME = 30  # seconds
 
     redis = RedisManager.get()
     commands_key = f"{StreamHelper.get_streamer()}:cache:commands"
     commands = redis.get(commands_key)
-    if commands is None:
-        log.debug("Updating commands...")
-        bot_commands = pajbot.managers.command.CommandManager(
-            socket_manager=None, module_manager=ModuleManager(None).load(), bot=None
-        ).load(load_examples=True)
-        bot_commands_list = bot_commands.parse_for_web()
+    if commands is not None:
+        cached_bot_command_list = json.loads(commands)
+        if not isinstance(cached_bot_command_list, list):
+            return []
+        return cached_bot_command_list
 
-        bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
-        bot_commands_list = [c.jsonify() for c in bot_commands_list]
-        redis.setex(commands_key, value=json.dumps(bot_commands_list, separators=(",", ":")), time=CACHE_TIME)
-    else:
-        bot_commands_list = json.loads(commands)
+    log.debug("Updating commands...")
+    bot_commands = pajbot.managers.command.CommandManager(
+        socket_manager=None, module_manager=ModuleManager(None).load(), bot=None
+    ).load(load_examples=True)
+    bot_commands_list = bot_commands.parse_for_web()
 
-    return bot_commands_list
+    bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
+    jsonified_bot_commands_list = [c.jsonify() for c in bot_commands_list]
+    redis.setex(commands_key, value=json.dumps(jsonified_bot_commands_list, separators=(",", ":")), time=CACHE_TIME)
+
+    return jsonified_bot_commands_list
 
 
 def json_serial(obj):

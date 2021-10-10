@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 log = logging.getLogger(__name__)
 
 
-def run(args):
+def run(args) -> None:
     from pajbot.utils import load_config
 
     config = load_config(args.config)

@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, Optional, List, TYPE_CHECKING
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import cgi
 import collections
@@ -23,40 +24,55 @@ class ActionParser:
     bot: Optional[Bot] = None
 
     @staticmethod
-    def parse(raw_data=None, data=None, command=""):
+    def parse(
+        str_data: Optional[str] = None, dict_data: Optional[Dict[str, str]] = None, command=""
+    ) -> Optional[BaseAction]:
         try:
             from pajbot.userdispatch import UserDispatch
 
             Dispatch = UserDispatch
         except ImportError:
-            from pajbot.dispatch import Dispatch
+            from pajbot.dispatch import Dispatch as NormalDispatch
+
+            Dispatch = NormalDispatch
         except:
             log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
             sys.exit(1)
 
-        if not data:
-            data = json.loads(raw_data)
+        data: Dict[str, str] = {}
+
+        if dict_data is not None:
+            data = dict_data
+        else:
+            if not str_data:
+                raise Exception("raw_data must be set if input_data is not set")
+
+            json_data = json.loads(str_data)
+            if not isinstance(json_data, dict):
+                raise Exception("raw_data must be a JSON object string")
+
+            data = json_data
 
         if data["type"] == "say":
-            action = SayAction(data["message"], ActionParser.bot)
+            return SayAction(data["message"], ActionParser.bot)
         elif data["type"] == "me":
-            action = MeAction(data["message"], ActionParser.bot)
+            return MeAction(data["message"], ActionParser.bot)
         elif data["type"] == "whisper":
-            action = WhisperAction(data["message"], ActionParser.bot)
+            return WhisperAction(data["message"], ActionParser.bot)
         elif data["type"] == "reply":
-            action = ReplyAction(data["message"], ActionParser.bot)
+            return ReplyAction(data["message"], ActionParser.bot)
         elif data["type"] == "func":
             try:
-                action = FuncAction(getattr(Dispatch, data["cb"]))
+                return FuncAction(getattr(Dispatch, data["cb"]))
             except AttributeError as e:
                 log.error(f'AttributeError caught when parsing action for action "{command}": {e}')
                 return None
         elif data["type"] == "multi":
-            action = MultiAction(data["args"], data["default"])
+            return MultiAction(data["args"], data["default"])
         else:
             raise Exception(f"Unknown action type: {data['type']}")
 
-        return action
+        return None
 
 
 class IfSubstitution:
@@ -284,7 +300,7 @@ def get_substitution_arguments(sub_key):
     return sub_string, path, argument, key, filters, if_arguments
 
 
-def get_substitutions(string: str, bot: Bot) -> dict[str, Substitution]:
+def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
     """
     Returns a dictionary of `Substitution` objects thare are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same string.
@@ -401,7 +417,7 @@ class MessageAction(BaseAction):
         self.response = response
 
         self.argument_subs: List[Substitution] = []
-        self.subs: dict[str, Substitution] = {}
+        self.subs: Dict[str, Substitution] = {}
         self.num_urlfetch_subs = 0
 
         if bot:
@@ -615,7 +631,7 @@ class ReplyAction(MessageAction):
         )
 
 
-def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, extra):
+def apply_substitutions(text, substitutions: Dict[Any, Substitution], bot: Bot, extra):
     for needle, sub in substitutions.items():
         if sub.key and sub.argument:
             param = sub.key

@@ -1,12 +1,15 @@
-from typing import Optional, Any, List
+from __future__ import annotations
+
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import json
 import logging
 
+from pajbot.bot import Bot
+from pajbot.config import Config
 from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.utils import find
-from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +30,17 @@ class ModuleSetting:
       * options - A select/options list
     """
 
-    def __init__(self, key, label, type, required=False, placeholder="", default=None, constraints={}, options=[]):
+    def __init__(
+        self,
+        key: str,
+        label: str,
+        type: str,
+        required: bool = False,
+        placeholder: str = "",
+        default: Optional[Any] = None,
+        constraints: Dict[str, Any] = {},
+        options: List[str] = [],
+    ) -> None:
         self.key = key
         self.label = label
         self.type = type
@@ -37,7 +50,7 @@ class ModuleSetting:
         self.constraints = constraints
         self.options = options
 
-    def validate(self, value):
+    def validate(self, value: str) -> Tuple[bool, Any]:
         """Validate the input for this module.
         This will call the relevant submethod, located as validate_{type}.
         You always get a tuple back, with the first value being True or False depending
@@ -57,7 +70,7 @@ class ModuleSetting:
 
         return validator(value)
 
-    def validate_text(self, value):
+    def validate_text(self, value: str) -> Tuple[bool, str]:
         """Validate a text value"""
         value = value.strip()
         if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
@@ -66,10 +79,10 @@ class ModuleSetting:
             return (False, f"needs to be at most {self.constraints['max_str_len']} characters long")
         return True, value
 
-    def validate_number(self, value):
+    def validate_number(self, str_value: str) -> Tuple[bool, Union[str, int]]:
         """Validate a number value"""
         try:
-            value = int(value)
+            value = int(str_value)
         except ValueError:
             return False, "Not a valid integer"
 
@@ -80,11 +93,11 @@ class ModuleSetting:
         return True, value
 
     @staticmethod
-    def validate_boolean(value):
+    def validate_boolean(value: str) -> Tuple[bool, bool]:
         """Validate a boolean value"""
         return True, value == "on"
 
-    def validate_options(self, value):
+    def validate_options(self, value: str) -> Tuple[bool, str]:
         """Validate a options value"""
         return value in self.options, value
 
@@ -100,7 +113,7 @@ class BaseModule:
     to be operable.
     """
 
-    ID = __name__.split(".")[-1]
+    ID: str = __name__.split(".")[-1]
     NAME = "Base Module"
     DESCRIPTION = (
         "This is the description for the base module. "
@@ -115,21 +128,22 @@ class BaseModule:
     MODULE_TYPE = ModuleType.TYPE_NORMAL
     CONFIGURE_LEVEL = 500
 
-    def __init__(self, bot: Bot):
-        """Initialize any dictionaries the module might or might not use."""
-        self.bot: Bot = bot
+    def __init__(self, bot: Optional[Bot], config: Optional[Config] = None) -> None:
+        """Initialize any dictionaries the module might or might not use.
+        This is called once on bot startup, and once in the website whenever the module list is accessed"""
+        self.bot = bot
 
         self.commands: Any = {}
         self.default_settings = {}
         self.settings: Any = {}
         self.submodules: Any = []
-        self.parent_module = None
+        self.parent_module: Optional[BaseModule] = None
 
         # We store a dictionary with the default settings for convenience
         for setting in self.SETTINGS:
             self.default_settings[setting.key] = setting.default
 
-    def load(self, **options):
+    def load(self, **options: Any) -> BaseModule:
         """This method will load everything from the module into
         their proper dictionaries, which we can then use later."""
 
@@ -141,7 +155,7 @@ class BaseModule:
         return self
 
     @classmethod
-    def db_settings(cls):
+    def db_settings(cls) -> Dict[str, Any]:
         settings = {}
         with DBManager.create_session_scope() as session:
             module = session.query(Module).filter(Module.id == cls.ID).one()
@@ -154,7 +168,7 @@ class BaseModule:
         return settings
 
     @classmethod
-    def module_settings(cls):
+    def module_settings(cls) -> Dict[str, Any]:
         settings = cls.db_settings()
 
         # Load any unset settings
@@ -165,7 +179,7 @@ class BaseModule:
         return settings
 
     @classmethod
-    def is_enabled(cls):
+    def is_enabled(cls) -> bool:
         with DBManager.create_session_scope() as db_session:
             db_module = db_session.query(Module).filter_by(id=cls.ID).one_or_none()
             if db_module is None:
@@ -173,13 +187,13 @@ class BaseModule:
             else:
                 return db_module.enabled
 
-    def load_commands(self, **options):
+    def load_commands(self, **options: Any) -> None:
         pass
 
-    def parse_settings(self, **in_settings):
+    def parse_settings(self, **in_settings: Dict[str, Any]) -> Union[Literal[False], Dict[str, Any]]:
         ret = {}
         for key, value in in_settings.items():
-            setting = find(lambda setting, setting_key=key: setting.key == setting_key, self.SETTINGS)
+            setting = find(lambda setting: setting.key == key, self.SETTINGS)
             if setting is None:
                 # We were passed a setting that's not available for this module
                 return False
@@ -200,16 +214,16 @@ class BaseModule:
 
         return ret
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         pass
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         pass
 
-    def on_loaded(self):
+    def on_loaded(self) -> None:
         pass
 
-    def get_phrase(self, key, **arguments):
+    def get_phrase(self, key: str, **arguments: Any) -> str:
         if key not in self.settings:
             log.error("{} is not in this modules settings.")
             return "KeyError in get_phrase"

@@ -1,7 +1,7 @@
 import math
 
 
-def time_since(t1, t2, time_format="long"):
+def time_since(t1: float, t2: float, time_format: str = "long") -> str:
     time_diff = t1 - t2
     if time_format == "long":
         num_dict = ["year", "month", "day", "hour", "minute", "second"]
