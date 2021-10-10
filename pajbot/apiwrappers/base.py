@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import datetime
 import logging
@@ -13,6 +13,8 @@ from requests import Session
 
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType
+
+AnyEndpoint = Union[List[Any], str]
 
 log = logging.getLogger(__name__)
 
@@ -69,10 +71,10 @@ class BaseAPI:
         return base + "/" + endpoint
 
     @staticmethod
-    def join_base_and_endpoint(base, endpoint):
+    def join_base_and_endpoint(base: Optional[str], endpoint: AnyEndpoint) -> str:
         # For use cases with no base and absolute endpoint URLs
         if base is None:
-            return endpoint
+            return str(endpoint)
 
         if isinstance(endpoint, list):
             return BaseAPI.join_base_and_list(base, endpoint)
