@@ -185,9 +185,7 @@ class BaseModule:
             if db_module is None:
                 return cls.ENABLED_DEFAULT
             else:
-                mod: Module = db_module
-                return mod.enabled
-                # return db_module.enabled
+                return db_module.enabled
 
     def load_commands(self, **options: Any) -> None:
         pass
