@@ -6,7 +6,7 @@ from colorama import Fore, Style
 
 def init_logging(app: str = "pajbot") -> logging.Logger:
     class LogFilter(logging.Filter):
-        def __init__(self, level: int):
+        def __init__(self, level: int) -> None:
             super().__init__()
             self.level = level
 
