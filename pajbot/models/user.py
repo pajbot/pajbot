@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
-
 log = logging.getLogger(__name__)
 
 
@@ -130,7 +129,7 @@ class User(Base):
     @hybrid_property
     def username(self) -> str:
         # retained for backwards compatibility with commands that still use $(source:username) (and similar)
-        return self._login
+        return self.login
 
     @hybrid_property
     def username_raw(self) -> str:
@@ -180,11 +179,11 @@ class User(Base):
     def timed_out(self) -> bool:
         return self.timeout_end is not None and self.timeout_end > utils.now()
 
-    @timed_out.expression  # type: ignore
+    @timed_out.expression
     def timed_out(self):
         return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())
 
-    @timed_out.setter  # type: ignore
+    @timed_out.setter
     def timed_out(self, timed_out):
         # You can do user.timed_out = False to set user.timeout_end = None
         if timed_out is not False:
@@ -193,8 +192,6 @@ class User(Base):
 
     @property
     def duel_stats(self) -> UserDuelStats:
-        asd = self._duel_stats
-        asd.profit
         if self._duel_stats is None:
             self._duel_stats = UserDuelStats()
         return self._duel_stats
@@ -423,7 +420,6 @@ class User(Base):
     @staticmethod
     def find_by_id(db_session: Session, id: int) -> Optional[User]:
         return db_session.query(User).filter_by(id=id).one_or_none()
-        # return db_session.query(User).filter_by(id=id).one_or_none()
 
 
 class UserChannelInformation:
