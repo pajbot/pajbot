@@ -150,7 +150,7 @@ def init(args):
         "bot": {"name": config["main"]["nickname"]},
         "site": {
             "domain": config["web"]["domain"],
-            "deck_tab_images": config["web"].get("deck_tab_images", "0") == "1",
+            "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
