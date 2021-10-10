@@ -47,7 +47,7 @@ class BaseAPI:
         return urlunparse(parsed_template)
 
     @staticmethod
-    def parse_datetime(datetime_str):
+    def parse_datetime(datetime_str: str) -> datetime.datetime:
         """Parses date strings in the format of 2015-09-11T23:01:11Z
         to a tz-aware datetime object."""
         naive_dt = datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ")
