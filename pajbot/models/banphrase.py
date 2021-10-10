@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 import argparse
 import logging
 from datetime import timedelta
 
 from pajbot.managers.db import Base, DBManager
+from pajbot.models.user import User
 from pajbot.utils import find
 
 import regex as re
@@ -14,9 +13,6 @@ import sqlalchemy
 from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from unidecode import unidecode
-
-if TYPE_CHECKING:
-    from pajbot.models.user import User
 
 log = logging.getLogger("pajbot")
 

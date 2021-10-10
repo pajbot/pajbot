@@ -12,6 +12,7 @@ from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
+from pajbot.models.user import User
 
 from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import reconstructor, relationship
@@ -19,7 +20,6 @@ from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
