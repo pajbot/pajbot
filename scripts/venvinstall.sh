@@ -32,7 +32,7 @@ while :; do
 
         --nvim)
             # Install NVIM-specific dev dependencies
-            ./venv/bin/pip install pynvim jedi isort
+            ./venv/bin/pip install pynvim jedi
             ;;
 
         -?*)
