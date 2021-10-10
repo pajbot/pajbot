@@ -60,7 +60,7 @@ class ModuleManager:
             if module:
                 module.load()
 
-    def enable_module(self, module_id) -> bool:
+    def enable_module(self, module_id: str) -> bool:
         module = self.get_module(module_id)
         if module is None:
             log.error(f"No module with the ID {module_id} found.")
