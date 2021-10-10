@@ -1,25 +1,33 @@
-import logging
+from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
+
+import logging
 import random
 import re
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.models.emote import Emote
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.utils import iterate_split_with_index
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.managers.emote import GenericChannelEmoteManager, TwitchEmoteManager
+
+BingoEmoteDict = Dict[str, Tuple[str, List[Emote]]]
 
 log = logging.getLogger(__name__)
 
 
 class BingoGame:
-    def __init__(self, correct_emote, points_reward):
+    def __init__(self, correct_emote: Emote, points_reward: int) -> None:
         self.correct_emote = correct_emote
         self.points_reward = points_reward
 
 
-def two_word_variations(word1, word2, value):
+def two_word_variations(word1: str, word2: str, value: Any) -> Dict[str, Any]:
     # this produces:
     # bttv_global
     # global_bttv
@@ -100,16 +108,17 @@ class BingoModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot) -> None:
         super().__init__(bot)
-        self.active_game = None
+        self.active_game: Optional[BingoGame] = None
+        self.no_bingo_running = "No bingo is running FailFish"
 
     @property
     def bingo_running(self):
         return self.active_game is not None
 
     @staticmethod
-    def make_twitch_sets(manager):
+    def make_twitch_sets(manager: TwitchEmoteManager) -> BingoEmoteDict:
         tier_one_emotes = ("Tier 1 sub emotes", manager.tier_one_emotes)
         tier_two_emotes = ("Tier 2 sub emotes", manager.tier_two_emotes)
         tier_three_emotes = ("Tier 3 sub emotes", manager.tier_three_emotes)
@@ -131,7 +140,7 @@ class BingoModule(BaseModule):
         }
 
     @staticmethod
-    def make_bttv_ffz_7tv_sets(manager):
+    def make_bttv_ffz_7tv_sets(manager: GenericChannelEmoteManager) -> BingoEmoteDict:
         friendly_name = manager.friendly_name
         channel_emotes = (f"Channel {friendly_name} emotes", manager.channel_emotes)
         global_emotes = (f"Global {friendly_name} emotes", manager.global_emotes)
@@ -145,19 +154,19 @@ class BingoModule(BaseModule):
             **two_word_variations(key, "all", all_emotes),
         }
 
-    def make_known_sets_dict(self):
+    def make_known_sets_dict(self, bot: Bot) -> Dict[str, Tuple[str, Tuple[Emote, ...], bool]]:
         # we first make a dict containing lists as the list of emotes (because it's less to type...)
-        list_dict = {
-            **self.make_twitch_sets(self.bot.emote_manager.twitch_emote_manager),
-            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.ffz_emote_manager),
-            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.bttv_emote_manager),
-            **self.make_bttv_ffz_7tv_sets(self.bot.emote_manager.seventv_emote_manager),
+        list_dict: BingoEmoteDict = {
+            **self.make_twitch_sets(bot.emote_manager.twitch_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(bot.emote_manager.ffz_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(bot.emote_manager.bttv_emote_manager),
+            **self.make_bttv_ffz_7tv_sets(bot.emote_manager.seventv_emote_manager),
             "all": (
                 "FFZ, BTTV and 7TV Channel emotes + Tier 1 subemotes",
-                self.bot.emote_manager.ffz_emote_manager.channel_emotes
-                + self.bot.emote_manager.bttv_emote_manager.channel_emotes
-                + self.bot.emote_manager.seventv_emote_manager.channel_emotes
-                + self.bot.emote_manager.twitch_emote_manager.tier_one_emotes,
+                bot.emote_manager.ffz_emote_manager.channel_emotes
+                + bot.emote_manager.bttv_emote_manager.channel_emotes
+                + bot.emote_manager.seventv_emote_manager.channel_emotes
+                + bot.emote_manager.twitch_emote_manager.tier_one_emotes,
             ),
         }
 
@@ -165,21 +174,26 @@ class BingoModule(BaseModule):
         # and can be stored in a set of "selected sets" later
         return {key: (set_name, tuple(set_emotes), False) for key, (set_name, set_emotes) in list_dict.items()}
 
-    def bingo_start(self, bot, source, message, event, args):
+    def bingo_start(self, bot: Bot, source, message: str, event, args) -> bool:
         if self.bingo_running:
-            bot.say(f"{source}, a bingo is already running FailFish")
+            bot.send_message_to_user(source, "A bingo is already running FailFish", event, method="reply")
             return False
 
         emote_instances = args["emote_instances"]
-        known_sets = self.make_known_sets_dict()
+        known_sets = self.make_known_sets_dict(bot)
 
-        selected_sets = set()
-        points_reward = None
+        selected_sets: Set[Tuple[str, Tuple[Emote, ...], bool]] = set()
+        points_reward: Optional[int] = None
         unparsed_options = []
 
         words_in_message = [s for s in message.split(" ") if len(s) > 0]
         if len(words_in_message) <= 0:
-            bot.say(f"{source}, You must at least give me some emote sets or emotes to choose from! FailFish")
+            bot.send_message_to_user(
+                source,
+                "You must at least give me some emote sets or emotes to choose from! FailFish",
+                event,
+                method="reply",
+            )
             return False
 
         emote_index_offset = len("!bingo start ")
@@ -197,11 +211,13 @@ class BingoModule(BaseModule):
                 selected_sets.add(new_set)
                 continue
 
+            parsed_int: Optional[int] = None
+
             # Is the current word a number?
             try:
                 parsed_int = int(word)
             except ValueError:
-                parsed_int = None
+                pass
 
             if parsed_int is not None:
                 # if points_reward is already set this is the second number in the message
@@ -235,30 +251,43 @@ class BingoModule(BaseModule):
 
         max_points = self.settings["max_points"]
         if points_reward > max_points:
-            bot.say(
-                f"{source}, You can't start a bingo with that many points. FailFish {max_points} are allowed at most."
+            bot.send_message_to_user(
+                source,
+                f"You can't start a bingo with that many points. FailFish {max_points} are allowed at most.",
+                event,
+                method="reply",
             )
             return False
 
         allow_negative_bingo = self.settings["allow_negative_bingo"]
         if points_reward < 0 and not allow_negative_bingo:
-            bot.say(f"{source}, You can't start a bingo with negative points. FailFish")
+            bot.send_message_to_user(
+                source, "You can't start a bingo with negative points. FailFish", event, method="reply"
+            )
             return False
 
         min_points = -self.settings["max_negative_points"]
         if points_reward < min_points:
-            bot.say(
-                f"{source}, You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most."
+            bot.send_message_to_user(
+                source,
+                "You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most.",
+                event,
+                method="reply",
             )
             return False
 
         if len(selected_sets) <= 0:
-            bot.say(f"{source}, You must at least give me some emotes or emote sets to choose from! FailFish")
+            bot.send_message_to_user(
+                source,
+                "You must at least give me some emotes or emote sets to choose from! FailFish",
+                event,
+                method="reply",
+            )
             return False
 
         selected_set_names = []
         selected_discrete_emote_codes = []
-        selected_emotes = set()
+        selected_emotes: Set[Emote] = set()
         for set_name, set_emotes, is_discrete_emote in selected_sets:
             if is_discrete_emote:
                 selected_discrete_emote_codes.append(set_name)
@@ -283,18 +312,23 @@ class BingoModule(BaseModule):
         log.info(f"A Bingo game has begun for {points_reward} points, correct emote is {correct_emote}")
         self.active_game = BingoGame(correct_emote, points_reward)
 
-    def bingo_cancel(self, bot, source, message, event, args):
+        return True
+
+    def bingo_cancel(self, bot, source, message, event, args) -> bool:
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
             return False
 
         self.active_game = None
         bot.me(f"Bingo cancelled by {source} FeelsBadMan")
 
-    def bingo_help_random(self, bot, source, message, event, args):
+        return True
+
+    def bingo_help_random(self, bot, source, message, event, args) -> bool:
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
             return False
+        assert self.active_game is not None
 
         correct_emote_code = self.active_game.correct_emote.code
         random_letter = random.choice(correct_emote_code)
@@ -303,10 +337,13 @@ class BingoModule(BaseModule):
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {random_letter} {random_letter} {random_letter} {random_letter} {random_letter} for the target"
         )
 
-    def bingo_help_first(self, bot, source, message, event, args):
+        return True
+
+    def bingo_help_first(self, bot, source, message, event, args) -> bool:
         if not self.bingo_running:
-            bot.say(f"{source}, no bingo is running FailFish")
+            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
             return False
+        assert self.active_game is not None
 
         correct_emote_code = self.active_game.correct_emote.code
         first_letter = correct_emote_code[0]
@@ -315,12 +352,18 @@ class BingoModule(BaseModule):
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {first_letter} {first_letter} {first_letter} {first_letter} {first_letter} for the target"
         )
 
-    def on_message(self, source, message, emote_instances, **rest):
+        return True
+
+    def on_message(self, source, message, emote_instances, **rest) -> bool:
+        if not self.bot:
+            return True
+
         if not self.bingo_running:
-            return
+            return True
+        assert self.active_game is not None
 
         if len(emote_instances) != 1:
-            return
+            return True
 
         correct_emote = self.active_game.correct_emote
         correct_emote_code = correct_emote.code
@@ -338,7 +381,7 @@ class BingoModule(BaseModule):
         exact_match = correct_emote == typed_emote
         only_code_match = correct_emote_code == typed_emote_code
         if not (exact_match or only_code_match):
-            return
+            return True
 
         # user guessed the emote
         HandlerManager.trigger("on_bingo_win", source, self.active_game)
@@ -350,7 +393,9 @@ class BingoModule(BaseModule):
             f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp"
         )
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options) -> None:
         self.commands["bingo"] = Command.multiaction_command(
             level=500,
             default=None,
@@ -431,8 +476,8 @@ class BingoModule(BaseModule):
             },
         )
 
-    def enable(self, bot):
+    def enable(self, bot) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
 
-    def disable(self, bot):
+    def disable(self, bot) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
