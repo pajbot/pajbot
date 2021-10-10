@@ -44,7 +44,7 @@ class UserDuelStats(Base):
         super().__init__(*args, **kwargs)
 
     user: RelationshipProperty[User] = relationship(
-        "User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats"
+        User, cascade="save-update, merge", lazy="joined", back_populates="_duel_stats"
     )
 
     @hybrid_property
