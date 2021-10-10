@@ -1,12 +1,11 @@
+import datetime
 import logging
 from urllib.parse import quote, urlparse, urlunparse
 
-import datetime
-
-from requests import Session
-
 from pajbot import constants
 from pajbot.apiwrappers.response_cache import APIResponseCache
+
+from requests import Session
 
 log = logging.getLogger(__name__)
 
