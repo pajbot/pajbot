@@ -37,7 +37,7 @@ class StreamHelper:
     valid_social_keys = set(social_keys.keys())
 
     @staticmethod
-    def init_stream_manager(stream_manager) -> None:
+    def init_stream_manager(stream_manager: StreamManager) -> None:
         StreamHelper.stream_manager = stream_manager
 
     @staticmethod
