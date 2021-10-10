@@ -78,7 +78,7 @@ class ModuleManager:
 
         return True
 
-    def disable_module(self, module_id) -> bool:
+    def disable_module(self, module_id: str) -> bool:
         module = self.get_module(module_id)
         if not module:
             log.error(f"No module with the ID {module_id} found.")
