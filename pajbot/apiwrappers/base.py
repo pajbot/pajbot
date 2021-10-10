@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import datetime
 import logging
 from urllib.parse import quote, urlparse, urlunparse
@@ -7,11 +11,14 @@ from pajbot.apiwrappers.response_cache import APIResponseCache
 
 from requests import Session
 
+if TYPE_CHECKING:
+    from pajbot.managers.redis import RedisType
+
 log = logging.getLogger(__name__)
 
 
 class BaseAPI:
-    def __init__(self, base_url, redis=None):
+    def __init__(self, base_url: str, redis: Optional[RedisType] = None) -> None:
         self.base_url = base_url
 
         self.session = Session()
