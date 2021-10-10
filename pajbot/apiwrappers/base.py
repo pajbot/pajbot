@@ -115,7 +115,9 @@ class BaseAPI:
     ) -> Any:
         return self.request("POST", endpoint, params, headers, json, **request_options).json()
 
-    def put(self, endpoint, params=None, headers=None, json=None, **request_options):
+    def put(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    ) -> Any:
         return self.request("PUT", endpoint, params, headers, json, **request_options).json()
 
     def patch(self, endpoint, params=None, headers=None, json=None, **request_options):
