@@ -181,13 +181,14 @@ class ModuleManager:
 
         return None
 
-    def __contains__(self, module) -> bool:
+    def __contains__(self, module_id: str) -> bool:
         """We override the contains operator for the ModuleManager.
         This allows us to use the following syntax to check if a module is enabled:
         if 'duel' in module_manager:
         """
 
         for enabled_module in self.modules:
-            if enabled_module.ID == module:
+            if enabled_module.ID == module_id:
                 return True
+
         return False
