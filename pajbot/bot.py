@@ -1,21 +1,18 @@
-from typing import Any, List, Callable, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import cgi
 import datetime
 import logging
+import random
 import re
 import sys
+import threading
 import urllib
 
-import irc.client
-import random
-import requests
-import threading
-from pytz import timezone
-
+import pajbot.config as cfg
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-import pajbot.config as cfg
+from pajbot import utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
@@ -28,7 +25,7 @@ from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
-from pajbot.managers.emote import EmoteManager, EpmManager, EcountManager
+from pajbot.managers.emote import EcountManager, EmoteManager, EpmManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager
@@ -50,7 +47,10 @@ from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
-from pajbot import utils
+
+import irc.client
+import requests
+from pytz import timezone
 
 log = logging.getLogger(__name__)
 
@@ -1005,7 +1005,7 @@ class Bot:
         sys.exit(0)
 
     def apply_filter(self, resp, f: SubstitutionFilter) -> Any:
-        available_filters: dict[str, Callable[[Any, List[str]], Any]] = {
+        available_filters: Dict[str, Callable[[Any, List[str]], Any]] = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),

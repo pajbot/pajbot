@@ -34,7 +34,7 @@ class Emote:
     def __repr__(self) -> str:
         return f"[{self.provider}] {self.code}"
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls}
 
     @staticmethod
@@ -68,7 +68,7 @@ class EmoteInstance:
     def __repr__(self) -> str:
         return f"{self.emote} @ {self.start}-{self.end}"
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {"start": self.start, "end": self.end, "emote": self.emote.jsonify()}
 
 
@@ -101,7 +101,7 @@ class EmoteInstanceCount:
 
         return f"{self.emote} @ [{', '.join(indices)}]"
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "count": self.count,
             "emote": self.emote.jsonify(),

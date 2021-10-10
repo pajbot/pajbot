@@ -1,15 +1,16 @@
+import logging
 import os
 
-import logging
-from flask import Flask
-
+import pajbot.config as cfg
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
-from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
 from pajbot.utils import extend_version_if_possible
+
+from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
 app = Flask(

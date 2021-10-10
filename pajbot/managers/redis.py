@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ContextManager, Optional
+from typing import TYPE_CHECKING, Any, ContextManager, Dict, Optional
 
 import logging
 
@@ -25,7 +25,7 @@ class RedisManager:
     redis: Optional[RedisType] = None
 
     @staticmethod
-    def init(options: dict[Any, Any]) -> None:
+    def init(options: Dict[Any, Any]) -> None:
         if RedisManager.redis is not None:
             raise ValueError("RedisManager.init has already been called once")
 

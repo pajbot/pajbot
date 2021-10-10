@@ -300,7 +300,7 @@ def get_substitution_arguments(sub_key):
     return sub_string, path, argument, key, filters, if_arguments
 
 
-def get_substitutions(string: str, bot: Bot) -> dict[str, Substitution]:
+def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
     """
     Returns a dictionary of `Substitution` objects thare are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same string.
@@ -417,7 +417,7 @@ class MessageAction(BaseAction):
         self.response = response
 
         self.argument_subs: List[Substitution] = []
-        self.subs: dict[str, Substitution] = {}
+        self.subs: Dict[str, Substitution] = {}
         self.num_urlfetch_subs = 0
 
         if bot:
@@ -631,7 +631,7 @@ class ReplyAction(MessageAction):
         )
 
 
-def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, extra):
+def apply_substitutions(text, substitutions: Dict[Any, Substitution], bot: Bot, extra):
     for needle, sub in substitutions.items():
         if sub.key and sub.argument:
             param = sub.key

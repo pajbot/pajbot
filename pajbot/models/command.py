@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias: str, i_command: Command, command_list: list[WebCommand]) -> None:
+def parse_command_for_web(alias: str, i_command: Command, command_list: List[WebCommand]) -> None:
     import markdown
     from flask import Markup
 
@@ -159,7 +159,7 @@ class CommandExample(Base):
         self.title = title
         self.chat = chat
         self.description = description
-        self.chat_messages: list[dict[str, Any]] = []
+        self.chat_messages: List[Dict[str, Any]] = []
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -244,7 +244,7 @@ class Command(Base):
         # self.command = None
 
         self.last_run = 0
-        self.last_run_by_user: dict[str, datetime.datetime] = {}
+        self.last_run_by_user: Dict[str, datetime.datetime] = {}
 
         # self.data = None
         self.run_in_thread = False
@@ -488,7 +488,7 @@ class WebCommand:
         self.main_alias = f"!{self.command}"
 
         self.parsed_description = ""
-        self.json_description: Optional[dict[str, Any]] = None
+        self.json_description: Optional[Dict[str, Any]] = None
         self.resolve_string: Optional[str] = None
 
     @property

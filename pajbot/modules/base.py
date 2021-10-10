@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import json
 import logging
@@ -38,8 +38,8 @@ class ModuleSetting:
         required: bool = False,
         placeholder: str = "",
         default: Optional[Any] = None,
-        constraints: dict[str, Any] = {},
-        options: list[str] = [],
+        constraints: Dict[str, Any] = {},
+        options: List[str] = [],
     ) -> None:
         self.key = key
         self.label = label
@@ -120,7 +120,7 @@ class BaseModule:
         + "It's what will be shown on the website where you can enable "
         + "and disable modules."
     )
-    SETTINGS: list[Any] = []
+    SETTINGS: List[Any] = []
     ENABLED_DEFAULT = False
     PARENT_MODULE: Optional[Any] = None
     CATEGORY = "Uncategorized"
@@ -155,7 +155,7 @@ class BaseModule:
         return self
 
     @classmethod
-    def db_settings(cls) -> dict[str, Any]:
+    def db_settings(cls) -> Dict[str, Any]:
         settings = {}
         with DBManager.create_session_scope() as session:
             module = session.query(Module).filter(Module.id == cls.ID).one()
@@ -168,7 +168,7 @@ class BaseModule:
         return settings
 
     @classmethod
-    def module_settings(cls) -> dict[str, Any]:
+    def module_settings(cls) -> Dict[str, Any]:
         settings = cls.db_settings()
 
         # Load any unset settings
@@ -192,7 +192,7 @@ class BaseModule:
     def load_commands(self, **options: Any) -> None:
         pass
 
-    def parse_settings(self, **in_settings: dict[str, Any]) -> Union[Literal[False], dict[str, Any]]:
+    def parse_settings(self, **in_settings: Dict[str, Any]) -> Union[Literal[False], Dict[str, Any]]:
         ret = {}
         for key, value in in_settings.items():
             # XXX: Ensure this still works. It's not async, so it SHOULD work

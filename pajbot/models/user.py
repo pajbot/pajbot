@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple
 
 import logging
 from contextlib import contextmanager
@@ -46,7 +46,7 @@ class UserBasics:
         self.login = login
         self.name = name
 
-    def jsonify(self) -> dict[str, str]:
+    def jsonify(self) -> Dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
 
@@ -292,7 +292,7 @@ class User(Base):
 
         return (timeout_length, punishment)
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "login": self.login,
@@ -436,7 +436,7 @@ class UserChannelInformation:
         self.game_name = game_name
         self.title = title
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "broadcaster_language": self.broadcaster_language,
             "game_id": self.game_id,
@@ -445,7 +445,7 @@ class UserChannelInformation:
         }
 
     @staticmethod
-    def from_json(json_data: dict[str, Any]) -> UserChannelInformation:
+    def from_json(json_data: Dict[str, Any]) -> UserChannelInformation:
         return UserChannelInformation(
             broadcaster_language=json_data["broadcaster_language"],
             game_id=json_data["game_id"],
@@ -462,7 +462,7 @@ class UserStream:
         self.started_at = started_at
         self.id = id
 
-    def jsonify(self) -> dict[str, Any]:
+    def jsonify(self) -> Dict[str, Any]:
         return {
             "viewer_count": self.viewer_count,
             "game_id": self.game_id,
@@ -472,7 +472,7 @@ class UserStream:
         }
 
     @staticmethod
-    def from_json(json_data: dict[str, Any]) -> UserStream:
+    def from_json(json_data: Dict[str, Any]) -> UserStream:
         return UserStream(
             json_data["viewer_count"],
             json_data["game_id"],

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterator, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterator, Optional
 
 from contextlib import contextmanager
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class RedisMigratable:
-    def __init__(self, redis_options: dict[Any, Any], namespace: str) -> None:
+    def __init__(self, redis_options: Dict[Any, Any], namespace: str) -> None:
         self.redis_options = redis_options
         self.namespace = namespace
 
