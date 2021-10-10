@@ -1,9 +1,14 @@
-def split_into_chunks_with_prefix(chunks, separator=" ", limit=500, default=None):
+from typing import Any, Dict, List, Optional
+
+
+def split_into_chunks_with_prefix(
+    chunks: List[Dict[str, Any]], separator: str = " ", limit: int = 500, default: Optional[str] = None
+) -> List[str]:
     messages = []
     current_message = ""
     current_prefix = None
 
-    def try_append(prefix, new_part, recursive=False):
+    def try_append(prefix: str, new_part: str, recursive: bool = False) -> None:
         nonlocal messages
         nonlocal current_message
         nonlocal current_prefix

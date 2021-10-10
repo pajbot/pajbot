@@ -1,7 +1,6 @@
-from typing import Optional
+from typing import Dict, List, Optional, Protocol, Tuple
 
 import logging
-
 import random
 
 from pajbot.managers.redis import RedisManager
@@ -10,68 +9,91 @@ from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
 
+EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
+
 log = logging.getLogger(__name__)
 
 
-class GenericChannelEmoteManager:
-    # to be implemented
-    api = None
-    friendly_name: Optional[str] = None
+class EmoteAPI(Protocol):
+    def get_global_emotes(self, force_fetch: bool = ...) -> List[Emote]:
+        ...
 
-    def __init__(self):
-        self._global_emotes = []
-        self._channel_emotes = []
+    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> List[Emote]:
+        ...
+
+
+class GenericChannelEmoteManager:
+    friendly_name: str
+
+    # to be implemented
+    def __init__(self, api: Optional[EmoteAPI]) -> None:
+        self._global_emotes: List[Emote] = []
+        self._channel_emotes: List[Emote] = []
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.global_lookup_table = {}
-        self.channel_lookup_table = {}
+        self.global_lookup_table: Dict[str, Emote] = {}
+        self.channel_lookup_table: Dict[str, Emote] = {}
+
+        self.api = api
 
     @property
-    def global_emotes(self):
+    def global_emotes(self) -> List[Emote]:
         return self._global_emotes
 
     @global_emotes.setter
-    def global_emotes(self, value):
+    def global_emotes(self, value: List[Emote]) -> None:
         self._global_emotes = value
         self.global_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
     @property
-    def channel_emotes(self):
+    def channel_emotes(self) -> List[Emote]:
         return self._channel_emotes
 
     @channel_emotes.setter
-    def channel_emotes(self, value):
+    def channel_emotes(self, value: List[Emote]) -> None:
         self._channel_emotes = value
         self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
-    def load_global_emotes(self):
+    def load_global_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
+        if self.api is None:
+            raise ValueError("API not initialized in Emote Manager")
+
         self.global_emotes = self.api.get_global_emotes()
 
-    def update_global_emotes(self):
+    def update_global_emotes(self) -> None:
+        if self.api is None:
+            raise ValueError("API not initialized in Emote Manager")
+
         self.global_emotes = self.api.get_global_emotes(force_fetch=True)
 
-    def load_channel_emotes(self):
+    def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
+        if self.api is None:
+            raise ValueError("API not initialized in Emote Manager")
+
         self.channel_emotes = self.api.get_channel_emotes(self.streamer)
 
-    def update_channel_emotes(self):
+    def update_channel_emotes(self) -> None:
+        if self.api is None:
+            raise ValueError("API not initialized in Emote Manager")
+
         self.channel_emotes = self.api.get_channel_emotes(self.streamer, force_fetch=True)
 
-    def update_all(self):
+    def update_all(self) -> None:
         self.update_global_emotes()
         self.update_channel_emotes()
 
-    def load_all(self):
+    def load_all(self) -> None:
         self.load_global_emotes()
         self.load_channel_emotes()
 
-    def match_channel_emote(self, word):
+    def match_channel_emote(self, word: str) -> Optional[Emote]:
         """Attempts to find a matching emote equaling the given word from the channel emotes known to this manager.
         Returns None if no emote was matched"""
         return self.channel_lookup_table.get(word, None)
 
-    def match_global_emote(self, word):
+    def match_global_emote(self, word: str) -> Optional[Emote]:
         """Attempts to find a matching emote equaling the given word from the global emotes known to this manager.
         Returns None if no emote was matched"""
         return self.global_lookup_table.get(word, None)
@@ -80,32 +102,32 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_helix_api):
+    def __init__(self, twitch_helix_api) -> None:
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.tier_one_emotes = []
-        self.tier_two_emotes = []
-        self.tier_three_emotes = []
+        self.tier_one_emotes: List[Emote] = []
+        self.tier_two_emotes: List[Emote] = []
+        self.tier_three_emotes: List[Emote] = []
 
-        super().__init__()
+        super().__init__(None)
 
     @property  # type: ignore
-    def channel_emotes(self):
+    def channel_emotes(self) -> List[Emote]:
         return self.tier_one_emotes
 
-    def load_global_emotes(self):
+    def load_global_emotes(self) -> None:
         self.global_emotes = self.twitch_helix_api.get_global_emotes()
 
-    def update_global_emotes(self):
+    def update_global_emotes(self) -> None:
         self.global_emotes = self.twitch_helix_api.get_global_emotes(force_fetch=True)
 
-    def load_channel_emotes(self):
+    def load_channel_emotes(self) -> None:
         self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer
         )
 
-    def update_channel_emotes(self):
+    def update_channel_emotes(self) -> None:
         self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
             self.streamer_id, self.streamer, force_fetch=True
         )
@@ -114,44 +136,44 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 class FFZEmoteManager(GenericChannelEmoteManager):
     friendly_name = "FFZ"
 
-    def __init__(self):
+    def __init__(self) -> None:
         from pajbot.apiwrappers.ffz import FFZAPI
 
-        self.api = FFZAPI(RedisManager.get())
-        super().__init__()
+        super().__init__(FFZAPI(RedisManager.get()))
 
 
 class BTTVEmoteManager(GenericChannelEmoteManager):
     friendly_name = "BTTV"
 
-    def __init__(self):
+    def __init__(self) -> None:
         from pajbot.apiwrappers.bttv import BTTVAPI
 
-        self.api = BTTVAPI(RedisManager.get())
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        super().__init__()
 
-    def load_channel_emotes(self):
+        self.bttv_api = BTTVAPI(RedisManager.get())
+
+        super().__init__(self.bttv_api)
+
+    def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id)
+        self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id)
 
-    def update_channel_emotes(self):
-        self.channel_emotes = self.api.get_channel_emotes(self.streamer_id, force_fetch=True)
+    def update_channel_emotes(self) -> None:
+        self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class SevenTVEmoteManager(GenericChannelEmoteManager):
     friendly_name = "7TV"
 
-    def __init__(self):
+    def __init__(self) -> None:
         from pajbot.apiwrappers.seventv import SevenTVAPI
 
-        self.api = SevenTVAPI(RedisManager.get())
-        super().__init__()
+        super().__init__(SevenTVAPI(RedisManager.get()))
 
 
 class EmoteManager:
-    def __init__(self, twitch_helix_api, action_queue):
+    def __init__(self, twitch_helix_api, action_queue) -> None:
         self.action_queue = action_queue
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
@@ -159,8 +181,6 @@ class EmoteManager:
         self.ffz_emote_manager = FFZEmoteManager()
         self.bttv_emote_manager = BTTVEmoteManager()
         self.seventv_emote_manager = SevenTVEmoteManager()
-
-        self.epm = {}
 
         # every 1 hour
         # note: whenever emotes are refreshed (cache is saved to redis), the key is additionally set to expire
@@ -170,24 +190,24 @@ class EmoteManager:
 
         self.load_all_emotes()
 
-    def update_all_emotes(self):
+    def update_all_emotes(self) -> None:
         self.action_queue.submit(self.bttv_emote_manager.update_all)
         self.action_queue.submit(self.ffz_emote_manager.update_all)
         self.action_queue.submit(self.seventv_emote_manager.update_all)
         self.action_queue.submit(self.twitch_emote_manager.update_all)
 
-    def load_all_emotes(self):
+    def load_all_emotes(self) -> None:
         self.action_queue.submit(self.bttv_emote_manager.load_all)
         self.action_queue.submit(self.ffz_emote_manager.load_all)
         self.action_queue.submit(self.seventv_emote_manager.load_all)
         self.action_queue.submit(self.twitch_emote_manager.load_all)
 
     @staticmethod
-    def twitch_emote_url(emote_id, size):
+    def twitch_emote_url(emote_id: str, size: str) -> str:
         return f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/{size}"
 
     @staticmethod
-    def twitch_emote(emote_id, code) -> Emote:
+    def twitch_emote(emote_id: str, code: str) -> Emote:
         return Emote(
             code=code,
             provider="twitch",
@@ -200,15 +220,15 @@ class EmoteManager:
         )
 
     @staticmethod
-    def twitch_emote_instance(emote_id, code, start, end):
+    def twitch_emote_instance(emote_id: str, code: str, start: int, end: int) -> EmoteInstance:
         return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
 
     @staticmethod
-    def parse_twitch_emotes_tag(tag, message):
+    def parse_twitch_emotes_tag(tag, message) -> List[EmoteInstance]:
         if len(tag) <= 0:
             return []
 
-        emote_instances = []
+        emote_instances: List[EmoteInstance] = []
 
         for emote_src in tag.split("/"):
             emote_id, emote_instances_src = emote_src.split(":")
@@ -223,7 +243,7 @@ class EmoteManager:
 
         return emote_instances
 
-    def match_word_to_emote(self, word):
+    def match_word_to_emote(self, word: str) -> Optional[Emote]:
         emote = self.ffz_emote_manager.match_channel_emote(word)
         if emote is not None:
             return emote
@@ -250,7 +270,7 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message, twitch_emotes_tag=""):
+    def parse_all_emotes(self, message: str, twitch_emotes_tag="") -> Tuple[List[EmoteInstance], EmoteInstanceCountMap]:
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
@@ -292,7 +312,7 @@ class EmoteManager:
         bttv_channel=False,
         seventv_global=False,
         seventv_channel=False,
-    ):
+    ) -> Optional[Emote]:
         emotes = []
         if twitch_global:
             emotes += self.twitch_emote_manager.global_emotes
@@ -321,10 +341,10 @@ class EmoteManager:
         return random.choice(emotes)
 
 
-def compute_emote_counts(emote_instances):
+def compute_emote_counts(emote_instances: List[EmoteInstance]) -> Dict[str, EmoteInstanceCount]:
     """Turns a list of emote instances into a map mapping emote code
     to count and a list of instances."""
-    emote_counts = {}
+    emote_counts: Dict[str, EmoteInstanceCount] = {}
     for emote_instance in emote_instances:
         emote_code = emote_instance.emote.code
         current_value = emote_counts.get(emote_code, None)
@@ -340,8 +360,8 @@ def compute_emote_counts(emote_instances):
 
 
 class EpmManager:
-    def __init__(self):
-        self.epm = {}
+    def __init__(self) -> None:
+        self.epm: Dict[str, int] = {}
 
         redis = RedisManager.get()
         self.redis_zadd_if_higher = redis.register_script(
@@ -361,31 +381,31 @@ end
 """
         )
 
-    def handle_emotes(self, emote_counts):
+    def handle_emotes(self, emote_counts: EmoteInstanceCountMap) -> None:
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         for emote_code, obj in emote_counts.items():
             self.epm_incr(emote_code, obj.count)
 
-    def epm_incr(self, code, count):
+    def epm_incr(self, code: str, count: int) -> None:
         new_epm = self.epm.get(code, 0) + count
         self.epm[code] = new_epm
         self.save_epm_record(code, new_epm)
         ScheduleManager.execute_delayed(60, self.epm_decr, args=[code, count])
 
-    def epm_decr(self, code, count):
+    def epm_decr(self, code: str, count: int) -> None:
         self.epm[code] -= count
 
-    def save_epm_record(self, code, count):
+    def save_epm_record(self, code: str, count: int) -> None:
         streamer = StreamHelper.get_streamer()
         self.redis_zadd_if_higher(keys=[f"{streamer}:emotes:epmrecord", count], args=[code])
 
-    def get_emote_epm(self, emote_code):
+    def get_emote_epm(self, emote_code: str) -> Optional[int]:
         """Returns the current "emote per minute" usage of the given emote code,
         or None if the emote is unknown to the bot."""
         return self.epm.get(emote_code, None)
 
     @staticmethod
-    def get_emote_epm_record(emote_code):
+    def get_emote_epm_record(emote_code) -> Optional[float]:
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
         return redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
@@ -393,7 +413,7 @@ end
 
 class EcountManager:
     @staticmethod
-    def handle_emotes(emote_counts):
+    def handle_emotes(emote_counts: EmoteInstanceCountMap) -> None:
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance
         streamer = StreamHelper.get_streamer()
         redis_key = f"{streamer}:emotes:count"
@@ -402,7 +422,7 @@ class EcountManager:
                 redis.zincrby(redis_key, instance_counts.count, emote_code)
 
     @staticmethod
-    def get_emote_count(emote_code):
+    def get_emote_count(emote_code: str) -> Optional[int]:
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
         emote_count = redis.zscore(f"{streamer}:emotes:count", emote_code)

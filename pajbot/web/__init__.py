@@ -1,15 +1,16 @@
+import logging
 import os
 
-import logging
-from flask import Flask
-
+import pajbot.config as cfg
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
-from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
+from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
 from pajbot.utils import extend_version_if_possible
+
+from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
 app = Flask(
@@ -58,7 +59,7 @@ def init(args):
     if "redis" in config:
         redis_options = dict(config["redis"])
 
-    RedisManager.init(**redis_options)
+    RedisManager.init(redis_options)
 
     twitch_id_api = TwitchIDAPI(api_client_credentials)
     app_token_manager = AppAccessTokenManager(twitch_id_api, RedisManager.get())
@@ -149,7 +150,7 @@ def init(args):
         "bot": {"name": config["main"]["nickname"]},
         "site": {
             "domain": config["web"]["domain"],
-            "deck_tab_images": config.getboolean("web", "deck_tab_images"),
+            "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},

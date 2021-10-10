@@ -1,7 +1,9 @@
+from typing import Any, Optional
+
 import inspect
 
 
-def get_class_that_defined_method(meth):
+def get_class_that_defined_method(meth: Any) -> Optional[type]:
     if inspect.ismethod(meth):
         for cls in inspect.getmro(meth.__self__.__class__):
             if cls.__dict__.get(meth.__name__) is meth:

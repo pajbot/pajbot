@@ -1,13 +1,19 @@
-import logging
+from __future__ import annotations
 
-from sqlalchemy import Column, INT
-from sqlalchemy import ForeignKey
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship
-from sqlalchemy_utc import UtcDateTime
+from typing import TYPE_CHECKING
+
+import logging
 
 from pajbot import utils
 from pajbot.managers.db import Base
+
+from sqlalchemy import INT, Column, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import RelationshipProperty, relationship
+from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +43,9 @@ class UserDuelStats(Base):
 
         super().__init__(*args, **kwargs)
 
-    user = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats")
+    user: RelationshipProperty[User] = relationship(
+        "User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats"
+    )
 
     @hybrid_property
     def duels_lost(self):
@@ -51,7 +59,7 @@ class UserDuelStats(Base):
     def profit(self):
         return self.points_won - self.points_lost
 
-    def won(self, points_won):
+    def won(self, points_won: int) -> None:
         self.duels_won += 1
         self.duels_total += 1
         self.points_won += points_won
