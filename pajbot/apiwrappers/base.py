@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import datetime
 import logging
@@ -54,7 +54,7 @@ class BaseAPI:
         return naive_dt.replace(tzinfo=datetime.timezone.utc)
 
     @staticmethod
-    def join_base_and_list(base, path_segments):
+    def join_base_and_list(base: str, path_segments: List[Any]) -> str:
         url = base
         for path_segment in path_segments:
             # str(endpoint) so numbers can be used as path segments too
