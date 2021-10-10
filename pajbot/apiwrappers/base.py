@@ -110,7 +110,9 @@ class BaseAPI:
     ) -> bytes:
         return self.request("GET", endpoint, params, headers, **request_options).content
 
-    def post(self, endpoint, params=None, headers=None, json=None, **request_options):
+    def post(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    ) -> Any:
         return self.request("POST", endpoint, params, headers, json, **request_options).json()
 
     def put(self, endpoint, params=None, headers=None, json=None, **request_options):
