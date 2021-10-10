@@ -9,7 +9,7 @@ from urllib.parse import quote, urlparse, urlunparse
 from pajbot import constants
 from pajbot.apiwrappers.response_cache import APIResponseCache
 
-from requests import Session
+from requests import Session, Response
 
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType
@@ -81,7 +81,15 @@ class BaseAPI:
         else:
             return BaseAPI.join_base_and_string(base, endpoint)
 
-    def request(self, method, endpoint, params, headers, json=None, **request_options):
+    def request(
+        self,
+        method: str,
+        endpoint: AnyEndpoint,
+        params: Any,
+        headers: Any,
+        json: Optional[Any] = None,
+        **request_options: Any,
+    ) -> Response:
         full_url = self.join_base_and_endpoint(self.base_url, endpoint)
         response = self.session.request(
             method, full_url, params=params, headers=headers, json=json, timeout=self.timeout, **request_options
