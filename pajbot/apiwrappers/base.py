@@ -31,7 +31,7 @@ class BaseAPI:
             self.cache = APIResponseCache(redis)
 
     @staticmethod
-    def quote_path_param(param):
+    def quote_path_param(param: str) -> str:
         return quote(param, safe="")
 
     @staticmethod
