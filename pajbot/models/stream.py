@@ -22,38 +22,6 @@ from pajbot.models.user import UserStream, UserChannelInformation
 log = logging.getLogger("pajbot")
 
 
-class Stream(Base):
-    __tablename__ = "stream"
-
-    id = Column(INT, primary_key=True)
-    title = Column(TEXT, nullable=False)
-    stream_start = Column(UtcDateTime(), nullable=False)
-    stream_end = Column(UtcDateTime(), nullable=True)
-    ended = Column(BOOLEAN, nullable=False, default=False)
-
-    stream_chunks = relationship(
-        "StreamChunk", uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"
-    )
-
-    def __init__(self, created_at, **options):
-        self.id = None
-        self.title = options.get("title", "NO TITLE")
-        self.stream_start = BaseAPI.parse_datetime(created_at)
-        self.stream_end = None
-        self.ended = False
-
-    @property
-    def uptime(self):
-        """
-        Returns a TimeDelta for how long the stream was online, or is online.
-        """
-
-        if self.ended is False:
-            return utils.now() - self.stream_start
-
-        return self.stream_end - self.stream_start
-
-
 class StreamChunk(Base):
     __tablename__ = "stream_chunk"
 
@@ -75,6 +43,38 @@ class StreamChunk(Base):
         self.chunk_end = None
 
         self.stream = stream
+
+
+class Stream(Base):
+    __tablename__ = "stream"
+
+    id = Column(INT, primary_key=True)
+    title = Column(TEXT, nullable=False)
+    stream_start = Column(UtcDateTime(), nullable=False)
+    stream_end = Column(UtcDateTime(), nullable=True)
+    ended = Column(BOOLEAN, nullable=False, default=False)
+
+    stream_chunks = relationship(
+        StreamChunk, uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"
+    )
+
+    def __init__(self, created_at, **options):
+        self.id = None
+        self.title = options.get("title", "NO TITLE")
+        self.stream_start = BaseAPI.parse_datetime(created_at)
+        self.stream_end = None
+        self.ended = False
+
+    @property
+    def uptime(self):
+        """
+        Returns a TimeDelta for how long the stream was online, or is online.
+        """
+
+        if self.ended is False:
+            return utils.now() - self.stream_start
+
+        return self.stream_end - self.stream_start
 
 
 class StreamManager:
