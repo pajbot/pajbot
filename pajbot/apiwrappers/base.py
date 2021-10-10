@@ -63,7 +63,7 @@ class BaseAPI:
         return url
 
     @staticmethod
-    def join_base_and_string(base, endpoint):
+    def join_base_and_string(base: str, endpoint: str) -> str:
         base = base.rstrip("/")
         endpoint = endpoint.lstrip("/")
         return base + "/" + endpoint
