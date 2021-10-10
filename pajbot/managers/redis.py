@@ -8,11 +8,11 @@ import redis
 from redis import Redis
 from redis.client import Pipeline
 
-log = logging.getLogger(__name__)
-
 if TYPE_CHECKING:
     _StrType = str
     RedisType = Redis[_StrType]
+
+log = logging.getLogger(__name__)
 
 
 class RedisManager:
