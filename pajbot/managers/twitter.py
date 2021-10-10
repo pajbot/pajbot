@@ -210,7 +210,6 @@ class TwitterManager(GenericTwitterManager):
         super().__init__(bot)
 
         self.twitter_stream: Optional[tweepy.Stream] = None
-        self.listener = None
 
         if "twitter" not in bot.config:
             return
