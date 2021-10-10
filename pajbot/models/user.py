@@ -103,7 +103,7 @@ class User(Base):
     vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
     founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
 
-    _rank = relationship("UserRank", primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
+    _rank = relationship(UserRank, primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
 
     def __init__(self) -> None:
         self.level = 100
