@@ -97,7 +97,7 @@ class BaseAPI:
         response.raise_for_status()
         return response
 
-    def get(self, endpoint, params=None, headers=None, **request_options):
+    def get(self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any) -> Any:
         return self.request("GET", endpoint, params, headers, **request_options).json()
 
     def get_response(self, endpoint, params=None, headers=None, **request_options):
