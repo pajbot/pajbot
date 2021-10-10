@@ -174,10 +174,11 @@ class ModuleManager:
         for module in self.modules:
             module.on_loaded()
 
-    def __getitem__(self, module):
+    def __getitem__(self, module_id: str) -> Optional[BaseModule]:
         for enabled_module in self.modules:
-            if enabled_module.ID == module:
+            if enabled_module.ID == module_id:
                 return enabled_module
+
         return None
 
     def __contains__(self, module) -> bool:
