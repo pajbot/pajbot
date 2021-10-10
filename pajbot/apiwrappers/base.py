@@ -100,7 +100,9 @@ class BaseAPI:
     def get(self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any) -> Any:
         return self.request("GET", endpoint, params, headers, **request_options).json()
 
-    def get_response(self, endpoint, params=None, headers=None, **request_options):
+    def get_response(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any
+    ) -> Response:
         return self.request("GET", endpoint, params, headers, **request_options)
 
     def get_binary(self, endpoint, params=None, headers=None, **request_options):
