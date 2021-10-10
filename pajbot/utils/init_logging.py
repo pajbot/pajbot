@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from colorama import Style, Fore
+from colorama import Fore, Style
 
 
 def init_logging(app: str = "pajbot") -> logging.Logger:
