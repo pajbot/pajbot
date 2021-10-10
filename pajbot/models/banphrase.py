@@ -16,7 +16,7 @@ from sqlalchemy.orm import relationship
 from unidecode import unidecode
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User  # noqa: F401 (imported but unused)
+    from pajbot.models.user import User
 
 log = logging.getLogger("pajbot")
 
@@ -185,7 +185,7 @@ class BanphraseData(Base):
     edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship(
-        "User",
+        User,
         primaryjoin="User.id==BanphraseData.added_by",
         foreign_keys="User.id",
         uselist=False,
@@ -195,7 +195,7 @@ class BanphraseData(Base):
     )
 
     user2 = relationship(
-        "User",
+        User,
         primaryjoin="User.id==BanphraseData.edited_by",
         foreign_keys="User.id",
         uselist=False,
