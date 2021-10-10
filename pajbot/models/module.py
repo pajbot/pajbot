@@ -94,7 +94,7 @@ class ModuleManager:
 
         return True
 
-    def load(self, do_reload=True):
+    def load(self, do_reload: bool = True) -> ModuleManager:
         """Load module classes"""
 
         from pajbot.modules import available_modules
@@ -105,7 +105,7 @@ class ModuleManager:
             # Make sure there's a row in the DB for each module that's available
             db_modules = db_session.query(Module).all()
             for module in self.all_modules:
-                mod = find(lambda db_module, registered_module=module: db_module.id == registered_module.ID, db_modules)
+                mod = find(lambda db_module: db_module.id == module.ID, db_modules)
                 if mod is None:
                     log.info(f"Creating row in DB for module {module.ID}")
                     mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
