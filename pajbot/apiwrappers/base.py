@@ -120,5 +120,7 @@ class BaseAPI:
     ) -> Any:
         return self.request("PUT", endpoint, params, headers, json, **request_options).json()
 
-    def patch(self, endpoint, params=None, headers=None, json=None, **request_options):
+    def patch(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    ) -> Response:
         return self.request("PATCH", endpoint, params, headers, json, **request_options)
