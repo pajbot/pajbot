@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import json
 import logging
@@ -50,7 +50,7 @@ class ModuleSetting:
         self.constraints = constraints
         self.options = options
 
-    def validate(self, value: str) -> tuple[bool, Any]:
+    def validate(self, value: str) -> Tuple[bool, Any]:
         """Validate the input for this module.
         This will call the relevant submethod, located as validate_{type}.
         You always get a tuple back, with the first value being True or False depending
@@ -70,7 +70,7 @@ class ModuleSetting:
 
         return validator(value)
 
-    def validate_text(self, value: str) -> tuple[bool, str]:
+    def validate_text(self, value: str) -> Tuple[bool, str]:
         """Validate a text value"""
         value = value.strip()
         if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
@@ -79,7 +79,7 @@ class ModuleSetting:
             return (False, f"needs to be at most {self.constraints['max_str_len']} characters long")
         return True, value
 
-    def validate_number(self, str_value: str) -> tuple[bool, Union[str, int]]:
+    def validate_number(self, str_value: str) -> Tuple[bool, Union[str, int]]:
         """Validate a number value"""
         try:
             value = int(str_value)
@@ -93,11 +93,11 @@ class ModuleSetting:
         return True, value
 
     @staticmethod
-    def validate_boolean(value: str) -> tuple[bool, bool]:
+    def validate_boolean(value: str) -> Tuple[bool, bool]:
         """Validate a boolean value"""
         return True, value == "on"
 
-    def validate_options(self, value: str) -> tuple[bool, str]:
+    def validate_options(self, value: str) -> Tuple[bool, str]:
         """Validate a options value"""
         return value in self.options, value
 

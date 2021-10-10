@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
 
 import argparse
 import logging
@@ -284,7 +284,7 @@ class CommandManager(UserDict):
 
         return self.internal_commands
 
-    def create_command(self, alias_str: str, **options: Any) -> tuple[Command, bool, str]:
+    def create_command(self, alias_str: str, **options: Any) -> Tuple[Command, bool, str]:
         aliases = alias_str.lower().replace("!", "").split("|")
         for alias in aliases:
             if alias in self.data:
@@ -427,7 +427,7 @@ class CommandManager(UserDict):
     @staticmethod
     def parse_command_arguments(
         message: str,
-    ) -> tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
+    ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--whisper", dest="whisper", action="store_true")
         parser.add_argument("--no-whisper", dest="whisper", action="store_false")

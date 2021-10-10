@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
 
 import argparse
 import logging
@@ -871,7 +871,7 @@ class LinkCheckerModule(BaseModule):
     @staticmethod
     def parse_link_blacklist_arguments(
         message: str,
-    ) -> tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str]]:
+    ) -> Tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--deep", dest="level", action="store_true")
         parser.add_argument("--shallow", dest="level", action="store_false")
