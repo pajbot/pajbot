@@ -1,9 +1,8 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 import configparser
-import os
-
 import logging
+import os
 import sys
 
 log = logging.getLogger(__name__)
