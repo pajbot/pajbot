@@ -12,8 +12,9 @@ import sqlalchemy
 from sqlalchemy import BOOLEAN, TEXT, Column
 
 if TYPE_CHECKING:
-    from pajbot.modules import BaseModule
     from pajbot.bot import Bot
+    from pajbot.models.sock import HandlerParam, SocketManager
+    from pajbot.modules import BaseModule
 
 log = logging.getLogger("pajbot")
 
@@ -32,7 +33,7 @@ class Module(Base):
 
 
 class ModuleManager:
-    def __init__(self, socket_manager, bot: Optional[Bot] = None) -> None:
+    def __init__(self, socket_manager: Optional[SocketManager], bot: Optional[Bot] = None) -> None:
         # List of all enabled modules
         self.modules: List[BaseModule] = []
 
@@ -47,7 +48,7 @@ class ModuleManager:
     def get_module(self, module_id: str) -> Optional[BaseModule]:
         return find(lambda m: m.ID == module_id, self.all_modules)
 
-    def on_module_update(self, data) -> None:
+    def on_module_update(self, data: HandlerParam) -> None:
         new_state = data.get("new_state", None)
         if new_state is True:
             self.enable_module(data["id"])
