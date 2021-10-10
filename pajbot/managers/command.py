@@ -444,13 +444,15 @@ class CommandManager(UserDict):
         parser.add_argument("--no-subonly", dest="sub_only", action="store_false")
         parser.add_argument("--checkmsg", dest="run_through_banphrases", action="store_true")
         parser.add_argument("--no-checkmsg", dest="run_through_banphrases", action="store_false")
+        parser.add_argument("--disable", dest="enabled", action="store_false")
+        parser.add_argument("--enable", dest="enabled", action="store_true")
 
         try:
             args, unknown = parser.parse_known_args(message)
         except SystemExit:
             return False, False
         except:
-            log.exception("Unhandled exception in add_command")
+            log.exception("Unhandled exception in parse_command_arguments")
             return False, False
 
         # Strip options of any values that are set as None

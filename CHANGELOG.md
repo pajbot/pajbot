@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Minor: Added `!topemotes` command to Top module (#1503)
+- Minor: Added `--disable` and `--enable` command arguments that can be used with `!add command` and `!edit command`. (#1502)
 
 ## v1.56
 
