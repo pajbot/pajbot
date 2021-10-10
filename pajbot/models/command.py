@@ -19,7 +19,7 @@ from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.models.user import User  # noqa: F401 (imported but unused)
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class CommandData(Base):
     _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
 
     user = relationship(
-        "User",
+        User,
         primaryjoin="User.id==CommandData.edited_by",
         foreign_keys="User.id",
         uselist=False,
@@ -100,7 +100,7 @@ class CommandData(Base):
     )
 
     user2 = relationship(
-        "User",
+        User,
         primaryjoin="User.id==CommandData.added_by",
         foreign_keys="User.id",
         uselist=False,
@@ -210,8 +210,8 @@ class Command(Base):
     run_through_banphrases = Column(BOOLEAN, nullable=False, default=False, server_default="0")
     long_description = ""
 
-    data = relationship("CommandData", uselist=False, cascade="", lazy="joined")
-    examples = relationship("CommandExample", uselist=True, cascade="", lazy="noload")
+    data = relationship(CommandData, uselist=False, cascade="", lazy="joined")
+    examples = relationship(CommandExample, uselist=True, cascade="", lazy="noload")
 
     MIN_WHISPER_LEVEL = 420
     BYPASS_DELAY_LEVEL = 2000
@@ -241,12 +241,10 @@ class Command(Base):
         self.sub_only = False
         self.mod_only = False
         self.run_through_banphrases = False
-        # self.command = None
 
         self.last_run = 0
         self.last_run_by_user: Dict[str, datetime.datetime] = {}
 
-        # self.data = None
         self.run_in_thread = False
         self.notify_on_error = False
 
@@ -258,11 +256,6 @@ class Command(Base):
         if action_dict:
             self.action_json = json.dumps(action_dict)
             self.action = ActionParser.parse(str_data=self.action_json, command=self.command)
-        extra_args = options.get("extra_extra_args", None)
-        if extra_args:
-            self.extra_args = {"command": self}
-            self.extra_args.update(extra_args)
-            self.extra_extra_args = json.dumps(extra_args)
         self.command = options.get("command", self.command)
         self.description = options.get("description", self.description)
         self.delay_all = options.get("delay_all", self.delay_all)
