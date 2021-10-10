@@ -15,7 +15,7 @@ from sqlalchemy.sql import functions
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User  # noqa: F401 (imported but unused)
+    from pajbot.models.user import User
 
 
 class HSGameOutcome(enum.Enum):
@@ -102,5 +102,5 @@ class HSBetBet(Base):
     points = Column(INT, nullable=False)
     profit = Column(INT, nullable=True)
 
-    user = relationship("User")
-    game = relationship("HSBetGame", back_populates="bets")
+    user = relationship(User)
+    game = relationship(HSBetGame, back_populates="bets")
