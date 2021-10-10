@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import json
 import logging
@@ -26,7 +26,7 @@ class Module(Base):
     enabled = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
     settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
 
-    def __init__(self, module_id, **options) -> None:
+    def __init__(self, module_id: str, **options: Any) -> None:
         self.id = module_id
         self.enabled = options.get("enabled", False)
         self.settings = None
