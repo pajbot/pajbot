@@ -105,7 +105,9 @@ class BaseAPI:
     ) -> Response:
         return self.request("GET", endpoint, params, headers, **request_options)
 
-    def get_binary(self, endpoint, params=None, headers=None, **request_options):
+    def get_binary(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any
+    ) -> bytes:
         return self.request("GET", endpoint, params, headers, **request_options).content
 
     def post(self, endpoint, params=None, headers=None, json=None, **request_options):
