@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Set, Tuple, Union
 
 import argparse
 import logging
@@ -70,7 +70,7 @@ def is_same_url(x: Url, y: Url) -> bool:
     )
 
 
-def find_unique_urls(message: str) -> set[str]:
+def find_unique_urls(message: str) -> Set[str]:
     urls = []
     for url in extractor.gen_urls(message):
         if not (url.startswith("http://") or url.startswith("https://")):
