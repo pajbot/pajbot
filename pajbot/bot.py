@@ -288,7 +288,7 @@ class Bot:
         self.subs_only = False
 
     @property
-    def password(self):
+    def password(self) -> str:
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def start(self) -> None:
