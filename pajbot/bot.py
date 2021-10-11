@@ -644,7 +644,7 @@ class Bot:
         self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
-    def delete_message(self, msg_id):
+    def delete_message(self, msg_id: str) -> None:
         self.privmsg(f"/delete {msg_id}")
 
     def whisper(self, user: User, message: str) -> None:
