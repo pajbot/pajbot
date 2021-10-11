@@ -150,7 +150,7 @@ class DuelModule(BaseModule):
 
         self.gc_job: Optional[ScheduledJob] = None
 
-    def initiate_duel(self, bot, source, message, **rest):
+    def initiate_duel(self, bot: Bot, source: User, message: str, **rest: Any) -> bool:
         """
         Initiate a duel with a user.
         You can also bet points on the winner.
@@ -232,6 +232,8 @@ class DuelModule(BaseModule):
                 f"You have been challenged to a duel by {source} for {duel_price} points. You can either !accept or !deny this challenge.",
             )
             bot.whisper(source, f"You have challenged {user} for {duel_price} points")
+
+        return True
 
     def cancel_duel(self, bot, source, **rest):
         """
