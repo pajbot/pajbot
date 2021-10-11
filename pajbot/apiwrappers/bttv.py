@@ -1,8 +1,8 @@
-from requests import HTTPError
-
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
+
+from requests import HTTPError
 
 
 class BTTVAPI(BaseAPI):
