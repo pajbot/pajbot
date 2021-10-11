@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from enum import Enum
@@ -10,7 +12,7 @@ class WhisperOutputMode(Enum):
     CONTROL_HUB = 3
 
     @staticmethod
-    def from_config_value(config_value):
+    def from_config_value(config_value: str) -> WhisperOutputMode:
         try:
             return WhisperOutputMode[config_value.upper()]
         except KeyError:
