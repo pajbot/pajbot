@@ -1,11 +1,14 @@
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict
 
 import configparser
 import logging
 import os
 import sys
 
-import pajbot.config as cfg
+if TYPE_CHECKING:
+    import pajbot.config as cfg
 
 log = logging.getLogger(__name__)
 
