@@ -1,12 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
 
 from requests import HTTPError
 
+if TYPE_CHECKING:
+    from pajbot.managers.redis import RedisType
+
 
 class BTTVAPI(BaseAPI):
-    def __init__(self, redis):
+    def __init__(self, redis: RedisType) -> None:
         super().__init__(base_url="https://api.betterttv.net/3/", redis=redis)
 
     @staticmethod
