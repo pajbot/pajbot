@@ -1,7 +1,9 @@
+from typing import Optional
+
 import logging
 from collections import UserDict
 
-from pajbot.managers.redis import RedisManager
+from pajbot.managers.redis import RedisManager, RedisType
 from pajbot.streamhelper import StreamHelper
 
 log = logging.getLogger(__name__)
@@ -18,13 +20,16 @@ class KVIData:
 
         redis.hset(self.key, self.id, new_value)
 
-    def get(self, redis=None):
+    def get(self, redis: Optional[RedisType] = None) -> int:
         if redis is None:
             redis = RedisManager.get()
 
+        value: int = 0
+
         try:
             raw_value = redis.hget(self.key, self.id)
-            value = int(raw_value)
+            if raw_value:
+                value = int(raw_value)
         except (TypeError, ValueError):
             value = 0
 
