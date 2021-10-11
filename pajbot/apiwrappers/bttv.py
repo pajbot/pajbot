@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
@@ -17,8 +17,8 @@ class BTTVAPI(BaseAPI):
         super().__init__(base_url="https://api.betterttv.net/3/", redis=redis)
 
     @staticmethod
-    def parse_emotes(api_response_data):
-        def get_url(emote_id, size):
+    def parse_emotes(api_response_data: List[Dict[str, Any]]) -> List[Emote]:
+        def get_url(emote_id: str, size: str) -> str:
             return f"https://cdn.betterttv.net/emote/{emote_id}/{size}x"
 
         emotes = []
