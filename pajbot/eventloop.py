@@ -2,6 +2,7 @@ from typing import Any, Callable, Union
 
 import datetime
 import logging
+import numbers
 
 from irc.schedule import IScheduler
 from tempora import schedule
@@ -31,7 +32,7 @@ class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
     def execute_every(self, period: Union[float, datetime.timedelta], func: Callable[..., Any]) -> None:
         self.add(schedule.PeriodicCommand.after(period, func))
 
-    def execute_at(self, when, func) -> None:
+    def execute_at(self, when: Union[numbers.Real, datetime.datetime], func: Callable[..., Any]) -> None:
         self.add(schedule.DelayedCommand.at_time(when, func))
 
     def execute_after(self, delay, func) -> None:
