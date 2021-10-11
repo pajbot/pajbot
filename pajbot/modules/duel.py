@@ -235,7 +235,7 @@ class DuelModule(BaseModule):
 
         return True
 
-    def cancel_duel(self, bot, source, **rest):
+    def cancel_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Cancel any duel requests you've sent.
 
@@ -248,6 +248,10 @@ class DuelModule(BaseModule):
 
         with DBManager.create_session_scope() as db_session:
             challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+            if not challenged:
+                bot.whisper(source, "Could not find the user you challenged??")
+                return
+
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
 
             del self.duel_targets[challenged.id]
