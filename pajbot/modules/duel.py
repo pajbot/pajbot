@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import logging
 import random
 from datetime import timedelta
@@ -9,6 +13,9 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -390,12 +397,12 @@ class DuelModule(BaseModule):
                 del self.duel_request_price[source.id]
                 del self.duel_begin_time[source.id]
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
         # We can't use bot.execute_every directly since we can't later cancel jobs created through bot.execute_every
-        self.gc_job = ScheduleManager.execute_every(30, lambda: self.bot.execute_now(self._cancel_expired_duels))
+        self.gc_job = ScheduleManager.execute_every(30, lambda: bot.execute_now(self._cancel_expired_duels))
 
     def disable(self, bot):
         if not bot:
