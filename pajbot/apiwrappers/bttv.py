@@ -39,7 +39,7 @@ class BTTVAPI(BaseAPI):
         response = self.get("/cached/emotes/global")
         return self.parse_emotes(response)
 
-    def get_global_emotes(self, force_fetch=False):
+    def get_global_emotes(self, force_fetch: bool = False) -> List[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
