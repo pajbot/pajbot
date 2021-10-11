@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
 
 import cgi
 import datetime
@@ -1054,7 +1054,7 @@ class Bot:
     def _filter_or_broadcaster(self, var: Any, args: List[str]) -> Any:
         return _filter_or_else(var, [self.streamer])
 
-    def find_unique_urls(self, message):
+    def find_unique_urls(self, message: str) -> Set[str]:
         from pajbot.modules.linkchecker import find_unique_urls
 
         return find_unique_urls(message)
