@@ -399,7 +399,11 @@ class DuelModule(BaseModule):
             f"duels: {source.duel_stats.duels_total} winrate: {source.duel_stats.winrate:.2f}% streak: {source.duel_stats.current_streak} profit: {source.duel_stats.profit}",
         )
 
-    def _cancel_expired_duels(self):
+    def _cancel_expired_duels(self) -> None:
+        if self.bot is None:
+            log.warn("_cancel_expired_duels of DuelModule failed because bot is None")
+            return
+
         now = utils.now()
         for source_id, started_at in self.duel_begin_time.items():
             duel_age = now - started_at
@@ -409,17 +413,23 @@ class DuelModule(BaseModule):
 
             with DBManager.create_session_scope() as db_session:
                 source = User.find_by_id(db_session, source_id)
-                challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+                if source is None:
+                    continue
 
-                if source is not None and challenged is not None:
-                    self.bot.whisper(
-                        source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
-                    )
+                target_id = self.duel_requests[source.id]
 
-                del self.duel_targets[self.duel_requests[source.id]]
+                del self.duel_targets[target_id]
                 del self.duel_requests[source.id]
                 del self.duel_request_price[source.id]
                 del self.duel_begin_time[source.id]
+
+                challenged = User.find_by_id(db_session, target_id)
+                if challenged is None:
+                    continue
+
+                self.bot.whisper(
+                    source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
+                )
 
     def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
