@@ -30,7 +30,7 @@ class KVIData:
 
         return value
 
-    def inc(self):
+    def inc(self) -> None:
         redis = RedisManager.get()
         old_value = self.get(redis=redis)
         self.set(old_value + 1, redis=redis)
