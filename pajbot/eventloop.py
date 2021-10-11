@@ -1,8 +1,8 @@
 import logging
+
 from irc.schedule import IScheduler
 from tempora import schedule
 from tempora.schedule import Scheduler
-
 
 log = logging.getLogger(__name__)
 
