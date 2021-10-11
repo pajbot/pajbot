@@ -40,7 +40,7 @@ class KVIData:
         old_value = self.get(redis=redis)
         self.set(old_value - 1, redis=redis)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.get())
 
 
