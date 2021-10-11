@@ -48,7 +48,7 @@ class BTTVAPI(BaseAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_id):
+    def fetch_channel_emotes(self, channel_id: str) -> List[Emote]:
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
         try:
             response = self.get(["cached", "users", "twitch", channel_id])
