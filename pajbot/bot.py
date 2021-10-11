@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, cast
 
 import cgi
 import datetime
@@ -639,8 +639,14 @@ class Bot:
             if not once:
                 self.execute_delayed(1, self._timeout, login, duration, reason)
 
-    def timeout_warn(self, user, duration: int, reason=None, once=False):
-        duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
+    def timeout_warn(
+        self, user: User, duration: int, reason: Optional[str] = None, once: bool = False
+    ) -> Tuple[int, str]:
+        from pajbot.modules import WarningModule
+
+        duration, punishment = user.timeout(
+            duration, warning_module=cast(Optional[WarningModule], self.module_manager["warning"])
+        )
         self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
