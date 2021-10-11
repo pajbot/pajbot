@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Type
+from typing import Dict, Tuple, Type
 
 from pajbot.managers.twitter import GenericTwitterManager, PBTwitterManager, TwitterManager
 
