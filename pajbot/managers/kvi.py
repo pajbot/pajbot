@@ -14,7 +14,7 @@ class KVIData:
         self.key = f"{streamer}:kvi"
         self.id = kvi_id
 
-    def set(self, new_value, redis=None):
+    def set(self, new_value: int, redis: Optional[RedisType] = None) -> None:
         if redis is None:
             redis = RedisManager.get()
 
