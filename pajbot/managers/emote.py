@@ -1,4 +1,6 @@
-from typing import Dict, List, Optional, Protocol, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, List, Optional, Protocol, Tuple
 
 import logging
 import random
@@ -8,6 +10,9 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
+
+if TYPE_CHECKING:
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 
 EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
 
@@ -102,7 +107,7 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_helix_api) -> None:
+    def __init__(self, twitch_helix_api: TwitchHelixAPI) -> None:
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
