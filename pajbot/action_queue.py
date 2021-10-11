@@ -1,6 +1,5 @@
-from concurrent.futures.thread import ThreadPoolExecutor
-
 import logging
+from concurrent.futures.thread import ThreadPoolExecutor
 
 log = logging.getLogger(__name__)
 
