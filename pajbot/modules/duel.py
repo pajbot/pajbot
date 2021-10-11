@@ -333,7 +333,7 @@ class DuelModule(BaseModule):
                 "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
             )
 
-    def decline_duel(self, bot, source, **options):
+    def decline_duel(self, bot: Bot, source: User, **options: Any) -> None:
         """
         Declines any active duel requests you've received.
 
@@ -342,10 +342,14 @@ class DuelModule(BaseModule):
 
         if source.id not in self.duel_targets:
             bot.whisper(source, "You are not being challenged to a duel")
-            return False
+            return
 
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
+
+            if not requestor:
+                bot.whisper(source, "Your challenge never existed, don't ask me what happened!")
+                return
 
             bot.whisper(source, f"You have declined the duel vs {requestor}")
             bot.whisper(requestor, f"{source} declined the duel challenge with you.")
