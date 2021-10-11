@@ -631,7 +631,7 @@ class Bot:
     def timeout(self, user: User, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         self.timeout_login(user.login, duration, reason, once)
 
-    def timeout_login(self, login: str, duration: int, reason=None, once=False):
+    def timeout_login(self, login: str, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
         else:
