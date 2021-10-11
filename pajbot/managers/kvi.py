@@ -49,5 +49,5 @@ class KVIManager(UserDict):
         self.streamer = StreamHelper.get_streamer()
         super().__init__(self)
 
-    def __getitem__(self, kvi_id):
+    def __getitem__(self, kvi_id: str) -> KVIData:
         return KVIData(self.streamer, kvi_id)
