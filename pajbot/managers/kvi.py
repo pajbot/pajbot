@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class KVIData:
-    def __init__(self, streamer, kvi_id):
+    def __init__(self, streamer: str, kvi_id: str) -> None:
         self.key = f"{streamer}:kvi"
         self.id = kvi_id
 
