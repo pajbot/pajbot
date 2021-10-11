@@ -35,5 +35,5 @@ class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
     def execute_at(self, when: Union[numbers.Real, datetime.datetime], func: Callable[..., Any]) -> None:
         self.add(schedule.DelayedCommand.at_time(when, func))
 
-    def execute_after(self, delay, func) -> None:
+    def execute_after(self, delay: Union[float, datetime.timedelta], func: Callable[..., Any]) -> None:
         self.add(schedule.DelayedCommand.after(delay, func))
