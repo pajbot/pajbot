@@ -295,7 +295,7 @@ class Bot:
         """Start the IRC client."""
         self.reactor.process_forever()
 
-    def get_kvi_value(self, key, extra={}):
+    def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
 
     def get_last_tweet(self, key, extra={}) -> str:
