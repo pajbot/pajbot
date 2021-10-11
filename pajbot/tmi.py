@@ -24,7 +24,7 @@ class TMIRateLimits:
     KNOWN: TMIRateLimits
     VERIFIED: TMIRateLimits
 
-    def __init__(self, privmsg_per_30, whispers_per_second, whispers_per_minute):
+    def __init__(self, privmsg_per_30: int, whispers_per_second: int, whispers_per_minute: int) -> None:
         self.privmsg_per_30 = privmsg_per_30
         self.whispers_per_second = whispers_per_second
         self.whispers_per_minute = whispers_per_minute
