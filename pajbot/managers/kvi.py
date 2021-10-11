@@ -1,10 +1,15 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
 
 import logging
 from collections import UserDict
 
-from pajbot.managers.redis import RedisManager, RedisType
+from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
+
+if TYPE_CHECKING:
+    from pajbot.managers.redis import RedisType
 
 log = logging.getLogger(__name__)
 
