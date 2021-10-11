@@ -5,10 +5,12 @@ import logging
 import os
 import sys
 
+import pajbot.config as cfg
+
 log = logging.getLogger(__name__)
 
 
-def config_to_dict(config: configparser.ConfigParser) -> Dict[str, Dict[str, Any]]:
+def config_to_dict(config: configparser.ConfigParser) -> cfg.Config:
     r: Dict[str, Any] = {}
 
     for section in config.sections():
@@ -19,7 +21,7 @@ def config_to_dict(config: configparser.ConfigParser) -> Dict[str, Dict[str, Any
     return r
 
 
-def load_config(path: str) -> Dict[str, Any]:
+def load_config(path: str) -> cfg.Config:
     config = configparser.ConfigParser()
     config.read_dict({"web": {"deck_tab_images": "1"}})
 
