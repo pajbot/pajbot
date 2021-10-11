@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 # This implementation is functionally identical to using the ThreadPoolExecutor directly,
 # but it adds the callback, to log uncaught exceptions.
 class ActionQueue:
-    def __init__(self):
+    def __init__(self) -> None:
         self.thread_pool_executor = ThreadPoolExecutor()
 
     def submit(self, function, *args, **kwargs):
