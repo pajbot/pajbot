@@ -24,16 +24,7 @@ def load_twitter_manager(config: Config) -> Type[GenericTwitterManager]:
     return TwitterManager
 
 
-def get_boolean(o: Dict[str, Any], key: str, default_value: bool) -> bool:
+def get_boolean(o: ConfigSection, key: str, default_value: bool) -> bool:
     v = o.get(key, default_value)
 
-    if isinstance(v, str):
-        return v == "1"
-
-    if isinstance(v, int):
-        return v == 1
-
-    if isinstance(v, bool):
-        return v
-
-    raise Exception(f"Invalid type read for get_boolean, got {type(v)}, expected str, int, or bool")
+    return v == "1"
