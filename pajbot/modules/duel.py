@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import datetime
 import logging
@@ -96,7 +96,7 @@ class DuelModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, **options: Any) -> None:
         self.commands["duel"] = Command.raw_command(
             self.initiate_duel,
             delay_all=self.settings["online_global_cd"],
