@@ -28,7 +28,7 @@ class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
     def execute_every(self, period, func) -> None:
         self.add(schedule.PeriodicCommand.after(period, func))
 
-    def execute_at(self, when, func):
+    def execute_at(self, when, func) -> None:
         self.add(schedule.DelayedCommand.at_time(when, func))
 
     def execute_after(self, delay, func):
