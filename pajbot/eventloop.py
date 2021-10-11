@@ -31,5 +31,5 @@ class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
     def execute_at(self, when, func) -> None:
         self.add(schedule.DelayedCommand.at_time(when, func))
 
-    def execute_after(self, delay, func):
+    def execute_after(self, delay, func) -> None:
         self.add(schedule.DelayedCommand.after(delay, func))
