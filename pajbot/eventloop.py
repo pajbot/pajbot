@@ -25,7 +25,7 @@ class SafeInvokeScheduler(Scheduler):
 # same as DefaultScheduler from the original implementation,
 # but extends SafeInvokeScheduler instead
 class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
-    def execute_every(self, period, func):
+    def execute_every(self, period, func) -> None:
         self.add(schedule.PeriodicCommand.after(period, func))
 
     def execute_at(self, when, func):
