@@ -17,7 +17,7 @@ def load_streamer_and_channel(config: Config) -> Tuple[str, str]:
     raise KeyError("Missing streamer key from config")
 
 
-def load_twitter_manager(config) -> Type[GenericTwitterManager]:
+def load_twitter_manager(config: Config) -> Type[GenericTwitterManager]:
     if "twitter" in config and config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
         return PBTwitterManager
 
