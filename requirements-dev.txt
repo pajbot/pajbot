@@ -17,3 +17,4 @@ types-retry==0.9.1
 # sqlalchemy2-stubs==0.0.2a15
 sqlalchemy-stubs==0.4
 types-psycopg2==2.9.1
+types-colorama==0.4.3
