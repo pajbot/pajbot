@@ -224,7 +224,7 @@ class EmoteManager:
         return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
 
     @staticmethod
-    def parse_twitch_emotes_tag(tag, message) -> List[EmoteInstance]:
+    def parse_twitch_emotes_tag(tag: str, message: str) -> List[EmoteInstance]:
         if len(tag) <= 0:
             return []
 
