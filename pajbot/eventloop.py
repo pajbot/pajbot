@@ -1,3 +1,6 @@
+from typing import Any, Callable, Union
+
+import datetime
 import logging
 
 from irc.schedule import IScheduler
@@ -25,7 +28,7 @@ class SafeInvokeScheduler(Scheduler):
 # same as DefaultScheduler from the original implementation,
 # but extends SafeInvokeScheduler instead
 class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
-    def execute_every(self, period, func) -> None:
+    def execute_every(self, period: Union[float, datetime.timedelta], func: Callable[..., Any]) -> None:
         self.add(schedule.PeriodicCommand.after(period, func))
 
     def execute_at(self, when, func) -> None:
