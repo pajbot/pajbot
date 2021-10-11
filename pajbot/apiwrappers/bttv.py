@@ -60,7 +60,7 @@ class BTTVAPI(BaseAPI):
             raise e
         return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(response["sharedEmotes"])
 
-    def get_channel_emotes(self, channel_id, force_fetch=False):
+    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> List[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:bttv:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id),
