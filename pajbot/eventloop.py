@@ -17,7 +17,7 @@ class SafeInvokeScheduler(Scheduler):
     Command targets are functions to be invoked on schedule.
     """
 
-    def run(self, command) -> None:
+    def run(self, command: schedule.DelayedCommand) -> None:
         try:
             command.target()
         except Exception:
