@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import datetime
 import logging
@@ -359,7 +359,7 @@ class DuelModule(BaseModule):
             del self.duel_request_price[requestor.id]
             del self.duel_begin_time[requestor.id]
 
-    def status_duel(self, bot, source, **rest):
+    def status_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Whispers you the current status of your active duel requests/duel targets
 
@@ -367,16 +367,18 @@ class DuelModule(BaseModule):
         """
 
         with DBManager.create_session_scope() as db_session:
-            msg = []
+            msg: List[str] = []
             if source.id in self.duel_requests:
                 duelling = User.find_by_id(db_session, self.duel_requests[source.id])
-                msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
+                if duelling:
+                    msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
 
             if source.id in self.duel_targets:
                 challenger = User.find_by_id(db_session, self.duel_targets[source.id])
-                msg.append(
-                    f"You have a pending duel request from {challenger} for {self.duel_request_price[self.duel_targets[source.id]]} points"
-                )
+                if challenger:
+                    msg.append(
+                        f"You have a pending duel request from {challenger} for {self.duel_request_price[self.duel_targets[source.id]]} points"
+                    )
 
             if len(msg) > 0:
                 bot.whisper(source, ". ".join(msg))
