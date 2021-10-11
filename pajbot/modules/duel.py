@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
+import datetime
 import logging
 import random
 from datetime import timedelta
@@ -9,7 +10,7 @@ from datetime import timedelta
 from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
@@ -133,14 +134,21 @@ class DuelModule(BaseModule):
             self.get_duel_stats, delay_all=0, delay_user=120, description="Get your duel statistics"
         )
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.duel_requests = {}
-        self.duel_request_price = {}
-        self.duel_targets = {}
-        self.duel_begin_time = {}
+        # key=dueler_id, value=victim_id
+        self.duel_requests: Dict[str, str] = {}
 
-        self.gc_job = None
+        # key=dueler_id, value=point_amount
+        self.duel_request_price: Dict[str, int] = {}
+
+        # key=victim_id, value=dueler_id
+        self.duel_targets: Dict[str, str] = {}
+
+        # key=dueler_id, value=datetime object of when duel was requested
+        self.duel_begin_time: Dict[str, datetime.datetime] = {}
+
+        self.gc_job: Optional[ScheduledJob] = None
 
     def initiate_duel(self, bot, source, message, **rest):
         """
