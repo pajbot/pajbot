@@ -404,9 +404,10 @@ class DuelModule(BaseModule):
         # We can't use bot.execute_every directly since we can't later cancel jobs created through bot.execute_every
         self.gc_job = ScheduleManager.execute_every(30, lambda: bot.execute_now(self._cancel_expired_duels))
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
-        self.gc_job.remove()
-        self.gc_job = None
+        if self.gc_job:
+            self.gc_job.remove()
+            self.gc_job = None
