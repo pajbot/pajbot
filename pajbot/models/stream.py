@@ -58,8 +58,7 @@ class Stream(Base):
         StreamChunk, uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"
     )
 
-    def __init__(self, created_at, **options):
-        self.id = None
+    def __init__(self, created_at: str, **options: Any) -> None:
         self.title = options.get("title", "NO TITLE")
         self.stream_start = BaseAPI.parse_datetime(created_at)
         self.stream_end = None
