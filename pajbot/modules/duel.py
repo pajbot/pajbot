@@ -259,7 +259,7 @@ class DuelModule(BaseModule):
             del self.duel_begin_time[source.id]
             del self.duel_requests[source.id]
 
-    def accept_duel(self, bot, source, **rest):
+    def accept_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Accepts any active duel requests you've received.
 
@@ -272,6 +272,10 @@ class DuelModule(BaseModule):
 
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
+            if not requestor:
+                bot.whisper(source, "The user who challenged you is gone, I don't know where they went!")
+                return
+
             duel_price = self.duel_request_price[self.duel_targets[source.id]]
 
             if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
@@ -289,7 +293,7 @@ class DuelModule(BaseModule):
                 del self.duel_begin_time[requestor.id]
                 del self.duel_targets[source.id]
 
-                return False
+                return
 
             source.points -= duel_price
             requestor.points -= duel_price
