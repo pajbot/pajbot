@@ -34,7 +34,7 @@ class BTTVAPI(BaseAPI):
             )
         return emotes
 
-    def fetch_global_emotes(self):
+    def fetch_global_emotes(self) -> List[Emote]:
         """Returns a list of global BTTV emotes in the standard Emote format."""
         response = self.get("/cached/emotes/global")
         return self.parse_emotes(response)
