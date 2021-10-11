@@ -6,7 +6,7 @@ ConfigSection = Dict[str, str]
 Config = Dict[str, ConfigSection]
 
 
-def load_streamer_and_channel(config) -> Tuple[str, str]:
+def load_streamer_and_channel(config: Config) -> Tuple[str, str]:
     if "streamer" in config["main"]:
         streamer = config["main"]["streamer"]
         return streamer, f"#{streamer}"
