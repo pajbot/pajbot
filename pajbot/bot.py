@@ -1,4 +1,6 @@
-from typing import Any, Callable, Dict, List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 import cgi
 import datetime
@@ -52,6 +54,9 @@ import irc.client
 import requests
 from pytz import timezone
 
+if TYPE_CHECKING:
+    import argparse
+
 log = logging.getLogger(__name__)
 
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
@@ -62,7 +67,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def __init__(self, config, args) -> None:
+    def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
         self.args = args
         self.config = config
 
@@ -71,9 +76,7 @@ class Bot:
         DBManager.init(config["main"]["db"])
 
         # redis
-        redis_options = {}
-        if "redis" in config:
-            redis_options = dict(config.items("redis"))
+        redis_options = config.get("redis", {})
         RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
