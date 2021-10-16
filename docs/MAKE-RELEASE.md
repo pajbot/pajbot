@@ -17,4 +17,7 @@ Replace `v1.23` with the new version in the commands/examples below.
 - Make a release in the GitHub interface: https://github.com/pajbot/pajbot/releases/new
   - Tag version should be `v1.23`
   - Release title should be `v1.23`
-  - Copy and paste this version's raw changelog entries into the description of the release.
+  - Use the "Auto-generate release notes" button
+  - Copy and paste this version's raw changelog entries at the top of the description.
+  - Rename the header "What's Changed" to "What's Changed (Commit list)"
+  - Remove the bottom-most commit list entry (your PR that made the release)
