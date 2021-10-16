@@ -29,7 +29,7 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: List[Web
     from flask import Markup
 
     for c in command_list:
-        if c.id == i_command.id:
+        if c._command == i_command:
             return
 
     command = WebCommand(alias, i_command)
