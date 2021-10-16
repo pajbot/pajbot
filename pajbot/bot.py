@@ -738,6 +738,10 @@ class Bot:
         if not self.is_bad_message(message):
             self.say(message, channel)
 
+    def safe_send_message_to_user(self, user: User, message: str, event, method="say") -> None:
+        if not self.is_bad_message(message):
+            self.send_message_to_user(user, message, event, method)
+
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
