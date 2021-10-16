@@ -41,7 +41,7 @@ class ClientProtocol(WebSocketClientProtocol):
 
         msg = {"type": "set_subscriptions", "data": user_ids}
 
-        r = self.sendMessage(json.dumps(msg).encode("utf8"))
+        self.sendMessage(json.dumps(msg).encode("utf8"))
 
     def onMessage(self, payload: str, isBinary: bool) -> None:
         if isBinary:
