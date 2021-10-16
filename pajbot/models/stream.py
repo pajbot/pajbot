@@ -1,23 +1,19 @@
-import logging
-
 from typing import Any, Dict, List, Optional, Union
 
-from sqlalchemy import BOOLEAN, INT, TEXT
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy_utc import UtcDateTime
+import logging
 
 from pajbot import utils
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
-from pajbot.apiwrappers.twitch.helix import TwitchVideo, TwitchGame
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
+from pajbot.apiwrappers.twitch.helix import TwitchGame, TwitchVideo
+from pajbot.managers.db import Base, DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.user import UserChannelInformation, UserStream
 
-from pajbot.models.user import UserStream, UserChannelInformation
+from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy_utc import UtcDateTime
 
 log = logging.getLogger("pajbot")
 
