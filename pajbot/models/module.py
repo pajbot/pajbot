@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import json
 import logging
@@ -26,7 +26,7 @@ class Module(Base):
     enabled = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
     settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
 
-    def __init__(self, module_id, **options) -> None:
+    def __init__(self, module_id: str, **options: Any) -> None:
         self.id = module_id
         self.enabled = options.get("enabled", False)
         self.settings = None
@@ -60,7 +60,7 @@ class ModuleManager:
             if module:
                 module.load()
 
-    def enable_module(self, module_id) -> bool:
+    def enable_module(self, module_id: str) -> bool:
         module = self.get_module(module_id)
         if module is None:
             log.error(f"No module with the ID {module_id} found.")
@@ -78,7 +78,7 @@ class ModuleManager:
 
         return True
 
-    def disable_module(self, module_id) -> bool:
+    def disable_module(self, module_id: str) -> bool:
         module = self.get_module(module_id)
         if not module:
             log.error(f"No module with the ID {module_id} found.")
@@ -94,7 +94,7 @@ class ModuleManager:
 
         return True
 
-    def load(self, do_reload=True):
+    def load(self, do_reload: bool = True) -> ModuleManager:
         """Load module classes"""
 
         from pajbot.modules import available_modules
@@ -105,7 +105,7 @@ class ModuleManager:
             # Make sure there's a row in the DB for each module that's available
             db_modules = db_session.query(Module).all()
             for module in self.all_modules:
-                mod = find(lambda db_module, registered_module=module: db_module.id == registered_module.ID, db_modules)
+                mod = find(lambda db_module: db_module.id == module.ID, db_modules)
                 if mod is None:
                     log.info(f"Creating row in DB for module {module.ID}")
                     mod = Module(module.ID, enabled=module.ENABLED_DEFAULT)
@@ -174,19 +174,21 @@ class ModuleManager:
         for module in self.modules:
             module.on_loaded()
 
-    def __getitem__(self, module):
+    def __getitem__(self, module_id: str) -> Optional[BaseModule]:
         for enabled_module in self.modules:
-            if enabled_module.ID == module:
+            if enabled_module.ID == module_id:
                 return enabled_module
+
         return None
 
-    def __contains__(self, module) -> bool:
+    def __contains__(self, module_id: str) -> bool:
         """We override the contains operator for the ModuleManager.
         This allows us to use the following syntax to check if a module is enabled:
         if 'duel' in module_manager:
         """
 
         for enabled_module in self.modules:
-            if enabled_module.ID == module:
+            if enabled_module.ID == module_id:
                 return True
+
         return False
