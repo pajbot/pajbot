@@ -1,4 +1,6 @@
-from typing import Dict, List, Optional, Protocol, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, List, Optional, Protocol, Tuple
 
 import logging
 import random
@@ -8,6 +10,9 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
+
+if TYPE_CHECKING:
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 
 EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
 
@@ -102,7 +107,7 @@ class GenericChannelEmoteManager:
 class TwitchEmoteManager(GenericChannelEmoteManager):
     friendly_name = "Twitch"
 
-    def __init__(self, twitch_helix_api) -> None:
+    def __init__(self, twitch_helix_api: TwitchHelixAPI) -> None:
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
@@ -224,7 +229,7 @@ class EmoteManager:
         return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
 
     @staticmethod
-    def parse_twitch_emotes_tag(tag, message) -> List[EmoteInstance]:
+    def parse_twitch_emotes_tag(tag: str, message: str) -> List[EmoteInstance]:
         if len(tag) <= 0:
             return []
 
@@ -270,7 +275,9 @@ class EmoteManager:
 
         return None
 
-    def parse_all_emotes(self, message: str, twitch_emotes_tag="") -> Tuple[List[EmoteInstance], EmoteInstanceCountMap]:
+    def parse_all_emotes(
+        self, message: str, twitch_emotes_tag: str = ""
+    ) -> Tuple[List[EmoteInstance], EmoteInstanceCountMap]:
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
