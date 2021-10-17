@@ -1,4 +1,4 @@
-from typing import Any
+from __future__ import annotations
 
 from enum import Enum
 
@@ -10,7 +10,7 @@ class WhisperOutputMode(Enum):
     CONTROL_HUB = 3
 
     @staticmethod
-    def from_config_value(config_value):
+    def from_config_value(config_value: str) -> WhisperOutputMode:
         try:
             return WhisperOutputMode[config_value.upper()]
         except KeyError:
@@ -20,11 +20,11 @@ class WhisperOutputMode(Enum):
 
 
 class TMIRateLimits:
-    BASE: Any
-    KNOWN: Any
-    VERIFIED: Any
+    BASE: TMIRateLimits
+    KNOWN: TMIRateLimits
+    VERIFIED: TMIRateLimits
 
-    def __init__(self, privmsg_per_30, whispers_per_second, whispers_per_minute):
+    def __init__(self, privmsg_per_30: int, whispers_per_second: int, whispers_per_minute: int) -> None:
         self.privmsg_per_30 = privmsg_per_30
         self.whispers_per_second = whispers_per_second
         self.whispers_per_minute = whispers_per_minute
