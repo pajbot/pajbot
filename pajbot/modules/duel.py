@@ -1,18 +1,22 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+import datetime
 import logging
-
-from datetime import timedelta
-
 import random
+from datetime import timedelta
 
 from pajbot import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
+from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +96,7 @@ class DuelModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, **options: Any) -> None:
         self.commands["duel"] = Command.raw_command(
             self.initiate_duel,
             delay_all=self.settings["online_global_cd"],
@@ -130,16 +134,23 @@ class DuelModule(BaseModule):
             self.get_duel_stats, delay_all=0, delay_user=120, description="Get your duel statistics"
         )
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.duel_requests = {}
-        self.duel_request_price = {}
-        self.duel_targets = {}
-        self.duel_begin_time = {}
+        # key=dueler_id, value=victim_id
+        self.duel_requests: Dict[str, str] = {}
 
-        self.gc_job = None
+        # key=dueler_id, value=point_amount
+        self.duel_request_price: Dict[str, int] = {}
 
-    def initiate_duel(self, bot, source, message, **rest):
+        # key=victim_id, value=dueler_id
+        self.duel_targets: Dict[str, str] = {}
+
+        # key=dueler_id, value=datetime object of when duel was requested
+        self.duel_begin_time: Dict[str, datetime.datetime] = {}
+
+        self.gc_job: Optional[ScheduledJob] = None
+
+    def initiate_duel(self, bot: Bot, source: User, message: str, **rest: Any) -> bool:
         """
         Initiate a duel with a user.
         You can also bet points on the winner.
@@ -222,7 +233,9 @@ class DuelModule(BaseModule):
             )
             bot.whisper(source, f"You have challenged {user} for {duel_price} points")
 
-    def cancel_duel(self, bot, source, **rest):
+        return True
+
+    def cancel_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Cancel any duel requests you've sent.
 
@@ -235,6 +248,10 @@ class DuelModule(BaseModule):
 
         with DBManager.create_session_scope() as db_session:
             challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+            if not challenged:
+                bot.whisper(source, "Could not find the user you challenged??")
+                return
+
             bot.whisper(source, f"You have cancelled the duel vs {challenged}")
 
             del self.duel_targets[challenged.id]
@@ -242,7 +259,7 @@ class DuelModule(BaseModule):
             del self.duel_begin_time[source.id]
             del self.duel_requests[source.id]
 
-    def accept_duel(self, bot, source, **rest):
+    def accept_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Accepts any active duel requests you've received.
 
@@ -255,6 +272,10 @@ class DuelModule(BaseModule):
 
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
+            if not requestor:
+                bot.whisper(source, "The user who challenged you is gone, I don't know where they went!")
+                return
+
             duel_price = self.duel_request_price[self.duel_targets[source.id]]
 
             if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
@@ -272,7 +293,7 @@ class DuelModule(BaseModule):
                 del self.duel_begin_time[requestor.id]
                 del self.duel_targets[source.id]
 
-                return False
+                return
 
             source.points -= duel_price
             requestor.points -= duel_price
@@ -312,7 +333,7 @@ class DuelModule(BaseModule):
                 "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
             )
 
-    def decline_duel(self, bot, source, **options):
+    def decline_duel(self, bot: Bot, source: User, **options: Any) -> None:
         """
         Declines any active duel requests you've received.
 
@@ -321,10 +342,14 @@ class DuelModule(BaseModule):
 
         if source.id not in self.duel_targets:
             bot.whisper(source, "You are not being challenged to a duel")
-            return False
+            return
 
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
+
+            if not requestor:
+                bot.whisper(source, "Your challenge never existed, don't ask me what happened!")
+                return
 
             bot.whisper(source, f"You have declined the duel vs {requestor}")
             bot.whisper(requestor, f"{source} declined the duel challenge with you.")
@@ -334,7 +359,7 @@ class DuelModule(BaseModule):
             del self.duel_request_price[requestor.id]
             del self.duel_begin_time[requestor.id]
 
-    def status_duel(self, bot, source, **rest):
+    def status_duel(self, bot: Bot, source: User, **rest: Any) -> None:
         """
         Whispers you the current status of your active duel requests/duel targets
 
@@ -342,16 +367,18 @@ class DuelModule(BaseModule):
         """
 
         with DBManager.create_session_scope() as db_session:
-            msg = []
+            msg: List[str] = []
             if source.id in self.duel_requests:
                 duelling = User.find_by_id(db_session, self.duel_requests[source.id])
-                msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
+                if duelling:
+                    msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
 
             if source.id in self.duel_targets:
                 challenger = User.find_by_id(db_session, self.duel_targets[source.id])
-                msg.append(
-                    f"You have a pending duel request from {challenger} for {self.duel_request_price[self.duel_targets[source.id]]} points"
-                )
+                if challenger:
+                    msg.append(
+                        f"You have a pending duel request from {challenger} for {self.duel_request_price[self.duel_targets[source.id]]} points"
+                    )
 
             if len(msg) > 0:
                 bot.whisper(source, ". ".join(msg))
@@ -359,7 +386,7 @@ class DuelModule(BaseModule):
                 bot.whisper(source, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!")
 
     @staticmethod
-    def get_duel_stats(bot, source, **rest):
+    def get_duel_stats(bot: Bot, source: User, **rest: Any) -> None:
         """
         Whispers the users duel winratio to the user
         """
@@ -372,7 +399,11 @@ class DuelModule(BaseModule):
             f"duels: {source.duel_stats.duels_total} winrate: {source.duel_stats.winrate:.2f}% streak: {source.duel_stats.current_streak} profit: {source.duel_stats.profit}",
         )
 
-    def _cancel_expired_duels(self):
+    def _cancel_expired_duels(self) -> None:
+        if self.bot is None:
+            log.warn("_cancel_expired_duels of DuelModule failed because bot is None")
+            return
+
         now = utils.now()
         for source_id, started_at in self.duel_begin_time.items():
             duel_age = now - started_at
@@ -382,28 +413,35 @@ class DuelModule(BaseModule):
 
             with DBManager.create_session_scope() as db_session:
                 source = User.find_by_id(db_session, source_id)
-                challenged = User.find_by_id(db_session, self.duel_requests[source.id])
+                if source is None:
+                    continue
 
-                if source is not None and challenged is not None:
-                    self.bot.whisper(
-                        source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
-                    )
+                target_id = self.duel_requests[source.id]
 
-                del self.duel_targets[self.duel_requests[source.id]]
+                del self.duel_targets[target_id]
                 del self.duel_requests[source.id]
                 del self.duel_request_price[source.id]
                 del self.duel_begin_time[source.id]
 
-    def enable(self, bot):
+                challenged = User.find_by_id(db_session, target_id)
+                if challenged is None:
+                    continue
+
+                self.bot.whisper(
+                    source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
+                )
+
+    def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
         # We can't use bot.execute_every directly since we can't later cancel jobs created through bot.execute_every
-        self.gc_job = ScheduleManager.execute_every(30, lambda: self.bot.execute_now(self._cancel_expired_duels))
+        self.gc_job = ScheduleManager.execute_every(30, lambda: bot.execute_now(self._cancel_expired_duels))
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
-        self.gc_job.remove()
-        self.gc_job = None
+        if self.gc_job:
+            self.gc_job.remove()
+            self.gc_job = None
