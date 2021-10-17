@@ -679,14 +679,16 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
 
-    def send_message_to_user(self, user: User, message: str, event, method: str = "say", safe: bool = False) -> None:
+    def send_message_to_user(
+        self, user: User, message: str, event, method: str = "say", check_msg: bool = False
+    ) -> None:
         """
 
         Keyword arguments:
-        safe -- indicates whether the message should be run through the is_bad_message check before being sent (default False)
+        check_msg -- indicates whether the message should be run through the is_bad_message check before being sent (default False)
         """
 
-        if safe and not self.is_bad_message(message):
+        if check_msg and not self.is_bad_message(message):
             # Safety check was enabled and the message turned out to be bad
             return
 
