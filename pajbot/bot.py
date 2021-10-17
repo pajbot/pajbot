@@ -1,4 +1,6 @@
-from typing import Any, Callable, Dict, List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, cast
 
 import cgi
 import datetime
@@ -52,6 +54,9 @@ import irc.client
 import requests
 from pytz import timezone
 
+if TYPE_CHECKING:
+    import argparse
+
 log = logging.getLogger(__name__)
 
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
@@ -62,7 +67,7 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def __init__(self, config, args) -> None:
+    def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
         self.args = args
         self.config = config
 
@@ -71,9 +76,7 @@ class Bot:
         DBManager.init(config["main"]["db"])
 
         # redis
-        redis_options = {}
-        if "redis" in config:
-            redis_options = dict(config.items("redis"))
+        redis_options = config.get("redis", {})
         RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
@@ -285,14 +288,14 @@ class Bot:
         self.subs_only = False
 
     @property
-    def password(self):
+    def password(self) -> str:
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def start(self) -> None:
         """Start the IRC client."""
         self.reactor.process_forever()
 
-    def get_kvi_value(self, key, extra={}):
+    def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
 
     def get_last_tweet(self, key, extra={}) -> str:
@@ -628,7 +631,7 @@ class Bot:
     def timeout(self, user: User, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         self.timeout_login(user.login, duration, reason, once)
 
-    def timeout_login(self, login: str, duration: int, reason=None, once=False):
+    def timeout_login(self, login: str, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
         else:
@@ -636,12 +639,18 @@ class Bot:
             if not once:
                 self.execute_delayed(1, self._timeout, login, duration, reason)
 
-    def timeout_warn(self, user, duration: int, reason=None, once=False):
-        duration, punishment = user.timeout(duration, warning_module=self.module_manager["warning"])
+    def timeout_warn(
+        self, user: User, duration: int, reason: Optional[str] = None, once: bool = False
+    ) -> Tuple[int, str]:
+        from pajbot.modules import WarningModule
+
+        duration, punishment = user.timeout(
+            duration, warning_module=cast(Optional[WarningModule], self.module_manager["warning"])
+        )
         self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
-    def delete_message(self, msg_id):
+    def delete_message(self, msg_id: str) -> None:
         self.privmsg(f"/delete {msg_id}")
 
     def whisper(self, user: User, message: str) -> None:
@@ -1051,7 +1060,7 @@ class Bot:
     def _filter_or_broadcaster(self, var: Any, args: List[str]) -> Any:
         return _filter_or_else(var, [self.streamer])
 
-    def find_unique_urls(self, message):
+    def find_unique_urls(self, message: str) -> Set[str]:
         from pajbot.modules.linkchecker import find_unique_urls
 
         return find_unique_urls(message)
