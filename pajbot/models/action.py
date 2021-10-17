@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 import cgi
 import collections
@@ -327,7 +327,7 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
         except:
             log.exception("BabyRage")
 
-    method_mapping = {}
+    method_mapping: Dict[str, Callable[..., Any]] = {}
     try:
         method_mapping["kvi"] = bot.get_kvi_value
         method_mapping["tb"] = bot.get_value
