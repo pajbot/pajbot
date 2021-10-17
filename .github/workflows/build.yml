@@ -2,7 +2,10 @@
 name: Python 4HEad
 
 on:
-  [push, pull_request]
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   test:
