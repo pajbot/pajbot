@@ -418,7 +418,7 @@ class User(Base):
         )
 
     @staticmethod
-    def find_by_id(db_session: Session, id: int) -> Optional[User]:
+    def find_by_id(db_session: Session, id: str) -> Optional[User]:
         return db_session.query(User).filter_by(id=id).one_or_none()
 
 
