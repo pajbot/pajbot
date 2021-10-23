@@ -164,12 +164,12 @@ class QueUpModule(BaseModule):
         self.is_first_automatic_fetch = True
         self.last_seen_song_id = None
 
-    def cmd_link(self, bot, **rest):
-        bot.say(self.get_phrase("phrase_room_link", room_name=self.settings["room_name"]))
+    def cmd_link(self, source, event, **rest):
+        self.bot.send_message_to_user(source, self.settings["phrase_room_link"].format(room_name=self.settings["room_name"]), event, method="reply")
 
-    def cmd_song(self, **rest):
+    def cmd_song(self, source, event, **rest):
         def on_success(song_info):
-            if song_info is not None:
+            if not song_info:
                 response = self.get_phrase(
                     "phrase_current_song",
                     song_name=song_info.song_name,
@@ -179,15 +179,15 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_current_song")
 
-            self.bot.say(response)
+            self.bot.send_message_to_user(source, response, event, method="reply")
 
         def on_error(e):
             log.exception("QueUp API fetch for current song failed", exc_info=e)
-            self.bot.say("There was an error fetching the current QueUp song :/")
+            bot.send_message_to_user(source, "There was an error fetching the current QueUp song :/", event, method="reply")
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
-    def cmd_previous_song(self, **rest):
+    def cmd_previous_song(self, source, event, **rest):
         def on_success(song_info):
             if song_info is not None:
                 response = self.get_phrase(
@@ -199,11 +199,11 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_previous_song")
 
-            self.bot.say(response)
+            self.bot.send_message_to_user(source, response, event, method="reply")
 
         def on_error(e):
             log.exception("QueUp API fetch for previous song failed", exc_info=e)
-            self.bot.say("There was an error fetching the previous QueUp song :/")
+            self.bot.send_message_to_user(source, "There was an error fetching the previous QueUp song :/", event, method="reply")
 
         self.api_request_and_callback(self.get_previous_song, on_success, on_error)
 
