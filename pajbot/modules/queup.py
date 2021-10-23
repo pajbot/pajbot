@@ -183,7 +183,7 @@ class QueUpModule(BaseModule):
 
         def on_error(e):
             log.exception("QueUp API fetch for current song failed", exc_info=e)
-            bot.send_message_to_user(source, "There was an error fetching the current QueUp song :/", event, method="reply")
+            self.bot.send_message_to_user(source, "There was an error fetching the current QueUp song :/", event, method="reply")
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
