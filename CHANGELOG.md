@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Readd QueUp module. (#1570)
 - Bugfix: Fix non-tweet-manager streaming.
 
 ## v1.57
