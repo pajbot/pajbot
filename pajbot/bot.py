@@ -716,7 +716,7 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def send_message(self, message: str, event, method: str = "say", check_msg: bool = False) -> None:
+    def send_message(self, message: str, method: str = "say", check_msg: bool = False) -> None:
         """
         Keyword arguments:
         check_msg -- indicates whether the message should be run through the is_bad_message check before being sent (default False)
