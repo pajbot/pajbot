@@ -716,6 +716,23 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
+    def send_message(self, message: str, method: str = "say", check_msg: bool = False) -> None:
+        """
+        Keyword arguments:
+        check_msg -- indicates whether the message should be run through the is_bad_message check before being sent (default False)
+        """
+
+        if check_msg and not self.is_bad_message(message):
+            # Safety check was enabled and the message turned out to be bad
+            return
+
+        if method == "say":
+            self.say(message)
+        elif method == "me":
+            self.me(message)
+        else:
+            log.warning("Unknown send_message method: %s", method)
+
     def reply(self, msg_id: str, message: str, channel: Optional[str] = None) -> None:
         if self.silent:
             return
