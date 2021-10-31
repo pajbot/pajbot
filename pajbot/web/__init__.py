@@ -81,8 +81,13 @@ def init(args):
         with open(args.config, "w") as configfile:
             config.write(configfile)
 
-    streamer = config["main"]["streamer"]
     streamer_display = config["web"]["streamer_name"]
+
+    if not config["main"]["streamer"]:
+        streamer = streamer_display.lower()
+    else:
+        streamer = config["main"]["streamer"]
+
     streamer_user_id = twitch_helix_api.get_user_id(streamer)
     if streamer_user_id is None:
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
