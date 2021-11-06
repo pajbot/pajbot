@@ -37,7 +37,19 @@ class ClientProtocol(WebSocketClientProtocol):
             )
             return
 
-        user_ids = [self.manager.tweepy.get_user(screen_name=e).id for e in self.manager.relevant_users]
+        user_ids: List[int] = []
+
+        for screen_name in self.manager.relevant_users:
+            try:
+                user_id = self.manager.tweepy.get_user(screen_name=screen_name).id
+            except tweepy.errors.NotFound:
+                log.warn(f"Twitter user {screen_name} does not exist")
+                continue
+            except:
+                log.exception("Unhandled exception from tweepy.get_user (v1)")
+                continue
+
+            user_ids.append(user_id)
 
         msg = {"type": "set_subscriptions", "data": user_ids}
 
@@ -264,9 +276,16 @@ class TwitterManager(GenericTwitterManager):
         user_ids = []
         with DBManager.create_session_scope() as db_session:
             for user in db_session.query(TwitterUser):
-                twitter_user: tweepy.User = self.twitter_client.get_user(screen_name=user.username)
-                if twitter_user:
-                    user_ids.append(twitter_user.id_str)
+                try:
+                    twitter_user: tweepy.User = self.twitter_client.get_user(screen_name=user.username)
+                except tweepy.errors.NotFound:
+                    log.warn(f"Twitter user {user.username} does not exist")
+                    continue
+                except:
+                    log.exception("Unhandled exception from tweepy.get_user (v1)")
+                    continue
+
+                user_ids.append(twitter_user.id_str)
 
         if not user_ids:
             return
@@ -342,7 +361,15 @@ class PBTwitterManager(GenericTwitterManager):
 
         ret = super().follow_user(username)
         if ret is True:
-            user = self.twitter_client.get_user(screen_name=username)
+            try:
+                user = self.twitter_client.get_user(screen_name=username)
+            except tweepy.errors.NotFound:
+                log.warn(f"Twitter user {username} does not exist")
+                return False
+            except:
+                log.exception("Unhandled exception from tweepy.get_user (v1)")
+                return False
+
             msg = {"type": "insert_subscriptions", "data": [user.id]}
             ws_client.sendMessage(json.dumps(msg).encode("utf8"))
 
@@ -361,7 +388,15 @@ class PBTwitterManager(GenericTwitterManager):
 
         ret = super().unfollow_user(username)
         if ret is True:
-            user = self.twitter_client.get_user(screen_name=username)
+            try:
+                user = self.twitter_client.get_user(screen_name=username)
+            except tweepy.errors.NotFound:
+                log.warn(f"Twitter user {username} does not exist")
+                return False
+            except:
+                log.exception("Unhandled exception from tweepy.get_user (v1)")
+                return False
+
             msg = {"type": "remove_subscriptions", "data": [user.id]}
             ws_client.sendMessage(json.dumps(msg).encode("utf8"))
 
