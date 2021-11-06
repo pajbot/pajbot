@@ -80,8 +80,6 @@ class Bot:
         RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
-        self.control_hub: Optional[str] = config["main"].get("control_hub", None)
-
         if cfg.get_boolean(config["main"], "verified", False):
             self.tmi_rate_limits = TMIRateLimits.VERIFIED
         elif cfg.get_boolean(config["main"], "known", False):
@@ -145,6 +143,12 @@ class Bot:
             self.streamer_display = config["web"]["streamer_name"]
         elif "streamer_name" not in config["web"]:
             self.streamer_display = self.twitch_helix_api.get_display_name(self.streamer_user_id)
+
+        # control hub
+        if "control_hub_id" in config["main"]:
+            self.control_hub: Optional[str] = self.twitch_helix_api.get_login(config["main"]["control_hub_id"])
+        else:
+            self.control_hub: Optional[str] = config["main"].get("control_hub", None)
 
         log.debug("Loaded config")
 
@@ -241,7 +245,11 @@ class Bot:
         self.execute_every(1, self.do_tick)
 
         # promote the admin to level 2000
-        self.admin = config["main"].get("admin", None)
+        if "admin_id" in config["main"]:
+            self.admin = self.twitch_helix_api.get_login(config["main"]["admin_id"])
+        else:
+            self.admin = config["main"].get("admin", None)
+
         if self.admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
