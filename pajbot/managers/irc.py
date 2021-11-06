@@ -59,7 +59,7 @@ class IRCManager:
         streamer_channel = "#" + self.bot.streamer
         self.channels = [streamer_channel]
 
-        control_hub_channel = self.bot.config["main"].get("control_hub", None)
+        control_hub_channel = self.bot.control_hub
         if control_hub_channel is not None:
             self.channels.append("#" + control_hub_channel)
 

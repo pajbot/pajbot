@@ -681,7 +681,7 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
             self.privmsg(f"{user}, {message}")
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
-            chub = self.config["main"].get("control_hub", None)
+            chub = self.control_hub
             if chub is not None:
                 self.privmsg(f"{user}, {message}", f"#{chub}")
             else:
@@ -699,7 +699,7 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
             self.privmsg(f"{login}, {message}")
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
-            chub = self.config["main"].get("control_hub", None)
+            chub = self.control_hub
             if chub is not None:
                 self.privmsg(f"{login}, {message}", f"#{chub}")
             else:
