@@ -234,6 +234,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
 
+    def get_display_name(self, user_id: str) -> Optional[str]:
+        """Gets the twitch display name as a string for the given twitch user ID,
+        utilizing a cache or the twitch API on cache miss.
+        If the user is not found, None is returned."""
+
+        user_data = self._get_user_data_by_id(user_id)
+        return user_data["display_name"] if user_data is not None else None
+
     def fetch_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         response = self.get("/channels", {"broadcaster_id": user_id})
 
