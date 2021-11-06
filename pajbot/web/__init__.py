@@ -82,7 +82,7 @@ def init(args):
             config.write(configfile)
 
     if "streamer_id" in config["main"]:
-        app.streamer_user_id = streamer = config["main"]["streamer_id"]
+        app.streamer_user_id = streamer_user_id = config["main"]["streamer_id"]
         app.streamer = streamer = twitch_helix_api.get_login(streamer_user_id)
     elif "streamer" in config["main"]:
         app.streamer = streamer = config["main"]["streamer"]
