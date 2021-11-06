@@ -81,9 +81,26 @@ def init(args):
         with open(args.config, "w") as configfile:
             config.write(configfile)
 
-    streamer = config["main"]["streamer"]
-    streamer_display = config["web"]["streamer_name"]
-    streamer_user_id = twitch_helix_api.get_user_id(streamer)
+    if "streamer_id" in config["main"]:
+        streamer_user_id = config["main"]["streamer_id"]
+        streamer = twitch_helix_api.get_login(streamer_user_id)
+    elif "streamer" in config["main"]:
+        streamer = config["main"]["streamer"]
+        streamer_user_id = twitch_helix_api.get_user_id(streamer)
+    else:
+        log.exception("Error getting the streamer's login!")
+
+    if "streamer_name" in config["web"]:
+        streamer_display = config["web"]["streamer_name"]
+    elif "streamer_name" not in config["main"]:
+        streamer_display = twitch_helix_api.get_display_name(self.streamer_id)
+
+    if "bot_id" in config["main"]:
+        bot_id = config["main"]["bot_id"]
+        bot_login = twitch_helix_api.get_login(bot_id)
+    elif "nickname" in config["main"]:
+        bot_login = config["main"]["nickname"]
+
     if streamer_user_id is None:
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
     StreamHelper.init_streamer(streamer, streamer_user_id, streamer_display)
@@ -147,13 +164,13 @@ def init(args):
     default_variables = {
         "version": version,
         "last_commit": last_commit,
-        "bot": {"name": config["main"]["nickname"]},
+        "bot": bot_login,
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
+        "streamer": {"name": streamer_display, "full_name": streamer, "id": streamer_user_id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,
