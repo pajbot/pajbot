@@ -144,7 +144,7 @@ class Bot:
         if "streamer_name" in config["web"]:
             self.streamer_display = config["web"]["streamer_name"]
         elif "streamer_name" not in config["web"]:
-            self.streamer_display = self.twitch_helix_api.get_display_name(self.streamer_id)
+            self.streamer_display = self.twitch_helix_api.get_display_name(self.streamer_user_id)
 
         log.debug("Loaded config")
 
