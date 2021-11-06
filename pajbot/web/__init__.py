@@ -83,9 +83,9 @@ def init(args):
 
     if "streamer_id" in config["main"]:
         streamer_user_id = config["main"]["streamer_id"]
-        streamer = twitch_helix_api.get_login(streamer_user_id)
+        app.streamer = twitch_helix_api.get_login(streamer_user_id)
     elif "streamer" in config["main"]:
-        streamer = config["main"]["streamer"]
+        app.streamer = config["main"]["streamer"]
         streamer_user_id = twitch_helix_api.get_user_id(streamer)
     else:
         log.exception("Error getting the streamer's login!")
@@ -97,9 +97,9 @@ def init(args):
 
     if "bot_id" in config["main"]:
         bot_id = config["main"]["bot_id"]
-        bot_login = twitch_helix_api.get_login(bot_id)
+        app.bot_login = twitch_helix_api.get_login(bot_id)
     elif "nickname" in config["main"]:
-        bot_login = config["main"]["nickname"]
+        app.bot_login = config["main"]["nickname"]
 
     if streamer_user_id is None:
         raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
