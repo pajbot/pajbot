@@ -93,7 +93,7 @@ def init(args):
     if "streamer_name" in config["web"]:
         streamer_display = config["web"]["streamer_name"]
     elif "streamer_name" not in config["main"]:
-        streamer_display = twitch_helix_api.get_display_name(self.streamer_id)
+        streamer_display = twitch_helix_api.get_display_name(config["main"]["streamer_id"])
 
     if "bot_id" in config["main"]:
         bot_id = config["main"]["bot_id"]
