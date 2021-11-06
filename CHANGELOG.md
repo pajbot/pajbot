@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Bugfix: Fix tweet-manager streaming if bot followed non-existant twitter users. (#1589)
+- Bugfix: Fix tweet-manager streaming if bot follows non-existent twitter users. (#1589)
 
 ## v1.58
 
