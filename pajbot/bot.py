@@ -133,7 +133,7 @@ class Bot:
         # streamer
         if "streamer_id" in config["main"]:
             self.streamer_user_id = config["main"]["streamer_id"]
-            self.streamer, self.broadcaster = self.twitch_helix_api.get_login(self.streamer_user_id)
+            self.streamer = self.broadcaster = self.twitch_helix_api.get_login(self.streamer_user_id)
             self.channel = f"#{self.streamer}"
         else:
             self.streamer, self.channel = cfg.load_streamer_and_channel(config)
