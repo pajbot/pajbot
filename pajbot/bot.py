@@ -80,13 +80,6 @@ class Bot:
         RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
-        if "bot_id" in config["main"]:
-            self.bot_user_id = config["main"]["bot_id"]
-            self.nickname = self.twitch_helix_api.get_login(self.bot_user_id)
-        elif "nickname" in config["main"]:
-            self.nickname = config["main"].get("nickname", "pajbot")
-            self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
-
         self.control_hub: Optional[str] = config["main"].get("control_hub", None)
 
         if cfg.get_boolean(config["main"], "verified", False):
@@ -115,24 +108,7 @@ class Bot:
         # welcome messages to chat again on a reconnect.
         self.welcome_messages_sent = False
 
-        # streamer
-        if "streamer_id" in config["main"]:
-            self.streamer_user_id = config["main"]["streamer_id"]
-            self.streamer, self.broadcaster = self.twitch_helix_api.get_login(streamer_user_id)
-            self.channel = f"#{self.streamer}"
-        else:
-            self.streamer, self.channel = cfg.load_streamer_and_channel(config)
-            self.broadcaster = self.twitch_helix_api.get_user_basics_by_login(self.streamer)
-            self.streamer_user_id = self.broadcaster.id
-
         self.bot_domain = config["web"]["domain"]
-        
-        if "streamer_name" in config["web"]:
-            self.streamer_display = config["web"]["streamer_name"]
-        elif "streamer_name" not in config["web"]:
-            self.streamer_display = self.twitch_helix_api.get_display_name(self.streamer_id)
-
-        log.debug("Loaded config")
 
         # do this earlier since schema upgrade can depend on the helix api
         self.api_client_credentials = ClientCredentials(
@@ -145,6 +121,32 @@ class Bot:
         self.twitch_tmi_api = TwitchTMIAPI()
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
+
+        # bot
+        if "bot_id" in config["main"]:
+            self.bot_user_id = config["main"]["bot_id"]
+            self.nickname = self.twitch_helix_api.get_login(self.bot_user_id)
+        elif "nickname" in config["main"]:
+            self.nickname = config["main"].get("nickname", "pajbot")
+            self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
+
+        # streamer
+        if "streamer_id" in config["main"]:
+            self.streamer_user_id = config["main"]["streamer_id"]
+            self.streamer, self.broadcaster = self.twitch_helix_api.get_login(streamer_user_id)
+            self.channel = f"#{self.streamer}"
+        else:
+            self.streamer, self.channel = cfg.load_streamer_and_channel(config)
+            self.broadcaster = self.twitch_helix_api.get_user_basics_by_login(self.streamer)
+            self.streamer_user_id = self.broadcaster.id
+
+        # streamer display
+        if "streamer_name" in config["web"]:
+            self.streamer_display = config["web"]["streamer_name"]
+        elif "streamer_name" not in config["web"]:
+            self.streamer_display = self.twitch_helix_api.get_display_name(self.streamer_id)
+
+        log.debug("Loaded config")
 
         if self.bot_user_id is None:
             raise ValueError("The bot login name you entered under [main] does not exist on twitch.")
