@@ -34,9 +34,7 @@ def init(app):
     # jsmin is intentionally disabled for clr.overlay.js because the output is broken (same as below for
     # playsounds)
     clr_overlay_js = Bundle("scripts/clr.overlay.js", output="gen/scripts/clr.overlay.%(version)s.js")
-    clr_overlay_css = Bundle(
-        "css/clr.overlay.css", filters="cssmin", output="gen/css/clr.overlay.%(version)s.css"
-    )
+    clr_overlay_css = Bundle("css/clr.overlay.css", filters="cssmin", output="gen/css/clr.overlay.%(version)s.css")
     assets.register("clr_overlay_js", clr_overlay_js)
     assets.register("clr_overlay_css", clr_overlay_css)
 
