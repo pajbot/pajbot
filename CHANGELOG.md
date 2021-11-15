@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Minor: Allow configuring streamer, bot, admin, and control hub using Twitch User IDs instead of Twitch User Logins. **Specifying user logins in the config has therefore now been deprecated and may stop working in a future release.** (#1590)
 - Bugfix: Fix tweet-manager streaming if bot follows non-existent twitter users. (#1589)
+- Dev: Replaced Flask-Scrypt with the built-in secrets module to generate the secret_key in the config file.
 - Dev: Remove PyScss dependency, fixing Python 3.10 support. (#1602)
 
 ## v1.58
