@@ -11,7 +11,7 @@ def init(app):
 
     # Basic CSS and Javascript:
     # Available under: base_css, base_js
-    base_css = Bundle("css/base.scss", filters="pyscss,cssmin", output="gen/css/base.%(version)s.css")
+    base_css = Bundle("css/base.css", filters="cssmin", output="gen/css/base.%(version)s.css")
     base_js = Bundle("scripts/base.js", filters="jsmin", output="gen/scripts/base.%(version)s.js")
     assets.register("base_css", base_css)
     assets.register("base_js", base_js)
@@ -35,7 +35,7 @@ def init(app):
     # playsounds)
     clr_overlay_js = Bundle("scripts/clr.overlay.js", output="gen/scripts/clr.overlay.%(version)s.js")
     clr_overlay_css = Bundle(
-        "css/clr.overlay.scss", filters="pyscss,cssmin", output="gen/css/clr.overlay.%(version)s.css"
+        "css/clr.overlay.css", filters="cssmin", output="gen/css/clr.overlay.%(version)s.css"
     )
     assets.register("clr_overlay_js", clr_overlay_js)
     assets.register("clr_overlay_css", clr_overlay_css)
