@@ -32,9 +32,10 @@ def init(args):
     import subprocess
     import sys
 
+    from secrets import token_urlsafe
+
     from flask import request
     from flask import session
-    from flask_scrypt import generate_random_salt
 
     import pajbot.utils
     import pajbot.web.common
@@ -75,8 +76,7 @@ def init(args):
         sys.exit(1)
 
     if "secret_key" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "secret_key", salt.decode("utf-8"))
+        config.set("web", "secret_key", token_urlsafe(64))
 
         with open(args.config, "w") as configfile:
             config.write(configfile)
