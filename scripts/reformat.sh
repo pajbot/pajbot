@@ -33,8 +33,8 @@ fi
 # reformat/check every python file, except venv
 black $BLACK_OPTIONS . --exclude=venv
 
-# reformat markdown, js, css, scss
-npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css' '**/*.scss'
+# reformat markdown, js, css
+npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
 
 # Run linter
 flake8
