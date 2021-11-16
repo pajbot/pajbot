@@ -13,7 +13,7 @@ isodate==0.6.0
 jsmin==3.0.0
 Markdown==3.3.4
 Levenshtein==0.16.0
-psycopg2==2.9.1
+psycopg2==2.9.2
 pylast==4.3.0
 pyOpenSSL==21.0.0 # for twisted.internet.ssl
 pytz==2021.3
