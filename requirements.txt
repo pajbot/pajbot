@@ -11,7 +11,7 @@ httplib2==0.20.2
 irc==19.0.1
 isodate==0.6.0
 jsmin==3.0.0
-Markdown==3.3.4
+Markdown==3.3.6
 Levenshtein==0.16.0
 psycopg2==2.9.2
 pylast==4.3.0
