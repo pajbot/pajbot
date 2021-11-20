@@ -229,7 +229,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
     def require_login(self, user_id):
         login = self.get_login(user_id)
         if login is None:
-            raise ValueError(f'No user found under user ID "{user_ud}" on Twitch')
+            raise ValueError(f'No user found under user ID "{user_id}" on Twitch')
         return login
 
     def get_login(self, user_id: str) -> Optional[str]:
