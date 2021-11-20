@@ -105,7 +105,7 @@ def init(args):
         except:
             log.exception("Error downloading the streamers subscriber badge")
 
-    SocketClientManager.init(streamer)
+    SocketClientManager.init(app.streamer.login)
 
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
