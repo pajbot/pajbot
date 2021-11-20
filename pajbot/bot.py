@@ -91,6 +91,14 @@ class Bot:
             return self.twitch_helix_api.require_user_basics_by_login(control_hub_login)
         return None
 
+    def _load_admin(self, config: cfg.Config) -> Optional[UserBasics]:
+        admin_id, admin_login = cfg.load_admin_id_or_login(config)
+        if admin_id is not None:
+            return self.twitch_helix_api.require_user_basics_by_id(admin_id)
+        if admin_login is not None:
+            return self.twitch_helix_api.require_user_basics_by_login(admin_login)
+        return None
+
     def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
         self.args = args
         self.config = config
@@ -253,24 +261,14 @@ class Bot:
         self.execute_every(60, self.commit_all)
         self.execute_every(1, self.do_tick)
 
-        # promote the admin to level 2000
-        if "admin_id" in config["main"]:
-            self.admin = self.twitch_helix_api.require_login(config["main"]["admin_id"])
-        else:
-            self.admin = config["main"].get("admin", None)
+        admin: Optional[UserBasics] = self._load_admin(config)
 
-        if self.admin is None:
+        if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
             with DBManager.create_session_scope() as db_session:
-                admin_user = User.find_or_create_from_login(db_session, self.twitch_helix_api, self.admin)
-                if admin_user is None:
-                    log.warning(
-                        "The login name you entered for the admin user does not exist on twitch. "
-                        "No admin user has been created."
-                    )
-                else:
-                    admin_user.level = 2000
+                admin_user = User.from_basics(db_session, admin)
+                admin_user.level = 2000
 
         # silent mode
         self.silent = (

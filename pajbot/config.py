@@ -62,6 +62,22 @@ def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tupl
     raise KeyError("Missing control_hub_id key from config")
 
 
+def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
+    """
+    Load either the admin Twitch User ID or Twitch User Login from the config
+    The Twitch User ID is read from admin_id, and the Twitch User Login us read from admin
+
+    If neither of the values are present, throw an exception
+    """
+
+    if "admin_id" in config["main"]:
+        return config["main"]["admin_id"], None
+    elif "admin" in config["main"]:
+        return None, config["main"]["admin"]
+
+    raise KeyError("Missing admin_id key from config")
+
+
 def load_twitter_manager(config: Config) -> Type[GenericTwitterManager]:
     if "twitter" in config and config["twitter"].get("streaming_type", "twitter") == "tweet-provider":
         return PBTwitterManager
