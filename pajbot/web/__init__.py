@@ -83,10 +83,10 @@ def init(args):
 
     if "streamer_id" in config["main"]:
         app.streamer_user_id = streamer_user_id = config["main"]["streamer_id"]
-        app.streamer = streamer = twitch_helix_api.get_login(streamer_user_id)
+        app.streamer = streamer = twitch_helix_api.require_login(streamer_user_id)
     elif "streamer" in config["main"]:
         app.streamer = streamer = config["main"]["streamer"]
-        app.streamer_user_id = streamer_user_id = twitch_helix_api.get_user_id(streamer)
+        app.streamer_user_id = streamer_user_id = twitch_helix_api.require_user_id(streamer)
     else:
         log.exception("Error getting the streamer's login!")
 
@@ -97,7 +97,7 @@ def init(args):
 
     if "bot_id" in config["main"]:
         app.bot_id = bot_id = config["main"]["bot_id"]
-        app.bot_login = bot_login = twitch_helix_api.get_login(app.bot_id)
+        app.bot_login = bot_login = twitch_helix_api.require_login(app.bot_id)
     elif "nickname" in config["main"]:
         app.bot_login = bot_login = config["main"]["nickname"]
 
