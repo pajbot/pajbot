@@ -164,7 +164,7 @@ def init(args):
     default_variables = {
         "version": version,
         "last_commit": last_commit,
-        "bot": bot_login,
+        "bot": {"name": bot_login},
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
