@@ -60,9 +60,9 @@ def load_bot_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, 
         return config["main"]["bot_id"], None
     elif "nickname" in config["main"]:
         log.warning(
-            "DEPRECATED - Specify the bot's Twitch User ID using streamer_id instead of their login name in nickname"
+            "DEPRECATED - Specify the bot's Twitch User ID using bot_id instead of their login name in nickname"
         )
-        return None, config["main"]["bot"]
+        return None, config["main"]["nickname"]
 
     raise KeyError("Missing bot_id key from config")
 
