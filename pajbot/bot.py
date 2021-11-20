@@ -278,7 +278,7 @@ class Bot:
             )
 
         self.data = {
-            "broadcaster": self.streamer,
+            "broadcaster": self.streamer.login,
             "version": self.version_long,
             "version_brief": VERSION,
             "bot_name": self.bot_user.login,
