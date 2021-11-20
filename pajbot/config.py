@@ -1,17 +1,13 @@
 from typing import Dict, Tuple, Type
 
 from pajbot.managers.twitter import GenericTwitterManager, PBTwitterManager, TwitterManager
-from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 
 ConfigSection = Dict[str, str]
 Config = Dict[str, ConfigSection]
 
 
 def load_streamer_and_channel(config: Config) -> Tuple[str, str]:
-    if "streamer_id" in config["main"]:
-        streamer = TwitchHelixAPI.get_login(config["main"]["streamer_id"])
-        return streamer, f"#{streamer}"
-    elif "streamer" in config["main"]:
+    if "streamer" in config["main"]:
         streamer = config["main"]["streamer"]
         return streamer, f"#{streamer}"
     elif "target" in config["main"]:
