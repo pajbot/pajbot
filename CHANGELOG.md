@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Minor: Migrate to user IDs in config file. (#1590)
 - Bugfix: Fix tweet-manager streaming if bot follows non-existent twitter users. (#1589)
+- Dev: Remove PyScss dependency, fixing Python 3.10 support. (#1602)
 
 ## v1.58
 
