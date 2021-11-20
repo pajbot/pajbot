@@ -145,10 +145,11 @@ class Bot:
             self.streamer_display = self.twitch_helix_api.require_display_name(self.streamer_user_id)
 
         # control hub
+        self.control_hub: Optional[str]
         if "control_hub_id" in config["main"]:
-            self.control_hub: Optional[str] = self.twitch_helix_api.require_login(config["main"]["control_hub_id"])
+            self.control_hub = self.twitch_helix_api.require_login(config["main"]["control_hub_id"])
         else:
-            self.control_hub: Optional[str] = config["main"].get("control_hub", None)
+            self.control_hub = config["main"].get("control_hub", None)
 
         log.debug("Loaded config")
 
