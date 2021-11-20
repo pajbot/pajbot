@@ -39,7 +39,7 @@ def up(cursor, bot):
         return datetime.datetime.strptime(time_raw, "%Y-%m-%d %H:%M:%S.%f")
 
     redis = RedisManager.get()
-    redis_list_raw = redis.lrange(f"{bot.streamer}:logs:admin", 0, -1)  # 0
+    redis_list_raw = redis.lrange(f"{bot.streamer.login}:logs:admin", 0, -1)  # 0
     redis_list = [json.loads(raw_entry) for raw_entry in redis_list_raw]
 
     def redis_to_db_row(redis_entry):
@@ -60,4 +60,4 @@ def up(cursor, bot):
     )
 
     # on success, delete admin logs in redis
-    redis.delete(f"{bot.streamer}:logs:admin")
+    redis.delete(f"{bot.streamer.login}:logs:admin")

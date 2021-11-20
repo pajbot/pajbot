@@ -49,9 +49,9 @@ class PermabanModule(BaseModule):
     ]
 
     @staticmethod
-    def permaban_command(bot, source, message, **rest):
+    def permaban_command(bot, source, message, **rest) -> bool:
         if not message:
-            return
+            return False
 
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
@@ -67,12 +67,14 @@ class PermabanModule(BaseModule):
             user.banned = True
             bot.ban(
                 user,
-                reason=f"User has been added to the {bot.nickname} banlist. Contact a moderator level 1000 or higher for unban.",
+                reason=f"User has been added to the {bot.bot_user.login} banlist. Contact a moderator level 1000 or higher for unban.",
             )
             log_msg = f"{user} has been permabanned"
             bot.whisper(source, log_msg)
 
             AdminLogManager.add_entry("Permaban added", source, log_msg)
+
+        return True
 
     def unpermaban_command(self, bot, source, message, **rest):
         if not message:

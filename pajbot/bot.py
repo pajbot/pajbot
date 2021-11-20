@@ -67,6 +67,30 @@ class Bot:
     Main class for the twitch bot
     """
 
+    def _load_streamer(self, config: cfg.Config) -> UserBasics:
+        streamer_id, streamer_login = cfg.load_streamer_id_or_login(config)
+        if streamer_id is not None:
+            return self.twitch_helix_api.require_user_basics_by_id(streamer_id)
+        if streamer_login is not None:
+            return self.twitch_helix_api.require_user_basics_by_login(streamer_login)
+        raise ValueError("Bad config, missing streamer id or login")
+
+    def _load_bot(self, config: cfg.Config) -> UserBasics:
+        bot_id, bot_login = cfg.load_bot_id_or_login(config)
+        if bot_id is not None:
+            return self.twitch_helix_api.require_user_basics_by_id(bot_id)
+        if bot_login is not None:
+            return self.twitch_helix_api.require_user_basics_by_login(bot_login)
+        raise ValueError("Bad config, missing bot id or login")
+
+    def _load_control_hub(self, config: cfg.Config) -> Optional[UserBasics]:
+        control_hub_id, control_hub_login = cfg.load_control_hub_id_or_login(config)
+        if control_hub_id is not None:
+            return self.twitch_helix_api.require_user_basics_by_id(control_hub_id)
+        if control_hub_login is not None:
+            return self.twitch_helix_api.require_user_basics_by_login(control_hub_login)
+        return None
+
     def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
         self.args = args
         self.config = config
@@ -120,50 +144,31 @@ class Bot:
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
 
-        # bot
-        if "bot_id" in config["main"]:
-            self.bot_user_id = config["main"]["bot_id"]
-            self.nickname = self.twitch_helix_api.require_login(self.bot_user_id)
-        elif "nickname" in config["main"]:
-            self.nickname = config["main"].get("nickname", "pajbot")
-            self.bot_user_id = self.twitch_helix_api.require_user_id(self.nickname)
+        self.streamer: UserBasics = self._load_streamer(config)
+        self.channel = f"#{self.streamer.login}"
 
-        # streamer
-        if "streamer_id" in config["main"]:
-            self.streamer_user_id = config["main"]["streamer_id"]
-            self.streamer = self.broadcaster = self.twitch_helix_api.require_login(self.streamer_user_id)
-            self.channel = f"#{self.streamer}"
-        else:
-            self.streamer, self.channel = cfg.load_streamer_and_channel(config)
-            self.broadcaster = self.twitch_helix_api.get_user_basics_by_login(self.streamer)
-            self.streamer_user_id = self.broadcaster.id
-
-        # streamer display
+        self.streamer_display: str = self.streamer.name
         if "streamer_name" in config["web"]:
+            # Override the streamer display name
             self.streamer_display = config["web"]["streamer_name"]
-        elif "streamer_name" not in config["web"]:
-            self.streamer_display = self.twitch_helix_api.require_display_name(self.streamer_user_id)
 
-        # control hub
-        self.control_hub: Optional[str]
-        if "control_hub_id" in config["main"]:
-            self.control_hub = self.twitch_helix_api.require_login(config["main"]["control_hub_id"])
-        else:
-            self.control_hub = config["main"].get("control_hub", None)
+        self.bot_user: UserBasics = self._load_bot(config)
+
+        self.control_hub_user: Optional[UserBasics] = self._load_control_hub(config)
+        self.control_hub_channel: Optional[str]
+        if self.control_hub_user:
+            self.control_hub_channel = f"#{self.control_hub_user.login}"
 
         log.debug("Loaded config")
 
-        if self.bot_user_id is None:
-            raise ValueError("The bot login name you entered under [main] does not exist on twitch.")
-
-        if self.broadcaster is None:
-            raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
-
         self.streamer_access_token_manager = UserAccessTokenManager(
-            api=self.twitch_id_api, redis=RedisManager.get(), username=self.streamer, user_id=self.streamer_user_id
+            api=self.twitch_id_api,
+            redis=RedisManager.get(),
+            username=self.streamer.login,
+            user_id=self.streamer.id,
         )
 
-        StreamHelper.init_streamer(self.streamer, self.streamer_user_id, self.streamer_display)
+        StreamHelper.init_streamer(self.streamer.login, self.streamer.id, self.streamer.name)
 
         # SQL migrations
         with DBManager.create_dbapi_connection_scope() as sql_conn:
@@ -172,7 +177,7 @@ class Bot:
             sql_migration.run()
 
         # Redis migrations
-        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer)
+        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer.login)
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
@@ -193,7 +198,7 @@ class Bot:
 
         HandlerManager.init_handlers()
 
-        self.socket_manager = SocketManager(self.streamer, self.execute_now)
+        self.socket_manager = SocketManager(self.streamer.login, self.execute_now)
         self.stream_manager = StreamManager(self)
         StreamHelper.init_stream_manager(self.stream_manager)
 
@@ -218,13 +223,16 @@ class Bot:
             self.bot_token_manager = UserAccessTokenManager(
                 api=None,
                 redis=None,
-                username=self.nickname,
-                user_id=self.bot_user_id,
+                username=self.bot_user.login,
+                user_id=self.bot_user.id,
                 token=UserAccessToken.from_implicit_auth_flow_token(access_token),
             )
         else:
             self.bot_token_manager = UserAccessTokenManager(
-                api=self.twitch_id_api, redis=RedisManager.get(), username=self.nickname, user_id=self.bot_user_id
+                api=self.twitch_id_api,
+                redis=RedisManager.get(),
+                username=self.bot_user.login,
+                user_id=self.bot_user.id,
             )
 
         self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
@@ -291,7 +299,7 @@ class Bot:
             "broadcaster": self.streamer,
             "version": self.version_long,
             "version_brief": VERSION,
-            "bot_name": self.nickname,
+            "bot_name": self.bot_user.login,
             "bot_domain": self.bot_domain,
             "streamer_display": self.streamer_display,
         }
@@ -304,7 +312,7 @@ class Bot:
             "molly_age_in_years": self.c_molly_age_in_years,
         }
 
-        self.user_agent = f"pajbot1/{VERSION} ({self.nickname})"
+        self.user_agent = f"pajbot1/{VERSION} ({self.bot_user.login})"
 
         self.thread_locals = threading.local()
 
@@ -382,7 +390,7 @@ class Bot:
 
     def get_broadcaster_value(self, key, extra={}):
         try:
-            return getattr(self.broadcaster, key)
+            return getattr(self.streamer, key)
         except:
             log.exception("Caught exception in get_broadcaster_value")
 
@@ -585,7 +593,7 @@ class Bot:
         if self.stream_manager.online and self.stream_manager.current_stream:
             return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
-        if self.stream_manager.last_stream is not None:
+        if self.stream_manager.last_stream is not None and self.stream_manager.last_stream.stream_end is not None:
             return utils.time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
@@ -682,9 +690,8 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
             self.privmsg(f"{user}, {message}")
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
-            chub = self.control_hub
-            if chub is not None:
-                self.privmsg(f"{user}, {message}", f"#{chub}")
+            if self.control_hub_channel is not None:
+                self.privmsg(f"{user}, {message}", self.control_hub_channel)
             else:
                 log.warning(
                     "Whisper output mode set to `control_hub` but no control hub configured in config, "
@@ -700,9 +707,8 @@ class Bot:
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
             self.privmsg(f"{login}, {message}")
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
-            chub = self.control_hub
-            if chub is not None:
-                self.privmsg(f"{login}, {message}", f"#{chub}")
+            if self.control_hub_channel is not None:
+                self.privmsg(f"{login}, {message}", self.control_hub_channel)
             else:
                 log.warning(
                     "Whisper output mode set to `control_hub` but no control hub configured in config, "
@@ -826,7 +832,7 @@ class Bot:
         if not whisper and source.banned:
             self.ban(
                 source,
-                reason=f"User is on the {self.nickname} banlist. Contact a moderator level 1000 or higher for unban.",
+                reason=f"User is on the {self.bot_user.login} banlist. Contact a moderator level 1000 or higher for unban.",
             )
             return False
 
@@ -920,7 +926,7 @@ class Bot:
         login = event.source.user
         name = tags["display-name"]
 
-        if event.source.user == self.nickname:
+        if event.source.user == self.bot_user.login:
             return False
 
         if self.streamer == "forsen":
@@ -1004,7 +1010,7 @@ class Bot:
             return
 
         for p in self.phrases["welcome"]:
-            self.privmsg(p.format(nickname=self.nickname, version=self.version_long))
+            self.privmsg(p.format(nickname=self.bot_user.login, version=self.version_long))
 
         self.welcome_messages_sent = True
 
@@ -1030,7 +1036,7 @@ class Bot:
     def quit(self, message, event, **options) -> None:
         quit_delay = 0
 
-        if self.control_hub is not None and event.target == f"#{self.control_hub}":
+        if self.control_hub_channel is not None and event.target == self.control_hub_channel:
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -1038,14 +1044,14 @@ class Bot:
             except (IndexError, ValueError, TypeError):
                 pass
             quit_delay = random.randint(0, quit_delay_random)
-            log.info("%s is restarting in %d seconds.", self.nickname, quit_delay)
+            log.info("%s is restarting in %d seconds.", self.bot_user.login, quit_delay)
 
         self.execute_delayed(quit_delay, self.quit_bot)
 
     def quit_bot(self, **options) -> None:
         self.commit_all()
         HandlerManager.trigger("on_quit")
-        phrase_data = {"nickname": self.nickname, "version": self.version_long}
+        phrase_data = {"nickname": self.bot_user.login, "version": self.version_long}
 
         try:
             if ScheduleManager.base_scheduler:
@@ -1098,7 +1104,7 @@ class Bot:
         return resp
 
     def _filter_or_broadcaster(self, var: Any, args: List[str]) -> Any:
-        return _filter_or_else(var, [self.streamer])
+        return _filter_or_else(var, [self.streamer.login])
 
     def find_unique_urls(self, message: str) -> Set[str]:
         from pajbot.modules.linkchecker import find_unique_urls

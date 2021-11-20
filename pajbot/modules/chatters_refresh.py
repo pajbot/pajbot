@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 from datetime import timedelta
@@ -61,12 +63,16 @@ class ChattersRefreshModule(BaseModule):
         bot.action_queue.submit(self._update_chatters, only_last_seen=True)
 
     @time_method
-    def _update_chatters(self, only_last_seen=False):
-        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer)
-        chatter_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(chatter_logins)
+    def _update_chatters(self, only_last_seen: bool = False) -> None:
+        if self.bot is None:
+            log.warn("_update_chatters failed in ChattersRefreshModule because bot is None")
+            return
+
+        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer.login)
+        unfiltered_chatter_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(chatter_logins)
 
         # filter out invalid/deleted/etc. users
-        chatter_basics = [e for e in chatter_basics if e is not None]
+        chatter_basics = [e for e in unfiltered_chatter_basics if e is not None]
 
         is_stream_online = self.bot.stream_manager.online
 
