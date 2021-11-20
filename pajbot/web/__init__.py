@@ -89,7 +89,7 @@ def init(args):
 
     app.bot_user = cfg.load_bot(config, twitch_helix_api)
 
-    StreamHelper.init_streamer(streamer.login, streamer.id, streamer.name)
+    StreamHelper.init_streamer(app.streamer.login, app.streamer.id, app.streamer.name)
 
     try:
         download_logo(twitch_helix_api, app.streamer)
@@ -156,7 +156,7 @@ def init(args):
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {"name": app.streamer_display, "full_name": streamer.login, "id": streamer.id},
+        "streamer": {"name": app.streamer_display, "full_name": app.streamer.login, "id": app.streamer.id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,
