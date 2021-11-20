@@ -226,6 +226,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise ValueError(f'No user found under login name "{login}" on Twitch')
         return user_id
 
+    def require_login(self, user_id):
+        login = self.get_login(user_id)
+        if login is None:
+            raise ValueError(f'No user found under user ID "{user_ud}" on Twitch')
+        return login
+
     def get_login(self, user_id: str) -> Optional[str]:
         """Gets the twitch login name as a string for the given twitch login name,
         utilizing a cache or the twitch API on cache miss.
