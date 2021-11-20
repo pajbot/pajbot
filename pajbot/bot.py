@@ -123,15 +123,15 @@ class Bot:
         # bot
         if "bot_id" in config["main"]:
             self.bot_user_id = config["main"]["bot_id"]
-            self.nickname = self.twitch_helix_api.get_login(self.bot_user_id)
+            self.nickname = self.twitch_helix_api.require_login(self.bot_user_id)
         elif "nickname" in config["main"]:
             self.nickname = config["main"].get("nickname", "pajbot")
-            self.bot_user_id = self.twitch_helix_api.get_user_id(self.nickname)
+            self.bot_user_id = self.twitch_helix_api.require_user_id(self.nickname)
 
         # streamer
         if "streamer_id" in config["main"]:
             self.streamer_user_id = config["main"]["streamer_id"]
-            self.streamer = self.broadcaster = self.twitch_helix_api.get_login(self.streamer_user_id)
+            self.streamer = self.broadcaster = self.twitch_helix_api.require_login(self.streamer_user_id)
             self.channel = f"#{self.streamer}"
         else:
             self.streamer, self.channel = cfg.load_streamer_and_channel(config)
@@ -146,7 +146,7 @@ class Bot:
 
         # control hub
         if "control_hub_id" in config["main"]:
-            self.control_hub: Optional[str] = self.twitch_helix_api.get_login(config["main"]["control_hub_id"])
+            self.control_hub: Optional[str] = self.twitch_helix_api.require_login(config["main"]["control_hub_id"])
         else:
             self.control_hub: Optional[str] = config["main"].get("control_hub", None)
 
@@ -246,7 +246,7 @@ class Bot:
 
         # promote the admin to level 2000
         if "admin_id" in config["main"]:
-            self.admin = self.twitch_helix_api.get_login(config["main"]["admin_id"])
+            self.admin = self.twitch_helix_api.require_login(config["main"]["admin_id"])
         else:
             self.admin = config["main"].get("admin", None)
 
