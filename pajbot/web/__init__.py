@@ -81,32 +81,18 @@ def init(args):
         with open(args.config, "w") as configfile:
             config.write(configfile)
 
-    if "streamer_id" in config["main"]:
-        app.streamer_user_id = streamer_user_id = config["main"]["streamer_id"]
-        app.streamer = streamer = twitch_helix_api.require_login(streamer_user_id)
-    elif "streamer" in config["main"]:
-        app.streamer = streamer = config["main"]["streamer"]
-        app.streamer_user_id = streamer_user_id = twitch_helix_api.require_user_id(streamer)
-    else:
-        log.exception("Error getting the streamer's login!")
+    app.streamer = cfg.load_streamer(config, twitch_helix_api)
 
+    app.streamer_display = app.streamer.name
     if "streamer_name" in config["web"]:
-        app.streamer_display = streamer_display = config["web"]["streamer_name"]
-    elif "streamer_name" not in config["main"]:
-        app.streamer_display = streamer_display = twitch_helix_api.get_display_name(config["main"]["streamer_id"])
+        app.streamer_display = config["web"]["streamer_name"]
 
-    if "bot_id" in config["main"]:
-        app.bot_id = bot_id = config["main"]["bot_id"]
-        app.bot_login = bot_login = twitch_helix_api.require_login(app.bot_id)
-    elif "nickname" in config["main"]:
-        app.bot_login = bot_login = config["main"]["nickname"]
+    app.bot_user = cfg.load_bot(config, twitch_helix_api)
 
-    if streamer_user_id is None:
-        raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
-    StreamHelper.init_streamer(streamer, streamer_user_id, streamer_display)
+    StreamHelper.init_streamer(streamer.login, streamer.id, streamer.name)
 
     try:
-        download_logo(twitch_helix_api, streamer, streamer_user_id)
+        download_logo(twitch_helix_api, app.streamer)
     except:
         log.exception("Error downloading the streamers profile picture")
 
@@ -115,7 +101,7 @@ def init(args):
     # Specifying a value of -1 in the config will disable sub badge downloading. Useful if you want to keep a custom version of a sub badge for a streamer
     if subscriber_badge_version != "-1":
         try:
-            download_sub_badge(twitch_badges_api, streamer, streamer_user_id, subscriber_badge_version)
+            download_sub_badge(twitch_badges_api, app.streamer, subscriber_badge_version)
         except:
             log.exception("Error downloading the streamers subscriber badge")
 
@@ -164,13 +150,13 @@ def init(args):
     default_variables = {
         "version": version,
         "last_commit": last_commit,
-        "bot": {"name": bot_login},
+        "bot": {"name": app.bot_user.login},
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {"name": streamer_display, "full_name": streamer, "id": streamer_user_id},
+        "streamer": {"name": app.streamer_display, "full_name": streamer.login, "id": streamer.id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,

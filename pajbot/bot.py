@@ -67,22 +67,6 @@ class Bot:
     Main class for the twitch bot
     """
 
-    def _load_streamer(self, config: cfg.Config) -> UserBasics:
-        streamer_id, streamer_login = cfg.load_streamer_id_or_login(config)
-        if streamer_id is not None:
-            return self.twitch_helix_api.require_user_basics_by_id(streamer_id)
-        if streamer_login is not None:
-            return self.twitch_helix_api.require_user_basics_by_login(streamer_login)
-        raise ValueError("Bad config, missing streamer id or login")
-
-    def _load_bot(self, config: cfg.Config) -> UserBasics:
-        bot_id, bot_login = cfg.load_bot_id_or_login(config)
-        if bot_id is not None:
-            return self.twitch_helix_api.require_user_basics_by_id(bot_id)
-        if bot_login is not None:
-            return self.twitch_helix_api.require_user_basics_by_login(bot_login)
-        raise ValueError("Bad config, missing bot id or login")
-
     def _load_control_hub(self, config: cfg.Config) -> Optional[UserBasics]:
         control_hub_id, control_hub_login = cfg.load_control_hub_id_or_login(config)
         if control_hub_id is not None:
@@ -152,7 +136,7 @@ class Bot:
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
 
-        self.streamer: UserBasics = self._load_streamer(config)
+        self.streamer: UserBasics = cfg.load_streamer(config, self.twitch_helix_api)
         self.channel = f"#{self.streamer.login}"
 
         self.streamer_display: str = self.streamer.name
@@ -160,7 +144,7 @@ class Bot:
             # Override the streamer display name
             self.streamer_display = config["web"]["streamer_name"]
 
-        self.bot_user: UserBasics = self._load_bot(config)
+        self.bot_user: UserBasics = cfg.load_bot(config, self.twitch_helix_api)
 
         self.control_hub_user: Optional[UserBasics] = self._load_control_hub(config)
         self.control_hub_channel: Optional[str]
@@ -809,7 +793,7 @@ class Bot:
     def connect(self) -> None:
         self.irc.start()
 
-    def parse_message(self, message, source, event, tags={}, whisper=False):
+    def parse_message(self, message, source, event, tags={}, whisper=False) -> bool:
         msg_lower = message.lower()
 
         emote_tag = tags["emotes"]
@@ -819,7 +803,7 @@ class Bot:
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
-            source.moderator = tags["mod"] == "1" or source.id == self.streamer_user_id
+            source.moderator = tags["mod"] == "1" or source.id == self.streamer.id
             # Having the founder badge means that the subscriber tag is set to 0. Therefore it's more stable to just check badges
             source.subscriber = "founder" in badges or "subscriber" in badges
             # once they are a founder they are always be a founder, regardless if they are a sub or not.
@@ -879,6 +863,8 @@ class Bot:
                     "msg_id": msg_id,
                 }
                 command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
+
+        return True
 
     def on_whisper(self, chatconn, event):
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}

@@ -1,8 +1,14 @@
-from typing import Dict, Tuple, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Tuple, Type, Union
 
 import logging
 
 from pajbot.managers.twitter import GenericTwitterManager, PBTwitterManager, TwitterManager
+
+if TYPE_CHECKING:
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+    from pajbot.models.user import UserBasics
 
 ConfigSection = Dict[str, str]
 Config = Dict[str, ConfigSection]
@@ -30,6 +36,15 @@ def load_streamer_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[N
     raise KeyError("Missing streamer_id key from config")
 
 
+def load_streamer(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
+    streamer_id, streamer_login = load_streamer_id_or_login(config)
+    if streamer_id is not None:
+        return twitch_helix_api.require_user_basics_by_id(streamer_id)
+    if streamer_login is not None:
+        return twitch_helix_api.require_user_basics_by_login(streamer_login)
+    raise ValueError("Bad config, missing streamer id or login")
+
+
 def load_bot_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
     """
     Load either the bot Twitch User ID or Twitch User Login from the config
@@ -44,6 +59,15 @@ def load_bot_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, 
         return None, config["main"]["bot"]
 
     raise KeyError("Missing bot_id key from config")
+
+
+def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
+    bot_id, bot_login = load_bot_id_or_login(config)
+    if bot_id is not None:
+        return twitch_helix_api.require_user_basics_by_id(bot_id)
+    if bot_login is not None:
+        return twitch_helix_api.require_user_basics_by_login(bot_login)
+    raise ValueError("Bad config, missing bot id or login")
 
 
 def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:

@@ -1,29 +1,32 @@
-from typing import Any, Dict, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List
 
 import datetime
 import json
 import logging
 import urllib.parse
-from functools import update_wrapper
-from functools import wraps
-
-from flask import abort
-from flask import make_response
-from flask import request
-from flask import session
-from flask_restful import reqparse
+from functools import update_wrapper, wraps
 
 import pajbot.exc
 import pajbot.managers
 from pajbot import utils
 from pajbot.apiwrappers.base import BaseAPI
+from pajbot.apiwrappers.twitch.badges import BadgeNotFoundError
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
 from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import time_method
-from pajbot.apiwrappers.twitch.badges import BadgeNotFoundError
+
+from flask import abort, make_response, request, session
+from flask_restful import reqparse
+
+if TYPE_CHECKING:
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+    from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
+    from pajbot.models.user import UserBasics
 
 log = logging.getLogger(__name__)
 
@@ -65,10 +68,14 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(twitch_helix_api, streamer, streamer_id):
-    logo_url = twitch_helix_api.get_profile_image_url(streamer_id)
+def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> None:
+    logo_url = twitch_helix_api.get_profile_image_url(streamer.id)
 
-    logo_raw_path = f"static/images/logo_{streamer}.png"
+    if logo_url is None:
+        log.warn(f"Failed to query Twitch API for the profile image url of streamer {streamer.login}")
+        return
+
+    logo_raw_path = f"static/images/logo_{streamer.login}.png"
 
     # returns bytes
     logo_image_bytes = BaseAPI(None).get_binary(logo_url)
@@ -78,14 +85,14 @@ def download_logo(twitch_helix_api, streamer, streamer_id):
         logo_raw_file.write(logo_image_bytes)
 
 
-def download_sub_badge(twitch_badges_api, streamer, streamer_id, subscriber_badge_version):
+def download_sub_badge(twitch_badges_api: TwitchBadgesAPI, streamer: UserBasics, subscriber_badge_version: str) -> None:
     try:
-        subscriber_badge = twitch_badges_api.get_channel_subscriber_badge(streamer_id, subscriber_badge_version)
+        subscriber_badge = twitch_badges_api.get_channel_subscriber_badge(streamer.id, subscriber_badge_version)
     except BadgeNotFoundError as e:
         log.warn(f"Unable to download subscriber badge: {e}")
         return
 
-    subscriber_badge_path = f"static/images/badge_sub_{streamer}.png"
+    subscriber_badge_path = f"static/images/badge_sub_{streamer.login}.png"
 
     # returns bytes
     subscriber_badge_bytes = BaseAPI(None).get_binary(subscriber_badge.image_url_1x)
