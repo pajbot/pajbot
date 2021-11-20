@@ -28,6 +28,9 @@ def load_streamer_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[N
     if "streamer_id" in config["main"]:
         return config["main"]["streamer_id"], None
     elif "streamer" in config["main"]:
+        log.warning(
+            "DEPRECATED - Specify the streamer's Twitch User ID using streamer_id instead of their login name in streamer"
+        )
         return None, config["main"]["streamer"]
     elif "target" in config["main"]:
         log.warning("DEPRECATED - You should specify the streamer using the streamer_id config value")
@@ -56,6 +59,9 @@ def load_bot_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, 
     if "bot_id" in config["main"]:
         return config["main"]["bot_id"], None
     elif "nickname" in config["main"]:
+        log.warning(
+            "DEPRECATED - Specify the bot's Twitch User ID using streamer_id instead of their login name in nickname"
+        )
         return None, config["main"]["bot"]
 
     raise KeyError("Missing bot_id key from config")
@@ -80,7 +86,10 @@ def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tupl
 
     if "control_hub_id" in config["main"]:
         return config["main"]["control_hub_id"], None
-    elif "nickname" in config["main"]:
+    elif "control_hub" in config["main"]:
+        log.warning(
+            "DEPRECATED - Specify the control hub's Twitch User ID using control_hub_id instead of their login name in control_hub"
+        )
         return None, config["main"]["control_hub"]
 
     raise KeyError("Missing control_hub_id key from config")
@@ -97,6 +106,9 @@ def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None
     if "admin_id" in config["main"]:
         return config["main"]["admin_id"], None
     elif "admin" in config["main"]:
+        log.warning(
+            "DEPRECATED - Specify the admin's Twitch User ID using admin_id instead of their login name in admin"
+        )
         return None, config["main"]["admin"]
 
     raise KeyError("Missing admin_id key from config")
