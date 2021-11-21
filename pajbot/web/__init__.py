@@ -13,6 +13,9 @@ from pajbot.utils import extend_version_if_possible
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
+# 30 days
+SECRET_KEY_EXPIRY_SECONDS = 86400 * 30
+
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
@@ -41,7 +44,7 @@ def _load_secret_key(bot_id: str, streamer_id: str) -> str:
 
     if value is None:
         value = token_urlsafe(64)
-        redis.set(key, value)
+        redis.set(key, value, ex=SECRET_KEY_EXPIRY_SECONDS)
 
     return value
 
