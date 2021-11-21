@@ -95,7 +95,7 @@ def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tupl
     return None, None
 
 
-def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
+def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str], Tuple[None, None]]:
     """
     Load either the admin Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from admin_id, and the Twitch User Login us read from admin
@@ -111,7 +111,7 @@ def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None
         )
         return None, config["main"]["admin"]
 
-    raise KeyError("Missing admin_id key from config")
+    return None, None
 
 
 def load_twitter_manager(config: Config) -> Type[GenericTwitterManager]:
