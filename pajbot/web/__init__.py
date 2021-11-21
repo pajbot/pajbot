@@ -124,12 +124,10 @@ def init(args):
     app.bot_commands_list = []
     app.bot_config = config
 
-    secret_key = _load_secret_key(app.bot_user.id, app.streamer.id)
-
     # https://flask.palletsprojects.com/en/1.1.x/quickstart/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.secret_key
-    app.secret_key = secret_key
+    app.secret_key = _load_secret_key(app.bot_user.id, app.streamer.id)
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
