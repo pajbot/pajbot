@@ -13,6 +13,9 @@ from pajbot.utils import extend_version_if_possible
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
+# 30 days
+SECRET_KEY_EXPIRY_SECONDS = 86400 * 30
+
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
@@ -28,13 +31,30 @@ app.url_map.strict_slashes = False
 log = logging.getLogger(__name__)
 
 
+def _load_secret_key(bot_id: str, streamer_id: str) -> str:
+    from secrets import token_urlsafe
+
+    from pajbot.managers.redis import RedisManager
+
+    redis = RedisManager.get()
+
+    key = f"web_secret_key:{bot_id}:{streamer_id}"
+
+    value = redis.get(key)
+
+    if value is None:
+        value = token_urlsafe(64)
+        redis.set(key, value, ex=SECRET_KEY_EXPIRY_SECONDS)
+
+    return value
+
+
 def init(args):
     import subprocess
     import sys
 
     from flask import request
     from flask import session
-    from flask_scrypt import generate_random_salt
 
     import pajbot.utils
     import pajbot.web.common
@@ -74,13 +94,6 @@ def init(args):
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
 
-    if "secret_key" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "secret_key", salt.decode("utf-8"))
-
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
-
     app.streamer = cfg.load_streamer(config, twitch_helix_api)
 
     app.streamer_display = app.streamer.name
@@ -110,10 +123,11 @@ def init(args):
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
     app.bot_config = config
+
     # https://flask.palletsprojects.com/en/1.1.x/quickstart/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.secret_key
-    app.secret_key = config["web"]["secret_key"]
+    app.secret_key = _load_secret_key(app.bot_user.id, app.streamer.id)
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
