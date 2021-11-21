@@ -147,7 +147,7 @@ class Bot:
         self.bot_user: UserBasics = cfg.load_bot(config, self.twitch_helix_api)
 
         self.control_hub_user: Optional[UserBasics] = self._load_control_hub(config)
-        self.control_hub_channel: Optional[str]
+        self.control_hub_channel: Optional[str] = None
         if self.control_hub_user:
             self.control_hub_channel = f"#{self.control_hub_user.login}"
 
