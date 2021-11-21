@@ -140,13 +140,13 @@ def init(app):
             session["user"] = me.jsonify()
 
         # bot login
-        if me.login == app.bot_config["main"]["nickname"].lower():
+        if me.login == app.bot_user.login.lower():
             redis = RedisManager.get()
             redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
             log.info("Successfully updated bot token in redis")
 
         # streamer login
-        if me.login == app.bot_config["main"]["streamer"].lower():
+        if me.login == app.streamer.login.lower():
             # there's a good chance the streamer will later log in using the normal login button.
             # we only update their access token if the returned scope containes the special scopes requested
             # in /streamer_login

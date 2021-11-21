@@ -42,7 +42,12 @@ class UserRank(Base):
 class UserBasics:
     def __init__(self, id: str, login: str, name: str):
         self.id = id
+
+        # Login name, all lowercase
         self.login = login
+
+        # Display name, either a differently capitalized version of the login name
+        # or a localized username (e.g.  테스트계정420 for testaccount_420)
         self.name = name
 
     def jsonify(self) -> Dict[str, str]:

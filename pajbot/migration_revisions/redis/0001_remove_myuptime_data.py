@@ -8,4 +8,4 @@ if TYPE_CHECKING:
 
 
 def up(redis: RedisType, bot: Bot) -> None:
-    redis.delete(f"{bot.streamer}:viewer_data")
+    redis.delete(f"{bot.streamer.login}:viewer_data")

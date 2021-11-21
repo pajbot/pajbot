@@ -282,6 +282,24 @@ class TwitchHelixAPI(BaseTwitchAPI):
             return None
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
+    def require_user_basics_by_login(self, login: str) -> UserBasics:
+        user_basics = self.get_user_basics_by_login(login)
+        if user_basics is None:
+            raise ValueError(f'No user found under login name "{login}" on Twitch')
+        return user_basics
+
+    def get_user_basics_by_id(self, user_id: str) -> Optional[UserBasics]:
+        user_data = self._get_user_data_by_id(user_id)
+        if user_data is None:
+            return None
+        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+
+    def require_user_basics_by_id(self, user_id: str) -> UserBasics:
+        user_basics = self.get_user_basics_by_id(user_id)
+        if user_basics is None:
+            raise ValueError(f'No user found under user ID "{user_id}" on Twitch')
+        return user_basics
+
     def fetch_user_basics_from_authorization(self, authorization) -> UserBasics:
         """Fetch the UserBasics for the user identified by the given authorization object.
         `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""

@@ -88,7 +88,7 @@ class StreamUpdateModule(BaseModule):
 
         try:
             bot.twitch_helix_api.modify_channel_information(
-                bot.streamer_user_id,
+                bot.streamer.id,
                 {"game_id": game.id},
                 authorization=bot.streamer_access_token_manager,
             )
@@ -126,7 +126,7 @@ class StreamUpdateModule(BaseModule):
 
         try:
             bot.twitch_helix_api.modify_channel_information(
-                bot.streamer_user_id,
+                bot.streamer.id,
                 {"title": title},
                 authorization=bot.streamer_access_token_manager,
             )
