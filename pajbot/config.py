@@ -76,7 +76,7 @@ def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
     raise ValueError("Bad config, missing bot id or login")
 
 
-def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
+def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str], Tuple[None, None]]:
     """
     Load either the control hub Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from control_hub_id, and the Twitch User Login us read from control_hub
@@ -92,7 +92,7 @@ def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tupl
         )
         return None, config["main"]["control_hub"]
 
-    raise KeyError("Missing control_hub_id key from config")
+    return None, None
 
 
 def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
