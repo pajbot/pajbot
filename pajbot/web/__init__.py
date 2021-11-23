@@ -72,7 +72,9 @@ def init(args):
     config = load_config(args.config)
 
     api_client_credentials = ClientCredentials(
-        config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
+        config["twitchapi"]["client_id"],
+        config["twitchapi"]["client_secret"],
+        config["twitchapi"].get("redirect_uri", f"https://{config['web']['domain']}/login/authorized"),
     )
 
     redis_options = {}
