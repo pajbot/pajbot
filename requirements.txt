@@ -13,7 +13,7 @@ jsmin==3.0.0
 Markdown==3.3.6
 Levenshtein==0.16.0
 psycopg2==2.9.2
-pylast==4.3.0
+pylast==4.4.0
 pyOpenSSL==21.0.0 # for twisted.internet.ssl
 pytz==2021.3
 ratelimiter==1.2.0.post0
