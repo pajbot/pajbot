@@ -1,16 +1,17 @@
 import collections
 
-from flask import render_template
-
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
 from pajbot.web.utils import requires_level
 
+from flask import render_template
+from flask.typing import ResponseReturnValue
 
-def init(page):
+
+def init(page) -> None:
     @page.route("/moderators/")
     @requires_level(500)
-    def moderators(**options):
+    def moderators(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             moderator_users = db_session.query(User).filter(User.level > 100).order_by(User.level.desc()).all()
             userlists = collections.OrderedDict()

@@ -1,10 +1,8 @@
-import logging
+from __future__ import annotations
 
-from flask import abort
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
+from typing import Optional
+
+import logging
 
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
@@ -12,13 +10,16 @@ from pajbot.models.sock import SocketClientManager
 from pajbot.models.timer import Timer
 from pajbot.web.utils import requires_level
 
+from flask import abort, redirect, render_template, request, session
+from flask.typing import ResponseReturnValue
+
 log = logging.getLogger(__name__)
 
 
-def init(page):
+def init(page) -> None:
     @page.route("/timers/")
     @requires_level(500)
-    def timers(**options):
+    def timers(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             return render_template(
                 "admin/timers.html",
@@ -29,7 +30,7 @@ def init(page):
 
     @page.route("/timers/edit/<timer_id>")
     @requires_level(500)
-    def timers_edit(timer_id, **options):
+    def timers_edit(timer_id, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
 
@@ -40,7 +41,7 @@ def init(page):
 
     @page.route("/timers/create", methods=["GET", "POST"])
     @requires_level(500)
-    def timers_create(**options):
+    def timers_create(**options) -> ResponseReturnValue:
         session.pop("timer_created_id", None)
         session.pop("timer_edited_id", None)
         if request.method != "POST":
@@ -76,11 +77,13 @@ def init(page):
         action = {"type": message_type, "message": message}
         options["action"] = action
 
+        timer: Optional[Timer] = None
+
         if id is None:
             timer = Timer(**options)
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            if id is not None:
+            if timer is None:
                 timer = db_session.query(Timer).filter_by(id=id).one_or_none()
                 if timer is None:
                     return redirect("/admin/timers/", 303)

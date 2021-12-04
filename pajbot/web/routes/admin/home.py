@@ -1,15 +1,16 @@
-from flask import render_template
-from sqlalchemy.orm import joinedload
-
 from pajbot.managers.adminlog import AdminLogEntry
 from pajbot.managers.db import DBManager
 from pajbot.web.utils import requires_level
 
+from flask import render_template
+from flask.typing import ResponseReturnValue
+from sqlalchemy.orm import joinedload
 
-def init(page):
+
+def init(page) -> None:
     @page.route("/")
     @requires_level(500)
-    def home(**options):
+    def home(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             latest_logs = (
                 db_session.query(AdminLogEntry)

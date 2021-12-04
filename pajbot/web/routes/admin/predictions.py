@@ -1,17 +1,16 @@
-from flask import abort
-from flask import render_template
-from sqlalchemy.orm import joinedload
-
 from pajbot.managers.db import DBManager
-from pajbot.modules.predict import PredictionRun
-from pajbot.modules.predict import PredictionRunEntry
+from pajbot.modules.predict import PredictionRun, PredictionRunEntry
 from pajbot.web.utils import requires_level
 
+from flask import abort, render_template
+from flask.typing import ResponseReturnValue
+from sqlalchemy.orm import joinedload
 
-def init(page):
+
+def init(page) -> None:
     @page.route("/predictions/")
     @requires_level(500)
-    def predictions(**options):
+    def predictions(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             predictions = db_session.query(PredictionRun).order_by(PredictionRun.started.desc()).all()
 
@@ -25,7 +24,7 @@ def init(page):
 
     @page.route("/predictions/view/<prediction_run_id>")
     @requires_level(500)
-    def predictions_view(prediction_run_id, **options):
+    def predictions_view(prediction_run_id, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             prediction = db_session.query(PredictionRun).filter_by(id=prediction_run_id).one_or_none()
             if prediction is None:
