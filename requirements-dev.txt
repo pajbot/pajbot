@@ -16,7 +16,7 @@ types-requests==2.26.1
 types-retry==0.9.2
 # sqlalchemy2-stubs==0.0.2a15
 sqlalchemy-stubs==0.4
-types-psycopg2==2.9.3
+types-psycopg2==2.9.4
 types-colorama==0.4.4
 types-beautifulsoup4==4.10.5
 types-httplib2==0.20.1
