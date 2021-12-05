@@ -1,4 +1,4 @@
-def test_is_subdomain():
+def test_is_subdomain() -> None:
     from pajbot.modules.linkchecker import is_subdomain
 
     assert is_subdomain("pajlada.se", "pajlada.se")
@@ -9,7 +9,7 @@ def test_is_subdomain():
     assert not is_subdomain("foo.bar.com", "foobar.com")
 
 
-def test_is_subpath():
+def test_is_subpath() -> None:
     from pajbot.modules.linkchecker import is_subpath
 
     assert is_subpath("/foo/", "/foo/")
@@ -19,7 +19,7 @@ def test_is_subpath():
     assert not is_subpath("/foo/", "/foo/bar")
 
 
-def test_is_same_url():
+def test_is_same_url() -> None:
     from pajbot.modules.linkchecker import is_same_url, Url
 
     assert is_same_url(Url("pajlada.se"), Url("pajlada.se/"))
@@ -28,7 +28,7 @@ def test_is_same_url():
     assert not is_same_url(Url("pajlada.com"), Url("pajlada.com/abc"))
 
 
-def test_find_unique_urls():
+def test_find_unique_urls() -> None:
     from pajbot.modules.linkchecker import find_unique_urls
 
     assert find_unique_urls("pajlada.se test http://pajlada.se") == {"http://pajlada.se"}
