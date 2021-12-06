@@ -1,19 +1,20 @@
 import collections
 import logging
 
-from flask import render_template
-
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 from pajbot.web.utils import requires_level
 
+from flask import render_template
+from flask.typing import ResponseReturnValue
+
 log = logging.getLogger(__name__)
 
 
-def init(page):
+def init(page) -> None:
     @page.route("/streamer/")
     @requires_level(500)
-    def admin_streamer(**options):
+    def admin_streamer(**options) -> ResponseReturnValue:
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
         keys = StreamHelper.social_keys

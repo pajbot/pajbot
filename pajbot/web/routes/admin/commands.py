@@ -1,28 +1,24 @@
 import logging
 
-from flask import abort
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from sqlalchemy.orm import joinedload
-
 import pajbot.managers
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandData
+from pajbot.models.command import Command, CommandData
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.web.utils import requires_level
 
+from flask import abort, redirect, render_template, request, session
+from flask.typing import ResponseReturnValue
+from sqlalchemy.orm import joinedload
+
 log = logging.getLogger(__name__)
 
 
-def init(page):
+def init(page) -> None:
     @page.route("/commands/")
     @requires_level(500)
-    def commands(**options):
+    def commands(**options) -> ResponseReturnValue:
         from pajbot.models.module import ModuleManager
 
         bot_commands = pajbot.managers.command.CommandManager(
@@ -62,7 +58,7 @@ def init(page):
 
     @page.route("/commands/edit/<command_id>")
     @requires_level(500)
-    def commands_edit(command_id, **options):
+    def commands_edit(command_id, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             command = (
                 db_session.query(Command)
@@ -78,7 +74,7 @@ def init(page):
 
     @page.route("/commands/create", methods=["GET", "POST"])
     @requires_level(500)
-    def commands_create(**options):
+    def commands_create(**options) -> ResponseReturnValue:
         session.pop("command_created_id", None)
         session.pop("command_edited_id", None)
         if request.method != "POST":
@@ -91,10 +87,10 @@ def init(page):
         delay_user = request.form.get("usercd", Command.DEFAULT_CD_USER)
         level = request.form.get("level", Command.DEFAULT_LEVEL)
         cost = request.form.get("cost", 0)
-        can_execute_with_whisper = request.form.get("whisperable", "off")
-        sub_only = request.form.get("subonly", "off")
-        mod_only = request.form.get("modonly", "off")
-        run_through_banphrases = request.form.get("checkmsg", "off")
+        can_execute_with_whisper = request.form.get("whisperable", "off") == "on"
+        sub_only = request.form.get("subonly", "off") == "on"
+        mod_only = request.form.get("modonly", "off") == "on"
+        run_through_banphrases = request.form.get("checkmsg", "off") == "on"
 
         try:
             delay_all = int(delay_all)
@@ -103,11 +99,6 @@ def init(page):
             cost = int(cost)
         except ValueError:
             abort(403)
-
-        can_execute_with_whisper = can_execute_with_whisper == "on"
-        sub_only = sub_only == "on"
-        mod_only = mod_only == "on"
-        run_through_banphrases = run_through_banphrases == "on"
 
         if not alias_str:
             abort(403)
@@ -153,14 +144,14 @@ def init(page):
             socket_manager=None, module_manager=ModuleManager(None).load(), bot=None
         ).load(enabled=None)
 
-        command_aliases = []
+        command_aliases_list = []
 
         for alias, command in command_manager.items():
-            command_aliases.append(alias)
+            command_aliases_list.append(alias)
             if command.command and len(command.command) > 0:
-                command_aliases.extend(command.command.split("|"))
+                command_aliases_list.extend(command.command.split("|"))
 
-        command_aliases = set(command_aliases)
+        command_aliases = set(command_aliases_list)
 
         alias_str = alias_str.replace(" ", "").replace("!", "").lower()
         alias_list = alias_str.split("|")
