@@ -123,7 +123,7 @@ class StreamUpdateModule(BaseModule):
         if not title:
             bot.say("You must specify a title to update to!")
             return
-        
+
         if len(title) > 140:
             bot.say("Your title is too long!")
             return
