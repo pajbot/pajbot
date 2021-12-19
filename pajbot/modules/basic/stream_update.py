@@ -124,6 +124,10 @@ class StreamUpdateModule(BaseModule):
             bot.say("You must specify a title to update to!")
             return
 
+        if len(title) > 140:
+            bot.say("Your title is too long!")
+            return
+
         try:
             bot.twitch_helix_api.modify_channel_information(
                 bot.streamer.id,
