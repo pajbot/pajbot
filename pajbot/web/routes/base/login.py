@@ -27,7 +27,7 @@ def init(app):
         params = {
             "client_id": app.bot_config["twitchapi"]["client_id"],
             "redirect_uri": app.bot_config["twitchapi"].get(
-                "redirect_uri", f"https://{config['web']['domain']}/login/authorized"
+                "redirect_uri", f"https://{app.bot_config['web']['domain']}/login/authorized"
             ),
             "response_type": "code",
             "scope": " ".join(scopes),
