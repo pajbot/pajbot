@@ -128,7 +128,7 @@ class Bot:
         self.api_client_credentials = ClientCredentials(
             config["twitchapi"]["client_id"],
             config["twitchapi"]["client_secret"],
-            config["twitchapi"]["redirect_uri"],
+            config["twitchapi"].get("redirect_uri", f"https://{config['web']['domain']}/login/authorized"),
         )
 
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
