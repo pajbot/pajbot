@@ -143,9 +143,15 @@ def init(app):
 
         # bot login
         if me.login == app.bot_user.login.lower():
-            redis = RedisManager.get()
-            redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
-            log.info("Successfully updated bot token in redis")
+            # There's a possibility the owner of the bot account will login using the normal login button.
+            # We only want to update their access token if the returned scope contains the special scopes requested
+            # in /bot_login
+            if set(access_token.scope) < set(bot_scopes):
+                log.info("Bot account logged in but not all scopes present, will not update bot token")
+            else:
+                redis = RedisManager.get()
+                redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
+                log.info("Successfully updated bot token in redis")
 
         # streamer login
         if me.login == app.streamer.login.lower():
