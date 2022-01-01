@@ -4,6 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.59
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: The `redirect_uri` config option under the `[twitchapi]` section is now optional with a sane default value: `https://<domain>/login/authorized`. (#1618, #1666)
 - Minor: Allow configuring streamer, bot, admin, and control hub using Twitch User IDs instead of Twitch User Logins. **Specifying user logins in the config has therefore now been deprecated and may stop working in a future release.** (#1590)
 - Minor: Add time function `$(datetimefromtimestamp)` and filter `time_until_dt`. See `docs/variables.md` for example usages. (#1670)
