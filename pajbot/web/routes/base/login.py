@@ -141,29 +141,26 @@ def init(app):
             me = User.from_basics(db_session, user_basics)
             session["user"] = me.jsonify()
 
-        # bot login
-        if me.login == app.bot_user.login.lower():
-            redis = RedisManager.get()
-            redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
-            log.info("Successfully updated bot token in redis")
+        required_user_scopes = {
+            # Bot
+            app.bot_user.login.lower(): set(bot_scopes),
+            # Streamer
+            app.streamer.login.lower(): set(streamer_scopes),
+        }
 
-        # streamer login
-        if me.login == app.streamer.login.lower():
-            # there's a good chance the streamer will later log in using the normal login button.
-            # we only update their access token if the returned scope containes the special scopes requested
-            # in /streamer_login
+        if me.login in required_user_scopes:
+            # Stop the user from accidentally downgrading their scopes when logging in with
+            # the Streamer or Bot account on the normal /login page
+            required_scopes = required_user_scopes[me.login]
 
-            # We use < to say "if the granted scope is a proper subset of the required scopes", this can be case
-            # for example when the bot is running in its own channel and you use /bot_login,
-            # then the granted scopes will be a superset of the scopes needed for the streamer.
-            # By doing this, both the streamer and bot token will be set if you complete /bot_login with the bot
-            # account, and if the bot is running in its own channel.
-            if set(access_token.scope) < set(streamer_scopes):
-                log.info("Streamer logged in but not all scopes present, will not update streamer token")
+            if set(access_token.scope) < required_scopes:
+                log.info(
+                    f"User {me.login} logged in but not all of their required scopes are present, will not update redis token"
+                )
             else:
                 redis = RedisManager.get()
                 redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
-                log.info("Successfully updated streamer token in redis")
+                log.info(f"Successfully updated {me.login}'s token in redis to {access_token.scope}")
 
         return redirect(return_to)
 
