@@ -418,6 +418,17 @@ class Bot:
         except:
             log.exception("Unhandled exception in get_datetimefromisoformat_value")
 
+    def get_datetimefromtimestamp_value(self, key, extra={}):
+        try:
+            dt = datetime.datetime.fromtimestamp(int(key))
+            if dt.tzinfo is None:
+                # The date format passed through in key did not contain a timezone, so we replace it with UTC
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+
+            return dt
+        except:
+            log.exception("Unhandled exception in get_datetimefromisoformat_value")
+
     def get_current_song_value(self, key, extra={}):
         if self.stream_manager.online:
             current_song = PleblistManager.get_current_song(self.stream_manager.current_stream.id)
@@ -1068,6 +1079,7 @@ class Bot:
             else utils.time_since(var * 60, 0, time_format="long"),
             "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
+            "time_until_dt": _filter_time_until_dt,
             "timedelta_days": _filter_timedelta_days,
             "urlencode": _filter_urlencode,
             "join": _filter_join,
@@ -1099,6 +1111,17 @@ class Bot:
 def _filter_time_since_dt(var: Any, args: List[str]) -> Any:
     try:
         ts = utils.time_since(utils.now().timestamp(), var.timestamp())
+        if ts:
+            return ts
+
+        return "0 seconds"
+    except:
+        return "never FeelsBadMan ?"
+
+
+def _filter_time_until_dt(var: Any, args: List[str]) -> Any:
+    try:
+        ts = utils.time_since(var.timestamp(), utils.now().timestamp())
         if ts:
             return ts
 
