@@ -32,7 +32,6 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `time_since_minutes` - outputs the time since a certain input time in minutes  
 `time_since` - outputs the time since a certain input time  
 `time_since_dt` - outputs the date since a certain input date  
-`time_until` - outputs the time until a certain input time (reverse `time_since` operation)  
 `time_until_dt` - outputs the date until a certain input date (reverse `time_since_dt` operation)  
 `timedelta_days` - outputs the number of days between the variable result `datetime` object and now - e.g. `$(datetimefromisoformat:2020-09-10|timedelta_days)` would return the amount of days since the date 2020-09-10
 

@@ -1079,7 +1079,6 @@ class Bot:
             else utils.time_since(var * 60, 0, time_format="long"),
             "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
-            "time_until": lambda var, args: "no time" if var == 0 else utils.time_since(0, var, time_format="long"),
             "time_until_dt": _filter_time_until_dt,
             "timedelta_days": _filter_timedelta_days,
             "urlencode": _filter_urlencode,
