@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Minor: The `redirect_uri` config option under the `[twitchapi]` section is now optional with a sane default value: `https://<domain>/login/authorized`. (#1618, #1666)
 - Minor: Allow configuring streamer, bot, admin, and control hub using Twitch User IDs instead of Twitch User Logins. **Specifying user logins in the config has therefore now been deprecated and may stop working in a future release.** (#1590)
+- Bugfix: Fix the bot downgrading bot scopes when logging in on the normal `/login` page using the bot account. (#1669)
 - Bugfix: Added an error for a title being too long. (#1638)
 - Bugfix: Fix tweet-manager streaming if bot follows non-existent twitter users. (#1589)
 - Dev: Replaced Flask-Scrypt with the built-in secrets module to generate the Flask secret key. (#1613)
