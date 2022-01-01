@@ -179,9 +179,9 @@ class QuestModule(BaseModule):
         self.current_quest.start_quest()
         log.info(f"Resumed quest {quest.get_objective()}")
 
-    def enable(self, bot):
+    def enable(self, bot) -> None:
         if self.bot:
-            self.current_quest_key = f"{self.bot.streamer}:current_quest"
+            self.current_quest_key = f"{self.bot.streamer.login}:current_quest"
 
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)

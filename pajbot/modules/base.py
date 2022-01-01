@@ -143,6 +143,8 @@ class BaseModule:
         for setting in self.SETTINGS:
             self.default_settings[setting.key] = setting.default
 
+        self.db_module: Optional[Module] = None
+
     def load(self, **options: Any) -> BaseModule:
         """This method will load everything from the module into
         their proper dictionaries, which we can then use later."""

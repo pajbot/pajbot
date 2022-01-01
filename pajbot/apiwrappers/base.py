@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 class BaseAPI:
-    def __init__(self, base_url: str, redis: Optional[RedisType] = None) -> None:
+    def __init__(self, base_url: Optional[str], redis: Optional[RedisType] = None) -> None:
         self.base_url = base_url
 
         self.session = Session()

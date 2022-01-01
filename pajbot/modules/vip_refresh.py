@@ -51,8 +51,12 @@ class VIPRefreshModule(BaseModule):
 
         return None
 
-    def _on_pubnotice(self, channel, msg_id, message):
-        if channel != self.bot.streamer:
+    def _on_pubnotice(self, channel: str, msg_id, message) -> None:
+        if self.bot is None:
+            log.warn("_on_pubnotice failed in VIPRefreshModule because bot is None")
+            return
+
+        if channel != self.bot.streamer.login:
             return
 
         vip_logins = self._parse_pubnotice_for_vips(msg_id, message)

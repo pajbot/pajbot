@@ -31,10 +31,14 @@ class SubscriberFetchModule(BaseModule):
         bot.action_queue.submit(self._update_subscribers)
 
     @time_method
-    def _update_subscribers(self):
+    def _update_subscribers(self) -> None:
+        if self.bot is None:
+            log.warn("_update_subscribers failed in SubscriberFetchModule because bot is None")
+            return
+
         try:
             subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(
-                self.bot.streamer_user_id, self.bot.streamer_access_token_manager
+                self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
         except NoTokenError:
             log.warning(
@@ -52,12 +56,12 @@ class SubscriberFetchModule(BaseModule):
             else:
                 raise
 
-        user_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(subscriber_ids)
+        unfiltered_user_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(subscriber_ids)
         # filter out deleted/invalid users
-        user_basics = [e for e in user_basics if e is not None]
+        user_basics = [e for e in unfiltered_user_basics if e is not None]
 
         # count how many subs we have (we don't want to count the broadcaster with his permasub)
-        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer_user_id)
+        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer.id)
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:

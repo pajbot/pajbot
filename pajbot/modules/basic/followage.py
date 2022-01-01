@@ -176,7 +176,7 @@ class FollowAgeModule(BaseModule):
                 from_user = source
 
             if to_input is None:
-                to_input = bot.streamer  # TODO make bot.streamer a User() instance?
+                to_input = bot.streamer.login
 
             to_user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, to_input)
             if to_user is None:

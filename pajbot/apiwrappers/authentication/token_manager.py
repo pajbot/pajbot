@@ -100,7 +100,7 @@ class AppAccessTokenManager(AccessTokenManager):
 
 
 class UserAccessTokenManager(AccessTokenManager):
-    def __init__(self, api, redis, username, user_id, token=None):
+    def __init__(self, api, redis, username: str, user_id: str, token=None) -> None:
         redis_key = f"authentication:user-access-token:{user_id}"
         storage = RedisTokenStorage(redis, UserAccessToken, redis_key, expire=False)
 

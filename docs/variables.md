@@ -32,6 +32,7 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `time_since_minutes` - outputs the time since a certain input time in minutes  
 `time_since` - outputs the time since a certain input time  
 `time_since_dt` - outputs the date since a certain input date  
+`time_until_dt` - outputs the date until a certain input date (reverse `time_since_dt` operation)  
 `timedelta_days` - outputs the number of days between the variable result `datetime` object and now - e.g. `$(datetimefromisoformat:2020-09-10|timedelta_days)` would return the amount of days since the date 2020-09-10
 
 #### Letter Case
@@ -235,5 +236,18 @@ Generates a python `datetime` object from the given iso format: https://docs.pyt
 Example usage: `$(datetimefromisoformat:2013-02-19)` would return a datetime value that would stringify in chat to `2013-02-19 00:00:00+00:00`.
 
 If no timezone has been specified in the argument, the datetime object will be forced to the UTC timezone.
+
+stftime is a useful filter to call on this function
+
+#### datetimefromtimestamp
+
+Generates a python `datetime` object from the given unix timestamp: https://docs.python.org/3/library/datetime.html#datetime.date.fromtimestamp
+
+Example usages:
+
+- `$(datetimefromtimestamp:1640991605)` would return a datetime value that would stringify in chat to `2022-01-01 00:00:05`
+- `Time until 2023: $(datetimefromtimestamp:1672527600|time_until_dt)` would return: `Time until 2023: 11 months and 29 days`
+
+It is not possible to add a timezone to this argument.
 
 stftime is a useful filter to call on this function

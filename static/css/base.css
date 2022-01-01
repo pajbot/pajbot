@@ -1,0 +1,602 @@
+.pui.command,
+.pui.argument {
+    font-family: monospace;
+    border-radius: 0.285rem;
+    background: #f8f8f9;
+    padding: 0.4em;
+    line-height: 18px;
+    box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.22) inset, 0 0 0 0 transparent;
+    display: inline-block;
+}
+
+.pui.badge {
+    padding: 0;
+    float: none !important;
+    margin: 0;
+    height: 18px;
+    min-width: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    background-size: 100%;
+}
+
+.pui.badge.staff {
+    background-image: url("/static/images/badge_staff_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_staff_1x.png" 1x,
+        "/static/images/badge_staff_2x.png" 2x,
+        "/static/images/badge_staff_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_staff_1x.png" 1x,
+        "/static/images/badge_staff_2x.png" 2x,
+        "/static/images/badge_staff_4x.png" 4x
+    );
+}
+
+.pui.badge.broadcaster {
+    background-image: url("/static/images/badge_broadcaster_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_broadcaster_1x.png" 1x,
+        "/static/images/badge_broadcaster_2x.png" 2x,
+        "/static/images/badge_broadcaster_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_broadcaster_1x.png" 1x,
+        "/static/images/badge_broadcaster_2x.png" 2x,
+        "/static/images/badge_broadcaster_4x.png" 4x
+    );
+}
+
+.pui.badge.globalmod {
+    background-image: url("/static/images/badge_globalmod_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_globalmod_1x.png" 1x,
+        "/static/images/badge_globalmod_2x.png" 2x,
+        "/static/images/badge_globalmod_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_globalmod_1x.png" 1x,
+        "/static/images/badge_globalmod_2x.png" 2x,
+        "/static/images/badge_globalmod_4x.png" 4x
+    );
+}
+
+.pui.badge.moderator {
+    background-image: url("/static/images/badge_moderator_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_moderator_1x.png" 1x,
+        "/static/images/badge_moderator_2x.png" 2x,
+        "/static/images/badge_moderator_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_moderator_1x.png" 1x,
+        "/static/images/badge_moderator_2x.png" 2x,
+        "/static/images/badge_moderator_4x.png" 4x
+    );
+}
+
+.pui.badge.helper {
+    background: #595959 url("/static/images/badge_helper.png");
+}
+
+.pui.badge.turbo {
+    background-image: url("/static/images/badge_turbo_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_turbo_1x.png" 1x,
+        "/static/images/badge_turbo_2x.png" 2x,
+        "/static/images/badge_turbo_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_turbo_1x.png" 1x,
+        "/static/images/badge_turbo_2x.png" 2x,
+        "/static/images/badge_turbo_4x.png" 4x
+    );
+}
+
+.pui.badge.bot {
+    background: url("/static/images/badge_bot.png");
+}
+
+.pui.badge.vip {
+    background-image: url("/static/images/badge_vip_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_vip_1x.png" 1x,
+        "/static/images/badge_vip_2x.png" 2x,
+        "/static/images/badge_vip_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_vip_1x.png" 1x,
+        "/static/images/badge_vip_2x.png" 2x,
+        "/static/images/badge_vip_4x.png" 4x
+    );
+}
+
+.pui.badge.founder {
+    background-image: url("/static/images/badge_founder_1x.png");
+    background-image: -webkit-image-set(
+        "/static/images/badge_founder_1x.png" 1x,
+        "/static/images/badge_founder_2x.png" 2x,
+        "/static/images/badge_founder_4x.png" 4x
+    );
+    background-image: image-set(
+        "/static/images/badge_founder_1x.png" 1x,
+        "/static/images/badge_founder_2x.png" 2x,
+        "/static/images/badge_founder_4x.png" 4x
+    );
+}
+
+div.pui.class {
+    display: inline-block;
+    vertical-align: middle;
+    height: 32px;
+    min-width: 32px;
+}
+
+div.pui.class.druid {
+    background: url("/static/images/class_druid_32.png") no-repeat;
+}
+
+div.pui.class.hunter {
+    background: url("/static/images/class_hunter_32.png") no-repeat;
+}
+
+div.pui.class.mage {
+    background: url("/static/images/class_mage_32.png") no-repeat;
+}
+
+div.pui.class.paladin {
+    background: url("/static/images/class_paladin_32.png") no-repeat;
+}
+
+div.pui.class.priest {
+    background: url("/static/images/class_priest_32.png") no-repeat;
+}
+
+div.pui.class.rogue {
+    background: url("/static/images/class_rogue_32.png") no-repeat;
+}
+
+div.pui.class.shaman {
+    background: url("/static/images/class_shaman_32.png") no-repeat;
+}
+
+div.pui.class.warlock {
+    background: url("/static/images/class_warlock_32.png") no-repeat;
+}
+
+div.pui.class.warrior {
+    background: url("/static/images/class_warrior_32.png") no-repeat;
+}
+
+div.pui.class.undefined {
+    background: url("/static/images/class_undefined_32.png") no-repeat;
+}
+
+.pui.user {
+    font-weight: bold;
+}
+
+.user.l2000 {
+    color: #f0f;
+}
+
+.user.l1500 {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0, #922),
+        color-stop(1, #f55)
+    );
+}
+
+.user.l1000,
+.user.l1250 {
+    color: #922;
+}
+
+.user.l750 {
+    color: #11f;
+}
+
+.user.l500 {
+    color: #44f;
+}
+
+.user.l420,
+.user.l421 {
+    color: #292;
+}
+
+.user.l501 {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0, red),
+        color-stop(50%, yellow),
+        color-stop(1, green)
+    );
+}
+
+.user.l123 {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0, red),
+        color-stop(16%, orange),
+        color-stop(32%, yellow),
+        color-stop(48%, green),
+        color-stop(60%, blue),
+        color-stop(76%, indigo),
+        color-stop(1, violet)
+    );
+}
+
+@media (min-height: 320px) {
+    .footer.form-page {
+        position: absolute !important;
+        bottom: 0;
+        width: 100%;
+    }
+}
+
+.main.body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.main.header {
+    z-index: 1001;
+}
+
+.main.header,
+.main.footer {
+    flex: none;
+}
+
+.main.container {
+    flex: 1 0 auto;
+    padding: 65px 2em 1em 2em;
+    width: 100%;
+}
+
+#check_points {
+    width: 30%;
+    min-width: 300px;
+}
+
+div.video_thumbnail {
+    position: relative;
+    width: 240px;
+    height: 135px;
+    overflow: hidden;
+}
+
+div.video_thumbnail img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 100%;
+    width: auto;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.picker__footer {
+    display: none;
+}
+
+div#stats th,
+div#userprofile td {
+    width: 50%;
+}
+
+div.stats.minitable {
+    width: 400px;
+    margin-bottom: 1em;
+    float: left;
+}
+
+div.mediumtable {
+    width: 600px;
+}
+
+div#songlist div.item:first-child,
+div#songhistory div.item.not-played.first {
+    background-color: rgba(0, 255, 0, 0.175);
+}
+
+#songlist .song-index {
+    float: left;
+    padding-right: 5px;
+}
+
+#songlist a.skip {
+    color: red;
+    opacity: 0.5;
+    transition: opacity 0.25s ease-in-out;
+}
+
+#songlist a.skip:hover {
+    opacity: 1;
+}
+
+div#songhistory div.item div.description {
+    line-height: 1.5em;
+}
+
+#songhistory .played {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+
+#pleblist {
+    height: 100%;
+}
+
+div.pleblist-wrapper {
+    overflow: hidden;
+}
+
+div.pleblist-wrapper div {
+    margin-bottom: 0.5em;
+}
+
+div.pleblist-wrapper div.inner-player-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0px;
+    padding-bottom: 60%;
+}
+
+#player {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+div.pleblist-wrapper div.player-wrapper {
+    width: auto;
+    overflow: hidden;
+    padding-right: 1em;
+}
+
+div.pleblist-wrapper div.songlist-wrapper {
+    float: right;
+    width: 240px;
+}
+
+table.editcommand div.edit {
+    display: none;
+}
+
+.ui.input.compact input,
+.ui.input.compact .ui.label {
+    padding: 0.375em;
+}
+
+td.description {
+    word-break: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+td.description a {
+    word-break: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+.ui.menu .item img.logo {
+    margin-right: 1em;
+}
+
+.ui.twitch.button {
+    background-color: #6441a5;
+    color: #ffffff;
+    text-shadow: none;
+    background-image: none;
+    box-shadow: 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
+}
+
+.ui.twitch.button:hover,
+.ui.twitch.button:active {
+    background-color: #7550ba;
+}
+
+div.chat div.chat-message {
+    display: block;
+    line-height: 16px;
+    word-break: break-word;
+    word-wrap: break-word;
+    color: #3d3d42;
+    border-bottom-color: #b4b4b4;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    display: block;
+    font-size: 12px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    width: 340px;
+    list-style-position: unset;
+    list-style-type: none;
+    font-family: Helvetica Neue, Helvetica, sans-serif;
+}
+
+.chat:nth-child(even) .chat-message.say,
+.chat:nth-child(even) .chat-message.me {
+    background-color: #c8c8c8;
+}
+
+.chat:nth-child(odd) .chat-message.say,
+.chat:nth-child(odd) .chat-message.me {
+    background-color: #d9d9d9;
+}
+
+.chat .chat-message.me.from-bot .message {
+    color: #7878ff;
+}
+
+.chat .chat-message.me.from-user .message {
+    color: #8b0000;
+}
+
+.chat .chat-message.me .separator {
+    display: none;
+}
+
+.chat .chat-message.whisper {
+    background-color: #e8d6ff;
+}
+
+.chat.border {
+    border-color: #b4b4b4;
+    border-width: 0.666667px;
+    border-style: solid;
+    width: 341px;
+}
+
+.timestamp {
+    color: #8c8c8c;
+    margin-right: 5px;
+}
+
+.chat .user {
+    color: #8b0000;
+    font-weight: 700;
+}
+
+.chat .bot {
+    color: #7878ff;
+    font-weight: 700;
+}
+
+.chat .svg {
+    height: 10px;
+    width: 16px;
+}
+
+.examples .description {
+    font-style: italic;
+    margin-bottom: 0.75em;
+    margin-top: -0.75em;
+}
+
+div.anchor {
+    display: block;
+    position: relative;
+    top: -65px;
+    visibility: hidden;
+}
+
+#bot_moderators h4 {
+    padding-top: 35px;
+}
+
+#pleblist_host #donationlist {
+    width: 700px;
+}
+
+.command-sample {
+    font-family: monospace;
+}
+
+.command-sample.new:after {
+    content: " NEW";
+    color: red;
+}
+
+td.label {
+    font-weight: bold;
+}
+
+table.formtable .ui.input {
+    display: block;
+}
+
+span.points {
+    font-weight: bold;
+}
+
+span.points.negative {
+    color: red;
+}
+
+span.points.positive {
+    color: green;
+}
+
+span.points.positive::before {
+    content: "+";
+}
+
+span.winrate {
+    font-weight: bold;
+}
+
+span.winrate.negative {
+    color: red;
+}
+
+span.winrate.positive {
+    color: green;
+}
+
+#commands div.segment.tab {
+    min-height: 1024px;
+}
+
+table .paginate div.pagination {
+    visibility: hidden;
+}
+
+table .paginate div.pagination a.page_btn.item {
+    flex-grow: 1;
+    flex-basis: auto;
+    min-width: 4em;
+    justify-content: center;
+}
+
+button.ui.button.streamelements {
+    background-color: #3f51b5;
+    color: white;
+}
+
+.twitter-follow {
+    display: flex;
+    align-items: center;
+}
+
+.twitter-follow button.ui.button {
+    margin-left: 5px;
+}
+
+.twitter_follows button.ui.button {
+    white-space: nowrap;
+}
+
+img.emote {
+    height: 2em;
+}
+
+.logo {
+    max-width: 64px;
+    max-height: 64px;
+    border-radius: 0.28571429rem;
+}

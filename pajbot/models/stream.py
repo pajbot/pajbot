@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import logging
 
@@ -16,6 +16,9 @@ from pajbot.models.user import UserChannelInformation, UserStream
 from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger("pajbot")
 
@@ -84,7 +87,7 @@ class StreamManager:
         if self.online is False:
             return
 
-        data = self.bot.twitch_helix_api.get_videos_by_user_id(self.bot.streamer_user_id)
+        data = self.bot.twitch_helix_api.get_videos_by_user_id(self.bot.streamer.id)
         self.bot.execute_now(self.refresh_video_url_stage2, data)
 
     def fetch_video_url_stage2(self, data: List[TwitchVideo]) -> Optional[TwitchVideo]:
@@ -108,7 +111,7 @@ class StreamManager:
 
         return None
 
-    def __init__(self, bot):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
         self.current_stream_chunk: Optional[StreamChunk] = None  # should this even exist?
@@ -143,6 +146,8 @@ class StreamManager:
         self.bot.execute_every(
             self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_video_url_stage1
         )
+
+        self.last_stream: Optional[Stream]
 
         # This will load the latest stream so we can post an accurate "time since last online" figure.
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
@@ -258,15 +263,15 @@ class StreamManager:
 
     def refresh_channel_information(self) -> None:
         channel_information: Optional[UserChannelInformation] = self.bot.twitch_helix_api.get_channel_information(
-            self.bot.streamer_user_id
+            self.bot.streamer.id
         )
 
         if channel_information is None:
-            log.error(f"Unable to fetch channel information about {self.bot.streamer_user_id}")
+            log.error(f"Unable to fetch channel information about {self.bot.streamer.id}")
             return
 
         redis = RedisManager.get()
-        key_prefix = self.bot.streamer + ":"
+        key_prefix = self.bot.streamer.login + ":"
 
         stream_data: Dict[Union[bytes, str], Any] = {
             f"{key_prefix}game": channel_information.game_name,
@@ -279,12 +284,12 @@ class StreamManager:
         self.title = channel_information.title
 
     def refresh_stream_status_stage1(self) -> None:
-        status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer_user_id)
+        status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer.id)
         self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
     def refresh_stream_status_stage2(self, status: Optional[UserStream]) -> None:
         redis = RedisManager.get()
-        key_prefix = self.bot.streamer + ":"
+        key_prefix = self.bot.streamer.login + ":"
 
         # Default data we want to update in case the stream is offline
         stream_data: Dict[Union[bytes, str], Any] = {

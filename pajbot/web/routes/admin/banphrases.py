@@ -1,26 +1,26 @@
-import logging
+from __future__ import annotations
 
-from flask import abort
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from sqlalchemy.orm import joinedload
+from typing import Optional
+
+import logging
 
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
-from pajbot.models.banphrase import Banphrase
-from pajbot.models.banphrase import BanphraseData
+from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.sock import SocketClientManager
 from pajbot.web.utils import requires_level
+
+from flask import abort, redirect, render_template, request, session
+from flask.typing import ResponseReturnValue
+from sqlalchemy.orm import joinedload
 
 log = logging.getLogger(__name__)
 
 
-def init(page):
+def init(page) -> None:
     @page.route("/banphrases/")
     @requires_level(500)
-    def banphrases(**options):
+    def banphrases(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             banphrases = (
                 db_session.query(Banphrase)
@@ -35,33 +35,26 @@ def init(page):
 
     @page.route("/banphrases/create", methods=["GET", "POST"])
     @requires_level(500)
-    def banphrases_create(**options):
+    def banphrases_create(**options) -> ResponseReturnValue:
         session.pop("banphrase_created_id", None)
         session.pop("banphrase_edited_id", None)
         if request.method == "POST":
-            id = None
+            id: Optional[int] = None
             try:
                 if "id" in request.form:
                     id = int(request.form["id"])
                 name = request.form["name"].strip()
-                permanent = request.form.get("permanent", "off")
-                warning = request.form.get("warning", "off")
-                notify = request.form.get("notify", "off")
-                case_sensitive = request.form.get("case_sensitive", "off")
-                sub_immunity = request.form.get("sub_immunity", "off")
-                remove_accents = request.form.get("remove_accents", "off")
+                permanent = request.form.get("permanent", "off") == "on"
+                warning = request.form.get("warning", "off") == "on"
+                notify = request.form.get("notify", "off") == "on"
+                case_sensitive = request.form.get("case_sensitive", "off") == "on"
+                sub_immunity = request.form.get("sub_immunity", "off") == "on"
+                remove_accents = request.form.get("remove_accents", "off") == "on"
                 length = int(request.form["length"])
                 phrase = request.form["phrase"]
                 operator = request.form["operator"].strip().lower()
             except (KeyError, ValueError):
                 abort(403)
-
-            permanent = permanent == "on"
-            warning = warning == "on"
-            notify = notify == "on"
-            case_sensitive = case_sensitive == "on"
-            sub_immunity = sub_immunity == "on"
-            remove_accents = remove_accents == "on"
 
             if not name:
                 abort(403)
@@ -129,7 +122,7 @@ def init(page):
 
     @page.route("/banphrases/edit/<banphrase_id>")
     @requires_level(500)
-    def banphrases_edit(banphrase_id, **options):
+    def banphrases_edit(banphrase_id, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
 
