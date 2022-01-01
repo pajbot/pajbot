@@ -243,7 +243,10 @@ stftime is a useful filter to call on this function
 
 Generates a python `datetime` object from the given unix timestamp: https://docs.python.org/3/library/datetime.html#datetime.date.fromtimestamp
 
-Example usage: `$(datetimefromtimestamp:1640991605)` would return a datetime value that would stringify in chat to `2022-01-01 00:00:05`
+Example usages:
+
+- `$(datetimefromtimestamp:1640991605)` would return a datetime value that would stringify in chat to `2022-01-01 00:00:05`
+- `Time until 2023: $(datetimefromtimestamp:1672527600|time_until_dt)` would return: `Time until 2023: 11 months and 29 days`
 
 It is not possible to add a timezone to this argument.
 
