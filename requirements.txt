@@ -7,7 +7,7 @@ Flask==2.0.2
 Flask-Assets==2.0
 Flask-RESTful==0.3.9
 httplib2==0.20.2
-irc==19.0.1
+irc==20.0.0
 isodate==0.6.1
 jsmin==3.0.0
 Markdown==3.3.6
