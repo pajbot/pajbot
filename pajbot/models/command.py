@@ -388,6 +388,15 @@ class Command(Base):
 
         if not self.can_run_command(source, whisper):
             return False
+        
+        # The command has been disabled
+        if not self.chat_enabled:
+            if self.notify_on_error:
+                bot.whisper(
+                    source,
+                    f"This command is disabled.",
+                )
+            return False
 
         cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
 
