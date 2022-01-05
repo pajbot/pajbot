@@ -202,6 +202,7 @@ class Command(Base):
     delay_all = Column(INT, nullable=False, default=5)
     delay_user = Column(INT, nullable=False, default=15)
     enabled = Column(BOOLEAN, nullable=False, default=True)
+    chat_enabled = Column(BOOLEAN, nullable=False, default=True)
     cost = Column(INT, nullable=False, default=0)
     tokens_cost = Column(INT, nullable=False, default=0, server_default="0")
     can_execute_with_whisper = Column(BOOLEAN)
@@ -234,6 +235,7 @@ class Command(Base):
         self.delay_user = Command.DEFAULT_CD_USER
         self.description = None
         self.enabled = True
+        self.chat_enabled = True
         self.type = "?"  # XXX: What is this?
         self.cost = 0
         self.tokens_cost = 0
@@ -265,6 +267,7 @@ class Command(Base):
         if self.delay_user < 0:
             self.delay_user = 0
         self.enabled = options.get("enabled", self.enabled)
+        self.chat_enabled = options.get("command_state", self.chat_enabled)
         self.cost = options.get("cost", self.cost)
         if self.cost < 0:
             self.cost = 0
@@ -453,6 +456,7 @@ class Command(Base):
             "cd_all": self.delay_all,
             "cd_user": self.delay_user,
             "enabled": self.enabled,
+            "chat_enabled": self.chat_enabled,
             "cost": self.cost,
             "tokens_cost": self.tokens_cost,
             "can_execute_with_whisper": self.can_execute_with_whisper,

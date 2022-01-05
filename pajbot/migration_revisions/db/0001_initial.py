@@ -62,6 +62,7 @@ def up(cursor, bot):
         delay_all INT NOT NULL,
         delay_user INT NOT NULL,
         enabled BOOLEAN NOT NULL,
+        chat_enabled BOOLEAN NOT NULL,
         cost INT NOT NULL,
         can_execute_with_whisper BOOLEAN DEFAULT NULL,
         sub_only BOOLEAN NOT NULL,

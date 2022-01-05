@@ -78,6 +78,7 @@ class APICommandUpdate(Resource):
         self.post_parser = reqparse.RequestParser()
         self.post_parser.add_argument("data_level", required=False)
         self.post_parser.add_argument("data_enabled", required=False)
+        self.post_parser.add_argument("data_chat_enabled", required=False)
         self.post_parser.add_argument("data_delay_all", required=False)
         self.post_parser.add_argument("data_delay_user", required=False)
         self.post_parser.add_argument("data_cost", required=False)
@@ -96,6 +97,7 @@ class APICommandUpdate(Resource):
 
         valid_names = [
             "enabled",
+            "chat_enabled",
             "level",
             "delay_all",
             "delay_user",

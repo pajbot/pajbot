@@ -6,6 +6,8 @@ import argparse
 import logging
 from collections import UserDict
 
+from sqlalchemy.sql.sqltypes import String
+
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandData, CommandExample, WebCommand, parse_command_for_web
 from pajbot.utils import find
@@ -225,6 +227,12 @@ class CommandManager(UserDict):
                             chat="user:!edit command test --no-modonly\n" "bot>user:Updated the command (ID: 29)",
                             description="This command can be used for normal users again.",
                         ).parse(),
+                        CommandExample(
+                            None,
+                            "Define whether or not a command can be used in chat",
+                            chat="user:!edit command test --enabled false\n" "bot>user:Updated the command (ID: 29)",
+                            description="Fully disable a command, preventing anyone from using it in chat.",
+                        ).parse(),
                     ],
                 ),
                 "funccommand": Command.dispatch_command(
@@ -440,6 +448,7 @@ class CommandManager(UserDict):
         parser.add_argument("--tokens-cost", type=int, dest="tokens_cost")
         parser.add_argument("--modonly", dest="mod_only", action="store_true")
         parser.add_argument("--no-modonly", dest="mod_only", action="store_false")
+        parser.add_argument("--enabled", type=str, dest="command_state")
         parser.add_argument("--subonly", dest="sub_only", action="store_true")
         parser.add_argument("--no-subonly", dest="sub_only", action="store_false")
         parser.add_argument("--checkmsg", dest="run_through_banphrases", action="store_true")
@@ -463,5 +472,14 @@ class CommandManager(UserDict):
             options["cost"] = abs(options["cost"])
         if "tokens_cost" in options:
             options["tokens_cost"] = abs(options["tokens_cost"])
+
+        if "command_state" in options:
+            state = options["command_state"].lower()
+            if state == "true":
+                options["command_state"] = True
+            elif state == "false":
+                options["command_state"] = False
+            else:
+                options["command_state"] = None
 
         return options, response

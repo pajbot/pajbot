@@ -187,6 +187,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
             "delay_all",
             "delay_user",
             "enabled",
+            "chat_enabled",
             "cost",
             "can_execute_with_whisper",
             "sub_only",
@@ -196,6 +197,7 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
         ],
         {
             "enabled": coerce_to_boolean,
+            "chat_enabled": coerce_to_boolean,
             "can_execute_with_whisper": coerce_to_boolean,
             "sub_only": coerce_to_boolean,
             "mod_only": coerce_to_boolean,
