@@ -89,6 +89,7 @@ class Dispatch:
 
             options["edited_by"] = source.id
 
+
             if options is False:
                 bot.whisper(source, "Invalid command")
                 return False
@@ -117,6 +118,10 @@ class Dispatch:
 
             old_message = ""
             new_message = ""
+
+            # Handle command disable / enable
+            if "command_state" in options:
+                command.chat_enabled = options.get("command_state")
 
             if len(action["message"]) > 0:
                 options["action"] = action
@@ -206,6 +211,10 @@ class Dispatch:
                     f"No command found with the alias {alias}. Did you mean to create the command? If so, use !add funccommand instead.",
                 )
                 return False
+
+            # Handle command disable / enable
+            if "command_state" in options:
+                command.chat_enabled = options.get("command_state")
 
             if len(action["cb"]) > 0:
                 options["action"] = action
