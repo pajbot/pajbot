@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Fix social media handles not saving. (#1680)
+
 ## v1.59
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
