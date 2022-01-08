@@ -46,6 +46,10 @@ function save_social()
                 settings.data.value = value;
                 return settings;
             },
+            beforeXHR: function(xhr) {
+                xhr.setRequestHeader('X-CSRFToken', csrf_token);
+                return xhr;
+            },
         });
     });
 }
