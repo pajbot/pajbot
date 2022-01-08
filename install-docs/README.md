@@ -253,13 +253,13 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command points|p --reply $(usersource;1:name) has $(usersource;1:points|number_format) points
   !add command lastseen --reply $(user;1:name) was last seen $(user;1:last_seen|time_since_dt) ago, and last active $(user;1:last_active|time_since_dt) ago.
   !add command epmrecord --reply $(1) per minute record is $(epmrecord;1).
-  !add command profile --reply https://$(tb:bot_domain)/user/$(usersource;1:username)
+  !add command profile --reply https://$(tb:bot_domain)/user/$(usersource;1:login)
   !add command overlay|clr --reply https://$(tb:bot_domain)/clr/overlay/12345
   !add command playsounds --reply available playsounds are listed here: https://$(tb:bot_domain)/playsounds
   !add command title --reply Current stream title: $(stream:title)
   !add command game --reply Current stream game: $(stream:game)
-  !add command timeonline|watchtime --reply $(usersource;1:username_raw) has spent $(usersource;1:minutes_in_chat_online|time_since_minutes) in online chat.
-  !add command timeoffline --reply $(usersource;1:username_raw) has spent $(usersource;1:minutes_in_chat_offline|time_since_minutes) in offline chat.
+  !add command timeonline|watchtime --reply $(usersource;1:name) has spent $(usersource;1:minutes_in_chat_online|time_since_minutes) in online chat.
+  !add command timeoffline --reply $(usersource;1:name) has spent $(usersource;1:minutes_in_chat_offline|time_since_minutes) in offline chat.
   ```
 
 - Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
