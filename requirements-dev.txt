@@ -6,7 +6,7 @@ isort==5.10.1
 
 # mypy type stubs
 types-cryptography==3.3.12
-types-enum34==1.1.1
+types-enum34==1.1.2
 types-ipaddress==1.0.1
 types-Markdown==3.3.10
 types-pkg-resources==0.1.3
