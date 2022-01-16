@@ -37,6 +37,9 @@ class PredictionRun(Base):
         self.started = utils.now()
         self.ended = None
 
+        # Filled in by web/routes/admin/predictions.py, and used in its template
+        self.num_entries: int = 0
+
 
 class PredictionRunEntry(Base):
     __tablename__ = "prediction_run_entry"
