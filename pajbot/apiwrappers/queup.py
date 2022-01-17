@@ -126,7 +126,7 @@ class QueUpAPI(BaseAPI):
             requester_id = song_json["_user"]["_id"]
             requester_name = song_json["_user"]["username"]
             played_at = utils.datetime_from_utc_milliseconds(song_json["played"])
-            length = datetime.timedelta(milliseconds=song_json["_song"]["songLength"])
+            length = datetime.timedelta(milliseconds=song_json["songLength"])
 
             return QueUpQueueSong(
                 song_id=song_id,
