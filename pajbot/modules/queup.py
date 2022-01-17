@@ -20,7 +20,7 @@ class QueUpSongInfo:
 
     def __init__(self, song_id, song_name, song_link, requester_name):
         self.song_id = song_id
-        self.song_name = song_name if not None else QueUpAPI.hydrate_song(song_id)
+        self.song_name = song_name
         self.song_link = song_link
         self.requester_name = requester_name
 
