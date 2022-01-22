@@ -12,7 +12,7 @@ import pajbot.web.routes.admin.streamer
 import pajbot.web.routes.admin.timers
 
 
-def init(app):
+def init(app) -> None:
     page = Blueprint("admin", __name__, url_prefix="/admin")
 
     pajbot.web.routes.admin.banphrases.init(page)

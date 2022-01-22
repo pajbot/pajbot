@@ -1,14 +1,19 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional
 
 import logging
+import socket
 import ssl
 
-import socket
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
+
 from irc.client import InvalidCharacters, MessageTooLong, ServerConnection, ServerNotConnectedError
 from irc.connection import Factory
 from ratelimiter import RateLimiter
 
-from pajbot.managers.schedule import ScheduleManager, ScheduledJob
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -46,22 +51,20 @@ class Connection(ServerConnection):
 
 
 class IRCManager:
-    def __init__(self, bot):
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-        self.conn = None
+        self.conn: Optional[Connection] = None
         self.ping_task: Optional[ScheduledJob] = None
 
         self.num_privmsg_sent = 0
         self.num_whispers_sent_minute = 0
         self.num_whispers_sent_second = 0
 
-        streamer_channel = "#" + self.bot.streamer
-        self.channels = [streamer_channel]
+        self.channels: List[str] = [self.bot.channel]
 
-        control_hub_channel = self.bot.config["main"].get("control_hub", None)
-        if control_hub_channel is not None:
-            self.channels.append("#" + control_hub_channel)
+        if self.bot.control_hub_channel is not None:
+            self.channels.append(self.bot.control_hub_channel)
 
         bot.reactor.add_global_handler("all_events", self._dispatcher, -10)
         bot.reactor.add_global_handler("disconnect", self._on_disconnect)
@@ -85,16 +88,16 @@ class IRCManager:
 
             self.bot.execute_delayed(2, lambda: self.start())
 
-    def _make_new_connection(self):
+    def _make_new_connection(self) -> None:
         self.conn = Connection(self.bot.reactor)
         with self.bot.reactor.mutex:
             self.bot.reactor.connections.append(self.conn)
         self.conn.connect(
             "irc.chat.twitch.tv",
             6697,
-            self.bot.nickname,
+            self.bot.bot_user.login,
             self.bot.password,
-            self.bot.nickname,
+            self.bot.bot_user.login,
             connect_factory=Factory(wrapper=ssl.wrap_socket),
         )
         self.conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
@@ -122,8 +125,8 @@ class IRCManager:
             self.bot.execute_delayed(1, self._reduce_num_whispers_sent_second)
             self.bot.execute_delayed(61, self._reduce_num_whispers_sent_minute)
 
-    def whisper(self, username, message):
-        self.privmsg(f"#{self.bot.nickname}", f"/w {username} {message}", is_whisper=True)
+    def whisper(self, username: str, message: str) -> None:
+        self.privmsg(f"#{self.bot.bot_user.login}", f"/w {username} {message}", is_whisper=True)
 
     def send_raw(self, message):
         if self.conn is None or not self._can_send(False):

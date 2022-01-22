@@ -344,6 +344,7 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
         method_mapping["time"] = bot.get_time_value
         method_mapping["date"] = bot.get_date_value
         method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
+        method_mapping["datetimefromtimestamp"] = bot.get_datetimefromtimestamp_value
         method_mapping["datetime"] = bot.get_datetime_value
         method_mapping["curdeck"] = bot.decks.action_get_curdeck
         method_mapping["stream"] = bot.stream_manager.get_stream_value

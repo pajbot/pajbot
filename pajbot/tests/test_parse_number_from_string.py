@@ -3,7 +3,7 @@ import pytest
 from pajbot.utils import parse_number_from_string
 
 
-def test_valid_int_conversions():
+def test_valid_int_conversions() -> None:
     # key = input
     # value = expected value
     tests = {
@@ -24,7 +24,7 @@ def test_valid_int_conversions():
         assert output_value == expected_value
 
 
-def test_valid_float_conversions():
+def test_valid_float_conversions() -> None:
     # key = input
     # value = expected value
     tests = {
@@ -45,49 +45,49 @@ def test_valid_float_conversions():
         assert output_value == expected_value
 
 
-def test_bad_conversions_full_string():
+def test_bad_conversions_full_string() -> None:
     input_value = "xd"
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_string_suffix():
+def test_bad_conversions_string_suffix() -> None:
     input_value = "1a"
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_string_prefix():
+def test_bad_conversions_string_prefix() -> None:
     input_value = "a1"
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_string_suffix_float():
+def test_bad_conversions_string_suffix_float() -> None:
     input_value = "503.0a"
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_string_prefix_float():
+def test_bad_conversions_string_prefix_float() -> None:
     input_value = "a1.111"
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_empty():
+def test_bad_conversions_empty() -> None:
     input_value = ""
 
     with pytest.raises(ValueError):
         parse_number_from_string(input_value)
 
 
-def test_bad_conversions_space():
+def test_bad_conversions_space() -> None:
     input_value = " "
 
     with pytest.raises(ValueError):

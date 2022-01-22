@@ -52,16 +52,20 @@ class ModeratorsRefreshModule(BaseModule):
 
         return None
 
-    def _on_pubnotice(self, channel, msg_id, message):
-        if channel != self.bot.streamer:
+    def _on_pubnotice(self, channel: str, msg_id, message) -> None:
+        if self.bot is None:
+            log.warn("_on_pubnotice failed in ModeratorsRefreshModule because bot is None")
+            return
+
+        if channel != self.bot.streamer.login:
             return
 
         moderator_logins = self._parse_pubnotice_for_mods(msg_id, message)
 
         if moderator_logins is not None:
             # The broadcaster also has the privileges of a moderator
-            if self.bot.streamer not in moderator_logins:
-                moderator_logins.append(self.bot.streamer)
+            if self.bot.streamer.login not in moderator_logins:
+                moderator_logins.append(self.bot.streamer.login)
 
             self.bot.action_queue.submit(self._process_moderator_logins, moderator_logins)
 

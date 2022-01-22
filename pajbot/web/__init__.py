@@ -13,6 +13,9 @@ from pajbot.utils import extend_version_if_possible
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 
+# 30 days
+SECRET_KEY_EXPIRY_SECONDS = 86400 * 30
+
 app = Flask(
     __name__,
     static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
@@ -28,13 +31,30 @@ app.url_map.strict_slashes = False
 log = logging.getLogger(__name__)
 
 
+def _load_secret_key(bot_id: str, streamer_id: str) -> str:
+    from secrets import token_urlsafe
+
+    from pajbot.managers.redis import RedisManager
+
+    redis = RedisManager.get()
+
+    key = f"web_secret_key:{bot_id}:{streamer_id}"
+
+    value = redis.get(key)
+
+    if value is None:
+        value = token_urlsafe(64)
+        redis.set(key, value, ex=SECRET_KEY_EXPIRY_SECONDS)
+
+    return value
+
+
 def init(args):
     import subprocess
     import sys
 
     from flask import request
     from flask import session
-    from flask_scrypt import generate_random_salt
 
     import pajbot.utils
     import pajbot.web.common
@@ -52,7 +72,9 @@ def init(args):
     config = load_config(args.config)
 
     api_client_credentials = ClientCredentials(
-        config["twitchapi"]["client_id"], config["twitchapi"]["client_secret"], config["twitchapi"]["redirect_uri"]
+        config["twitchapi"]["client_id"],
+        config["twitchapi"]["client_secret"],
+        config["twitchapi"].get("redirect_uri", f"https://{config['web']['domain']}/login/authorized"),
     )
 
     redis_options = {}
@@ -74,22 +96,18 @@ def init(args):
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
 
-    if "secret_key" not in config["web"]:
-        salt = generate_random_salt()
-        config.set("web", "secret_key", salt.decode("utf-8"))
+    app.streamer = cfg.load_streamer(config, twitch_helix_api)
 
-        with open(args.config, "w") as configfile:
-            config.write(configfile)
+    app.streamer_display = app.streamer.name
+    if "streamer_name" in config["web"]:
+        app.streamer_display = config["web"]["streamer_name"]
 
-    streamer = config["main"]["streamer"]
-    streamer_display = config["web"]["streamer_name"]
-    streamer_user_id = twitch_helix_api.get_user_id(streamer)
-    if streamer_user_id is None:
-        raise ValueError("The streamer login name you entered under [main] does not exist on twitch.")
-    StreamHelper.init_streamer(streamer, streamer_user_id, streamer_display)
+    app.bot_user = cfg.load_bot(config, twitch_helix_api)
+
+    StreamHelper.init_streamer(app.streamer.login, app.streamer.id, app.streamer.name)
 
     try:
-        download_logo(twitch_helix_api, streamer, streamer_user_id)
+        download_logo(twitch_helix_api, app.streamer)
     except:
         log.exception("Error downloading the streamers profile picture")
 
@@ -98,19 +116,20 @@ def init(args):
     # Specifying a value of -1 in the config will disable sub badge downloading. Useful if you want to keep a custom version of a sub badge for a streamer
     if subscriber_badge_version != "-1":
         try:
-            download_sub_badge(twitch_badges_api, streamer, streamer_user_id, subscriber_badge_version)
+            download_sub_badge(twitch_badges_api, app.streamer, subscriber_badge_version)
         except:
             log.exception("Error downloading the streamers subscriber badge")
 
-    SocketClientManager.init(streamer)
+    SocketClientManager.init(app.streamer.login)
 
     app.bot_modules = config["web"].get("modules", "").split()
     app.bot_commands_list = []
     app.bot_config = config
+
     # https://flask.palletsprojects.com/en/1.1.x/quickstart/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.secret_key
-    app.secret_key = config["web"]["secret_key"]
+    app.secret_key = _load_secret_key(app.bot_user.id, app.streamer.id)
     app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
 
     DBManager.init(config["main"]["db"])
@@ -147,13 +166,13 @@ def init(args):
     default_variables = {
         "version": version,
         "last_commit": last_commit,
-        "bot": {"name": config["main"]["nickname"]},
+        "bot": {"name": app.bot_user.login},
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
-        "streamer": {"name": streamer_display, "full_name": config["main"]["streamer"], "id": streamer_user_id},
+        "streamer": {"name": app.streamer_display, "full_name": app.streamer.login, "id": app.streamer.id},
         "modules": app.bot_modules,
         "request": request,
         "session": session,
