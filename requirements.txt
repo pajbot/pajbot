@@ -11,11 +11,11 @@ irc==20.0.0
 isodate==0.6.1
 jsmin==3.0.1
 Markdown==3.3.6
-Levenshtein==0.16.0
 psycopg2==2.9.3
 pylast==4.4.0
 pyOpenSSL==21.0.0 # for twisted.internet.ssl
 pytz==2021.3
+rapidfuzz==1.9.1
 ratelimiter==1.2.0.post0
 redis==4.1.0
 regex==2022.1.18
