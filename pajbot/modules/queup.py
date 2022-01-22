@@ -1,16 +1,21 @@
-import logging
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import datetime
+import logging
 
 from pajbot import utils
-from pajbot.apiwrappers.queup import QueUpAPI
+from pajbot.apiwrappers.queup import QueUpAPI, QueUpQueueSong
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.models.user import User
+from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +23,7 @@ log = logging.getLogger(__name__)
 class QueUpSongInfo:
     """Holds only the info relevant for displaying the song in chat."""
 
-    def __init__(self, song_id, song_name, song_link, requester_name):
+    def __init__(self, song_id: str, song_name: str, song_link: str, requester_name: str) -> None:
         self.song_id = song_id
         self.song_name = song_name
         self.song_link = song_link
@@ -153,7 +158,7 @@ class QueUpModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.api = QueUpAPI(RedisManager.get())
         self.scheduled_job = None
@@ -161,19 +166,19 @@ class QueUpModule(BaseModule):
         # allows us to differentiate between "no song -> a song starts playing" vs "module was unintialized
         # (current song is also None) -> first fetch succeeds (which is not a condition where the new song
         # message should be triggered)
-        self.is_first_automatic_fetch = True
-        self.last_seen_song_id = None
+        self.is_first_automatic_fetch: bool = True
+        self.last_seen_song_id: Optional[str] = None
 
-    def cmd_link(self, source, event, **rest):
-        self.bot.send_message_to_user(
+    def cmd_link(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+        bot.send_message_to_user(
             source,
             self.settings["phrase_room_link"].format(room_name=self.settings["room_name"]),
             event,
             method="reply",
         )
 
-    def cmd_song(self, source, event, **rest):
-        def on_success(song_info):
+    def cmd_song(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+        def on_success(song_info: Optional[QueUpSongInfo]) -> None:
             if song_info:
                 response = self.get_phrase(
                     "phrase_current_song",
@@ -184,19 +189,19 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_current_song")
 
-            self.bot.send_message_to_user(source, response, event, method="reply")
+            bot.send_message_to_user(source, response, event, method="reply")
 
-        def on_error(e):
+        def on_error(e: Exception) -> None:
             log.exception("QueUp API fetch for current song failed", exc_info=e)
-            self.bot.send_message_to_user(
+            bot.send_message_to_user(
                 source, "There was an error fetching the current QueUp song :/", event, method="reply"
             )
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
-    def cmd_previous_song(self, source, event, **rest):
-        def on_success(song_info):
-            if song_info is not None:
+    def cmd_previous_song(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+        def on_success(song_info: Optional[QueUpSongInfo]) -> None:
+            if song_info:
                 response = self.get_phrase(
                     "phrase_previous_song",
                     song_name=song_info.song_name,
@@ -206,22 +211,24 @@ class QueUpModule(BaseModule):
             else:
                 response = self.get_phrase("phrase_no_previous_song")
 
-            self.bot.send_message_to_user(source, response, event, method="reply")
+            bot.send_message_to_user(source, response, event, method="reply")
 
-        def on_error(e):
+        def on_error(e: Exception) -> None:
             log.exception("QueUp API fetch for previous song failed", exc_info=e)
-            self.bot.send_message_to_user(
+            bot.send_message_to_user(
                 source, "There was an error fetching the previous QueUp song :/", event, method="reply"
             )
 
         self.api_request_and_callback(self.get_previous_song, on_success, on_error)
 
-    def on_scheduled_new_song_check(self):
-        def on_success(song_info):
-            if song_info is not None:
+    def on_scheduled_new_song_check(self) -> None:
+        def on_success(song_info: Optional[QueUpSongInfo]) -> None:
+            assert self.bot is not None
+
+            new_song_id: Optional[str] = None
+
+            if song_info:
                 new_song_id = song_info.song_id
-            else:
-                new_song_id = None
 
             # first fetch? then the "old song ID" is the new song ID
             if self.is_first_automatic_fetch:
@@ -237,6 +244,8 @@ class QueUpModule(BaseModule):
                 # new song is None, i.e. end of queue
                 return
 
+            assert song_info is not None
+
             if old_song_id == new_song_id:
                 # song is not new
                 return
@@ -251,13 +260,24 @@ class QueUpModule(BaseModule):
 
             self.bot.say(auto_msg)
 
-        def on_error(e):
+        def on_error(e: Exception) -> None:
             log.exception("Automatic QueUp song polling failed", exc_info=e)
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
-    def api_request_and_callback(self, api_fn, on_success, on_error):
-        def action_queue_action():
+    def api_request_and_callback(
+        self,
+        api_fn: Callable[[], Optional[QueUpSongInfo]],
+        on_success: Callable[[Optional[QueUpSongInfo]], None],
+        on_error: Callable[[Exception], None],
+    ) -> None:
+        if self.bot is None:
+            log.warning("QueUpModule.api_request_and_callback failed because bot is None")
+            return
+
+        def action_queue_action() -> None:
+            assert self.bot is not None
+
             try:
                 result = api_fn()
                 self.bot.execute_now(on_success, result)
@@ -266,30 +286,28 @@ class QueUpModule(BaseModule):
 
         self.bot.action_queue.submit(action_queue_action)
 
-    def process_queue_song_to_song_info(self, queue_song):
+    def process_queue_song_to_song_info(self, queue_song: Optional[QueUpQueueSong]) -> Optional[QueUpSongInfo]:
         """Processes a QueUpQueueSong instance (from the API) into a QueUpSongInfo object (for output to chat)"""
 
         # no current or past song -> no song info
         if queue_song is None:
             return None
 
-        requester_id = queue_song.requester_id
-        requester_name = queue_song.requester_name
+        # Ensure the song is fit for use
+        self.api.hydrate_song(queue_song)
 
-        # requester_name can be None if queue_song came from api.get_current_song()
-        # (QueUp does not directly send the requester name in that API response,
-        # but requester name is sent on the api.get_past_songs response so it is available
-        # directly, not requiring an additional fetch for the username)
-        if requester_name is None:
-            requester_name = self.api.get_user_name(requester_id)
+        # Not sure how to skip this asseration, but hydrate_song will always ensure song_name and requester_name are set
+        assert queue_song.song_name is not None
+        assert queue_song.requester_name is not None
 
-        song_id = queue_song.song_id
-        song_name = queue_song.song_name
-        song_link = self.api.get_song_link(song_id)
+        song_id: str = queue_song.song_id
+        song_name: str = queue_song.song_name
+        song_link: str = self.api.get_song_link(song_id)
+        requester_name: str = queue_song.requester_name
 
         return QueUpSongInfo(song_id=song_id, song_name=song_name, song_link=song_link, requester_name=requester_name)
 
-    def get_current_song(self):
+    def get_current_song(self) -> Optional[QueUpSongInfo]:
         room_id = self.api.get_room_id(self.settings["room_name"])
         queue_song = self.api.get_current_song(room_id)
 
@@ -300,6 +318,7 @@ class QueUpModule(BaseModule):
                 queue_song = past_songs[0]
 
             if queue_song is not None:
+                self.api.hydrate_song(queue_song)
                 # it was possible to fetch the last song from the history
                 # check using queue_song.length and queue_song.played_at whether
                 # this song has ended playing recently
@@ -313,19 +332,19 @@ class QueUpModule(BaseModule):
 
         return self.process_queue_song_to_song_info(queue_song)
 
-    def get_previous_song(self):
+    def get_previous_song(self) -> Optional[QueUpSongInfo]:
         room_id = self.api.get_room_id(self.settings["room_name"])
 
         past_songs = self.api.get_past_songs(room_id)
 
-        if len(past_songs) <= 0:
-            queue_song = None
-        else:
+        queue_song: Optional[QueUpQueueSong] = None
+
+        if len(past_songs) > 0:
             queue_song = past_songs[0]
 
         return self.process_queue_song_to_song_info(queue_song)
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         commands = {
             "link": Command.raw_command(
                 self.cmd_link,
@@ -422,12 +441,12 @@ class QueUpModule(BaseModule):
         if self.settings["if_lastsong_alias"]:
             self.commands["lastsong"] = commands["previous"]
 
-    def enable_job(self):
+    def enable_job(self) -> None:
         if self.scheduled_job is not None:
             log.debug("queup: starting to poll for new songs")
             self.scheduled_job.resume()
 
-    def disable_job(self):
+    def disable_job(self) -> None:
         if self.scheduled_job is not None:
             log.debug("queup: will no longer poll for new songs")
             self.scheduled_job.pause()
@@ -435,14 +454,16 @@ class QueUpModule(BaseModule):
         self.is_first_automatic_fetch = True
         self.last_seen_song_id = None
 
-    def on_stream_start(self):
+    def on_stream_start(self) -> bool:
         self.enable_job()
+        return True
 
-    def on_stream_stop(self):
+    def on_stream_stop(self) -> bool:
         if self.settings["new_song_online_chat_only"]:
             self.disable_job()
+        return True
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
@@ -457,7 +478,7 @@ class QueUpModule(BaseModule):
             else:
                 self.on_stream_stop()
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
