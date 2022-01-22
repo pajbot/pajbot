@@ -174,7 +174,7 @@ class QueUpModule(BaseModule):
 
     def cmd_song(self, source, event, **rest):
         def on_success(song_info):
-            if not song_info:
+            if song_info:
                 response = self.get_phrase(
                     "phrase_current_song",
                     song_name=song_info.song_name,
