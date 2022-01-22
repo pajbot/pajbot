@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Bugfix: Fix social media handles not saving. (#1680)
+- Minor: Add the QueUp module back. (#1570)
 
 ## v1.59
 
