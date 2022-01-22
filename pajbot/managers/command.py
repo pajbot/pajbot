@@ -446,6 +446,10 @@ class CommandManager(UserDict):
         parser.add_argument("--no-checkmsg", dest="run_through_banphrases", action="store_false")
         parser.add_argument("--disable", dest="enabled", action="store_false")
         parser.add_argument("--enable", dest="enabled", action="store_true")
+        parser.add_argument("--use-global-cooldown", dest="use_global_cd", action="store_true")
+        parser.add_argument("--no-use-global-cooldown", dest="use_global_cd", action="store_false")
+        parser.add_argument("--use-global-cd", dest="use_global_cd", action="store_true")
+        parser.add_argument("--no-use-global-cd", dest="use_global_cd", action="store_false")
 
         try:
             args, unknown = parser.parse_known_args(message)

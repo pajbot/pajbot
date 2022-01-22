@@ -120,6 +120,8 @@ class BaseModule:
         + "It's what will be shown on the website where you can enable "
         + "and disable modules."
     )
+    # PAGE_DESCRIPTION is an optional longer description that is shown on the configure page
+    PAGE_DESCRIPTION: Optional[str] = None
     SETTINGS: List[Any] = []
     ENABLED_DEFAULT = False
     PARENT_MODULE: Optional[Any] = None
