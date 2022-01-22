@@ -9,7 +9,7 @@ Flask-RESTful==0.3.9
 httplib2==0.20.2
 irc==20.0.0
 isodate==0.6.1
-jsmin==3.0.0
+jsmin==3.0.1
 Markdown==3.3.6
 Levenshtein==0.16.0
 psycopg2==2.9.3
