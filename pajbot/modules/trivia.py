@@ -215,7 +215,7 @@ class TriviaModule(BaseModule):
             if len(right_answer) <= 5:
                 correct = right_answer == user_answer
             else:
-                ratio = rapidfuzz.ratio(right_answer, user_answer)
+                ratio = rapidfuzz.fuzz.ratio(right_answer, user_answer)
                 correct = ratio >= 0.94
 
             if correct:
