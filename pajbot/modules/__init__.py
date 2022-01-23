@@ -24,8 +24,8 @@ from pajbot.modules.chat_alerts import ChatAlertModule
 from pajbot.modules.chat_alerts.cheeralert import CheerAlertModule
 from pajbot.modules.chat_alerts.livealert import LiveAlertModule
 from pajbot.modules.chat_alerts.newchatteralert import NewChatterAlertModule
-from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chat_alerts.subalert import SubAlertModule
+from pajbot.modules.chat_alerts.raidalert import RaidAlertModule
 from pajbot.modules.chatters_refresh import ChattersRefreshModule
 from pajbot.modules.clr_overlay import CLROverlayModule
 from pajbot.modules.clr_overlay.emotecombo import EmoteComboModule
@@ -35,16 +35,19 @@ from pajbot.modules.deck import DeckModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
-from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
+from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.linefarming import LineFarmingModule
-from pajbot.modules.linkchecker import BlacklistedLink, LinkCheckerModule, WhitelistedLink
-from pajbot.modules.linktracker import LinkTrackerLink, LinkTrackerModule
+from pajbot.modules.linkchecker import BlacklistedLink
+from pajbot.modules.linkchecker import LinkCheckerModule
+from pajbot.modules.linkchecker import WhitelistedLink
+from pajbot.modules.linktracker import LinkTrackerLink
+from pajbot.modules.linktracker import LinkTrackerModule
 from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
@@ -80,7 +83,6 @@ from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wolfram import WolframModule
 
-
 available_modules = [
     AbCommandModule,
     ActionCheckerModule,
@@ -89,13 +91,13 @@ available_modules = [
     BanphraseModule,
     BasicCommandsModule,
     BingoModule,
-    CLROverlayModule,
     CaseCheckerModule,
     ChatAlertModule,
     ChattersRefreshModule,
     CheckModModule,
     CheerAlertModule,
     ClipCommandModule,
+    CLROverlayModule,
     DBManageModule,
     DebugModule,
     DeckModule,
@@ -135,8 +137,8 @@ available_modules = [
     PointsResetModule,
     PredictModule,
     PyramidModule,
-    QueUpModule,
     QuestModule,
+    QueUpModule,
     RaffleModule,
     RaidAlertModule,
     RepspamModule,
@@ -150,8 +152,8 @@ available_modules = [
     TriviaModule,
     TypeEmoteQuestModule,
     TypeMeMessageQuestModule,
-    VIPRefreshModule,
     VanishModule,
+    VIPRefreshModule,
     WarningModule,
     WinDuelPointsQuestModule,
     WinDuelsQuestModule,
