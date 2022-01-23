@@ -1,10 +1,8 @@
 import logging
-
 from datetime import timedelta
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules.base import BaseModule
-from pajbot.modules.base import ModuleSetting
+from pajbot.modules.base import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
 

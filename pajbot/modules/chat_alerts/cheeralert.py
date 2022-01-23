@@ -2,8 +2,7 @@ import logging
 import math
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
 
 log = logging.getLogger(__name__)

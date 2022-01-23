@@ -1,14 +1,12 @@
 import logging
 
-from flask import redirect
-from flask import render_template
-
 from pajbot.managers.db import DBManager
 from pajbot.models.pleblist import PleblistSong
-from pajbot.models.stream import Stream
-from pajbot.models.stream import StreamChunk
+from pajbot.models.stream import Stream, StreamChunk
 from pajbot.utils import find
 from pajbot.web.utils import seconds_to_vodtime
+
+from flask import redirect, render_template
 
 log = logging.getLogger(__name__)
 

@@ -53,9 +53,6 @@ def init(args):
     import subprocess
     import sys
 
-    from flask import request
-    from flask import session
-
     import pajbot.utils
     import pajbot.web.common
     import pajbot.web.routes
@@ -66,8 +63,9 @@ def init(args):
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
     from pajbot.web.models import errors
-    from pajbot.web.utils import download_logo
-    from pajbot.web.utils import download_sub_badge
+    from pajbot.web.utils import download_logo, download_sub_badge
+
+    from flask import request, session
 
     config = load_config(args.config)
 

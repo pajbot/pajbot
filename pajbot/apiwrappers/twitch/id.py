@@ -1,4 +1,4 @@
-from pajbot.apiwrappers.authentication.access_token import UserAccessToken, AppAccessToken
+from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
 from pajbot.apiwrappers.base import BaseAPI
 
 

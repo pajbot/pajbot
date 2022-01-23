@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import datetime
 import html
 import logging
-from requests import HTTPError
 
 from pajbot import utils
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ClassInstanceSerializer, ListSerializer
+
+from requests import HTTPError
 
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType

@@ -1,5 +1,3 @@
-from flask import Blueprint
-
 import pajbot.web.routes.admin.banphrases
 import pajbot.web.routes.admin.commands
 import pajbot.web.routes.admin.home
@@ -10,6 +8,8 @@ import pajbot.web.routes.admin.playsounds
 import pajbot.web.routes.admin.predictions
 import pajbot.web.routes.admin.streamer
 import pajbot.web.routes.admin.timers
+
+from flask import Blueprint
 
 
 def init(app) -> None:

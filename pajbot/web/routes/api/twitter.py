@@ -1,10 +1,9 @@
-from flask_restful import Resource
-from flask_restful import reqparse
-
 from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.twitter import TwitterUser
 from pajbot.web.utils import requires_level
+
+from flask_restful import Resource, reqparse
 
 
 class APITwitterFollows(Resource):

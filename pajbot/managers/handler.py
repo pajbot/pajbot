@@ -1,4 +1,4 @@
-from typing import Dict, Any, Tuple, Callable, List
+from typing import Any, Callable, Dict, List, Tuple
 
 import logging
 import operator

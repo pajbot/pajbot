@@ -1,7 +1,7 @@
+import pajbot.web.utils
+
 from flask import redirect
 from flask_restful import Resource
-
-import pajbot.web.utils
 
 
 class APITest(Resource):

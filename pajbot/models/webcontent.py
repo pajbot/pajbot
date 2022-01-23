@@ -1,6 +1,6 @@
-from sqlalchemy import Column, INT, TEXT
-
 from pajbot.managers.db import Base
+
+from sqlalchemy import INT, TEXT, Column
 
 
 class WebContent(Base):

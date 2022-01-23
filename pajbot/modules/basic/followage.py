@@ -2,13 +2,11 @@ import logging
 
 from pajbot import utils
 from pajbot.managers.db import DBManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
-from pajbot.utils import time_since
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.utils import time_since
 
 log = logging.getLogger("pajbot")
 

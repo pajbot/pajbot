@@ -1,18 +1,15 @@
-from typing import List, Any
+from typing import Any, List
 
 import logging
 from urllib.parse import urlsplit
 
-from sqlalchemy_utc import UtcDateTime
-
-
-from sqlalchemy import Column, INT, TEXT
-
 from pajbot import utils
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
+from pajbot.managers.db import Base, DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
+
+from sqlalchemy import INT, TEXT, Column
+from sqlalchemy_utc import UtcDateTime
 
 log = logging.getLogger(__name__)
 

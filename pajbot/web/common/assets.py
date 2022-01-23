@@ -1,7 +1,6 @@
 import logging
 
-from flask_assets import Bundle
-from flask_assets import Environment
+from flask_assets import Bundle, Environment
 
 log = logging.getLogger(__name__)
 

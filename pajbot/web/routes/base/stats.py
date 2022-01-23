@@ -1,9 +1,9 @@
-from flask import render_template
-
 import pajbot.web.utils
 from pajbot.managers.db import DBManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.user import User
+
+from flask import render_template
 
 
 def init(app):

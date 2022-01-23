@@ -1,18 +1,15 @@
 import datetime
 import logging
-from collections import Counter
-
 import random
+from collections import Counter
 
 import pajbot.exc
 import pajbot.models
 import pajbot.utils
 from pajbot import utils
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
 

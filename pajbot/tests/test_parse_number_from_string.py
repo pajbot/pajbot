@@ -1,6 +1,6 @@
-import pytest
-
 from pajbot.utils import parse_number_from_string
+
+import pytest
 
 
 def test_valid_int_conversions() -> None:

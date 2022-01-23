@@ -1,11 +1,10 @@
 import logging
 
+from pajbot.models.command import Command
+from pajbot.modules import BaseModule, ModuleSetting
+
 import requests
 from requests import HTTPError
-
-from pajbot.models.command import Command
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
 
 log = logging.getLogger(__name__)
 

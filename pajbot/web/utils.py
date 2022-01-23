@@ -24,8 +24,8 @@ from flask import abort, make_response, request, session
 from flask_restful import reqparse
 
 if TYPE_CHECKING:
-    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
+    from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.models.user import UserBasics
 
 log = logging.getLogger(__name__)

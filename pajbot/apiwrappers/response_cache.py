@@ -1,8 +1,6 @@
 import json
-
-from abc import ABC, abstractmethod
-
 import logging
+from abc import ABC, abstractmethod
 
 from pajbot import utils
 from pajbot.models.emote import Emote
