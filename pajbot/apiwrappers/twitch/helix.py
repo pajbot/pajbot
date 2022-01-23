@@ -1,17 +1,14 @@
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import logging
-import time
-
-from datetime import datetime, timezone
-
 import math
-from requests import HTTPError
+import time
+from datetime import datetime, timezone
 
 from pajbot import utils
 from pajbot.apiwrappers.response_cache import (
-    DateTimeSerializer,
     ClassInstanceSerializer,
+    DateTimeSerializer,
     ListSerializer,
     TwitchChannelEmotesSerializer,
 )
@@ -19,6 +16,8 @@ from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 from pajbot.models.emote import Emote
 from pajbot.models.user import UserBasics, UserChannelInformation, UserStream
 from pajbot.utils import iterate_in_chunks
+
+from requests import HTTPError
 
 log = logging.getLogger(__name__)
 

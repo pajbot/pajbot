@@ -9,7 +9,7 @@ from urllib.parse import quote, urlparse, urlunparse
 from pajbot import constants
 from pajbot.apiwrappers.response_cache import APIResponseCache
 
-from requests import Session, Response
+from requests import Response, Session
 
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType

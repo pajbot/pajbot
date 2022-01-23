@@ -1,4 +1,5 @@
 import pajbot.utils
+
 from jinja2 import Markup
 
 

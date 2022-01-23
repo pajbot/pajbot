@@ -1,8 +1,8 @@
-from requests import HTTPError
-
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AccessTokenManager
 from pajbot.apiwrappers.base import BaseAPI
+
+from requests import HTTPError
 
 
 class BaseTwitchAPI(BaseAPI):

@@ -1,10 +1,10 @@
 import collections
 import logging
 
-from flask import render_template
-
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
+
+from flask import render_template
 
 log = logging.getLogger(__name__)
 

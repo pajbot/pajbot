@@ -2,8 +2,7 @@ import logging
 import random
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.clr_overlay import CLROverlayModule
 
 log = logging.getLogger(__name__)

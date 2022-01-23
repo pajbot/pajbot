@@ -1,13 +1,13 @@
 import logging
 
-from sqlalchemy import text
-
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleType
 from pajbot.utils import time_method
+
+from sqlalchemy import text
 
 log = logging.getLogger(__name__)
 

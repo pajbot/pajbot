@@ -3,12 +3,11 @@ import logging
 import re
 from argparse import ArgumentParser
 
-from pajbot.managers.db import DBManager
-from pajbot.models.playsound import Playsound
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
-from pajbot.models.command import Command
 from pajbot.managers.adminlog import AdminLogManager
+from pajbot.managers.db import DBManager
+from pajbot.models.command import Command
+from pajbot.models.playsound import Playsound
+from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -474,8 +473,7 @@ class PlaysoundModule(BaseModule):
             )
 
     def load_commands(self, **options):
-        from pajbot.models.command import Command
-        from pajbot.models.command import CommandExample
+        from pajbot.models.command import Command, CommandExample
 
         self.commands[self.settings["command_name"].lower().replace("!", "")] = Command.raw_command(
             self.play_sound,

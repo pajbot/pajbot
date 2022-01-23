@@ -4,8 +4,7 @@ import random
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.command import Command
-from pajbot.modules.base import BaseModule
-from pajbot.modules.base import ModuleSetting
+from pajbot.modules.base import BaseModule, ModuleSetting
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import find
 

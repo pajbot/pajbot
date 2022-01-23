@@ -1,13 +1,11 @@
 import logging
 
-from requests import HTTPError
-
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.streamhelper import StreamHelper
+
+from requests import HTTPError
 
 log = logging.getLogger("pajbot")
 

@@ -1,8 +1,8 @@
-from flask import render_template
-
 from pajbot.managers.db import DBManager
 from pajbot.models.playsound import Playsound
 from pajbot.modules import PlaysoundModule
+
+from flask import render_template
 
 
 def init(app):

@@ -1,16 +1,14 @@
 import logging
 import urllib
 
-from sqlalchemy import func
-
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
-from pajbot.models.pleblist import PleblistManager
-from pajbot.models.pleblist import PleblistSong
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.pleblist import PleblistManager, PleblistSong
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.streamhelper import StreamHelper
+
+from sqlalchemy import func
 
 log = logging.getLogger(__name__)
 

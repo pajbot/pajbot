@@ -1,6 +1,5 @@
-import logging
-
 import json
+import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager

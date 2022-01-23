@@ -1,8 +1,5 @@
 import logging
 
-from flask_restful import Resource
-from flask_restful import reqparse
-
 import pajbot.modules
 import pajbot.utils
 import pajbot.web.utils
@@ -12,6 +9,8 @@ from pajbot.models.module import Module
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules.base import ModuleType
 from pajbot.utils import find
+
+from flask_restful import Resource, reqparse
 
 log = logging.getLogger(__name__)
 

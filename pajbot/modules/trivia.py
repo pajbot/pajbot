@@ -2,16 +2,14 @@ import datetime
 import logging
 import math
 
-import rapidfuzz
-
-import requests
-
 from pajbot import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
+
+import rapidfuzz
+import requests
 
 log = logging.getLogger(__name__)
 

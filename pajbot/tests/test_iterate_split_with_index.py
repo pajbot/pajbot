@@ -1,6 +1,6 @@
-import pytest
-
 from pajbot.utils import iterate_split_with_index
+
+import pytest
 
 
 def test_iterates_correctly() -> None:

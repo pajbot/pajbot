@@ -1,15 +1,15 @@
-from flask_restful import Api
-
 import pajbot.web.routes.api.banphrases
 import pajbot.web.routes.api.commands
 import pajbot.web.routes.api.common
 import pajbot.web.routes.api.modules
+import pajbot.web.routes.api.playsound
 import pajbot.web.routes.api.pleblist
 import pajbot.web.routes.api.social
 import pajbot.web.routes.api.timers
 import pajbot.web.routes.api.twitter
 import pajbot.web.routes.api.users
-import pajbot.web.routes.api.playsound
+
+from flask_restful import Api
 
 
 def init(app):

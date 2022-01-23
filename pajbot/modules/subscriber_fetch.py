@@ -1,9 +1,6 @@
-from typing import List, Any
+from typing import Any, List
 
 import logging
-
-from requests import HTTPError
-from sqlalchemy import text
 
 from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
@@ -11,6 +8,9 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule
 from pajbot.utils import time_method
+
+from requests import HTTPError
+from sqlalchemy import text
 
 log = logging.getLogger(__name__)
 

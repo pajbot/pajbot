@@ -1,7 +1,6 @@
-from sqlalchemy import BOOLEAN, INT, TEXT
-from sqlalchemy import Column
-
 from pajbot.managers.db import Base
+
+from sqlalchemy import BOOLEAN, INT, TEXT, Column
 
 
 class Playsound(Base):

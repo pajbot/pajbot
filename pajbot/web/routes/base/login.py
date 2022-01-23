@@ -1,18 +1,15 @@
-import json
-import os
-import logging
 import base64
+import json
+import logging
+import os
 import urllib
 from json import JSONDecodeError
-
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
 
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
+
+from flask import redirect, render_template, request, session
 
 log = logging.getLogger(__name__)
 

@@ -1,11 +1,9 @@
-from typing import List, Any
+from typing import Any, List
 
 import logging
-
 import random
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules.base import BaseModule
 
 log = logging.getLogger(__name__)

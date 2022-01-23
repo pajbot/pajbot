@@ -1,9 +1,7 @@
 import logging
 
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
 
@@ -93,7 +91,7 @@ class LeagueRankModule(BaseModule):
 
     def league_rank(self, bot, source, message, **rest):
         try:
-            from riotwatcher import LolWatcher, ApiError
+            from riotwatcher import ApiError, LolWatcher
         except ImportError:
             log.error("Missing required module for League Rank module: riotwatcher")
             return False

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import logging
 import time
 
-import logging
 from redis import BusyLoadingError
 
 if TYPE_CHECKING:
