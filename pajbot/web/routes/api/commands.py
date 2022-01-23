@@ -86,6 +86,7 @@ class APICommandUpdate(Resource):
         self.post_parser.add_argument("data_mod_only", required=False)
         self.post_parser.add_argument("data_action_type", required=False)
         self.post_parser.add_argument("data_action_message", required=False)
+        self.post_parser.add_argument("data_use_global_cd", required=False)
         self.post_parser.add_argument("run_through_banphrases", required=False)
 
     @pajbot.web.utils.requires_level(500)
@@ -104,6 +105,7 @@ class APICommandUpdate(Resource):
             "sub_only",
             "mod_only",
             "run_through_banphrases",
+            "use_global_cd",
         ]
 
         valid_action_names = ["type", "message"]

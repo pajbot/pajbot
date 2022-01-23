@@ -13,6 +13,9 @@
 <h3>Parent module: <a href="/admin/modules/edit/{{ module.PARENT_MODULE.ID }}">{{ module.PARENT_MODULE.NAME }}</a></h3>
 {% endif %}
 <p>{{ module.DESCRIPTION }}</p>
+{% if module.PAGE_DESCRIPTION is not none %}
+<p>{{ module.PAGE_DESCRIPTION }}</p>
+{% endif %}
 <div class="ui divider"></div>
 {% if sub_modules|length > 0 %}
 <h3>Sub-modules</h3>

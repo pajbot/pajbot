@@ -208,6 +208,7 @@ class Command(Base):
     sub_only = Column(BOOLEAN, nullable=False, default=False)
     mod_only = Column(BOOLEAN, nullable=False, default=False)
     run_through_banphrases = Column(BOOLEAN, nullable=False, default=False, server_default="0")
+    use_global_cd = Column(BOOLEAN, nullable=False, default=False, server_default="0")
     long_description = ""
 
     data = relationship(CommandData, uselist=False, cascade="", lazy="joined")
@@ -241,6 +242,7 @@ class Command(Base):
         self.sub_only = False
         self.mod_only = False
         self.run_through_banphrases = False
+        self.use_global_cd = False
 
         self.last_run = 0
         self.last_run_by_user: Dict[str, datetime.datetime] = {}
@@ -278,6 +280,7 @@ class Command(Base):
         self.examples = options.get("examples", self.examples)
         self.run_in_thread = options.get("run_in_thread", self.run_in_thread)
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
+        self.use_global_cd = options.get("use_global_cd", self.use_global_cd)
 
     def __str__(self):
         return f"Command(!{self.command})"
@@ -349,7 +352,7 @@ class Command(Base):
     def is_enabled(self) -> bool:
         return self.enabled == 1 and self.action is not None
 
-    def can_run_command(self, source, whisper):
+    def can_run_command(self, source, whisper) -> bool:
         if source.level < self.level:
             # User does not have a high enough power level to run this command
             return False
@@ -418,6 +421,15 @@ class Command(Base):
                 )
             # User does not have enough tokens to use the command
             return False
+
+        if self.use_global_cd and source.level < Command.BYPASS_DELAY_LEVEL:
+            # Command has chosen to respect the Global command cooldown module
+            global_cd_module = bot.module_manager["global_command_cooldown"]
+            if global_cd_module:
+                # The global command cooldown module is enabled
+                if not global_cd_module.run_command():
+                    # The global command cooldown is currently active, command will be available to run when it has expired
+                    return False
 
         args.update(self.extra_args)
         if self.run_in_thread:

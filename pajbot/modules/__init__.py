@@ -38,6 +38,7 @@ from pajbot.modules.eightball import EightBallModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.givepoints import GivePointsModule
+from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
@@ -111,6 +112,7 @@ available_modules = [
     FollowAgeModule,
     GetTimedOutQuestModule,
     GivePointsModule,
+    GlobalCommandCooldown,
     HSBetModule,
     IgnoreModule,
     LastfmModule,
