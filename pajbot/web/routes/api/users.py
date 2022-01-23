@@ -1,8 +1,8 @@
-from flask import request
-from flask_restful import Resource
-
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
+
+from flask import request
+from flask_restful import Resource
 
 
 class APIUser(Resource):

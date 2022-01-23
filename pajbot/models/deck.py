@@ -1,11 +1,10 @@
 import logging
 
-from sqlalchemy import Column, INT, TEXT
-
-from sqlalchemy_utc import UtcDateTime
-
 from pajbot.managers.db import Base
 from pajbot.utils import time_ago
+
+from sqlalchemy import INT, TEXT, Column
+from sqlalchemy_utc import UtcDateTime
 
 log = logging.getLogger(__name__)
 

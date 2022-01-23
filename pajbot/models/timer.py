@@ -1,14 +1,12 @@
 import json
 import logging
 
-from sqlalchemy import INT, BOOLEAN, TEXT
-from sqlalchemy import Column
-from sqlalchemy.orm import reconstructor
-
-from pajbot.managers.db import Base
-from pajbot.managers.db import DBManager
+from pajbot.managers.db import Base, DBManager
 from pajbot.models.action import ActionParser
 from pajbot.utils import find
+
+from sqlalchemy import BOOLEAN, INT, TEXT, Column
+from sqlalchemy.orm import reconstructor
 
 log = logging.getLogger("pajbot")
 

@@ -3,11 +3,11 @@ import pajbot.web.routes.base.contact
 import pajbot.web.routes.base.decks
 import pajbot.web.routes.base.home
 import pajbot.web.routes.base.login
+import pajbot.web.routes.base.playsounds
 import pajbot.web.routes.base.pleblist
 import pajbot.web.routes.base.points
 import pajbot.web.routes.base.stats
 import pajbot.web.routes.base.user
-import pajbot.web.routes.base.playsounds
 
 
 def init(app):

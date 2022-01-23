@@ -1,7 +1,7 @@
 import logging
 
-from pajbot.apiwrappers.response_cache import ClassInstanceSerializer
 from pajbot.apiwrappers.base import BaseAPI
+from pajbot.apiwrappers.response_cache import ClassInstanceSerializer
 
 log = logging.getLogger(__name__)
 

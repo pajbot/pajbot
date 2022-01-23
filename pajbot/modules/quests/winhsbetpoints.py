@@ -1,5 +1,4 @@
 import logging
-
 import random
 
 from pajbot.managers.handler import HandlerManager

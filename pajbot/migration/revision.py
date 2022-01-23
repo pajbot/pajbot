@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Union
 
 if TYPE_CHECKING:
-    from pajbot.managers.redis import RedisType
-    from psycopg2 import cursor as Psycopg2Cursor
     from pajbot.bot import Bot
+    from pajbot.managers.redis import RedisType
+
+    from psycopg2 import cursor as Psycopg2Cursor
 
 
 class Revision:

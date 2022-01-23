@@ -2,14 +2,13 @@ import logging
 import re
 from datetime import timedelta
 
-from sqlalchemy import and_, or_
-from sqlalchemy.sql.functions import count, func
-
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
+
+from sqlalchemy import and_, or_
+from sqlalchemy.sql.functions import count, func
 
 log = logging.getLogger(__name__)
 

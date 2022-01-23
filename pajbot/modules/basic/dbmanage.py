@@ -1,8 +1,7 @@
 import logging
 
 from pajbot.models.command import Command
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleType
+from pajbot.modules import BaseModule, ModuleType
 from pajbot.modules.basic import BasicCommandsModule
 
 log = logging.getLogger(__name__)

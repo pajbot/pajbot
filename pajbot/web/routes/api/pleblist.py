@@ -1,21 +1,16 @@
 import logging
 
-from flask import abort
-from flask import url_for
-from flask_restful import Resource
-from flask_restful import reqparse
-from sqlalchemy import and_
-from sqlalchemy import func
-from sqlalchemy.orm import noload
-
 import pajbot.web.utils
 from pajbot import utils
 from pajbot.managers.db import DBManager
-from pajbot.models.pleblist import PleblistManager
-from pajbot.models.pleblist import PleblistSong
-from pajbot.models.pleblist import PleblistSongInfo
+from pajbot.models.pleblist import PleblistManager, PleblistSong, PleblistSongInfo
 from pajbot.models.stream import Stream
 from pajbot.web import app
+
+from flask import abort, url_for
+from flask_restful import Resource, reqparse
+from sqlalchemy import and_, func
+from sqlalchemy.orm import noload
 
 log = logging.getLogger(__name__)
 

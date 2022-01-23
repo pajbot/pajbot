@@ -1,8 +1,6 @@
 import json
-
-from abc import abstractmethod, ABC
-
 import logging
+from abc import ABC, abstractmethod
 
 from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
 

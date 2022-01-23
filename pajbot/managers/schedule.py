@@ -1,9 +1,9 @@
 import datetime
 import logging
 
-from apscheduler.schedulers.background import BackgroundScheduler
-
 from pajbot import utils
+
+from apscheduler.schedulers.background import BackgroundScheduler
 
 log = logging.getLogger(__name__)
 

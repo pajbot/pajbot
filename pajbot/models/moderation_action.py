@@ -1,8 +1,8 @@
 from typing import Dict, Optional, Union
-from dataclasses import dataclass
-from contextlib import contextmanager
 
 import logging
+from contextlib import contextmanager
+from dataclasses import dataclass
 
 log = logging.getLogger(__name__)
 

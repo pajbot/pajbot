@@ -2,8 +2,7 @@ import logging
 import re
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
 

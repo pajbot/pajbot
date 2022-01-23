@@ -1,8 +1,7 @@
 import logging
 
 from pajbot.managers.db import DBManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules.basic import BasicCommandsModule

@@ -1,20 +1,18 @@
 import datetime
 import logging
 
-from requests import HTTPError
-from sqlalchemy.orm import joinedload
-
 from pajbot import utils
 from pajbot.apiwrappers.trackobot import TrackOBotAPI
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command
-from pajbot.models.hsbet import HSBetBet, HSGameOutcome
-from pajbot.models.hsbet import HSBetGame
+from pajbot.models.hsbet import HSBetBet, HSBetGame, HSGameOutcome
 from pajbot.models.user import User
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.modules import BaseModule, ModuleSetting
+
+from requests import HTTPError
+from sqlalchemy.orm import joinedload
 
 log = logging.getLogger(__name__)
 

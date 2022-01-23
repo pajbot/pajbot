@@ -1,14 +1,13 @@
 import logging
 
-import markdown
-from flask import Markup
-from flask import render_template
-from sqlalchemy import text, column
-
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
 from pajbot.models.webcontent import WebContent
 from pajbot.modules import ChattersRefreshModule
+
+import markdown
+from flask import Markup, render_template
+from sqlalchemy import column, text
 
 log = logging.getLogger(__name__)
 

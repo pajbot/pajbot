@@ -1,10 +1,8 @@
 import logging
 
-from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, TwitchEmoteManager, SevenTVEmoteManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
-from pajbot.modules import BaseModule
-from pajbot.modules import ModuleSetting
+from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, SevenTVEmoteManager, TwitchEmoteManager
+from pajbot.models.command import Command, CommandExample
+from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import split_into_chunks_with_prefix

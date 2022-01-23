@@ -1,4 +1,5 @@
-from typing import List, Any
+from typing import Any, List
+
 import json
 import logging
 import threading
@@ -12,9 +13,8 @@ class WebSocketServer:
 
     def __init__(self, manager, port, secure=False, key_path=None, crt_path=None, unix_socket_path=None):
         self.manager = manager
-        from twisted.internet import reactor, ssl
-
         from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
+        from twisted.internet import reactor, ssl
 
         class MyServerProtocol(WebSocketServerProtocol):
             def onConnect(self, request):

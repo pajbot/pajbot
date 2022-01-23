@@ -1,12 +1,12 @@
-from flask_restful import Resource
-from flask_restful.reqparse import RequestParser
-
+from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.playsound import Playsound
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules import PlaysoundModule
 from pajbot.web.utils import requires_level
-from pajbot.managers.adminlog import AdminLogManager
+
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 
 
 class PlaysoundAPI(Resource):

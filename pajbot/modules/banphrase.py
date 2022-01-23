@@ -1,12 +1,11 @@
-from typing import List, Any
+from typing import Any, List
 
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.command import Command
-from pajbot.models.command import CommandExample
+from pajbot.models.command import Command, CommandExample
 from pajbot.modules.base import BaseModule
 
 log = logging.getLogger(__name__)

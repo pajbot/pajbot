@@ -1,13 +1,11 @@
-from contextlib import contextmanager
-
+import datetime
 import json
 import logging
-
-import datetime
-
-from retry.api import retry_call
+from contextlib import contextmanager
 
 from pajbot.managers.redis import RedisManager
+
+from retry.api import retry_call
 
 log = logging.getLogger("pajbot")
 

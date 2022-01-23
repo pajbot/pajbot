@@ -1,9 +1,8 @@
 import logging
 
-from flask import Blueprint
-from flask import render_template
-
 from pajbot.web.utils import nocache
+
+from flask import Blueprint, render_template
 
 page = Blueprint("clr", __name__, url_prefix="/clr")
 config = None

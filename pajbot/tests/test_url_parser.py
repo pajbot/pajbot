@@ -20,7 +20,7 @@ def test_is_subpath() -> None:
 
 
 def test_is_same_url() -> None:
-    from pajbot.modules.linkchecker import is_same_url, Url
+    from pajbot.modules.linkchecker import Url, is_same_url
 
     assert is_same_url(Url("pajlada.se"), Url("pajlada.se/"))
 

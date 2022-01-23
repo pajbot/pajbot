@@ -1,10 +1,10 @@
+import datetime
 import json
 
-import datetime
+from pajbot.managers.redis import RedisManager
+
 import psycopg2.extras
 from psycopg2._json import Json
-
-from pajbot.managers.redis import RedisManager
 
 
 def up(cursor, bot):
