@@ -50,7 +50,7 @@ class DefaultChatStatesModule(BaseModule):
             label="Amount of seconds to use when setting slow mode",
             type="number",
             required=True,
-            placeholder=30,
+            placeholder="30",
             default=30,
             constraints={"min_value": 1, "max_value": 1800},
         ),
