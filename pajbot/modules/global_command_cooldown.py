@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Optional
 
-import datetime
 import logging
-import random
-from datetime import timedelta
 
 from pajbot import utils
-from pajbot.managers.db import DBManager
-from pajbot.managers.handler import HandlerManager
-from pajbot.managers.schedule import ScheduledJob, ScheduleManager
-from pajbot.models.command import Command, CommandExample
-from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 if TYPE_CHECKING:
