@@ -22,9 +22,12 @@ if ! command -v npx >/dev/null; then
   exit 1
 fi
 
+ISORT_OPTIONS=()
+
 if [ "${1-}" = "--check" ]; then
   BLACK_OPTIONS="--check --diff"
   PRETTIER_OPTIONS="--check"
+  ISORT_OPTIONS+=("--check")
 else
   BLACK_OPTIONS=""
   PRETTIER_OPTIONS="--write"
@@ -41,3 +44,6 @@ flake8
 
 # Run mypy static typing checker
 mypy pajbot
+
+# Sort imports
+isort pajbot "${ISORT_OPTIONS[@]}"
