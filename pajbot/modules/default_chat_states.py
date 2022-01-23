@@ -52,7 +52,7 @@ class DefaultChatStatesModule(BaseModule):
             required=True,
             placeholder=30,
             default=30,
-            constraints={"min_value": 1, "max_value": 1800}
+            constraints={"min_value": 1, "max_value": 1800},
         ),
         ModuleSetting(
             key="followersonly_option",
