@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Add the QueUp module back. (#1570)
 - Bugfix: Fix social media handles not saving. (#1680)
 - Dev: Add import sorting to format checker. (#1715)
+- Dev: Replaced Levenshtein module with rapidfuzz. (#1718)
 
 ## v1.59
 
