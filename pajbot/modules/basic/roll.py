@@ -22,6 +22,13 @@ class RollModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
+            key="vip_only",
+            label="Only allow VIPs to use the !roll command.",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
             key="global_cd",
             label="Global cooldown (seconds)",
             type="number",
@@ -135,6 +142,9 @@ class RollModule(BaseModule):
 
     def roll(self, event, source, **rest):
         if self.settings["subscribers_only"] and not source.subscriber:
+            return True
+
+        if self.settings["vip_only"] and not source.vip:
             return True
 
         rolled_value = random.randint(self.settings["low_value"], self.settings["high_value"])
