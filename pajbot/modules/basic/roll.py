@@ -82,7 +82,7 @@ class RollModule(BaseModule):
         ),
         ModuleSetting(
             key="announce_rolls",
-            label="Announce in chat what number a user rolls when timeouts are enabled",
+            label="Announce in chat what number a user rolls when timeouts are enabled. Moderator rolls will always be announced.",
             type="boolean",
             required=True,
             default=True,
@@ -97,7 +97,7 @@ class RollModule(BaseModule):
         ),
         ModuleSetting(
             key="zero_response",
-            label="Additional text to say when the user rolls a 0. Timeouts must be enabled.",
+            label="Additional text to say when the user rolls a 0. Timeouts must be enabled. Text is disabled for moderator rolls.",
             type="text",
             required=False,
             placeholder="You're safe! For now... PRChase",
