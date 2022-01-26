@@ -142,7 +142,7 @@ class RollModule(BaseModule):
         if self.settings["enable_timeouts"] is True:
             if rolled_value == 0 and self.settings["zero_response"] != "":
                 self.bot.send_message_to_user(
-                    source, f"You rolled a {rolled_value}! {self.settings['zero_response']}", event, method="reply"
+                    source, f"You rolled a {rolled_value}. {self.settings['zero_response']}", event, method="reply"
                 )
             else:
                 timeout_length = self.seconds_conversion(rolled_value)
