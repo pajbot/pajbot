@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 class RollModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Roll"
-    DESCRIPTION = "Allows users to roll a random number, which can also be used as timeout times"
+    DESCRIPTION = "Allows users to roll a random number, which can also be used as timeout durations"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
