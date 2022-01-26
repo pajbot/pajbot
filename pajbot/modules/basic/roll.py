@@ -13,7 +13,7 @@ class RollModule(BaseModule):
     DESCRIPTION = "Allows users to roll a random number, which can also be used as timeout times"
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
-    SETTINGS[
+    SETTINGS = [
         ModuleSetting(
             key="subscribers_only",
             label="Only allow subscribers to use the !roll command.",
