@@ -150,10 +150,12 @@ class RollModule(BaseModule):
         rolled_value = random.randint(self.settings["low_value"], self.settings["high_value"])
         standard_response = f"You rolled a {rolled_value}"
 
-        if self.settings["enable_timeouts"] is True:
+        if source.moderator is True or self.settings["enable_timeouts"] is False:
+            self.bot.send_message_to_user(source, f"{standard_response}!", event, event="reply")
+        else:
             if rolled_value == 0 and self.settings["zero_response"] != "":
                 self.bot.send_message_to_user(
-                    source, f"You rolled a {rolled_value}. {self.settings['zero_response']}", event, method="reply"
+                    source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
                 )
             else:
                 timeout_length = self.seconds_conversion(rolled_value)
@@ -161,9 +163,6 @@ class RollModule(BaseModule):
                 if timeout_length > 1209600:
                     timeout_length = 1209600
 
-                self.bot.timeout(source, timeout_length, f"You rolled a {rolled_value}!", once=True)
-
+                self.bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
                 if self.settings["announce_rolls"] is True:
-                    self.bot.send_message_to_user(source, f"You rolled a {rolled_value}!", event, method="reply")
-        else:
-            self.bot.send_message_to_user(source, f"You rolled a {rolled_value}!", event, method="reply")
+                    self.bot.send_message_to_user(source, f"{standard_response}!", event, method="reply")
