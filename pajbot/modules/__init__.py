@@ -16,6 +16,7 @@ from pajbot.modules.basic.followage import FollowAgeModule
 from pajbot.modules.basic.ignore import IgnoreModule
 from pajbot.modules.basic.permaban import PermabanModule
 from pajbot.modules.basic.pointsreset import PointsResetModule
+from pajbot.modules.basic.roll import RollModule
 from pajbot.modules.basic.stream_update import StreamUpdateModule
 from pajbot.modules.bingo import BingoModule
 from pajbot.modules.casechecker import CaseCheckerModule
@@ -138,6 +139,7 @@ available_modules = [
     RaffleModule,
     RaidAlertModule,
     RepspamModule,
+    RollModule,
     RouletteModule,
     ShowEmoteModule,
     SlotMachineModule,
