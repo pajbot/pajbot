@@ -1,4 +1,5 @@
-import logging, random
+import logging
+import random
 
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
