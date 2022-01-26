@@ -133,7 +133,7 @@ class RollModule(BaseModule):
         else:
             return True
 
-    def roll(self, event, source):
+    def roll(self, event, source, **rest):
         if self.settings["subscribers_only"] and not source.subscriber:
             return True
 
