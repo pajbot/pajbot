@@ -53,8 +53,8 @@ class RollModule(BaseModule):
             label="Lowest number to roll from",
             type="number",
             required=True,
-            placeholder="1",
-            default=1,
+            placeholder="0",
+            default=0,
             constraints={"min_value": 0},
         ),
         ModuleSetting(
