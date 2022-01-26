@@ -148,6 +148,7 @@ class RollModule(BaseModule):
             return True
 
         rolled_value = random.randint(self.settings["low_value"], self.settings["high_value"])
+        standard_response = f"You rolled a {rolled_value}"
 
         if self.settings["enable_timeouts"] is True:
             if rolled_value == 0 and self.settings["zero_response"] != "":
