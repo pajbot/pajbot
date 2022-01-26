@@ -150,7 +150,7 @@ class RollModule(BaseModule):
                 if timeout_length > 1209600:
                     timeout_length = 1209600
 
-                self.bot.timeout(source, timeout_length, f"You rolled a {rolled_value}!")
+                self.bot.timeout(source, timeout_length, f"You rolled a {rolled_value}!", once=True)
 
                 if self.settings["announce_rolls"] is True:
                     self.bot.send_message_to_user(source, f"You rolled a {rolled_value}!", event, method="reply")
