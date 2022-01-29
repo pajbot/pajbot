@@ -214,7 +214,7 @@ class TriviaModule(BaseModule):
                 correct = right_answer == user_answer
             else:
                 ratio = rapidfuzz.fuzz.ratio(right_answer, user_answer)
-                correct = ratio >= 0.94
+                correct = ratio >= 94
 
             if correct:
                 if self.point_bounty > 0:

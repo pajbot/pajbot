@@ -9,6 +9,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix social media handles not saving. (#1680)
 - Bugfix: Notifications will no longer overflow on the CLR overlay. (#1719)
 - Dev: Add import sorting to format checker. (#1715)
+- Dev: Replaced Levenshtein dependency with rapidfuzz. (#1713, #1718)
 
 ## v1.59
 
