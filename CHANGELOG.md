@@ -7,7 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Add a global command cooldown module. This allows you to share a cooldown between selected commands. (#1714)
 - Minor: Add the QueUp module back. (#1570)
 - Bugfix: Fix social media handles not saving. (#1680)
-- Bugfix: Notifications will no longer overflow. (#1719)
+- Bugfix: Notifications will no longer overflow on the CLR overlay. (#1719)
 - Dev: Add import sorting to format checker. (#1715)
 
 ## v1.59
