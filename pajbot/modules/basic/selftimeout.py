@@ -141,7 +141,7 @@ class SelfTimeoutModule(BaseModule):
 
         if self.settings["vip_only"] and not source.vip:
             return True
-        
+
         if source.moderator is True:
             return True
 
