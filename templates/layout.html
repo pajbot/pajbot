@@ -4,6 +4,10 @@
     <meta name=viewport content="width=device-width, initial-scale=1">
 <title>{{ streamer.name }} - {% block title %}Title{% endblock %}</title>
 <meta charset="utf-8">
+<meta property="og:title" content="{{ streamer.name }} - {{ self.title() }}" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="/static/images/logo_{{ streamer.full_name }}.png" />
+<meta property="og:description" content="{{ self.title() }} page for {{ bot.name }}'s website" />
 <link rel="shortcut icon" href="/static/images/favicon_{{ streamer.full_name }}.ico" />
 <style>
 .pui.badge.subscriber {
