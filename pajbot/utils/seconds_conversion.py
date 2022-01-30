@@ -1,4 +1,4 @@
-def seconds_conversion(self, value: int, unit: str="second"):
+def seconds_conversion(self, value: int, unit: str = "second"):
     unit = unit.lower()
 
     if unit.endswith(s):
