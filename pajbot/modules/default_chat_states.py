@@ -91,15 +91,13 @@ class DefaultChatStatesModule(BaseModule):
             self.bot.privmsg(".uniquechat")
 
         if self.settings["slow_option"] == "Going Online":
-            slow_time = self.settings["slow_time"]
-            self.bot.privmsg(f".slow {slow_time}")
+            self.bot.privmsg(f".slow {self.settings['slow_time']}")
 
         if self.settings["followersonly_option"] == "Going Online":
             if self.settings["followersonly_time"] == "":
                 self.bot.privmsg(".followers")
             else:
-                follower_time = self.settings["followersonly_time"]
-                self.bot.privmsg(f".followers {follower_time}")
+                self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
 
     def on_stream_stop(self, **rest):
         if self.settings["emoteonly"] == "Going Offline":
@@ -112,15 +110,13 @@ class DefaultChatStatesModule(BaseModule):
             self.bot.privmsg(".uniquechat")
 
         if self.settings["slow_option"] == "Going Offline":
-            slow_time = self.settings["slow_time"]
-            self.bot.privmsg(f".slow {slow_time}")
+            self.bot.privmsg(f".slow {self.settings['slow_time']}")
 
         if self.settings["followersonly_option"] == "Going Offline":
             if self.settings["followersonly_time"] == "":
                 self.bot.privmsg(".followers")
             else:
-                follower_time = self.settings["followersonly_time"]
-                self.bot.privmsg(f".followers {follower_time}")
+                self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
 
     def enable(self, bot):
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
