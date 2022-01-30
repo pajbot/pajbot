@@ -8,23 +8,23 @@ from pajbot.modules.basic import BasicCommandsModule
 log = logging.getLogger(__name__)
 
 
-class RollModule(BaseModule):
+class SelfTimeoutModule(BaseModule):
     ID = __name__.split(".")[-1]
-    NAME = "Roll"
-    DESCRIPTION = "Allows users to roll a random number, which can also be used as timeout durations"
+    NAME = "Self timeout"
+    DESCRIPTION = "Allows users to timeout themselves based on a random duration."
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
         ModuleSetting(
             key="subscribers_only",
-            label="Only allow subscribers to use the !roll command.",
+            label="Only allow subscribers to use the !selftimeout command.",
             type="boolean",
             required=True,
             default=False,
         ),
         ModuleSetting(
             key="vip_only",
-            label="Only allow VIPs to use the !roll command.",
+            label="Only allow VIPs to use the !selftimeout command.",
             type="boolean",
             required=True,
             default=False,
@@ -57,8 +57,17 @@ class RollModule(BaseModule):
             constraints={"min_value": 100, "max_value": 2000},
         ),
         ModuleSetting(
+            key="command_name",
+            label="Command name (e.g. selftimeout)",
+            type="text",
+            required=True,
+            placeholder="Command name (no !)",
+            default="selftimeout",
+            constraints={"min_str_len": 2, "max_str_len": 15},
+        ),
+        ModuleSetting(
             key="low_value",
-            label="Lowest number to roll from",
+            label="Lowest number to select from",
             type="number",
             required=True,
             placeholder="0",
@@ -67,26 +76,12 @@ class RollModule(BaseModule):
         ),
         ModuleSetting(
             key="high_value",
-            label="Highest number to roll to",
+            label="Highest number to select to",
             type="number",
             required=True,
             placeholder="100",
             default=100,
             constraints={"min_value": 1},
-        ),
-        ModuleSetting(
-            key="enable_timeouts",
-            label="Enable the values rolled to be used as timeout values",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="announce_rolls",
-            label="Announce in chat what number a user rolls when timeouts are enabled. Moderator rolls will always be announced.",
-            type="boolean",
-            required=True,
-            default=True,
         ),
         ModuleSetting(
             key="timeout_unit",
@@ -98,7 +93,7 @@ class RollModule(BaseModule):
         ),
         ModuleSetting(
             key="zero_response",
-            label="Additional text to say when the user rolls a 0. Timeouts must be enabled. Text is disabled for moderator rolls.",
+            label="Additional text to say when the user gets a 0. Text is disabled for moderator rolls.",
             type="text",
             required=False,
             placeholder="You're safe! For now... PRChase",
@@ -108,62 +103,61 @@ class RollModule(BaseModule):
     ]
 
     def load_commands(self, **options):
-        self.commands["roll"] = Command.raw_command(
-            self.roll,
+        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+            self.selftimeout,
             sub_only=self.settings["subscribers_only"],
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
             level=self.settings["level"],
-            command="roll",
             examples=[
                 CommandExample(
                     None,
-                    "Roll a random number",
-                    chat="user:!roll\n" "bot:@pajlada You rolled a 9!",
-                    description="",
+                    "Get timed out for a random duration",
+                    chat="user:!selftimeout",
+                    description="You don't get confirmation, only a timeout.",
                 ).parse(),
             ],
         )
 
     # We're converting timeout times to seconds in order to avoid having to specify the unit to Twitch
-    def seconds_conversion(self, rolled_value):
-        if rolled_value != 0:
+    def seconds_conversion(self, random_value):
+        if random_value != 0:
             if self.settings["timeout_unit"] == "Seconds":
-                return rolled_value
+                return random_value
             elif self.settings["timeout_unit"] == "Minutes":
-                return rolled_value * 60
+                return random_value * 60
             elif self.settings["timeout_unit"] == "Hours":
-                return rolled_value * 3600
+                return random_value * 3600
             elif self.settings["timeout_unit"] == "Days":
-                return rolled_value * 86400
+                return random_value * 86400
             elif self.settings["timeout_unit"] == "Weeks":
-                return rolled_value * 604800
+                return random_value * 604800
         else:
             return True
 
-    def roll(self, event, source, **rest):
+    def selftimeout(self, event, source, **rest):
         if self.settings["subscribers_only"] and not source.subscriber:
             return True
 
         if self.settings["vip_only"] and not source.vip:
             return True
+        
+        if source.moderator is True:
+            return True
 
-        rolled_value = random.randint(self.settings["low_value"], self.settings["high_value"])
-        standard_response = f"You rolled a {rolled_value}"
+        random_value = random.randint(self.settings["low_value"], self.settings["high_value"])
+        standard_response = f"You got a {random_value}"
 
-        if source.moderator is True or self.settings["enable_timeouts"] is False:
-            self.bot.send_message_to_user(source, f"{standard_response}!", event, event="reply")
+        if random_value == 0 and self.settings["zero_response"] != "":
+            self.bot.send_message_to_user(
+                source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
+            )
         else:
-            if rolled_value == 0 and self.settings["zero_response"] != "":
-                self.bot.send_message_to_user(
-                    source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
-                )
-            else:
-                timeout_length = self.seconds_conversion(rolled_value)
-                # Check if timeout value is over Twitch's maximum
-                if timeout_length > 1209600:
-                    timeout_length = 1209600
+            timeout_length = self.seconds_conversion(random_value)
+            # Check if timeout value is over Twitch's maximum
+            if timeout_length > 1209600:
+                timeout_length = 1209600
 
-                self.bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
-                if self.settings["announce_rolls"] is True:
-                    self.bot.send_message_to_user(source, f"{standard_response}!", event, method="reply")
+            self.bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
+            if self.settings["announce_rolls"] is True:
+                self.bot.send_message_to_user(source, f"{standard_response}!", event, method="reply")
