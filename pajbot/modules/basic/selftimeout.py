@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import logging
 import random
 
@@ -5,11 +9,15 @@ from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.models.user import User
+
 log = logging.getLogger(__name__)
 
 
 class SelfTimeoutModule(BaseModule):
-    ID = __name__.split(".")[-1]
+    ID = __name__.rsplit(".", maxsplit=1)[-1]
     NAME = "Self timeout"
     DESCRIPTION = "Allows users to timeout themselves based on a random duration."
     CATEGORY = "Feature"
@@ -102,7 +110,7 @@ class SelfTimeoutModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.selftimeout,
             sub_only=self.settings["subscribers_only"],
@@ -120,22 +128,26 @@ class SelfTimeoutModule(BaseModule):
         )
 
     # We're converting timeout times to seconds in order to avoid having to specify the unit to Twitch
-    def seconds_conversion(self, random_value):
-        if random_value != 0:
-            if self.settings["timeout_unit"] == "Seconds":
-                return random_value
-            elif self.settings["timeout_unit"] == "Minutes":
-                return random_value * 60
-            elif self.settings["timeout_unit"] == "Hours":
-                return random_value * 3600
-            elif self.settings["timeout_unit"] == "Days":
-                return random_value * 86400
-            elif self.settings["timeout_unit"] == "Weeks":
-                return random_value * 604800
-        else:
-            return True
+    def seconds_conversion(self, random_value: int) -> int:
+        if self.settings["timeout_unit"] == "Seconds":
+            return random_value
 
-    def selftimeout(self, event, source, **rest):
+        if self.settings["timeout_unit"] == "Minutes":
+            return random_value * 60
+
+        if self.settings["timeout_unit"] == "Hours":
+            return random_value * 3600
+
+        if self.settings["timeout_unit"] == "Days":
+            return random_value * 86400
+
+        if self.settings["timeout_unit"] == "Weeks":
+            return random_value * 604800
+
+        # Could raise an exception here instead too
+        return 0
+
+    def selftimeout(self, bot: Bot, source: User, event: Any, **rest) -> bool:
         if self.settings["subscribers_only"] and not source.subscriber:
             return True
 
@@ -149,15 +161,17 @@ class SelfTimeoutModule(BaseModule):
         standard_response = f"You got a {random_value}"
 
         if random_value == 0 and self.settings["zero_response"] != "":
-            self.bot.send_message_to_user(
+            bot.send_message_to_user(
                 source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
             )
         else:
             timeout_length = self.seconds_conversion(random_value)
-            # Check if timeout value is over Twitch's maximum
-            if timeout_length > 1209600:
-                timeout_length = 1209600
 
-            self.bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
+            # Check if timeout value is over Twitch's maximum
+            timeout_length = min(timeout_length, 1209600)
+
+            bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
             if self.settings["announce_rolls"] is True:
-                self.bot.send_message_to_user(source, f"{standard_response}!", event, method="reply")
+                bot.send_message_to_user(source, f"{standard_response}!", event, method="reply")
+
+        return True
