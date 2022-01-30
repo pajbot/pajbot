@@ -12,38 +12,42 @@ class DefaultChatStatesModule(BaseModule):
     DESCRIPTION = "Enforces certain chat states when the streamer goes online/offline"
     CATEGORY = "Moderation"
     ENABLED_DEFAULT = False
+    ONLINE_PHRASE = "Goes Online"
+    OFFLINE_PHRASE = "Goes Offline"
+    NEVER_PHRASE = "Never"
+    PHRASE_OPTIONS = [ONLINE_PHRASE, OFFLINE_PHRASE, NEVER_PHRASE]
     SETTINGS = [
         ModuleSetting(
             key="emoteonly",
-            label="Enable emote only mode when the stream is:",
+            label="Enable emote only mode when the stream...",
             type="options",
             required=True,
-            default="Don't Change",
-            options=["Going Online", "Going Offline", "Don't Change"],
+            default=NEVER_PHRASE,
+            options=PHRASE_OPTIONS,
         ),
         ModuleSetting(
             key="subonly",
-            label="Enable subscriber only mode when the stream is:",
+            label="Enable subscriber only mode when the stream...",
             type="options",
             required=True,
-            default="Don't Change",
-            options=["Going Online", "Going Offline", "Don't Change"],
+            default=NEVER_PHRASE,
+            options=PHRASE_OPTIONS,
         ),
         ModuleSetting(
             key="r9k",
-            label="Enable R9K mode when the stream is:",
+            label="Enable R9K mode when the stream...",
             type="options",
             required=True,
-            default="Don't Change",
-            options=["Going Online", "Going Offline", "Don't Change"],
+            default=NEVER_PHRASE,
+            options=PHRASE_OPTIONS,
         ),
         ModuleSetting(
             key="slow_option",
-            label="Enable slow mode when the stream is:",
+            label="Enable slow mode when the stream...",
             type="options",
             required=True,
-            default="Don't Change",
-            options=["Going Online", "Going Offline", "Don't Change"],
+            default=NEVER_PHRASE,
+            options=PHRASE_OPTIONS,
         ),
         ModuleSetting(
             key="slow_time",
@@ -56,11 +60,11 @@ class DefaultChatStatesModule(BaseModule):
         ),
         ModuleSetting(
             key="followersonly_option",
-            label="Enable followers only mode when the stream is:",
+            label="Enable followers only mode when the stream...",
             type="options",
             required=True,
-            default="Don't Change",
-            options=["Going Online", "Going Offline", "Don't Change"],
+            default=NEVER_PHRASE,
+            options=PHRASE_OPTIONS,
         ),
         ModuleSetting(
             key="followersonly_time",
