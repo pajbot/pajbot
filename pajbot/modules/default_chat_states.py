@@ -92,19 +92,19 @@ class DefaultChatStatesModule(BaseModule):
             log.warning("on_stream_start failed in DefaultChatStatesModule because bot is None")
             return True
 
-        if self.settings["emoteonly"] == "Going Online":
+        if self.settings["emoteonly"] == self.ONLINE_PHRASE:
             self.bot.privmsg(".emoteonly")
 
-        if self.settings["subonly"] == "Going Online":
+        if self.settings["subonly"] == self.ONLINE_PHRASE:
             self.bot.privmsg(".subonly")
 
-        if self.settings["r9k"] == "Going Online":
+        if self.settings["r9k"] == self.ONLINE_PHRASE:
             self.bot.privmsg(".uniquechat")
 
-        if self.settings["slow_option"] == "Going Online":
+        if self.settings["slow_option"] == self.ONLINE_PHRASE:
             self.bot.privmsg(f".slow {self.settings['slow_time']}")
 
-        if self.settings["followersonly_option"] == "Going Online":
+        if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
                 self.bot.privmsg(".followers")
             else:
@@ -117,19 +117,19 @@ class DefaultChatStatesModule(BaseModule):
             log.warning("on_stream_stop failed in DefaultChatStatesModule because bot is None")
             return True
 
-        if self.settings["emoteonly"] == "Going Offline":
+        if self.settings["emoteonly"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(".emoteonly")
 
-        if self.settings["subonly"] == "Going Offline":
+        if self.settings["subonly"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(".subonly")
 
-        if self.settings["r9k"] == "Going Offline":
+        if self.settings["r9k"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(".uniquechat")
 
-        if self.settings["slow_option"] == "Going Offline":
+        if self.settings["slow_option"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(f".slow {self.settings['slow_time']}")
 
-        if self.settings["followersonly_option"] == "Going Offline":
+        if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
                 self.bot.privmsg(".followers")
             else:
