@@ -1,13 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule, ModuleSetting
 
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+
 log = logging.getLogger(__name__)
 
 
 class DefaultChatStatesModule(BaseModule):
-    ID = __name__.split(".")[-1]
+    ID = __name__.rsplit(".", maxsplit=1)[-1]
     NAME = "Default Chat States"
     DESCRIPTION = "Enforces certain chat states when the streamer goes online/offline"
     CATEGORY = "Moderation"
@@ -77,10 +84,14 @@ class DefaultChatStatesModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-    def on_stream_start(self, **rest):
+    def on_stream_start(self, **rest) -> bool:
+        if self.bot is None:
+            log.warning("on_stream_start failed in DefaultChatStatesModule because bot is None")
+            return True
+
         if self.settings["emoteonly"] == "Going Online":
             self.bot.privmsg(".emoteonly")
 
@@ -99,7 +110,13 @@ class DefaultChatStatesModule(BaseModule):
             else:
                 self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
 
-    def on_stream_stop(self, **rest):
+        return True
+
+    def on_stream_stop(self, **rest) -> bool:
+        if self.bot is None:
+            log.warning("on_stream_stop failed in DefaultChatStatesModule because bot is None")
+            return True
+
         if self.settings["emoteonly"] == "Going Offline":
             self.bot.privmsg(".emoteonly")
 
@@ -118,10 +135,12 @@ class DefaultChatStatesModule(BaseModule):
             else:
                 self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_stream_start", self.on_stream_start)
         HandlerManager.remove_handler("on_stream_stop", self.on_stream_stop)
