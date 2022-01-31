@@ -32,6 +32,7 @@ from pajbot.modules.clr_overlay.emotecombo import EmoteComboModule
 from pajbot.modules.clr_overlay.emotesonscreen import EmotesOnScreenModule
 from pajbot.modules.clr_overlay.showemote import ShowEmoteModule
 from pajbot.modules.deck import DeckModule
+from pajbot.modules.default_chat_states import DefaultChatStatesModule
 from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
@@ -98,6 +99,7 @@ available_modules = [
     DBManageModule,
     DebugModule,
     DeckModule,
+    DefaultChatStatesModule,
     DuelModule,
     DummyModule,
     EightBallModule,
