@@ -12,7 +12,7 @@ isodate==0.6.1
 jsmin==3.0.1
 Markdown==3.3.6
 psycopg2==2.9.3
-pylast==4.4.0
+pylast==4.5.0
 pyOpenSSL==22.0.0 # for twisted.internet.ssl
 pytz==2021.3
 rapidfuzz==1.9.1
