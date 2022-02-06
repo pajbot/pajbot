@@ -83,6 +83,7 @@ class WebSocketManager:
             return
 
         cfg = bot.config["websocket"]
+        streamer = bot.streamer.login
 
         try:
             if cfg["enabled"] == "1":
@@ -102,7 +103,7 @@ class WebSocketManager:
                 port = int(cfg.get("port", "443" if ssl else "80"))
                 key_path = cfg.get("key_path", "")
                 crt_path = cfg.get("crt_path", "")
-                unix_socket_path = cfg.get("unix_socket", None)
+                unix_socket_path = cfg.get("unix_socket", f"/var/run/pajbot/{streamer}/websocket.sock")
 
                 if ssl:
                     if key_path == "" or crt_path == "":
