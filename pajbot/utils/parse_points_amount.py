@@ -46,9 +46,9 @@ def parse_points_amount(user: User, point_string: str) -> int:
             bet_f = float(point_string)
 
             if num_k:
-                bet_f *= 1000 ** num_k
+                bet_f *= 1000**num_k
             if num_m:
-                bet_f *= 1000000 ** num_m
+                bet_f *= 1000000**num_m
 
             return round(bet_f)
         except (ValueError, TypeError):
