@@ -117,6 +117,7 @@ class EmoteComboModule(BaseModule):
         new_emote_code = new_emote.code
 
         if self.is_emote_allowed(new_emote_code) is False:
+            self.reset()
             return True
 
         # if there is currently a combo...
