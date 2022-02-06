@@ -7,14 +7,12 @@ import random
 
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount
+from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount, EmoteInstanceCountMap
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
 
 if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
-
-EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
 
 log = logging.getLogger(__name__)
 

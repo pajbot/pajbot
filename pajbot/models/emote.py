@@ -107,3 +107,6 @@ class EmoteInstanceCount:
             "emote": self.emote.jsonify(),
             "emote_instances": [i.jsonify() for i in self.emote_instances],
         }
+
+
+EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
