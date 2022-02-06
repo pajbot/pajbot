@@ -1,14 +1,22 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set
+
 import logging
 
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.clr_overlay import CLROverlayModule
 
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.models.user import User
+
 log = logging.getLogger(__name__)
 
 
 class ShowEmoteModule(BaseModule):
-    ID = __name__.split(".")[-1]
+    ID = __name__.rsplit(".", maxsplit=1)[-1]
     NAME = "Show Emote"
     DESCRIPTION = "Show a single emote on screen for a few seconds using !#showemote"
     CATEGORY = "Feature"
@@ -62,22 +70,6 @@ class ShowEmoteModule(BaseModule):
             constraints={"min_str_len": 1, "max_str_len": 20},
         ),
         ModuleSetting(
-            key="emote_whitelist",
-            label="Whitelisted emotes (separate by spaces). Leave empty to use the blacklist.",
-            type="text",
-            required=True,
-            placeholder="i.e. Kappa Keepo PogChamp KKona",
-            default="",
-        ),
-        ModuleSetting(
-            key="emote_blacklist",
-            label="Blacklisted emotes (separate by spaces). Leave empty to allow all emotes.",
-            type="text",
-            required=True,
-            placeholder="i.e. Kappa Keepo PogChamp KKona",
-            default="",
-        ),
-        ModuleSetting(
             key="emote_opacity",
             label="Emote opacity (in percent)",
             type="number",
@@ -111,15 +103,55 @@ class ShowEmoteModule(BaseModule):
             required=True,
             default=True,
         ),
+        ModuleSetting(
+            key="emote_whitelist",
+            label=CLROverlayModule.ALLOWLIST_LABEL,
+            type="text",
+            required=True,
+            placeholder=CLROverlayModule.EMOTELIST_PLACEHOLDER_TEXT,
+            default="",
+        ),
+        ModuleSetting(
+            key="emote_blacklist",
+            label=CLROverlayModule.BLOCKLIST_LABEL,
+            type="text",
+            required=True,
+            placeholder=CLROverlayModule.EMOTELIST_PLACEHOLDER_TEXT,
+            default="",
+        ),
     ]
 
-    def is_emote_allowed(self, emote_code):
-        if len(self.settings["emote_whitelist"].strip()) > 0:
-            return emote_code in self.settings["emote_whitelist"]
+    def __init__(self, bot: Optional[Bot]) -> None:
+        super().__init__(bot)
 
-        return emote_code not in self.settings["emote_blacklist"]
+        self.allowlisted_emotes: Set[str] = set()
+        self.blocklisted_emotes: Set[str] = set()
 
-    def show_emote(self, bot, source, args, **rest):
+        self.parent_module: Optional[CLROverlayModule] = (
+            CLROverlayModule.convert(self.bot.module_manager["clroverlay-group"]) if self.bot else None
+        )
+
+    def on_loaded(self) -> None:
+        self.allowlisted_emotes = set(
+            self.settings["emote_whitelist"].strip().split(" ") if self.settings["emote_whitelist"] else []
+        )
+        self.blocklisted_emotes = set(
+            self.settings["emote_blacklist"].strip().split(" ") if self.settings["emote_blacklist"] else []
+        )
+
+    def is_emote_allowed(self, emote_code: str) -> bool:
+        if len(self.allowlisted_emotes) > 0:
+            return emote_code in self.allowlisted_emotes
+
+        if len(self.blocklisted_emotes) > 0:
+            return emote_code not in self.blocklisted_emotes
+
+        if not self.parent_module:
+            return True
+
+        return self.parent_module.is_emote_allowed(emote_code)
+
+    def show_emote(self, bot: Bot, source: User, args: Dict[str, Any], **rest: Any) -> bool:
         emote_instances = args["emote_instances"]
 
         if len(emote_instances) <= 0:
@@ -133,7 +165,7 @@ class ShowEmoteModule(BaseModule):
         if not self.is_emote_allowed(first_emote.code):
             return False
 
-        self.bot.websocket_manager.emit(
+        bot.websocket_manager.emit(
             "new_emotes",
             {
                 "emotes": [first_emote.jsonify()],
@@ -146,7 +178,9 @@ class ShowEmoteModule(BaseModule):
         if self.settings["success_whisper"]:
             bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options: Any) -> None:
         self.commands[self.settings["command_name"]] = Command.raw_command(
             self.show_emote,
             delay_all=self.settings["global_cd"],
