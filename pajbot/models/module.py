@@ -59,6 +59,7 @@ class ModuleManager:
 
             if module:
                 module.load()
+                module.on_loaded()
 
     def enable_module(self, module_id: str) -> bool:
         module = self.get_module(module_id)
@@ -67,6 +68,7 @@ class ModuleManager:
             return False
 
         module.load()
+        module.on_loaded()
 
         module.enable(self.bot)
 
@@ -135,6 +137,7 @@ class ModuleManager:
                             log.warning("Invalid JSON")
 
                     self.modules.append(module.load(**options))
+                    module.on_loaded()
                     module.enable(self.bot)
 
     def _disable_orphan_modules(self) -> None:

@@ -10,6 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Add the QueUp module back. (#1570)
 - Minor: Added Open Graph metadata to improve look in embeds such as in Twitter and Discord. (#1721)
 - Minor: `websocket.unix_socket` config option now has a default value (`/var/run/pajbot/<streamer>/websocket.sock`). (#1739)
+- Minor: CLR Overlay modules (i.e. Emote Combos, Emotes on Screen, and Show Emote) now all have a separate allowlist and blocklist of emotes. If the allowlist and blocklist from each specific module isn't used, they will use the shared parent module "CLR Overlay" allowlist and blocklist instead. (#1741)
 - Bugfix: Fix social media handles not saving. (#1680)
 - Bugfix: Notifications will no longer overflow on the CLR overlay. (#1719)
 - Dev: Add import sorting to format checker. (#1715)

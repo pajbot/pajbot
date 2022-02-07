@@ -231,7 +231,8 @@ class Bot:
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.twitter_manager = cfg.load_twitter_manager(config)(self)
-        self.module_manager = ModuleManager(self.socket_manager, bot=self).load()
+        self.module_manager = ModuleManager(self.socket_manager, bot=self)
+        self.module_manager.load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
