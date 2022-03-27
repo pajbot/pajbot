@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 def parse_command_for_web(alias: str, i_command: Command, command_list: List[WebCommand]) -> None:
     import markdown
-    from flask import Markup
+    from markupsafe import Markup
 
     for c in command_list:
         if c._command == i_command:
