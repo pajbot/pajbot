@@ -1,6 +1,6 @@
 import pajbot.utils
 
-from jinja2 import Markup
+from markupsafe import Markup
 
 
 def is_naive_datetime(dt):

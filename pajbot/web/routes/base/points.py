@@ -6,7 +6,8 @@ from pajbot.models.webcontent import WebContent
 from pajbot.modules import ChattersRefreshModule
 
 import markdown
-from flask import Markup, render_template
+from flask import render_template
+from markupsafe import Markup
 from sqlalchemy import column, text
 
 log = logging.getLogger(__name__)
