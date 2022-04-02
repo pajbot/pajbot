@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Set
 
 import datetime
 import json
@@ -126,6 +126,31 @@ def get_cached_commands() -> List[Dict[str, Any]]:
     redis.setex(commands_key, value=json.dumps(jsonified_bot_commands_list, separators=(",", ":")), time=CACHE_TIME)
 
     return jsonified_bot_commands_list
+
+
+@time_method
+def get_cached_enabled_modules() -> Set[str]:
+    CACHE_TIME = 30  # seconds
+    CACHE_KEY = f"{StreamHelper.get_streamer()}:cache:enabled_modules"
+
+    enabled_modules: Set[str] = set()
+
+    redis = RedisManager.get()
+    redis_enabled_modules = redis.get(CACHE_KEY)
+    if redis_enabled_modules is not None:
+        cached_enabled_modules = json.loads(redis_enabled_modules)
+        if not isinstance(cached_enabled_modules, list):
+            log.warning("Poorly cached module states")
+            return enabled_modules
+        return set(cached_enabled_modules)
+
+    log.debug("Updating enabled modules...")
+    module_manager = ModuleManager(None).load()
+    for module in module_manager.modules:
+        enabled_modules.add(module.ID)
+    redis.setex(CACHE_KEY, value=json.dumps(list(enabled_modules)), time=CACHE_TIME)
+
+    return enabled_modules
 
 
 def json_serial(obj):

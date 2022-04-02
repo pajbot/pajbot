@@ -2,9 +2,9 @@
 {% block menu %}
     <div class="ui top fixed menu inverted blue">
         <div class="menu" style="margin:auto;">
-        {% for menuitem in nav_bar_admin_header %}
+        {% for menuitem in nav_bar_admin_header if menuitem.enabled %}
         {%- if not session.user or session.user.level > menuitem.level %}
-            {%- if menuitem.id %}
+            {%- if menuitem.type == "single" %}
             <a class="inverted blue item{%- if menuitem.id == active_page %} active{% endif -%}" href="{{ menuitem.href }}">
                 {%- if menuitem.id == 'home' %}
                 <img class="logo" src="/static/images/logo_{{ streamer.full_name }}.png" alt="{{ streamer.name }} logo"/>
