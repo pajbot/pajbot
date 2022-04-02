@@ -15,15 +15,24 @@ def init(app):
     nav_bar_header = []
     nav_bar_header.append(MenuItem("/", "home", "Home"))
     nav_bar_header.append(MenuItem("/commands", "commands", "Commands"))
-    if "deck" in app.module_manager:
-        nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
     if app.bot_user.login not in ["scamazbot", "exdeebot"]:
         nav_bar_header.append(MenuItem("/points", "points", "Points"))
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
-    if "playsounds" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
-    if "pleblist" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
+
+    if app.bot_modules !== "":
+        if "deck" in app.module_manager:
+            nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
+        if "playsounds" in app.bot_modules:
+            nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
+        if "pleblist" in app.bot_modules:
+            nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
+    else:
+        if "deck" in app.module_manager:
+            nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
+        if "playsounds" in app.module_manager:
+            nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
+        if "pleblist" in app.module_manager:
+            nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
 
     nav_bar_admin_header = []
     nav_bar_admin_header.append(MenuItem("/", "home", "Home"))
