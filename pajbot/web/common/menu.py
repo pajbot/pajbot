@@ -29,7 +29,7 @@ def init(app):
     else:
         if "deck" in app.module_manager:
             nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
-        if "playsounds" in app.module_manager:
+        if "playsound" in app.module_manager:
             nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
         if "pleblist" in app.module_manager:
             nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
