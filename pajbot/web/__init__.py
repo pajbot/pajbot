@@ -121,7 +121,9 @@ def init(args):
     SocketClientManager.init(app.streamer.login)
 
     if config["web"].get("modules") is not None:
-        log.warning("[web] modules config is deprecated, menu is built based on modules being enabled/disabled now")
+        log.warning(
+            "DEPRECATED - [web] modules config is deprecated. Disabling options in the menu should now be done by disabling the module entirely from the Admin modules section."
+        )
 
     app.bot_commands_list = []
     app.bot_config = config
