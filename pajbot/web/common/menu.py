@@ -20,7 +20,7 @@ def init(app):
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
 
     if app.bot_modules:
-        if "deck" in app.module_manager:
+        if "deck" in app.bot_modules:
             nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
         if "playsounds" in app.bot_modules:
             nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
