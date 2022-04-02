@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Changed the default behaviour of certain modules showing on the navbar (pleblist, playsounds & predict) and certain statistics on the stats page (linefarming & duels). Linefarming & duels will be shown when the respective modules are enabled and cannot be overriden. Pleblist, playsounds & predictions will show on the navbar if enabled (by default, can be overriden in config) and won't show when the respective modules are disabled. (#1806)
 - Minor: Add a default chat states module. This allows automation of otherwise manually triggered things; e.g. enabling emote only at the end of a stream. (#1716)
 - Minor: Added a roll module. Allowing users to roll a random number between a specified range (with timeout support). (#1722)
 - Minor: Add a global command cooldown module. This allows you to share a cooldown between selected commands. (#1714)
