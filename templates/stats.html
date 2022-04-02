@@ -3,7 +3,7 @@
 {% block title %}Stats{% endblock %}
 {% block body %}
 <h2>Stats</h2>
-{% if 'duels' in modules %}
+{% if 'duel' in enabled_modules %}
 <p><a href="/stats/duels/"><i class="icon linkify"></i>  Duel stats</a></p>
 {% endif %}
 <h3><a href="https://stats.streamelements.com/c/{{ streamer.full_name }}">StreamElements stats page</a></h3>
@@ -24,7 +24,7 @@
                 </tr>
             {% endfor %}
     </table>
-    {% if 'linefarming' in modules %}
+    {% if 'linefarming' in enabled_modules %}
         <h3>Top 5 Line Farmers</h3>
         <table class="ui very basic table">
             <thead>

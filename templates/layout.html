@@ -26,7 +26,7 @@
 {% block menu %}
     <div class="ui top fixed menu">
         <div class="menu" style="margin:auto;">
-        {% for menuitem in nav_bar_header %}
+        {% for menuitem in nav_bar_header if menuitem.enabled %}
         <a class="item{% if menuitem.id == active_page %} active{% endif %}" href="{{ menuitem.href }}">
             {% if menuitem.id == 'home' %}
             <img class="logo" src="/static/images/logo_{{ streamer.full_name }}.png" alt="{{ streamer.name }} logo"/>

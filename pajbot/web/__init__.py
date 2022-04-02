@@ -120,7 +120,11 @@ def init(args):
 
     SocketClientManager.init(app.streamer.login)
 
-    app.bot_modules = config["web"].get("modules", "").split()
+    if config["web"].get("modules") is not None:
+        log.warning(
+            "DEPRECATED - [web] modules config is deprecated. Disabling options in the menu should now be done by disabling the module entirely from the Admin modules section."
+        )
+
     app.bot_commands_list = []
     app.bot_config = config
 
@@ -171,7 +175,6 @@ def init(args):
             "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
         },
         "streamer": {"name": app.streamer_display, "full_name": app.streamer.login, "id": app.streamer.id},
-        "modules": app.bot_modules,
         "request": request,
         "session": session,
         "google_analytics": config["web"].get("google_analytics", None),

@@ -1,55 +1,75 @@
+from __future__ import annotations
+
+from typing import Any, Dict, List, Union
+
 import logging
+
+from pajbot.web.utils import get_cached_enabled_modules
 
 log = logging.getLogger(__name__)
 
 
 class MenuItem:
-    def __init__(self, href, menu_id, caption, level=100):
+    def __init__(
+        self,
+        href: Union[str, List[MenuItem]],
+        menu_id: str,
+        caption: str,
+        enabled: bool = True,
+        level: int = 100,
+    ) -> None:
         self.href = href
         self.id = menu_id
         self.caption = caption
+        self.enabled = enabled
         self.level = level
+        self.type = "single"
+
+        if isinstance(self.href, list):
+            self.type = "multi"
 
 
 def init(app):
-    nav_bar_header = []
-    nav_bar_header.append(MenuItem("/", "home", "Home"))
-    nav_bar_header.append(MenuItem("/commands", "commands", "Commands"))
-    if "deck" in app.module_manager:
-        nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
-    if app.bot_user.login not in ["scamazbot", "exdeebot"]:
-        nav_bar_header.append(MenuItem("/points", "points", "Points"))
-    nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
-    if "playsounds" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/playsounds", "user_playsounds", "Playsounds"))
-    if "pleblist" in app.bot_modules:
-        nav_bar_header.append(MenuItem("/pleblist/history", "pleblist", "Pleblist"))
-
-    nav_bar_admin_header = []
-    nav_bar_admin_header.append(MenuItem("/", "home", "Home"))
-    nav_bar_admin_header.append(MenuItem("/admin", "admin_home", "Admin Home"))
-    nav_bar_admin_header.append(
-        MenuItem(
-            [
-                MenuItem("/admin/banphrases", "admin_banphrases", "Banphrases"),
-                MenuItem("/admin/links/blacklist", "admin_links_blacklist", "Blacklisted links"),
-                MenuItem("/admin/links/whitelist", "admin_links_whitelist", "Whitelisted links"),
-            ],
-            None,
-            "Filters",
-        )
-    )
-    nav_bar_admin_header.append(MenuItem("/admin/commands", "admin_commands", "Commands"))
-    nav_bar_admin_header.append(MenuItem("/admin/timers", "admin_timers", "Timers"))
-    nav_bar_admin_header.append(MenuItem("/admin/moderators", "admin_moderators", "Moderators"))
-    nav_bar_admin_header.append(MenuItem("/admin/modules", "admin_modules", "Modules"))
-    if "playsounds" in app.bot_modules:
-        nav_bar_admin_header.append(MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds"))
-    if "predict" in app.module_manager:
-        nav_bar_admin_header.append(MenuItem("/admin/predictions", "admin_predictions", "Predictions"))
-    nav_bar_admin_header.append(MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"))
-
     @app.context_processor
-    def menu():
-        data = {"nav_bar_header": nav_bar_header, "nav_bar_admin_header": nav_bar_admin_header}
+    def menu() -> Dict[str, Any]:
+        enabled_modules = get_cached_enabled_modules()
+
+        # Menu items that are shown for normal users
+        menu_items: List[MenuItem] = [
+            MenuItem("/", "home", "Home"),
+            MenuItem("/commands", "commands", "Commands"),
+            MenuItem("/points", "points", "Points", "chatters_refresh" in enabled_modules),
+            MenuItem("/stats", "stats", "Stats"),
+            MenuItem("/decks", "decks", "Decks", "deck" in enabled_modules),
+            MenuItem("/playsounds", "user_playsounds", "Playsounds", "playsound" in enabled_modules),
+            MenuItem("/pleblist/history", "pleblist", "Pleblist", "pleblist" in enabled_modules),
+        ]
+
+        # Menu items that are shown to admin when in an /admin page
+        admin_menu_items: List[MenuItem] = [
+            MenuItem("/", "home", "Home"),
+            MenuItem("/admin", "admin_home", "Admin Home"),
+            MenuItem(
+                [
+                    MenuItem("/admin/banphrases", "admin_banphrases", "Banphrases"),
+                    MenuItem("/admin/links/blacklist", "admin_links_blacklist", "Blacklisted links"),
+                    MenuItem("/admin/links/whitelist", "admin_links_whitelist", "Whitelisted links"),
+                ],
+                "filters",
+                "Filters",
+            ),
+            MenuItem("/admin/commands", "admin_commands", "Commands"),
+            MenuItem("/admin/timers", "admin_timers", "Timers"),
+            MenuItem("/admin/moderators", "admin_moderators", "Moderators"),
+            MenuItem("/admin/modules", "admin_modules", "Modules"),
+            MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds", "playsound" in enabled_modules),
+            MenuItem("/admin/predictions", "admin_predictions", "Predictions", "predict" in enabled_modules),
+            MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"),
+        ]
+
+        data = {
+            "enabled_modules": enabled_modules,
+            "nav_bar_header": menu_items,
+            "nav_bar_admin_header": admin_menu_items,
+        }
         return data
