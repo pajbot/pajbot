@@ -19,7 +19,7 @@ def init(app):
         nav_bar_header.append(MenuItem("/points", "points", "Points"))
     nav_bar_header.append(MenuItem("/stats", "stats", "Stats"))
 
-    if not app.bot_modules:
+    if app.bot_modules:
         if "deck" in app.module_manager:
             nav_bar_header.append(MenuItem("/decks", "decks", "Decks"))
         if "playsounds" in app.bot_modules:
