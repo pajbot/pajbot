@@ -68,6 +68,7 @@ def init(app):
         ]
 
         data = {
+            "enabled_modules": enabled_modules,
             "nav_bar_header": menu_items,
             "nav_bar_admin_header": admin_menu_items,
         }
