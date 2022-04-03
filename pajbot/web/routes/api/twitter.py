@@ -1,6 +1,6 @@
 import json
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class UserRequest:
-    username: str = field(metadata=dict(required=True))
+    username: str
 
 
 UserRequestSchema = marshmallow_dataclass.class_schema(UserRequest)
