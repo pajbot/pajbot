@@ -108,10 +108,17 @@ def init(bp: Blueprint) -> None:
 
         return ret
 
-    @bp.route("/banphrases/dump")
-    def banphrases_dump():
-        banphrase_manager = BanphraseManager(None).load()
-        try:
-            return banphrase_manager.enabled_banphrases
-        finally:
-            banphrase_manager.db_session.close()
+    # @bp.route("/banphrases/dump")
+    # def banphrases_dump():
+    #     banphrase_manager = BanphraseManager(None).load()
+    #     try:
+    #         payload = {"banphrases": []}
+    #         for bp in banphrase_manager.enabled_banphrases:
+    #             payload["banphrases"].append(bp.jsonify())
+
+    #         return payload, 200
+    #     except:
+    #         log.exception("Error getting enabled banphrases")
+    #         return {"error": "hmm"}, 500
+    #     finally:
+    #         banphrase_manager.db_session.close()

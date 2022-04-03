@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 def init(app, config):
     @app.errorhandler(404)
     def page_not_found(e):
-        if request.path.startswith('/api/'):
+        if request.path.startswith("/api/"):
             return jsonify({"error": "No API endpoint here!"})
         return render_template("errors/404.html"), 404
 
