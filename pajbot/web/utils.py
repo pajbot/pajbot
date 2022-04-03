@@ -162,15 +162,6 @@ def json_serial(obj):
         raise
 
 
-def init_json_serializer(api):
-    pass
-    # @api.representation("application/json")
-    # def output_json(data, code, headers=None):
-    #     resp = make_response(json.dumps(data, default=json_serial), code)
-    #     resp.headers.extend(headers or {})
-    #     return resp
-
-
 def jsonify_query(query):
     return [v.jsonify() for v in query]
 
