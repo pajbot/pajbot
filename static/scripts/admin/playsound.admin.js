@@ -120,15 +120,22 @@ $(window).on('load', function() {
     let createButton = $('#create-playsound-button');
     $('#new-playsound-form').submit(function(event) {
         event.preventDefault();
-        let formData = getFormData(event.target);
+        const formData = new FormData(event.target);
+        const payload = {
+            name: formData.get('name'),
+            link: formData.get('link'),
+        };
         console.log('New playsound');
-        console.log(formData);
+        console.log(payload);
 
         $.ajax({
-            url: `/api/v1/playsound/${encodeURIComponent(formData.name)}`,
+            url: `/api/v1/playsound/${encodeURIComponent(payload.name)}`,
             type: 'PUT',
-            data: JSON.stringify(formData),
+            data: JSON.stringify(payload),
             contentType: 'application/json; charset=utf-8',
+            headers: {
+                'X-CSRFToken': csrf_token,
+            },
             success: function(result) {
                 console.log('success result', result);
 
@@ -209,6 +216,9 @@ $(window).on('load', function() {
                 type: 'POST',
                 data: JSON.stringify(formData),
                 contentType: 'application/json; charset=utf-8',
+                headers: {
+                    'X-CSRFToken': csrf_token,
+                },
                 success: function(result) {
                     console.log('success result', result);
 

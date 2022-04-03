@@ -3,47 +3,45 @@ import pajbot.web.routes.api.commands
 import pajbot.web.routes.api.common
 import pajbot.web.routes.api.modules
 import pajbot.web.routes.api.playsound
-import pajbot.web.routes.api.pleblist
 import pajbot.web.routes.api.social
 import pajbot.web.routes.api.timers
 import pajbot.web.routes.api.twitter
 import pajbot.web.routes.api.users
 
-from flask_restful import Api
+from flask import Blueprint
 
 
-def init(app):
+def init(app) -> None:
     # Initialize the v1 api
     # /api/v1
-    api = Api(app, prefix="/api/v1", catch_all_404s=False)
+    bp = Blueprint("api", __name__, url_prefix="/api/v1")
 
     # Initialize any common settings and routes
-    pajbot.web.routes.api.common.init(api)
+    pajbot.web.routes.api.common.init(bp)
 
     # /users
-    pajbot.web.routes.api.users.init(api)
+    pajbot.web.routes.api.users.init(bp)
 
     # /twitter
-    pajbot.web.routes.api.twitter.init(api)
+    pajbot.web.routes.api.twitter.init(bp)
 
     # /commands
-    pajbot.web.routes.api.commands.init(api)
-
-    # /pleblist
-    pajbot.web.routes.api.pleblist.init(api)
+    pajbot.web.routes.api.commands.init(bp)
 
     # /social
-    pajbot.web.routes.api.social.init(api)
+    pajbot.web.routes.api.social.init(bp)
 
     # /timers
-    pajbot.web.routes.api.timers.init(api)
+    pajbot.web.routes.api.timers.init(bp)
 
     # /banphrases
-    pajbot.web.routes.api.banphrases.init(api)
+    pajbot.web.routes.api.banphrases.init(bp)
 
     # /modules
-    pajbot.web.routes.api.modules.init(api)
+    pajbot.web.routes.api.modules.init(bp)
 
     # /playsound/:name
     # /playsound/:name/play
-    pajbot.web.routes.api.playsound.init(api)
+    pajbot.web.routes.api.playsound.init(bp)
+
+    app.register_blueprint(bp)

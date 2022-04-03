@@ -33,7 +33,8 @@ function on_success(response, key)
                 action: 'twitter_unfollow',
                 method: 'POST',
                 beforeSend: function(settings) {
-                    settings.data.username = follow.username;
+                    settings.contentType = 'application/json';
+                    settings.data = JSON.stringify({"username": follow.username});
                     return settings;
                 },
                 onSuccess: function(response, element, xhr) {
@@ -60,7 +61,8 @@ $(document).ready(function() {
         action: 'twitter_follow',
         method: 'POST',
         beforeSend: function(settings) {
-            settings.data.username = $('.twitter-follow input[type="text"]').val();
+            settings.contentType = 'application/json';
+            settings.data = JSON.stringify({"username": $('.twitter-follow input[type="text"]').val()});
             return settings;
         },
         onSuccess: function(response, element, xhr) {
