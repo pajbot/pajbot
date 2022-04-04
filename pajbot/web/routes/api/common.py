@@ -1,16 +1,7 @@
-import pajbot.web.utils
-
-from flask import redirect
-from flask_restful import Resource
+from flask import Blueprint, redirect
 
 
-class APITest(Resource):
-    @staticmethod
-    def get():
+def init(bp: Blueprint) -> None:
+    @bp.route("/test")
+    def test():
         return redirect("/commands", 303)
-
-
-def init(api):
-    pajbot.web.utils.init_json_serializer(api)
-
-    api.add_resource(APITest, "/test")

@@ -1,3 +1,4 @@
+import json
 import logging
 
 import pajbot.modules
@@ -7,15 +8,19 @@ from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.timer import Timer
+from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
 
-from flask_restful import Resource, reqparse
+from flask import Blueprint, request
+from flask.typing import ResponseReturnValue
+from marshmallow import ValidationError
 
 log = logging.getLogger(__name__)
 
 
-class APITimerRemove(Resource):
+def init(bp: Blueprint) -> None:
+    @bp.route("/timers/remove/<int:timer_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, timer_id, **options):
+    def timer_remove(timer_id: int, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
             if timer is None:
@@ -25,37 +30,28 @@ class APITimerRemove(Resource):
             SocketClientManager.send("timer.remove", {"id": timer.id})
             return {"success": "good job"}
 
-
-class APITimerToggle(Resource):
-    def __init__(self):
-        super().__init__()
-
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument("new_state", required=True)
-
+    @bp.route("/timers/toggle/<int:timer_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, row_id, **options):
-        args = self.post_parser.parse_args()
-
+    def timer_toggle(timer_id: int, **options) -> ResponseReturnValue:
         try:
-            new_state = int(args["new_state"])
-        except (ValueError, KeyError):
-            return {"error": "Invalid `new_state` parameter."}, 400
+            json_data = request.get_json()
+            if not json_data:
+                return {"error": "Missing json body"}, 400
+            data: ToggleState = ToggleStateSchema().load(json_data)
+        except ValidationError as err:
+            return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
         with DBManager.create_session_scope() as db_session:
-            row = db_session.query(Timer).filter_by(id=row_id).one_or_none()
+            row = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
 
             if not row:
                 return {"error": "Timer with this ID not found"}, 404
 
-            row.enabled = True if new_state == 1 else False
+            row.enabled = data.new_state
             db_session.commit()
-            payload = {"id": row.id, "new_state": row.enabled}
-            AdminLogManager.post("Timer toggled", options["user"], "Enabled" if row.enabled else "Disabled", row.name)
+            payload = {"id": row.id, "new_state": data.new_state}
+            AdminLogManager.post(
+                "Timer toggled", options["user"], "Enabled" if data.new_state else "Disabled", row.name
+            )
             SocketClientManager.send("timer.update", payload)
-            return {"success": "successful toggle", "new_state": new_state}
-
-
-def init(api):
-    api.add_resource(APITimerRemove, "/timers/remove/<int:timer_id>")
-    api.add_resource(APITimerToggle, "/timers/toggle/<int:row_id>")
+            return {"success": "successful toggle", "new_state": data.new_state}

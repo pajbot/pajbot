@@ -104,25 +104,16 @@ function enable_toggle_row_cb(action) {
             return response.success || false;
         },
         beforeSend: function(settings) {
-            var state = $(this)
-                .parent()
-                .parent()
-                .parent()
-                .data('enabled');
-            console.log(state);
-            settings.urlData.id = $(this)
-                .parent()
-                .parent()
-                .parent()
-                .data('id');
-            if (state == '1') {
-                settings.data.new_state = 0;
-            } else {
-                settings.data.new_state = 1;
-            }
+            settings.contentType = 'application/json';
+            const el = this[0];
+            const state = el.checked;
+            const module_id = el.dataset.id;
+            settings.urlData.id = el.dataset.id;
+            settings.data = JSON.stringify({ new_state: state });
             return settings;
         },
         onSuccess: function(response, element) {
+            // const el = this[0];
             $(this)
                 .parent()
                 .parent()

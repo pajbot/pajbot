@@ -1,3 +1,4 @@
+import json
 import logging
 
 import pajbot.modules
@@ -9,8 +10,11 @@ from pajbot.models.module import Module
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules.base import ModuleType
 from pajbot.utils import find
+from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
 
-from flask_restful import Resource, reqparse
+from flask import Blueprint, request
+from flask.typing import ResponseReturnValue
+from marshmallow import ValidationError
 
 log = logging.getLogger(__name__)
 
@@ -24,21 +28,17 @@ def validate_module(module_id):
     return module.MODULE_TYPE not in (ModuleType.TYPE_ALWAYS_ENABLED,)
 
 
-class APIModuleToggle(Resource):
-    def __init__(self):
-        super().__init__()
-
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument("new_state", required=True)
-
+def init(bp: Blueprint) -> None:
+    @bp.route("/modules/toggle/<row_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, row_id, **options):
-        args = self.post_parser.parse_args()
-
+    def module_toggle(row_id: str, **options) -> ResponseReturnValue:
         try:
-            new_state = int(args["new_state"])
-        except (ValueError, KeyError):
-            return {"error": "Invalid `new_state` parameter."}, 400
+            json_data = request.get_json()
+            if not json_data:
+                return {"error": "Missing json body"}, 400
+            data: ToggleState = ToggleStateSchema().load(json_data)
+        except ValidationError as err:
+            return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
         with DBManager.create_session_scope() as db_session:
             row = db_session.query(Module).filter_by(id=row_id).one_or_none()
@@ -49,13 +49,10 @@ class APIModuleToggle(Resource):
             if validate_module(row_id) is False:
                 return {"error": "cannot modify module"}, 400
 
-            row.enabled = True if new_state == 1 else False
+            row.enabled = data.new_state
             db_session.commit()
-            payload = {"id": row.id, "new_state": row.enabled}
+            payload = {"id": row.id, "new_state": data.new_state}
             AdminLogManager.post("Module toggled", options["user"], "Enabled" if row.enabled else "Disabled", row.id)
             SocketClientManager.send("module.update", payload)
-            return {"success": "successful toggle", "new_state": new_state}
-
-
-def init(api):
-    api.add_resource(APIModuleToggle, "/modules/toggle/<row_id>")
+            log.info(f"new state: {data} - {data.new_state}")
+            return {"success": "successful toggle", "new_state": data.new_state}

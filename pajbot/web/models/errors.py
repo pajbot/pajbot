@@ -1,6 +1,6 @@
 import logging
 
-from flask import render_template
+from flask import jsonify, render_template, request
 
 log = logging.getLogger(__name__)
 
@@ -8,6 +8,8 @@ log = logging.getLogger(__name__)
 def init(app, config):
     @app.errorhandler(404)
     def page_not_found(e):
+        if request.path.startswith("/api/"):
+            return jsonify({"error": "No API endpoint here!"})
         return render_template("errors/404.html"), 404
 
     @app.errorhandler(500)

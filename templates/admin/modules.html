@@ -23,7 +23,7 @@
                 <td class="right aligned collapsing">
                     {% if row.MODULE_TYPE != 2 %}
                         <div class="ui toggle checkbox">
-                            <input type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.db_module.enabled else '' }}>
+                            <input data-id="{{row.ID}}" type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.db_module.enabled else '' }}>
                             <label></label>
                         </div>
                     {% endif %}

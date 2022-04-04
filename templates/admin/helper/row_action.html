@@ -1,3 +1,14 @@
-<td class="right aligned collapsing"><div class="ui toggle checkbox"><input type="checkbox" name="public" class="toggle-row" {{ 'checked="checked"' if row.enabled else '' }}><label></label></div></td>
 <td class="right aligned collapsing">
-<button class="ui compact button remove-row"><i class="icon red remove"></i>Remove</button><button class="ui compact button edit-row"><i class="icon edit"></i>Edit</button></td>
+  <div class="ui toggle checkbox">
+    <input data-id="{{ row.id }}" type="checkbox" name="public"
+    class="toggle-row" {{ 'checked="checked"' if row.enabled else '' }}><label
+    ></label>
+  </div>
+</td>
+<td class="right aligned collapsing">
+  <button class="ui compact button remove-row">
+    <i class="icon red remove"></i>Remove</button
+  ><button class="ui compact button edit-row">
+    <i class="icon edit"></i>Edit
+  </button>
+</td>
