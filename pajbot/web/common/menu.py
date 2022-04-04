@@ -42,7 +42,6 @@ def init(app):
             MenuItem("/stats", "stats", "Stats"),
             MenuItem("/decks", "decks", "Decks", "deck" in enabled_modules),
             MenuItem("/playsounds", "user_playsounds", "Playsounds", "playsound" in enabled_modules),
-            MenuItem("/pleblist/history", "pleblist", "Pleblist", "pleblist" in enabled_modules),
         ]
 
         # Menu items that are shown to admin when in an /admin page
