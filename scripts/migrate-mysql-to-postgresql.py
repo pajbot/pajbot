@@ -244,15 +244,6 @@ with mysql_conn.cursor() as mysql, psql_conn.cursor() as psql:
     copy_table("playsound", ["name", "link", "volume", "cooldown", "enabled"], {"enabled": coerce_to_boolean})
 
     copy_table(
-        "pleblist_song",
-        ["id", "stream_id", "youtube_id", "date_added", "date_played", "skip_after", "user_id"],
-        {"date_added": coerce_to_utc_time, "date_played": coerce_to_utc_time},
-    )
-    copy_auto_increment("pleblist_song", "id")
-
-    copy_table("pleblist_song_info", ["pleblist_song_youtube_id", "title", "duration", "default_thumbnail"])
-
-    copy_table(
         "prediction_run",
         ["id", "winner_id", "started", "ended", "open", "type"],
         {"started": coerce_to_utc_time, "ended": coerce_to_utc_time, "open": coerce_to_boolean},
