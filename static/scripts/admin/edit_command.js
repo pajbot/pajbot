@@ -163,12 +163,18 @@ $(document).ready(function() {
                     return false;
                 }
 
+                settings.contentType = 'application/json';
+
+                payload = {};
+
                 $.each(changed_rows, function(index, name) {
                     var row = $('tr[data-name="' + name + '"]');
                     var value = row.data('value');
-                    settings.data['data_' + name] = value;
+                    payload['data_' + name] = value;
                     console.log(value);
                 });
+
+                settings.data = JSON.stringify(payload);
 
                 return settings;
             },

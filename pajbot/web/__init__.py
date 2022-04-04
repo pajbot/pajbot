@@ -143,7 +143,7 @@ def init(args):
     pajbot.web.routes.base.init(app)
 
     # Make a CSRF exemption for the /api/v1/banphrases/test endpoint
-    csrf.exempt("pajbot.web.routes.api.banphrases.apibanphrasetest")
+    csrf.exempt("pajbot.web.routes.api.banphrases.banphrases_test")
 
     pajbot.web.common.filters.init(app)
     pajbot.web.common.assets.init(app)

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Set
 import datetime
 import json
 import logging
-import urllib.parse
 from functools import update_wrapper, wraps
 
 import pajbot.exc
@@ -20,8 +19,7 @@ from pajbot.models.user import User
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import time_method
 
-from flask import abort, make_response, request, session
-from flask_restful import reqparse
+from flask import abort, make_response, session
 
 if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
@@ -164,73 +162,8 @@ def json_serial(obj):
         raise
 
 
-def init_json_serializer(api):
-    @api.representation("application/json")
-    def output_json(data, code, headers=None):
-        resp = make_response(json.dumps(data, default=json_serial), code)
-        resp.headers.extend(headers or {})
-        return resp
-
-
 def jsonify_query(query):
     return [v.jsonify() for v in query]
-
-
-def jsonify_list(key, query, base_url=None, default_limit=None, max_limit=None, jsonify_method=jsonify_query):
-    """Must be called in the context of a request"""
-    _total = query.count()
-
-    paginate_args = paginate_parser.parse_args()
-
-    # Set the limit to the limit specified in the parameters
-    limit = default_limit
-
-    if paginate_args["limit"] and paginate_args["limit"] > 0:
-        # If another limit has been passed through to the query arguments, use it
-        limit = paginate_args["limit"]
-        if max_limit:
-            # If a max limit has been set, make sure we respect it
-            limit = min(limit, max_limit)
-
-    # By default we perform no offsetting
-    offset = None
-
-    if paginate_args["offset"] and paginate_args["offset"] > 0:
-        # If an offset has been specified in the query arguments, use it
-        offset = paginate_args["offset"]
-
-    if limit:
-        query = query.limit(limit)
-
-    if offset:
-        query = query.offset(offset)
-
-    payload = {"_total": _total, key: jsonify_method(query)}
-
-    if base_url:
-        payload["_links"] = {}
-
-        payload["_links"]["self"] = base_url
-
-        if request.args:
-            payload["_links"]["self"] += "?" + urllib.parse.urlencode(request.args)
-
-        if limit:
-            payload["_links"]["next"] = (
-                base_url + "?" + urllib.parse.urlencode([("limit", limit), ("offset", (offset or 0) + limit)])
-            )
-
-            if offset:
-                payload["_links"]["prev"] = (
-                    base_url + "?" + urllib.parse.urlencode([("limit", limit), ("offset", max(0, offset - limit))])
-                )
-
-    return payload
-
-
-paginate_parser = reqparse.RequestParser()
-paginate_parser.add_argument("limit", type=int, required=False)
-paginate_parser.add_argument("offset", type=int, required=False)
 
 
 def seconds_to_vodtime(t):

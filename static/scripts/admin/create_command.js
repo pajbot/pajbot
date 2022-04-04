@@ -147,7 +147,8 @@ $(document).ready(function() {
                 return false;
             }
 
-            settings.data.alias = alias;
+            settings.contentType = 'application/json';
+            settings.data = JSON.stringify({ alias: alias });
             return settings;
         },
         successTest: function(response) {

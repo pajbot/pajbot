@@ -1,5 +1,8 @@
+from typing import Optional
+
 import json
 import logging
+from dataclasses import dataclass
 
 import pajbot.modules
 import pajbot.utils
@@ -11,25 +14,53 @@ from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.utils import find
 
-from flask_restful import Resource, reqparse
+import marshmallow_dataclass
+from flask import Blueprint, request
+from flask.typing import ResponseReturnValue
+from marshmallow import ValidationError
 from sqlalchemy.orm import joinedload
 
 log = logging.getLogger(__name__)
 
 
-class APICommands(Resource):
-    @staticmethod
-    def get():
+@dataclass
+class CheckAlias:
+    alias: str
+
+
+CheckAliasSchema = marshmallow_dataclass.class_schema(CheckAlias)
+
+
+@dataclass
+class CommandUpdate:
+    data_enabled: Optional[bool]
+    data_delay_all: Optional[int]
+    data_delay_user: Optional[int]
+    data_cost: Optional[int]
+    data_can_execute_with_whisper: Optional[bool]
+    data_sub_only: Optional[bool]
+    data_mod_only: Optional[bool]
+    data_action_type: Optional[str]
+    data_action_message: Optional[str]
+    data_use_global_cd: Optional[bool]
+    run_through_banphrases: Optional[bool]
+    data_level: Optional[int]
+
+
+CommandUpdateSchema = marshmallow_dataclass.class_schema(CommandUpdate)
+
+
+def init(bp: Blueprint) -> None:
+    @bp.route("/commands")
+    def commands():
         commands = pajbot.web.utils.get_cached_commands()
 
         commands = list(filter(lambda c: c["id"] is not None, commands))
 
         return {"commands": commands}, 200
 
-
-class APICommand(Resource):
-    @staticmethod
-    def get(raw_command_id):
+    @bp.route("/commands/<raw_command_id>")
+    def command_get(raw_command_id):
         command_string = raw_command_id
         command_id = None
 
@@ -48,10 +79,9 @@ class APICommand(Resource):
 
         return {"command": command}, 200
 
-
-class APICommandRemove(Resource):
+    @bp.route("/commands/remove/<int:command_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, command_id, **options):
+    def command_remove(command_id, **options):
         with DBManager.create_session_scope() as db_session:
             command = db_session.query(Command).filter_by(id=command_id).one_or_none()
             if command is None:
@@ -68,45 +98,29 @@ class APICommandRemove(Resource):
         else:
             return {"error": "could not push update"}, 500
 
-
-class APICommandUpdate(Resource):
-    def __init__(self):
-        super().__init__()
-
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument("data_level", required=False)
-        self.post_parser.add_argument("data_enabled", required=False)
-        self.post_parser.add_argument("data_delay_all", required=False)
-        self.post_parser.add_argument("data_delay_user", required=False)
-        self.post_parser.add_argument("data_cost", required=False)
-        self.post_parser.add_argument("data_can_execute_with_whisper", required=False)
-        self.post_parser.add_argument("data_sub_only", required=False)
-        self.post_parser.add_argument("data_mod_only", required=False)
-        self.post_parser.add_argument("data_action_type", required=False)
-        self.post_parser.add_argument("data_action_message", required=False)
-        self.post_parser.add_argument("data_use_global_cd", required=False)
-        self.post_parser.add_argument("run_through_banphrases", required=False)
-
+    @bp.route("/commands/update/<int:command_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, command_id, **extra_args):
-        args = pajbot.utils.remove_none_values(self.post_parser.parse_args())
-        if len(args) == 0:
-            return {"error": "Missing parameter to edit."}, 400
+    def command_update(command_id: int, **extra_args) -> ResponseReturnValue:
+        try:
+            json_data = request.get_json()
+            if not json_data:
+                return {"error": "Missing json body"}, 400
+            data: CommandUpdate = CommandUpdateSchema().load(json_data)
+        except ValidationError as err:
+            return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
-        valid_names = [
-            "enabled",
-            "level",
-            "delay_all",
-            "delay_user",
-            "cost",
-            "can_execute_with_whisper",
-            "sub_only",
-            "mod_only",
-            "run_through_banphrases",
-            "use_global_cd",
-        ]
+        payload = pajbot.utils.remove_none_values(CommandUpdateSchema().dump(data))
 
-        valid_action_names = ["type", "message"]
+        if not payload:
+            return {"error": "Must edit at least one value"}, 400
+
+        # Remove action_ fields from payload, they will be parsed manually below
+        payload = {k: v for k, v in payload.items() if not k.startswith("data_action")}
+
+        # Strip data prefix from fields
+        payload = {k[5:]: v for k, v in payload.items() if k.startswith("data_")}
+
+        payload["edited_by"] = extra_args["user"].id
 
         with DBManager.create_session_scope() as db_session:
             command = (
@@ -120,42 +134,13 @@ class APICommandUpdate(Resource):
 
             if command.level > extra_args["user"].level:
                 return {"error": "Unauthorized"}, 403
+
             parsed_action = json.loads(command.action_json)
-            options = {"edited_by": extra_args["user"].id}
-
-            for key in args:
-                if key.startswith("data_"):
-                    name = key[5:]
-                    value = args[key]
-
-                    if name.startswith("action_"):
-                        name = name[7:]
-                        if name in valid_action_names and name in parsed_action and command.action.type == "message":
-                            value_type = type(parsed_action[name])
-                            if value_type is bool:
-                                parsed_value = True if value == "1" else False
-                            elif value_type is int:
-                                try:
-                                    parsed_value = int(value)
-                                except ValueError:
-                                    continue
-                            else:
-                                parsed_value = value
-                            parsed_action[name] = parsed_value
-                        command.action_json = json.dumps(parsed_action)
-                    else:
-                        if name in valid_names:
-                            value_type = type(getattr(command, name))
-                            if value_type is bool:
-                                parsed_value = True if value == "1" else False
-                            elif value_type is int:
-                                try:
-                                    parsed_value = int(value)
-                                except ValueError:
-                                    continue
-                            else:
-                                parsed_value = value
-                            options[name] = parsed_value
+            if data.data_action_type:
+                parsed_action["type"] = data.data_action_type
+            if data.data_action_message:
+                parsed_action["message"] = data.data_action_message
+            command.action_json = json.dumps(parsed_action)
 
             aj = json.loads(command.action_json)
             old_message = ""
@@ -166,8 +151,8 @@ class APICommandUpdate(Resource):
             except:
                 pass
 
-            command.set(**options)
-            command.data.set(**options)
+            command.set(**payload)
+            command.data.set(**payload)
 
             if len(old_message) > 0 and old_message != new_message:
                 log_msg = f'The !{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
@@ -186,19 +171,18 @@ class APICommandUpdate(Resource):
         else:
             return {"error": "could not push update"}, 500
 
-
-class APICommandCheckAlias(Resource):
-    def __init__(self):
-        super().__init__()
-
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument("alias", required=True)
-
+    @bp.route("/commands/checkalias", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, **extra_args):
-        args = pajbot.utils.remove_none_values(self.post_parser.parse_args())
+    def command_checkalias(**extra_args):
+        json_data = request.get_json()
+        if not json_data:
+            return {"error": "No input data provided"}, 400
+        try:
+            data = CheckAliasSchema().load(json_data)
+        except ValidationError as err:
+            return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
-        request_alias = args["alias"].lower()
+        request_alias = data.alias.lower()
 
         command_manager = pajbot.managers.command.CommandManager(
             socket_manager=None, module_manager=ModuleManager(None).load(), bot=None
@@ -217,11 +201,3 @@ class APICommandCheckAlias(Resource):
             return {"error": "Alias already in use"}
         else:
             return {"success": "good job"}
-
-
-def init(api):
-    api.add_resource(APICommands, "/commands")
-    api.add_resource(APICommand, "/commands/<raw_command_id>")
-    api.add_resource(APICommandRemove, "/commands/remove/<int:command_id>")
-    api.add_resource(APICommandUpdate, "/commands/update/<int:command_id>")
-    api.add_resource(APICommandCheckAlias, "/commands/checkalias")

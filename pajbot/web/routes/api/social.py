@@ -1,21 +1,36 @@
+import json
+from dataclasses import dataclass
+
 import pajbot.modules
 import pajbot.web.utils  # NOQA
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 
-from flask_restful import Resource, reqparse
+import marshmallow_dataclass
+from flask import Blueprint, request
+from flask.typing import ResponseReturnValue
+from marshmallow import ValidationError
 
 
-class APISocialSet(Resource):
-    def __init__(self):
-        super().__init__()
+@dataclass
+class SocialSet:
+    value: str
 
-        self.post_parser = reqparse.RequestParser()
-        self.post_parser.add_argument("value", trim=True, required=True)
 
+SocialSetSchema = marshmallow_dataclass.class_schema(SocialSet)
+
+
+def init(bp: Blueprint) -> None:
+    @bp.route("/social/<social_key>/set", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def post(self, social_key, **options):
-        args = self.post_parser.parse_args()
+    def social_set(social_key: str, **options) -> ResponseReturnValue:
+        try:
+            json_data = request.get_json()
+            if not json_data:
+                return {"error": "Missing json body"}, 400
+            data: SocialSet = SocialSetSchema().load(json_data)
+        except ValidationError as err:
+            return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
         streamer = StreamHelper.get_streamer()
 
@@ -26,13 +41,9 @@ class APISocialSet(Resource):
         key = f"{streamer}:{social_key}"
         redis = RedisManager.get()
 
-        if len(args["value"]) == 0:
+        if len(data.value) == 0:
             redis.hdel("streamer_info", key)
         else:
-            redis.hset("streamer_info", key, args["value"])
+            redis.hset("streamer_info", key, data.value)
 
         return {"message": "success!"}, 200
-
-
-def init(api):
-    api.add_resource(APISocialSet, "/social/<social_key>/set")

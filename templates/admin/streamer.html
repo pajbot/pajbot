@@ -42,8 +42,9 @@ function save_social()
             on: 'now',
             method: 'post',
             beforeSend: function(settings) {
+                settings.contentType = 'application/json';
                 settings.urlData.key = row.data('key');
-                settings.data.value = value;
+                settings.data = JSON.stringify({"value": value});
                 return settings;
             },
             beforeXHR: function(xhr) {
