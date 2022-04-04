@@ -350,7 +350,6 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
         method_mapping["stream"] = bot.stream_manager.get_stream_value
         method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value
         method_mapping["last_stream"] = bot.stream_manager.get_last_stream_value
-        method_mapping["current_song"] = bot.get_current_song_value
         method_mapping["args"] = bot.get_args_value
         method_mapping["strictargs"] = bot.get_strictargs_value
         method_mapping["command"] = bot.get_command_value
