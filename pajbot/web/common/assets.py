@@ -18,16 +18,6 @@ def init(app):
     datetime_js = Bundle("scripts/datetime.js", filters="jsmin", output="gen/scripts/datetime.%(version)s.js")
     assets.register("datetime", datetime_js)
 
-    # Pleblist-related javascript
-    # Available under the following assets: pleblist_shared, pleblist_client
-    pleblist_client = Bundle("scripts/pleblist.js", filters="jsmin", output="gen/scripts/pleblist.%(version)s.js")
-    pleblist_shared = Bundle(
-        "scripts/pleblist.shared.js", filters="jsmin", output="gen/scripts/pleblist.shared.%(version)s.js"
-    )
-
-    assets.register("pleblist_shared", pleblist_shared)
-    assets.register("pleblist_client", pleblist_client)
-
     # CLR Overlay
     # Availabe under: clr_overlay_js, clr_overlay_css
     # jsmin is intentionally disabled for clr.overlay.js because the output is broken (same as below for
