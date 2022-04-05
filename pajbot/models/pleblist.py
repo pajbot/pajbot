@@ -1,7 +1,7 @@
 import logging
 
 from pajbot import utils
-from pajbot.managers.db import Base, DBManager
+from pajbot.managers.db import Base
 
 from sqlalchemy import INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
