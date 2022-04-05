@@ -19,4 +19,3 @@ sqlalchemy-stubs==0.4
 types-psycopg2==2.9.9
 types-colorama==0.4.10
 types-beautifulsoup4==4.10.16
-types-httplib2==0.20.4
