@@ -104,7 +104,7 @@ def init(bp: Blueprint) -> None:
 
         if res is not False:
             ret["banned"] = True
-            ret["banphrase_data"] = res
+            ret["banphrase_data"] = res.jsonify()
 
         return ret
 
