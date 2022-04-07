@@ -8,6 +8,8 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
+- Bugfix: Fix toggling of submodules. (#1824)
+- Bugfix: Fix banphrase API not properly returning matching banphrase. (#1823)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60

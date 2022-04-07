@@ -5,7 +5,7 @@ mypy==0.942
 isort==5.10.1
 
 # mypy type stubs
-types-cryptography==3.3.18
+types-cryptography==3.3.19
 types-enum34==1.1.8
 types-ipaddress==1.0.8
 types-Markdown==3.3.12
@@ -17,5 +17,5 @@ types-retry==0.9.5
 # sqlalchemy2-stubs==0.0.2a15
 sqlalchemy-stubs==0.4
 types-psycopg2==2.9.9
-types-colorama==0.4.10
-types-beautifulsoup4==4.10.16
+types-colorama==0.4.11
+types-beautifulsoup4==4.10.18
