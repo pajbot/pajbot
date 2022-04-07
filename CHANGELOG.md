@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
+- Bugfix: Fix toggling of submodules. (#1824)
 
 ## v1.60
 
