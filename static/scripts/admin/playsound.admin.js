@@ -9,7 +9,7 @@ $(window).on('load', function() {
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
-                new_state: checked ? true : false,
+                new_state: checked,
             }),
             success: () => location.reload(),
         });
