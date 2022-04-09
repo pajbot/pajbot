@@ -24,7 +24,8 @@ $(document).ready(function() {
         },
         onSuccess: function(settings) {
             document.location.href =
-                '/user/' + $('#usersearch input.username').val();
+                '/user/' +
+                encodeURIComponent($('#usersearch input.username').val());
             return false;
         },
     });
