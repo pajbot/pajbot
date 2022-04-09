@@ -7,9 +7,10 @@ $(window).on('load', function() {
         $.ajax({
             url: `/api/v1/modules/toggle/playsound`,
             type: 'POST',
-            data: {
-                new_state: checked ? 1 : 0,
-            },
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({
+                new_state: checked,
+            }),
             success: () => location.reload(),
         });
     });
