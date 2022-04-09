@@ -314,72 +314,6 @@ div.mediumtable {
     width: 600px;
 }
 
-div#songlist div.item:first-child,
-div#songhistory div.item.not-played.first {
-    background-color: rgba(0, 255, 0, 0.175);
-}
-
-#songlist .song-index {
-    float: left;
-    padding-right: 5px;
-}
-
-#songlist a.skip {
-    color: red;
-    opacity: 0.5;
-    transition: opacity 0.25s ease-in-out;
-}
-
-#songlist a.skip:hover {
-    opacity: 1;
-}
-
-div#songhistory div.item div.description {
-    line-height: 1.5em;
-}
-
-#songhistory .played {
-    background-color: rgba(255, 0, 0, 0.1);
-}
-
-#pleblist {
-    height: 100%;
-}
-
-div.pleblist-wrapper {
-    overflow: hidden;
-}
-
-div.pleblist-wrapper div {
-    margin-bottom: 0.5em;
-}
-
-div.pleblist-wrapper div.inner-player-wrapper {
-    position: relative;
-    width: 100%;
-    height: 0px;
-    padding-bottom: 60%;
-}
-
-#player {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    height: 100%;
-}
-
-div.pleblist-wrapper div.player-wrapper {
-    width: auto;
-    overflow: hidden;
-    padding-right: 1em;
-}
-
-div.pleblist-wrapper div.songlist-wrapper {
-    float: right;
-    width: 240px;
-}
-
 table.editcommand div.edit {
     display: none;
 }
@@ -507,10 +441,6 @@ div.anchor {
 
 #bot_moderators h4 {
     padding-top: 35px;
-}
-
-#pleblist_host #donationlist {
-    width: 700px;
 }
 
 .command-sample {

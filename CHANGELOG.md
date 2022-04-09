@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Security: Add integrity checks to javascript resources loaded from external CDNs. (#1813)
+- Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
 - Bugfix: Fix toggling of submodules. (#1824)

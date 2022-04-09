@@ -184,24 +184,6 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 `$(last_stream:ended)` - bool - if that stream has ended (True)\
 `$(last_stream:uptime)` - datetime.timedelta - how long the stream was live
 
-#### current_song
-
-(only works when online!)\
-`$(current_song:id - int)`\
-`$(current_song:stream_id)` - int\
-`$(current_song:user_id)` - int\
-`$(current_song:youtube_id)` - String\
-`$(current_song:link)` - String - 'youtu.be/\<id\>'\
-`$(current_song:date_added)` - datetime.datetime\
-`$(current_song:date_played)` - datetime.datetime\
-`$(current_song:skip_after)` - int\
-`$(current_song:song_info)` - pajbot.models.pleblist.PleblistSongInfo\
- -> pleblist_song_youtube_id - String\
- -> title - String\
- -> duration - int\
- -> default_thumbnail - String\
-Use these sub-variables like this: `$(current_song:song_info.title)`
-
 #### args
 
 Note: argument IDs are 0-based! `$(args:2-5)` - String - (joins args 2 (inclusive) through 5 (exclusive) together, e.g. '!argstest 1 2 3 4 5 6 7 8' -> '3 4 5')\

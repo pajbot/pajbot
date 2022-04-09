@@ -1,7 +1,7 @@
 import logging
 
 from pajbot import utils
-from pajbot.managers.db import Base, DBManager
+from pajbot.managers.db import Base
 
 from sqlalchemy import INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
@@ -71,74 +71,3 @@ class PleblistSongInfo(Base):
 
     def jsonify(self):
         return {"title": self.title, "duration": self.duration, "default_thumbnail": self.default_thumbnail}
-
-
-class PleblistManager:
-    youtube = None
-
-    @staticmethod
-    def init(developer_key):
-        if PleblistManager.youtube is None:
-            import apiclient
-            from apiclient.discovery import build
-
-            def build_request(_, *args, **kwargs):
-                import httplib2
-
-                new_http = httplib2.Http()
-                return apiclient.http.HttpRequest(new_http, *args, **kwargs)
-
-            PleblistManager.youtube = build("youtube", "v3", developerKey=developer_key, requestBuilder=build_request)
-
-    @staticmethod
-    def get_song_info(youtube_id, db_session):
-        return db_session.query(PleblistSongInfo).filter_by(pleblist_song_youtube_id=youtube_id).one_or_none()
-
-    @staticmethod
-    def create_pleblist_song_info(youtube_id):
-        import isodate
-        from apiclient.errors import HttpError
-
-        if PleblistManager.youtube is None:
-            log.warning("youtube was not initialized")
-            return False
-
-        try:
-            video_response = (
-                PleblistManager.youtube.videos().list(id=str(youtube_id), part="snippet,contentDetails").execute()
-            )
-        except HttpError as e:
-            log.exception("Youtube HTTPError")
-            log.info(e.content)
-            log.info(e.resp)
-            log.info(e.uri)
-            return False
-        except:
-            log.exception("uncaught exception in videos().list()")
-            return False
-
-        if not video_response.get("items", []):
-            log.warning(f"Got no valid responses for {youtube_id}")
-            return False
-
-        video = video_response["items"][0]
-
-        title = video["snippet"]["title"]
-        duration = int(isodate.parse_duration(video["contentDetails"]["duration"]).total_seconds())
-        default_thumbnail = video["snippet"]["thumbnails"]["default"]["url"]
-
-        return PleblistSongInfo(youtube_id, title, duration, default_thumbnail)
-
-    @staticmethod
-    def get_current_song(stream_id):
-        with DBManager.create_session_scope() as session:
-            cur_song = (
-                session.query(PleblistSong)
-                .filter(PleblistSong.stream_id == stream_id, PleblistSong.date_played.is_(None))
-                .order_by(PleblistSong.date_added.asc(), PleblistSong.id.asc())
-                .first()
-            )
-            if cur_song is None:
-                return None
-            session.expunge(cur_song)
-            return cur_song

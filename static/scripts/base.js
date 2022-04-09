@@ -1,12 +1,6 @@
 $.fn.api.settings.api = {
     get_user: '/api/v1/users/{username}',
     get_user_from_user_input: '/api/v1/users/{username}?user_input=true',
-    pleblist_add_song: '/api/v1/pleblist/add',
-    pleblist_validate: '/api/v1/pleblist/validate',
-    pleblist_next_song: '/api/v1/pleblist/next',
-    pleblist_skip_future_song: '/api/v1/pleblist/skip/{id}',
-    get_pleblist_songs: '/api/v1/pleblist/list',
-    get_pleblist_songs_after: '/api/v1/pleblist/list/after/{id}',
     edit_command: '/api/v1/commands/update/{id}',
     remove_command: '/api/v1/commands/remove/{id}',
     check_alias: '/api/v1/commands/checkalias',
