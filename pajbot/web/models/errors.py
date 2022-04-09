@@ -9,7 +9,7 @@ def init(app, config):
     @app.errorhandler(404)
     def page_not_found(e):
         if request.path.startswith("/api/"):
-            return jsonify({"error": "No API endpoint here!"})
+            return jsonify({"error": "No API endpoint here!"}), 404
         return render_template("errors/404.html"), 404
 
     @app.errorhandler(500)
