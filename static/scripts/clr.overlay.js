@@ -16,8 +16,8 @@ function add_random_box({ color }) {
     var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
     var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
     var $newdiv = $("<div class='exploding'></div>").css({
-        left: posx + 'px',
-        top: posy + 'px',
+        left: `${posx}px`,
+        top: `${posy}px`,
         'background-color': color,
         opacity: 0,
     });
@@ -115,8 +115,8 @@ function show_custom_image(data) {
     var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
     var posy = (Math.random() * ($(document).height() - divsize)).toFixed();
     var css_data = {
-        left: posx + 'px',
-        top: posy + 'px',
+        left: `${posx}px`,
+        top: `${posy}px`,
         opacity: 0,
     };
     if (data.width !== undefined) {
@@ -126,12 +126,12 @@ function show_custom_image(data) {
         css_data.height = data.height;
     }
     if (data.x !== undefined) {
-        css_data.left = data.x + 'px';
+        css_data.left = `${data.x}px`;
     }
     if (data.y !== undefined) {
-        css_data.top = data.y + 'px';
+        css_data.top = `${data.y}px`;
     }
-    var $newdiv = $('<img class="absemote" src="' + url + '">').css(css_data);
+    var $newdiv = $(`<img class="absemote" src="${url}">`).css(css_data);
     $newdiv.appendTo('body');
     $newdiv.animate(
         {
@@ -155,7 +155,7 @@ function show_custom_image(data) {
 var message_id = 0;
 
 function add_notification({ message }) {
-    var new_notification = $('<div>' + message + '</div>').prependTo(
+    var new_notification = $(`<div>${message}</div>`).prependTo(
         'div.notifications'
     );
     new_notification.textillate({

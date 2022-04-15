@@ -58,8 +58,8 @@ $.fn.range = function(parameters) {
 				start           = settings.start,
 				input           = settings.input,
 
-				eventNamespace  = '.' + namespace,
-				moduleNamespace = 'module-' + namespace,
+				eventNamespace  = `.${namespace}`,
+				moduleNamespace = `module-${namespace}`,
 
 				$module         = $(this),
 
@@ -165,8 +165,8 @@ $.fn.range = function(parameters) {
 				},
 
 				setPosition: function(value) {
-					$(thumb).css({left: String(value) + 'px'});
-					$(trackLeft).css({width: String(value + offset) + 'px'});
+					$(thumb).css({left: `${String(value)}px`});
+					$(trackLeft).css({width: `${String(value + offset)}px`});
 				},
 
 				rangeMousedown: function(mdEvent, isTouch, originalEvent) {
