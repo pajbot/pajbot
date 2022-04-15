@@ -1,7 +1,6 @@
 var key_labels = {
     sub_only: 'Only <strong>subscribers</strong> can use this command.',
-    can_execute_with_whisper:
-        `Can be executed by whispering <strong>${bot_name}</strong>`,
+    can_execute_with_whisper: `Can be executed by whispering <strong>${bot_name}</strong>`,
 };
 
 function handle_command(base_key, command) {
@@ -37,9 +36,7 @@ function handle_command(base_key, command) {
 
             case 'sub_only':
             case 'can_execute_with_whisper':
-                var el = $(
-                    `div.sticky.'${base_key}' tr[data-key="${key}"]`
-                );
+                var el = $(`div.sticky.'${base_key}' tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
@@ -54,9 +51,7 @@ function handle_command(base_key, command) {
                 break;
 
             case 'cost':
-                var el = $(
-                    `div.sticky.${base_key} tr[data-key="${key}"]`
-                );
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
@@ -71,9 +66,7 @@ function handle_command(base_key, command) {
                 break;
 
             case 'examples':
-                var el_base = $(
-                    `div.sticky.${base_key} .command-examples`
-                );
+                var el_base = $(`div.sticky.${base_key} .command-examples`);
                 el_base.empty();
                 if (value.length > 0) {
                     var $accordion = $('<div>', {
@@ -203,9 +196,7 @@ function handle_command(base_key, command) {
                 break;
 
             default:
-                var el = $(
-                    `div.sticky.${base_key} tr[data-key="${key}"]`
-                );
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }

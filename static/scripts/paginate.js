@@ -38,7 +38,7 @@ function paginate_refresh_buttons(key) {
             var id = 0;
 
             if (i % 2 == 0) {
-                el = data['div_el'].find(`a.ib${(7 - btn_id)}`);
+                el = data['div_el'].find(`a.ib${7 - btn_id}`);
                 id = current_page - btn_id;
             } else {
                 el = data['div_el'].find(`a.ia${btn_id}`);
