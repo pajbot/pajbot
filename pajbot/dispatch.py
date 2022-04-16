@@ -1,3 +1,5 @@
+from typing import Optional
+
 import logging
 import re
 
@@ -94,17 +96,6 @@ class Dispatch:
                 return False
 
             alias = message_parts[0].replace("!", "").lower()
-            type = "say"
-            if options["whisper"] is True:
-                type = "whisper"
-            elif options["reply"] is True:
-                type = "reply"
-            elif response.startswith("/me") or response.startswith(".me"):
-                type = "me"
-                response = " ".join(response.split(" ")[1:])
-            elif options["whisper"] is False or options["reply"] is False:
-                type = "say"
-            action = {"type": type, "message": response}
 
             command = bot.commands.get(alias, None)
 
@@ -115,15 +106,20 @@ class Dispatch:
                 )
                 return False
 
+            action_type: Optional[str] = options.get("action_type", None)
+            if action_type is None:
+                action_type = command.action.subtype
+            action = {"type": action_type, "message": response}
+
             old_message = ""
             new_message = ""
 
-            if len(action["message"]) > 0:
+            if len(response) > 0:
                 options["action"] = action
                 old_message = command.action.response
-                new_message = action["message"]
+                new_message = response
             elif not type == command.action.subtype:
-                options["action"] = {"type": type, "message": command.action.response}
+                options["action"] = {"type": action_type, "message": command.action.response}
             bot.commands.edit_command(command, **options)
             bot.whisper(source, f"Updated the command (ID: {command.id})")
 
