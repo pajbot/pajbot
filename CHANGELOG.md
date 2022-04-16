@@ -10,7 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)
-- Minor: Added the `announcement` message type.
+- Minor: Added the `announcement` message type. (#1847)
 - Bugfix: Command response type now sticks properly when a command is edited through chat. (#1846)
 - Bugfix: Fix toggling of submodules. (#1824)
 - Bugfix: Fix banphrase API not properly returning matching banphrase. (#1823)
