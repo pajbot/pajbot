@@ -168,9 +168,9 @@ $(document).ready(function() {
                 payload = {};
 
                 $.each(changed_rows, function(index, name) {
-                    var row = $('tr[data-name="' + name + '"]');
+                    var row = $(`tr[data-name="${name}"]`);
                     var value = row.data('value');
-                    payload['data_' + name] = value;
+                    payload[`data_${name}`] = value;
                     console.log(value);
                 });
 
@@ -180,7 +180,7 @@ $(document).ready(function() {
             },
             onSuccess: function(response, element, xhr) {
                 $.each(changed_rows, function(index, name) {
-                    var row = $('tr[data-name="' + name + '"]');
+                    var row = $(`tr[data-name="${name}"]`);
                     row.find('td.value').removeClass('warning');
                     row.data('originalvalue', row.data('value'));
                 });

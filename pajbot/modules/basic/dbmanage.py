@@ -16,6 +16,7 @@ class DBManageModule(BaseModule):
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
+    HIDDEN = True
 
     @staticmethod
     def commit(bot, source, message, **rest):

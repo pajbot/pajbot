@@ -429,10 +429,12 @@ class CommandManager(UserDict):
         message: str,
     ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
-        parser.add_argument("--whisper", dest="whisper", action="store_true")
-        parser.add_argument("--no-whisper", dest="whisper", action="store_false")
-        parser.add_argument("--reply", dest="reply", action="store_true")
-        parser.add_argument("--no-reply", dest="reply", action="store_false")
+
+        # Update action type/response type
+        parser.add_argument("--whisper", dest="action_type", action="store_const", const="whisper", default=None)
+        parser.add_argument("--reply", dest="action_type", action="store_const", const="reply", default=None)
+        parser.add_argument("--say", dest="action_type", action="store_const", const="say", default=None)
+
         parser.add_argument("--cd", type=int, dest="delay_all")
         parser.add_argument("--usercd", type=int, dest="delay_user")
         parser.add_argument("--level", type=int, dest="level")
@@ -467,5 +469,9 @@ class CommandManager(UserDict):
             options["cost"] = abs(options["cost"])
         if "tokens_cost" in options:
             options["tokens_cost"] = abs(options["tokens_cost"])
+
+        if response.startswith(".me ") or response.startswith("/me "):
+            options["action_type"] = "me"
+            response = " ".join(response.split(" ")[1:])
 
         return options, response

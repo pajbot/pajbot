@@ -43,7 +43,7 @@ class CommandUpdate:
     data_action_type: Optional[str]
     data_action_message: Optional[str]
     data_use_global_cd: Optional[bool]
-    run_through_banphrases: Optional[bool]
+    data_run_through_banphrases: Optional[bool]
     data_level: Optional[int]
 
 
