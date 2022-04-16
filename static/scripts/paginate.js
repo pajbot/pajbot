@@ -38,10 +38,10 @@ function paginate_refresh_buttons(key) {
             var id = 0;
 
             if (i % 2 == 0) {
-                el = data['div_el'].find('a.ib' + (7 - btn_id));
+                el = data['div_el'].find(`a.ib${7 - btn_id}`);
                 id = current_page - btn_id;
             } else {
-                el = data['div_el'].find('a.ia' + btn_id);
+                el = data['div_el'].find(`a.ia${btn_id}`);
                 id = current_page + btn_id;
             }
 
@@ -129,11 +129,11 @@ function paginate(selector, limit, direction, action, on_success, show_ends) {
 
     var buttons = '';
     for (var i = 0; i <= 6; ++i) {
-        buttons += '<a class="item page_btn num ib' + i + '">' + i + '</a>';
+        buttons += `<a class="item page_btn num ib${i}">${i}</a>`;
     }
     buttons += '<a class="item page_btn icur active">XD</a>';
     for (var i = 0; i <= 6; ++i) {
-        buttons += '<a class="item page_btn num ia' + i + '">' + i + '</a>';
+        buttons += `<a class="item page_btn num ia${i}">${i}</a>`;
     }
 
     /* Create menu base */

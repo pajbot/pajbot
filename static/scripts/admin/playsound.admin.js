@@ -167,7 +167,7 @@ $(window).on('load', function() {
             event.preventDefault();
             let formData = getFormData(form);
             // the formData.name comes from the hidden form input field with the playsound name
-            console.log('deleting playsound ' + formData.name);
+            console.log(`deleting playsound ${formData.name}`);
             console.log(formData);
 
             $('#delete-modal').modal('setting', {
@@ -209,7 +209,7 @@ $(window).on('load', function() {
 
             let formData = getFormData(form);
             // the formData.name comes from the hidden form input field with the playsound name
-            console.log('updating playsound ' + formData.name);
+            console.log(`updating playsound ${formData.name}`);
             console.log(formData);
 
             $.ajax({
