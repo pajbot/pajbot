@@ -586,6 +586,7 @@ class WhisperAction(MessageAction):
             },
         )
 
+
 class AnnouncementAction(MessageAction):
     subtype = "announcement"
 
@@ -612,7 +613,6 @@ class AnnouncementAction(MessageAction):
                 "num_urlfetch_subs": self.num_urlfetch_subs,
             },
         )
-
 
 
 class ReplyAction(MessageAction):
