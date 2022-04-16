@@ -716,6 +716,8 @@ class Bot:
             self.whisper(user, message)
         elif method == "me":
             self.me(message)
+        elif method == "announcement":
+            self.announcement(message)
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
                 msg_id = next(tag["value"] for tag in event.tags if tag["key"] == "id")
@@ -739,6 +741,8 @@ class Bot:
             self.say(message)
         elif method == "me":
             self.me(message)
+        elif method == "announcement":
+            self.announcement(message)
         else:
             log.warning("Unknown send_message method: %s", method)
 
@@ -787,6 +791,9 @@ class Bot:
 
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
+
+    def announcement(self, message: str, channel: Optional[str] = None) -> None:
+        self.say("/announce " + message[: CHARACTER_LIMIT -4], channel=channel)
 
     def connect(self) -> None:
         self.irc.start()
