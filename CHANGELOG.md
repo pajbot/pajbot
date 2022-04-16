@@ -13,6 +13,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix banphrase API not properly returning matching banphrase. (#1823)
 - Bugfix: Fix toggling of playsound module from the playsound admin page. (#1825)
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
+- Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60
