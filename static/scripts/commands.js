@@ -36,7 +36,7 @@ function handle_command(base_key, command) {
 
             case 'sub_only':
             case 'can_execute_with_whisper':
-                var el = $(`div.sticky.'${base_key}' tr[data-key="${key}"]`);
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
