@@ -230,7 +230,7 @@ class PaidTimeoutModule(BaseModule):
                 CommandExample(
                     None,
                     f"Timeout someone for {self.settings['timeout_length']} seconds",
-                    chat=f"user:!{self.settings['command_name']} paja\nbot>user: {self.settings['message_to_additional_timeouter'].format(victim='pajlada', cost=self.settings['cost'], duration=self.settings['timeout_length'])}",
+                    chat=f"user:!{self.settings['command_name']} karl_kons\nbot>user: {self.settings['message_to_additional_timeouter'].format(victim='karl_kons', cost=self.settings['cost'], duration=self.settings['timeout_length'])}",
                     description="",
                 ).parse()
             ],
@@ -245,7 +245,7 @@ class PaidTimeoutModule(BaseModule):
                     CommandExample(
                         None,
                         f"Timeout someone for {self.settings['timeout_length2']} seconds",
-                        chat=f"user:!{self.settings['command_name2']} paja\nbot>user: {self.settings['message_to_additional_timeouter'].format(victim='pajlada', cost=self.settings['cost'], duration=self.settings['timeout_length'])}",
+                        chat=f"user:!{self.settings['command_name2']} karl_kons\nbot>user: {self.settings['message_to_additional_timeouter'].format(victim='karl_kons', cost=self.settings['cost'], duration=self.settings['timeout_length'])}",
                         description="",
                     ).parse()
                 ],
