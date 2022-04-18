@@ -137,19 +137,31 @@ class PaidTimeoutModule(BaseModule):
             victim = User.find_by_user_input(db_session, target)
 
             if victim is None:
-                bot.whisper(source, "This user does not exist FailFish")
+                bot.send_message(source, "This user does not exist FailFish", method="whisper")
                 return False
 
             if victim.last_active is None or (utils.now() - victim.last_active) > datetime.timedelta(minutes=10):
-                bot.whisper(source, "This user has not been active in chat within the last 10 minutes.")
+                bot.send_message(
+                    source,
+                    "This user has not been active in chat within the last 10 minutes FailFish",
+                    method="whisper",
+                )
                 return False
 
             if victim.moderator is True:
-                bot.whisper(source, "This person has mod privileges, timeouting this person is not worth it.")
+                bot.send_message(
+                    source,
+                    "This person has mod privileges, timing out this person is not worth it FailFish",
+                    method="whisper",
+                )
                 return False
 
             if victim.level >= self.settings["bypass_level"]:
-                bot.whisper(source, "This person's user level is too high, you can't timeout this person.")
+                bot.send_message(
+                    source,
+                    "This person's user level is too high, you can't timeout this person FailFish",
+                    method="whisper",
+                )
                 return False
 
             now = utils.now()
