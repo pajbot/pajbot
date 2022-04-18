@@ -5,7 +5,7 @@ mypy==0.942
 isort==5.10.1
 
 # mypy type stubs
-types-cryptography==3.3.19
+types-cryptography==3.3.20
 types-enum34==1.1.8
 types-ipaddress==1.0.8
 types-Markdown==3.3.13
