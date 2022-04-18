@@ -167,18 +167,40 @@ class PaidTimeoutModule(BaseModule):
             now = utils.now()
             if victim.timeout_end is not None and victim.timeout_end > now:
                 victim.timeout_end += datetime.timedelta(seconds=_time)
-                bot.whisper(victim, f"{victim}, you were timed out for an additional {_time} seconds by {source}")
-                bot.whisper(
-                    source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
-                )
+
+                if self.settings["additional_message_to_victim"] != "":
+                    bot.send_message(
+                        victim,
+                        self.settings["additional_message_to_victim"].format(source=source, duration=_time),
+                        method="whisper",
+                    )
+
+                if self.settings["message_to_additional_timeouter"] != "":
+                    bot.send_message(
+                        source,
+                        self.settings["message_to_additional_timeouter"].format(
+                            victim=victim, cost=_cost, duration=_time
+                        ),
+                        method="whisper",
+                    )
+
                 num_seconds = int((victim.timeout_end - now).total_seconds())
                 bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
             else:
-                bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
-                bot.whisper(
-                    victim,
-                    f"{source} just timed you out for {_time} seconds LUL",
-                )
+                if self.settings["message_to_timeouter"] != "":
+                    bot.send_message(
+                        source,
+                        self.settings["message_to_timeouter"].format(victim=victim, cost=_cost, duration=_time),
+                        method="whisper",
+                    )
+
+                if self.settings["message_to_victim"] != "":
+                    bot.send_message(
+                        victim,
+                        self.settings["message_to_victim"].format(source=source, duration=_time),
+                        method="whisper",
+                    )
+
                 bot.timeout(victim, _time, reason=f"Timed out by {source}", once=True)
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
