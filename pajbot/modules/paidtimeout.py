@@ -87,6 +87,42 @@ class PaidTimeoutModule(BaseModule):
         ModuleSetting(
             key="show_on_clr", label="Show timeouts on the clr overlay", type="boolean", required=True, default=True
         ),
+        ModuleSetting(
+            key="message_to_timeouter",
+            label="Message sent to timeouter. Leave empty to disable message. | Available arguments: {victim}, {cost}, {duration}",
+            type="text",
+            required=False,
+            placeholder="You just used {cost} points to timeout {victim} for {duration} seconds.",
+            default="You just used {cost} points to timeout {victim} for {duration} seconds.",
+            constraints={"max_str_len": 300},
+        ),
+        ModuleSetting(
+            key="message_to_additional_timeouter",
+            label="Message sent to additional timeouter. Leave empty to disable message. | Available arguments: {victim}, {cost}, {duration}",
+            type="text",
+            required=False,
+            placeholder="You just used {cost} points to timeout {victim} for an additional {duration} seconds.",
+            default="You just used {cost} points to timeout {victim} for an additional {duration} seconds.",
+            constraints={"max_str_len": 300},
+        ),
+        ModuleSetting(
+            key="message_to_victim",
+            label="Message sent to victim when timed out. Leave empty to disable message. | Available arguments: {source}, {duration}",
+            type="text",
+            required=False,
+            placeholder="{source} just timed you out for {duration} seconds LUL",
+            default="{source} just timed you out for {duration} seconds LUL",
+            constraints={"max_str_len": 300},
+        ),
+        ModuleSetting(
+            key="additional_message_to_victim",
+            label="Message sent to victim when more time is added to the victim's timeout. Leave empty to disable message. | Available arguments: {source}, {duration}",
+            type="text",
+            required=False,
+            placeholder="{source} just timed you out for an additional {duration} seconds LUL",
+            default="{source} just timed you out for an additional {duration} seconds LUL",
+            constraints={"max_str_len": 300},
+        ),
     ]
 
     def base_paid_timeout(self, bot, source, message, _time, _cost):
