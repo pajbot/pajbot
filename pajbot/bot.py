@@ -788,8 +788,8 @@ class Bot:
     def safe_say(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.say(message, channel)
-            
-    def safe_announcement(self, message:str, channel: Optional[str] = None) -> None:
+
+    def safe_announcement(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.announcement(message, channel)
 
