@@ -39,7 +39,7 @@ class VIPRefreshModule(BaseModule):
         self.bot.privmsg("/vips")
 
     @staticmethod
-    def _parse_pubnotice_for_vips(msg_id, message):
+    def _parse_pubnotice_for_vips(self, msg_id, message):
         if msg_id == "no_vips":
             return []
 
