@@ -27,7 +27,7 @@ class VIPRefreshModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.scheduled_job = None
-        self.username_regex = re.compile("^[a-zA-Z0-9](?:\w{1,24})?$")
+        self.username_regex = re.compile(r"^[a-z0-9](?:\w{1,24})?$", re.IGNORECASE)
 
     def update_vip_cmd(self, bot, source, **rest):
         # TODO if you wanted to improve this: Provide the user with feedback
