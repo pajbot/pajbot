@@ -1,4 +1,5 @@
 import logging
+import re
 
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -26,6 +27,7 @@ class VIPRefreshModule(BaseModule):
     def __init__(self, bot):
         super().__init__(bot)
         self.scheduled_job = None
+        self.username_regex = re.compile("^[a-zA-Z0-9](?:\w{1,24})?$")
 
     def update_vip_cmd(self, bot, source, **rest):
         # TODO if you wanted to improve this: Provide the user with feedback
@@ -44,7 +46,13 @@ class VIPRefreshModule(BaseModule):
         if msg_id == "vips_success":
             if message.startswith("The VIPs of this channel are: ") and message.endswith("."):
                 message = message[30:-1]  # 30 = length of the above "prefix", -1 removes the dot at the end
-                return message.split(", ")
+                vips = message.split(", ")
+                # Response of "vips_success" returns display names, which could contain non-ascii characters.
+                # For now, we filter these out since these cannot be resolved through helix, see https://github.com/pajbot/pajbot/issues/1772
+                filtered_vips = [vip for vip in vips if re.match(username_regex, vip)]
+                if len(vips) != len(filtered_vips):
+                    log.warning("Some non-ascii display names were filtered out from vips_success NOTICE response.")
+                return filtered_vips
             log.warning(
                 f"Received vips_success NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
             )
