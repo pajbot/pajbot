@@ -797,7 +797,7 @@ class Bot:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
     def announcement(self, message: str, channel: Optional[str] = None) -> None:
-        self.say("/announce " + message[: CHARACTER_LIMIT - 4], channel=channel)
+        self.say("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
 
     def connect(self) -> None:
         self.irc.start()
