@@ -40,7 +40,7 @@ class VIPRefreshModule(BaseModule):
         self.bot.privmsg("/vips")
 
     @staticmethod
-    def _parse_pubnotice_for_vips(self, msg_id, message):
+    def _parse_pubnotice_for_vips(msg_id, message):
         if msg_id == "no_vips":
             return []
 
@@ -68,7 +68,7 @@ class VIPRefreshModule(BaseModule):
         if channel != self.bot.streamer.login:
             return
 
-        vip_logins = self._parse_pubnotice_for_vips(self, msg_id, message)
+        vip_logins = self._parse_pubnotice_for_vips(msg_id, message)
 
         if vip_logins is not None:
             self.bot.action_queue.submit(self._process_vip_logins, vip_logins)
