@@ -24,6 +24,7 @@ class VIPRefreshModule(BaseModule):
 
     UPDATE_INTERVAL = 10  # minutes
 
+    # This regex matches login names but not display names if they contain any non-ascii characters or spaces
     LOGIN_REGEX = re.compile(r"^[a-z0-9](?:\w{1,24})?$", re.IGNORECASE)
 
     def __init__(self, bot):
