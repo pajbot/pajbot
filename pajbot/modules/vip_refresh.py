@@ -24,7 +24,7 @@ class VIPRefreshModule(BaseModule):
 
     UPDATE_INTERVAL = 10  # minutes
 
-    USERNAME_REGEX = re.compile(r"^[a-z0-9](?:\w{1,24})?$", re.IGNORECASE)
+    LOGIN_REGEX = re.compile(r"^[a-z0-9](?:\w{1,24})?$", re.IGNORECASE)
 
     def __init__(self, bot):
         super().__init__(bot)
@@ -50,7 +50,7 @@ class VIPRefreshModule(BaseModule):
                 vips = message.split(", ")
                 # Response of "vips_success" returns display names, which could contain non-ascii characters.
                 # For now, we filter these out since these cannot be resolved through helix, see https://github.com/pajbot/pajbot/issues/1772
-                filtered_vips = [vip for vip in vips if re.match(VIPRefreshModule.USERNAME_REGEX, vip)]
+                filtered_vips = [vip for vip in vips if re.match(VIPRefreshModule.LOGIN_REGEX, vip)]
                 if len(vips) != len(filtered_vips):
                     log.warning("Some non-ascii display names were filtered out from vips_success NOTICE response.")
                 return filtered_vips
