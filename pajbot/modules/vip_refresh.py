@@ -1,3 +1,5 @@
+from typing import List
+
 import logging
 import re
 
@@ -41,6 +43,10 @@ class VIPRefreshModule(BaseModule):
         self.bot.privmsg("/vips")
 
     @staticmethod
+    def _filter_vips(vips: List[str]) -> List[str]:
+        return [vip for vip in vips if re.match(VIPRefreshModule.LOGIN_REGEX, vip)]
+
+    @staticmethod
     def _parse_pubnotice_for_vips(msg_id, message):
         if msg_id == "no_vips":
             return []
@@ -51,7 +57,7 @@ class VIPRefreshModule(BaseModule):
                 vips = message.split(", ")
                 # Response of "vips_success" returns display names, which could contain non-ascii characters.
                 # For now, we filter these out since these cannot be resolved through helix, see https://github.com/pajbot/pajbot/issues/1772
-                filtered_vips = [vip for vip in vips if re.match(VIPRefreshModule.LOGIN_REGEX, vip)]
+                filtered_vips = VIPRefreshModule._filter_vips(vips)
                 if len(vips) != len(filtered_vips):
                     log.warning("Some non-ascii display names were filtered out from vips_success NOTICE response.")
                 return filtered_vips
