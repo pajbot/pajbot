@@ -55,7 +55,7 @@ class Dispatch:
             type = "me"
             response = " ".join(response.split(" ")[1:])
         elif response.startswith("/announce") or response.startswith(".announce"):
-            type = "announcement"
+            type = "announce"
             response = " ".join(response.split(" ")[1:])
         elif options["whisper"] is False or options["reply"] is False:
             type = "say"

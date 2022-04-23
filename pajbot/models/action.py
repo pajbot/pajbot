@@ -61,8 +61,8 @@ class ActionParser:
             return WhisperAction(data["message"], ActionParser.bot)
         elif data["type"] == "reply":
             return ReplyAction(data["message"], ActionParser.bot)
-        elif data["type"] == "announcement":
-            return AnnouncementAction(data["message"], ActionParser.bot)
+        elif data["type"] == "announce":
+            return AnnounceAction(data["message"], ActionParser.bot)
         elif data["type"] == "func":
             try:
                 return FuncAction(getattr(Dispatch, data["cb"]))
@@ -587,8 +587,8 @@ class WhisperAction(MessageAction):
         )
 
 
-class AnnouncementAction(MessageAction):
-    subtype = "announcement"
+class AnnounceAction(MessageAction):
+    subtype = "announce"
 
     def run(self, bot, source, message, event={}, args={}):
         extra = self.get_extra_data(source, message, args)
@@ -598,7 +598,7 @@ class AnnouncementAction(MessageAction):
             return False
 
         if self.num_urlfetch_subs == 0:
-            return bot.announcement(resp)
+            return bot.announce(resp)
 
         return ScheduleManager.execute_now(
             urlfetch_msg,
@@ -606,7 +606,7 @@ class AnnouncementAction(MessageAction):
             kwargs={
                 "args": [],
                 "kwargs": {},
-                "method": bot.announcement,
+                "method": bot.announce,
                 "bot": bot,
                 "extra": extra,
                 "message": resp,
