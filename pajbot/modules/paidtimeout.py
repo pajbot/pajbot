@@ -221,7 +221,7 @@ class PaidTimeoutModule(BaseModule):
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
     def load_commands(self, **options):
-        payload = {"victim": "karl_kons", "cost": self.settings["cost"], "duration": self.settings["timeout_length"]}
+        payload = {"victim": "karl_kons", "cost": self.settings["cost"]}
 
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.paid_timeout,
@@ -230,7 +230,7 @@ class PaidTimeoutModule(BaseModule):
                 CommandExample(
                     None,
                     f"Timeout someone for {self.settings['timeout_length']} seconds",
-                    chat=f"user:!{self.settings['command_name']} karl_kons\nbot>user: {self.get_phrase('message_to_additional_timeouter', **payload)}",
+                    chat=f"user:!{self.settings['command_name']} karl_kons\nbot>user: {self.get_phrase('message_to_additional_timeouter', duration=self.settings['timeout_length'], **payload)}",
                     description="",
                 ).parse()
             ],
@@ -245,7 +245,7 @@ class PaidTimeoutModule(BaseModule):
                     CommandExample(
                         None,
                         f"Timeout someone for {self.settings['timeout_length2']} seconds",
-                        chat=f"user:!{self.settings['command_name2']} karl_kons\nbot>user: {self.get_phrase('message_to_additional_timeouter', **payload)}",
+                        chat=f"user:!{self.settings['command_name2']} karl_kons\nbot>user: {self.get_phrase('message_to_additional_timeouter', duration=self.settings['timeout_length2'], **payload)}",
                         description="",
                     ).parse()
                 ],
