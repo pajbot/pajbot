@@ -130,7 +130,7 @@ class AdminCommandsModule(BaseModule):
             old_level = user.level
             user.level = new_level
 
-            log_msg = f"{user}'s user level changed from {old_level} to {new_level}"
+            log_msg = f"{user.login}'s user level changed from {old_level} to {new_level}"
 
             bot.whisper(source, log_msg)
 
