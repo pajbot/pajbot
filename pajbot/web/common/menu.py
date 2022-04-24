@@ -62,7 +62,6 @@ def init(app):
             MenuItem("/admin/moderators", "admin_moderators", "Moderators"),
             MenuItem("/admin/modules", "admin_modules", "Modules"),
             MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds", "playsound" in enabled_modules),
-            MenuItem("/admin/predictions", "admin_predictions", "Predictions", "predict" in enabled_modules),
             MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"),
         ]
 

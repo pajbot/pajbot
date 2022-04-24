@@ -56,7 +56,6 @@ from pajbot.modules.paiduntimeout import PaidUntimeoutModule
 from pajbot.modules.playsound import PlaysoundModule
 from pajbot.modules.pnsl import PNSLModule
 from pajbot.modules.pointlottery import PointLotteryModule
-from pajbot.modules.predict import PredictModule
 from pajbot.modules.pyramid import PyramidModule
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests.gettimedout import GetTimedOutQuestModule
@@ -132,7 +131,6 @@ available_modules = [
     PlaysoundModule,
     PointLotteryModule,
     PointsResetModule,
-    PredictModule,
     PyramidModule,
     QuestModule,
     QueUpModule,
