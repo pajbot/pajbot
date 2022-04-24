@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Security: Add integrity checks to javascript resources loaded from external CDNs. (#1813)
 - Security: Encode URI components in user search. (#1832)
+- Major: Full deletion of hsbet module along with hsbet-related quest modules; including table-related code and relevant tables. (#1864)
 - Major: Full deletion of prediction module; including table-related code and relevant tables. (#1863)
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
