@@ -1,7 +1,7 @@
 from typing import Optional
 
 # list of twitch commands permitted, without leading slash or dot
-permitted_commands = {"me", "announce"}
+permitted_commands = {"me"}
 
 
 def clean_up_message(message: str) -> str:
