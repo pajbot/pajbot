@@ -10,7 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
-- Minor: Added user login name fallback for users with non-English characters in their name.
+- Minor: Added user login name fallback for users with non-English characters in their name. (#1866)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)
 - Bugfix: Command response type now sticks properly when a command is edited through chat. (#1846)
 - Bugfix: Fix toggling of submodules. (#1824)
