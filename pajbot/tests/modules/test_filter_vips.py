@@ -9,6 +9,7 @@ def get_filter_vips_cases() -> List[Tuple[List[str], List[str]]]:
     return [
         # Standard login names
         (["foo"], ["foo"]),
+        (["Pajlada"], ["Pajlada"]),
         (["pajlada", "forsen"], ["pajlada", "forsen"]),
         # Display names where they're ascii-only but contain uppercase characters
         (["pajlada", "FORSEN"], ["pajlada", "FORSEN"]),
@@ -20,6 +21,10 @@ def get_filter_vips_cases() -> List[Tuple[List[str], List[str]]]:
         (["pajlada", " testman", "forsen"], ["pajlada", "forsen"]),
         # Display names non-ascii characters should be filtered out
         (["pajlada", "테스트계정420", "forsen"], ["pajlada", "forsen"]),
+        # Names cannot start with _
+        # Names can contain _ just not at the start
+        (["_pajlada"], []),
+        (["pajlada_"], ["pajlada_"]),
         # Empty list
         ([], []),
     ]
