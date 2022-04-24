@@ -40,7 +40,6 @@ from pajbot.modules.emote_limit import EmoteLimitModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
-from pajbot.modules.hsbet import HSBetModule
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.linefarming import LineFarmingModule
@@ -63,8 +62,6 @@ from pajbot.modules.quests.typeemote import TypeEmoteQuestModule
 from pajbot.modules.quests.typememessage import TypeMeMessageQuestModule
 from pajbot.modules.quests.winduelpoints import WinDuelPointsQuestModule
 from pajbot.modules.quests.winduels import WinDuelsQuestModule
-from pajbot.modules.quests.winhsbetpoints import WinHsBetPointsQuestModule
-from pajbot.modules.quests.winhsbetwins import WinHsBetWinsQuestModule
 from pajbot.modules.quests.winraffle import WinRaffleQuestModule
 from pajbot.modules.queup import QueUpModule
 from pajbot.modules.raffle import RaffleModule
@@ -110,7 +107,6 @@ available_modules = [
     GetTimedOutQuestModule,
     GivePointsModule,
     GlobalCommandCooldown,
-    HSBetModule,
     IgnoreModule,
     LastfmModule,
     LeagueRankModule,
@@ -153,8 +149,6 @@ available_modules = [
     WarningModule,
     WinDuelPointsQuestModule,
     WinDuelsQuestModule,
-    WinHsBetPointsQuestModule,
-    WinHsBetWinsQuestModule,
     WinRaffleQuestModule,
     WolframModule,
 ]
