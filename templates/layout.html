@@ -108,7 +108,7 @@ var bot_name = '{{ bot.name }}';
 {%- assets 'autolinker' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment-with-locales.min.js" integrity="sha512-z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==" crossorigin="anonymous"></script>
+{% include 'dependencies/moment-with-locales.html' %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.3.2/moment-duration-format.min.js" integrity="sha512-ej3mVbjyGQoZGS3JkES4ewdpjD8UBxHRGW+MN5j7lg3aGQ0k170sFCj5QJVCFghZRCio7DEmyi+8/HAwmwWWiA==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/livestamp/1.1.2/livestamp.min.js" integrity="sha512-C3RIeaJCWeK5MLPSSrVssDBvSwamZW7Ugygc4r21guVqkeroy9wRBDaugQssAQ+m3HZsMWVvEigcNMr7juGXKA==" crossorigin="anonymous"></script>
 {%- assets 'datetime' %}
