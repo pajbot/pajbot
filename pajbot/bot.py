@@ -685,7 +685,7 @@ class Bot:
         if moderation_action == "Delete":
             self.delete_message(msg_id)
         elif moderation_action == "Timeout":
-            if disable_warnings is True:
+            if disable_warnings:
                 self.timeout(user, duration, reason, once)
             else:
                 self.timeout_warn(user, duration, reason, once)
