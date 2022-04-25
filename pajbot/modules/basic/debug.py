@@ -19,6 +19,7 @@ class DebugModule(BaseModule):
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
+    HIDDEN = True
 
     @staticmethod
     def debug_command(bot, source, message, **rest):
