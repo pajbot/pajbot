@@ -330,7 +330,10 @@ class User(Base):
         # this is here so we can use the user object directly in string substitutions
         # e.g. bot.say(f"{user}, successfully done something!")
         # would substitute the user's display name in the place of {user}.
-        return self.name
+        if self.name.lower() == self.login:
+            return self.name
+        else:
+            return f"{self.name} ({self.login})"
 
     @staticmethod
     def _create(db_session: Session, id: str, login: str, name: str) -> User:
