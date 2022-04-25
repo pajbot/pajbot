@@ -87,15 +87,6 @@ class ActionCheckerModule(BaseModule):
         ),
     ]
 
-    def delete_or_timeout(self, user, msg_id, reason):
-        if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(msg_id)
-        elif self.settings["moderation_action"] == "Timeout":
-            if self.settings["disable_warnings"] is True:
-                self.bot.timeout(user, self.settings["timeout_length"], reason, once=True)
-            else:
-                self.bot.timeout_warn(user, self.settings["timeout_length"], reason, once=True)
-
     def on_message(self, source, message, event, msg_id, **rest):
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
@@ -107,11 +98,27 @@ class ActionCheckerModule(BaseModule):
             return
 
         if event.type == "action" and self.settings["disallow_action_messages"] is True:
-            self.delete_or_timeout(source, msg_id, self.settings["disallow_timeout_reason"])
+            self.bot.delete_or_timeout(
+                source,
+                self.settings["moderation_action"],
+                msg_id,
+                self.settings["timeout_length"],
+                self.settings["disallow_timeout_reason"],
+                disable_warnings=self.settings["disable_warnings"],
+                once=True,
+            )
             return False
 
         if event.type != "action" and self.settings["only_allow_action_messages"] is True:
-            self.delete_or_timeout(source, msg_id, self.settings["allow_timeout_reason"])
+            self.bot.delete_or_timeout(
+                source,
+                self.settings["moderation_action"],
+                msg_id,
+                self.settings["timeout_length"],
+                self.settings["allow_timeout_reason"],
+                disable_warnings=self.settings["disable_warnings"],
+                once=True,
+            )
             return False
 
     def enable(self, bot):
