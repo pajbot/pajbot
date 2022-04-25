@@ -20,6 +20,7 @@ class AdminCommandsModule(BaseModule):
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
     PARENT_MODULE = BasicCommandsModule
+    HIDDEN = True
 
     @staticmethod
     def whisper(bot, message, **rest):

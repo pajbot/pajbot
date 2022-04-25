@@ -82,35 +82,6 @@ div.notifications div span.word4 {
     color: #ffdfdf;
 }
 
-#hsbet {
-    width: 270px;
-    position: absolute;
-    top: 150px;
-    display: none;
-}
-#hsbet td,
-#hsbet div {
-    font-size: 1.15em;
-    font-weight: bold;
-    font-family: "Roboto";
-}
-#hsbet .chart {
-    width: 70%;
-}
-#hsbet .win {
-    color: #64dd17;
-}
-#hsbet .lose {
-    color: #d50000;
-}
-#hsbet div.left {
-    float: left;
-}
-#hsbet div.right {
-    position: absolute;
-    bottom: 0;
-    right: 50;
-}
 ::-webkit-scrollbar {
     display: none;
 }
