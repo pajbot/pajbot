@@ -4,7 +4,7 @@ function enable_edit_row(base) {
             .parent()
             .parent()
             .data('id');
-        document.location.href = '/admin/' + base + '/edit/' + id;
+        document.location.href = `/admin/${base}/edit/${id}`;
     });
 }
 
@@ -15,9 +15,9 @@ function enable_remove_row(modal_class, action) {
             .parent()
             .parent()
             .data('id');
-        $('.ui.modal.' + modal_class).modal('show');
+        $(`.ui.modal.${modal_class}`).modal('show');
     });
-    $('.ui.modal.' + modal_class).modal({
+    $(`.ui.modal.${modal_class}`).modal({
         onApprove: function(el) {
             $.api({
                 on: 'now',
@@ -27,7 +27,7 @@ function enable_remove_row(modal_class, action) {
                     id: id_remove,
                 },
                 onSuccess: function(response, element) {
-                    $('tr[data-id="' + id_remove + '"]').remove();
+                    $(`tr[data-id="${id_remove}"]`).remove();
                 },
                 onFailure: function(response, element) {
                     console.error('something went wrong');
