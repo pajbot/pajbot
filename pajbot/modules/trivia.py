@@ -129,7 +129,11 @@ class TriviaModule(BaseModule):
 
     def step_announce(self):
         try:
-            self.bot.send_message(f'KKona A new question has begun! In the category "{self.question["category"]["title"]}", the question/hint/clue is "{self.question["question"]}" KKona', method="me", check_msg=True)
+            self.bot.send_message(
+                f'KKona A new question has begun! In the category "{self.question["category"]["title"]}", the question/hint/clue is "{self.question["question"]}" KKona',
+                method="me",
+                check_msg=True,
+            )
         except:
             self.step = 0
             self.question = None
@@ -156,7 +160,11 @@ class TriviaModule(BaseModule):
 
     def step_end(self):
         if self.question is not None:
-            self.bot.send_message(f'MingLee No one could answer the trivia! The answer was "{self.question["answer"]}" MingLee', method="me", check_msg=True)
+            self.bot.send_message(
+                f'MingLee No one could answer the trivia! The answer was "{self.question["answer"]}" MingLee',
+                method="me",
+                check_msg=True,
+            )
             self.question = None
             self.step = 0
             self.last_question = utils.now()
@@ -214,10 +222,18 @@ class TriviaModule(BaseModule):
 
             if correct:
                 if self.point_bounty > 0:
-                    self.bot.send_message(f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp", method="me", check_msg=True)
+                    self.bot.send_message(
+                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp",
+                        method="me",
+                        check_msg=True,
+                    )
                     source.points += self.point_bounty
                 else:
-                    self.bot.send_message(f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan", method="me", check_msg=True)
+                    self.bot.send_message(
+                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan",
+                        method="me",
+                        check_msg=True,
+                    )
 
                 self.question = None
                 self.step = 0
