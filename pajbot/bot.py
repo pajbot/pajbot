@@ -675,11 +675,11 @@ class Bot:
         once: bool = False,
     ) -> None:
         if moderation_action not in ("Delete", "Timeout"):
-            log.warning("moderation_action must only equal Delete or Timeout.")
+            log.exception("moderation_action must only equal Delete or Timeout!")
             return
 
         if moderation_action == "Delete" and msg_id is None:
-            log.warning("Cannot use the Delete moderation_action if msg_id is None!!!! BabyRage")
+            log.exception("Cannot use the Delete moderation_action if msg_id is None!")
             return
 
         if moderation_action == "Delete":
