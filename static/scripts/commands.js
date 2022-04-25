@@ -1,14 +1,13 @@
 var key_labels = {
     sub_only: 'Only <strong>subscribers</strong> can use this command.',
-    can_execute_with_whisper:
-        'Can be executed by whispering <strong>' + bot_name + '</strong>',
+    can_execute_with_whisper: `Can be executed by whispering <strong>${bot_name}</strong>`,
 };
 
 function handle_command(base_key, command) {
     $.each(command, function(key, value) {
         switch (key) {
             case 'resolve_string':
-                var el = $('div.sticky.' + base_key + ' a.detailed');
+                var el = $(`div.sticky.${base_key} a.detailed`);
 
                 if (value == null || value == false) {
                     el.hide();
@@ -16,16 +15,16 @@ function handle_command(base_key, command) {
                     el.show();
                     var str;
                     if (command.id) {
-                        str = command.id + '-' + value;
+                        str = `${command.id}-${value}`;
                     } else {
                         str = value;
                     }
-                    el.attr('href', '/commands/' + str);
+                    el.attr('href', `/commands/${str}`);
                 }
                 break;
 
             case 'long_description':
-                var el = $('div.sticky.' + base_key + ' div.long_description');
+                var el = $(`div.sticky.${base_key} div.long_description`);
 
                 if (value == null || value == false) {
                     el.hide();
@@ -37,9 +36,7 @@ function handle_command(base_key, command) {
 
             case 'sub_only':
             case 'can_execute_with_whisper':
-                var el = $(
-                    'div.sticky.' + base_key + ' tr[data-key="' + key + '"]'
-                );
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
@@ -54,9 +51,7 @@ function handle_command(base_key, command) {
                 break;
 
             case 'cost':
-                var el = $(
-                    'div.sticky.' + base_key + ' tr[data-key="' + key + '"]'
-                );
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
@@ -71,9 +66,7 @@ function handle_command(base_key, command) {
                 break;
 
             case 'examples':
-                var el_base = $(
-                    'div.sticky.' + base_key + ' .command-examples'
-                );
+                var el_base = $(`div.sticky.${base_key} .command-examples`);
                 el_base.empty();
                 if (value.length > 0) {
                     var $accordion = $('<div>', {
@@ -203,9 +196,7 @@ function handle_command(base_key, command) {
                 break;
 
             default:
-                var el = $(
-                    'div.sticky.' + base_key + ' tr[data-key="' + key + '"]'
-                );
+                var el = $(`div.sticky.${base_key} tr[data-key="${key}"]`);
                 if (el.length == 0) {
                     return;
                 }
@@ -220,18 +211,18 @@ function handle_command(base_key, command) {
         }
     });
 
-    var segment = $('div.sticky.' + base_key + ' .supercool');
+    var segment = $(`div.sticky.${base_key} .supercool`);
     segment.removeClass('loading');
 
     refresh_sticky(base_key);
 }
 
 function refresh_sticky(base_key) {
-    $('.commandlist-container.' + base_key).css(
+    $(`.commandlist-container.${base_key}`).css(
         'min-height',
-        $('div.sticky.' + base_key).height()
+        $(`div.sticky.${base_key}`).height()
     );
-    $('.ui.sticky.' + base_key).sticky('refresh');
+    $(`.ui.sticky.${base_key}`).sticky('refresh');
 }
 
 $(document).ready(function() {
@@ -241,8 +232,8 @@ $(document).ready(function() {
     });
 
     for (var i = 1; i <= 3; ++i) {
-        $('.ui.sticky.c' + i).sticky({
-            context: '.commandlist-container.c' + i,
+        $(`.ui.sticky.c${i}`).sticky({
+            context: `.commandlist-container.c${i}`,
             offset: 67,
         });
     }
@@ -251,7 +242,7 @@ $(document).ready(function() {
         var hash = window.location.hash.substring(1);
 
         if (hash.length > 1) {
-            var el = $('#commands .menu .item.' + hash);
+            var el = $(`#commands .menu .item.${hash}`);
             if (el !== undefined) {
                 el.click();
             }
@@ -279,8 +270,8 @@ $(document).ready(function() {
                 .parent()
                 .parent()
                 .data('key');
-            var help_segment = $('div.sticky.' + base_key + ' .help');
-            var segment = $('div.sticky.' + base_key + ' .supercool');
+            var help_segment = $(`div.sticky.${base_key} .help`);
+            var segment = $(`div.sticky.${base_key} .supercool`);
             help_segment.hide();
             segment.show();
             segment.addClass('loading');
@@ -292,8 +283,8 @@ $(document).ready(function() {
                 .parent()
                 .parent()
                 .data('key');
-            var segment = $('div.sticky.' + base_key + ' .supercool');
-            $('table.' + base_key + ' td.selectable').removeClass('active');
+            var segment = $(`div.sticky.${base_key} .supercool`);
+            $(`table.${base_key} td.selectable`).removeClass('active');
             $(
                 'table.' +
                     base_key +

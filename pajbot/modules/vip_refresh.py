@@ -1,4 +1,7 @@
+from typing import List
+
 import logging
+import re
 
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
@@ -23,6 +26,9 @@ class VIPRefreshModule(BaseModule):
 
     UPDATE_INTERVAL = 10  # minutes
 
+    # This regex matches login names but not display names if they contain any non-ascii characters or spaces
+    LOGIN_REGEX = re.compile(r"^[a-z0-9]\w{0,24}$", re.IGNORECASE)
+
     def __init__(self, bot):
         super().__init__(bot)
         self.scheduled_job = None
@@ -37,6 +43,10 @@ class VIPRefreshModule(BaseModule):
         self.bot.privmsg("/vips")
 
     @staticmethod
+    def _filter_vips(vips: List[str]) -> List[str]:
+        return [vip for vip in vips if re.match(VIPRefreshModule.LOGIN_REGEX, vip)]
+
+    @staticmethod
     def _parse_pubnotice_for_vips(msg_id, message):
         if msg_id == "no_vips":
             return []
@@ -44,7 +54,13 @@ class VIPRefreshModule(BaseModule):
         if msg_id == "vips_success":
             if message.startswith("The VIPs of this channel are: ") and message.endswith("."):
                 message = message[30:-1]  # 30 = length of the above "prefix", -1 removes the dot at the end
-                return message.split(", ")
+                vips = message.split(", ")
+                # Response of "vips_success" returns display names, which could contain non-ascii characters.
+                # For now, we filter these out since these cannot be resolved through helix, see https://github.com/pajbot/pajbot/issues/1772
+                filtered_vips = VIPRefreshModule._filter_vips(vips)
+                if len(vips) != len(filtered_vips):
+                    log.warning("Some non-ascii display names were filtered out from vips_success NOTICE response.")
+                return filtered_vips
             log.warning(
                 f"Received vips_success NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
             )
