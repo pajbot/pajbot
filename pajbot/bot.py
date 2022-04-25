@@ -777,10 +777,6 @@ class Bot:
         if not self.is_bad_message(message):
             self.privmsg(message, channel)
 
-    def safe_me(self, message: str, channel: Optional[str] = None) -> None:
-        if not self.is_bad_message(message):
-            self.me(message, channel)
-
     def safe_say(self, message: str, channel: Optional[str] = None) -> None:
         if not self.is_bad_message(message):
             self.say(message, channel)

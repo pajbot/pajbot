@@ -129,9 +129,7 @@ class TriviaModule(BaseModule):
 
     def step_announce(self):
         try:
-            self.bot.safe_me(
-                f'KKona A new question has begun! In the category "{self.question["category"]["title"]}", the question/hint/clue is "{self.question["question"]}" KKona'
-            )
+            self.bot.send_message(f'KKona A new question has begun! In the category "{self.question["category"]["title"]}", the question/hint/clue is "{self.question["question"]}" KKona', method="me", check_msg=True)
         except:
             self.step = 0
             self.question = None
@@ -154,20 +152,18 @@ class TriviaModule(BaseModule):
             index += 1
         hint_str = "".join(hint_arr)
 
-        self.bot.safe_me(f'OpieOP Here\'s a hint, "{hint_str}" OpieOP')
+        self.bot.send_message(f'OpieOP Here\'s a hint, "{hint_str}" OpieOP', method="me", check_msg=True)
 
     def step_end(self):
         if self.question is not None:
-            self.bot.safe_me(
-                f'MingLee No one could answer the trivia! The answer was "{self.question["answer"]}" MingLee'
-            )
+            self.bot.send_message(f'MingLee No one could answer the trivia! The answer was "{self.question["answer"]}" MingLee', method="me", check_msg=True)
             self.question = None
             self.step = 0
             self.last_question = utils.now()
 
-    def command_start(self, bot, source, message, **rest):
+    def command_start(self, bot, source, message, event, **rest):
         if self.trivia_running:
-            bot.safe_me(f"{source}, a trivia is already running")
+            bot.send_message_to_user(source, "A trivia is already running", event, method="me", check_msg=True)
             return
 
         self.trivia_running = True
@@ -183,15 +179,15 @@ class TriviaModule(BaseModule):
             self.point_bounty = self.settings["default_point_bounty"]
 
         if self.point_bounty > 0:
-            bot.safe_me(f"The trivia has started! {self.point_bounty} points for each right answer!")
+            bot.send_message(f"The trivia has started! {self.point_bounty} points for each right answer!", method="me")
         else:
-            bot.safe_me("The trivia has started!")
+            bot.send_message("The trivia has started!", method="me")
 
         HandlerManager.add_handler("on_message", self.on_message)
 
-    def command_stop(self, bot, source, **rest):
+    def command_stop(self, bot, source, event, **rest):
         if not self.trivia_running:
-            bot.safe_me(f"{source}, no trivia is active right now")
+            bot.send_message_to_user(source, "No trivia is active right now", event, method="me", check_msg=True)
             return
 
         self.job.remove()
@@ -199,7 +195,7 @@ class TriviaModule(BaseModule):
         self.trivia_running = False
         self.step_end()
 
-        bot.safe_me("The trivia has been stopped.")
+        bot.send_message("The trivia has been stopped.", method="me")
 
         HandlerManager.remove_handler("on_message", self.on_message)
 
@@ -218,14 +214,10 @@ class TriviaModule(BaseModule):
 
             if correct:
                 if self.point_bounty > 0:
-                    self.bot.safe_me(
-                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp"
-                    )
+                    self.bot.send_message(f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp", method="me", check_msg=True)
                     source.points += self.point_bounty
                 else:
-                    self.bot.safe_me(
-                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan"
-                    )
+                    self.bot.send_message(f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan", method="me", check_msg=True)
 
                 self.question = None
                 self.step = 0
