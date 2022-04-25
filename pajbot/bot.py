@@ -678,8 +678,7 @@ class Bot:
             raise ValueError("moderation_action must only equal Delete or Timeout!")
 
         if moderation_action == "Delete" and msg_id is None:
-            log.exception("Cannot use the Delete moderation_action if msg_id is None!")
-            return
+            raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
 
         if moderation_action == "Delete":
             self.delete_message(msg_id)
