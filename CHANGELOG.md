@@ -19,6 +19,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
+- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60
