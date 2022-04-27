@@ -11,6 +11,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
+- Minor: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)
 - Bugfix: Command response type now sticks properly when a command is edited through chat. (#1846)
 - Bugfix: Fix toggling of submodules. (#1824)
@@ -19,7 +20,6 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
-- Dev: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
 - Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
