@@ -715,7 +715,7 @@ class Bot:
         elif method == "whisper":
             self.whisper(user, message)
         elif method == "me":
-            self.me(message)
+            self.me(f"@{user.name}, {message}")
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
                 msg_id = next(tag["value"] for tag in event.tags if tag["key"] == "id")

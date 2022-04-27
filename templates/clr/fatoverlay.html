@@ -27,31 +27,8 @@ var ws_host = '{{ site.websocket.host }}';
         {% assets 'clr_overlay_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js" integrity="sha512-XYCKHbo5QmBRv8QwuQIlXqemaOB4edxoQO0Io3jZQt9Zarms1O4wMRrkKhx0IZdBneph+oYmKznIOpM3/As3eA==" crossorigin="anonymous"></script>
     </head>
     <body>
-        <div id="hsbet">
-            <div class="right">
-                <canvas class="chart" width="70" height="70"></canvas>
-            </div>
-            <div class="left">
-                <div class="f1">Betting active for <span class="time_left">20</span>s</div>
-                <table cellpadding="0" cellspacing="0">
-                    <tbody>
-                        <tr>
-                            <td>!hsbet&nbsp;</td>
-                            <td><span class="win">win&nbsp;</span></td>
-                            <td>(points)</td>
-                        </tr>
-                        <tr>
-                            <td>!hsbet&nbsp;</td>
-                            <td><span class="lose">lose&nbsp;</span></td>
-                            <td>(points)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
         <div class="notifications"></div>
     </body>
 </html>

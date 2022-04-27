@@ -307,101 +307,6 @@ function create_object_for_loss(points) {
     };
 }
 
-var hsbet_chart = false;
-
-function hsbet_set_data(win_points, loss_points) {
-    if (hsbet_chart !== false) {
-        hsbet_chart.segments[0].value = win_points;
-        hsbet_chart.segments[1].value = loss_points;
-        hsbet_chart.update();
-    }
-}
-
-function hsbet_update_data({ win: win_points, loss: loss_points }) {
-    if (hsbet_chart !== false) {
-        hsbet_chart.segments[0].value += win_points;
-        hsbet_chart.segments[1].value += loss_points;
-        hsbet_chart.update();
-    }
-}
-
-function create_graph(win, loss) {
-    var ctx = $('#hsbet .chart')
-        .get(0)
-        .getContext('2d');
-    if (win == 0) {
-        win = 1;
-    }
-    if (loss == 0) {
-        loss = 1;
-    }
-    var data = [create_object_for_win(win), create_object_for_loss(loss)];
-    var options = {
-        animationSteps: 100,
-        animationEasing: 'easeInOutQuart',
-        segmentShowStroke: false,
-    };
-    if (hsbet_chart === false || true) {
-        hsbet_chart = new Chart(ctx).Pie(data, options);
-    } else {
-        hsbet_set_data(win, loss);
-    }
-}
-
-/* interval for ticking down the hsbet timer */
-var tick_down = false;
-var stop_hsbet = false;
-var stop_hsbet_2 = false;
-
-function hsbet_new_game({ time_left, win, loss }) {
-    console.log(time_left);
-    var hsbet_el = $('#hsbet');
-
-    if (tick_down !== false) {
-        clearInterval(tick_down);
-        clearTimeout(stop_hsbet);
-        clearTimeout(stop_hsbet_2);
-    }
-
-    time_left -= 10;
-
-    if (time_left <= 0) {
-        return;
-    }
-
-    var time_left_el = hsbet_el.find('.time_left');
-    console.log(time_left_el);
-    console.log(time_left_el.text());
-    time_left_el.text(time_left);
-    console.log(time_left);
-    hsbet_el.find('.left').css({ visibility: 'visible', opacity: 1 });
-
-    hsbet_el.hide();
-    tick_down = setInterval(function() {
-        console.log('HI');
-        var old_val = parseInt(time_left_el.text());
-        time_left_el.text(old_val - 1);
-    }, 1000);
-    stop_hsbet = setTimeout(function() {
-        clearInterval(tick_down);
-        hsbet_el.find('.left').fadeTo(1000, 0, function() {
-            hsbet_el.find('.left').css('visibility', 'hidden');
-            //hsbet_chart.update();
-        });
-        stop_hsbet_2 = setTimeout(function() {
-            hsbet_el.fadeOut(1000);
-        }, 10000);
-    }, time_left * 1000);
-    if (hsbet_chart !== false) {
-        hsbet_chart.clear();
-    }
-    hsbet_el.find('.left').show();
-    hsbet_el.fadeIn(1000, function() {
-        create_graph(win, loss);
-        console.log('XD');
-    });
-}
-
 function play_sound({ link, volume }) {
     let player = new Howl({
         src: [link],
@@ -449,12 +354,6 @@ function handleWebsocketData(json_data) {
             break;
         case 'emote_combo':
             refresh_emote_combo(data);
-            break;
-        case 'hsbet_new_game':
-            hsbet_new_game(data);
-            break;
-        case 'hsbet_update_data':
-            hsbet_update_data(data);
             break;
         case 'show_custom_image':
             show_custom_image(data);
