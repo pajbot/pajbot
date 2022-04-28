@@ -24,7 +24,7 @@ class QuestModule(BaseModule):
             type="options",
             required=True,
             default="say",
-            options=["say", "whisper", "me", "announce", "reply"],
+            options=["say", "whisper", "me", "reply"],
         ),
         ModuleSetting(
             key="action_tokens",
