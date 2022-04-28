@@ -32,7 +32,7 @@ class QuestModule(BaseModule):
             type="options",
             required=True,
             default="whisper",
-            options=["say", "whisper", "me", "announce", "reply"],
+            options=["say", "whisper", "me", "reply"],
         ),
         ModuleSetting(
             key="reward_type",
