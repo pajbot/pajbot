@@ -739,6 +739,8 @@ class Bot:
             self.say(message)
         elif method == "me":
             self.me(message)
+        elif method == "announce":
+            self.announce(message)
         else:
             log.warning("Unknown send_message method: %s", method)
 
@@ -787,6 +789,9 @@ class Bot:
 
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
+
+    def announce(self, message: str, channel: Optional[str] = None) -> None:
+        self.say("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
 
     def connect(self) -> None:
         self.irc.start()
