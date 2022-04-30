@@ -677,10 +677,9 @@ class Bot:
         if moderation_action not in ("Delete", "Timeout"):
             raise ValueError("moderation_action must only equal Delete or Timeout!")
 
-        if moderation_action == "Delete" and msg_id is None:
-            raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
-
         if moderation_action == "Delete":
+            if msg_id is None:
+                raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
             self.delete_message(msg_id)
         elif moderation_action == "Timeout":
             if disable_warnings:
