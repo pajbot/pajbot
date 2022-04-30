@@ -33,6 +33,7 @@
             <select class="ui dropdown" name="message_type">
                 <option value="say" {{ 'selected' if timer and timer.action.subtype == 'say' else '' }}>Say</option>
                 <option value="me" {{ 'selected' if timer and timer.action.subtype == 'me' else '' }}>Me</option>
+                <option value="announce" {{ 'selected' if timer and timer.action.subtype == 'announce' else '' }}>Announce</option>
             </select>
         </div>
         <div class="required field twelve wide">
