@@ -46,17 +46,11 @@ class Dispatch:
         options["added_by"] = source.id
 
         alias_str = message_parts[0].replace("!", "").lower()
-        type = "say"
-        if options["whisper"] is True:
-            type = "whisper"
-        elif options["reply"] is True:
-            type = "reply"
-        elif response.startswith("/me") or response.startswith(".me"):
-            type = "me"
+        action_type: str = options.get("action_type", "say")
+        if response.startswith("/me") or response.startswith(".me"):
+            action_type = "me"
             response = " ".join(response.split(" ")[1:])
-        elif options["whisper"] is False or options["reply"] is False:
-            type = "say"
-        action = {"type": type, "message": response}
+        action = {"type": action_type, "message": response}
 
         command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
         if new_command is True:

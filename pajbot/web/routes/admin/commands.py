@@ -128,7 +128,7 @@ def init(page) -> None:
             "run_through_banphrases": run_through_banphrases,
         }
 
-        valid_action_types = ["say", "me", "whisper", "reply"]
+        valid_action_types = ["say", "me", "announce", "whisper", "reply"]
         action_type = request.form.get("reply", "say").lower()
         if action_type not in valid_action_types:
             abort(403)
