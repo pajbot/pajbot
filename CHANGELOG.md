@@ -24,7 +24,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
 - Dev: Migrate `delete_or_timeout` function to main bot class. (#1872)
-- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843)
+- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60
