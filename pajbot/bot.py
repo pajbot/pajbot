@@ -664,6 +664,29 @@ class Bot:
     def delete_message(self, msg_id: str) -> None:
         self.privmsg(f"/delete {msg_id}")
 
+    def delete_or_timeout(
+        self,
+        user: User,
+        moderation_action: str,
+        msg_id: str,
+        duration: int,
+        reason: Optional[str] = None,
+        disable_warnings: bool = False,
+        once: bool = False,
+    ) -> None:
+        if moderation_action not in ("Delete", "Timeout"):
+            raise ValueError("moderation_action must only equal Delete or Timeout!")
+
+        if moderation_action == "Delete":
+            if msg_id is None:
+                raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
+            self.delete_message(msg_id)
+        elif moderation_action == "Timeout":
+            if disable_warnings:
+                self.timeout(user, duration, reason, once)
+            else:
+                self.timeout_warn(user, duration, reason, once)
+
     def whisper(self, user: User, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(user.login, message)
