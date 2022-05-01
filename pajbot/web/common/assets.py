@@ -72,12 +72,6 @@ def init(app):
     paginate_js = js_bundle("scripts/paginate.js", "gen/scripts/paginate.%(version)s.js")
     assets.register("paginate_js", paginate_js)
 
-    # range slider for semantic UI
-    range_slider_js = js_bundle("scripts/range.js", "gen/scripts/range.%(version)s.js")
-    assets.register("range_slider_js", range_slider_js)
-    range_slider_css = Bundle("css/range.css", filters="cssmin", output="gen/css/range.%(version)s.css")
-    assets.register("range_slider_css", range_slider_css)
-
     # common controls for the playsound pages
     playsound_common_js = js_bundle("scripts/playsound.common.js", "gen/scripts/playsound.common.%(version)s.js")
     assets.register("playsound_common_js", playsound_common_js)

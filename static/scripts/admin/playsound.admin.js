@@ -38,20 +38,18 @@ $(window).on('load', function() {
 
         let slider = $('.volume-slider', element);
         let start = parseInt(slider.attr('data-initial'));
-        // init range library
-        slider.range({
+        slider.slider({
             min: 0,
             max: 100,
             start: start,
             step: 5,
-            onChange: function(value, meta) {
-                if (!meta.triggeredByUser) {
-                    return;
-                }
-
-                updateLabel(value);
+            smooth: true,
+            onChange: function(value) {
                 updateForm(value);
                 updatePlayer(value);
+            },
+            onMove: function(value) {
+                updateLabel(value);
             },
         });
     });
