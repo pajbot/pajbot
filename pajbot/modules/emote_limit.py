@@ -94,15 +94,6 @@ class EmoteLimitModule(BaseModule):
         ),
     ]
 
-    def delete_or_timeout(self, user, msg_id, reason):
-        if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(msg_id)
-        elif self.settings["moderation_action"] == "Timeout":
-            if self.settings["disable_warnings"] is True:
-                self.bot.timeout(user, self.settings["timeout_duration"], reason, once=True)
-            else:
-                self.bot.timeout_warn(user, self.settings["timeout_duration"], reason, once=True)
-
     def on_message(self, source, message, emote_instances, msg_id, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
@@ -117,7 +108,15 @@ class EmoteLimitModule(BaseModule):
             return True
 
         if len(emote_instances) > self.settings["max_emotes"]:
-            self.delete_or_timeout(source, msg_id, self.settings["timeout_reason"])
+            self.bot.delete_or_timeout(
+                source,
+                self.settings["moderation_action"],
+                msg_id,
+                self.settings["timeout_duration"],
+                self.settings["timeout_reason"],
+                disable_warnings=self.settings["disable_warnings"],
+                once=True,
+            )
             if (
                 self.settings["moderation_action"] == "Timeout"
                 and self.settings["enable_whisper_timeout_reasons"] is True

@@ -61,7 +61,7 @@ def init(page) -> None:
         if interval_online < 0 or interval_offline < 0:
             abort(403)
 
-        if message_type not in ["say", "me"]:
+        if message_type not in ["say", "me", "announce"]:
             abort(403)
 
         if not message:
