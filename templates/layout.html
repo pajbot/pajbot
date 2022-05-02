@@ -15,7 +15,7 @@
     background-size: 100%;
 }
 </style>
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css">
+{% include 'dependencies/fomantic-ui-css.html' %}
 {% assets "base_css" %}
 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 {% endassets %}
@@ -99,9 +99,9 @@
 var bot_name = '{{ bot.name }}';
 </script>
 {% include 'dependencies/jquery.html' %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha512-3j3VU6WC5rPQB4Ld1jnLV7Kd5xr+cq9avvhwqzbH/taCRNURoeEpoPBK9pDyeukwSxwRPJ8fDgvYXd6SkaZ2TA==" crossorigin="anonymous"></script>
+{% include 'dependencies/jquery-cookie.html' %}
 {% include 'dependencies/underscorejs.html' %}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js" integrity="sha512-t5mAtfZZmR2gl5LK7WEkJoyHCfyzoy10MlerMGhxsXl3J7uSSNTAW6FK/wvGBC8ua9AFazwMaC0LxsMTMiM5gg==" crossorigin="anonymous"></script>
+{% include 'dependencies/fomantic-ui-js.html' %}
 {%- assets 'base_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
@@ -109,8 +109,8 @@ var bot_name = '{{ bot.name }}';
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
 {% include 'dependencies/moment-with-locales.html' %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.3.2/moment-duration-format.min.js" integrity="sha512-ej3mVbjyGQoZGS3JkES4ewdpjD8UBxHRGW+MN5j7lg3aGQ0k170sFCj5QJVCFghZRCio7DEmyi+8/HAwmwWWiA==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/livestamp/1.1.2/livestamp.min.js" integrity="sha512-C3RIeaJCWeK5MLPSSrVssDBvSwamZW7Ugygc4r21guVqkeroy9wRBDaugQssAQ+m3HZsMWVvEigcNMr7juGXKA==" crossorigin="anonymous"></script>
+{% include 'dependencies/moment-duration-format.html' %}
+{% include 'dependencies/livestamp.html' %}
 {%- assets 'datetime' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
