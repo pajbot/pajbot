@@ -280,12 +280,16 @@ function refresh_emote_combo({ emote, count }) {
 
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            new_notification.addClass('animate__animated animate__bounceOutLeft ended');
+            new_notification.addClass(
+                'animate__animated animate__bounceOutLeft ended'
+            );
         }, 4000);
     } else {
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            emote_combo.addClass('animate__animated animate__bounceOutLeft ended');
+            emote_combo.addClass(
+                'animate__animated animate__bounceOutLeft ended'
+            );
         }, 3000);
     }
 
