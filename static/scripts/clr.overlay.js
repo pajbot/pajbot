@@ -197,18 +197,18 @@ function add_notification({ message }) {
 
 function refresh_combo_count(count) {
     $('#emote_combo span.count').html(count);
-    $('#emote_combo span.count').addClass('animate__animated animate__pulsebig');
+    $('#emote_combo span.count').addClass('animate__animated animate__pulse');
     $('#emote_combo span.count').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
-            $(this).removeClass('animate__animated animate__pulsebig');
+            $(this).removeClass('animate__animated animate__pulse');
         }
     );
-    $('#emote_combo img').addClass('animate__animated animate__pulsebig');
+    $('#emote_combo img').addClass('animate__animated animate__pulse');
     $('#emote_combo img').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
-            $(this).removeClass('animate__animated animate__pulsebig');
+            $(this).removeClass('animate__animated animate__pulse');
         }
     );
 }
