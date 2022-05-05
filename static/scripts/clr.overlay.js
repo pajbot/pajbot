@@ -197,7 +197,9 @@ function add_notification({ message }) {
 
 function refresh_combo_count(count) {
     $('#emote_combo span.count').html(count);
-    $('#emote_combo span.count').addClass('animate__animated animate__pulsebig');
+    $('#emote_combo span.count').addClass(
+        'animate__animated animate__pulsebig'
+    );
     $('#emote_combo span.count').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
