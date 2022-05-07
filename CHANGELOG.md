@@ -25,7 +25,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
 - Dev: Use Fomantic-UI native slider instead of the semantic-ui-range library. (#1895)
 - Dev: Migrate `delete_or_timeout` function to main bot class. (#1872)
-- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841, #1840, #1842, #1896, #1899, #1897, #1900, #1901, #1902)
+- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841, #1840, #1842, #1896, #1899, #1897, #1900, #1901, #1902, #1898)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60
