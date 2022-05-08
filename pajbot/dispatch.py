@@ -78,7 +78,9 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !edit command ALIAS [options] RESPONSE")
+                bot.send_message_to_user(
+                    source, "Usage: !edit command ALIAS [options] RESPONSE", event, method="whisper"
+                )
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -86,7 +88,7 @@ class Dispatch:
             options["edited_by"] = source.id
 
             if options is False:
-                bot.whisper(source, "Invalid command")
+                bot.send_message_to_user(source, "Invalid command", event, method="whisper")
                 return False
 
             alias = message_parts[0].replace("!", "").lower()
@@ -94,9 +96,11 @@ class Dispatch:
             command = bot.commands.get(alias, None)
 
             if command is None:
-                bot.whisper(
+                bot.send_message_to_user(
                     source,
                     f"No command found with the alias {alias}. Did you mean to create the command? If so, use !add command instead.",
+                    event,
+                    method="whisper",
                 )
                 return False
 
@@ -115,7 +119,7 @@ class Dispatch:
             elif not type == command.action.subtype:
                 options["action"] = {"type": action_type, "message": command.action.response}
             bot.commands.edit_command(command, **options)
-            bot.whisper(source, f"Updated the command (ID: {command.id})")
+            bot.send_message_to_user(source, f"Updated the command (ID: {command.id})", event, method="whisper")
 
             if len(new_message) > 0:
                 log_msg = f'The !{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
