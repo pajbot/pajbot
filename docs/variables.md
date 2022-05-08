@@ -233,3 +233,8 @@ Example usages:
 It is not possible to add a timezone to this argument.
 
 stftime is a useful filter to call on this function
+
+#### count
+
+- `$(addcount:br_wins)` will add 1 count to the br_wins counter
+- `$(remcount:br_wins)` will remove 1 count from the br_wins counter
