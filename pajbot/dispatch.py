@@ -221,7 +221,7 @@ class Dispatch:
             # Make sure we got both an existing alias and at least one new alias
             message_parts = message.split()
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !add alias existingalias newalias")
+                bot.send_message_to_user(source, "Usage: !add alias existingalias newalias", event, method="whisper")
                 return False
 
             existing_alias = message_parts[0]
@@ -230,7 +230,7 @@ class Dispatch:
             already_used_aliases = []
 
             if existing_alias not in bot.commands:
-                bot.whisper(source, f'No command called "{existing_alias}" found')
+                bot.send_message_to_user(source, f'No command called "{existing_alias}" found', event, method="whisper")
                 return False
 
             command = bot.commands[existing_alias]
@@ -238,7 +238,7 @@ class Dispatch:
             # error out on commands that are not from the DB, e.g. module commands like !8ball that cannot have
             # aliases registered. (command.command and command.data are None on those commands)
             if command.data is None or command.command is None:
-                bot.whisper(source, "That command cannot have aliases added to.")
+                bot.send_message_to_user(source, "That command cannot have aliases added to.", event, method="whisper")
                 return False
 
             for alias in set(new_aliases):
@@ -252,13 +252,23 @@ class Dispatch:
                 new_aliases = f"{command.command}|{'|'.join(added_aliases)}"
                 bot.commands.edit_command(command, command=new_aliases)
 
-                bot.whisper(source, f"Successfully added the aliases {', '.join(added_aliases)} to {existing_alias}")
+                bot.send_message_to_user(
+                    source,
+                    f"Successfully added the aliases {', '.join(added_aliases)} to {existing_alias}",
+                    event,
+                    method="whisper",
+                )
                 log_msg = f"The aliases {', '.join(added_aliases)} has been added to {existing_alias}"
                 AdminLogManager.add_entry("Alias added", source, log_msg)
             if len(already_used_aliases) > 0:
-                bot.whisper(source, f"The following aliases were already in use: {', '.join(already_used_aliases)}")
+                bot.send_message_to_user(
+                    source,
+                    f"The following aliases were already in use: {', '.join(already_used_aliases)}",
+                    event,
+                    method="whisper",
+                )
         else:
-            bot.whisper(source, "Usage: !add alias existingalias newalias")
+            bot.send_message_to_user(source, "Usage: !add alias existingalias newalias", event, method="whisper")
 
     @staticmethod
     def remove_alias(bot, source, message, event, args):
