@@ -197,18 +197,20 @@ function add_notification({ message }) {
 
 function refresh_combo_count(count) {
     $('#emote_combo span.count').html(count);
-    $('#emote_combo span.count').addClass('animated pulsebig');
+    $('#emote_combo span.count').addClass(
+        'animate__animated animate__pulsebig'
+    );
     $('#emote_combo span.count').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
-            $(this).removeClass('animated pulsebig');
+            $(this).removeClass('animate__animated animate__pulsebig');
         }
     );
-    $('#emote_combo img').addClass('animated pulsebig');
+    $('#emote_combo img').addClass('animate__animated animate__pulsebig');
     $('#emote_combo img').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
-            $(this).removeClass('animated pulsebig');
+            $(this).removeClass('animate__animated animate__pulsebig');
         }
     );
 }
@@ -258,7 +260,7 @@ function refresh_emote_combo({ emote, count }) {
         let new_notification = $(
             `<div id="emote_combo">${message}</div>`
         ).prependTo('div.notifications');
-        new_notification.addClass('animated bounceInLeft');
+        new_notification.addClass('animate__animated animate__bounceInLeft');
 
         new_notification.on(
             'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
@@ -280,12 +282,16 @@ function refresh_emote_combo({ emote, count }) {
 
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            new_notification.addClass('animated bounceOutLeft ended');
+            new_notification.addClass(
+                'animate__animated animate__bounceOutLeft ended'
+            );
         }, 4000);
     } else {
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            emote_combo.addClass('animated bounceOutLeft ended');
+            emote_combo.addClass(
+                'animate__animated animate__bounceOutLeft ended'
+            );
         }, 3000);
     }
 
