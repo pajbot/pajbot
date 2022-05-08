@@ -71,6 +71,11 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 `$(kvi:active_subs)` - int - Number of subscribers to the broadcaster.
 
+#### increase/decrease kvi
+
+- `$(increasekvi:br_wins)`/`$(inckvi:br_wins)` will add 1 count to the br_wins counter
+- `$(decreasekvi:br_wins)`/`$(deckvi:br_wins)` will remove 1 count from the br_wins counter
+
 ### tb - Info about the bot instance
 
 #### Data from `extra`:
@@ -233,8 +238,3 @@ Example usages:
 It is not possible to add a timezone to this argument.
 
 stftime is a useful filter to call on this function
-
-#### count
-
-- `$(addcount:br_wins)` will add 1 count to the br_wins counter
-- `$(remcount:br_wins)` will remove 1 count from the br_wins counter

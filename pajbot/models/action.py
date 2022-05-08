@@ -332,6 +332,10 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
     method_mapping: Dict[str, Callable[..., Any]] = {}
     try:
         method_mapping["kvi"] = bot.get_kvi_value
+        method_mapping["increasekvi"] = bot.increment_kvi_value
+        method_mapping["inckvi"] = bot.increment_kvi_value
+        method_mapping["decreasekvi"] = bot.decrement_kvi_value
+        method_mapping["deckvi"] = bot.decrement_kvi_value
         method_mapping["tb"] = bot.get_value
         method_mapping["lasttweet"] = bot.get_last_tweet
         # "etm" is legacy
@@ -356,8 +360,6 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
         method_mapping["strictargs"] = bot.get_strictargs_value
         method_mapping["command"] = bot.get_command_value
         method_mapping["broadcaster"] = bot.get_broadcaster_value
-        method_mapping["addcount"] = bot.add_count_value
-        method_mapping["delcount"] = bot.del_count_value
     except AttributeError:
         pass
 
