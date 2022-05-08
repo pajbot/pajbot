@@ -176,7 +176,9 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(" ")
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !edit funccommand ALIAS [options] CALLBACK")
+                bot.send_message_to_user(
+                    source, "Usage: !edit funccommand ALIAS [options] CALLBACK", event, method="whisper"
+                )
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -184,7 +186,7 @@ class Dispatch:
             options["edited_by"] = source.id
 
             if options is False:
-                bot.whisper(source, "Invalid command")
+                bot.send_message_to_user(source, "Invalid command", event, method="whisper")
                 return False
 
             alias = message_parts[0].replace("!", "").lower()
@@ -193,16 +195,18 @@ class Dispatch:
             command = bot.commands.get(alias, None)
 
             if command is None:
-                bot.whisper(
+                bot.send_message_to_user(
                     source,
                     f"No command found with the alias {alias}. Did you mean to create the command? If so, use !add funccommand instead.",
+                    event,
+                    method="whisper",
                 )
                 return False
 
             if len(action["cb"]) > 0:
                 options["action"] = action
             bot.commands.edit_command(command, **options)
-            bot.whisper(source, f"Updated the command (ID: {command.id})")
+            bot.send_message_to_user(source, f"Updated the command (ID: {command.id})", event, method="whisper")
 
     @staticmethod
     def remove_win(bot, source, message, event, args):
