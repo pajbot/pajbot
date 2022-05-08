@@ -477,6 +477,34 @@ class Bot:
         log.warning("Unknown key passed to get_value: %s", key)
         return None
 
+    def add_count_value(self, key, extra={}):
+        if not key:
+            return
+
+        if key == "active_subs":
+            return
+
+        try:
+            self.kvi[key].inc()
+        except:
+            log.error(f'failed to add to "{key}"!')
+
+        return self.kvi[key]
+
+    def del_count_value(self, key, extra={}):
+        if not key:
+            return
+
+        if key == "active_subs":
+            return
+
+        try:
+            self.kvi[key].dec()
+        except:
+            log.error(f'failed to remove from "{key}"!')
+
+        return self.kvi[key]
+
     def privmsg_arr(self, arr, target=None):
         for msg in arr:
             self.privmsg(msg, target)
