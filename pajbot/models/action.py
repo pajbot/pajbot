@@ -464,7 +464,6 @@ class MessageAction(BaseAction):
             self.subs = get_substitutions(self.response, bot)
             self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
 
-
     def get_response(self, bot: Bot, extra) -> Optional[str]:
         resp = self.response
 
