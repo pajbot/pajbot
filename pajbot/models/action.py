@@ -143,7 +143,7 @@ class SubstitutionFilter:
 class Substitution:
     argument_substitution_regex = re.compile(r"\$\((\d+)\)")
     substitution_regex = re.compile(
-        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ -]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-.]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
+        r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ \'\"\,\-]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-.]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
     urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
@@ -397,6 +397,7 @@ def get_substitutions(
                 method_mapping["strictargs"] = bot.get_strictargs_value
                 method_mapping["command"] = bot.get_command_value
                 method_mapping["broadcaster"] = bot.get_broadcaster_value
+                method_mapping["randomchoice"] = bot.get_randomchoice_value
         except AttributeError:
             pass
 
