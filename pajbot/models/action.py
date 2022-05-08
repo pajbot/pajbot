@@ -20,6 +20,24 @@ from pajbot.managers.schedule import ScheduleManager
 log = logging.getLogger(__name__)
 
 
+def get_argument_value(message: Optional[str], index: Optional[int]) -> str:
+    """
+    Return single part of the string split on a space
+    Index is 1-indexed, so get_argument_value("foo bar", 1) would return "foo"
+    """
+    if message is None:
+        return ""
+    if index is None:
+        return ""
+    if index <= 0:
+        return ""
+    msg_parts = message.split(" ")
+    try:
+        return msg_parts[index - 1]
+    except IndexError:
+        return ""
+
+
 class ActionParser:
     bot: Optional[Bot] = None
 
@@ -80,7 +98,7 @@ class ActionParser:
 class IfSubstitution:
     def __call__(self, key, extra={}):
         if self.sub.key is None:
-            msg = MessageAction.get_argument_value(extra.get("message", ""), self.sub.argument - 1)
+            msg = get_argument_value(extra.get("message", ""), self.sub.argument)
             if msg:
                 return self.get_true_response(extra)
 
@@ -131,12 +149,31 @@ class Substitution:
     urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
     urlfetch_substitution_regex_all = re.compile(r"\$\(urlfetch (.+?)\)")
 
-    def __init__(self, cb, needle, key=None, argument=None, filters: List[SubstitutionFilter] = []):
+    def __init__(
+        self,
+        cb: Optional[Callable[..., Any]],
+        needle: str,
+        key: Optional[str] = None,
+        argument: Optional[int] = None,
+        filters: List[SubstitutionFilter] = [],
+    ) -> None:
         self.cb = cb
         self.key = key
         self.argument = argument
         self.filters = filters
         self.needle = needle
+
+    def __repr__(self) -> str:
+        return f"Substitution(cb={self.cb}, needle={self.needle}, key={self.key}, argument={self.argument}, filters={self.filters})"
+
+    def __eq__(self, other) -> bool:
+        return (
+            self.cb == other.cb
+            and self.needle == other.needle
+            and self.key == other.key
+            and self.argument == other.argument
+            and self.filters == other.filters
+        )
 
 
 class BaseAction:
@@ -304,7 +341,7 @@ def get_substitution_arguments(sub_key):
 
 def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
     """
-    Returns a dictionary of `Substitution` objects thare are found in the passed `string`.
+    Returns a dictionary of `Substitution` objects that are are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same string.
     This means "You have $(source:points) points xD $(source:points)" only returns one Substitution.
     """
@@ -427,17 +464,6 @@ class MessageAction(BaseAction):
             self.subs = get_substitutions(self.response, bot)
             self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
 
-    @staticmethod
-    def get_argument_value(message, index):
-        if not message:
-            return ""
-        msg_parts = message.split(" ")
-        try:
-            return msg_parts[index]
-        except:
-            pass
-        return ""
-
     def get_response(self, bot: Bot, extra) -> Optional[str]:
         resp = self.response
 
@@ -448,7 +474,9 @@ class MessageAction(BaseAction):
 
         for sub in self.argument_subs:
             needle = sub.needle
-            value = str(MessageAction.get_argument_value(extra["message"], sub.argument - 1))
+            # To be placed in argument_subs, it must have been made through the get_argument_substitutions function
+            # This function always fills in an integer value for the argument parameter
+            value = get_argument_value(extra["message"], sub.argument)
             resp = resp.replace(needle, value)
             log.debug(f"Replacing {needle} with {value}")
 
@@ -665,14 +693,16 @@ def apply_substitutions(text, substitutions: Dict[Any, Substitution], bot: Bot, 
     for needle, sub in substitutions.items():
         if sub.key and sub.argument:
             param = sub.key
-            extra["argument"] = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
+            extra["argument"] = get_argument_value(extra["message"], sub.argument)
         elif sub.key:
             param = sub.key
         elif sub.argument:
-            param = MessageAction.get_argument_value(extra["message"], sub.argument - 1)
+            param = get_argument_value(extra["message"], sub.argument)
         else:
             log.error("Unknown param for response.")
             continue
+        # The dictionary of substitutions here will always come from get_substitutions, which means it will always have a callback to call
+        assert sub.cb is not None
         value: Any = sub.cb(param, extra)
         if value is None:
             return None
