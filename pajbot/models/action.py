@@ -356,6 +356,8 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
         method_mapping["strictargs"] = bot.get_strictargs_value
         method_mapping["command"] = bot.get_command_value
         method_mapping["broadcaster"] = bot.get_broadcaster_value
+        method_mapping["addcount"] = bot.add_count_value
+        method_mapping["delcount"] = bot.del_count_value
     except AttributeError:
         pass
 
