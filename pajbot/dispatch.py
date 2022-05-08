@@ -137,7 +137,9 @@ class Dispatch:
             # Make sure we got both an alias and a response
             message_parts = message.split(" ")
             if len(message_parts) < 2:
-                bot.whisper(source, "Usage: !add funccommand ALIAS [options] CALLBACK")
+                bot.send_message_to_user(
+                    source, "Usage: !add funccommand ALIAS [options] CALLBACK", event, method="whisper"
+                )
                 return False
 
             options, response = bot.commands.parse_command_arguments(message_parts[1:])
@@ -145,7 +147,7 @@ class Dispatch:
             options["added_by"] = source.id
 
             if options is False:
-                bot.whisper(source, "Invalid command")
+                bot.send_message_to_user(source, "Invalid command", event, method="whisper")
                 return False
 
             alias_str = message_parts[0].replace("!", "").lower()
@@ -153,13 +155,15 @@ class Dispatch:
 
             command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
             if new_command is True:
-                bot.whisper(source, f"Added your command (ID: {command.id})")
+                bot.send_message_to_user(source, f"Added your command (ID: {command.id})", event, method="whisper")
                 return True
 
             # At least one alias is already in use, notify the user to use !edit command instead
-            bot.whisper(
+            bot.send_message_to_user(
                 source,
                 f"The alias {alias_matched} is already in use. To edit that command, use !edit command instead of !add funccommand.",
+                event,
+                method="whisper",
             )
             return False
 
