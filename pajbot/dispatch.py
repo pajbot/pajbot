@@ -34,13 +34,13 @@ class Dispatch:
         # Make sure we got both an alias and a response
         message_parts = message.split()
         if len(message_parts) < 2:
-            bot.whisper(source, "Usage: !add command ALIAS [options] RESPONSE")
+            bot.send_message_to_user(source, "Usage: !add command ALIAS [options] RESPONSE", event, method="whisper")
             return False
 
         options, response = bot.commands.parse_command_arguments(message_parts[1:])
 
         if options is False:
-            bot.whisper(source, "Invalid command")
+            bot.send_message_to_user(source, "Invalid command", event, method="whisper")
             return False
 
         options["added_by"] = source.id
@@ -54,16 +54,18 @@ class Dispatch:
 
         command, new_command, alias_matched = bot.commands.create_command(alias_str, action=action, **options)
         if new_command is True:
-            bot.whisper(source, f"Added your command (ID: {command.id})")
+            bot.send_message_to_user(source, f"Added your command (ID: {command.id})", event, method="whisper")
 
             log_msg = f"The !{command.command.split('|')[0]} command has been created"
             AdminLogManager.add_entry("Command created", source, log_msg)
             return True
 
         # At least one alias is already in use, notify the user to use !edit command instead
-        bot.whisper(
+        bot.send_message_to_user(
             source,
             f"The alias {alias_matched} is already in use. To edit that command, use !edit command instead of !add command.",
+            event,
+            method="whisper",
         )
         return False
 
