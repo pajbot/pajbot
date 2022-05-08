@@ -701,6 +701,8 @@ def apply_substitutions(text, substitutions: Dict[Any, Substitution], bot: Bot, 
         else:
             log.error("Unknown param for response.")
             continue
+        # The dictionary of substitutions here will always come from get_substitutions, which means it will always have a callback to call
+        assert sub.cb is not None
         value: Any = sub.cb(param, extra)
         if value is None:
             return None
