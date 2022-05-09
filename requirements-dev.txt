@@ -18,4 +18,4 @@ types-retry==0.9.6
 sqlalchemy-stubs==0.4
 types-psycopg2==2.9.13
 types-colorama==0.4.13
-types-beautifulsoup4==4.10.20
+types-beautifulsoup4==4.11.0
