@@ -10,7 +10,7 @@ types-enum34==1.1.8
 types-ipaddress==1.0.8
 types-Markdown==3.3.14
 types-pkg-resources==0.1.3
-types-pytz==2021.3.7
+types-pytz==2021.3.8
 types-redis==4.2.2
 types-requests==2.27.25
 types-retry==0.9.6
