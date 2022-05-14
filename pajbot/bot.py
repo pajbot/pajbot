@@ -60,7 +60,7 @@ log = logging.getLogger(__name__)
 
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
 
-RANDOMCHOICE_ARGUMENT_REGEX = re.compile(r"(\"(\w+)\",? ?)")
+RANDOMCHOICE_ARGUMENT_REGEX = re.compile(r"\"([ \w\.,:]*)\"")
 
 
 class Bot:
