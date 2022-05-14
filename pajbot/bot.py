@@ -60,6 +60,8 @@ log = logging.getLogger(__name__)
 
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
 
+RANDOMCHOICE_ARGUMENT_REGEX = re.compile(r"\"([ \w\.,]*)\"")
+
 
 class Bot:
     """
@@ -463,6 +465,13 @@ class Bot:
         except:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
+
+    def get_randomchoice_value(self, key: str, extra: Dict[Any, Any] = {}) -> str:
+        arguments = RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
+        if not arguments:
+            return ""
+
+        return random.choice(arguments)
 
     def get_value(self, key, extra={}):
         if key in extra:

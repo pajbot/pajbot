@@ -25,7 +25,8 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `number_format` - format numbers using `,`  
 `or_else` - if the previous filter failed, return what is specified  
 `or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name  
-`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')  
+`randomchoice` - picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`
 
 #### Time Since
 
