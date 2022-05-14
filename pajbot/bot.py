@@ -467,7 +467,7 @@ class Bot:
             return ""
 
     def get_randomchoice_value(self, key: str, extra: Dict[Any, Any] = {}) -> str:
-        arguments = [m[1] for m in RANDOMCHOICE_ARGUMENT_REGEX.findall(key)]
+        arguments = RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
         if not arguments:
             return ""
 
