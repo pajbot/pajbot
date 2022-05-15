@@ -319,9 +319,9 @@ class Bot:
             return 0
 
         try:
-            return self.kvi[key].inc(amount=kvi_amount)
+            return self.kvi[kvi_key].inc(amount=kvi_amount)
         except:
-            log.error(f'failed to increase "{key}" by {kvi_amount}!')
+            log.exception(f"Failed to increase '{kvi_key}' by {kvi_amount}")
             return 0
 
     def decrease_kvi_value(self, key: str, extra: Dict[Any, Any] = {}):
@@ -330,9 +330,9 @@ class Bot:
             return 0
 
         try:
-            return self.kvi[key].dec(amount=kvi_amount)
+            return self.kvi[kvi_key].dec(amount=kvi_amount)
         except:
-            log.error(f'failed to decrease "{key}" by {kvi_amount}!')
+            log.exception(f"Failed to decrease '{kvi_key}' by {kvi_amount}")
             return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
