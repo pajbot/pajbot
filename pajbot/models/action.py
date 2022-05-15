@@ -333,9 +333,7 @@ def get_substitutions(string: str, bot: Bot) -> Dict[str, Substitution]:
     try:
         method_mapping["kvi"] = bot.get_kvi_value
         method_mapping["increasekvi"] = bot.increment_kvi_value
-        method_mapping["inckvi"] = bot.increment_kvi_value
         method_mapping["decreasekvi"] = bot.decrement_kvi_value
-        method_mapping["deckvi"] = bot.decrement_kvi_value
         method_mapping["tb"] = bot.get_value
         method_mapping["lasttweet"] = bot.get_last_tweet
         # "etm" is legacy
