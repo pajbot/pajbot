@@ -197,9 +197,7 @@ function add_notification({ message }) {
 
 function refresh_combo_count(count) {
     $('#emote_combo span.count').html(count);
-    $('#emote_combo span.count').addClass(
-        'animated pulsebig'
-    );
+    $('#emote_combo span.count').addClass('animated pulsebig');
     $('#emote_combo span.count').on(
         'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
         function() {
@@ -282,16 +280,12 @@ function refresh_emote_combo({ emote, count }) {
 
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            new_notification.addClass(
-                'animated bounceOutLeft ended'
-            );
+            new_notification.addClass('animated bounceOutLeft ended');
         }, 4000);
     } else {
         clearTimeout(close_down_combo);
         close_down_combo = setTimeout(function() {
-            emote_combo.addClass(
-                'animated bounceOutLeft ended'
-            );
+            emote_combo.addClass('animated bounceOutLeft ended');
         }, 3000);
     }
 
