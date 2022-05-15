@@ -368,38 +368,40 @@ def get_substitutions(
         except:
             log.exception("BabyRage")
 
-    method_mapping: Dict[str, Callable[..., Any]] = {}
-    try:
-        method_mapping["kvi"] = bot.get_kvi_value
-        method_mapping["increasekvi"] = bot.increment_kvi_value
-        method_mapping["decreasekvi"] = bot.decrement_kvi_value
-        method_mapping["tb"] = bot.get_value
-        method_mapping["lasttweet"] = bot.get_last_tweet
-        # "etm" is legacy
-        method_mapping["etm"] = bot.get_emote_epm
-        method_mapping["epm"] = bot.get_emote_epm
-        method_mapping["etmrecord"] = bot.get_emote_epm_record
-        method_mapping["epmrecord"] = bot.get_emote_epm_record
-        method_mapping["ecount"] = bot.get_emote_count
-        method_mapping["source"] = bot.get_source_value
-        method_mapping["user"] = bot.get_user_value
-        method_mapping["usersource"] = bot.get_usersource_value
-        method_mapping["time"] = bot.get_time_value
-        method_mapping["date"] = bot.get_date_value
-        method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
-        method_mapping["datetimefromtimestamp"] = bot.get_datetimefromtimestamp_value
-        method_mapping["datetime"] = bot.get_datetime_value
-        method_mapping["curdeck"] = bot.decks.action_get_curdeck
-        method_mapping["stream"] = bot.stream_manager.get_stream_value
-        method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value
-        method_mapping["last_stream"] = bot.stream_manager.get_last_stream_value
-        method_mapping["args"] = bot.get_args_value
-        method_mapping["strictargs"] = bot.get_strictargs_value
-        method_mapping["command"] = bot.get_command_value
-        method_mapping["broadcaster"] = bot.get_broadcaster_value
-        method_mapping["randomchoice"] = bot.get_randomchoice_value
-    except AttributeError:
-        pass
+    if method_mapping is None:
+        method_mapping = {}
+        try:
+            if bot:
+                method_mapping["kvi"] = bot.get_kvi_value
+                method_mapping["increasekvi"] = bot.increment_kvi_value
+                method_mapping["decreasekvi"] = bot.decrement_kvi_value
+                method_mapping["tb"] = bot.get_value
+                method_mapping["lasttweet"] = bot.get_last_tweet
+                # "etm" is legacy
+                method_mapping["etm"] = bot.get_emote_epm
+                method_mapping["epm"] = bot.get_emote_epm
+                method_mapping["etmrecord"] = bot.get_emote_epm_record
+                method_mapping["epmrecord"] = bot.get_emote_epm_record
+                method_mapping["ecount"] = bot.get_emote_count
+                method_mapping["source"] = bot.get_source_value
+                method_mapping["user"] = bot.get_user_value
+                method_mapping["usersource"] = bot.get_usersource_value
+                method_mapping["time"] = bot.get_time_value
+                method_mapping["date"] = bot.get_date_value
+                method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
+                method_mapping["datetimefromtimestamp"] = bot.get_datetimefromtimestamp_value
+                method_mapping["datetime"] = bot.get_datetime_value
+                method_mapping["curdeck"] = bot.decks.action_get_curdeck
+                method_mapping["stream"] = bot.stream_manager.get_stream_value
+                method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value
+                method_mapping["last_stream"] = bot.stream_manager.get_last_stream_value
+                method_mapping["args"] = bot.get_args_value
+                method_mapping["strictargs"] = bot.get_strictargs_value
+                method_mapping["command"] = bot.get_command_value
+                method_mapping["broadcaster"] = bot.get_broadcaster_value
+                method_mapping["randomchoice"] = bot.get_randomchoice_value
+        except AttributeError:
+            pass
 
     for sub_key in Substitution.substitution_regex.finditer(string):
         sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
