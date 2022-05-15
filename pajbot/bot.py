@@ -313,7 +313,7 @@ class Bot:
     def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
 
-    def increment_kvi_value(self, key, extra={}):
+    def increase_kvi_value(self, key, extra={}):
         if not key:
             return
 
@@ -327,7 +327,7 @@ class Bot:
 
         return self.kvi[key]
 
-    def decrement_kvi_value(self, key, extra={}):
+    def decrease_kvi_value(self, key, extra={}):
         if not key:
             return
 
