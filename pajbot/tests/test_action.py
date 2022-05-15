@@ -52,6 +52,25 @@ def get_substitutions_cases() -> List[Tuple[str, Dict[str, Substitution]]]:
             "foo $(foo:bar) bar",
             {"$(foo:bar)": Substitution(method_mapping["foo"], needle="$(foo:bar)", key="bar", argument=None)},
         ),
+        (
+            'foo $(foo:"bar", "baz") bar',
+            {
+                '$(foo:"bar", "baz")': Substitution(
+                    method_mapping["foo"], needle='$(foo:"bar", "baz")', key='"bar", "baz"', argument=None
+                )
+            },
+        ),
+        (
+            'foo $(foo:"bingo bango", "baz") bar',
+            {
+                '$(foo:"bingo bango", "baz")': Substitution(
+                    method_mapping["foo"],
+                    needle='$(foo:"bingo bango", "baz")',
+                    key='"bingo bango", "baz"',
+                    argument=None,
+                )
+            },
+        ),
     ]
 
 
