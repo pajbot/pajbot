@@ -73,8 +73,8 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 #### increase/decrease kvi
 
-- `$(increasekvi:br_wins)`/`$(inckvi:br_wins)` will add 1 count to the br_wins counter
-- `$(decreasekvi:br_wins)`/`$(deckvi:br_wins)` will remove 1 count from the br_wins counter
+- `$(increasekvi:br_wins)` will add 1 count to the br_wins counter
+- `$(decreasekvi:br_wins)` will remove 1 count from the br_wins counter
 
 ### tb - Info about the bot instance
 
