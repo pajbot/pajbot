@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Tuple
 
 import logging
 from collections import UserDict
@@ -8,8 +8,14 @@ from collections import UserDict
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 
+import regex as re
+
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType
+
+
+KVI_ARGUMENT_REGEX = re.compile(r"^([\w_-]+)(?: ([0-9]+))?$")
+KVI_PROHIBITED_KEYS = "active_subs"
 
 log = logging.getLogger(__name__)
 
@@ -40,15 +46,25 @@ class KVIData:
 
         return value
 
-    def inc(self) -> None:
+    def inc(self, amount: int = 1) -> int:
+        """
+        Increase the value of the given counter by `amount` and return the final result
+        """
         redis = RedisManager.get()
         old_value = self.get(redis=redis)
-        self.set(old_value + 1, redis=redis)
+        new_value = old_value + amount
+        self.set(new_value, redis=redis)
+        return new_value
 
-    def dec(self) -> None:
+    def dec(self, amount: int = 1) -> int:
+        """
+        Decrease the value of the given counter by `amount` and return the final result
+        """
         redis = RedisManager.get()
         old_value = self.get(redis=redis)
-        self.set(old_value - 1, redis=redis)
+        new_value = old_value - amount
+        self.set(new_value, redis=redis)
+        return new_value
 
     def __str__(self) -> str:
         return str(self.get())
@@ -61,3 +77,29 @@ class KVIManager(UserDict):
 
     def __getitem__(self, kvi_id: str) -> KVIData:
         return KVIData(self.streamer, kvi_id)
+
+
+def parse_kvi_arguments(input_str: str) -> Tuple[Optional[str], int]:
+    amount = 1
+
+    if not input_str:
+        return None, amount
+
+    argument_match = KVI_ARGUMENT_REGEX.match(input_str)
+
+    if not argument_match:
+        return None, amount
+
+    kvi_key = argument_match.group(1)
+
+    if not kvi_key:
+        return None, amount
+
+    kvi_amount = argument_match.group(2)
+    if kvi_amount:
+        try:
+            amount = int(kvi_amount)
+        except ValueError:
+            pass
+
+    return kvi_key, amount

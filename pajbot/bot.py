@@ -30,7 +30,7 @@ from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EcountManager, EmoteManager, EpmManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import IRCManager
-from pajbot.managers.kvi import KVIManager
+from pajbot.managers.kvi import KVIManager, parse_kvi_arguments
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
@@ -313,33 +313,27 @@ class Bot:
     def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
 
-    def increase_kvi_value(self, key, extra={}):
-        if not key:
-            return
-
-        if key == "active_subs":
-            return
+    def increase_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
+        kvi_key, kvi_amount = parse_kvi_arguments(key)
+        if kvi_key is None:
+            return 0
 
         try:
-            self.kvi[key].inc()
+            return self.kvi[key].inc(amount=kvi_amount)
         except:
-            log.error(f'failed to add to "{key}"!')
+            log.error(f'failed to increase "{key}" by {kvi_amount}!')
+            return 0
 
-        return self.kvi[key]
-
-    def decrease_kvi_value(self, key, extra={}):
-        if not key:
-            return
-
-        if key == "active_subs":
-            return
+    def decrease_kvi_value(self, key: str, extra: Dict[Any, Any] = {}):
+        kvi_key, kvi_amount = parse_kvi_arguments(key)
+        if kvi_key is None:
+            return 0
 
         try:
-            self.kvi[key].dec()
+            return self.kvi[key].dec(amount=kvi_amount)
         except:
-            log.error(f'failed to remove from "{key}"!')
-
-        return self.kvi[key]
+            log.error(f'failed to decrease "{key}" by {kvi_amount}!')
+            return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
         return self.twitter_manager.get_last_tweet(key)
