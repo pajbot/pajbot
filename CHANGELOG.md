@@ -25,6 +25,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
+- Dev: Add deprecation messages to `add_win` & `remove_win` functions.
 - Dev: Use Fomantic-UI native slider instead of the semantic-ui-range library. (#1895)
 - Dev: Migrate `delete_or_timeout` function to main bot class. (#1872)
 - Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841, #1840, #1842, #1896, #1899, #1897, #1900, #1901, #1902, #1898, #1932)
