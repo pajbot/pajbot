@@ -72,6 +72,15 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 
 `$(kvi:active_subs)` - int - Number of subscribers to the broadcaster.
 
+#### Modifying kvi counters
+
+`$(increasekvi:br_wins)` - int - Increase the value of the `br_wins` counter by 1.  
+`$(increasekvi:br_wins 5)` - int - Increase the value of the `br_wins` counter by 5.  
+`$(decreasekvi:br_wins)` - int - Decrease the value of the `br_wins` counter by 1.  
+`$(decreasekvi:br_wins 5)` - int - Decrease the value of the `br_wins` counter by 5.
+
+Both `increasekvi` and `decreasekvi` return the final value after the modification has been made.
+
 ### tb - Info about the bot instance
 
 #### Data from `extra`:

@@ -11,6 +11,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
+- Minor: Added `increasekvi` and `decreasekvi` variables. (#1913)
 - Minor: Added the `announce` message type. (#1847)
 - Minor: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)

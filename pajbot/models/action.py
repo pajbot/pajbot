@@ -373,6 +373,8 @@ def get_substitutions(
         try:
             if bot:
                 method_mapping["kvi"] = bot.get_kvi_value
+                method_mapping["increasekvi"] = bot.increase_kvi_value
+                method_mapping["decreasekvi"] = bot.decrease_kvi_value
                 method_mapping["tb"] = bot.get_value
                 method_mapping["lasttweet"] = bot.get_last_tweet
                 # "etm" is legacy
