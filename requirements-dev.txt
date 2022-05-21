@@ -8,11 +8,11 @@ isort==5.10.1
 types-cryptography==3.3.21
 types-enum34==1.1.8
 types-ipaddress==1.0.8
-types-Markdown==3.3.16
+types-Markdown==3.3.21
 types-pkg-resources==0.1.3
 types-pytz==2021.3.8
-types-redis==4.2.2
-types-requests==2.27.25
+types-redis==4.2.4
+types-requests==2.27.27
 types-retry==0.9.7
 # sqlalchemy2-stubs==0.0.2a15
 sqlalchemy-stubs==0.4

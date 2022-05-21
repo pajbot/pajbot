@@ -1,11 +1,11 @@
-.animate__pulsebig {
-    -webkit-animation-name: animate__pulsebig;
-    animation-name: animate__pulsebig;
+.pulsebig {
+    -webkit-animation-name: pulsebig;
+    animation-name: pulsebig;
     -webkit-animation-duration: 0.2s;
     animation-duration: 0.2s;
 }
 
-@-webkit-keyframes animate__pulsebig {
+@-webkit-keyframes pulsebig {
     from {
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
@@ -19,7 +19,7 @@
         transform: scale3d(1, 1, 1);
     }
 }
-@keyframes animate__pulsebig {
+@keyframes pulsebig {
     from {
         -webkit-transform: scale3d(1, 1, 1);
         transform: scale3d(1, 1, 1);
