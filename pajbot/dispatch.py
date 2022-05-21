@@ -206,7 +206,7 @@ class Dispatch:
 
     @staticmethod
     def remove_win(bot, source, message, event, args):
-        log.warning("DEPRECATED - Use the $(increasekvi:br_wins) variable")
+        log.warning("DEPRECATED - Use the $(decreasekvi:br_wins) variable")
         bot.kvi["br_wins"].dec()
         bot.me(f"{source} removed a BR win!")
 
