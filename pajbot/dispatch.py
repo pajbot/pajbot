@@ -17,7 +17,7 @@ class Dispatch:
 
     @staticmethod
     def add_win(bot, source, message, event, args):
-        # XXX: this is ugly as fuck
+        log.warning("DEPRECATED - Use the $(increasekvi:br_wins) variable")
         bot.kvi["br_wins"].inc()
         bot.me(f"{source} added a BR win!")
 
@@ -206,7 +206,7 @@ class Dispatch:
 
     @staticmethod
     def remove_win(bot, source, message, event, args):
-        # XXX: This is also ugly as fuck
+        log.warning("DEPRECATED - Use the $(decreasekvi:br_wins) variable")
         bot.kvi["br_wins"].dec()
         bot.me(f"{source} removed a BR win!")
 
