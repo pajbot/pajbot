@@ -4,6 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.61
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Security: Add integrity checks to javascript resources loaded from external CDNs. (#1813)
 - Security: Encode URI components in user search. (#1832)
 - Major: Full deletion of hsbet module along with hsbet-related quest modules; including table-related code and relevant tables. (#1864)
@@ -12,10 +16,10 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
 - Minor: Added `increasekvi` and `decreasekvi` variables. (#1913)
-- Minor: Added the `announce` message type. (#1847)
+- Minor: Add `$(randomchoice)` variable which picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`. (#1920)
 - Minor: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)
-- Minor: Add `$(randomchoice)` variable which picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`. (#1920)
+- Minor: Added the `announce` message type. (#1847)
 - Bugfix: Fix web commands list buttons not working. (#1893)
 - Bugfix: Fix `!add command` not working. (#1892)
 - Bugfix: Command response type now sticks properly when a command is edited through chat. (#1846)
@@ -25,7 +29,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
-- Dev: Add deprecation messages to `add_win` & `remove_win` functions.
+- Dev: Add deprecation messages to `add_win` & `remove_win` functions. (#1941)
 - Dev: Use Fomantic-UI native slider instead of the semantic-ui-range library. (#1895)
 - Dev: Migrate `delete_or_timeout` function to main bot class. (#1872)
 - Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841, #1840, #1842, #1896, #1899, #1897, #1900, #1901, #1902, #1898, #1932)
