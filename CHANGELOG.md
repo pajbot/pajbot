@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Removed fatoverlay and crazyoverlay.
+
 ## v1.61
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
