@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Removed fatoverlay and crazyoverlay. These were alternatives to `/clr/overlay/<number>`, e.g. `/clr/fatoverlay/<number>`. If you don't know what these are, or if you never used these, then this will not affect you. (#1946)
+
 ## v1.61
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
