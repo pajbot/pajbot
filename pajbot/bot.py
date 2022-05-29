@@ -845,7 +845,16 @@ class Bot:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
     def announce(self, message: str, channel: Optional[str] = None) -> None:
-        self.say("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
+        if message is None:
+            log.warning("message=None passed to Bot::announce()")
+            return
+
+        if self.silent:
+            return
+
+        message = utils.clean_up_message(message)
+
+        self.privmsg("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
 
     def connect(self) -> None:
         self.irc.start()
