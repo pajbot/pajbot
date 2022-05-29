@@ -846,7 +846,7 @@ class Bot:
 
     def announce(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
-            log.warning("message=None passed to Bot::say()")
+            log.warning("message=None passed to Bot::announce()")
             return
 
         if self.silent:
