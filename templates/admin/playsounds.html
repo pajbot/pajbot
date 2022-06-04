@@ -157,7 +157,7 @@
                 </td>
                 <td class="top aligned">
                     <div class="min-height-container volume-container">
-                        <input form="form-{{ playsound.name }}" type="hidden" name="volume">
+                        <input form="form-{{ playsound.name }}" type="hidden" name="volume" value="{{ playsound.volume }}">
                         <div class="ui slider volume-slider" data-initial="{{ playsound.volume }}"></div>
                         <div class="volume-label">{{ playsound.volume }}</div>
                     </div>
