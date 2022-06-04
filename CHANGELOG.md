@@ -5,6 +5,9 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Removed fatoverlay and crazyoverlay. These were alternatives to `/clr/overlay/<number>`, e.g. `/clr/fatoverlay/<number>`. If you don't know what these are, or if you never used these, then this will not affect you. (#1946)
+- Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
+  This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
+  This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
 
