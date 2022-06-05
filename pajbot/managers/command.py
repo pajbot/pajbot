@@ -434,6 +434,7 @@ class CommandManager(UserDict):
         parser.add_argument("--whisper", dest="action_type", action="store_const", const="whisper", default=None)
         parser.add_argument("--reply", dest="action_type", action="store_const", const="reply", default=None)
         parser.add_argument("--say", dest="action_type", action="store_const", const="say", default=None)
+        parser.add_argument("--announce", dest="action_type", action="store_const", const="announce", default=None)
 
         parser.add_argument("--cd", type=int, dest="delay_all")
         parser.add_argument("--usercd", type=int, dest="delay_user")

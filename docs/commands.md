@@ -16,6 +16,7 @@
 
 `--whisper`/`--no-whisper` - whispers the response of the command. Default = no-whisper  
 `--reply`/`--no-reply` - context-dependant reply based on where the command is used. Default = no-reply  
+`--announce`/`--no-announce` - sets the command to use the announce reply type (i.e. Twitch's /announce feature)  
 `--cd` - sets the global cooldown of the command (in seconds). Default = 5 seconds  
 `--usercd` - sets the per-user cooldown of the command (in seconds). Default = 15 seconds  
 `--level` - sets the required level to use the command. If the mod-only argument is used, the mod must also meet the level specified here in order to use the command. Default = 100  
