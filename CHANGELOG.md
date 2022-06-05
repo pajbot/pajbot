@@ -9,6 +9,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
+- Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
 
 ## v1.61
