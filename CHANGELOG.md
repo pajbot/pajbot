@@ -8,7 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
-- Minor: Added Top 100 emotes to `/stats`.
+- Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
