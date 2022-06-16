@@ -99,6 +99,22 @@ def download_sub_badge(twitch_badges_api: TwitchBadgesAPI, streamer: UserBasics,
     with open(subscriber_badge_path, "wb") as subscriber_badge_file:
         subscriber_badge_file.write(subscriber_badge_bytes)
 
+def get_top_emotes() -> List[Dict[str, str]]:
+    redis = RedisManager.get()
+    streamer = StreamHelper.get_streamer()
+
+    top_emotes_list = []
+    top_emotes = {
+        emote: emote_count
+        for emote, emote_count in sorted(
+            redis.zscan_iter(f"{streamer}:emotes:count"), key=lambda e_ecount_pair: e_ecount_pair[1], reverse=True
+        )[:100]
+    }
+
+    if top_emotes:
+        top_emotes_list.extend({"emote_name": emote, "emote_count": f"{emote_count:,.0f}"} for emote, emote_count in top_emotes.items())
+    
+    return top_emotes_list
 
 @time_method
 def get_cached_commands() -> List[Dict[str, Any]]:
