@@ -71,7 +71,7 @@ class SelfTimeoutModule(BaseModule):
             required=True,
             placeholder="Command name (no !)",
             default="selftimeout",
-            constraints={"min_str_len": 2, "max_str_len": 15},
+            constraints={"min_str_len": 1, "max_str_len": 15},
         ),
         ModuleSetting(
             key="low_value",
