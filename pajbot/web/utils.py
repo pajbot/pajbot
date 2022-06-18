@@ -114,7 +114,7 @@ def get_top_emotes() -> List[Dict[str, str]]:
 
     if top_emotes:
         top_emotes_list.extend(
-            {"emote_name": emote, "emote_count": f"{emote_count:,.0f}"} for emote, emote_count in top_emotes.items()
+            {"emote_name": emote, "emote_count": str(int(emote_count))} for emote, emote_count in top_emotes.items()
         )
 
     return top_emotes_list
