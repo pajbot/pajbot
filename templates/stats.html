@@ -42,5 +42,23 @@
                 {% endfor %}
         </table>
     {% endif %}
+    
+    <h3>Top 100 Emotes</h3>
+    <table class="ui very basic table">
+        <thead>
+            <tr>
+                <th>Emote</th>
+                <th># Uses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for emote in top_100_emotes %}
+                <tr>
+                    <td>{{ emote['emote_name'] }}</td>
+                    <td>{{ emote['emote_count']|number_format }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
