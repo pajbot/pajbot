@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
-from datetime import timedelta
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
@@ -60,15 +62,6 @@ class MaxMsgLengthModule(BaseModule):
             constraints={},
         ),
         ModuleSetting(
-            key="whisper_timeout_reason",
-            label="Whisper Timeout Reason | Available arguments: {punishment}",
-            type="text",
-            required=False,
-            placeholder="",
-            default="You have been {punishment} because your message was too long.",
-            constraints={},
-        ),
-        ModuleSetting(
             key="disable_warnings",
             label="Disable warning timeouts",
             type="boolean",
@@ -76,6 +69,16 @@ class MaxMsgLengthModule(BaseModule):
             default=False,
         ),
     ]
+
+    def _perform_timeout(self, user: User, timeout_length: int, timeout_reason: str, disable_warnings: bool) -> None:
+        if self.bot is None:
+            log.warning("Bot is none in Maximum Message Length module _perform_timeout, this should never happen")
+            return
+
+        if disable_warnings is True:
+            self.bot.timeout(user, timeout_length, reason=timeout_reason)
+        else:
+            self.bot.timeout_warn(user, timeout_length, reason=timeout_reason)
 
     def on_message(self, source, message, whisper, **rest):
         if whisper:
@@ -85,30 +88,22 @@ class MaxMsgLengthModule(BaseModule):
 
         if self.bot.is_online:
             if len(message) > self.settings["max_msg_length"]:
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
-                else:
-                    duration, punishment = self.bot.timeout_warn(
-                        source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-                    )
-                    """ We only send a notification to the user if he has spent more than
-                    one hour watching the stream. """
-                    if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                        self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
-                    return False
+                self._perform_timeout(
+                    source,
+                    self.settings["timeout_length"],
+                    self.settings["timeout_reason"],
+                    self.settings["disable_warnings"],
+                )
+                return False
         else:
             if len(message) > self.settings["max_msg_length_offline"]:
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
-                else:
-                    duration, punishment = self.bot.timeout_warn(
-                        source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-                    )
-                    """ We only send a notification to the user if he has spent more than
-                    one hour watching the stream. """
-                    if duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                        self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
-                    return False
+                self._perform_timeout(
+                    source,
+                    self.settings["timeout_length"],
+                    self.settings["timeout_reason"],
+                    self.settings["disable_warnings"],
+                )
+                return False
 
     def enable(self, bot):
         HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
