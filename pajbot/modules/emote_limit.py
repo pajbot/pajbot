@@ -70,22 +70,6 @@ class EmoteLimitModule(BaseModule):
             constraints={},
         ),
         ModuleSetting(
-            key="enable_whisper_timeout_reasons",
-            label="Enable Whisper Timeout Reasons",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
-            key="whisper_timeout_reason",
-            label="Whisper Timeout Reason | Available arguments: {timeout_duration}",
-            type="text",
-            required=False,
-            placeholder="",
-            default="You have been timed out for {timeout_duration} seconds for posting too many emotes.",
-            constraints={},
-        ),
-        ModuleSetting(
             key="disable_warnings",
             label="Disable warning timeouts",
             type="boolean",
@@ -117,14 +101,7 @@ class EmoteLimitModule(BaseModule):
                 disable_warnings=self.settings["disable_warnings"],
                 once=True,
             )
-            if (
-                self.settings["moderation_action"] == "Timeout"
-                and self.settings["enable_whisper_timeout_reasons"] is True
-            ):
-                self.bot.whisper(
-                    source,
-                    self.settings["whisper_timeout_reason"].format(timeout_duration=self.settings["timeout_duration"]),
-                )
+
             return False
 
         return True
