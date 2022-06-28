@@ -127,6 +127,7 @@ class PaidTimeoutModule(BaseModule):
                 bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
             else:
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
+                # XXX: Should we disable this whisper message?
                 bot.whisper(
                     victim,
                     f"{source} just timed you out for {_time} seconds LUL",
