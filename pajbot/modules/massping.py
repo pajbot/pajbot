@@ -75,22 +75,6 @@ class MassPingProtectionModule(BaseModule):
             default="Too many users pinged in message",
             constraints={},
         ),
-        ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=True,
-        ),
-        ModuleSetting(
-            key="whisper_timeout_reason",
-            label="Whisper Timeout Reason | Available arguments: {timeout_duration}",
-            type="text",
-            required=False,
-            placeholder="",
-            default="You have been timed out for {timeout_duration} seconds because your message mentioned too many users at once.",
-            constraints={},
-        ),
     ]
 
     @staticmethod
@@ -186,9 +170,6 @@ class MassPingProtectionModule(BaseModule):
             return
 
         self.bot.timeout(source, timeout_duration, reason=self.settings["timeout_reason"])
-
-        if self.settings["whisper_offenders"]:
-            self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(timeout_duration=timeout_duration))
 
         return False
 
