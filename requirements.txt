@@ -1,5 +1,5 @@
 APScheduler==3.9.1
-autobahn==22.5.1
+autobahn==22.6.1
 beautifulsoup4==4.11.1
 colorama==0.4.5
 cssmin==0.2.0
