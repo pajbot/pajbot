@@ -17,10 +17,10 @@
 ### Setting the reply type
 The default reply type is `say`
 
- - `--say`
+ - `--say` - sends a regular chat message with the command response
  - `--whisper` - whispers the response of the command to the source user
  - `--reply` - context-dependant reply based on where the command is used
- - `--announce`
+ - `--announce` - uses the /announce feature to highlight the response in the chat
 
 To make your command a `.me` command, start the response with `.me` or `/me`
 
