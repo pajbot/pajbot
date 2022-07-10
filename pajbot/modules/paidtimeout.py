@@ -119,7 +119,6 @@ class PaidTimeoutModule(BaseModule):
             now = utils.now()
             if victim.timeout_end is not None and victim.timeout_end > now:
                 victim.timeout_end += datetime.timedelta(seconds=_time)
-                bot.whisper(victim, f"{victim}, you were timed out for an additional {_time} seconds by {source}")
                 bot.whisper(
                     source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
                 )
@@ -127,11 +126,6 @@ class PaidTimeoutModule(BaseModule):
                 bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
             else:
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
-                # XXX: Should we disable this whisper message?
-                bot.whisper(
-                    victim,
-                    f"{source} just timed you out for {_time} seconds LUL",
-                )
                 bot.timeout(victim, _time, reason=f"Timed out by {source}", once=True)
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
