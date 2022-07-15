@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules.base import BaseModule, ModuleSetting
@@ -67,22 +66,6 @@ class AsciiProtectionModule(BaseModule):
             constraints={},
         ),
         ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="whisper_timeout_reason",
-            label="Whisper Timeout Reason | Available arguments: {punishment}",
-            type="text",
-            required=False,
-            placeholder="",
-            default="You have been {punishment} because your message contained too many ascii characters.",
-            constraints={},
-        ),
-        ModuleSetting(
             key="disable_warnings",
             label="Disable warning timeouts",
             type="boolean",
@@ -123,14 +106,7 @@ class AsciiProtectionModule(BaseModule):
         elif self.settings["disable_warnings"] is True and self.settings["moderation_action"] == "Timeout":
             self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
         else:
-            duration, punishment = self.bot.timeout_warn(
-                source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-            )
-
-            """ We only send a notification to the user if he has spent more than
-            one hour watching the stream. """
-            if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
+            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
 
         return False
 
