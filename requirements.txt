@@ -3,7 +3,7 @@ autobahn==22.6.1
 beautifulsoup4==4.11.1
 colorama==0.4.5
 cssmin==0.2.0
-Flask==2.1.2
+Flask==2.1.3
 Flask-Assets==2.0
 irc==20.0.0
 isodate==0.6.1
@@ -17,7 +17,7 @@ psycopg2==2.9.3
 pylast==5.0.0
 pyOpenSSL==22.0.0 # for twisted.internet.ssl
 pytz==2022.1
-rapidfuzz==2.0.15
+rapidfuzz==2.1.3
 ratelimiter==1.2.0.post0
 redis==4.3.4
 regex==2022.6.2
