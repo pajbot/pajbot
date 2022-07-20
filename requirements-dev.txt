@@ -1,7 +1,7 @@
 black==22.6.0
 flake8==4.0.1
 pytest==7.1.2
-mypy==0.961
+mypy==0.971
 isort==5.10.1
 
 # mypy type stubs
