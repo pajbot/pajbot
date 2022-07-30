@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def init(page) -> None:
-    @page.route("/streamer/")
+    @page.route("/streamer")
     @requires_level(500)
     def admin_streamer(**options) -> ResponseReturnValue:
         redis = RedisManager.get()

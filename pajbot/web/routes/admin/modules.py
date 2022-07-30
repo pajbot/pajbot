@@ -14,7 +14,7 @@ from flask.typing import ResponseReturnValue
 
 
 def init(page) -> None:
-    @page.route("/modules/")
+    @page.route("/modules")
     @requires_level(500)
     def modules(**options) -> ResponseReturnValue:
         module_manager = ModuleManager(None).load(do_reload=False)
