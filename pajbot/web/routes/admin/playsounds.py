@@ -9,7 +9,7 @@ from flask.typing import ResponseReturnValue
 
 
 def init(page) -> None:
-    @page.route("/playsounds/")
+    @page.route("/playsounds")
     @requires_level(500)
     def playsounds(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as session:

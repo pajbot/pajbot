@@ -8,7 +8,7 @@ from sqlalchemy.orm import joinedload
 
 
 def init(page) -> None:
-    @page.route("/")
+    @page.route("")
     @requires_level(500)
     def home(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:

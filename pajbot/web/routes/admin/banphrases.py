@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def init(page) -> None:
-    @page.route("/banphrases/")
+    @page.route("/banphrases")
     @requires_level(500)
     def banphrases(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
@@ -99,7 +99,7 @@ def init(page) -> None:
                         db_session.query(Banphrase).options(joinedload(Banphrase.data)).filter_by(id=id).one_or_none()
                     )
                     if banphrase is None:
-                        return redirect("/admin/banphrases/", 303)
+                        return redirect("/admin/banphrases", 303)
                     banphrase.set(**options)
                     banphrase.data.set(edited_by=options["edited_by"])
                     log.info(f"Updated banphrase ID {banphrase.id} by user ID {options['edited_by']}")
@@ -116,7 +116,7 @@ def init(page) -> None:
                 session["banphrase_created_id"] = banphrase.id
             else:
                 session["banphrase_edited_id"] = banphrase.id
-            return redirect("/admin/banphrases/", 303)
+            return redirect("/admin/banphrases", 303)
         else:
             return render_template("admin/create_banphrase.html")
 

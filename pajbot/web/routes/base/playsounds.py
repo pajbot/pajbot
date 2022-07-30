@@ -6,7 +6,7 @@ from flask import render_template
 
 
 def init(app):
-    @app.route("/playsounds/")
+    @app.route("/playsounds")
     def user_playsounds():
         with DBManager.create_session_scope() as session:
             playsounds = session.query(Playsound).filter(Playsound.enabled).order_by(Playsound.name).all()

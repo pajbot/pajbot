@@ -15,6 +15,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
+- Bugfix: Fix some website links not being routable due to an extra `/` after a dependency update. (#2051)
 
 ## v1.61
 

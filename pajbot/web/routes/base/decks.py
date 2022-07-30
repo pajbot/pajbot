@@ -5,7 +5,7 @@ from flask import render_template
 
 
 def init(app):
-    @app.route("/decks/")
+    @app.route("/decks")
     def decks():
         session = DBManager.create_session()
         top_decks = []
@@ -14,7 +14,7 @@ def init(app):
         session.close()
         return render_template("decks/all.html", top_decks=top_decks, deck_class=None)
 
-    @app.route("/decks/druid/")
+    @app.route("/decks/druid")
     def decks_druid():
         session = DBManager.create_session()
         decks = (
@@ -26,7 +26,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Druid")
 
-    @app.route("/decks/hunter/")
+    @app.route("/decks/hunter")
     def decks_hunter():
         session = DBManager.create_session()
         decks = (
@@ -38,7 +38,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Hunter")
 
-    @app.route("/decks/mage/")
+    @app.route("/decks/mage")
     def decks_mage():
         session = DBManager.create_session()
         decks = (
@@ -50,7 +50,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Mage")
 
-    @app.route("/decks/paladin/")
+    @app.route("/decks/paladin")
     def decks_paladin():
         session = DBManager.create_session()
         decks = (
@@ -62,7 +62,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Paladin")
 
-    @app.route("/decks/priest/")
+    @app.route("/decks/priest")
     def decks_priest():
         session = DBManager.create_session()
         decks = (
@@ -74,7 +74,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Priest")
 
-    @app.route("/decks/rogue/")
+    @app.route("/decks/rogue")
     def decks_rogue():
         session = DBManager.create_session()
         decks = (
@@ -86,7 +86,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Rogue")
 
-    @app.route("/decks/shaman/")
+    @app.route("/decks/shaman")
     def decks_shaman():
         session = DBManager.create_session()
         decks = (
@@ -98,7 +98,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Shaman")
 
-    @app.route("/decks/warlock/")
+    @app.route("/decks/warlock")
     def decks_warlock():
         session = DBManager.create_session()
         decks = (
@@ -110,7 +110,7 @@ def init(app):
         session.close()
         return render_template("decks/by_class.html", decks=decks, deck_class="Warlock")
 
-    @app.route("/decks/warrior/")
+    @app.route("/decks/warrior")
     def decks_warrior():
         session = DBManager.create_session()
         decks = (

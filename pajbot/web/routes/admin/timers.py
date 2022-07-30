@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 def init(page) -> None:
-    @page.route("/timers/")
+    @page.route("/timers")
     @requires_level(500)
     def timers(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
@@ -86,7 +86,7 @@ def init(page) -> None:
             if timer is None:
                 timer = db_session.query(Timer).filter_by(id=id).one_or_none()
                 if timer is None:
-                    return redirect("/admin/timers/", 303)
+                    return redirect("/admin/timers", 303)
 
                 old_message = ""
                 new_message = ""
@@ -115,4 +115,4 @@ def init(page) -> None:
             session["timer_created_id"] = timer.id
         else:
             session["timer_edited_id"] = timer.id
-        return redirect("/admin/timers/", 303)
+        return redirect("/admin/timers", 303)
