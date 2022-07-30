@@ -79,9 +79,15 @@ class Bot:
     def _load_admin(self, config: cfg.Config) -> Optional[UserBasics]:
         admin_id, admin_login = cfg.load_admin_id_or_login(config)
         if admin_id is not None:
-            return self.twitch_helix_api.require_user_basics_by_id(admin_id)
-        if admin_login is not None:
-            return self.twitch_helix_api.require_user_basics_by_login(admin_login)
+            admin = self.twitch_helix_api.get_user_basics_by_id(admin_id)
+            if admin is not None:
+                return admin
+            log.warning(f"Could not resolve admin user ID {admin_id}, verify your config!")
+        elif admin_login is not None:
+            admin = self.twitch_helix_api.get_user_basics_by_login(admin_login)
+            if admin is not None:
+                return admin
+            log.warning(f"Could not resolve admin user login {admin_login}, verify your config!")
         return None
 
     def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
@@ -252,6 +258,7 @@ class Bot:
         if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
+            log.info(f"Granting admin privileges to {admin.login} ({admin.id})")
             with DBManager.create_session_scope() as db_session:
                 admin_user = User.from_basics(db_session, admin)
                 admin_user.level = 2000
