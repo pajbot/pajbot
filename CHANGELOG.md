@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
+- Minor: Added response message for missing AppID in Wolfram module.
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
 - Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003)
