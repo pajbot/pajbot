@@ -92,7 +92,7 @@ class WolframModule(BaseModule):
                 source,
                 f"Missing Wolfram AppID in config.ini. Talk to the bot admin https://{bot.bot_domain}/contact BabyRage",
                 event,
-                method="whisper",
+                method=self.settings["response_method"],
             )
             return False
 
