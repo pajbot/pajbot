@@ -9,12 +9,14 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
 - Minor: Added response message for missing AppID in Wolfram module.
+- Minor: Gracefully handle invalid User ID and User Login for the admin config field. (#2050)
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
 - Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003)
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
+- Bugfix: Fix some website links not being routable due to an extra `/` after a dependency update. (#2051)
 
 ## v1.61
 

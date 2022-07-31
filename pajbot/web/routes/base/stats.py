@@ -7,7 +7,7 @@ from flask import render_template
 
 
 def init(app):
-    @app.route("/stats/")
+    @app.route("/stats")
     def stats():
         bot_commands_list = pajbot.web.utils.get_cached_commands()
         top_100_emotes = pajbot.web.utils.get_top_emotes()
@@ -25,7 +25,7 @@ def init(app):
                 top_100_emotes=top_100_emotes,
             )
 
-    @app.route("/stats/duels/")
+    @app.route("/stats/duels")
     def stats_duels():
         with DBManager.create_session_scope() as db_session:
 
