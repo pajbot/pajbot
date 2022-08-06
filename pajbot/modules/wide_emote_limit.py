@@ -55,7 +55,7 @@ class WideEmoteLimitModule(BaseModule):
             required=True,
             placeholder="",
             default=60,
-            constraints={"min_value": 1, "max_value": 1209600},
+            constraints={"min_value": 0, "max_value": 1209600},
         ),
         ModuleSetting(
             key="timeout_offline",
@@ -64,7 +64,7 @@ class WideEmoteLimitModule(BaseModule):
             required=True,
             placeholder="",
             default=60,
-            constraints={"min_value": 1, "max_value": 1209600},
+            constraints={"min_value": 0, "max_value": 1209600},
         ),
         ModuleSetting(
             key="allow_subs_to_bypass",
@@ -74,18 +74,12 @@ class WideEmoteLimitModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
-            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
-            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
-        ),
-        ModuleSetting(
             key="timeout_reason",
             label="Timeout Reason",
             type="text",
             required=False,
             placeholder="",
-            default="Your message contains too many wide emotes",
+            default="Too many wide emotes",
             constraints={},
         ),
         ModuleSetting(
@@ -101,12 +95,12 @@ class WideEmoteLimitModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
-        if self.bot.is_online and not self.settings["enable_in_online_chat"]:
+        if self.bot.is_online and self.settings["timeout_online"] == 0:
             return True
 
-        if not self.bot.is_online and not self.settings["enable_in_offline_chat"]:
+        if not self.bot.is_online and self.settings["timeout_offline"] == 0:
             return True
-        
+
         if self.settings["allow_subs_to_bypass"] and source.subscriber is True:
             return True
 
