@@ -11,16 +11,22 @@ class Emote:
     :type provider: str
     :ivar id: Provider-specific ID, e.g. the emote ID for twitch, or the has for bttv.
     :type id: str
+    :ivar max_width: The maximum width the emote can have.
+    :type max_width: int
     :var urls: Dict mapping size (e.g. "1", "2", or "4") to an URL depicting the emote
-    :type urls: dict[str, str]"""
+    :type urls: dict[str, str]
+    :ivar max_height: The maximum height the emote can have.
+    :type max_height: int"""
 
-    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str]) -> None:
+    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int, max_height: int) -> None:
         self.code = code
         self.provider = provider
         if not isinstance(id, str):
             raise ValueError("id parameter must be a string")
         self.id = id
         self.urls = urls
+        self.max_width = max_width
+        self.max_height = max_height
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Emote):
@@ -35,7 +41,7 @@ class Emote:
         return f"[{self.provider}] {self.code}"
 
     def jsonify(self) -> Dict[str, Any]:
-        return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls}
+        return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls, "max_width": self.max_width, "max_height": self.max_height}
 
     @staticmethod
     def from_json(json_data) -> Emote:

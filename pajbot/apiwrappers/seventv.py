@@ -20,6 +20,8 @@ class SevenTVAPI(BaseAPI):
                     code=emote_data["name"],
                     provider="7tv",
                     id=emote_id,
+                    max_width=emote_data["width"][3],
+                    max_height=emote_data["height"][3],
                     urls={
                         "1": get_url(emote_id, "1"),
                         "2": get_url(emote_id, "2"),
