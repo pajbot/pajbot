@@ -100,7 +100,7 @@ class WideEmoteLimitModule(BaseModule):
         if self.settings["allow_subs_to_bypass"] and source.subscriber is True:
             return True
 
-        exceeding_emotes = [i.emote.width for i in emote_instances if i.emote.width > self.settings["max_width"]]
+        exceeding_emotes = [i.emote.max_width for i in emote_instances if i.emote.max_width > self.settings["max_width"]]
         if len(exceeding_emotes) > self.settings["max_emotes"]:
             self.bot.delete_or_timeout(
                 source,
