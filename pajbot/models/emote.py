@@ -11,10 +11,10 @@ class Emote:
     :type provider: str
     :ivar id: Provider-specific ID, e.g. the emote ID for twitch, or the has for bttv.
     :type id: str
-    :ivar max_width: The maximum width the emote can have.
-    :type max_width: int
     :var urls: Dict mapping size (e.g. "1", "2", or "4") to an URL depicting the emote
     :type urls: dict[str, str]
+    :ivar max_width: The maximum width the emote can have.
+    :type max_width: int
     :ivar max_height: The maximum height the emote can have.
     :type max_height: int"""
 
