@@ -39,6 +39,8 @@ query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limi
     search_emotes(query: $query, globalState: $globalState, page: $page, limit: $limit, pageSize: $pageSize) {
         id
         name
+        width
+        height
     }
 }"""
 
@@ -84,6 +86,8 @@ query fetchUserEmotes($id: String!) {
         emotes {
             id
             name
+            width
+            height
         }
     }
 }"""
