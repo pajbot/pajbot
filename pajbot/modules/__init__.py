@@ -37,6 +37,7 @@ from pajbot.modules.duel import DuelModule
 from pajbot.modules.dummy import DummyModule
 from pajbot.modules.eightball import EightBallModule
 from pajbot.modules.emote_limit import EmoteLimitModule
+from pajbot.modules.wide_emote_limit import WideEmoteLimitModule
 from pajbot.modules.emote_timeout import EmoteTimeoutModule
 from pajbot.modules.givepoints import GivePointsModule
 from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
@@ -100,6 +101,7 @@ available_modules = [
     EightBallModule,
     EmoteComboModule,
     EmoteLimitModule,
+    WideEmoteLimitModule,
     EmoteTimeoutModule,
     EmotesModule,
     EmotesOnScreenModule,
