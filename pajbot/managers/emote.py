@@ -220,7 +220,7 @@ class EmoteManager:
                 "2": EmoteManager.twitch_emote_url(emote_id, "2.0"),
                 "4": EmoteManager.twitch_emote_url(emote_id, "3.0"),
             },
-            # Twitch emotes are always size-fixed
+            # Twitch doesn't provide the dimensions of emotes. However, subscriber emotes are always size-fixed
             max_width=112,
             max_height=112
         )

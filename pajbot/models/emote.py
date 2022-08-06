@@ -13,12 +13,12 @@ class Emote:
     :type id: str
     :var urls: Dict mapping size (e.g. "1", "2", or "4") to an URL depicting the emote
     :type urls: dict[str, str]
-    :ivar max_width: The maximum width the emote can have.
+    :ivar max_width: Width of the largest variant of the emote.
     :type max_width: int
-    :ivar max_height: The maximum height the emote can have.
+    :ivar max_height: Height of the largest variant of the emote.
     :type max_height: int"""
 
-    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int = 128, max_height: int = 128) -> None:
+    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int = 112, max_height: int = 112) -> None:
         self.code = code
         self.provider = provider
         if not isinstance(id, str):

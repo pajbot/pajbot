@@ -9,11 +9,12 @@ log = logging.getLogger(__name__)
 class WideEmoteLimitModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Wide Emote Limit"
-    DESCRIPTION = "Times out users who post too many wide 7TV or FFZ emotes"
+    DESCRIPTION = "Punishes users that post too many wide 7TV or FFZ emotes."
+    PAGE_DESCRIPTION = "Users who post too many wide 7TV or FFZ emotes will be punished by this module. Twitch & BTTV don't provide emote size data, so any wide emotes on provided by them will not be accounted for"
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="max_emotes",
+            key="max_wide_emotes",
             label="Maximum number of wide emotes that can be posted",
             type="number",
             required=True,
@@ -22,8 +23,8 @@ class WideEmoteLimitModule(BaseModule):
             constraints={"min_value": 1, "max_value": 167},
         ),
         ModuleSetting(
-            key="max_width",
-            label="Maximum width of emotes in pixels. Emotes exceeding this width will be counted as wide",
+            key="emote_max_width",
+            label="Maximum width of emotes in pixels. Emotes exceeding this width will be counted as wide. For example: Setting this value to 130 means any emote with 131 pixels width or more will be counted as wide",
             type="number",
             required=True,
             placeholder="",
@@ -48,8 +49,17 @@ class WideEmoteLimitModule(BaseModule):
             options=["Delete", "Timeout"],
         ),
         ModuleSetting(
-            key="timeout_duration",
-            label="Timeout duration (if moderation action is timeout)",
+            key="timeout_online",
+            label="Online timeout duration (if moderation action is timeout)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 1, "max_value": 1209600},
+        ),
+        ModuleSetting(
+            key="timeout_offline",
+            label="Offline Timeout duration (if moderation action is timeout)",
             type="number",
             required=True,
             placeholder="",
@@ -100,13 +110,13 @@ class WideEmoteLimitModule(BaseModule):
         if self.settings["allow_subs_to_bypass"] and source.subscriber is True:
             return True
 
-        exceeding_emotes = [i.emote.max_width for i in emote_instances if i.emote.max_width > self.settings["max_width"]]
-        if len(exceeding_emotes) > self.settings["max_emotes"]:
+        wide_emotes = [i.emote.max_width for i in emote_instances if i.emote.max_width > self.settings["max_width"]]
+        if len(wide_emotes) > self.settings["max_wide_emotes"]:
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
                 msg_id,
-                self.settings["timeout_duration"],
+                self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
                 self.settings["timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
                 once=True,
