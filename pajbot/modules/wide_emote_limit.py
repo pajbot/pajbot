@@ -105,7 +105,7 @@ class WideEmoteLimitModule(BaseModule):
             return True
 
         wide_emotes = [
-            i.emote.max_width for i in emote_instances if i.emote.max_width > self.settings["emote_max_width"]
+            1 for i in emote_instances if i.emote.max_width > self.settings["emote_max_width"]
         ]
         if len(wide_emotes) > self.settings["max_wide_emotes"]:
             self.bot.delete_or_timeout(
