@@ -50,7 +50,7 @@ class WideEmoteLimitModule(BaseModule):
         ),
         ModuleSetting(
             key="timeout_online",
-            label="Online timeout duration (if moderation action is timeout)",
+            label="Online timeout duration, 0 = off (if moderation action is timeout)",
             type="number",
             required=True,
             placeholder="",
@@ -59,7 +59,7 @@ class WideEmoteLimitModule(BaseModule):
         ),
         ModuleSetting(
             key="timeout_offline",
-            label="Offline Timeout duration (if moderation action is timeout)",
+            label="Offline Timeout duration, 0 = off (if moderation action is timeout)",
             type="number",
             required=True,
             placeholder="",
