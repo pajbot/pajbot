@@ -18,7 +18,7 @@ class Emote:
     :ivar max_height: Height of the largest variant of the emote.
     :type max_height: int"""
 
-    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int = 112, max_height: int = 112) -> None:
+    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int, max_height: int) -> None:
         self.code = code
         self.provider = provider
         if not isinstance(id, str):
