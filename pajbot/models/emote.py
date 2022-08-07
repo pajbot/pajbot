@@ -18,7 +18,9 @@ class Emote:
     :ivar max_height: Height of the largest variant of the emote.
     :type max_height: int"""
 
-    def __init__(self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int, max_height: int) -> None:
+    def __init__(
+        self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int, max_height: int
+    ) -> None:
         self.code = code
         self.provider = provider
         if not isinstance(id, str):
@@ -41,7 +43,14 @@ class Emote:
         return f"[{self.provider}] {self.code}"
 
     def jsonify(self) -> Dict[str, Any]:
-        return {"code": self.code, "provider": self.provider, "id": self.id, "urls": self.urls, "max_width": self.max_width, "max_height": self.max_height}
+        return {
+            "code": self.code,
+            "provider": self.provider,
+            "id": self.id,
+            "urls": self.urls,
+            "max_width": self.max_width,
+            "max_height": self.max_height,
+        }
 
     @staticmethod
     def from_json(json_data) -> Emote:
