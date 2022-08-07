@@ -21,3 +21,4 @@ def up(redis, bot):
         current_emote = json.loads(current_emote_json)
         current_emote["max_width"] = 112
         current_emote["max_height"] = 112
+        redis.set(current_emote_key, json.dumps(current_emote))
