@@ -95,14 +95,15 @@ class WideEmoteLimitModule(BaseModule):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
-        if self.bot.is_online and self.settings["timeout_online"] == 0:
-            return True
-
-        if not self.bot.is_online and self.settings["timeout_offline"] == 0:
-            return True
-
         if self.settings["allow_subs_to_bypass"] and source.subscriber is True:
             return True
+
+        if self.settings["moderation_action"] == "Timeout":
+            if self.bot.is_online and self.settings["timeout_online"] == 0:
+                return True
+
+            if not self.bot.is_online and self.settings["timeout_offline"] == 0:
+                return True
 
         wide_emotes = (1 for i in emote_instances if i.emote.max_width > self.settings["emote_max_width"])
         if sum(wide_emotes) > self.settings["max_wide_emotes"]:
