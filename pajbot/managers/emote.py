@@ -220,6 +220,9 @@ class EmoteManager:
                 "2": EmoteManager.twitch_emote_url(emote_id, "2.0"),
                 "4": EmoteManager.twitch_emote_url(emote_id, "3.0"),
             },
+            # Twitch gives no data regarding this, but it can be assumed that this will be the emote size most of the time
+            max_width=112,
+            max_height=112,
         )
 
     @staticmethod

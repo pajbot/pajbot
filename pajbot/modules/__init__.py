@@ -74,6 +74,7 @@ from pajbot.modules.trivia import TriviaModule
 from pajbot.modules.vanish import VanishModule
 from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
+from pajbot.modules.wide_emote_limit import WideEmoteLimitModule
 from pajbot.modules.wolfram import WolframModule
 
 available_modules = [
@@ -147,6 +148,7 @@ available_modules = [
     VanishModule,
     VIPRefreshModule,
     WarningModule,
+    WideEmoteLimitModule,
     WinDuelPointsQuestModule,
     WinDuelsQuestModule,
     WinRaffleQuestModule,
