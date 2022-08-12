@@ -14,14 +14,6 @@ class AsciiProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="enabled_by_stream_status",
-            label="Enable moderation of ASCII characters when the stream is:",
-            type="options",
-            required=True,
-            default="Offline and Online",
-            options=["Online Only", "Offline Only", "Offline and Online"],
-        ),
-        ModuleSetting(
             key="min_msg_length",
             label="Minimum message length to be considered bad",
             type="number",
@@ -39,13 +31,22 @@ class AsciiProtectionModule(BaseModule):
             options=["Delete", "Timeout"],
         ),
         ModuleSetting(
-            key="timeout_length",
-            label="Timeout length",
+            key="timeout_online",
+            label="Online timeout duration, 0 = off (if moderation action is timeout)",
             type="number",
             required=True,
-            placeholder="Timeout length in seconds",
+            placeholder="",
             default=120,
-            constraints={"min_value": 1, "max_value": 1209600},
+            constraints={"min_value": 0, "max_value": 1209600},
+        ),
+        ModuleSetting(
+            key="timeout_offline",
+            label="Offline Timeout duration, 0 = off (if moderation action is timeout)",
+            type="number",
+            required=True,
+            placeholder="",
+            default=60,
+            constraints={"min_value": 0, "max_value": 1209600},
         ),
         ModuleSetting(
             key="bypass_level",
@@ -86,14 +87,14 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def on_pubmsg(self, source, message, tags, **rest):
-        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return
-
-        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return
-
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
+
+        if self.settings["moderation_action"] == "Timeout":
+            if self.settings["timeout_online"] == 0 and self.bot.is_online:
+                return
+            if self.settings["timeout_offline"] == 0 and not self.bot.is_online:
+                return
 
         if len(message) <= self.settings["min_msg_length"]:
             return
