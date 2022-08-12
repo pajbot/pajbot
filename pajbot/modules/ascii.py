@@ -93,6 +93,7 @@ class AsciiProtectionModule(BaseModule):
         if self.settings["moderation_action"] == "Timeout":
             if self.settings["timeout_online"] == 0 and self.bot.is_online:
                 return
+
             if self.settings["timeout_offline"] == 0 and not self.bot.is_online:
                 return
 
@@ -102,12 +103,15 @@ class AsciiProtectionModule(BaseModule):
         if AsciiProtectionModule.check_message(message) is False:
             return
 
-        if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(tags["id"])
-        elif self.settings["disable_warnings"] is True and self.settings["moderation_action"] == "Timeout":
-            self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
-        else:
-            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
+        self.bot.delete_or_timeout(
+            source,
+            self.settings["moderation_action"],
+            tags["id"],
+            self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
+            self.settings["timeout_reason"],
+            disable_warnings=self.settings["disable_warnings"],
+            once=True,
+        )
 
         return False
 
