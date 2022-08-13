@@ -39,8 +39,17 @@ class AsciiProtectionModule(BaseModule):
             options=["Delete", "Timeout"],
         ),
         ModuleSetting(
-            key="timeout_length",
-            label="Timeout length",
+            key="timeout_online",
+            label="Online timeout duration (if moderation action is timeout)",
+            type="number",
+            required=True,
+            placeholder="Timeout length in seconds",
+            default=120,
+            constraints={"min_value": 1, "max_value": 1209600},
+        ),
+        ModuleSetting(
+            key="timeout_offline",
+            label="Offline Timeout duration (if moderation action is timeout)",
             type="number",
             required=True,
             placeholder="Timeout length in seconds",
@@ -101,12 +110,15 @@ class AsciiProtectionModule(BaseModule):
         if AsciiProtectionModule.check_message(message) is False:
             return
 
-        if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(tags["id"])
-        elif self.settings["disable_warnings"] is True and self.settings["moderation_action"] == "Timeout":
-            self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
-        else:
-            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
+        self.bot.delete_or_timeout(
+            source,
+            self.settings["moderation_action"],
+            tags["id"],
+            self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
+            self.settings["timeout_reason"],
+            disable_warnings=self.settings["disable_warnings"],
+            once=True,
+        )
 
         return False
 
