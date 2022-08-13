@@ -16,7 +16,7 @@ marshmallow==3.17.0
 psycopg2==2.9.3
 pylast==5.0.0
 pyOpenSSL==22.0.0 # for twisted.internet.ssl
-pytz==2022.1
+pytz==2022.2
 rapidfuzz==2.4.3
 ratelimiter==1.2.0.post0
 redis==4.3.4
