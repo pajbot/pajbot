@@ -95,13 +95,13 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def on_pubmsg(self, source, message, tags, **rest):
-        if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
-
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
             return
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
+            return
+
+        if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return
 
         if len(message) <= self.settings["min_msg_length"]:
