@@ -9,7 +9,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
 - Minor: Add "Wide Emote Limit" module (#2064)
-- Minor: Separate the timeout in the ASCII module into online & offline timeouts (#2072)
+- Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
 - Minor: Added response message for missing AppID in Wolfram module. (#2052)
 - Minor: Gracefully handle invalid User ID and User Login for the admin config field. (#2050)
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
