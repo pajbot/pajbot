@@ -15,7 +15,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Gracefully handle invalid User ID and User Login for the admin config field. (#2050)
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
-- Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003)
+- Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003, #2075)
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
