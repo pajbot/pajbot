@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules.base import BaseModule, ModuleSetting
@@ -40,8 +39,17 @@ class AsciiProtectionModule(BaseModule):
             options=["Delete", "Timeout"],
         ),
         ModuleSetting(
-            key="timeout_length",
-            label="Timeout length",
+            key="timeout_online",
+            label="Online timeout duration (if moderation action is timeout)",
+            type="number",
+            required=True,
+            placeholder="Timeout length in seconds",
+            default=120,
+            constraints={"min_value": 1, "max_value": 1209600},
+        ),
+        ModuleSetting(
+            key="timeout_offline",
+            label="Offline Timeout duration (if moderation action is timeout)",
             type="number",
             required=True,
             placeholder="Timeout length in seconds",
@@ -64,22 +72,6 @@ class AsciiProtectionModule(BaseModule):
             required=False,
             placeholder="",
             default="Too many ASCII characters",
-            constraints={},
-        ),
-        ModuleSetting(
-            key="whisper_offenders",
-            label="Send offenders a whisper explaining the timeout",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
-            key="whisper_timeout_reason",
-            label="Whisper Timeout Reason | Available arguments: {punishment}",
-            type="text",
-            required=False,
-            placeholder="",
-            default="You have been {punishment} because your message contained too many ascii characters.",
             constraints={},
         ),
         ModuleSetting(
@@ -118,19 +110,15 @@ class AsciiProtectionModule(BaseModule):
         if AsciiProtectionModule.check_message(message) is False:
             return
 
-        if self.settings["moderation_action"] == "Delete":
-            self.bot.delete_message(tags["id"])
-        elif self.settings["disable_warnings"] is True and self.settings["moderation_action"] == "Timeout":
-            self.bot.timeout(source, self.settings["timeout_length"], reason=self.settings["timeout_reason"])
-        else:
-            duration, punishment = self.bot.timeout_warn(
-                source, self.settings["timeout_length"], reason=self.settings["timeout_reason"]
-            )
-
-            """ We only send a notification to the user if he has spent more than
-            one hour watching the stream. """
-            if self.settings["whisper_offenders"] and duration > 0 and source.time_in_chat_online >= timedelta(hours=1):
-                self.bot.whisper(source, self.settings["whisper_timeout_reason"].format(punishment=punishment))
+        self.bot.delete_or_timeout(
+            source,
+            self.settings["moderation_action"],
+            tags["id"],
+            self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
+            self.settings["timeout_reason"],
+            disable_warnings=self.settings["disable_warnings"],
+            once=True,
+        )
 
         return False
 

@@ -12,9 +12,16 @@ class LiveAlertModule(BaseModule):
     NAME = "Live Alert"
     DESCRIPTION = "Prints a message in chat when the streamer goes live"
     CATEGORY = "Feature"
-    ENABLED_DEFAULT = False
     PARENT_MODULE = ChatAlertModule
     SETTINGS = [
+        ModuleSetting(
+            key="message_type",
+            label="Method to use when sending live messages",
+            type="options",
+            required=True,
+            default="announce",
+            options=["announce", "say", "me"],
+        ),
         ModuleSetting(
             key="live_message",
             label="Message to post when streamer goes live | Available arguments: {streamer}, {game}, {title}",
@@ -39,13 +46,16 @@ class LiveAlertModule(BaseModule):
         super().__init__(bot)
 
     def on_stream_start(self, **rest):
-        live_chat_message = self.settings["live_message"]
-        streamer = self.bot.streamer_display
-        game = self.bot.stream_manager.game
-        title = self.bot.stream_manager.title
-        self.bot.say(live_chat_message.format(streamer=streamer, game=game, title=title))
+        arguments = {
+            "streamer": self.bot.streamer_display,
+            "game": self.bot.stream_manager.game,
+            "title": self.bot.stream_manager.title,
+        }
+
+        self.bot.send_message(self.get_phrase("live_message", **arguments), method=self.settings["message_type"])
+
         if self.settings["extra_message"] != "":
-            self.bot.say(self.settings["extra_message"].format(streamer=streamer))
+            self.bot.send_message(self.get_phrase("extra_message", **arguments), method=self.settings["message_type"])
 
     def enable(self, bot):
         HandlerManager.add_handler("on_stream_start", self.on_stream_start)

@@ -25,7 +25,8 @@ Examples for valid substitutions: `$(user;1:points)` - get the user with the log
 `number_format` - format numbers using `,`  
 `or_else` - if the previous filter failed, return what is specified  
 `or_broadcaster`/`or_streamer` - if the previous filter failed, return the streamer's name  
-`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')
+`slice` - slice the string like a python3 string - see https://www.digitalocean.com/community/tutorials/how-to-index-and-slice-strings-in-python-3 (NOTE: We don't support what they call 'stride')  
+`randomchoice` - picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`
 
 #### Time Since
 
@@ -70,6 +71,15 @@ Customapis are generally a very powerful way of allowing pajbot to do more thing
 ### kvi - Key Value Integer
 
 `$(kvi:active_subs)` - int - Number of subscribers to the broadcaster.
+
+#### Modifying kvi counters
+
+`$(increasekvi:br_wins)` - int - Increase the value of the `br_wins` counter by 1.  
+`$(increasekvi:br_wins 5)` - int - Increase the value of the `br_wins` counter by 5.  
+`$(decreasekvi:br_wins)` - int - Decrease the value of the `br_wins` counter by 1.  
+`$(decreasekvi:br_wins 5)` - int - Decrease the value of the `br_wins` counter by 5.
+
+Both `increasekvi` and `decreasekvi` return the final value after the modification has been made.
 
 ### tb - Info about the bot instance
 

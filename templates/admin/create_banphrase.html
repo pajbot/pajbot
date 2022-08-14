@@ -54,13 +54,6 @@
             <label for="cb_warning">Use warnings</label>
         </div>
         <div class="field inline ui checkbox four wide">
-            <input type="checkbox" id="cb_notify" name="notify"
-                                                  {%- if not banphrase or banphrase.notify %}
-                                                  checked
-                                                  {% endif -%} />
-            <label for="cb_notify">Notify</label>
-        </div>
-        <div class="field inline ui checkbox four wide">
             <input type="checkbox" id="cb_case_sensitive" name="case_sensitive"
                                                   {%- if banphrase %}
                                                      {{ 'checked' if banphrase.case_sensitive else '' }}

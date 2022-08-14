@@ -30,7 +30,7 @@ from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EcountManager, EmoteManager, EpmManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.irc import IRCManager
-from pajbot.managers.kvi import KVIManager
+from pajbot.managers.kvi import KVIManager, parse_kvi_arguments
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.managers.user_ranks_refresh import UserRanksRefreshManager
@@ -60,6 +60,8 @@ log = logging.getLogger(__name__)
 
 SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
 
+RANDOMCHOICE_ARGUMENT_REGEX = re.compile(r"\"([ \w\.,]*)\"")
+
 
 class Bot:
     """
@@ -77,9 +79,15 @@ class Bot:
     def _load_admin(self, config: cfg.Config) -> Optional[UserBasics]:
         admin_id, admin_login = cfg.load_admin_id_or_login(config)
         if admin_id is not None:
-            return self.twitch_helix_api.require_user_basics_by_id(admin_id)
-        if admin_login is not None:
-            return self.twitch_helix_api.require_user_basics_by_login(admin_login)
+            admin = self.twitch_helix_api.get_user_basics_by_id(admin_id)
+            if admin is not None:
+                return admin
+            log.warning(f"Could not resolve admin user ID {admin_id}, verify your config!")
+        elif admin_login is not None:
+            admin = self.twitch_helix_api.get_user_basics_by_login(admin_login)
+            if admin is not None:
+                return admin
+            log.warning(f"Could not resolve admin user login {admin_login}, verify your config!")
         return None
 
     def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
@@ -250,6 +258,7 @@ class Bot:
         if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
         else:
+            log.info(f"Granting admin privileges to {admin.login} ({admin.id})")
             with DBManager.create_session_scope() as db_session:
                 admin_user = User.from_basics(db_session, admin)
                 admin_user.level = 2000
@@ -310,6 +319,28 @@ class Bot:
 
     def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
+
+    def increase_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
+        kvi_key, kvi_amount = parse_kvi_arguments(key)
+        if kvi_key is None:
+            return 0
+
+        try:
+            return self.kvi[kvi_key].inc(amount=kvi_amount)
+        except:
+            log.exception(f"Failed to increase '{kvi_key}' by {kvi_amount}")
+            return 0
+
+    def decrease_kvi_value(self, key: str, extra: Dict[Any, Any] = {}):
+        kvi_key, kvi_amount = parse_kvi_arguments(key)
+        if kvi_key is None:
+            return 0
+
+        try:
+            return self.kvi[kvi_key].dec(amount=kvi_amount)
+        except:
+            log.exception(f"Failed to decrease '{kvi_key}' by {kvi_amount}")
+            return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
         return self.twitter_manager.get_last_tweet(key)
@@ -463,6 +494,13 @@ class Bot:
         except:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
+
+    def get_randomchoice_value(self, key: str, extra: Dict[Any, Any] = {}) -> str:
+        arguments = RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
+        if not arguments:
+            return ""
+
+        return random.choice(arguments)
 
     def get_value(self, key, extra={}):
         if key in extra:
@@ -664,6 +702,29 @@ class Bot:
     def delete_message(self, msg_id: str) -> None:
         self.privmsg(f"/delete {msg_id}")
 
+    def delete_or_timeout(
+        self,
+        user: User,
+        moderation_action: str,
+        msg_id: str,
+        duration: int,
+        reason: Optional[str] = None,
+        disable_warnings: bool = False,
+        once: bool = False,
+    ) -> None:
+        if moderation_action not in ("Delete", "Timeout"):
+            raise ValueError("moderation_action must only equal Delete or Timeout!")
+
+        if moderation_action == "Delete":
+            if msg_id is None:
+                raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
+            self.delete_message(msg_id)
+        elif moderation_action == "Timeout":
+            if disable_warnings:
+                self.timeout(user, duration, reason, once)
+            else:
+                self.timeout_warn(user, duration, reason, once)
+
     def whisper(self, user: User, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             self.irc.whisper(user.login, message)
@@ -715,7 +776,7 @@ class Bot:
         elif method == "whisper":
             self.whisper(user, message)
         elif method == "me":
-            self.me(message)
+            self.me(f"@{user.name}, {message}")
         elif method == "reply":
             if event.type in ["action", "pubmsg"]:
                 msg_id = next(tag["value"] for tag in event.tags if tag["key"] == "id")
@@ -739,6 +800,8 @@ class Bot:
             self.say(message)
         elif method == "me":
             self.me(message)
+        elif method == "announce":
+            self.announce(message)
         else:
             log.warning("Unknown send_message method: %s", method)
 
@@ -787,6 +850,18 @@ class Bot:
 
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
+
+    def announce(self, message: str, channel: Optional[str] = None) -> None:
+        if message is None:
+            log.warning("message=None passed to Bot::announce()")
+            return
+
+        if self.silent:
+            return
+
+        message = utils.clean_up_message(message)
+
+        self.privmsg("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
 
     def connect(self) -> None:
         self.irc.start()

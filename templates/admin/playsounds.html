@@ -157,8 +157,8 @@
                 </td>
                 <td class="top aligned">
                     <div class="min-height-container volume-container">
-                        <input form="form-{{ playsound.name }}" type="hidden" name="volume">
-                        <div class="ui range volume-slider" data-initial="{{ playsound.volume }}"></div>
+                        <input form="form-{{ playsound.name }}" type="hidden" name="volume" value="{{ playsound.volume }}">
+                        <div class="ui slider volume-slider" data-initial="{{ playsound.volume }}"></div>
                         <div class="volume-label">{{ playsound.volume }}</div>
                     </div>
                 </td>
@@ -213,10 +213,10 @@
 {% endblock %}
 {% block footer %}
     {% include 'dependencies/howler.html' %}
-    {% assets 'base_js', 'range_slider_js', 'playsound_common_js', 'playsound_admin_js' %}
+    {% assets 'base_js', 'playsound_common_js', 'playsound_admin_js' %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
-    {% assets 'range_slider_css', 'playsound_admin_css' %}
+    {% assets 'playsound_admin_css' %}
         <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
 {% endblock %}

@@ -4,6 +4,27 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Removed fatoverlay and crazyoverlay. These were alternatives to `/clr/overlay/<number>`, e.g. `/clr/fatoverlay/<number>`. If you don't know what these are, or if you never used these, then this will not affect you. (#1946)
+- Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
+  This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
+  This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
+- Minor: Added message type options to the live alert module. (#2073)
+- Minor: Add "Wide Emote Limit" module (#2064)
+- Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
+- Minor: Added response message for missing AppID in Wolfram module. (#2052)
+- Minor: Gracefully handle invalid User ID and User Login for the admin config field. (#2050)
+- Minor: Added Top 100 emotes to `/stats`. (#1979)
+- Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
+- Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003, #2075)
+- Bugfix: Fix `announce` message type for commands and timers. (#1955)
+- Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
+- Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
+- Bugfix: Fix some website links not being routable due to an extra `/` after a dependency update. (#2051)
+
+## v1.61
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Security: Add integrity checks to javascript resources loaded from external CDNs. (#1813)
 - Security: Encode URI components in user search. (#1832)
 - Major: Full deletion of hsbet module along with hsbet-related quest modules; including table-related code and relevant tables. (#1864)
@@ -12,7 +33,13 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
 - Minor: Users with non-ASCII display names will now also have the login name displayed next to their display name in a lot of places, including chat messages and the website. (#1873)
+- Minor: Added `increasekvi` and `decreasekvi` variables. (#1913)
+- Minor: Add `$(randomchoice)` variable which picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`. (#1920)
+- Minor: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
 - Minor: Set the ignore, admincommands, dbmanage & debug modules as hidden due to their un-toggleable and un-configurable nature. (#1835)
+- Minor: Added the `announce` message type. (#1847)
+- Bugfix: Fix web commands list buttons not working. (#1893)
+- Bugfix: Fix `!add command` not working. (#1892)
 - Bugfix: Command response type now sticks properly when a command is edited through chat. (#1846)
 - Bugfix: Fix toggling of submodules. (#1824)
 - Bugfix: Fix banphrase API not properly returning matching banphrase. (#1823)
@@ -20,7 +47,10 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix errors in the API not properly returning a JSON response. (#1833)
 - Bugfix: Fix command "Check message" option not being modifiable. (#1845)
 - Bugfix: Work around no VIPs being refreshed through VIP refresh module in some cases. (#1862)
-- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843)
+- Dev: Add deprecation messages to `add_win` & `remove_win` functions. (#1941)
+- Dev: Use Fomantic-UI native slider instead of the semantic-ui-range library. (#1895)
+- Dev: Migrate `delete_or_timeout` function to main bot class. (#1872)
+- Dev: Moved javascript and css web dependencies into a dedicated folder in order to centralize importing and updates. (#1843, #1841, #1840, #1842, #1896, #1899, #1897, #1900, #1901, #1902, #1898, #1932)
 - Dev: Migrate from `flask_restful` to `marshmallow` for handling request parameter parsing. (#1809)
 
 ## v1.60

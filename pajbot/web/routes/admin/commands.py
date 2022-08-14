@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 def init(page) -> None:
-    @page.route("/commands/")
+    @page.route("/commands")
     @requires_level(500)
     def commands(**options) -> ResponseReturnValue:
         from pajbot.models.module import ModuleManager
@@ -128,7 +128,7 @@ def init(page) -> None:
             "run_through_banphrases": run_through_banphrases,
         }
 
-        valid_action_types = ["say", "me", "whisper", "reply"]
+        valid_action_types = ["say", "me", "announce", "whisper", "reply"]
         action_type = request.form.get("reply", "say").lower()
         if action_type not in valid_action_types:
             abort(403)
@@ -180,4 +180,4 @@ def init(page) -> None:
 
         SocketClientManager.send("command.update", {"command_id": command.id})
         session["command_created_id"] = command.id
-        return redirect("/admin/commands/", 303)
+        return redirect("/admin/commands", 303)

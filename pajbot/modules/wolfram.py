@@ -88,7 +88,12 @@ class WolframModule(BaseModule):
             location = self.config_location
 
         if not self.app_id:
-            # XXX: Possibly notify user of misconfigured bot?
+            bot.send_message_to_user(
+                source,
+                f"Missing Wolfram AppID in config.ini. Talk to the bot admin https://{bot.bot_domain}/contact BabyRage",
+                event,
+                method=self.settings["response_method"],
+            )
             return False
 
         try:

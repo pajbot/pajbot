@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def init(page) -> None:
-    @page.route("/banphrases/")
+    @page.route("/banphrases")
     @requires_level(500)
     def banphrases(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
@@ -46,7 +46,6 @@ def init(page) -> None:
                 name = request.form["name"].strip()
                 permanent = request.form.get("permanent", "off") == "on"
                 warning = request.form.get("warning", "off") == "on"
-                notify = request.form.get("notify", "off") == "on"
                 case_sensitive = request.form.get("case_sensitive", "off") == "on"
                 sub_immunity = request.form.get("sub_immunity", "off") == "on"
                 remove_accents = request.form.get("remove_accents", "off") == "on"
@@ -79,7 +78,6 @@ def init(page) -> None:
                 "phrase": phrase,
                 "permanent": permanent,
                 "warning": warning,
-                "notify": notify,
                 "case_sensitive": case_sensitive,
                 "sub_immunity": sub_immunity,
                 "remove_accents": remove_accents,
@@ -99,7 +97,7 @@ def init(page) -> None:
                         db_session.query(Banphrase).options(joinedload(Banphrase.data)).filter_by(id=id).one_or_none()
                     )
                     if banphrase is None:
-                        return redirect("/admin/banphrases/", 303)
+                        return redirect("/admin/banphrases", 303)
                     banphrase.set(**options)
                     banphrase.data.set(edited_by=options["edited_by"])
                     log.info(f"Updated banphrase ID {banphrase.id} by user ID {options['edited_by']}")
@@ -116,7 +114,7 @@ def init(page) -> None:
                 session["banphrase_created_id"] = banphrase.id
             else:
                 session["banphrase_edited_id"] = banphrase.id
-            return redirect("/admin/banphrases/", 303)
+            return redirect("/admin/banphrases", 303)
         else:
             return render_template("admin/create_banphrase.html")
 

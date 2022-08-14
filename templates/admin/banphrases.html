@@ -15,7 +15,6 @@
             <th>Phrase</th>
             <th class="collapsing"></th>
             <th class="collapsing">#&nbsp;uses</th>
-            <th class="collapsing">Notify</th>
             <th class="collapsing">Enabled</th>
             <th class="collapsing">Actions</th>
         </tr>
@@ -40,7 +39,6 @@
                     {%- if user.id == row.data.edited_by %}Last edited by
                         {% include 'user/username_link_nobadge.html' %}{% endif %}</td>
                 <td class="collapsing">{{ row.data.num_uses }}</td>
-                <td class="collapsing">{{ 'Yes' if row.notify else 'No' }}</td>
                 {% include 'admin/helper/row_action.html' %}
             </tr>
         {% endfor -%}

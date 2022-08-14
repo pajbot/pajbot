@@ -9,7 +9,7 @@ from flask.typing import ResponseReturnValue
 
 
 def init(page) -> None:
-    @page.route("/moderators/")
+    @page.route("/moderators")
     @requires_level(500)
     def moderators(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
