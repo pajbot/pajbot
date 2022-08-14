@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-from datetime import timedelta
 
 from pajbot.managers.db import Base, DBManager
 from pajbot.models.user import User
