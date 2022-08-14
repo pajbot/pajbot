@@ -26,7 +26,6 @@ class Banphrase(Base):
     length = Column(INT, nullable=False, default=300)
     permanent = Column(BOOLEAN, nullable=False, default=False)
     warning = Column(BOOLEAN, nullable=False, default=True)
-    notify = Column(BOOLEAN, nullable=False, default=True)
     case_sensitive = Column(BOOLEAN, nullable=False, default=False)
     remove_accents = Column(BOOLEAN, nullable=False, default=False)
     enabled = Column(BOOLEAN, nullable=False, default=True)
@@ -36,7 +35,6 @@ class Banphrase(Base):
     data = relationship("BanphraseData", uselist=False, cascade="", lazy="joined")
 
     DEFAULT_TIMEOUT_LENGTH = 300
-    DEFAULT_NOTIFY = True
 
     def __init__(self, **options):
         self.id = None
@@ -44,7 +42,6 @@ class Banphrase(Base):
         self.length = self.DEFAULT_TIMEOUT_LENGTH
         self.permanent = False
         self.warning = True
-        self.notify = self.DEFAULT_NOTIFY
         self.case_sensitive = False
         self.enabled = True
         self.operator = "contains"
@@ -60,7 +57,6 @@ class Banphrase(Base):
         self.length = options.get("length", self.length)
         self.permanent = options.get("permanent", self.permanent)
         self.warning = options.get("warning", self.warning)
-        self.notify = options.get("notify", self.notify)
         self.case_sensitive = options.get("case_sensitive", self.case_sensitive)
         self.sub_immunity = options.get("sub_immunity", self.sub_immunity)
         self.enabled = options.get("enabled", self.enabled)
@@ -366,8 +362,6 @@ class BanphraseManager:
         parser.add_argument("--length", dest="length", type=int)
         parser.add_argument("--time", dest="length", type=int)
         parser.add_argument("--duration", dest="length", type=int)
-        parser.add_argument("--notify", dest="notify", action="store_true")
-        parser.add_argument("--no-notify", dest="notify", action="store_false")
         parser.add_argument("--perma", dest="permanent", action="store_true")
         parser.add_argument("--no-perma", dest="permanent", action="store_false")
         parser.add_argument("--permanent", dest="permanent", action="store_true")
@@ -384,7 +378,6 @@ class BanphraseManager:
         parser.add_argument("--name", nargs="+", dest="name")
         parser.set_defaults(
             length=None,
-            notify=None,
             permanent=None,
             case_sensitive=None,
             warning=None,
