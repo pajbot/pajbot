@@ -52,7 +52,6 @@ class BanphraseModule(BaseModule):
         Multiple options available:
         --length LENGTH
         --perma/--no-perma
-        --notify/--no-notify
         """
 
         if message:
@@ -130,13 +129,6 @@ class BanphraseModule(BaseModule):
                             "Create a banphrase that permabans people",
                             chat="user:!add banphrase testman123 --perma\n" "bot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn't have said",
-                        ).parse(),
-                        CommandExample(
-                            None,
-                            "Create a banphrase that permabans people without a notification",
-                            chat="user:!add banphrase testman123 --perma --no-notify\n"
-                            "bot>user:Inserted your banphrase (ID: 83)",
-                            description="This creates a banphrase that permabans the user who types testman123 in chat",
                         ).parse(),
                         CommandExample(
                             None,

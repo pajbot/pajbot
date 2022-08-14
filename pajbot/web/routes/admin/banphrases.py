@@ -46,7 +46,6 @@ def init(page) -> None:
                 name = request.form["name"].strip()
                 permanent = request.form.get("permanent", "off") == "on"
                 warning = request.form.get("warning", "off") == "on"
-                notify = request.form.get("notify", "off") == "on"
                 case_sensitive = request.form.get("case_sensitive", "off") == "on"
                 sub_immunity = request.form.get("sub_immunity", "off") == "on"
                 remove_accents = request.form.get("remove_accents", "off") == "on"
@@ -79,7 +78,6 @@ def init(page) -> None:
                 "phrase": phrase,
                 "permanent": permanent,
                 "warning": warning,
-                "notify": notify,
                 "case_sensitive": case_sensitive,
                 "sub_immunity": sub_immunity,
                 "remove_accents": remove_accents,
