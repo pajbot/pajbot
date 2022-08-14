@@ -338,13 +338,6 @@ class BanphraseManager:
             # Finally, time out the user for whatever timeout length was required.
             self.bot.timeout(user, timeout_length, reason=reason)
 
-        if banphrase.notify is True and user.time_in_chat_online >= timedelta(hours=1):
-            # Notify the user why he has been timed out if the banphrase wishes it.
-            notification_msg = (
-                f'You have been {punishment} because your message matched the "{banphrase.name}" banphrase.'
-            )
-            self.bot.whisper(user, notification_msg)
-
     def check_message(self, message, user):
         matched_banphrase = None
         for banphrase in self.enabled_banphrases:
