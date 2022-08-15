@@ -376,21 +376,23 @@ class Dispatch:
             log.exception('Exception caught while trying to evaluate code: "%s"', message)
 
     @staticmethod
-    def check_sub(bot, source, message, event, args):
+    def checksub(bot, source, message, event, args):
         if message:
             input = message.split(" ")[0]
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 user = User.find_by_user_input(db_session, input)
 
                 if user is None:
-                    bot.say("That user was not found in the user database")
+                    bot.send_message_to_user(
+                        source, "That user was not found in the user database", event, method="reply"
+                    )
         else:
             user = source
 
         if user.subscriber:
-            bot.say(f"{user} is a subscriber PogChamp")
+            bot.send_message_to_user(source, f"{user} is a subscriber PogChamp", event, method="reply")
         else:
-            bot.say(f"{user} is not a subscriber FeelsBadMan")
+            bot.send_message_to_user(source, f"{user} is not a subscriber FeelsBadMan", event, method="reply")
 
     @staticmethod
     def remindme(bot, source, message, event, args):
