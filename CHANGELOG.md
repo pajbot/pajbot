@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
+- Minor: Added `name_and_login` user property, which displays a user's login name if their display name is not in English. (#1873)
 - Minor: Added message type options to the live alert module. (#2073)
 - Minor: Add "Wide Emote Limit" module (#2064)
 - Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
@@ -32,7 +33,6 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Full deletion of pleblist module; excluding table-related code. (#1814)
 - Major: Remove pleblist API endpoints. (#1809)
 - Major: Remove pleblist pages. (#1809)
-- Minor: Users with non-ASCII display names will now also have the login name displayed next to their display name in a lot of places, including chat messages and the website. (#1873)
 - Minor: Added `increasekvi` and `decreasekvi` variables. (#1913)
 - Minor: Add `$(randomchoice)` variable which picks a random value from the ones provided. Example: `$(randomchoice:"foo", "bar", "baz")`. (#1920)
 - Minor: Updated `me` method in `send_message_to_user` function to include user ping. (#1874)
