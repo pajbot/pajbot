@@ -330,10 +330,7 @@ class User(Base):
         # this is here so we can use the user object directly in string substitutions
         # e.g. bot.say(f"{user}, successfully done something!")
         # would substitute the user's display name in the place of {user}.
-        if self.name.lower() == self.login:
-            return self.name
-        else:
-            return f"{self.name} ({self.login})"
+        return self.name
 
     @staticmethod
     def _create(db_session: Session, id: str, login: str, name: str) -> User:
@@ -428,6 +425,16 @@ class User(Base):
     @staticmethod
     def find_by_id(db_session: Session, id: str) -> Optional[User]:
         return db_session.query(User).filter_by(id=id).one_or_none()
+
+    @property
+    def name_and_login(self) -> str:
+        """
+        Return the name and login of the user if the name contains non-ascii characters (e.g. korean hangul characters), and show only the name if they're the same with only casing changes (e.g. Pajlada and pajlada)
+        """
+        if self.name.lower() == self.login:
+            return self.name
+        else:
+            return f"{self.name} ({self.login})"
 
 
 class UserChannelInformation:
