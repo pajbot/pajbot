@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
