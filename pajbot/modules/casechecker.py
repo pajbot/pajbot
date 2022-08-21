@@ -202,7 +202,7 @@ class CaseCheckerModule(BaseModule):
 
         amount_uppercase = sum(1 for c in message if c.isupper())
         if self.settings["uppercase_timeouts"] is True:
-            if amount_lowercase >= self.settings["max_uppercase"]:
+            if amount_uppercase >= self.settings["max_uppercase"]:
                 if self.settings["disable_warnings"] is True:
                     self.bot.timeout(
                         source,
@@ -221,7 +221,7 @@ class CaseCheckerModule(BaseModule):
 
             if (
                 amount_uppercase >= self.settings["min_uppercase_characters"]
-                and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
+                and (amount_uppercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
             ):
                 if self.settings["disable_warnings"] is True:
                     self.bot.timeout(
