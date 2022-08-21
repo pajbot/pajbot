@@ -10,6 +10,7 @@ from pajbot.modules import BaseModule, ModuleSetting
 from sqlalchemy import and_, or_
 from sqlalchemy.sql.functions import count, func
 
+
 log = logging.getLogger(__name__)
 
 USERNAME_IN_MESSAGE_PATTERN = re.compile("[A-Za-z0-9_]{4,}")
@@ -169,20 +170,24 @@ class MassPingProtectionModule(BaseModule):
         # True if message is bad.
         return self.determine_timeout_length(message, source, emote_instances) > 0
 
-    def on_message(self, source, message, emote_instances, msg_id, **rest):
+    def on_message(self, source, message, emote_instances, msg_id, **rest) -> bool:
+        if self.bot is None:
+            log.warning("on_message failed because bot is None")
+            return False
+
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return True
 
         if self.settings["stream_status"] == "Online" and self.bot.is_online:
-            return
+            return True
 
         if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
-            return
+            return True
 
         timeout_duration = self.determine_timeout_length(message, source, emote_instances)
 
         if timeout_duration <= 0:
-            return
+            return True
 
         self.bot.delete_or_timeout(
             source,
