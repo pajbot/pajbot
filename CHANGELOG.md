@@ -17,6 +17,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
 - Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003, #2075)
+- Bugfix: Fix Case Checker module uppercase character check. It used the lowercase character count in certain places. (#2093)
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
