@@ -16,13 +16,6 @@ class MaxMsgLengthModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="disable_warnings",
-            label="Disable warning timeouts",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
             key="moderation_action",
             label="Moderation action to apply",
             type="options",
@@ -74,6 +67,13 @@ class MaxMsgLengthModule(BaseModule):
             placeholder="",
             default="Message too long",
             constraints={},
+        ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
         ),
     ]
 
