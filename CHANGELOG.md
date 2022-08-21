@@ -9,6 +9,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
 - Minor: Added `moderation_action` setting to the Case Checker module. This allows bot admins to choose whether to timeout or delete an offending user's message if they are found to have infringed on case-related chat rules. (#2088)
+- Minor: Added `disable_warnings` & `moderation_action` settings to the Massping module. This allows moderators to disable warning timeouts and choose whether to delete or timeout an offending user's message. (#2089)
 - Minor: Added message type options to the live alert module. (#2073)
 - Minor: Add "Wide Emote Limit" module (#2064)
 - Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
@@ -17,6 +18,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
 - Minor: Allow the command name for `Self timeout` module to be 1 characters long. (#1981)
 - Minor: Disable bot whispering timeout reasons since timeout reasons are visible through the Twitch website. (#2003, #2075)
+- Bugfix: Fix Case Checker module uppercase character check. It used the lowercase character count in certain places. (#2093)
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)

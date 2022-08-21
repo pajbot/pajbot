@@ -23,6 +23,14 @@ class MassPingProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
+            key="moderation_action",
+            label="Moderation action to apply",
+            type="options",
+            required=True,
+            default="Timeout",
+            options=["Timeout", "Delete"],
+        ),
+        ModuleSetting(
             key="stream_status",
             label="Allow mass pings while the stream is:",
             type="options",
@@ -74,6 +82,13 @@ class MassPingProtectionModule(BaseModule):
             placeholder="",
             default="Too many users pinged in message",
             constraints={},
+        ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
         ),
     ]
 
@@ -154,23 +169,34 @@ class MassPingProtectionModule(BaseModule):
         # True if message is bad.
         return self.determine_timeout_length(message, source, emote_instances) > 0
 
-    def on_message(self, source, message, emote_instances, **rest):
+    def on_message(self, source, message, emote_instances, msg_id, **rest) -> bool:
+        if self.bot is None:
+            log.warning("on_message failed because bot is None")
+            return False
+
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return True
 
         if self.settings["stream_status"] == "Online" and self.bot.is_online:
-            return
+            return True
 
         if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
-            return
+            return True
 
         timeout_duration = self.determine_timeout_length(message, source, emote_instances)
 
         if timeout_duration <= 0:
-            return
+            return True
 
-        self.bot.timeout(source, timeout_duration, reason=self.settings["timeout_reason"])
-
+        self.bot.delete_or_timeout(
+            source,
+            self.settings["moderation_action"],
+            msg_id,
+            timeout_duration,
+            self.settings["timeout_reason"],
+            disable_warnings=self.settings["disable_warnings"],
+            once=True,
+        )
         return False
 
     def enable(self, bot):
