@@ -24,13 +24,6 @@ class MassPingProtectionModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="disable_warnings",
-            label="Disable warning timeouts",
-            type="boolean",
-            required=True,
-            default=False,
-        ),
-        ModuleSetting(
             key="moderation_action",
             label="Moderation action to apply",
             type="options",
@@ -90,6 +83,13 @@ class MassPingProtectionModule(BaseModule):
             placeholder="",
             default="Too many users pinged in message",
             constraints={},
+        ),
+        ModuleSetting(
+            key="disable_warnings",
+            label="Disable warning timeouts",
+            type="boolean",
+            required=True,
+            default=False,
         ),
     ]
 
