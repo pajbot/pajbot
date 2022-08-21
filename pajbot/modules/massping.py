@@ -10,7 +10,6 @@ from pajbot.modules import BaseModule, ModuleSetting
 from sqlalchemy import and_, or_
 from sqlalchemy.sql.functions import count, func
 
-
 log = logging.getLogger(__name__)
 
 USERNAME_IN_MESSAGE_PATTERN = re.compile("[A-Za-z0-9_]{4,}")
