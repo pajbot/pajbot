@@ -8,7 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
-- Minor: Added `disable_warnings` & `moderation_action` settings to the Massping module. Not only does this enable bot admins to disable warning timeouts, but it also allows them to choose whether to delete or timeout an offending user's message. (#2089)
+- Minor: Added `disable_warnings` & `moderation_action` settings to the Massping module. This allows moderators to disable warning timeouts and and choose whether to delete or timeout an offending user's message. (#2089)
 - Minor: Added message type options to the live alert module. (#2073)
 - Minor: Add "Wide Emote Limit" module (#2064)
 - Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
