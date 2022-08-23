@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 log = logging.getLogger(__name__)
@@ -16,6 +15,14 @@ class MaxMsgLengthModule(BaseModule):
     DESCRIPTION = "Times out users who post messages that contain too many characters."
     CATEGORY = "Moderation"
     SETTINGS = [
+        ModuleSetting(
+            key="moderation_action",
+            label="Moderation action to apply",
+            type="options",
+            required=True,
+            default="Timeout",
+            options=["Timeout", "Delete"],
+        ),
         ModuleSetting(
             key="max_msg_length",
             label="Max message length (Online chat)",
@@ -70,17 +77,7 @@ class MaxMsgLengthModule(BaseModule):
         ),
     ]
 
-    def _perform_timeout(self, user: User, timeout_length: int, timeout_reason: str, disable_warnings: bool) -> None:
-        if self.bot is None:
-            log.warning("Bot is none in Maximum Message Length module _perform_timeout, this should never happen")
-            return
-
-        if disable_warnings is True:
-            self.bot.timeout(user, timeout_length, reason=timeout_reason)
-        else:
-            self.bot.timeout_warn(user, timeout_length, reason=timeout_reason)
-
-    def on_message(self, source, message, whisper, **rest):
+    def on_message(self, source, message, whisper, msg_id, **rest):
         if whisper:
             return
         if source.level >= self.settings["bypass_level"] or source.moderator:
@@ -88,20 +85,26 @@ class MaxMsgLengthModule(BaseModule):
 
         if self.bot.is_online:
             if len(message) > self.settings["max_msg_length"]:
-                self._perform_timeout(
+                self.bot.delete_or_timeout(
                     source,
+                    self.settings["moderation_action"],
+                    msg_id,
                     self.settings["timeout_length"],
                     self.settings["timeout_reason"],
-                    self.settings["disable_warnings"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
                 )
                 return False
         else:
             if len(message) > self.settings["max_msg_length_offline"]:
-                self._perform_timeout(
+                self.bot.delete_or_timeout(
                     source,
+                    self.settings["moderation_action"],
+                    msg_id,
                     self.settings["timeout_length"],
                     self.settings["timeout_reason"],
-                    self.settings["disable_warnings"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
                 )
                 return False
 

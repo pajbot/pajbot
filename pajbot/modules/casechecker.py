@@ -33,6 +33,14 @@ class CaseCheckerModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
+            key="moderation_action",
+            label="Moderation action to apply",
+            type="options",
+            required=True,
+            default="Timeout",
+            options=["Timeout", "Delete"],
+        ),
+        ModuleSetting(
             key="bypass_level",
             label="Level to bypass module",
             type="number",
@@ -146,7 +154,7 @@ class CaseCheckerModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source, message, **rest):
+    def on_message(self, source, message, msg_id, **rest):
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
@@ -164,79 +172,59 @@ class CaseCheckerModule(BaseModule):
         amount_lowercase = sum(1 for c in message if c.islower())
         if self.settings["lowercase_timeouts"] is True:
             if amount_lowercase >= self.settings["max_lowercase"]:
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
-                        source,
-                        self.settings["lowercase_timeout_duration"],
-                        reason=self.settings["lowercase_timeout_reason"],
-                        once=True,
-                    )
-                else:
-                    self.bot.timeout_warn(
-                        source,
-                        self.settings["lowercase_timeout_duration"],
-                        reason=self.settings["lowercase_timeout_reason"],
-                        once=True,
-                    )
+                self.bot.delete_or_timeout(
+                    source,
+                    self.settings["moderation_action"],
+                    msg_id,
+                    self.settings["lowercase_timeout_duration"],
+                    reason=self.settings["lowercase_timeout_reason"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
+                )
                 return False
 
             if (
                 amount_lowercase >= self.settings["min_lowercase_characters"]
                 and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]
             ):
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
-                        source,
-                        self.settings["lowercase_timeout_duration"],
-                        reason=self.settings["lowercase_timeout_reason"],
-                        once=True,
-                    )
-                else:
-                    self.bot.timeout_warn(
-                        source,
-                        self.settings["lowercase_timeout_duration"],
-                        reason=self.settings["lowercase_timeout_reason"],
-                        once=True,
-                    )
+                self.bot.delete_or_timeout(
+                    source,
+                    self.settings["moderation_action"],
+                    msg_id,
+                    self.settings["lowercase_timeout_duration"],
+                    reason=self.settings["lowercase_timeout_reason"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
+                )
                 return False
 
         amount_uppercase = sum(1 for c in message if c.isupper())
         if self.settings["uppercase_timeouts"] is True:
-            if amount_lowercase >= self.settings["max_uppercase"]:
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
-                        source,
-                        self.settings["uppercase_timeout_duration"],
-                        reason=self.settings["uppercase_timeout_reason"],
-                        once=True,
-                    )
-                else:
-                    self.bot.timeout_warn(
-                        source,
-                        self.settings["uppercase_timeout_duration"],
-                        reason=self.settings["uppercase_timeout_reason"],
-                        once=True,
-                    )
+            if amount_uppercase >= self.settings["max_uppercase"]:
+                self.bot.delete_or_timeout(
+                    source,
+                    self.settings["moderation_action"],
+                    msg_id,
+                    self.settings["uppercase_timeout_duration"],
+                    reason=self.settings["uppercase_timeout_reason"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
+                )
                 return False
 
             if (
                 amount_uppercase >= self.settings["min_uppercase_characters"]
-                and (amount_lowercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
+                and (amount_uppercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
             ):
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
-                        source,
-                        self.settings["uppercase_timeout_duration"],
-                        reason=self.settings["uppercase_timeout_reason"],
-                        once=True,
-                    )
-                else:
-                    self.bot.timeout_warn(
-                        source,
-                        self.settings["uppercase_timeout_duration"],
-                        reason=self.settings["uppercase_timeout_reason"],
-                        once=True,
-                    )
+                self.bot.delete_or_timeout(
+                    source,
+                    self.settings["moderation_action"],
+                    msg_id,
+                    self.settings["uppercase_timeout_duration"],
+                    reason=self.settings["uppercase_timeout_reason"],
+                    disable_warnings=self.settings["disable_warnings"],
+                    once=True,
+                )
                 return False
 
         return True
