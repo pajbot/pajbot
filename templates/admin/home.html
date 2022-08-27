@@ -25,9 +25,8 @@ function on_success(response, key)
             var $tr = $('<tr>');
             $tr.append($('<td>').text(follow.username));
             var $action_td = $('<td>');
-{%- if not session.user.level or session.user.level >= 1000 %}
             var $unfollow_btn = $('<button>', {
-                class: 'ui button',
+                class: 'ui {{ "disabled" if session.user.level < 1000 }} button',
             }).html('<i class="icon minus red"></i>Unfollow');
             $unfollow_btn.api({
                 action: 'twitter_unfollow',
@@ -46,7 +45,6 @@ function on_success(response, key)
                 },
             });
             $action_td.append($unfollow_btn);
-{% endif -%}
             $tr.append($action_td);
             rows.push($tr)
         })();
