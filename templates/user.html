@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% set active_page = 'user' %}
-{% block title %}Profile - {{ user }}{% endblock %}
+{% block title %}Profile - {{ user.name_verbose }}{% endblock %}
 {% block body %}
 <div id="userprofile">
     <h2>User Profile - {{ user }}</h2>
