@@ -8,7 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
-- Minor: Added `name_and_login` user property, which displays a user's login name if their display name is not in English. (#1873)
+- Minor: The website now shows the user's login name in addition to the display name if the user's name is not in Latin characters. (#1873)
 - Minor: Added `moderation_action` setting to the maxmsglength module. This allows moderators to choose whether to delete or timeout an offending user's message. (#2090)
 - Minor: Added `moderation_action` setting to the Case Checker module. This allows bot admins to choose whether to timeout or delete an offending user's message if they are found to have infringed on case-related chat rules. (#2088)
 - Minor: Added `disable_warnings` & `moderation_action` settings to the Massping module. This allows moderators to disable warning timeouts and choose whether to delete or timeout an offending user's message. (#2089)
