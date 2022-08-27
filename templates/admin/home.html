@@ -25,8 +25,8 @@ function on_success(response, key)
             var $tr = $('<tr>');
             $tr.append($('<td>').text(follow.username));
             var $action_td = $('<td>');
-            var $unfollow_btn = $('<button {{ "disabled" if session.user.level < 1000 }}>', {
-                class: 'ui button',
+            var $unfollow_btn = $('<button>', {
+                class: 'ui {{ "disabled" if session.user.level < 1000 }} button',
             }).html('<i class="icon minus red"></i>Unfollow');
             $unfollow_btn.api({
                 action: 'twitter_unfollow',
