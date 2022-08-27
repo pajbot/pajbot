@@ -426,6 +426,19 @@ class User(Base):
     def find_by_id(db_session: Session, id: str) -> Optional[User]:
         return db_session.query(User).filter_by(id=id).one_or_none()
 
+    @property
+    def name_verbose(self) -> str:
+        """
+        Return the user's display name
+        If the display name contains non-ascii characters (e.g. korean hangul characters), also return the user's login name
+        """
+
+        if self.name.lower() == self.login:
+            return self.name
+
+        # Username contained some non-ascii character, include login name
+        return f"{self.name} ({self.login})"
+
 
 class UserChannelInformation:
     """UserChannelInformation represents part of the information fetched
