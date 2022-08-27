@@ -432,10 +432,12 @@ class User(Base):
         Return the user's display name
         If the display name contains non-ascii characters (e.g. korean hangul characters), also return the user's login name
         """
+
         if self.name.lower() == self.login:
             return self.name
-        else:
-            return f"{self.name} ({self.login})"
+
+        # Username contained some non-ascii character, include login name
+        return f"{self.name} ({self.login})"
 
 
 class UserChannelInformation:
