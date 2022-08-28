@@ -4,7 +4,12 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.62
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Breaking: Removed fatoverlay and crazyoverlay. These were alternatives to `/clr/overlay/<number>`, e.g. `/clr/fatoverlay/<number>`. If you don't know what these are, or if you never used these, then this will not affect you. (#1946)
+- Potentially Breaking: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset. (#2072)
 - Major: Potentially breaking, filters in commands are now applied even if the result of a substitution returns an error. (#1973)  
   This makes all `or_...` filters a lot more useful, but it may mean that some other filters will need some additional error handling.  
   This will require some experimentation, reporting errors in our GitHub issues for this is greatly appreciated.
@@ -13,8 +18,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added `moderation_action` setting to the Case Checker module. This allows bot admins to choose whether to timeout or delete an offending user's message if they are found to have infringed on case-related chat rules. (#2088)
 - Minor: Added `disable_warnings` & `moderation_action` settings to the Massping module. This allows moderators to disable warning timeouts and choose whether to delete or timeout an offending user's message. (#2089)
 - Minor: Added message type options to the live alert module. (#2073)
-- Minor: Add "Wide Emote Limit" module (#2064)
-- Minor: Separate the timeout in the ASCII module into online & offline timeouts. Previously configured timeout durations will get reset (#2072)
+- Minor: Add "Wide Emote Limit" module. (#2064)
 - Minor: Added response message for missing AppID in Wolfram module. (#2052)
 - Minor: Gracefully handle invalid User ID and User Login for the admin config field. (#2050)
 - Minor: Added Top 100 emotes to `/stats`. (#1979)
@@ -24,7 +28,6 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Fix `announce` message type for commands and timers. (#1955)
 - Bugfix: Fix missing `--announce` command argument for changing the reply type. (#1974)
 - Bugfix: Fix playsounds sometimes not being editable from the admin panel. (#1972)
-- Bugfix: Fix some website links not being routable due to an extra `/` after a dependency update. (#2051)
 
 ## v1.61
 
