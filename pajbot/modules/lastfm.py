@@ -102,7 +102,11 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, source, event, **rest):
+    def song(self, source, event, **rest) -> bool:
+        if self.bot is None:
+            log.warning("LastfmModule.song failed because bot is None")
+            return False
+
         if self.settings["online_only"] and not self.bot.is_online:
             return False
 
@@ -134,3 +138,5 @@ class LastfmModule(BaseModule):
             log.error("LastFm username not found")
         except IndexError:
             self.bot.send_message_to_user(source, self.get_phrase("cannot_fetch_song"), event, method="reply")
+
+        return True
