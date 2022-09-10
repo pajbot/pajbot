@@ -102,7 +102,7 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, bot, source, **rest):
+    def song(self, source, event, **rest):
         if self.settings["online_only"] and not self.bot.is_online:
             return False
 
@@ -124,16 +124,13 @@ class LastfmModule(BaseModule):
             network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
             user = network.get_user(lastfmname)
             currentTrack = user.get_now_playing()
+            payload = {"streamer": self.bot.streamer_display, "song": currentTrack, "source": "{source}"}
 
             if currentTrack is None:
-                bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
+                self.bot.send_message_to_user(source, self.get_phrase("no_song", **payload), event, method="reply")
             else:
-                bot.me(
-                    self.settings["current_song"].format(
-                        source=source, streamer=self.bot.streamer_display, song=currentTrack
-                    )
-                )
+                self.bot.send_message_to_user(source, self.get_phrase("current_song", **payload), event, method="reply")
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            bot.me(self.settings["cannot_fetch_song"].format(source=source))
+            self.bot.send_message_to_user(source, self.get_phrase("cannot_fetch_song"), event, method="reply")
