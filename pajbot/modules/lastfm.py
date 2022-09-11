@@ -93,7 +93,7 @@ class LastfmModule(BaseModule):
                     None,
                     "Check the current song",
                     chat="user:!song\n"
-                    f"@pajlada bot: {self.settings['current_song'].format(streamer=StreamHelper.get_streamer(), song='Adele - Hello')}",
+                    f"bot: @pajlada {self.settings['current_song'].format(streamer=StreamHelper.get_streamer(), song='Adele - Hello')}",
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
