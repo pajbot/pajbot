@@ -31,27 +31,27 @@ class LastfmModule(BaseModule):
         ),
         ModuleSetting(
             key="no_song",
-            label="Message to send when no song is playing | Available arguments: {source}, {streamer}",
+            label="Message to send when no song is playing | Available arguments: {streamer}",
             type="text",
             required=True,
-            placeholder="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
-            default="{source}, {streamer} isn't playing any music right now... FeelsBadMan",
+            placeholder="{streamer} isn't playing any music right now... FeelsBadMan",
+            default="{streamer} isn't playing any music right now... FeelsBadMan",
         ),
         ModuleSetting(
             key="current_song",
-            label="Message to send when a song is playing | Available arguments: {source}, {streamer}, {song}",
+            label="Message to send when a song is playing | Available arguments: {streamer}, {song}",
             type="text",
             required=True,
-            placeholder="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
-            default="{source}, Current song is 🎵 🎶 {song} 🎶 🎵",
+            placeholder="Current song is 🎵 🎶 {song} 🎶 🎵",
+            default="Current song is 🎵 🎶 {song} 🎶 🎵",
         ),
         ModuleSetting(
             key="cannot_fetch_song",
-            label="Message to send when unable to fetch the song | Availably arguments: {source}",
+            label="Message to send when unable to fetch the song",
             type="text",
             required=True,
-            placeholder="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
-            default="{source}, I'm having trouble fetching the song name... Please try again FeelsBadMan",
+            placeholder="I'm having trouble fetching the song name... Please try again FeelsBadMan",
+            default="I'm having trouble fetching the song name... Please try again FeelsBadMan",
         ),
         ModuleSetting(
             key="global_cd",
@@ -93,12 +93,7 @@ class LastfmModule(BaseModule):
                     None,
                     "Check the current song",
                     chat="user:!song\n"
-                    "bot: "
-                    + self.settings["current_song"].format(
-                        source="pajlada",
-                        streamer=StreamHelper.get_streamer(),
-                        song="Adele - Hello",
-                    ),
+                    f"bot: @pajlada {self.settings['current_song'].format(streamer=StreamHelper.get_streamer(), song='Adele - Hello')}",
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
@@ -107,7 +102,11 @@ class LastfmModule(BaseModule):
         self.commands["nowplaying"] = self.commands["song"]
         self.commands["playing"] = self.commands["song"]
 
-    def song(self, bot, source, **rest):
+    def song(self, source, event, **rest) -> bool:
+        if self.bot is None:
+            log.warning("LastfmModule.song failed because bot is None")
+            return False
+
         if self.settings["online_only"] and not self.bot.is_online:
             return False
 
@@ -129,16 +128,15 @@ class LastfmModule(BaseModule):
             network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
             user = network.get_user(lastfmname)
             currentTrack = user.get_now_playing()
+            payload = {"streamer": self.bot.streamer_display, "song": currentTrack, "source": "{source}"}
 
             if currentTrack is None:
-                bot.me(self.settings["no_song"].format(source=source, streamer=self.bot.streamer_display))
+                self.bot.send_message_to_user(source, self.get_phrase("no_song", **payload), event, method="reply")
             else:
-                bot.me(
-                    self.settings["current_song"].format(
-                        source=source, streamer=self.bot.streamer_display, song=currentTrack
-                    )
-                )
+                self.bot.send_message_to_user(source, self.get_phrase("current_song", **payload), event, method="reply")
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            bot.me(self.settings["cannot_fetch_song"].format(source=source))
+            self.bot.send_message_to_user(source, self.get_phrase("cannot_fetch_song"), event, method="reply")
+
+        return True
