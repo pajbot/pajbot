@@ -83,6 +83,7 @@ class LastfmModule(BaseModule):
     def load_commands(self, **options):
         # TODO: Aliases should be set in settings?
         #       This way, it can be run alongside other modules
+        example_params = {"streamer": StreamHelper.get_streamer(), "song": "Adele - Hello"}
         self.commands["song"] = Command.raw_command(
             self.song,
             delay_all=self.settings["global_cd"],
@@ -92,8 +93,7 @@ class LastfmModule(BaseModule):
                 CommandExample(
                     None,
                     "Check the current song",
-                    chat="user:!song\n"
-                    f"bot: @pajlada {self.settings['current_song'].format(streamer=StreamHelper.get_streamer(), song='Adele - Hello')}",
+                    chat="user:!song\n" f"bot: @pajlada {self.get_phrase('current_song', **example_params)}",
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
