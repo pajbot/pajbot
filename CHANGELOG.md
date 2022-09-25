@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Migrated LastFM module to the `reply` response type. (#2118)
+- Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 
 ## v1.62
 
