@@ -882,7 +882,7 @@ class Bot:
             # once they are a founder they are always be a founder, regardless if they are a sub or not.
             if not source.founder:
                 source.founder = "founder" in badges
-            source.vip = "vip" in badges
+            source.vip = "vip" in badges or "vip" in tags
 
         if not whisper and source.banned:
             self.ban(
