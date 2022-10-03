@@ -860,6 +860,9 @@ class Bot:
         if self.silent:
             return
 
+        if channel_id is None:
+            channel_id = self.streamer.id
+
         message = utils.clean_up_message(message)
 
         try:
