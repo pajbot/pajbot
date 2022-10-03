@@ -615,4 +615,4 @@ class TwitchHelixAPI(BaseTwitchAPI):
             json=body,
         )
 
-        return response.status_code
+        return response.status_code == 204
