@@ -48,6 +48,7 @@ from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
+
 from requests import HTTPError
 
 import irc.client
