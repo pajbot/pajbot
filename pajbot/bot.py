@@ -48,6 +48,7 @@ from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
+from requests import HTTPError
 
 import irc.client
 import requests
@@ -851,7 +852,7 @@ class Bot:
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def announce(self, message: str, channel: Optional[str] = None) -> None:
+    def announce(self, message: str, channel_id: str = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::announce()")
             return
@@ -861,7 +862,19 @@ class Bot:
 
         message = utils.clean_up_message(message)
 
-        self.privmsg("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
+        try:
+            self.twitch_helix_api.send_chat_announcement(
+                self.streamer.id, {"message": message[: CHARACTER_LIMIT - 10]}, self.bot_token_manager, channel_id=channel_id
+            )
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error("Failed to post announcement - auth error")
+                self.send_message("Error: The bot must be re-authed in order to post announcements.")
+            elif e.response.status_code == 403:
+                log.error("Failed to post announcement - bot is not a moderator")
+                self.send_message("Error: The bot must be a moderator in order to post announcements.")
+            else:
+                self.send_message("Failed to post announcement! Please try again.")
 
     def connect(self) -> None:
         self.irc.start()
