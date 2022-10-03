@@ -17,7 +17,7 @@ psycopg2==2.9.3
 pylast==5.0.0
 pyOpenSSL==22.1.0 # for twisted.internet.ssl
 pytz==2022.4
-rapidfuzz==2.10.3
+rapidfuzz==2.11.0
 ratelimiter==1.2.0.post0
 redis==4.3.4
 regex==2022.9.13
