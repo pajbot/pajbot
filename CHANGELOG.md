@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Breaking: Migrated IRC commands to relevant Helix endpoints. This will require re-auth using the `bot_login` endpoint in order to utilize the required functions --> Announce.
+- Breaking: Migrated IRC commands to relevant Helix endpoints. This will require re-auth using the `bot_login` endpoint in order to utilize the required functions --> Announce. (#2141)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 
 ## v1.62
