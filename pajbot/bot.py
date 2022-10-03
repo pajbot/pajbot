@@ -49,10 +49,9 @@ from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 
-from requests import HTTPError
-
 import irc.client
 import requests
+from requests import HTTPError
 from pytz import timezone
 
 if TYPE_CHECKING:
