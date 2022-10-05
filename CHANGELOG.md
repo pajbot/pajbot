@@ -2,9 +2,12 @@
 
 ## Unversioned
 
+Due to Twitch deprecating the use of **most** IRC commands, we are now using the Helix calls. It's no longer possible to use said these IRC commands within pajbot, instead the bot **must** be re-authenticated in order to grant new permissions to utilize these Helix functions: `moderator:manage:announcements`.
+In short: The bot owner must re-authenticate with the `/bot_login` endpoint for the announcement function to work. 
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Breaking: Migrated IRC commands to relevant Helix endpoints. This will require re-auth using the `bot_login` endpoint in order to utilize the required functions --> Announce. (#2141)
+- Breaking: Migrated IRC commands to relevant Helix endpoints: Announce. (#2141)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 
 ## v1.62
