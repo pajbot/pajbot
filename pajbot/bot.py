@@ -852,7 +852,7 @@ class Bot:
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def announce(self, message: str, channel_id: str = None) -> None:
+    def announce(self, message: str, channel_id: Optional[str] = None, color: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::announce()")
             return

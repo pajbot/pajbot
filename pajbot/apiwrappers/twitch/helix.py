@@ -603,7 +603,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
-    def send_chat_announcement(self, bot_id: str, body: Dict[str, str], authorization, channel_id: str = None):
+    def send_chat_announcement(self, channel_id: str, bot_id: str, body: Dict[str, Optional[str]], authorization):
         if not body:
             log.error("Invalid call to send_chat_announcement, missing query parameter. message must be specified")
             return False
