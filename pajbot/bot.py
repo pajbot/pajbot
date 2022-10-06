@@ -870,7 +870,7 @@ class Bot:
                 channel_id,
                 self.bot_user.id,
                 {"message": message[: CHARACTER_LIMIT - 10], "color": color},
-                self.bot_token_manager
+                self.bot_token_manager,
             )
         except HTTPError as e:
             if e.response.status_code == 401:
