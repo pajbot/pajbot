@@ -606,9 +606,6 @@ class TwitchHelixAPI(BaseTwitchAPI):
     def send_chat_announcement(
         self, channel_id: str, bot_id: str, body: Dict[str, Optional[str]], authorization
     ) -> None:
-        if not body:
-            log.error("Invalid call to send_chat_announcement, missing query parameter. message must be specified")
-            return False
 
         self.post(
             "/chat/announcements",
