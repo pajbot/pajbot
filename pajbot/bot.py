@@ -880,6 +880,7 @@ class Bot:
                 log.error("Failed to post announcement - bot is not a moderator")
                 self.send_message("Error: The bot must be a moderator in order to post announcements.")
             else:
+                log.error("Failed to post announcement.")
                 self.send_message("Failed to post announcement! Please try again.")
 
     def connect(self) -> None:
