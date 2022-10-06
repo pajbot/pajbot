@@ -608,11 +608,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
             log.error("Invalid call to send_chat_announcement, missing query parameter. message must be specified")
             return False
 
-        response = self.post(
+        self.post(
             "/chat/announcements",
             {"broadcaster_id": channel_id, "moderator_id": bot_id},
             authorization=authorization,
             json=body,
         )
 
-        return response.status_code == 204
+        return
