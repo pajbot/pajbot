@@ -634,3 +634,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         in authorization.
         An exception is raised if there are any invalid or missing details."""
         self.delete_chat_messages(channel_id, bot_id, authorization, message_id)
+
+    def delete_all_messages(self, channel_id: str, bot_id: str, authorization) -> None:
+        """Deletes all messages from the chatroom.
+        channel_id and bot_id are required fields. bot_id must match the user ID in authorization."""
+        self.delete_chat_messages(channel_id, bot_id, authorization)
