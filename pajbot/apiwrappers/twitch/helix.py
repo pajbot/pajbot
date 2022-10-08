@@ -608,7 +608,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         channel_id, bot_id and message are all required fields. bot_id must match the user ID
         in authorization. message is not required to be under 500 chars, but will be truncated should it exceed.
         An exception is raised if there are any invalid or missing details."""
-        self.post(
+        self.post_204(
             "/chat/announcements",
             {"broadcaster_id": channel_id, "moderator_id": bot_id},
             authorization=authorization,
