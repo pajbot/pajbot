@@ -614,5 +614,3 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
             json={"message": message},
         )
-
-        return
