@@ -2,6 +2,9 @@
 
 ## Unversioned
 
+Due to Twitch deprecating most IRC commands, we are now migrating to the equivalent Helix calls.
+For your bot to work after these changes, the bot owner **must** re-authenticate the bot with the `/bot_login` endpoint and the streamer **must** re-authenticate with the `/streamer_login` endpoint.
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 ## v1.62
