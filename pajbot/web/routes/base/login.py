@@ -45,7 +45,6 @@ def init(app):
         "whispers:edit",
         "channel:read:subscriptions",
         "clips:edit",
-        "moderator:manage:announcements",
     ]
 
     streamer_scopes = ["channel:read:subscriptions", "channel:manage:broadcast"]
