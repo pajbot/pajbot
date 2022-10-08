@@ -874,14 +874,12 @@ class Bot:
             )
         except HTTPError as e:
             if e.response.status_code == 401:
-                log.error("Failed to post announcement - auth error")
+                log.error(f"Failed to post announcement, unauthorized: {e} - {e.response.text}")
                 self.send_message("Error: The bot must be re-authed in order to post announcements.")
             elif e.response.status_code == 403:
-                log.error("Failed to post announcement - bot is not a moderator")
-                self.send_message("Error: The bot must be a moderator in order to post announcements.")
+                log.error(f"Failed to post announcement - bot is not a moderator: {e} - {e.response.text}")
             else:
-                log.error("Failed to post announcement.")
-                self.send_message("Failed to post announcement! Please try again.")
+                log.error(f"Failed to post announcement: {e} - {e.response.text}")
 
     def connect(self) -> None:
         self.irc.start()
