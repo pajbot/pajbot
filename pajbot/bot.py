@@ -51,8 +51,8 @@ from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 
 import irc.client
 import requests
-from requests import HTTPError
 from pytz import timezone
+from requests import HTTPError
 
 if TYPE_CHECKING:
     import argparse
