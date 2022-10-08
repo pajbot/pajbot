@@ -7,6 +7,7 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Migrated Announce from IRC to Helix. (#2141)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 
 ## v1.62

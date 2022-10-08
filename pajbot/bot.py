@@ -52,6 +52,7 @@ from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 import irc.client
 import requests
 from pytz import timezone
+from requests import HTTPError
 
 if TYPE_CHECKING:
     import argparse
@@ -851,7 +852,7 @@ class Bot:
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def announce(self, message: str, channel: Optional[str] = None) -> None:
+    def announce(self, message: str, channel_id: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::announce()")
             return
@@ -859,9 +860,26 @@ class Bot:
         if self.silent:
             return
 
+        if channel_id is None:
+            channel_id = self.streamer.id
+
         message = utils.clean_up_message(message)
 
-        self.privmsg("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
+        try:
+            self.twitch_helix_api.send_chat_announcement(
+                channel_id,
+                self.bot_user.id,
+                message,
+                self.bot_token_manager,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to post announcement, unauthorized: {e} - {e.response.text}")
+                self.send_message("Error: The bot must be re-authed in order to post announcements.")
+            elif e.response.status_code == 403:
+                log.error(f"Failed to post announcement - bot is not a moderator: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to post announcement: {e} - {e.response.text}")
 
     def connect(self) -> None:
         self.irc.start()
