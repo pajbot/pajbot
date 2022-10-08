@@ -627,3 +627,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
             {"broadcaster_id": channel_id, "moderator_id": bot_id, "message_id": message_id},
             authorization=authorization,
         )
+
+    def delete_single_message(self, channel_id: str, bot_id: str, authorization, message_id: str) -> None:
+        """Deletes a single message from the chatroom using the message_id.
+        channel_id, bot_id and message_id are all required fields. bot_id must match the user ID
+        in authorization.
+        An exception is raised if there are any invalid or missing details."""
+        self.delete_chat_messages(channel_id, bot_id, authorization, message_id)
