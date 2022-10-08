@@ -603,9 +603,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
-    def send_chat_announcement(
-        self, channel_id: str, bot_id: str, message: str, authorization, color: Optional[str] = None
-    ) -> None:
+    def send_chat_announcement(self, channel_id: str, bot_id: str, message: str, authorization) -> None:
         """Posts the message and colour provided in order to post an announcement.
         channel_id, bot_id and message are all required fields. bot_id must match the user ID
         in authorization. message is not required to be under 500 chars, but will be truncated should it exceed.
@@ -614,7 +612,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             "/chat/announcements",
             {"broadcaster_id": channel_id, "moderator_id": bot_id},
             authorization=authorization,
-            json={"message": message, "color": color},
+            json={"message": message},
         )
 
         return

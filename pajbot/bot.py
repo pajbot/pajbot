@@ -852,7 +852,7 @@ class Bot:
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def announce(self, message: str, channel_id: Optional[str] = None, color: Optional[str] = None) -> None:
+    def announce(self, message: str, channel_id: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::announce()")
             return
@@ -871,7 +871,6 @@ class Bot:
                 self.bot_user.id,
                 message,
                 self.bot_token_manager,
-                color,
             )
         except HTTPError as e:
             if e.response.status_code == 401:
