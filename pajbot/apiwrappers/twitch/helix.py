@@ -604,7 +604,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         )
 
     def send_chat_announcement(
-        self, channel_id: str, bot_id: str, body: Dict[str, Optional[str]], authorization
+        self, channel_id: str, bot_id: str, message: str, authorization, color: Optional[str] = None
     ) -> None:
         """Posts the message and colour provided in order to post an announcement.
         channel_id, bot_id and message are all required fields. bot_id must match the user ID
@@ -614,7 +614,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             "/chat/announcements",
             {"broadcaster_id": channel_id, "moderator_id": bot_id},
             authorization=authorization,
-            json=body,
+            json={"message": message, "color": color},
         )
 
         return

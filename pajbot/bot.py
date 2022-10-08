@@ -869,8 +869,9 @@ class Bot:
             self.twitch_helix_api.send_chat_announcement(
                 channel_id,
                 self.bot_user.id,
-                {"message": message[: CHARACTER_LIMIT - 10], "color": color},
+                message,
                 self.bot_token_manager,
+                color,
             )
         except HTTPError as e:
             if e.response.status_code == 401:
