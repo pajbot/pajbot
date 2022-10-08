@@ -124,3 +124,8 @@ class BaseAPI:
         self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
     ) -> Response:
         return self.request("PATCH", endpoint, params, headers, json, **request_options)
+
+    def delete(
+        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    ) -> Response:
+        return self.request("DELETE", endpoint, params, headers, json, **request_options)

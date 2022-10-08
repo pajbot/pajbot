@@ -90,3 +90,6 @@ class BaseTwitchAPI(BaseAPI):
 
     def patch(self, endpoint, params=None, headers=None, authorization=None, json=None):
         return self.request("PATCH", endpoint, params, headers, authorization, json)
+
+    def delete(self, endpoint, params=None, headers=None, authorization=None, json=None):
+        return self.request("DELETE", endpoint, params, headers, authorization, json)
