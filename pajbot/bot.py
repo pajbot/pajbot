@@ -879,9 +879,6 @@ class Bot:
             elif e.response.status_code == 403:
                 log.error("Failed to post announcement - bot is not a moderator")
                 self.send_message("Error: The bot must be a moderator in order to post announcements.")
-            elif e.response.status_code == 400:
-                log.error("Failed to post announcement - the specified color is not valid.")
-                self.send_message("Error: The color specified for the announcement is not valid.")
             else:
                 log.error("Failed to post announcement.")
                 self.send_message("Failed to post announcement! Please try again.")
