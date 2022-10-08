@@ -45,9 +45,20 @@ def init(app):
         "whispers:edit",
         "channel:read:subscriptions",
         "clips:edit",
+        "moderator:manage:announcements",  # For sending Announcements
+        "user:manage:whispers",  # For sending whispers
+        "moderator:manage:banned_users",  # For banning, timing out, and unbanning users
+        "moderator:manage:chat_messages",  # For deleting messages
+        "moderator:manage:chat_settings",  # For changing chat settings (e.g. followers mode, unique mode, slow mode)
+        "moderator:read:chatters",  # For getting chatters in the channel
     ]
 
-    streamer_scopes = ["channel:read:subscriptions", "channel:manage:broadcast"]
+    streamer_scopes = [
+        "channel:read:subscriptions",
+        "channel:manage:broadcast",
+        "channel:read:vips",  # For polling the list of VIPs in the channel
+        "moderation:read",  # For polling the list of moderators in the channel
+    ]
 
     @app.route("/login")
     def login():
