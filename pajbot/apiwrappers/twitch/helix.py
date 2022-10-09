@@ -602,3 +602,41 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=60 * 60,
             force_fetch=force_fetch,
         )
+
+    def send_chat_announcement(self, channel_id: str, bot_id: str, message: str, authorization) -> None:
+        """Posts the message and colour provided in order to post an announcement.
+        channel_id, bot_id and message are all required fields. bot_id must match the user ID
+        in authorization.
+        Messages longer than 500 characters are truncated by Twitch.
+        An exception is raised if there are any invalid or missing details."""
+        self.post_204(
+            "/chat/announcements",
+            {"broadcaster_id": channel_id, "moderator_id": bot_id},
+            authorization=authorization,
+            json={"message": message},
+        )
+
+    def _delete_chat_messages(
+        self, channel_id: str, bot_id: str, authorization, message_id: Optional[str] = None
+    ) -> None:
+        """Deletes message entry from helix using the message_id. If no message_id is provided, the request removes all messages in chat.
+        channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
+        An exception is raised if there are any invalid or missing details."""
+        self.delete(
+            "/moderation/chat",
+            {"broadcaster_id": channel_id, "moderator_id": bot_id, "message_id": message_id},
+            authorization=authorization,
+        )
+
+    def delete_single_message(self, channel_id: str, bot_id: str, authorization, message_id: str) -> None:
+        """Deletes a single message from the chatroom using the message_id.
+        channel_id, bot_id and message_id are all required fields. bot_id must match the user ID
+        in authorization.
+        An exception is raised if there are any invalid or missing details."""
+        self._delete_chat_messages(channel_id, bot_id, authorization, message_id)
+
+    def delete_all_messages(self, channel_id: str, bot_id: str, authorization) -> None:
+        """Deletes all messages from the chatroom.
+        channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
+        An exception is raised if there are any invalid or missing details."""
+        self._delete_chat_messages(channel_id, bot_id, authorization)
