@@ -640,3 +640,35 @@ class TwitchHelixAPI(BaseTwitchAPI):
         channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
         An exception is raised if there are any invalid or missing details."""
         self._delete_chat_messages(channel_id, bot_id, authorization)
+
+    def _update_chat_settings(
+        self,
+        channel_id: str,
+        bot_id: str,
+        authorization,
+        emote_mode: Optional[bool],
+        follower_mode: Optional[bool],
+        follower_mode_duration: Optional[int],
+        non_moderator_chat_delay: Optional[bool],
+        non_moderator_chat_delay_duration: Optional[int],
+        slow_mode: Optional[bool],
+        slow_mode_wait_time: Optional[int],
+        subscriber_mode: Optional[bool],
+        unique_chat_mode: Optional[bool],
+    ):
+        self.patch(
+            "/chat/settings",
+            {"broadcaster_id": channel_id, "moderator_id": bot_id},
+            authorization=authorization,
+            json={
+                "emote_mode": emote_mode,
+                "follower_mode": follower_mode,
+                "follower_mode_duration": follower_mode_duration,
+                "non_moderator_chat_delay": non_moderator_chat_delay,
+                "non_moderator_chat_delay_duration": non_moderator_chat_delay_duration,
+                "slow_mode": slow_mode,
+                "slow_mode_wait_time": slow_mode_wait_time,
+                "subscriber_mode": subscriber_mode,
+                "unique_chat_mode": unique_chat_mode,
+            },
+        )
