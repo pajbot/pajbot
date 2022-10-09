@@ -655,7 +655,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         slow_mode_wait_time: Optional[int] = None,
         subscriber_mode: Optional[bool] = None,
         unique_chat_mode: Optional[bool] = None,
-    ):
+    ) -> None:
         """Calls the update chat settings Helix endpoint using any of the optional settings.
         channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
         An exception is raised if there are any invalid or missing details."""
