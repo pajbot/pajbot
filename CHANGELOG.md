@@ -10,7 +10,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Breaking: Migrated Announce from IRC to Helix. (#2141)
 - Breaking: Migrated Delete moderation action from IRC to Helix. (#2173)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
-- Dev: Added `_update_chat_settings` Helix API function.
+- Dev: Added `_update_chat_settings` Helix API function. (#2174)
 
 ## v1.62
 
