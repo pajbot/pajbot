@@ -702,7 +702,7 @@ class Bot:
 
     def delete_message(self, msg_id: str, channel_id: Optional[str] = None) -> None:
         if msg_id is None:
-            log.warning("msg_id=None passed to Bot::delete_message()")
+            log.error("msg_id=None passed to Bot::delete_message()")
             return
 
         if channel_id is None:
