@@ -700,8 +700,20 @@ class Bot:
         self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
-    def delete_message(self, msg_id: str) -> None:
-        self.privmsg(f"/delete {msg_id}")
+    def delete_message(self, msg_id: str, channel_id: Optional[str] = None) -> None:
+        if channel_id is None:
+            channel_id = self.streamer.id
+
+        try:
+            self.twitch_helix_api.delete_single_message(channel_id, self.bot_user.id, self.bot_token_manager, msg_id)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to delete message, unauthorized: {e} - {e.response.text}")
+                self.send_message("Error: The bot must be re-authed in order to delete a message.")
+            elif e.response.status_code == 403:
+                log.error(f"Failed to delete message - bot is not a moderator: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to delete message: {e} - {e.response.text}")
 
     def delete_or_timeout(
         self,
