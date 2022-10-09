@@ -94,6 +94,10 @@ class DefaultChatStatesModule(BaseModule):
             log.warning("on_stream_start failed in DefaultChatStatesModule because bot is None")
             return True
 
+        channel_id = self.bot.streamer.id
+        bot_id = self.bot.bot_user.id
+        authorization = self.bot.bot_token_manager
+
         if self.settings["emoteonly"] == self.ONLINE_PHRASE:
             self.bot.privmsg(".emoteonly")
 
@@ -107,10 +111,22 @@ class DefaultChatStatesModule(BaseModule):
             self.bot.privmsg(f".slow {self.settings['slow_time']}")
 
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
-            if self.settings["followersonly_time"] == "":
-                self.bot.privmsg(".followers")
-            else:
-                self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
+            try:
+                self.bot.twitch_helix_api.update_follower_mode(
+                    channel_id,
+                    bot_id,
+                    authorization,
+                    follower_mode=True,
+                    follower_mode_duration=self.settings["followersonly_time"]
+                    if self.settings["followersonly_time"] != ""
+                    else None,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update follower mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update follower mode.")
+                else:
+                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
 
         return True
 
