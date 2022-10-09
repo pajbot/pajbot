@@ -656,6 +656,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         subscriber_mode: Optional[bool],
         unique_chat_mode: Optional[bool],
     ):
+        """Calls the update chat settings Helix endpoint using any of the optional settings.
+        channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
+        An exception is raised if there are any invalid or missing details."""
         self.patch(
             "/chat/settings",
             {"broadcaster_id": channel_id, "moderator_id": bot_id},
