@@ -675,3 +675,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 "unique_chat_mode": unique_chat_mode,
             },
         )
+
+    def update_follower_mode(
+        self,
+        channel_id: str,
+        bot_id: str,
+        authorization,
+        follower_mode: bool,
+        follower_mode_duration: Optional[int] = None,
+    ) -> None:
+        """Calls the _update_chat_settings function using the follower_mode and follower_mode_duration parameters.
+        channel_id, bot_id and follower_mode are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(
+            channel_id,
+            bot_id,
+            authorization,
+            follower_mode=follower_mode,
+            follower_mode_duration=follower_mode_duration,
+        )
