@@ -94,10 +94,6 @@ class DefaultChatStatesModule(BaseModule):
             log.warning("on_stream_start failed in DefaultChatStatesModule because bot is None")
             return True
 
-        channel_id = self.bot.streamer.id
-        bot_id = self.bot.bot_user.id
-        authorization = self.bot.bot_token_manager
-
         if self.settings["emoteonly"] == self.ONLINE_PHRASE:
             self.bot.privmsg(".emoteonly")
 
@@ -113,9 +109,9 @@ class DefaultChatStatesModule(BaseModule):
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
             try:
                 self.bot.twitch_helix_api.update_follower_mode(
-                    channel_id,
-                    bot_id,
-                    authorization,
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
                     follower_mode=True,
                     follower_mode_duration=self.settings["followersonly_time"]
                     if self.settings["followersonly_time"] != ""
@@ -135,10 +131,6 @@ class DefaultChatStatesModule(BaseModule):
             log.warning("on_stream_stop failed in DefaultChatStatesModule because bot is None")
             return True
 
-        channel_id = self.bot.streamer.id
-        bot_id = self.bot.bot_user.id
-        authorization = self.bot.bot_token_manager
-
         if self.settings["emoteonly"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(".emoteonly")
 
@@ -154,9 +146,9 @@ class DefaultChatStatesModule(BaseModule):
         if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
             try:
                 self.bot.twitch_helix_api.update_follower_mode(
-                    channel_id,
-                    bot_id,
-                    authorization,
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
                     follower_mode=True,
                     follower_mode_duration=self.settings["followersonly_time"]
                     if self.settings["followersonly_time"] != ""
