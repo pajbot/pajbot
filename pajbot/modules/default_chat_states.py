@@ -117,7 +117,7 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
                     self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
                 else:
-                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
+                    log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
@@ -155,7 +155,7 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
                     self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
                 else:
-                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
+                    log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
