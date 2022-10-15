@@ -675,3 +675,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 "unique_chat_mode": unique_chat_mode,
             },
         )
+
+    def update_slow_mode(
+        self, channel_id: str, bot_id: str, authorization, slow_mode: bool, slow_mode_wait_time: int
+    ) -> None:
+        """Calls the _update_chat_settings function using the slow_mode and slow_mode_wait_time parametes.
+        channel_id, bot_id, slow_mode and slow_mode_wait_time are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(
+            channel_id, bot_id, authorization, slow_mode, slow_mode_wait_time=slow_mode_wait_time
+        )
