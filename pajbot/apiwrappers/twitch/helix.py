@@ -676,6 +676,16 @@ class TwitchHelixAPI(BaseTwitchAPI):
             },
         )
 
+    def update_emote_only_mode(self, channel_id: str, bot_id: str, authorization, emote_mode: bool):
+        """Calls the _unique_chat_settings function using the emote_mode parameter.
+        channel_id, bot_id and emote_mode are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(channel_id, bot_id, authorization, emote_mode=emote_mode)
+
+    def update_unique_chat_mode(self, channel_id: str, bot_id: str, authorization, unique_chat_mode: bool) -> None:
+        """Calls the _update_chat_settings function using the unique_chat_mode parameter.
+        channel_id, bot_id and unique_chat_mode are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(channel_id, bot_id, authorization, unique_chat_mode=unique_chat_mode)
+
     def update_slow_mode(
         self, channel_id: str, bot_id: str, authorization, slow_mode: bool, slow_mode_wait_time: int
     ) -> None:

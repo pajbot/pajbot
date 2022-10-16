@@ -8,6 +8,8 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Migrated Slow Mode function from IRC to Helix. (#2176)
+- Breaking: Migrated emote only function from IRC to Helix. (#2178)
+- Breaking: Migrated Unique Chat function from IRC to Helix. (#2177)
 - Breaking: Migrated Announce from IRC to Helix. (#2141)
 - Breaking: Migrated Delete moderation action from IRC to Helix. (#2173)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
