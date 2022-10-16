@@ -128,7 +128,20 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
 
         if self.settings["slow_option"] == self.ONLINE_PHRASE:
-            self.bot.privmsg(f".slow {self.settings['slow_time']}")
+            try:
+                self.bot.twitch_helix_api.update_slow_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
+                    self.settings["slow_time"],
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
+                else:
+                    log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
@@ -177,7 +190,20 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
 
         if self.settings["slow_option"] == self.OFFLINE_PHRASE:
-            self.bot.privmsg(f".slow {self.settings['slow_time']}")
+            try:
+                self.bot.twitch_helix_api.update_slow_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
+                    self.settings["slow_time"],
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
+                else:
+                    log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
             if self.settings["followersonly_time"] == "":
