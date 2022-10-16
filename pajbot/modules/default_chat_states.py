@@ -113,7 +113,19 @@ class DefaultChatStatesModule(BaseModule):
             self.bot.privmsg(".subonly")
 
         if self.settings["r9k"] == self.ONLINE_PHRASE:
-            self.bot.privmsg(".uniquechat")
+            try:
+                self.bot.twitch_helix_api.update_unique_chat_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update unique chat mode.")
+                else:
+                    log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
 
         if self.settings["slow_option"] == self.ONLINE_PHRASE:
             self.bot.privmsg(f".slow {self.settings['slow_time']}")
@@ -150,7 +162,19 @@ class DefaultChatStatesModule(BaseModule):
             self.bot.privmsg(".subonly")
 
         if self.settings["r9k"] == self.OFFLINE_PHRASE:
-            self.bot.privmsg(".uniquechat")
+            try:
+                self.bot.twitch_helix_api.update_unique_chat_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update unique chat mode.")
+                else:
+                    log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
 
         if self.settings["slow_option"] == self.OFFLINE_PHRASE:
             self.bot.privmsg(f".slow {self.settings['slow_time']}")
