@@ -133,8 +133,8 @@ class DefaultChatStatesModule(BaseModule):
                     self.bot.streamer.id,
                     self.bot.bot_user.id,
                     self.bot.bot_token_manager,
-                    slow_mode=True,
-                    slow_mode_wait_time=self.settings["slow_time"],
+                    True,
+                    self.settings["slow_time"],
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:
@@ -195,8 +195,8 @@ class DefaultChatStatesModule(BaseModule):
                     self.bot.streamer.id,
                     self.bot.bot_user.id,
                     self.bot.bot_token_manager,
-                    slow_mode=True,
-                    slow_mode_wait_time=self.settings["slow_time"],
+                    True,
+                    self.settings["slow_time"],
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:
