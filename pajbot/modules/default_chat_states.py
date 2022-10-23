@@ -110,7 +110,16 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update emote only mode: {e} - {e.response.text}")
 
         if self.settings["subonly"] == self.ONLINE_PHRASE:
-            self.bot.privmsg(".subonly")
+            try:
+                self.bot.twitch_helix_api.update_sub_mode(
+                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                else:
+                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
         if self.settings["r9k"] == self.ONLINE_PHRASE:
             try:
@@ -172,7 +181,16 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update emote only mode: {e} - {e.response.text}")
 
         if self.settings["subonly"] == self.OFFLINE_PHRASE:
-            self.bot.privmsg(".subonly")
+            try:
+                self.bot.twitch_helix_api.update_sub_mode(
+                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                else:
+                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
         if self.settings["r9k"] == self.OFFLINE_PHRASE:
             try:
