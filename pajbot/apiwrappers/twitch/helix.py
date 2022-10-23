@@ -694,3 +694,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         self._update_chat_settings(
             channel_id, bot_id, authorization, slow_mode=slow_mode, slow_mode_wait_time=slow_mode_wait_time
         )
+
+    def update_sub_mode(self, channel_id: str, bot_id: str, authorization, subscriber_mode: bool) -> None:
+        """Calls the _update_chat_settings function using the subscriber_mode parameter.
+        channel_id, bot_id and subscriber_mode are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(channel_id, bot_id, authorization, subscriber_mode=subscriber_mode)
