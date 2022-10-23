@@ -33,7 +33,7 @@ class SubscriberFetchModule(BaseModule):
     @time_method
     def _update_subscribers(self) -> None:
         if self.bot is None:
-            log.warn("_update_subscribers failed in SubscriberFetchModule because bot is None")
+            log.error("_update_subscribers failed in SubscriberFetchModule because bot is None")
             return
 
         try:
@@ -41,14 +41,14 @@ class SubscriberFetchModule(BaseModule):
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
         except NoTokenError:
-            log.warning(
+            log.error(
                 "Cannot fetch subscribers because no streamer token is present. "
                 "Have the streamer log in with the /streamer_login web route to enable subscriber fetch."
             )
             return
         except HTTPError as e:
             if e.response.status_code == 401:
-                log.warning(
+                log.error(
                     "Cannot fetch subscribers because the streamer token does not grant access to the "
                     "subscribers list. Have the streamer log in again with the /streamer_login route"
                 )
