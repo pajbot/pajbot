@@ -50,7 +50,7 @@ class ModeratorsRefreshModule(BaseModule):
                 # As per the Helix docs, te broadcaster will not be in the response.
                 moderator_ids.append(self.bot.streamer.id)
 
-                self.bot.action_queue.submit(self._process_moderator_logins, moderator_ids)
+                self.bot.action_queue.submit(self._process_moderator_ids, moderator_ids)
         except NoTokenError:
             log.error(
                 "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
