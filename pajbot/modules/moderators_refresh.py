@@ -55,14 +55,12 @@ class ModeratorsRefreshModule(BaseModule):
             log.error(
                 "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
             )
-            self.bot.send_message("Error: The streamer must be re-authed in order to update moderators.")
             return
         except HTTPError as e:
             if e.response.status_code == 401:
                 log.error(
                     "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
                 )
-                self.bot.send_message("Error: The streamer must be re-authed in order to update moderators.")
                 return
             else:
                 log.error(f"Failed to update moderators: {e} - {e.response.text}")
