@@ -7,6 +7,7 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Migrated Moderator Refresh module from IRC to Helix. (#2186)
 - Breaking: Migrated Sub Mode function from IRC to Helix. (#2185)
 - Breaking: Migrated Slow Mode function from IRC to Helix. (#2176)
 - Breaking: Migrated emote only function from IRC to Helix. (#2178)
