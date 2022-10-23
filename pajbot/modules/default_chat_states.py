@@ -112,7 +112,10 @@ class DefaultChatStatesModule(BaseModule):
         if self.settings["subonly"] == self.ONLINE_PHRASE:
             try:
                 self.bot.twitch_helix_api.update_sub_mode(
-                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:
@@ -183,7 +186,10 @@ class DefaultChatStatesModule(BaseModule):
         if self.settings["subonly"] == self.OFFLINE_PHRASE:
             try:
                 self.bot.twitch_helix_api.update_sub_mode(
-                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    True,
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:
