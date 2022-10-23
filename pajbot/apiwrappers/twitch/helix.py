@@ -306,12 +306,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
     def _fetch_subscribers_page(
-        self, broadcaster_id: str, authorization, first: Optional[str] = None, after_pagination_cursor=None
+        self, broadcaster_id: str, authorization, after_pagination_cursor=None
     ):
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
-            {"broadcaster_id": broadcaster_id, "first": first, **self._with_pagination(after_pagination_cursor)},
+            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
             authorization=authorization,
         )
 
