@@ -699,3 +699,26 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Calls the _update_chat_settings function using the subscriber_mode parameter.
         channel_id, bot_id and subscriber_mode are all required fields. bot_id must match the user ID in authorization."""
         self._update_chat_settings(channel_id, bot_id, authorization, subscriber_mode=subscriber_mode)
+
+    def _fetch_moderators_page(
+        self,
+        broadcaster_id: str,
+        authorization,
+        first: Optional[str] = None,
+        after_pagination_cursor=None,
+    ):
+        """Calls the get moderators Helix endpoint using the channel_id parameter.
+        channel_id is a required field. broadcaster_id must match the user ID in authorization."""
+        response = self.get(
+            "/moderation/moderators",
+            {"broadcaster_id": broadcaster_id, "first": first, **self._with_pagination(after_pagination_cursor)},
+            authorization=authorization,
+        )
+
+        if len(response["data"]) <= 0:
+            return None
+
+        moderators = [entry["user_id"] for entry in response["data"]]
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return moderators, pagination_cursor
