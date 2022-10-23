@@ -3,6 +3,8 @@ import logging
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule, ModuleSetting
 
+from requests import HTTPError
+
 log = logging.getLogger(__name__)
 
 
@@ -60,9 +62,16 @@ class PaidSubmodeModule(BaseModule):
         if bot.subs_only is False:
             _cost = self.settings["subon_cost"]
 
-            # Test this a bit. Make sure twitch doesn't bug out
-            bot.privmsg(".subscribers")
-            bot.execute_delayed(0.2, bot.privmsg, ".subscribers")
+            try:
+                self.bot.twitch_helix_api.update_sub_mode(
+                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                else:
+                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
             bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
             return True
@@ -76,11 +85,18 @@ class PaidSubmodeModule(BaseModule):
         if bot.subs_only is True:
             _cost = self.settings["suboff_cost"]
 
-            # Test this a bit. Make sure twitch doesn't bug out
-            bot.privmsg(".subscribersoff")
-            bot.execute_delayed(0.2, bot.privmsg, ".subscribersoff")
+            try:
+                self.bot.twitch_helix_api.update_sub_mode(
+                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, False
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                else:
+                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
-            bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
+            bot.whisper(source, f"You just used {_cost} points to turn off subscribers mode!")
             return True
 
     def load_commands(self, **options):
