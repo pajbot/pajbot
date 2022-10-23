@@ -305,7 +305,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._fetch_user_data_from_authorization(authorization)
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-    def _fetch_subscribers_page(self, broadcaster_id: str, authorization, first: Optional[str] = None, after_pagination_cursor=None):
+    def _fetch_subscribers_page(
+        self, broadcaster_id: str, authorization, first: Optional[str] = None, after_pagination_cursor=None
+    ):
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
