@@ -2,6 +2,7 @@ import logging
 
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule, ModuleSetting
+
 from requests import HTTPError
 
 log = logging.getLogger(__name__)
