@@ -9,6 +9,9 @@ from pajbot.utils import time_method
 
 from sqlalchemy import text
 
+from requests import HTTPError
+from pajbot.apiwrappers.authentication.token_manager import NoTokenError
+
 log = logging.getLogger(__name__)
 
 
@@ -31,48 +34,42 @@ class ModeratorsRefreshModule(BaseModule):
         # TODO if you wanted to improve this: Provide the user with feedback
         #   whether the update succeeded, and if yes, how many users were updated
         bot.whisper(source, "Reloading list of moderators...")
-        self._update_moderators()
+        bot.action_queue.submit(self._update_moderators)
 
     def _update_moderators(self):
-        self.bot.privmsg("/mods")
-
-    @staticmethod
-    def _parse_pubnotice_for_mods(msg_id, message):
-        if msg_id == "no_mods":
-            return []
-
-        if msg_id == "room_mods":
-            if message.startswith("The moderators of this channel are: "):
-                message = message[36:]  # 36 = length of the above "prefix"
-                return message.split(", ")
-            else:
-                log.warning(
-                    f"Received room_mods NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
-                )
-
-        return None
-
-    def _on_pubnotice(self, channel: str, msg_id, message) -> None:
         if self.bot is None:
-            log.warn("_on_pubnotice failed in ModeratorsRefreshModule because bot is None")
+            log.error("_update_moderators failed in ModeratorsRefreshModule because bot is None")
             return
 
-        if channel != self.bot.streamer.login:
+        try:
+            moderator_ids = self.bot.twitch_helix_api.fetch_all_moderators(
+                self.bot.streamer.id, self.bot.streamer_access_token_manager
+            )
+
+            if moderator_ids is not None:
+                # As per the Helix docs, te broadcaster will not be in the response.
+                moderator_ids.append(self.bot.streamer.id)
+
+                self.bot.action_queue.submit(self._process_moderator_logins, moderator_ids)
+        except NoTokenError:
+            log.error(
+                "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
+            )
+            self.bot.send_message("Error: The streamer must be re-authed in order to update moderators.")
             return
-
-        moderator_logins = self._parse_pubnotice_for_mods(msg_id, message)
-
-        if moderator_logins is not None:
-            # The broadcaster also has the privileges of a moderator
-            if self.bot.streamer.login not in moderator_logins:
-                moderator_logins.append(self.bot.streamer.login)
-
-            self.bot.action_queue.submit(self._process_moderator_logins, moderator_logins)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(
+                    "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
+                )
+                self.bot.send_message("Error: The streamer must be re-authed in order to update moderators.")
+                return
+            else:
+                log.error(f"Failed to update moderators: {e} - {e.response.text}")
 
     @time_method
-    def _process_moderator_logins(self, moderator_logins):
-        # Called on the action queue thread, to resolve the logins to user IDs
-        moderator_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(moderator_logins)
+    def _process_moderator_ids(self, moderator_ids):
+        moderator_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(moderator_ids)
 
         # filter out invalid/deleted/etc. users
         moderator_basics = [e for e in moderator_basics if e is not None]
@@ -146,9 +143,7 @@ WHERE
         if not bot:
             return
 
-        HandlerManager.add_handler("on_pubnotice", self._on_pubnotice)
-
-        # every 10 minutes, send the /mods command (response is received via _on_pubnotice)
+        # every 10 minutes, send a helix request to get moderators
         self.scheduled_job = ScheduleManager.execute_every(
             self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_moderators)
         )
@@ -157,7 +152,5 @@ WHERE
         # Web interface, nothing to do
         if not bot:
             return
-
-        HandlerManager.remove_handler("on_pubnotice", self._on_pubnotice)
 
         self.scheduled_job.remove()
