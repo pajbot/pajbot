@@ -706,8 +706,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         authorization,
         after_pagination_cursor=None,
     ):
-        """Calls the Get Moderators Helix endpoint using the channel_id parameter.
-        channel_id is a required field. broadcaster_id must match the user ID in authorization."""
+        """Calls the Get Moderators Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field. broadcaster_id must match the user ID in authorization."""
         response = self.get(
             "/moderation/moderators",
             {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
