@@ -65,13 +65,6 @@ class ModeratorsRefreshModule(BaseModule):
             else:
                 log.error(f"Failed to update moderators: {e} - {e.response.text}")
 
-    @time_method
-    def _process_moderator_ids(self, moderator_ids):
-        moderator_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(moderator_ids)
-
-        # filter out invalid/deleted/etc. users
-        moderator_basics = [e for e in moderator_basics if e is not None]
-
         with DBManager.create_session_scope() as db_session:
             db_session.execute(
                 text(
