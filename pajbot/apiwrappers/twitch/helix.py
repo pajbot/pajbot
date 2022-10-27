@@ -726,7 +726,30 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
+    def _fetch_vips_page(
+        self,
+        broadcaster_id: str,
+        authorization,
+        after_pagination_cursor=None,
+    ):
+        """Calls the Get VIPs Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        response = self.get(
+            "/channels/vips",
+            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            authorization=authorization,
+        )
 
-        moderator_ids = list(set(moderator_ids))
+        vips = [UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]]
+        pagination_cursor = response["pagination"].get("cursor", None)
 
-        return moderator_ids
+        return vips, pagination_cursor
+
+    def fetch_all_vips(self, broadcaster_id: str, authorization):
+        """Calls the _fetch_vips_page function using the broadcaster_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        vips = self._fetch_all_pages(self._fetch_vips_page, broadcaster_id, authorization)
+
+        vips = list(set(vips))
+
+        return vips
