@@ -1,15 +1,13 @@
-from typing import List
-
 import logging
-import re
 
+from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
-from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleType
 from pajbot.utils import time_method
 
+from requests import HTTPError
 from sqlalchemy import text
 
 log = logging.getLogger(__name__)
@@ -26,9 +24,6 @@ class VIPRefreshModule(BaseModule):
 
     UPDATE_INTERVAL = 10  # minutes
 
-    # This regex matches login names but not display names if they contain any non-ascii characters or spaces
-    LOGIN_REGEX = re.compile(r"^[a-z0-9]\w{0,24}$", re.IGNORECASE)
-
     def __init__(self, bot):
         super().__init__(bot)
         self.scheduled_job = None
@@ -37,56 +32,32 @@ class VIPRefreshModule(BaseModule):
         # TODO if you wanted to improve this: Provide the user with feedback
         #   whether the update succeeded, and if yes, how many users were updated
         bot.whisper(source, "Reloading list of VIPs...")
-        self._update_vips()
-
-    def _update_vips(self):
-        self.bot.privmsg("/vips")
-
-    @staticmethod
-    def _filter_vips(vips: List[str]) -> List[str]:
-        return [vip for vip in vips if re.match(VIPRefreshModule.LOGIN_REGEX, vip)]
-
-    @staticmethod
-    def _parse_pubnotice_for_vips(msg_id, message):
-        if msg_id == "no_vips":
-            return []
-
-        if msg_id == "vips_success":
-            if message.startswith("The VIPs of this channel are: ") and message.endswith("."):
-                message = message[30:-1]  # 30 = length of the above "prefix", -1 removes the dot at the end
-                vips = message.split(", ")
-                # Response of "vips_success" returns display names, which could contain non-ascii characters.
-                # For now, we filter these out since these cannot be resolved through helix, see https://github.com/pajbot/pajbot/issues/1772
-                filtered_vips = VIPRefreshModule._filter_vips(vips)
-                if len(vips) != len(filtered_vips):
-                    log.warning("Some non-ascii display names were filtered out from vips_success NOTICE response.")
-                return filtered_vips
-            log.warning(
-                f"Received vips_success NOTICE message, but actual message did not begin with expected prefix. Message was: {message}"
-            )
-
-        return None
-
-    def _on_pubnotice(self, channel: str, msg_id, message) -> None:
-        if self.bot is None:
-            log.warn("_on_pubnotice failed in VIPRefreshModule because bot is None")
-            return
-
-        if channel != self.bot.streamer.login:
-            return
-
-        vip_logins = self._parse_pubnotice_for_vips(msg_id, message)
-
-        if vip_logins is not None:
-            self.bot.action_queue.submit(self._process_vip_logins, vip_logins)
+        bot.action_queue.submit(self._update_vips)
 
     @time_method
-    def _process_vip_logins(self, vip_logins):
-        # Called on the action queue thread, to resolve the logins to user IDs
-        vip_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(vip_logins)
+    def _update_vips(self):
+        if self.bot is None:
+            log.error("_update_vips failed in VIPRefreshModule because bot is None")
+            return
 
-        # filter out invalid/deleted/etc. users
-        vip_basics = [e for e in vip_basics if e is not None]
+        try:
+            vips = self.bot.twitch_helix_api.fetch_all_vips(
+                self.bot.streamer.id, self.bot.streamer_access_token_manager
+            )
+        except NoTokenError:
+            log.error(
+                "Cannot fetch VIPs because no streamer token is present. Have the streamer login with the /streamer_login web route to enable VIP fetch."
+            )
+            return
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(
+                    "Cannot fetch VIPs because no streamer token is present. Have the streamer login with the /streamer_login web route to enable VIP fetch."
+                )
+                return
+            else:
+                log.error(f"Failed to update VIPs: {e} - {e.response.text}")
+                return
 
         with DBManager.create_session_scope() as db_session:
             db_session.execute(
@@ -101,10 +72,10 @@ ON COMMIT DROP"""
                 )
             )
 
-            if len(vip_basics) > 0:
+            if len(vips) > 0:
                 db_session.execute(
                     text("INSERT INTO vips(id, login, name) VALUES (:id, :login, :name)"),
-                    [basics.jsonify() for basics in vip_basics],
+                    [basics.jsonify() for basics in vips],
                 )
 
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
@@ -131,7 +102,7 @@ WHERE
                 )
             )
 
-        log.info(f"Successfully updated {len(vip_basics)} VIPs")
+        log.info(f"Successfully updated {len(vips)} VIPs")
 
     def load_commands(self, **options):
         self.commands["reload"] = Command.multiaction_command(
@@ -158,9 +129,7 @@ WHERE
         if not bot:
             return
 
-        HandlerManager.add_handler("on_pubnotice", self._on_pubnotice)
-
-        # every 10 minutes, send the /vips command (response is received via _on_pubnotice)
+        # every 10 minutes, send a helix request to get VIPs
         self.scheduled_job = ScheduleManager.execute_every(
             self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_vips)
         )
@@ -169,7 +138,5 @@ WHERE
         # Web interface, nothing to do
         if not bot:
             return
-
-        HandlerManager.remove_handler("on_pubnotice", self._on_pubnotice)
 
         self.scheduled_job.remove()
