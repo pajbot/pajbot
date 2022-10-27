@@ -721,7 +721,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return moderators, pagination_cursor
 
-    def fetch_all_moderators(self, broadcaster_id, authorization):
+    def fetch_all_moderators(self, broadcaster_id: str, authorization):
         """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
