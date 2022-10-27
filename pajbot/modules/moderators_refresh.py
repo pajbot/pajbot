@@ -34,23 +34,19 @@ class ModeratorsRefreshModule(BaseModule):
         bot.whisper(source, "Reloading list of moderators...")
         bot.action_queue.submit(self._update_moderators)
 
-    def _update_moderators(self):
+    @time_method
+    def _update_moderators(self) -> None:
         if self.bot is None:
             log.error("_update_moderators failed in ModeratorsRefreshModule because bot is None")
             return
 
         try:
-            moderator_ids = self.bot.twitch_helix_api.fetch_all_moderators(
+            moderators = self.bot.twitch_helix_api.fetch_all_moderators(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
             # As per the Helix docs, the broadcaster will not be in the response.
             moderators.append(self.bot.streamer)
 
-            if moderator_ids is not None:
-                # As per the Helix docs, te broadcaster will not be in the response.
-                moderator_ids.append(self.bot.streamer.id)
-
-                self.bot.action_queue.submit(self._process_moderator_ids, moderator_ids)
         except NoTokenError:
             log.error(
                 "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
@@ -80,7 +76,7 @@ ON COMMIT DROP"""
 
             db_session.execute(
                 text("INSERT INTO moderators(id, login, name) VALUES (:id, :login, :name)"),
-                [basics.jsonify() for basics in moderator_basics],
+                [basics.jsonify() for basics in moderators],
             )
 
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
@@ -107,7 +103,7 @@ WHERE
                 )
             )
 
-        log.info(f"Successfully updated {len(moderator_basics)} moderators")
+        log.info(f"Successfully updated {len(moderators)} moderators")
 
     def load_commands(self, **options):
         self.commands["reload"] = Command.multiaction_command(
