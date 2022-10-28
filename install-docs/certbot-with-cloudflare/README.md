@@ -4,11 +4,6 @@ In this small sub-guide, we will get a certificate from [Let's Encrypt](https://
 
 ## Generate an API token for CloudFlare
 
-<!--
-This is commented out for now.
-Generating API tokens like this would be better in the future, but the CloudFlare DNS Certbot plugin does not support it as of the time of writing this guide.
-Once the feature is implemented (track https://github.com/certbot/certbot/issues/7252) **and** the release is in debian stable, we can switch to this version
-
 - Navigate to https://dash.cloudflare.com/profile/api-tokens
 - Under "API Tokens", click "Create Token"
 - Enter a descriptive token name, e.g. "Certbot on my-server-name"
@@ -18,11 +13,6 @@ Once the feature is implemented (track https://github.com/certbot/certbot/issues
 - Click "Continue to Summary" when you're done, and verify what it shows is what you want
 - Click "Create Token" to finally get your token!
 - On the final page, copy the token and temporarily store it somewhere safe, or keep the page open. We will need this token in the next step.
--->
-
-- Navigate to https://dash.cloudflare.com/profile/api-tokens
-- Next to "Global API Key", click "View".
-- Copy the token that's shown. We will need this token in the next step.
 
 ## Install Certbot
 
@@ -49,7 +39,7 @@ Then insert your API details:
 sudo nano /etc/letsencrypt/secrets/cloudflare.ini
 ```
 
-Put your CloudFlare account email next to `dns_cloudflare_email`, and the API key from the previous step next to `dns_cloudflare_api_key`.
+Put the API key from the previous step next to `dns_cloudflare_api_token`.
 
 ## Request certificate with certbot
 
