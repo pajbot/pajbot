@@ -725,6 +725,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
+
+        moderator_ids = list(set(moderator_ids))
+
+        return moderator_ids
+
     def _fetch_vips_page(
         self,
         broadcaster_id: str,
