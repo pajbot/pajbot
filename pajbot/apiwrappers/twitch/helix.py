@@ -706,23 +706,22 @@ class TwitchHelixAPI(BaseTwitchAPI):
         authorization,
         after_pagination_cursor=None,
     ):
-        """Calls the Get Moderators Helix endpoint using the channel_id parameter.
-        channel_id is a required field. broadcaster_id must match the user ID in authorization."""
+        """Calls the Get Moderators Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field. broadcaster_id must match the user ID in authorization."""
         response = self.get(
             "/moderation/moderators",
             {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
             authorization=authorization,
         )
 
-        if len(response["data"]) <= 0:
-            return None
-
-        moderators = [entry["user_id"] for entry in response["data"]]
+        moderators = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+        ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
         return moderators, pagination_cursor
 
-    def fetch_all_moderators(self, broadcaster_id, authorization):
+    def fetch_all_moderators(self, broadcaster_id: str, authorization):
         """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
