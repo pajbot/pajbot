@@ -50,6 +50,18 @@ class UserBasics:
         # or a localized username (e.g.  테스트계정420 for testaccount_420)
         self.name = name
 
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Two users defined as UserBasics are equal if their ID matches, no other values are checked
+        """
+        if not isinstance(other, UserBasics):
+            return False
+
+        return self.id == other.id
+
     def jsonify(self) -> Dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
