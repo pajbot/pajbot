@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import logging
 import math
@@ -734,8 +734,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         self,
         broadcaster_id: str,
         authorization,
-        after_pagination_cursor=None,
-    ):
+        after_pagination_cursor: Optional[str] = None,
+    ) -> Tuple[List[UserBasics], Optional[str]]:
         """Calls the Get VIPs Helix endpoint using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         response = self.get(
@@ -749,11 +749,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return vips, pagination_cursor
 
-    def fetch_all_vips(self, broadcaster_id: str, authorization):
+    def fetch_all_vips(self, broadcaster_id: str, authorization) -> Set[UserBasics]:
         """Calls the _fetch_vips_page function using the broadcaster_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         vips = self._fetch_all_pages(self._fetch_vips_page, broadcaster_id, authorization)
 
-        vips = list(set(vips))
-
-        return vips
+        return set(vips)
