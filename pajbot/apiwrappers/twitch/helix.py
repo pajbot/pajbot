@@ -305,7 +305,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._fetch_user_data_from_authorization(authorization)
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-    def _fetch_subscribers_page(self, broadcaster_id: str, authorization, after_pagination_cursor=None):
+    def _fetch_subscribers_page(
+        self, broadcaster_id: str, authorization, after_pagination_cursor: Optional[str] = None
+    ) -> Tuple[List[UserBasics], Optional[str]]:
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
@@ -340,19 +342,20 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #   "pagination": {},
         # }
 
-        subscribers = [entry["user_id"] for entry in response["data"]]
+        subscribers = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+        ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
         return subscribers, pagination_cursor
 
-    def fetch_all_subscribers(self, broadcaster_id, authorization):
+    def fetch_all_subscribers(self, broadcaster_id: str, authorization) -> Set[UserBasics]:
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        subscriber_ids = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+        subscribers = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
 
         # Dedupe the list of subscribers since the API can return the same IDs multiple times
-        subscriber_ids = list(set(subscriber_ids))
 
-        return subscriber_ids
+        return set(subscribers)
 
     def _bulk_fetch_user_data(self, key_type, lookup_keys):
         all_entries = []

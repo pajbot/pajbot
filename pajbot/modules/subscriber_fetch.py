@@ -37,7 +37,7 @@ class SubscriberFetchModule(BaseModule):
             return
 
         try:
-            subscriber_ids = self.bot.twitch_helix_api.fetch_all_subscribers(
+            subscribers = self.bot.twitch_helix_api.fetch_all_subscribers(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
         except NoTokenError:
@@ -56,12 +56,8 @@ class SubscriberFetchModule(BaseModule):
             else:
                 raise
 
-        unfiltered_user_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_id(subscriber_ids)
-        # filter out deleted/invalid users
-        user_basics = [e for e in unfiltered_user_basics if e is not None]
-
         # count how many subs we have (we don't want to count the broadcaster with his permasub)
-        sub_count = sum(1 for basics in user_basics if basics.id != self.bot.streamer.id)
+        sub_count = sum(1 for basics in subscribers if basics.id != self.bot.streamer.id)
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:
@@ -77,14 +73,14 @@ ON COMMIT DROP"""
                 )
             )
 
-            if len(user_basics) > 0:
+            if len(subscribers) > 0:
                 # The precondition check is to prevent an exception,
-                # if len(user_basics) was 0, then we would try to execute this SQL without any values,
+                # if len(subscribers) was 0, then we would try to execute this SQL without any values,
                 # which would then fail.
-                # len(user_basics) can be 0 if the broadcaster does not have a subscription program.
+                # len(subscribers) can be 0 if the broadcaster does not have a subscription program.
                 db_session.execute(
                     text("INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"),
-                    [basics.jsonify() for basics in user_basics],
+                    [basics.jsonify() for basics in subscribers],
                 )
 
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
@@ -111,7 +107,7 @@ WHERE
                 )
             )
 
-        log.info(f"Successfully updated {len(user_basics)} subscribers")
+        log.info(f"Successfully updated {len(subscribers)} subscribers")
 
     def load_commands(self, **options):
         self.commands["reload"] = Command.multiaction_command(
