@@ -758,3 +758,26 @@ class TwitchHelixAPI(BaseTwitchAPI):
         vips = self._fetch_all_pages(self._fetch_vips_page, broadcaster_id, authorization)
 
         return set(vips)
+
+    def _ban_user(
+        self,
+        broadcaster_id: str,
+        bot_id: str,
+        authorization,
+        duration: Optional[int] = None,
+        reason: str = None,
+        user_id: str = None,
+    ) -> Tuple[str, Optional[str]]:
+        """Calls the Ban User Helix endpoint using the broadcaster_id, bot_id, reason & user_id parameters.
+        broadcaster_id, bot_id, reason & user_id are all required parameters. bot_id must match the user_id in authorization."""
+        response = self.post(
+            "/moderation/bans",
+            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
+            authorization=authorization,
+            json={"duration": duration, "reason": reason, "user_id": user_id},
+        )
+
+        created_at = response["data"][0]["created_at"]
+        end_time = response["data"][0]["end_time"]
+
+        return created_at, end_time
