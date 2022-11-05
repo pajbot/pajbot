@@ -648,7 +648,8 @@ class Bot:
                 log.error(f"Failed to ban user with id {userid}: {e} - {e.response.text}")
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
-        self.ban_login(user.login, reason)
+        self.ban_id(user.id, reason)
+
     def ban_id(self, userid: str, reason=None) -> None:
         self._ban(userid, reason)
 
