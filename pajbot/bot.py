@@ -648,6 +648,7 @@ class Bot:
         self.ban_login(user.login, reason)
 
     def ban_login(self, login: str, reason=None) -> None:
+        userid = self.twitch_helix_api.get_user_id(login)
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
