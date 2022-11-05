@@ -1025,7 +1025,7 @@ class Bot:
 
         if self.streamer == "forsen":
             if "zonothene" in login:
-                self._ban(login)
+                self.ban_id(id)
                 return True
 
             raw_m = event.arguments[0].lower()
