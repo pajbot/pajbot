@@ -638,11 +638,14 @@ class Bot:
             return False
         return self.thread_locals.moderation_actions is not None
 
-    def _ban(self, login: str, reason: Optional[str] = None) -> None:
-        message = f"/ban {login}"
-        if reason is not None:
-            message += f" {reason}"
-        self.privmsg(message)
+    def _ban(self, userid: str, reason: Optional[str] = None) -> None:
+        try:
+            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, reason, userid)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to ban user with id {userid}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to ban user with id {userid}: {e} - {e.response.text}")
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
         self.ban_login(user.login, reason)
