@@ -659,7 +659,7 @@ class Bot:
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
-            self.execute_delayed(1, self._ban, login, reason)
+            self.execute_delayed(1, self.ban_id, userid, reason)
 
     def unban(self, user: User) -> None:
         self.unban_login(user.login)
