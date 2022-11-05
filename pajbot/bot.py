@@ -649,6 +649,8 @@ class Bot:
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
         self.ban_login(user.login, reason)
+    def ban_id(self, userid: str, reason=None) -> None:
+        self._ban(userid, reason)
 
     def ban_login(self, login: str, reason=None) -> None:
         userid = self.twitch_helix_api.get_user_id(login)
