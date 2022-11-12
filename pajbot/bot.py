@@ -638,21 +638,28 @@ class Bot:
             return False
         return self.thread_locals.moderation_actions is not None
 
-    def _ban(self, login: str, reason: Optional[str] = None) -> None:
-        message = f"/ban {login}"
-        if reason is not None:
-            message += f" {reason}"
-        self.privmsg(message)
+    def _ban(self, user_id: str, reason: Optional[str] = None) -> None:
+        try:
+            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, reason)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to ban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to ban user with id {user_id}: {e} - {e.response.text}")
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
-        self.ban_login(user.login, reason)
+        self.ban_id(user.id, reason)
 
-    def ban_login(self, login: str, reason=None) -> None:
+    def ban_id(self, user_id: str, reason: Optional[str] = None) -> None:
+        self._ban(user_id, reason)
+
+    def ban_login(self, login: str, reason: Optional[str] = None) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
-            self.execute_delayed(1, self._ban, login, reason)
+            self.execute_delayed(1, self.ban_id, user_id, reason)
 
     def unban(self, user: User) -> None:
         self.unban_login(user.login)
@@ -1018,7 +1025,7 @@ class Bot:
 
         if self.streamer == "forsen":
             if "zonothene" in login:
-                self._ban(login)
+                self._ban(id)
                 return True
 
             raw_m = event.arguments[0].lower()

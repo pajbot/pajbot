@@ -7,6 +7,7 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Migrated banning function from IRC to Helix. (#2213)
 - Breaking: Migrated VIP Refresh module from IRC to Helix. (#2188)
 - Breaking: Migrated Moderator Refresh module from IRC to Helix. (#2186, #2202)
 - Breaking: Migrated Sub Mode function from IRC to Helix. (#2185)
