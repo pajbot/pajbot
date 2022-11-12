@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Union, Literal, Tuple
+from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Union
 
 import argparse
 import logging
