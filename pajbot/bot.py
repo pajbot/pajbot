@@ -1112,7 +1112,7 @@ class Bot:
 
     def commit_all(self) -> None:
         for key, manager in self.commitable.items():
-            manager.commit()
+            manager.commit()  # type: ignore[attr-defined]
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 
