@@ -671,13 +671,17 @@ class Bot:
                 log.error(f"Failed to unban user with id {user_id}: {e} - {e.response.text}")
 
     def unban(self, user: User) -> None:
-        self.unban_login(user.login)
+        self.unban_id(user.id)
+
+    def unban_id(self, user_id: str) -> None:
+        self._unban(user_id)
 
     def unban_login(self, login: str) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
-            self.privmsg(f"/unban {login}")
+            self.unban_id(user_id)
 
     def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
