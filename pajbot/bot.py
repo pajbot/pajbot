@@ -640,7 +640,7 @@ class Bot:
 
     def _ban(self, userid: str, reason: Optional[str] = None) -> None:
         try:
-            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, reason, userid)
+            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, userid, reason)
         except HTTPError as e:
             if e.response.status_code == 401:
                 log.error(f"Failed to ban user with id {userid}, unauthorized: {e} - {e.response.text}")
