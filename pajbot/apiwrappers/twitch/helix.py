@@ -782,7 +782,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return created_at, end_time
 
-    def ban_user(self, broadcaster_id: str, bot_id: str, authorization, user_id: str, reason: Optional[str] = None) -> str:
+    def ban_user(
+        self, broadcaster_id: str, bot_id: str, authorization, user_id: str, reason: Optional[str] = None
+    ) -> str:
         """Calls the _ban_user function using the reason & user_id parameters.
         All fields are required. bot_id must match the user_id in authorization."""
         response = self._ban_user(broadcaster_id, bot_id, authorization, user_id, reason)
