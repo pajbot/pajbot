@@ -773,7 +773,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             "/moderation/bans",
             {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
             authorization=authorization,
-            json={"reason": reason, "user_id": user_id},
+            json={"data": {"reason": reason, "user_id": user_id}},
         )
 
         created_at = response["data"][0]["created_at"]
