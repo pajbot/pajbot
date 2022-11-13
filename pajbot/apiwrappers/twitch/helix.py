@@ -781,6 +781,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return created_at, end_time
 
+    def unban_user(
+        self,
+        broadcaster_id: str,
+        bot_id: str,
+        user_id: str,
+        authorization,
+    ) -> None:
+        """Calls the Unban User Helix endpoint using the broadcaster_id, bot_user & user_id parameters.
+        All parameters are required. bot_id must match the user_id in authorization."""
+        self.delete(
+            "/moderation/bans",
+            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id, "user_id": user_id},
+            authorization=authorization,
+        )
+
     def untimeout_user(
         self,
         broadcaster_id: str,
@@ -797,4 +812,3 @@ class TwitchHelixAPI(BaseTwitchAPI):
             {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
             authorization=authorization,
             json={"data": {"reason": reason, "user_id": user_id, "duration": 1}},
-        )

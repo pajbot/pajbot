@@ -665,14 +665,31 @@ class Bot:
             self.timeout_login(login, 30, reason, once=True)
             self.execute_delayed(1, self.ban_id, user_id, reason)
 
+    def _unban(self, user_id: str) -> None:
+        try:
+            self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to unban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to unban user with id {user_id}: {e} - {e.response.text}")
+
     def unban(self, user: User) -> None:
-        self.unban_login(user.login)
+        self.unban_id(user.id)
+
+    def unban_id(self, user_id: str) -> None:
+        self._unban(user_id)
 
     def unban_login(self, login: str) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
+        if user_id is None:
+            log.error(f"Attempted to unban user with login {login}, but no such user was found")
+            return
+
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
-            self.privmsg(f"/unban {login}")
+            self.unban_id(user_id)
 
     def _untimeout(self, user_id: str) -> None:
         try:
