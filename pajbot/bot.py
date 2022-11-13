@@ -686,10 +686,11 @@ class Bot:
         self._untimeout(user_id)
 
     def untimeout_login(self, login: str) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
-            self.privmsg(f"/untimeout {login}")
+            self.untimeout_id(user_id)
 
     def _timeout(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         message = f"/timeout {login} {duration}"
