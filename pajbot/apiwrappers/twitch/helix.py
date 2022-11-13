@@ -768,7 +768,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         reason: Optional[str] = None,
     ) -> Tuple[str, Optional[str]]:
         """Calls the Ban User Helix endpoint using the broadcaster_id, bot_id, reason & user_id parameters.
-        broadcaster_id, bot_id, reason & user_id are all required parameters. bot_id must match the user_id in authorization."""
+        broadcaster_id, bot_id & user_id are all required parameters. bot_id must match the user_id in authorization."""
         response = self.post(
             "/moderation/bans",
             {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
