@@ -655,6 +655,10 @@ class Bot:
 
     def ban_login(self, login: str, reason: Optional[str] = None) -> None:
         user_id = self.twitch_helix_api.get_user_id(login)
+        if user_id is None:
+            log.error(f"Attempted to unban user with login {login}, but no such user was found")
+            return
+
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
@@ -687,6 +691,10 @@ class Bot:
 
     def untimeout_login(self, login: str) -> None:
         user_id = self.twitch_helix_api.get_user_id(login)
+        if user_id is None:
+            log.error(f"Attempted to unban user with login {login}, but no such user was found")
+            return
+
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
         else:
