@@ -693,7 +693,23 @@ class Bot:
 
     def _untimeout(self, user_id: str) -> None:
         try:
-            self.twitch_helix_api.untimeout_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id)
+            is_banned = self.twitch_helix_api.get_single_banned_user(
+                self.streamer.id, self.streamer_access_token_manager, user_id
+            )
+            # As per the Helix docs, expires_at will return empty if the user is permabanned.
+            if is_banned is not None:
+                log.error(f"User with ID {user_id} is currently banned! Will not untimeout.")
+                return
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to get banned user status with id {user_id}, unauthorized: {e} - {e.response.text}")
+                return
+            else:
+                log.error(f"Failed to get banned user status with id {user_id}: {e} - {e.response.text}")
+                return
+
+        try:
+            self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
         except HTTPError as e:
             if e.response.status_code == 401:
                 log.error(f"Failed to untimeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
