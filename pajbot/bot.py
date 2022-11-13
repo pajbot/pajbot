@@ -680,7 +680,7 @@ class Bot:
                 log.error(f"Failed to untimeout user with id {user_id}: {e} - {e.response.text}")
 
     def untimeout(self, user: User) -> None:
-        self.untimeout_login(user.login)
+        self.untimeout_id(user.id)
 
     def untimeout_id(self, user_id: str) -> None:
         self._untimeout(user_id)
