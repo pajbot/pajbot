@@ -670,6 +670,15 @@ class Bot:
         else:
             self.privmsg(f"/unban {login}")
 
+    def _untimeout(self, user_id: str) -> None:
+        try:
+            self.twitch_helix_api.untimeout_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to untimeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to untimeout user with id {user_id}: {e} - {e.response.text}")
+
     def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
 
