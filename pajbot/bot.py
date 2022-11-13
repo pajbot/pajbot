@@ -682,6 +682,9 @@ class Bot:
     def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
 
+    def untimeout_id(self, user_id: str) -> None:
+        self._untimeout(user_id)
+
     def untimeout_login(self, login: str) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Untimeout())
