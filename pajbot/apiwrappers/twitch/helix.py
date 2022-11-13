@@ -796,19 +796,33 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
         )
 
-    def untimeout_user(
+    def _get_banned_users(
         self,
         broadcaster_id: str,
-        bot_id: str,
         authorization,
-        user_id: str,
-        reason: str = "Untimeout",
-    ) -> None:
-        """Calls the Ban User Helix endpoint using the broadcaster_id, bot_id, reason & user_id parameters.
-        broadcaster_id, bot_id & user_id are all required parameters. bot_id must match the user_id in authorization.
-        The default reason is set as 'Untimeout' in order to distinguish between a normal timeout and an untimeout."""
-        self.post(
-            "/moderation/bans",
-            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
+        user_id: Optional[str] = None,
+        after_pagination_cursor: Optional[str] = None,
+    ):
+        """Calls the Get Banned Users Helix endpoint using the broadcaster_id & user_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        response = self.get(
+            "/moderation/banned",
+            {
+                "broadcaster_id": broadcaster_id,
+                "user_id": user_id,
+                "first": 100,
+                **self._with_pagination(after_pagination_cursor),
+            },
             authorization=authorization,
-            json={"data": {"reason": reason, "user_id": user_id, "duration": 1}},
+        )
+
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return response["data"], pagination_cursor
+
+    def get_single_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> str:
+        """Calls the _get_banned_users function using the broadcaster_id and user_id parameter.
+        All parameters are required and broadcaster_id must match the user ID in authorization."""
+        response = self._get_banned_users(broadcaster_id, authorization, user_id)
+
+        return response["expires_at"]
