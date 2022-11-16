@@ -1,4 +1,4 @@
-APScheduler==3.9.1
+APScheduler==3.9.1.post1
 autobahn==22.7.1
 beautifulsoup4==4.11.1
 colorama==0.4.6
