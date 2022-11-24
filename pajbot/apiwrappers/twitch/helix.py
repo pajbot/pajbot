@@ -492,8 +492,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 if game_dict is None:
                     all_entries.append(None)
                 else:
-                    value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
-                    all_entries.append(value)
+                    all_entries.append(TwitchGame(game_dict["id"], game_dict["name"], game_dict["box_art_url"]))
 
         return all_entries
 
