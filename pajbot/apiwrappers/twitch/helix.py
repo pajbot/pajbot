@@ -148,7 +148,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise e
 
     @staticmethod
-    def _with_pagination(after_pagination_cursor: Optional[str]=None) -> Dict[str, str]:
+    def _with_pagination(after_pagination_cursor: Optional[str] = None) -> Dict[str, str]:
         """Returns a dict with extra query parameters based on the given pagination cursor.
         This makes a dict with the ?after=xxxx query parameter if a pagination cursor is present,
         and if no pagination cursor is present, returns an empty dict."""
