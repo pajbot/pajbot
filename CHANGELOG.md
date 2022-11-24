@@ -7,6 +7,10 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.62.1
+
+- Bugfix: Fix bot not correctly tracking online/offline state of stream due to TwitchGame not being deserialized properly. (#2243)
+
 ## v1.62
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
