@@ -19,7 +19,7 @@ pyOpenSSL==22.1.0 # for twisted.internet.ssl
 pytz==2022.6
 rapidfuzz==2.13.2
 ratelimiter==1.2.0.post0
-redis==4.3.5
+redis==4.4.0
 regex==2022.10.31
 requests==2.28.1
 retry==0.9.2
