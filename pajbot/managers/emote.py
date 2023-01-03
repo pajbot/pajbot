@@ -172,7 +172,17 @@ class SevenTVEmoteManager(GenericChannelEmoteManager):
     def __init__(self) -> None:
         from pajbot.apiwrappers.seventv import SevenTVAPI
 
-        super().__init__(SevenTVAPI(RedisManager.get()))
+        self.streamer_id = StreamHelper.get_streamer_id()
+        self.seventv_api = SevenTVAPI(RedisManager.get())
+
+        super().__init__(self.seventv_api)
+
+    def load_channel_emotes(self) -> None:
+        """Load channel emotes from the cache if available, or else, query the API."""
+        self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id)
+
+    def update_channel_emotes(self) -> None:
+        self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class EmoteManager:
