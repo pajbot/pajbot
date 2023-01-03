@@ -1,10 +1,10 @@
+from typing import Tuple
+
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
 
 from requests import HTTPError
-
-from typing import Tuple
 
 
 class SevenTVAPI(BaseAPI):
@@ -47,7 +47,7 @@ class SevenTVAPI(BaseAPI):
 
     def fetch_global_emotes(self):
         """Returns a list of global 7TV emotes in the standard Emote format."""
-        response = self.get(f"emote-sets/global")
+        response = self.get("emote-sets/global")
 
         return self.parse_emotes(response["emotes"])
 
