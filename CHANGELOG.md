@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Updated `Wide Emote Limit` module to account for wide BTTV emotes (#2272)
+
 ## v1.62
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
