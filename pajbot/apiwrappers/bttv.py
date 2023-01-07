@@ -30,8 +30,8 @@ class BTTVAPI(BaseAPI):
                     provider="bttv",
                     id=emote_id,
                     urls={"1": get_url(emote_id, "1"), "2": get_url(emote_id, "2"), "4": get_url(emote_id, "3")},
-                    max_width=emote_data["width"] * 3 if "width" in emote_data else 112,
-                    max_height=emote_data["height"] * 3 if "height" in emote_data else 112,
+                    max_width=emote_data["width"] * 4 if "width" in emote_data else 112,
+                    max_height=emote_data["height"] * 4 if "height" in emote_data else 112,
                 )
             )
         return emotes
