@@ -29,7 +29,7 @@ class SevenTVAPI(BaseAPI):
                         max_height = file["height"]
                     emote_size += 1
 
-            if len(urls) == 0:
+            if len(urls) == 0 or max_width == 0 or max_height == 0:
                 raise ValueError("No file in WEBP format for this emote")
             return (urls, max_width, max_height)
 
