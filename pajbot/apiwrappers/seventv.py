@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Tuple
 
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
@@ -13,7 +13,7 @@ class SevenTVAPI(BaseAPI):
 
     @staticmethod
     def parse_emotes(api_response_data):
-        def get_emote_urls(host) -> Tuple[dict[str, str], int, int]:
+        def get_emote_urls(host) -> Tuple[Dict[str, str], int, int]:
             urls = {}
             base_url = "https:" + host["url"]
             emote_size = 1
