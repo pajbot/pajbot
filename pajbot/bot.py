@@ -52,6 +52,7 @@ from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 import irc.client
 import requests
 from pytz import timezone
+from requests import HTTPError
 
 if TYPE_CHECKING:
     import argparse
@@ -637,30 +638,54 @@ class Bot:
             return False
         return self.thread_locals.moderation_actions is not None
 
-    def _ban(self, login: str, reason: Optional[str] = None) -> None:
-        message = f"/ban {login}"
-        if reason is not None:
-            message += f" {reason}"
-        self.privmsg(message)
+    def _ban(self, user_id: str, reason: Optional[str] = None) -> None:
+        try:
+            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, reason)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to ban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to ban user with id {user_id}: {e} - {e.response.text}")
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
-        self.ban_login(user.login, reason)
+        self.ban_id(user.id, reason)
 
-    def ban_login(self, login: str, reason=None) -> None:
+    def ban_id(self, user_id: str, reason: Optional[str] = None) -> None:
+        self._ban(user_id, reason)
+
+    def ban_login(self, login: str, reason: Optional[str] = None) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
             self.timeout_login(login, 30, reason, once=True)
-            self.execute_delayed(1, self._ban, login, reason)
+            self.execute_delayed(1, self.ban_id, user_id, reason)
+
+    def _unban(self, user_id: str) -> None:
+        try:
+            self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to unban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to unban user with id {user_id}: {e} - {e.response.text}")
 
     def unban(self, user: User) -> None:
-        self.unban_login(user.login)
+        self.unban_id(user.id)
+
+    def unban_id(self, user_id: str) -> None:
+        self._unban(user_id)
 
     def unban_login(self, login: str) -> None:
+        user_id = self.twitch_helix_api.get_user_id(login)
+        if user_id is None:
+            log.error(f"Attempted to unban user with login {login}, but no such user was found")
+            return
+
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Unban())
         else:
-            self.privmsg(f"/unban {login}")
+            self.unban_id(user_id)
 
     def untimeout(self, user: User) -> None:
         self.untimeout_login(user.login)
@@ -699,8 +724,20 @@ class Bot:
         self.timeout(user, duration, reason, once)
         return (duration, punishment)
 
-    def delete_message(self, msg_id: str) -> None:
-        self.privmsg(f"/delete {msg_id}")
+    def delete_message(self, msg_id: str, channel_id: Optional[str] = None) -> None:
+        if channel_id is None:
+            channel_id = self.streamer.id
+
+        try:
+            self.twitch_helix_api.delete_single_message(channel_id, self.bot_user.id, self.bot_token_manager, msg_id)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to delete message, unauthorized: {e} - {e.response.text}")
+                self.send_message("Error: The bot must be re-authed in order to delete a message.")
+            elif e.response.status_code == 403:
+                log.error(f"Failed to delete message - bot is not a moderator: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to delete message: {e} - {e.response.text}")
 
     def delete_or_timeout(
         self,
@@ -851,7 +888,7 @@ class Bot:
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
-    def announce(self, message: str, channel: Optional[str] = None) -> None:
+    def announce(self, message: str, channel_id: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::announce()")
             return
@@ -859,9 +896,26 @@ class Bot:
         if self.silent:
             return
 
+        if channel_id is None:
+            channel_id = self.streamer.id
+
         message = utils.clean_up_message(message)
 
-        self.privmsg("/announce " + message[: CHARACTER_LIMIT - 10], channel=channel)
+        try:
+            self.twitch_helix_api.send_chat_announcement(
+                channel_id,
+                self.bot_user.id,
+                message,
+                self.bot_token_manager,
+            )
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to post announcement, unauthorized: {e} - {e.response.text}")
+                self.send_message("Error: The bot must be re-authed in order to post announcements.")
+            elif e.response.status_code == 403:
+                log.error(f"Failed to post announcement - bot is not a moderator: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to post announcement: {e} - {e.response.text}")
 
     def connect(self) -> None:
         self.irc.start()
@@ -882,7 +936,7 @@ class Bot:
             # once they are a founder they are always be a founder, regardless if they are a sub or not.
             if not source.founder:
                 source.founder = "founder" in badges
-            source.vip = "vip" in badges
+            source.vip = "vip" in badges or "vip" in tags
 
         if not whisper and source.banned:
             self.ban(
@@ -988,7 +1042,7 @@ class Bot:
 
         if self.streamer == "forsen":
             if "zonothene" in login:
-                self._ban(login)
+                self._ban(id)
                 return True
 
             raw_m = event.arguments[0].lower()
@@ -1082,7 +1136,7 @@ class Bot:
 
     def commit_all(self) -> None:
         for key, manager in self.commitable.items():
-            manager.commit()
+            manager.commit()  # type: ignore[attr-defined]
 
         HandlerManager.trigger("on_commit", stop_on_false=False)
 

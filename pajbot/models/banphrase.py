@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Union
+
 import argparse
 import logging
 
@@ -12,6 +14,9 @@ import sqlalchemy
 from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from unidecode import unidecode
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger("pajbot")
 
@@ -109,7 +114,7 @@ class Banphrase(Base):
 
         return self.compiled_regex.search(self.format_message(message))
 
-    def match(self, message, user):
+    def match(self, message: str, user: Optional[User]) -> bool:
         """
         Returns True if message matches our banphrase.
         Otherwise it returns False
@@ -210,22 +215,22 @@ class BanphraseData(Base):
 
 
 class BanphraseManager:
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         self.bot = bot
-        self.banphrases = []
-        self.enabled_banphrases = []
+        self.banphrases: List[Banphrase] = []
+        self.enabled_banphrases: List[Banphrase] = []
         self.db_session = DBManager.create_session(expire_on_commit=False)
 
         if self.bot:
             self.bot.socket_manager.add_handler("banphrase.update", self.on_banphrase_update)
             self.bot.socket_manager.add_handler("banphrase.remove", self.on_banphrase_remove)
 
-    def on_banphrase_update(self, data):
+    def on_banphrase_update(self, data) -> None:
         try:
             banphrase_id = int(data["id"])
         except (KeyError, ValueError):
             log.warning("No banphrase ID found in on_banphrase_update")
-            return False
+            return
 
         updated_banphrase = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)
         if updated_banphrase:
@@ -250,12 +255,12 @@ class BanphraseManager:
             if banphrase.enabled is False:
                 self.enabled_banphrases.remove(banphrase)
 
-    def on_banphrase_remove(self, data):
+    def on_banphrase_remove(self, data) -> None:
         try:
             banphrase_id = int(data["id"])
         except (KeyError, ValueError):
             log.warning("No banphrase ID found in on_banphrase_remove")
-            return False
+            return
 
         removed_banphrase = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)
         if removed_banphrase:
@@ -268,17 +273,17 @@ class BanphraseManager:
             if removed_banphrase in self.banphrases:
                 self.banphrases.remove(removed_banphrase)
 
-    def load(self):
+    def load(self) -> BanphraseManager:
         self.banphrases = self.db_session.query(Banphrase).all()
         for banphrase in self.banphrases:
             self.db_session.expunge(banphrase)
         self.enabled_banphrases = [banphrase for banphrase in self.banphrases if banphrase.enabled is True]
         return self
 
-    def commit(self):
+    def commit(self) -> None:
         self.db_session.commit()
 
-    def create_banphrase(self, phrase, **options):
+    def create_banphrase(self, phrase, **options) -> Tuple[Banphrase, bool]:
         for banphrase in self.banphrases:
             if banphrase.phrase == phrase:
                 return banphrase, False
@@ -306,7 +311,7 @@ class BanphraseManager:
         self.db_session.delete(banphrase.data)
         self.commit()
 
-    def punish(self, user, banphrase):
+    def punish(self, user, banphrase) -> None:
         """
         This method is responsible for calculating
         what sort of punishment a user deserves.
@@ -315,6 +320,8 @@ class BanphraseManager:
         This means if a banphrase is marked with the `permanent` flag,
         the user will be permanently banned even if this is his first strike.
         """
+
+        assert self.bot is not None
 
         if banphrase.data is not None:
             banphrase.data.num_uses += 1
@@ -333,7 +340,7 @@ class BanphraseManager:
             # Finally, time out the user for whatever timeout length was required.
             self.bot.timeout(user, timeout_length, reason=reason)
 
-    def check_message(self, message, user):
+    def check_message(self, message: str, user: Optional[User]) -> Union[Banphrase, Literal[False]]:
         matched_banphrase = None
         for banphrase in self.enabled_banphrases:
             if banphrase.match(message, user):
@@ -347,7 +354,7 @@ class BanphraseManager:
 
         return matched_banphrase or False
 
-    def find_match(self, message, banphrase_id=None):
+    def find_match(self, message: str, banphrase_id: Optional[str] = None) -> Optional[Banphrase]:
         match = None
         if banphrase_id is not None:
             match = find(lambda banphrase: banphrase.id == banphrase_id, self.banphrases)

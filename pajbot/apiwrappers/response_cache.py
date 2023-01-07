@@ -1,3 +1,5 @@
+from typing import Any, Callable, Union
+
 import json
 import logging
 from abc import ABC, abstractmethod
@@ -86,7 +88,14 @@ class APIResponseCache:
     def __init__(self, redis):
         self.redis = redis
 
-    def cache_fetch_fn(self, redis_key, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=False):
+    def cache_fetch_fn(
+        self,
+        redis_key: str,
+        fetch_fn: Callable[[], Any],
+        serializer: Any = JsonSerializer(),
+        expiry: Union[int, Callable[[Any], int]] = 120,
+        force_fetch: bool = False,
+    ) -> Any:
         if not force_fetch:
             cache_result = self.redis.get(redis_key)
             if cache_result is not None:

@@ -2,9 +2,25 @@
 
 ## Unversioned
 
+Due to Twitch deprecating most IRC commands, we are now migrating to the equivalent Helix calls.
+For your bot to work after these changes, the bot owner **must** re-authenticate the bot with the `/bot_login` endpoint and the streamer **must** re-authenticate with the `/streamer_login` endpoint.
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Minor: Updated `Wide Emote Limit` module to account for wide BTTV emotes (#2272)
+- Breaking: Migrated unbanning function from IRC to Helix. (#2222)
+- Breaking: Migrated banning function from IRC to Helix. (#2213)
+- Breaking: Migrated VIP Refresh module from IRC to Helix. (#2188)
+- Breaking: Migrated Moderator Refresh module from IRC to Helix. (#2186, #2202)
+- Breaking: Migrated Sub Mode function from IRC to Helix. (#2185)
+- Breaking: Migrated Slow Mode function from IRC to Helix. (#2176)
+- Breaking: Migrated emote only function from IRC to Helix. (#2178)
+- Breaking: Migrated Unique Chat function from IRC to Helix. (#2177)
+- Breaking: Migrated Announce from IRC to Helix. (#2141)
+- Breaking: Migrated Delete moderation action from IRC to Helix. (#2173)
+- Bugfix: Fix bot not correctly tracking online/offline state of stream due to TwitchGame not being deserialized properly. (#2243)
+- Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
+- Minor: Increased efficiency and speed of subscriber status refresh. (#2203)
+- Minor: Install documentation now recommends the use of limited-scope CloudFlare API tokens. (#2201)
 
 ## v1.62
 

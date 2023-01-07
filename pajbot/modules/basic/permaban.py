@@ -73,9 +73,9 @@ class PermabanModule(BaseModule):
 
         return True
 
-    def unpermaban_command(self, bot, source, message, **rest):
+    def unpermaban_command(self, bot, source, message, **rest) -> bool:
         if not message:
-            return
+            return False
 
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
@@ -100,7 +100,9 @@ class PermabanModule(BaseModule):
                 if self.settings["enable_send_timeout"] is True:
                     bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source), once=True)
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options) -> None:
         self.commands["permaban"] = Command.raw_command(
             self.permaban_command,
             level=1000,

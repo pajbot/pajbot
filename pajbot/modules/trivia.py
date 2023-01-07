@@ -203,6 +203,23 @@ class TriviaModule(BaseModule):
 
         HandlerManager.remove_handler("on_message", self.on_message)
 
+    @staticmethod
+    def confirm_answer(user_answer: str, right_answer: str) -> bool:
+        """
+        user_answer must be fully lowercase
+        right_answer must be fully lowercase
+        Return true if the answer is correct, or correct enough for longer answers
+        """
+
+        assert user_answer == user_answer.lower()
+        assert right_answer == right_answer.lower()
+
+        if len(right_answer) <= 5:
+            return right_answer == user_answer
+
+        ratio: float = rapidfuzz.fuzz.ratio(right_answer, user_answer)
+        return ratio >= 94.0
+
     def on_message(self, source, message, whisper, **rest):
         if not message or whisper:
             return
@@ -210,11 +227,7 @@ class TriviaModule(BaseModule):
         if self.question:
             right_answer = self.question["answer"].lower()
             user_answer = message.lower()
-            if len(right_answer) <= 5:
-                correct = right_answer == user_answer
-            else:
-                ratio = rapidfuzz.fuzz.ratio(right_answer, user_answer)
-                correct = ratio >= 94
+            correct = TriviaModule.confirm_answer(user_answer, right_answer)
 
             if correct:
                 if self.point_bounty > 0:
