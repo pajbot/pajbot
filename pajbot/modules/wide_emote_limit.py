@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 class WideEmoteLimitModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Wide Emote Limit"
-    DESCRIPTION = "Punishes users that post too many wide 7TV or FFZ emotes."
-    PAGE_DESCRIPTION = "Users who post too many wide 7TV or FFZ emotes will be punished by this module. Twitch & BTTV don't provide emote size data, so any wide emotes provided by them will not be accounted for."
+    DESCRIPTION = "Punishes users that post too many wide 7TV, BTTV or FFZ emotes."
+    PAGE_DESCRIPTION = "Users who post too many wide 7TV, BTTV or FFZ emotes will be punished by this module. Twitch does not provide emote size data, so any wide emotes provided by them will not be accounted for."
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
