@@ -22,6 +22,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 - Minor: Increased efficiency and speed of subscriber status refresh. (#2203)
 - Minor: Install documentation now recommends the use of limited-scope CloudFlare API tokens. (#2201)
+- Dev: Migrated to 7TV's new REST API. (#2268)
 
 ## v1.62
 
