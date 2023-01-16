@@ -33,4 +33,4 @@ Twisted==22.10.0
 Unidecode==1.3.6
 uWSGI==2.0.21
 urlextract==1.8.0
-Flask-WTF==1.0.1
+Flask-WTF==1.1.0
