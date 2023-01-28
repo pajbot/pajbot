@@ -349,7 +349,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         # }
 
         subscribers = [
-            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"] if entry["user_login"]
         ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
