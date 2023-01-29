@@ -349,7 +349,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
         # }
 
         subscribers = [
-            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"])
+            for entry in response["data"]
+            # deleted users can appear with empty name https://github.com/twitchdev/issues/issues/717
+            if entry["user_login"] is not None and entry["user_login"] != ""
         ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
