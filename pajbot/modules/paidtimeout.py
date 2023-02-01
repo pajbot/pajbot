@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class PaidTimeoutModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Paid Timeout"
     DESCRIPTION = "Allows user to time out other users with points"

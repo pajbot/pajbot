@@ -7,7 +7,6 @@ log = logging.getLogger("pajbot")
 
 
 class DeckModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Decks (Hearthstone)"
     DESCRIPTION = "Handles displaying/updating decks through commands and the website."

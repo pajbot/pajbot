@@ -37,7 +37,6 @@ class LinkTrackerLink(Base):
 
 
 class LinkTrackerModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Link Tracker"
     DESCRIPTION = "Tracks chat to see which links are most frequently posted in your chat"

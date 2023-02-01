@@ -15,7 +15,6 @@ log = logging.getLogger(__name__)
 
 
 class RouletteModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Roulette"
     DESCRIPTION = "Lets players roulette with themselves for points"

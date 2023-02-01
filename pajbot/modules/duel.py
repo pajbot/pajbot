@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 
 class DuelModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Duel"
     DESCRIPTION = "Let users duel to win or lose points."

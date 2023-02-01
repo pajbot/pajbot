@@ -7,7 +7,6 @@ log = logging.getLogger(__name__)
 
 
 class PaidUntimeoutModule(BaseModule):
-
     ID = "paiduntimeout"
     NAME = "Paid Untimeout"
     DESCRIPTION = "Allows users to unban themself with points"
