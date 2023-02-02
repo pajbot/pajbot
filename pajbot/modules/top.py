@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class TopModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Top commands"
     DESCRIPTION = "Commands that show the top X users of something or top X emotes"

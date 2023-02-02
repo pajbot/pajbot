@@ -124,7 +124,6 @@ class LastfmModule(BaseModule):
             return False
 
         try:
-
             network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
             user = network.get_user(lastfmname)
             currentTrack = user.get_now_playing()

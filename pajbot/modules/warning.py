@@ -2,7 +2,6 @@ from pajbot.modules.base import BaseModule, ModuleSetting
 
 
 class WarningModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Warnings"
     DESCRIPTION = "Gives people warnings before timing them out for the full duration for banphrase and stuff"

@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 class WolframModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Wolfram Alpha Query"
     DESCRIPTION = "Lets users ask questions and have the Wolfram Alpha API answer. Requires Wolfram API token in the bot config file"

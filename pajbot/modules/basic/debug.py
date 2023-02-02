@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 
 class DebugModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Debug"
     DESCRIPTION = "Debug commands and users"

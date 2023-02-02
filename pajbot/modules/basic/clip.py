@@ -11,7 +11,6 @@ log = logging.getLogger("pajbot")
 
 
 class ClipCommandModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Clip"
     DESCRIPTION = "Enables the usage of the !clip command"

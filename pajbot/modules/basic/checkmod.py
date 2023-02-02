@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class CheckModModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Check Moderator"
     DESCRIPTION = "Checks if a user is marked as a moderator or not via the !checkmod command"
