@@ -18,9 +18,13 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Breaking: Migrated Unique Chat function from IRC to Helix. (#2177)
 - Breaking: Migrated Announce from IRC to Helix. (#2141)
 - Breaking: Migrated Delete moderation action from IRC to Helix. (#2173)
+- Bugfix: Exclude deleted accounts from twitch subscribers list. (#2292)
+- Bugfix: Fix bot not correctly tracking online/offline state of stream due to TwitchGame not being deserialized properly. (#2243)
+- Minor: Updated `Wide Emote Limit` module to account for wide BTTV emotes (##2272)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 - Minor: Increased efficiency and speed of subscriber status refresh. (#2203)
 - Minor: Install documentation now recommends the use of limited-scope CloudFlare API tokens. (#2201)
+- Dev: Migrated to 7TV's new REST API. (#2268)
 
 ## v1.62
 

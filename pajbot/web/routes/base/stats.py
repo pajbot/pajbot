@@ -28,7 +28,6 @@ def init(app):
     @app.route("/stats/duels")
     def stats_duels():
         with DBManager.create_session_scope() as db_session:
-
             data = {
                 "top_5_winners": db_session.query(UserDuelStats).order_by(UserDuelStats.duels_won.desc())[:5],
                 "top_5_points_won": db_session.query(UserDuelStats).order_by(UserDuelStats.profit.desc())[:5],

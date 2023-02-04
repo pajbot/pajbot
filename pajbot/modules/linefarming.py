@@ -7,7 +7,6 @@ log = logging.getLogger(__name__)
 
 
 class LineFarmingModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Line Farming"
     DESCRIPTION = "Keep track on the amount of lines users type in chat"

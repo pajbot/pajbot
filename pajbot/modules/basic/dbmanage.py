@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 
 class DBManageModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "DB Management Commands"
     ENABLED_DEFAULT = True

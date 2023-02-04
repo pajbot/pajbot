@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 
 class EightBallModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "8-ball"
     DESCRIPTION = "Gives users access to the !8ball command!"

@@ -25,7 +25,6 @@ def format_win(points_amount):
 
 
 class RaffleModule(BaseModule):
-
     MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT = 100
     MULTI_RAFFLE_MAX_WINNERS_RATIO = 0.26
     MULTI_RAFFLE_MAX_WINNERS_AMOUNT = 200

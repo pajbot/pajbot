@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 class RepspamModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Repetitive Spam"
     DESCRIPTION = "Times out messages containing repetitive spam"

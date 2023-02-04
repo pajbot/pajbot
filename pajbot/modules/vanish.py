@@ -7,7 +7,6 @@ log = logging.getLogger(__name__)
 
 
 class VanishModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Vanish"
     DESCRIPTION = "Gives users a command to use if they want to time themselves out for a second."

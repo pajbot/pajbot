@@ -15,7 +15,6 @@ log = logging.getLogger(__name__)
 
 
 class TriviaModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Trivia"
     DESCRIPTION = "Trivia!"

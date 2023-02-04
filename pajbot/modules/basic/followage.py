@@ -12,7 +12,6 @@ log = logging.getLogger("pajbot")
 
 
 class FollowAgeModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Followage"
     DESCRIPTION = "Enables the usage of the !followage and !followsince commands"

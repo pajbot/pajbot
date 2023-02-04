@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class WinDuelPointsQuestModule(BaseQuest):
-
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Win points in duels"
     DESCRIPTION = "You need to win X amount of points in a duel to complete this quest."

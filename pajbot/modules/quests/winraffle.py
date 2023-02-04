@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 class WinRaffleQuestModule(BaseQuest):
-
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Win Raffle/Emote Bingo"
     DESCRIPTION = "A user needs to win a raffle or an emote bingo"

@@ -5,7 +5,6 @@ import pajbot
 
 
 class AccessToken(ABC):
-
     SHOULD_REFRESH_THRESHOLD = 0.9
     """Fraction between 0 and 1 indicating what fraction/percentage of the specified full validity period
     should actually be utilized. E.g. if this is set to 0.9, the implementation will refresh the token

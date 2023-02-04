@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class PointsResetModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Points Reset"
     DESCRIPTION = "Reset points from a user with negative points."
