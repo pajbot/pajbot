@@ -60,13 +60,13 @@ class TwitchBannedUser:
         reason: str,
         moderator_id: str,
         moderator_login: str,
-        moderator_name: str
+        moderator_name: str,
     ):
         self.user_id = user_id
         self.user_login = user_login
         self.user_name = user_name
         self.created_at = created_at
-        self.expires_at = expires_at,
+        self.expires_at = expires_at
         self.reason = reason
         self.moderator_id = moderator_id
         self.moderator_login = moderator_login
