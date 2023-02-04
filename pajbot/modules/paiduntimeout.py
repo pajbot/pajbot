@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import logging
 
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -65,30 +73,38 @@ class PaidUntimeoutModule(BaseModule):
     ]
 
     @staticmethod
-    def untimeout_source(bot, source, **rest):
-        if not source.timed_out:
-            bot.whisper(source, "I can't untime you out if you aren't timed out FailFish")
+    def untimeout_source(bot: Bot, source: User, **rest: Any) -> bool:
+        ban_data = bot.twitch_helix_api.get_banned_user(bot.streamer.id, bot.streamer_access_token_manager, source.id)
+
+        if not ban_data:
+            bot.whisper(source, "You're not timed out FailFish")
             # Request to be untimed out is ignored, but the return False ensures the user is refunded their points
             return False
 
-        if source.timed_out:
-            bot.untimeout(source)
-            bot.whisper(source, "You have been unbanned.")
-            source.timed_out = False
-            return True
+        if not ban_data.expires_at:
+            bot.whisper(source, "I can't remove your ban with this command FailFish")
+            # Request to be untimed out is ignored, but the return False ensures the user is refunded their points
+            return False
+
+        bot.untimeout(source)
+        bot.whisper(source, "Your timeout has been removed.")
+        source.timed_out = False
+        return True
 
     @staticmethod
-    def unban_source(bot, source, **rest):
-        if not (source.banned or source.timed_out):
+    def unban_source(bot: Bot, source: User, **rest: Any) -> bool:
+        ban_data = bot.twitch_helix_api.get_banned_user(bot.streamer.id, bot.streamer_access_token_manager, source.id)
+
+        if not ban_data:
             bot.whisper(source, "I can't unban you if you aren't banned in the first place FailFish")
             # Request to be unbanned out is ignored, but the return False ensures the user is refunded their points
             return False
 
-        if source.banned or source.timed_out:
-            bot.unban(source)
-            bot.whisper(source, "You have been unbanned.")
-            source.timed_out = False
-            return True
+        bot.unban(source)
+        bot.whisper(source, "You have been unbanned.")
+        source.timed_out = False
+        source.banned = False
+        return True
 
     def load_commands(self, **options):
         if self.settings["untimeout_enable"]:
