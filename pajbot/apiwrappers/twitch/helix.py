@@ -886,7 +886,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return users, pagination_cursor
 
-    def get_single_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> Optional[TwitchBannedUser]:
+    def get_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> Optional[TwitchBannedUser]:
         """Calls the _get_banned_users function using the broadcaster_id and user_id parameter.
         All parameters are required and broadcaster_id must match the user ID in authorization."""
         response, cursor = self._get_banned_users(broadcaster_id, authorization, user_id)

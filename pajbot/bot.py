@@ -693,7 +693,7 @@ class Bot:
 
     def _untimeout(self, user_id: str) -> None:
         try:
-            ban_data = self.twitch_helix_api.get_single_banned_user(
+            ban_data = self.twitch_helix_api.get_banned_user(
                 self.streamer.id, self.streamer_access_token_manager, user_id
             )
             if ban_data is None:
