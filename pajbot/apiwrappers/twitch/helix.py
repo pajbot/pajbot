@@ -49,6 +49,57 @@ class TwitchGame:
         )
 
 
+class TwitchBannedUser:
+    def __init__(
+        self,
+        user_id: str,
+        user_login: str,
+        user_name: str,
+        created_at: str,
+        expires_at: str,
+        reason: str,
+        moderator_id: str,
+        moderator_login: str,
+        moderator_name: str
+    ):
+        self.user_id = user_id
+        self.user_login = user_login
+        self.user_name = user_name
+        self.created_at = created_at
+        self.expires_at = expires_at,
+        self.reason = reason
+        self.moderator_id = moderator_id
+        self.moderator_login = moderator_login
+        self.moderator_name = moderator_name
+
+    def jsonify(self):
+        return {
+            "user_id": self.user_id,
+            "user_login": self.user_login,
+            "user_name": self.user_name,
+            "created_at": self.created_at,
+            "expires_at": self.expires_at,
+            "reason": self.reason,
+            "moderator_id": self.moderator_id,
+            "moderator_login": self.moderator_login,
+            "moderator_name": self.moderator_name,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return TwitchBannedUser(
+            json_data["user_id"],
+            json_data["user_login"],
+            json_data["user_name"],
+            json_data["created_at"],
+            json_data["expires_at"],
+            json_data["reason"],
+            json_data["moderator_id"],
+            json_data["moderator_login"],
+            json_data["moderator_name"],
+        )
+
+
 class TwitchVideo:
     def __init__(
         self,
@@ -802,7 +853,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         authorization,
         user_id: Optional[str] = None,
         after_pagination_cursor: Optional[str] = None,
-    ):
+    ) -> Tuple[List[TwitchBannedUser], Optional[str]]:
         """Calls the Get Banned Users Helix endpoint using the broadcaster_id & user_id parameter.
         broadcaster_id is a required field and must match the user ID in authorization."""
         response = self.get(
@@ -816,13 +867,14 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
         )
 
+        users = [TwitchBannedUser.from_json(data) for data in response["data"]]
         pagination_cursor = response["pagination"].get("cursor", None)
 
-        return response["data"], pagination_cursor
+        return users, pagination_cursor
 
-    def get_single_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> str:
+    def get_single_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> Optional[TwitchBannedUser]:
         """Calls the _get_banned_users function using the broadcaster_id and user_id parameter.
         All parameters are required and broadcaster_id must match the user ID in authorization."""
-        response = self._get_banned_users(broadcaster_id, authorization, user_id)
+        response, cursor = self._get_banned_users(broadcaster_id, authorization, user_id)
 
-        return response["expires_at"]
+        return response[0] if len(response) > 0 else None
