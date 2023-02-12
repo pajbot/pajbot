@@ -25,13 +25,24 @@ class UserRanksRefreshManager:
         )
 
     @staticmethod
+    def run_once(action_queue):
+        # Initial refresh, run only once on startup
+        ScheduleManager.execute_delayed(
+            UserRanksRefreshManager._jitter() * 5,
+            lambda: action_queue.submit(UserRanksRefreshManager._refresh, action_queue, once_only=True),
+        )
+
+    @staticmethod
     @time_method
-    def _refresh(action_queue):
+    def _refresh(action_queue, once_only: bool = False):
         try:
             with DBManager.create_dbapi_cursor_scope(autocommit=True) as cursor:
                 cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY user_rank")
                 cursor.execute("VACUUM user_rank")
         finally:
+            if once_only:
+                return
+
             # Queue up the refresh in 5-6 minutes
             ScheduleManager.execute_delayed(
                 UserRanksRefreshManager.delay + UserRanksRefreshManager._jitter(),

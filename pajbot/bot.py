@@ -185,7 +185,16 @@ class Bot:
         self.action_queue = ActionQueue()
 
         # refresh points_rank and num_lines_rank regularly
-        UserRanksRefreshManager.start(self.action_queue)
+
+        rank_refresh_mode = config["main"].get("rank_refresh_mode", "0")
+        if rank_refresh_mode == "0":
+            UserRanksRefreshManager.start(self.action_queue)
+        elif rank_refresh_mode == "1":
+            UserRanksRefreshManager.run_once(self.action_queue)
+        elif rank_refresh_mode == "2":
+            log.info("Not refreshing user rank")
+        else:
+            log.error(f"Invalid rank refresh mode {rank_refresh_mode}, valid options are: 0, 1, or 2")
 
         self.reactor = irc.client.Reactor()
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
