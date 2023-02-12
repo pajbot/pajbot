@@ -3,9 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 import logging
+import math
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule, ModuleSetting
+
+import pytimeparse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -13,6 +16,24 @@ if TYPE_CHECKING:
 from requests import HTTPError
 
 log = logging.getLogger(__name__)
+
+
+def parse_follower_duration(duration_str: str) -> Optional[int]:
+    if duration_str == "":
+        return None
+
+    duration_s: Optional[int | float] = pytimeparse.parse(duration_str)
+
+    if duration_s is None:
+        log.error(f"Failed to parse time from {duration_str}")
+        return None
+
+    duration_m = math.floor(duration_s / 60)
+
+    if duration_m < 1:
+        return None
+
+    return duration_m
 
 
 class DefaultChatStatesModule(BaseModule):
@@ -156,15 +177,15 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
+            duration_m = parse_follower_duration(self.settings["followersonly_time"])
+
             try:
                 self.bot.twitch_helix_api.update_follower_mode(
                     self.bot.streamer.id,
                     self.bot.bot_user.id,
                     self.bot.bot_token_manager,
-                    follower_mode=True,
-                    follower_mode_duration=self.settings["followersonly_time"]
-                    if self.settings["followersonly_time"] != ""
-                    else None,
+                    state=True,
+                    duration_m=duration_m,
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:
@@ -242,15 +263,15 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
+            duration_m = parse_follower_duration(self.settings["followersonly_time"])
+
             try:
                 self.bot.twitch_helix_api.update_follower_mode(
                     self.bot.streamer.id,
                     self.bot.bot_user.id,
                     self.bot.bot_token_manager,
-                    follower_mode=True,
-                    follower_mode_duration=self.settings["followersonly_time"]
-                    if self.settings["followersonly_time"] != ""
-                    else None,
+                    state=True,
+                    duration_m=duration_m,
                 )
             except HTTPError as e:
                 if e.response.status_code == 401:

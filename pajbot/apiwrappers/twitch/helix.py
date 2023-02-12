@@ -745,17 +745,18 @@ class TwitchHelixAPI(BaseTwitchAPI):
         channel_id: str,
         bot_id: str,
         authorization,
-        follower_mode: bool,
-        follower_mode_duration: Optional[int] = None,
+        state: bool,
+        duration_m: Optional[int] = None,
     ) -> None:
-        """Calls the _update_chat_settings function using the follower_mode and follower_mode_duration parameters.
-        channel_id, bot_id and follower_mode are all required fields. bot_id must match the user ID in authorization."""
+        """Calls the _update_chat_settings function using the state and duration_m parameters.
+        duration_m is in minutes.
+        bot_id must match the user ID in authorization."""
         self._update_chat_settings(
             channel_id,
             bot_id,
             authorization,
-            follower_mode=follower_mode,
-            follower_mode_duration=follower_mode_duration,
+            follower_mode=state,
+            follower_mode_duration=duration_m,
         )
 
     def update_emote_only_mode(self, channel_id: str, bot_id: str, authorization, emote_mode: bool):
