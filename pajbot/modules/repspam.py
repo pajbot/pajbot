@@ -1,9 +1,15 @@
-from __future__ import print_function
+from __future__ import annotations, print_function
+
+from typing import TYPE_CHECKING, Dict, Optional, Set
 
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.user import User
+from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -95,10 +101,10 @@ class RepspamModule(BaseModule):
         ),
     ]
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
 
     ignored_characters = ["\U000e0000", ".", "-"]
@@ -112,36 +118,40 @@ class RepspamModule(BaseModule):
 
         return len(word) <= 0
 
-    def on_message(self, source, message, whisper, **rest):
+    def on_message(self, source: User, message: str, whisper: bool, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return
+            return True
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return
+            return True
 
         if whisper:
-            return
+            return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator:
-            return
+            return True
 
         if len(message) < self.settings["min_message_length"]:
             # Message too short
-            return
+            return True
 
         word_list = [word for word in message.split(" ") if not self.is_word_ignored(word)]
         word_set = set(word_list)
 
         if len(word_set) < self.settings["min_unique_words"]:
             # There needs to be at least X unique words
-            return
+            return True
 
         # create a mapping word -> count/frequency
         word_freq = {word: word_list.count(word) for word in word_set}
 
         # reverse the mapping to frequency -> set of words that repeat that amount
         # (sorted by frequency, from most frequent to lowest frequent)
-        freq_to_word = {}
+        freq_to_word: Dict[int, Set[str]] = {}
         for word, freq in word_freq.items():
             freq_to_word.setdefault(freq, set()).add(word)
 
@@ -155,9 +165,17 @@ class RepspamModule(BaseModule):
 
             # found a group of equally repeating words (a repeating spam) that repeats more than allowed
             if self.settings["disable_warnings"] is True:
-                self.bot.timeout(source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True)
+                self.bot.timeout(
+                    source,
+                    self.settings["timeout_length"],
+                    self.settings["timeout_reason"],
+                )
             else:
                 self.bot.timeout_warn(
-                    source, self.settings["timeout_length"], self.settings["timeout_reason"], once=True
+                    source,
+                    self.settings["timeout_length"],
+                    self.settings["timeout_reason"],
                 )
             return False
+
+        return True
