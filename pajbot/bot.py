@@ -735,24 +735,33 @@ class Bot:
         else:
             self.untimeout_id(user_id)
 
-    def _timeout(self, login: str, duration: int, reason: Optional[str] = None) -> None:
-        message = f"/timeout {login} {duration}"
-        if reason is not None:
-            message += f" {reason}"
-        self.privmsg(message)
-
     def timeout(self, user: User, duration: int, reason: Optional[str] = None) -> None:
         self.timeout_login(user.login, duration, reason)
+
+    def _timeout(self, user_id: str, duration: int, reason: Optional[str] = None) -> None:
+        try:
+            if reason:
+                reason = f"forsen - {reason} - forsen"
+            self.twitch_helix_api.timeout_user(
+                self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, duration, reason
+            )
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to timeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to timeout user with id {user_id}: {e} - {e.response.text}")
 
     def timeout_login(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason))
         else:
-            self._timeout(login, duration, reason)
+            user_id = self.twitch_helix_api.get_user_id(login)
+            if user_id is None:
+                log.error(f"Attempted to ban user with login {login}, but no such user was found")
+                return
+            self._timeout(user_id, duration, reason)
 
-    def timeout_warn(
-        self, user: User, duration: int, reason: Optional[str] = None
-    ) -> Tuple[int, str]:
+    def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> Tuple[int, str]:
         from pajbot.modules import WarningModule
 
         duration, punishment = user.timeout(
