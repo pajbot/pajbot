@@ -14,7 +14,6 @@ log = logging.getLogger(__name__)
 
 
 class GlobalCommandCooldown(BaseModule):
-
     ID = __name__.rsplit(".", maxsplit=1)[-1]
     NAME = "Global command cooldown"
     DESCRIPTION = "Shared cooldown between all commands that opt into this functionality"

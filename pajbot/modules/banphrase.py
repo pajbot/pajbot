@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class BanphraseModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Banphrases"
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"

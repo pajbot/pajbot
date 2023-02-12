@@ -16,7 +16,6 @@ USERNAME_IN_MESSAGE_PATTERN = re.compile("[A-Za-z0-9_]{4,}")
 
 
 class MassPingProtectionModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Mass Ping Protection"
     DESCRIPTION = "Times out users who post messages that mention too many users at once."
@@ -97,7 +96,6 @@ class MassPingProtectionModule(BaseModule):
         if len(usernames) < 1:
             return 0
         with DBManager.create_session_scope() as db_session:
-
             # quick EXPLAIN ANALYZE for this query:
             #
             # pajbot=# EXPLAIN ANALYZE SELECT count(*) AS count_1

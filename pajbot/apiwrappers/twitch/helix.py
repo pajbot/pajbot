@@ -1,4 +1,6 @@
-from typing import Dict, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import logging
 import math
@@ -33,7 +35,7 @@ class TwitchGame:
         self.name: str = name
         self.box_art_url: str = box_art_url
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, str]:
         return {
             "id": self.id,
             "name": self.name,
@@ -41,11 +43,62 @@ class TwitchGame:
         }
 
     @staticmethod
-    def from_json(json_data):
+    def from_json(json_data: Dict[str, str]) -> TwitchGame:
         return TwitchGame(
             json_data["id"],
             json_data["name"],
             json_data["box_art_url"],
+        )
+
+
+class TwitchBannedUser:
+    def __init__(
+        self,
+        user_id: str,
+        user_login: str,
+        user_name: str,
+        created_at: str,
+        expires_at: str,
+        reason: str,
+        moderator_id: str,
+        moderator_login: str,
+        moderator_name: str,
+    ):
+        self.user_id = user_id
+        self.user_login = user_login
+        self.user_name = user_name
+        self.created_at = created_at
+        self.expires_at = expires_at
+        self.reason = reason
+        self.moderator_id = moderator_id
+        self.moderator_login = moderator_login
+        self.moderator_name = moderator_name
+
+    def jsonify(self):
+        return {
+            "user_id": self.user_id,
+            "user_login": self.user_login,
+            "user_name": self.user_name,
+            "created_at": self.created_at,
+            "expires_at": self.expires_at,
+            "reason": self.reason,
+            "moderator_id": self.moderator_id,
+            "moderator_login": self.moderator_login,
+            "moderator_name": self.moderator_name,
+        }
+
+    @staticmethod
+    def from_json(json_data):
+        return TwitchBannedUser(
+            json_data["user_id"],
+            json_data["user_login"],
+            json_data["user_name"],
+            json_data["created_at"],
+            json_data["expires_at"],
+            json_data["reason"],
+            json_data["moderator_id"],
+            json_data["moderator_login"],
+            json_data["moderator_name"],
         )
 
 
@@ -82,7 +135,7 @@ class TwitchVideo:
         self.video_type: str = video_type
         self.duration: str = duration
 
-    def jsonify(self):
+    def jsonify(self) -> Dict[str, Union[str, int]]:
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -101,7 +154,8 @@ class TwitchVideo:
         }
 
     @staticmethod
-    def from_json(json_data):
+    # TODO(typing): Figure out a better way to express the JSON body as a type as Dict[str, str] is not accurate here
+    def from_json(json_data: Any) -> TwitchVideo:
         return TwitchVideo(
             json_data["id"],
             json_data["user_id"],
@@ -145,7 +199,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             raise e
 
     @staticmethod
-    def _with_pagination(after_pagination_cursor=None):
+    def _with_pagination(after_pagination_cursor: Optional[str] = None) -> Dict[str, str]:
         """Returns a dict with extra query parameters based on the given pagination cursor.
         This makes a dict with the ?after=xxxx query parameter if a pagination cursor is present,
         and if no pagination cursor is present, returns an empty dict."""
@@ -173,7 +227,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return responses
 
-    def _fetch_user_data_by_login(self, login: str):
+    # TODO(typing): Figure out a better way to express the Get Users body as a type
+    def _fetch_user_data_by_login(self, login: str) -> Optional[Dict[str, Any]]:
         response = self.get("/users", {"login": login})
 
         if len(response["data"]) <= 0:
@@ -181,7 +236,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return response["data"][0]
 
-    def _fetch_user_data_by_id(self, user_id):
+    # TODO(typing): Figure out a better way to express the Get Users body as a type
+    def _fetch_user_data_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
         response = self.get("/users", {"id": user_id})
 
         if len(response["data"]) <= 0:
@@ -189,7 +245,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return response["data"][0]
 
-    def _fetch_user_data_from_authorization(self, authorization):
+    # TODO(typing): Figure out a better way to express the Get Users body as a type
+    def _fetch_user_data_from_authorization(self, authorization) -> Dict[str, Any]:
         response = self.get("/users", authorization=authorization)
 
         if len(response["data"]) <= 0:
@@ -255,7 +312,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response else 300,
         )
 
-    def fetch_follow_since(self, from_id, to_id):
+    def fetch_follow_since(self, from_id: str, to_id: str) -> Optional[datetime]:
         response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
 
         if len(response["data"]) <= 0:
@@ -263,7 +320,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return self.parse_datetime(response["data"][0]["followed_at"])
 
-    def get_follow_since(self, from_id: str, to_id: str):
+    def get_follow_since(self, from_id: str, to_id: str) -> Optional[datetime]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
             serializer=DateTimeSerializer(),
@@ -305,11 +362,13 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._fetch_user_data_from_authorization(authorization)
         return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
 
-    def _fetch_subscribers_page(self, broadcaster_id, authorization, after_pagination_cursor=None):
+    def _fetch_subscribers_page(
+        self, broadcaster_id: str, authorization, after_pagination_cursor: Optional[str] = None
+    ) -> Tuple[List[UserBasics], Optional[str]]:
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
-            {"broadcaster_id": broadcaster_id, **self._with_pagination(after_pagination_cursor)},
+            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
             authorization=authorization,
         )
 
@@ -340,21 +399,25 @@ class TwitchHelixAPI(BaseTwitchAPI):
         #   "pagination": {},
         # }
 
-        subscribers = [entry["user_id"] for entry in response["data"]]
+        subscribers = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"])
+            for entry in response["data"]
+            # deleted users can appear with empty name https://github.com/twitchdev/issues/issues/717
+            if entry["user_login"] is not None and entry["user_login"] != ""
+        ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
         return subscribers, pagination_cursor
 
-    def fetch_all_subscribers(self, broadcaster_id, authorization):
+    def fetch_all_subscribers(self, broadcaster_id: str, authorization) -> Set[UserBasics]:
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        subscriber_ids = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+        subscribers = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
 
         # Dedupe the list of subscribers since the API can return the same IDs multiple times
-        subscriber_ids = list(set(subscriber_ids))
 
-        return subscriber_ids
+        return set(subscribers)
 
-    def _bulk_fetch_user_data(self, key_type, lookup_keys):
+    def _bulk_fetch_user_data(self, key_type: str, lookup_keys: List[str]) -> List[Optional[Any]]:
         all_entries = []
 
         # We can fetch a maximum of 100 users on each helix request
@@ -372,7 +435,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return all_entries
 
-    def bulk_get_user_data_by_id(self, user_ids):
+    # TODO(typing): Figure out a better way to express the Get Users body as a type
+    def bulk_get_user_data_by_id(self, user_ids: List[str]) -> List[Optional[Any]]:
         return self.cache.cache_bulk_fetch_fn(
             user_ids,
             redis_key_fn=lambda user_id: f"api:twitch:helix:user:by-id:{user_id}",
@@ -380,7 +444,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def bulk_get_user_data_by_login(self, logins):
+    # TODO(typing): Figure out a better way to express the Get Users body as a type
+    def bulk_get_user_data_by_login(self, logins: List[str]) -> List[Optional[Any]]:
         return self.cache.cache_bulk_fetch_fn(
             logins,
             redis_key_fn=lambda login: f"api:twitch:helix:user:by-login:{login}",
@@ -492,8 +557,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 if game_dict is None:
                     all_entries.append(None)
                 else:
-                    value: TwitchGame = TwitchGame(**response_map.get(lookup_key, None))
-                    all_entries.append(value)
+                    all_entries.append(TwitchGame(game_dict["id"], game_dict["name"], game_dict["box_art_url"]))
 
         return all_entries
 
@@ -693,3 +757,155 @@ class TwitchHelixAPI(BaseTwitchAPI):
             follower_mode=follower_mode,
             follower_mode_duration=follower_mode_duration,
         )
+    def update_emote_only_mode(self, channel_id: str, bot_id: str, authorization, emote_mode: bool):
+        """Calls the _unique_chat_settings function using the emote_mode parameter.
+        channel_id, bot_id and emote_mode are all required fields. bot_id must match the user ID in authorization."""
+        self._update_chat_settings(channel_id, bot_id, authorization, emote_mode=emote_mode)
+
+    def update_unique_chat_mode(self, channel_id: str, bot_id: str, authorization, unique_chat_mode: bool) -> None:
+        """Calls the _update_chat_settings function using the unique_chat_mode parameter.
+        channel_id, bot_id and unique_chat_mode are all required fields. bot_id must match the user ID in authorization.
+        """
+        self._update_chat_settings(channel_id, bot_id, authorization, unique_chat_mode=unique_chat_mode)
+
+    def update_slow_mode(
+        self, channel_id: str, bot_id: str, authorization, slow_mode: bool, slow_mode_wait_time: int
+    ) -> None:
+        """Calls the _update_chat_settings function using the slow_mode and slow_mode_wait_time parametes.
+        channel_id, bot_id, slow_mode and slow_mode_wait_time are all required fields. bot_id must match the user ID in authorization.
+        """
+        self._update_chat_settings(
+            channel_id, bot_id, authorization, slow_mode=slow_mode, slow_mode_wait_time=slow_mode_wait_time
+        )
+
+    def update_sub_mode(self, channel_id: str, bot_id: str, authorization, subscriber_mode: bool) -> None:
+        """Calls the _update_chat_settings function using the subscriber_mode parameter.
+        channel_id, bot_id and subscriber_mode are all required fields. bot_id must match the user ID in authorization.
+        """
+        self._update_chat_settings(channel_id, bot_id, authorization, subscriber_mode=subscriber_mode)
+
+    def _fetch_moderators_page(
+        self,
+        broadcaster_id: str,
+        authorization,
+        after_pagination_cursor=None,
+    ):
+        """Calls the Get Moderators Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field. broadcaster_id must match the user ID in authorization."""
+        response = self.get(
+            "/moderation/moderators",
+            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            authorization=authorization,
+        )
+
+        moderators = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+        ]
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return moderators, pagination_cursor
+
+    def fetch_all_moderators(self, broadcaster_id: str, authorization):
+        """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
+
+        moderator_ids = list(set(moderator_ids))
+
+        return moderator_ids
+
+    def _fetch_vips_page(
+        self,
+        broadcaster_id: str,
+        authorization,
+        after_pagination_cursor: Optional[str] = None,
+    ) -> Tuple[List[UserBasics], Optional[str]]:
+        """Calls the Get VIPs Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        response = self.get(
+            "/channels/vips",
+            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            authorization=authorization,
+        )
+
+        vips = [UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]]
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return vips, pagination_cursor
+
+    def fetch_all_vips(self, broadcaster_id: str, authorization) -> Set[UserBasics]:
+        """Calls the _fetch_vips_page function using the broadcaster_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        vips = self._fetch_all_pages(self._fetch_vips_page, broadcaster_id, authorization)
+
+        return set(vips)
+
+    def ban_user(
+        self,
+        broadcaster_id: str,
+        bot_id: str,
+        authorization,
+        user_id: str,
+        reason: Optional[str] = None,
+    ) -> Tuple[str, Optional[str]]:
+        """Calls the Ban User Helix endpoint using the broadcaster_id, bot_id, reason & user_id parameters.
+        broadcaster_id, bot_id & user_id are all required parameters. bot_id must match the user_id in authorization.
+        """
+        response = self.post(
+            "/moderation/bans",
+            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
+            authorization=authorization,
+            json={"data": {"reason": reason, "user_id": user_id}},
+        )
+
+        created_at = response["data"][0]["created_at"]
+        end_time = response["data"][0]["end_time"]
+
+        return created_at, end_time
+
+    def unban_user(
+        self,
+        broadcaster_id: str,
+        bot_id: str,
+        user_id: str,
+        authorization,
+    ) -> None:
+        """Calls the Unban User Helix endpoint using the broadcaster_id, bot_user & user_id parameters.
+        All parameters are required. bot_id must match the user_id in authorization."""
+        self.delete(
+            "/moderation/bans",
+            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id, "user_id": user_id},
+            authorization=authorization,
+        )
+
+    def _get_banned_users(
+        self,
+        broadcaster_id: str,
+        authorization,
+        user_id: Optional[str] = None,
+        after_pagination_cursor: Optional[str] = None,
+    ) -> Tuple[List[TwitchBannedUser], Optional[str]]:
+        """Calls the Get Banned Users Helix endpoint using the broadcaster_id & user_id parameter.
+        broadcaster_id is a required field and must match the user ID in authorization."""
+        response = self.get(
+            "/moderation/banned",
+            {
+                "broadcaster_id": broadcaster_id,
+                "user_id": user_id,
+                "first": 100,
+                **self._with_pagination(after_pagination_cursor),
+            },
+            authorization=authorization,
+        )
+
+        users = [TwitchBannedUser.from_json(data) for data in response["data"]]
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return users, pagination_cursor
+
+    def get_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> Optional[TwitchBannedUser]:
+        """Calls the _get_banned_users function using the broadcaster_id and user_id parameter.
+        All parameters are required and broadcaster_id must match the user ID in authorization."""
+        response, _ = self._get_banned_users(broadcaster_id, authorization, user_id)
+
+        return response[0] if len(response) > 0 else None

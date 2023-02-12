@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class IgnoreModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Ignore"
     DESCRIPTION = "Ignore all commands from a user"

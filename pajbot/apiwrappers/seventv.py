@@ -1,73 +1,58 @@
+from typing import Dict, Tuple
+
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
 from pajbot.models.emote import Emote
 
+from requests import HTTPError
+
 
 class SevenTVAPI(BaseAPI):
     def __init__(self, redis):
-        super().__init__(base_url="https://api.7tv.app/v2/", redis=redis)
+        super().__init__(base_url="https://7tv.io/v3/", redis=redis)
 
     @staticmethod
     def parse_emotes(api_response_data):
-        def get_url(emote_id, size):
-            return f"https://cdn.7tv.app/emote/{emote_id}/{size}x"
+        def get_emote_urls(host) -> Tuple[Dict[str, str], int, int]:
+            urls = {}
+            base_url = "https:" + host["url"]
+            emote_size = 1
+            max_width = 0
+            max_height = 0
+            for file in host["files"]:
+                if file["format"] == "WEBP":
+                    name = file["name"]
+                    urls[str(emote_size)] = f"{base_url}/{name}"
+                    if file["width"] > max_width:
+                        max_width = file["width"]
+                    if file["height"] > max_height:
+                        max_height = file["height"]
+                    emote_size += 1
+
+            if len(urls) == 0 or max_width <= 0 or max_height <= 0:
+                raise ValueError("No file in WEBP format for this emote")
+            return (urls, max_width, max_height)
 
         emotes = []
-        for emote_data in api_response_data:
-            emote_id = emote_data["id"]
+        for active_emote in api_response_data:
+            (urls, max_width, max_height) = get_emote_urls(active_emote["data"]["host"])
             emotes.append(
                 Emote(
-                    code=emote_data["name"],
+                    code=active_emote["name"],
                     provider="7tv",
-                    id=emote_id,
-                    max_width=emote_data["width"][3],
-                    max_height=emote_data["height"][3],
-                    urls={
-                        "1": get_url(emote_id, "1"),
-                        "2": get_url(emote_id, "2"),
-                        "3": get_url(emote_id, "3"),
-                        "4": get_url(emote_id, "4"),
-                    },
+                    id=active_emote["id"],
+                    max_width=max_width,
+                    max_height=max_height,
+                    urls=urls,
                 )
             )
         return emotes
 
     def fetch_global_emotes(self):
         """Returns a list of global 7TV emotes in the standard Emote format."""
-        query_string = """
-query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limit: Int, $pageSize: Int) {
-    search_emotes(query: $query, globalState: $globalState, page: $page, limit: $limit, pageSize: $pageSize) {
-        id
-        name
-        width
-        height
-    }
-}"""
+        response = self.get("emote-sets/global")
 
-        emotes_to_request = 150
-        current_page = 1
-        emotes_data = []
-        while True:
-            params = {
-                "query": query_string,
-                "variables": {
-                    "query": "",
-                    "globalState": "only",
-                    "page": current_page,
-                    "limit": emotes_to_request,
-                    "pageSize": emotes_to_request,
-                },
-            }
-            response = self.post("gql", json=params)
-            emotes_data += response["data"]["search_emotes"]
-            if len(response["data"]["search_emotes"]) < emotes_to_request:
-                # We reached the end of the global emotes if the page isn't full
-                break
-            else:
-                # fetch the next page of emotes
-                current_page += 1
-
-        return self.parse_emotes(emotes_data)
+        return self.parse_emotes(response["emotes"])
 
     def get_global_emotes(self, force_fetch=False):
         return self.cache.cache_fetch_fn(
@@ -78,38 +63,23 @@ query fetchGlobalEmotes($query: String!, $globalState: String, $page: Int, $limi
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_name):
+    def fetch_channel_emotes(self, channel_id):
         """Returns a list of channel-specific 7TV emotes in the standard Emote format."""
-        query_string = """
-query fetchUserEmotes($id: String!) {
-    user(id: $id) {
-        emotes {
-            id
-            name
-            width
-            height
-        }
-    }
-}"""
+        try:
+            response = self.get(f"users/twitch/{channel_id}")
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                # user does not have any 7TV emotes
+                return []
 
-        params = {
-            "query": query_string,
-            "variables": {
-                "id": channel_name,
-            },
-        }
-        response = self.post("gql", json=params)
+            raise e
 
-        if response["data"]["user"] is None:
-            # user does not have any 7TV emotes
-            return []
+        return self.parse_emotes(response["emote_set"]["emotes"])
 
-        return self.parse_emotes(response["data"]["user"]["emotes"])
-
-    def get_channel_emotes(self, channel_name, force_fetch=False):
+    def get_channel_emotes(self, channel_id, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:7tv:channel-emotes:{channel_name}",
-            fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
+            redis_key=f"api:7tv:channel-emotes:{channel_id}",
+            fetch_fn=lambda: self.fetch_channel_emotes(channel_id),
             serializer=ListSerializer(Emote),
             expiry=60 * 60,
             force_fetch=force_fetch,

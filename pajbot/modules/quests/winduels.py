@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 
 class WinDuelsQuestModule(BaseQuest):
-
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Win duels"
     DESCRIPTION = "Win X duels and make profit in every duel."

@@ -151,7 +151,6 @@ class WhitelistedLink(LinkCheckerLink, Base):
 
 
 class LinkCheckerModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Link Checker"
     DESCRIPTION = "Checks links if they're bad"
@@ -275,7 +274,6 @@ class LinkCheckerModule(BaseModule):
             self.whitelisted_links = []
 
     def reload(self):
-
         log.info(f"Loaded {len(self.blacklisted_links)} bad links and {len(self.whitelisted_links)} good links")
         return self
 

@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 
 class PyramidModule(BaseModule):
-
     ID = __name__.split(".")[-1]
     NAME = "Pyramid"
     DESCRIPTION = "Congratulates people who successfully build a pyramid in chat"
