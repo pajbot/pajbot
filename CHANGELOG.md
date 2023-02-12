@@ -8,7 +8,7 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Breaking: Migrated whispers from IRC to Helix. Note that this will require you to add a phone number to the Bot account for whispers to continue working. (#2317)
-- Breaking: Migrated timeouts from IRC to Helix. (#2318)
+- Breaking: Migrated timeouts from IRC to Helix. (#2318, #2321)
 - Breaking: Migrated Follower Only function from IRC to Helix. (#2175)
 - Breaking: Migrated untimeout function from IRC to Helix. (#2223)
 - Breaking: Migrated unbanning function from IRC to Helix. (#2222)
@@ -30,6 +30,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Install documentation now recommends the use of limited-scope CloudFlare API tokens. (#2201)
 - Minor: Add setting to control how frequently user ranks should be refreshed. (#2320)
 - Dev: Migrated to 7TV's new REST API. (#2268)
+- Dev: Add a bunch of typing related to `on_message`/`on_pubmsg` & command actions. (#2321)
 
 ## v1.62
 
