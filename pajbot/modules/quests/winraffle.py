@@ -1,7 +1,10 @@
+from typing import List
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
 
@@ -15,7 +18,7 @@ class WinRaffleQuestModule(BaseQuest):
     PARENT_MODULE = QuestModule
     OBJECTIVE = "win a raffle or an emote bingo"
 
-    def winraffle_progress_quest(self, winner):
+    def winraffle_progress_quest(self, winner: User) -> None:
         user_progress = self.get_user_progress(winner, 0) + 1
         if user_progress > 1:
             # User has already finished this quest
@@ -27,15 +30,21 @@ class WinRaffleQuestModule(BaseQuest):
 
         self.set_user_progress(winner, user_progress, redis=redis)
 
-    def on_raffle_win(self, winner, **rest):
+    def on_raffle_win(self, winner: User, **rest) -> bool:
         self.winraffle_progress_quest(winner)
 
-    def on_bingo_win(self, winner, **rest):
+        return True
+
+    def on_bingo_win(self, winner: User, **rest) -> bool:
         self.winraffle_progress_quest(winner)
 
-    def on_multiraffle_win(self, winners, points_per_user, **rest):
+        return True
+
+    def on_multiraffle_win(self, winners: List[User], points_per_user: int, **rest) -> bool:
         for winner in winners:
             self.on_raffle_win(winner)
+
+        return True
 
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_raffle_win", self.on_raffle_win)
