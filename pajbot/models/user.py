@@ -62,6 +62,13 @@ class UserBasics:
 
         return self.id == other.id
 
+    def hydrated(self) -> bool:
+        """
+        Returns true if the userbasics has an ID, login, and name
+        """
+
+        return len(self.id) > 0 and len(self.login) > 0 and len(self.name) > 0
+
     def jsonify(self) -> Dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
@@ -412,13 +419,17 @@ class User(Base):
         return input.lower().strip().lstrip("@").rstrip(",")
 
     @staticmethod
-    def find_by_user_input(db_session: Session, input: str) -> Optional[User]:
-        input = User._normalize_user_username_input(input)
+    def find_by_user_input(db_session: Session, user_name: str) -> Optional[User]:
+        if not user_name:
+            # Assume a user with no name doesn't exist
+            return None
+
+        user_name = User._normalize_user_username_input(user_name)
 
         # look for a match in both the login and name
         return (
             db_session.query(User)
-            .filter(or_(User.login == input, func.lower(User.name) == input))
+            .filter(or_(User.login == user_name, func.lower(User.name) == user_name))
             .order_by(User.login_last_updated.desc())
             .limit(1)
             .one_or_none()
@@ -426,6 +437,10 @@ class User(Base):
 
     @staticmethod
     def find_by_login(db_session: Session, login: str) -> Optional[User]:
+        if not login:
+            # Assume a user with no name doesn't exist
+            return None
+
         return (
             db_session.query(User)
             .filter_by(login=login)
