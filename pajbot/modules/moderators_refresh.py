@@ -44,6 +44,7 @@ class ModeratorsRefreshModule(BaseModule):
             moderators = self.bot.twitch_helix_api.fetch_all_moderators(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
+            moderators = [moderator for moderator in moderators if moderator.hydrated()]
             # As per the Helix docs, the broadcaster will not be in the response.
             moderators.append(self.bot.streamer)
 

@@ -44,6 +44,7 @@ class VIPRefreshModule(BaseModule):
             vips = self.bot.twitch_helix_api.fetch_all_vips(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
+            vips = [vip for vip in vips if vip.hydrated()]
         except NoTokenError:
             log.error(
                 "Cannot fetch VIPs because no streamer token is present. Have the streamer login with the /streamer_login web route to enable VIP fetch."

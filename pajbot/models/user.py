@@ -62,6 +62,13 @@ class UserBasics:
 
         return self.id == other.id
 
+    def hydrated(self) -> bool:
+        """
+        Returns true if the userbasics has an ID, login, and name
+        """
+
+        return len(self.id) > 0 and len(self.login) > 0 and len(self.name) > 0
+
     def jsonify(self) -> Dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
@@ -426,6 +433,10 @@ class User(Base):
 
     @staticmethod
     def find_by_login(db_session: Session, login: str) -> Optional[User]:
+        if not login:
+            # Assume a user with no name doesn't exist
+            return None
+
         return (
             db_session.query(User)
             .filter_by(login=login)
