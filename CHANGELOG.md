@@ -7,6 +7,7 @@ For your bot to work after these changes, the bot owner **must** re-authenticate
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Breaking: Migrated Follower Only function from IRC to Helix. (#2175)
 - Breaking: Migrated untimeout function from IRC to Helix. (#2223)
 - Breaking: Migrated unbanning function from IRC to Helix. (#2222)
 - Breaking: Migrated banning function from IRC to Helix. (#2213)

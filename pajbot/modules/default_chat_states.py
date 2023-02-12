@@ -3,9 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 import logging
+import math
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule, ModuleSetting
+
+import pytimeparse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -13,6 +16,24 @@ if TYPE_CHECKING:
 from requests import HTTPError
 
 log = logging.getLogger(__name__)
+
+
+def parse_follower_duration(duration_str: str) -> Optional[int]:
+    """Parse an input string (e.g. 2w) and output it as a number of minutes,
+    or None if the string was unable to be parsed.
+    We ensure the duration returned is no less than 0 and no more than 3 months."""
+    if duration_str == "":
+        return None
+
+    duration_s: Optional[int | float] = pytimeparse.parse(duration_str)
+
+    if duration_s is None:
+        log.error(f"Failed to parse time from {duration_str}")
+        return None
+
+    duration_m = max(math.floor(duration_s / 60), 0)
+
+    return min(duration_m, 129600)
 
 
 class DefaultChatStatesModule(BaseModule):
@@ -77,7 +98,7 @@ class DefaultChatStatesModule(BaseModule):
         ),
         ModuleSetting(
             key="followersonly_time",
-            label="Amount of time to use when setting followers only mode | Format is number followed by time format. E.g. 30m, 1 week, 5 days 12 hours",
+            label="Amount of time to use when setting followers only mode | Format is number followed by time format. E.g. 30m, 1 week, 5 days 12 hours. Valid time selectors are seconds, minutes, hours, days, and weeks.",
             type="text",
             required=False,
             placeholder="",
@@ -156,10 +177,22 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.ONLINE_PHRASE:
-            if self.settings["followersonly_time"] == "":
-                self.bot.privmsg(".followers")
-            else:
-                self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
+            duration_m = parse_follower_duration(self.settings["followersonly_time"])
+
+            try:
+                self.bot.twitch_helix_api.update_follower_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    state=True,
+                    duration_m=duration_m,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update follower mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update follower mode.")
+                else:
+                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
 
         return True
 
@@ -230,10 +263,22 @@ class DefaultChatStatesModule(BaseModule):
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
         if self.settings["followersonly_option"] == self.OFFLINE_PHRASE:
-            if self.settings["followersonly_time"] == "":
-                self.bot.privmsg(".followers")
-            else:
-                self.bot.privmsg(f".followers {self.settings['followersonly_time']}")
+            duration_m = parse_follower_duration(self.settings["followersonly_time"])
+
+            try:
+                self.bot.twitch_helix_api.update_follower_mode(
+                    self.bot.streamer.id,
+                    self.bot.bot_user.id,
+                    self.bot.bot_token_manager,
+                    state=True,
+                    duration_m=duration_m,
+                )
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to update follower mode, unauthorized: {e} - {e.response.text}")
+                    self.bot.send_message("Error: The bot must be re-authed in order to update follower mode.")
+                else:
+                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
 
         return True
 
