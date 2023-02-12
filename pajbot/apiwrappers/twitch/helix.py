@@ -917,11 +917,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         sender_id must match user id in authorization.
         message must be at most 500 characters if sending a whisper to a new user, or 10,000 characters if sending to a user that has whispered you before.
         """
-        response = self.post_204(
+        self.post_204(
             "/whispers",
             {"from_user_id": sender_id, "to_user_id": recepient_id},
             authorization=authorization,
             json={"message": message},
         )
-
-        log.info(response)
