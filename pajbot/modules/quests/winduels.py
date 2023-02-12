@@ -4,7 +4,7 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
-from pajbot.modules.quests import BaseQuest
+from pajbot.modules.quests.base import BaseQuest
 
 log = logging.getLogger(__name__)
 

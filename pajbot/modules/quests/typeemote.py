@@ -11,7 +11,7 @@ from pajbot.models.emote import Emote, EmoteInstance
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
-from pajbot.modules.quests import BaseQuest
+from pajbot.modules.quests.base import BaseQuest
 from pajbot.streamhelper import StreamHelper
 
 if TYPE_CHECKING:
