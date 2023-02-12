@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import json
 import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.models.emote import Emote
+from pajbot.models.emote import Emote, EmoteInstance
+from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
@@ -40,22 +41,21 @@ class TypeEmoteQuestModule(BaseQuest):
         super().__init__(bot)
         self.current_emote_key = f"{StreamHelper.get_streamer()}:current_quest_emote"
         self.current_emote: Optional[Emote] = None
-        self.progress = {}
 
     def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def on_message(self, source, emote_instances, **rest):
+    def on_message(self, source: User, emote_instances: List[EmoteInstance], **rest) -> bool:
         typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
         if self.current_emote not in typed_emotes:
-            return
+            return True
 
         user_progress = self.get_user_progress(source, default=0) + 1
 
         if user_progress > self.get_limit():
             log.debug(f"{source} has already completed the quest. Moving along.")
             # no need to do more
-            return
+            return True
 
         redis = RedisManager.get()
 
@@ -63,6 +63,8 @@ class TypeEmoteQuestModule(BaseQuest):
             self.finish_quest(source)
 
         self.set_user_progress(source, user_progress, redis=redis)
+
+        return True
 
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
