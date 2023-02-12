@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional, final
 
 import json
 import logging
@@ -22,7 +22,7 @@ class BaseQuest(BaseModule):
 
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.progress: Dict[str, Any] = {}
+        self.progress: Dict[str, int] = {}
         self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
         self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
         self.quest_module: Optional[QuestModule] = None
@@ -84,7 +84,8 @@ class BaseQuest(BaseModule):
         """This method is ONLY called when the stream is stopped."""
         log.error("No stop quest implemented for this quest.")
 
-    def get_user_progress(self, user, default=False):
+    @final
+    def get_user_progress(self, user: User, default: int = 0) -> int:
         return self.progress.get(user.id, default)
 
     # TODO remove redis parameter
