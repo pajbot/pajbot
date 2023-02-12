@@ -1,9 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
 from pajbot.models.command import Command
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 from requests import HTTPError
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +60,7 @@ class PaidSubmodeModule(BaseModule):
         ),
     ]
 
-    def paid_subon(self, bot, source, **rest):
+    def paid_subon(self, bot: Bot, source: User, **rest) -> bool:
         if bot.subs_only is True:
             bot.whisper(source, "Why would you try to enable subonly, if it's already enabled? FailFish")
             # Request to enable submode is ignored, but the return False ensures the user is refunded their points
@@ -62,20 +70,19 @@ class PaidSubmodeModule(BaseModule):
             _cost = self.settings["subon_cost"]
 
             try:
-                self.bot.twitch_helix_api.update_sub_mode(
-                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, True
-                )
+                bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, True)
             except HTTPError as e:
                 if e.response.status_code == 401:
                     log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                    bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
             bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
-            return True
 
-    def paid_suboff(self, bot, source, **rest):
+        return True
+
+    def paid_suboff(self, bot: Bot, source: User, **rest) -> bool:
         if bot.subs_only is False:
             bot.whisper(source, "Why would you try to disable subonly, if it's not on in the first place? FailFish")
             # Request to disable submode is ignored, but the return False ensures the user is refunded their points
@@ -85,20 +92,19 @@ class PaidSubmodeModule(BaseModule):
             _cost = self.settings["suboff_cost"]
 
             try:
-                self.bot.twitch_helix_api.update_sub_mode(
-                    self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager, False
-                )
+                bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, False)
             except HTTPError as e:
                 if e.response.status_code == 401:
                     log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                    bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
             bot.whisper(source, f"You just used {_cost} points to turn off subscribers mode!")
-            return True
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options) -> None:
         self.commands[
             self.settings["subon_command_name"].lower().replace("!", "").replace(" ", "")
         ] = Command.raw_command(self.paid_subon, cost=self.settings["subon_cost"])

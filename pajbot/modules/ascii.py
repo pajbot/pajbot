@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -93,21 +101,25 @@ class AsciiProtectionModule(BaseModule):
             return True
         return False
 
-    def on_pubmsg(self, source, message, tags, **rest):
+    def on_pubmsg(self, source: User, message: str, tags: Any, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return
+            return True
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return
+            return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return True
 
         if len(message) <= self.settings["min_msg_length"]:
-            return
+            return True
 
         if AsciiProtectionModule.check_message(message) is False:
-            return
+            return True
 
         self.bot.delete_or_timeout(
             source,
@@ -116,13 +128,12 @@ class AsciiProtectionModule(BaseModule):
             self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
             self.settings["timeout_reason"],
             disable_warnings=self.settings["disable_warnings"],
-            once=True,
         )
 
         return False
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg, priority=150, run_if_propagation_stopped=True)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)

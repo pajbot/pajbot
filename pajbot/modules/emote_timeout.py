@@ -1,8 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional
+
 import logging
 
 from pajbot.emoji import ALL_EMOJI
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.emote import EmoteInstance
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -110,7 +119,11 @@ class EmoteTimeoutModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source, message, emote_instances, msg_id, **rest):
+    def on_message(self, source: User, message: str, emote_instances: List[EmoteInstance], msg_id: str, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
             return True
 
@@ -128,7 +141,6 @@ class EmoteTimeoutModule(BaseModule):
                 self.settings["timeout_duration"],
                 self.settings["twitch_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
@@ -140,7 +152,6 @@ class EmoteTimeoutModule(BaseModule):
                 self.settings["timeout_duration"],
                 self.settings["ffz_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
@@ -152,7 +163,6 @@ class EmoteTimeoutModule(BaseModule):
                 self.settings["timeout_duration"],
                 self.settings["bttv_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
@@ -164,7 +174,6 @@ class EmoteTimeoutModule(BaseModule):
                 self.settings["timeout_duration"],
                 self.settings["7tv_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
@@ -176,14 +185,13 @@ class EmoteTimeoutModule(BaseModule):
                 self.settings["timeout_duration"],
                 self.settings["emoji_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
         return True
 
-    def enable(self, bot):
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

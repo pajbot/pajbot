@@ -20,6 +20,7 @@ from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
+    from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 
 log = logging.getLogger(__name__)
 
@@ -244,7 +245,7 @@ class Command(Base):
         self.run_through_banphrases = False
         self.use_global_cd = False
 
-        self.last_run = 0
+        self.last_run: int | float = 0
         self.last_run_by_user: Dict[str, datetime.datetime] = {}
 
         self.run_in_thread = False
@@ -381,7 +382,7 @@ class Command(Base):
 
         return True
 
-    def run(self, bot, source, message, event={}, args={}, whisper=False):
+    def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}, whisper: bool = False) -> bool:
         if self.action is None:
             log.warning("This command is not available.")
             return False
@@ -398,7 +399,11 @@ class Command(Base):
             log.debug(f"Command was run {time_since_last_run:.2f} seconds ago, waiting...")
             return False
 
-        time_since_last_run_user = (cur_time - self.last_run_by_user.get(source.id, 0)) / cd_modifier
+        last_run_by_user_f: int | float = 0
+        last_run_by_user_dt = self.last_run_by_user.get(source.id)
+        if last_run_by_user_dt is not None:
+            last_run_by_user_f = last_run_by_user_dt.timestamp()
+        time_since_last_run_user = (cur_time - last_run_by_user_f) / cd_modifier
 
         if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
             log.debug(f"{source} ran command {time_since_last_run_user:.2f} seconds ago, waiting...")
@@ -426,6 +431,8 @@ class Command(Base):
             # Command has chosen to respect the Global command cooldown module
             global_cd_module = bot.module_manager["global_command_cooldown"]
             if global_cd_module:
+                assert isinstance(global_cd_module, GlobalCommandCooldown)
+
                 # The global command cooldown module is enabled
                 if not global_cd_module.run_command():
                     # The global command cooldown is currently active, command will be available to run when it has expired
@@ -440,8 +447,12 @@ class Command(Base):
 
         return True
 
-    def run_action(self, bot, source, message, event, args):
-        cur_time = pajbot.utils.now().timestamp()
+    def run_action(self, bot: Bot, source: User, message: str, event: Any, args: Any) -> None:
+        # Pre-requisite
+        assert self.action is not None
+
+        cur_time = pajbot.utils.now()
+        cur_time_ts = cur_time.timestamp()
         with source.spend_currency_context(self.cost, self.tokens_cost):
             ret = self.action.run(bot, source, message, event, args)
             if ret is False:
@@ -453,7 +464,7 @@ class Command(Base):
                 self.data.last_date_used = pajbot.utils.now()
 
             # TODO: Will this be an issue?
-            self.last_run = cur_time
+            self.last_run = cur_time_ts
             self.last_run_by_user[source.id] = cur_time
 
     def jsonify(self) -> Dict[str, Any]:
