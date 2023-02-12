@@ -39,7 +39,7 @@ class TypeEmoteQuestModule(BaseQuest):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.current_emote_key = f"{StreamHelper.get_streamer()}:current_quest_emote"
-        self.current_emote = None
+        self.current_emote: Optional[Emote] = None
         self.progress = {}
 
     def get_limit(self) -> int:
@@ -70,11 +70,12 @@ class TypeEmoteQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.load_progress(redis=redis)
-        self.load_data(redis=redis)
+        self.load_data()
 
-    def load_data(self, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    def load_data(self) -> None:
+        assert self.bot is not None
+
+        redis = RedisManager.get()
 
         redis_json = redis.get(self.current_emote_key)
         if redis_json is None:

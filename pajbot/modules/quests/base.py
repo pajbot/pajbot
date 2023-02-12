@@ -106,8 +106,7 @@ class BaseQuest(BaseModule):
             except (TypeError, ValueError):
                 pass
 
-    # TODO remove redis parameter
-    def load_data(self, redis=None):
+    def load_data(self) -> None:
         """
         Useful base method for loading dynamic parts of the quest.
         For example, what emote is supposed to be used in the type emote quest

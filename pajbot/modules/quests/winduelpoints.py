@@ -82,17 +82,19 @@ class WinDuelPointsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         self.load_progress(redis=redis)
-        self.load_data(redis=redis)
+        self.load_data()
 
-    def load_data(self, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    def load_data(self) -> None:
+        redis = RedisManager.get()
 
-        self.points_required = redis.get(self.points_required_key)
+        self.points_required = None
+        points_required = redis.get(self.points_required_key)
         try:
-            self.points_required = int(self.points_required)
+            if points_required:
+                self.points_required = int(points_required)
         except (TypeError, ValueError):
             pass
+
         if self.points_required is None:
             try:
                 self.points_required = random.randint(self.settings["min_value"], self.settings["max_value"])
