@@ -170,6 +170,6 @@ class SelfTimeoutModule(BaseModule):
             # Check if timeout value is over Twitch's maximum
             timeout_length = min(timeout_length, 1209600)
 
-            bot.timeout(source, timeout_length, f"{standard_response}!", once=True)
+            bot.timeout(source, timeout_length, f"{standard_response}!")
 
         return True

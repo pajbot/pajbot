@@ -865,6 +865,31 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return created_at, end_time
 
+    def timeout_user(
+        self,
+        broadcaster_id: str,
+        bot_id: str,
+        authorization,
+        user_id: str,
+        duration: int,
+        reason: Optional[str] = None,
+    ) -> Tuple[str, Optional[str]]:
+        """Calls the Ban User Helix endpoint using the broadcaster_id, bot_id, reason & user_id parameters.
+        broadcaster_id, bot_id & user_id are all required parameters. bot_id must match the user_id in authorization.
+        duration is in seconds
+        """
+        response = self.post(
+            "/moderation/bans",
+            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id},
+            authorization=authorization,
+            json={"data": {"reason": reason, "user_id": user_id, "duration": duration}},
+        )
+
+        created_at = response["data"][0]["created_at"]
+        end_time = response["data"][0]["end_time"]
+
+        return created_at, end_time
+
     def unban_user(
         self,
         broadcaster_id: str,

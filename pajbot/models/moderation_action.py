@@ -22,7 +22,6 @@ class Unban:
 class Timeout:
     duration: int
     reason: Optional[str]
-    once: bool
 
 
 @dataclass
@@ -81,7 +80,6 @@ class ModerationActions:
                 self.actions[login] = Timeout(
                     duration=max(action.duration, existing_action.duration),
                     reason=_combine_reasons(existing_action.reason, action.reason),
-                    once=existing_action.once and action.once,
                 )
             else:
                 # timeout wins over lower-tier action
@@ -113,7 +111,7 @@ class ModerationActions:
             if isinstance(action, Ban):
                 bot.ban_login(login, action.reason)
             if isinstance(action, Timeout):
-                bot.timeout_login(login, action.duration, action.reason, action.once)
+                bot.timeout_login(login, action.duration, action.reason)
             if isinstance(action, Unban):
                 bot.unban_login(login)
             if isinstance(action, Untimeout):

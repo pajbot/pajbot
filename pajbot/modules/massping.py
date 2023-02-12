@@ -193,7 +193,6 @@ class MassPingProtectionModule(BaseModule):
             timeout_duration,
             self.settings["timeout_reason"],
             disable_warnings=self.settings["disable_warnings"],
-            once=True,
         )
         return False
 

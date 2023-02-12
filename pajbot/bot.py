@@ -662,8 +662,7 @@ class Bot:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Ban(reason))
         else:
-            self.timeout_login(login, 30, reason, once=True)
-            self.execute_delayed(1, self.ban_id, user_id, reason)
+            self.ban_id(user_id, reason)
 
     def _unban(self, user_id: str) -> None:
         try:
@@ -736,32 +735,39 @@ class Bot:
         else:
             self.untimeout_id(user_id)
 
-    def _timeout(self, login: str, duration: int, reason: Optional[str] = None) -> None:
-        message = f"/timeout {login} {duration}"
-        if reason is not None:
-            message += f" {reason}"
-        self.privmsg(message)
+    def timeout(self, user: User, duration: int, reason: Optional[str] = None) -> None:
+        self.timeout_login(user.login, duration, reason)
 
-    def timeout(self, user: User, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
-        self.timeout_login(user.login, duration, reason, once)
+    def _timeout(self, user_id: str, duration: int, reason: Optional[str] = None) -> None:
+        try:
+            if reason:
+                reason = f"forsen - {reason} - forsen"
+            self.twitch_helix_api.timeout_user(
+                self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, duration, reason
+            )
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.error(f"Failed to timeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
+            else:
+                log.error(f"Failed to timeout user with id {user_id}: {e} - {e.response.text}")
 
-    def timeout_login(self, login: str, duration: int, reason: Optional[str] = None, once: bool = False) -> None:
+    def timeout_login(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         if self._has_moderation_actions():
-            self.thread_locals.moderation_actions.add(login, Timeout(duration, reason, once))
+            self.thread_locals.moderation_actions.add(login, Timeout(duration, reason))
         else:
-            self._timeout(login, duration, reason)
-            if not once:
-                self.execute_delayed(1, self._timeout, login, duration, reason)
+            user_id = self.twitch_helix_api.get_user_id(login)
+            if user_id is None:
+                log.error(f"Attempted to ban user with login {login}, but no such user was found")
+                return
+            self._timeout(user_id, duration, reason)
 
-    def timeout_warn(
-        self, user: User, duration: int, reason: Optional[str] = None, once: bool = False
-    ) -> Tuple[int, str]:
+    def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> Tuple[int, str]:
         from pajbot.modules import WarningModule
 
         duration, punishment = user.timeout(
             duration, warning_module=cast(Optional[WarningModule], self.module_manager["warning"])
         )
-        self.timeout(user, duration, reason, once)
+        self.timeout(user, duration, reason)
         return (duration, punishment)
 
     def delete_message(self, msg_id: str, channel_id: Optional[str] = None) -> None:
@@ -787,7 +793,6 @@ class Bot:
         duration: int,
         reason: Optional[str] = None,
         disable_warnings: bool = False,
-        once: bool = False,
     ) -> None:
         if moderation_action not in ("Delete", "Timeout"):
             raise ValueError("moderation_action must only equal Delete or Timeout!")
@@ -798,9 +803,9 @@ class Bot:
             self.delete_message(msg_id)
         elif moderation_action == "Timeout":
             if disable_warnings:
-                self.timeout(user, duration, reason, once)
+                self.timeout(user, duration, reason)
             else:
-                self.timeout_warn(user, duration, reason, once)
+                self.timeout_warn(user, duration, reason)
 
     def whisper(self, user: User | UserBasics, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
