@@ -911,3 +911,17 @@ class TwitchHelixAPI(BaseTwitchAPI):
         response, _ = self._get_banned_users(broadcaster_id, authorization, user_id)
 
         return response[0] if len(response) > 0 else None
+
+    def send_whisper(self, sender_id: str, recepient_id: str, message: str, authorization) -> None:
+        """Calls the Helix Send Whisper endpoint
+        sender_id must match user id in authorization.
+        message must be at most 500 characters if sending a whisper to a new user, or 10,000 characters if sending to a user that has whispered you before.
+        """
+        response = self.post_204(
+            "/whispers",
+            {"from_user_id": sender_id, "to_user_id": recepient_id},
+            authorization=authorization,
+            json={"message": message},
+        )
+
+        log.info(response)
