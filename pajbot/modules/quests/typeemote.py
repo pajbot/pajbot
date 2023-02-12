@@ -96,5 +96,8 @@ class TypeEmoteQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
         redis.delete(self.current_emote_key)
 
-    def get_objective(self):
+    def get_objective(self) -> str:
+        if not self.current_emote:
+            return "No emote chosen, quest not initialized"
+
         return f"Use the {self.current_emote.code} emote {self.get_limit()} times"

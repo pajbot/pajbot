@@ -119,7 +119,7 @@ class BaseQuest(BaseModule):
             redis = RedisManager.get()
         redis.delete(self.progress_key)
 
-    def get_objective(self):
+    def get_objective(self) -> str:
         return self.OBJECTIVE
 
     def get_limit(self):

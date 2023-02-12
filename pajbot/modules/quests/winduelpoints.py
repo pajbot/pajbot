@@ -114,5 +114,5 @@ class WinDuelPointsQuestModule(BaseQuest):
         self.reset_progress(redis=redis)
         redis.delete(self.points_required_key)
 
-    def get_objective(self):
+    def get_objective(self) -> str:
         return f"Make a profit of {self.points_required} or more points in one or multiple duels."

@@ -74,5 +74,5 @@ class TypeMeMessageQuestModule(BaseQuest):
 
         self.reset_progress(redis=redis)
 
-    def get_objective(self):
+    def get_objective(self) -> str:
         return f"Type {self.get_limit()} /me messages with a length of minimum {self.get_quest_message_length()} letters KappaPride "
