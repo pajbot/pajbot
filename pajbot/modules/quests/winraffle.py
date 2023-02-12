@@ -24,11 +24,9 @@ class WinRaffleQuestModule(BaseQuest):
             # User has already finished this quest
             return
 
-        redis = RedisManager.get()
-
         self.finish_quest(winner)
 
-        self.set_user_progress(winner, user_progress, redis=redis)
+        self.set_user_progress(winner, user_progress)
 
     def on_raffle_win(self, winner: User, **rest) -> bool:
         self.winraffle_progress_quest(winner)

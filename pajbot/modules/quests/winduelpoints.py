@@ -71,14 +71,12 @@ class WinDuelPointsQuestModule(BaseQuest):
         # And the user won some points in this duel
         total_points_won += points_won
 
-        redis = RedisManager.get()
-
         if total_points_won >= self.points_required:
             # Reward the user with some tokens
             self.finish_quest(winner)
 
         # Save the users "points won" progress
-        self.set_user_progress(winner, total_points_won, redis=redis)
+        self.set_user_progress(winner, total_points_won)
 
         return True
 

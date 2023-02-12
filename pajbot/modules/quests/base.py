@@ -88,11 +88,10 @@ class BaseQuest(BaseModule):
     def get_user_progress(self, user: User, default: int = 0) -> int:
         return self.progress.get(user.id, default)
 
-    # TODO remove redis parameter
     @final
-    def set_user_progress(self, user: User, new_progress: int, redis=None) -> None:
-        if redis is None:
-            redis = RedisManager.get()
+    def set_user_progress(self, user: User, new_progress: int) -> None:
+        redis = RedisManager.get()
+
         redis.hset(self.progress_key, user.id, new_progress)
         self.progress[user.id] = new_progress
 
