@@ -106,7 +106,7 @@ class WinDuelPointsQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
-        self.reset_progress(redis=redis)
+        self.reset_progress()
         redis.delete(self.points_required_key)
 
     def get_objective(self) -> str:

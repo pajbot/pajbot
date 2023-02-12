@@ -70,9 +70,7 @@ class TypeMeMessageQuestModule(BaseQuest):
     def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
 
-        redis = RedisManager.get()
-
-        self.reset_progress(redis=redis)
+        self.reset_progress()
 
     def get_objective(self) -> str:
         return f"Type {self.get_limit()} /me messages with a length of minimum {self.get_quest_message_length()} letters KappaPride "

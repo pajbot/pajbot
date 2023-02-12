@@ -113,10 +113,9 @@ class BaseQuest(BaseModule):
         For example, what emote is supposed to be used in the type emote quest
         """
 
-    # TODO remove redis parameter
-    def reset_progress(self, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    def reset_progress(self) -> None:
+        redis = RedisManager.get()
+
         redis.delete(self.progress_key)
 
     def get_objective(self) -> str:

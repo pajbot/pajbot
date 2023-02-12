@@ -93,7 +93,7 @@ class TypeEmoteQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
-        self.reset_progress(redis=redis)
+        self.reset_progress()
         redis.delete(self.current_emote_key)
 
     def get_objective(self) -> str:

@@ -57,9 +57,7 @@ class WinDuelsQuestModule(BaseQuest):
     def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_duel_complete", self.on_duel_complete)
 
-        redis = RedisManager.get()
-
-        self.reset_progress(redis=redis)
+        self.reset_progress()
 
     def get_objective(self) -> str:
         return f"Win {self.get_limit()} duels and make profit in every duel."
