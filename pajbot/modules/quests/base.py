@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 import json
 import logging
 
@@ -5,18 +9,22 @@ from pajbot.managers.redis import RedisManager
 from pajbot.modules.base import BaseModule
 from pajbot.streamhelper import StreamHelper
 
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.modules.quest import QuestModule
+
 log = logging.getLogger(__name__)
 
 
 class BaseQuest(BaseModule):
     OBJECTIVE = "No objective set."
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.progress = {}
+        self.progress: Dict[str, Any] = {}
         self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
         self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
-        self.quest_module = None
+        self.quest_module: Optional[QuestModule] = None
 
     # TODO remove redis parameter
     def finish_quest(self, redis, user):

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import logging
 import random
 
@@ -7,6 +11,9 @@ from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
 from pajbot.streamhelper import StreamHelper
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +46,7 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     LIMIT = 1
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.points_required_key = f"{StreamHelper.get_streamer()}:current_quest_points_required"
         # The points_required variable is randomized at the start of the quest.

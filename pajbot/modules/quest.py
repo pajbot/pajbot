@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import logging
 import random
 
@@ -7,6 +11,9 @@ from pajbot.models.command import Command
 from pajbot.modules.base import BaseModule, ModuleSetting
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import find
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -52,10 +59,10 @@ class QuestModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.current_quest = None
-        self.current_quest_key = None
+        self.current_quest_key: Optional[str] = None
 
     def my_progress(self, bot, source, **rest):
         if self.current_quest is not None:

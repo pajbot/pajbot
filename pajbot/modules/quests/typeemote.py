@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import json
 import logging
 
@@ -8,6 +12,9 @@ from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
 from pajbot.streamhelper import StreamHelper
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +36,7 @@ class TypeEmoteQuestModule(BaseQuest):
         )
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.current_emote_key = f"{StreamHelper.get_streamer()}:current_quest_emote"
         self.current_emote = None
