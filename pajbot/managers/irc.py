@@ -58,8 +58,6 @@ class IRCManager:
         self.ping_task: Optional[ScheduledJob] = None
 
         self.num_privmsg_sent = 0
-        self.num_whispers_sent_minute = 0
-        self.num_whispers_sent_second = 0
 
         self.channels: List[str] = [self.bot.channel]
 
@@ -108,10 +106,10 @@ class IRCManager:
         if self.conn is not None:
             self.conn.ping("tmi.twitch.tv")
 
-    def privmsg(self, channel, message, is_whisper):
-        if self.conn is None or not self._can_send(is_whisper):
+    def privmsg(self, channel: str, message: str) -> None:
+        if self.conn is None:
             log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
-            self.bot.execute_delayed(2, self.privmsg, channel, message, is_whisper)
+            self.bot.execute_delayed(2, self.privmsg, channel, message)
             return
 
         self.conn.privmsg(channel, message)
@@ -119,17 +117,8 @@ class IRCManager:
         self.num_privmsg_sent += 1
         self.bot.execute_delayed(31, self._reduce_num_privmsg_sent)
 
-        if is_whisper:
-            self.num_whispers_sent_minute += 1
-            self.num_whispers_sent_second += 1
-            self.bot.execute_delayed(1, self._reduce_num_whispers_sent_second)
-            self.bot.execute_delayed(61, self._reduce_num_whispers_sent_minute)
-
-    def whisper(self, username: str, message: str) -> None:
-        self.privmsg(f"#{self.bot.bot_user.login}", f"/w {username} {message}", is_whisper=True)
-
     def send_raw(self, message):
-        if self.conn is None or not self._can_send(False):
+        if self.conn is None:
             log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
             self.bot.execute_delayed(2, self.send_raw, message)
             return
@@ -139,24 +128,11 @@ class IRCManager:
         self.num_privmsg_sent += 1
         self.bot.execute_delayed(31, self._reduce_num_privmsg_sent)
 
-    def _can_send(self, is_whisper):
-        if is_whisper:
-            return (
-                self.num_privmsg_sent < self.bot.tmi_rate_limits.privmsg_per_30
-                and self.num_whispers_sent_second < self.bot.tmi_rate_limits.whispers_per_second
-                and self.num_whispers_sent_minute < self.bot.tmi_rate_limits.whispers_per_minute
-            )
-
+    def _can_send(self) -> bool:
         return self.num_privmsg_sent < self.bot.tmi_rate_limits.privmsg_per_30
 
     def _reduce_num_privmsg_sent(self):
         self.num_privmsg_sent -= 1
-
-    def _reduce_num_whispers_sent_minute(self):
-        self.num_whispers_sent_minute -= 1
-
-    def _reduce_num_whispers_sent_second(self):
-        self.num_whispers_sent_second -= 1
 
     def _dispatcher(self, conn, event):
         method = getattr(self.bot, "on_" + event.type, None)

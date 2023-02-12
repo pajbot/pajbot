@@ -549,7 +549,7 @@ class Bot:
 
     # event is an event to clone and change the text from.
     # Usage: !eval bot.eval_from_file(event, 'https://pastebin.com/raw/LhCt8FLh')
-    def eval_from_file(self, event, url):
+    def eval_from_file(self, event, url) -> None:
         try:
             r = requests.get(url, headers={"User-Agent": self.user_agent})
             r.raise_for_status()
@@ -576,7 +576,7 @@ class Bot:
         if channel is None:
             channel = self.channel
 
-        self.irc.privmsg(channel, message, is_whisper=False)
+        self.irc.privmsg(channel, message)
 
     def c_uptime(self) -> str:
         return utils.time_ago(self.start_time)
@@ -802,9 +802,15 @@ class Bot:
             else:
                 self.timeout_warn(user, duration, reason, once)
 
-    def whisper(self, user: User, message: str) -> None:
+    def whisper(self, user: User | UserBasics, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
-            self.irc.whisper(user.login, message)
+            try:
+                self.twitch_helix_api.send_whisper(self.bot_user.id, user.id, message, self.bot_token_manager)
+            except HTTPError as e:
+                if e.response.status_code == 401:
+                    log.error(f"Failed to send whisper, unauthorized: {e} - {e.response.text}")
+                else:
+                    log.error(f"Failed to send whisper: {e} - {e.response.text}")
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
             self.privmsg(f"{user}, {message}")
         if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
@@ -820,20 +826,12 @@ class Bot:
             log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
     def whisper_login(self, login: str, message: str) -> None:
-        if self.whisper_output_mode == WhisperOutputMode.NORMAL:
-            self.irc.whisper(login, message)
-        if self.whisper_output_mode == WhisperOutputMode.CHAT:
-            self.privmsg(f"{login}, {message}")
-        if self.whisper_output_mode == WhisperOutputMode.CONTROL_HUB:
-            if self.control_hub_channel is not None:
-                self.privmsg(f"{login}, {message}", self.control_hub_channel)
-            else:
-                log.warning(
-                    "Whisper output mode set to `control_hub` but no control hub configured in config, "
-                    f"the following whisper will not be sent: To {login}: {message}"
-                )
-        elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
-            log.debug(f'Whisper "{message}" to user "{login}" was not sent (due to config setting)')
+        user = self.twitch_helix_api.get_user_basics_by_login(login)
+        if user is None:
+            log.error(f"No user with the login '{login}' found, cannot send whisper")
+            return
+
+        self.whisper(user, message)
 
     def send_message_to_user(
         self, user: User, message: str, event, method: str = "say", check_msg: bool = False
