@@ -46,7 +46,7 @@ class WinRaffleQuestModule(BaseQuest):
 
         self.load_progress()
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_raffle_win", self.on_raffle_win)
         HandlerManager.remove_handler("on_bingo_win", self.on_bingo_win)
         HandlerManager.remove_handler("on_multiraffle_win", self.on_multiraffle_win)

@@ -67,7 +67,7 @@ class TypeMeMessageQuestModule(BaseQuest):
 
         self.load_progress(redis=redis)
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
 
         redis = RedisManager.get()

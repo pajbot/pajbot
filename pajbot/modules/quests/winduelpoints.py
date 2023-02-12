@@ -106,7 +106,7 @@ class WinDuelPointsQuestModule(BaseQuest):
                 self.points_required = 500
             redis.set(self.points_required_key, self.points_required)
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_duel_complete", self.on_duel_complete)
 
         redis = RedisManager.get()

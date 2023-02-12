@@ -88,7 +88,7 @@ class TypeEmoteQuestModule(BaseQuest):
         else:
             self.current_emote = Emote(**json.loads(redis_json))
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
 
         redis = RedisManager.get()

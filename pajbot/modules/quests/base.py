@@ -80,7 +80,7 @@ class BaseQuest(BaseModule):
         while a quest/stream is already active"""
         log.error("No start quest implemented for this quest.")
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         """This method is ONLY called when the stream is stopped."""
         log.error("No stop quest implemented for this quest.")
 
