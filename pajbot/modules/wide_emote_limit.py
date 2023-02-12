@@ -100,9 +100,6 @@ class WideEmoteLimitModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot: Optional[Bot]) -> None:
-        super().__init__(bot)
-
     def on_message(self, source: User, message: str, emote_instances: List[EmoteInstance], msg_id: str, **rest) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
