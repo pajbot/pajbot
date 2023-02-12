@@ -15,8 +15,6 @@ class WinRaffleQuestModule(BaseQuest):
     PARENT_MODULE = QuestModule
     OBJECTIVE = "win a raffle or an emote bingo"
 
-    LIMIT = 1
-
     def winraffle_progress_quest(self, winner):
         user_progress = self.get_user_progress(winner, 0) + 1
         if user_progress > 1:

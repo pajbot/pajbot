@@ -27,7 +27,7 @@ class WinDuelsQuestModule(BaseQuest):
         )
     ]
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
     def on_duel_complete(self, winner, points_won, **rest):

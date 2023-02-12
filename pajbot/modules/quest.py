@@ -71,7 +71,7 @@ class QuestModule(BaseModule):
             quest_progress = self.current_quest.get_user_progress(source)
             quest_limit = self.current_quest.get_limit()
 
-            if quest_limit is not None and quest_progress >= quest_limit:
+            if quest_progress >= quest_limit:
                 bot.whisper(source, "You have completed todays quest!")
             elif quest_progress is not False:
                 bot.whisper(source, f"Your current quest progress is {quest_progress}")

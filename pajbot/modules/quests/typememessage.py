@@ -36,7 +36,7 @@ class TypeMeMessageQuestModule(BaseQuest):
         ),
     ]
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
     def get_quest_message_length(self):

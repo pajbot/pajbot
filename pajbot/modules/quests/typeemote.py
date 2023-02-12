@@ -42,7 +42,7 @@ class TypeEmoteQuestModule(BaseQuest):
         self.current_emote = None
         self.progress = {}
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
     def on_message(self, source, emote_instances, **rest):

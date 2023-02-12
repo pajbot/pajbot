@@ -122,11 +122,9 @@ class BaseQuest(BaseModule):
     def get_objective(self) -> str:
         return self.OBJECTIVE
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         """Returns the quest limit specified in the module.
-        If no quest limit is set, return None."""
+        If no quest limit is set by the module, return 1.
+        A value of 1 would indicate a quest that only has an incomplete/complete state."""
 
-        try:
-            return self.LIMIT
-        except:
-            return None
+        return 1

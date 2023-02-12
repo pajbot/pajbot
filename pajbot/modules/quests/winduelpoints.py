@@ -44,14 +44,12 @@ class WinDuelPointsQuestModule(BaseQuest):
         ),
     ]
 
-    LIMIT = 1
-
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.points_required_key = f"{StreamHelper.get_streamer()}:current_quest_points_required"
         # The points_required variable is randomized at the start of the quest.
         # It will be a value between settings['min_value'] and settings['max_value']
-        self.points_required = None
+        self.points_required: Optional[int] = None
         self.progress = {}
 
     def on_duel_complete(self, winner, points_won, **rest):
@@ -86,9 +84,6 @@ class WinDuelPointsQuestModule(BaseQuest):
         self.load_progress(redis=redis)
         self.load_data(redis=redis)
 
-        if self.points_required is not None:
-            self.LIMIT = self.points_required
-
     def load_data(self, redis=None):
         if redis is None:
             redis = RedisManager.get()
@@ -116,3 +111,10 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def get_objective(self) -> str:
         return f"Make a profit of {self.points_required} or more points in one or multiple duels."
+
+    def get_limit(self) -> int:
+        if self.points_required is None:
+            log.warn("Get limit called in WinDuelPoints before quest is initialized")
+            return 1
+
+        return self.points_required
