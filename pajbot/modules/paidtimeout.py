@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import datetime
 import logging
 
@@ -6,7 +10,10 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -88,7 +95,7 @@ class PaidTimeoutModule(BaseModule):
         ),
     ]
 
-    def base_paid_timeout(self, bot, source, message, _time, _cost):
+    def base_paid_timeout(self, bot: Bot, source: User, message: str, _time: int, _cost: int) -> bool:
         if message is None or len(message) == 0:
             return False
 
@@ -122,10 +129,10 @@ class PaidTimeoutModule(BaseModule):
                     source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
                 )
                 num_seconds = int((victim.timeout_end - now).total_seconds())
-                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}", once=True)
+                bot.timeout(victim, num_seconds, reason=f"Timed out by {source}")
             else:
                 bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
-                bot.timeout(victim, _time, reason=f"Timed out by {source}", once=True)
+                bot.timeout(victim, _time, reason=f"Timed out by {source}")
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
             if self.settings["show_on_clr"]:
@@ -134,19 +141,21 @@ class PaidTimeoutModule(BaseModule):
 
             HandlerManager.trigger("on_paid_timeout", source=source, victim=victim, cost=_cost, stop_on_false=False)
 
-    def paid_timeout(self, bot, source, message, **rest):
+        return True
+
+    def paid_timeout(self, bot, source, message, **rest) -> bool:
         _time = self.settings["timeout_length"]
         _cost = self.settings["cost"]
 
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
-    def paid_timeout2(self, bot, source, message, **rest):
+    def paid_timeout2(self, bot, source, message, **rest) -> bool:
         _time = self.settings["timeout_length2"]
         _cost = self.settings["cost2"]
 
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.paid_timeout,
             cost=self.settings["cost"],
@@ -175,17 +184,19 @@ class PaidTimeoutModule(BaseModule):
                 ],
             )
 
-    def on_message(self, source, whisper, **rest):
+    def on_message(self, source: User, whisper: bool, **rest) -> bool:
         if whisper:
-            return
+            return True
 
         # If a user types when timed out, we assume he's been unbanned for a good reason and remove his flag.
         source.timed_out = False
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
         if bot:
             HandlerManager.add_handler("on_message", self.on_message)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         if bot:
             HandlerManager.remove_handler("on_message", self.on_message)
