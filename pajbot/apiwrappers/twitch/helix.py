@@ -916,6 +916,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         """Calls the Helix Send Whisper endpoint
         sender_id must match user id in authorization.
         message must be at most 500 characters if sending a whisper to a new user, or 10,000 characters if sending to a user that has whispered you before.
+        messages that are too long will be truncated by Twitch.
         """
         self.post_204(
             "/whispers",
