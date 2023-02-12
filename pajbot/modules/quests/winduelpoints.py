@@ -7,6 +7,7 @@ import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest
@@ -50,18 +51,21 @@ class WinDuelPointsQuestModule(BaseQuest):
         # The points_required variable is randomized at the start of the quest.
         # It will be a value between settings['min_value'] and settings['max_value']
         self.points_required: Optional[int] = None
-        self.progress = {}
 
-    def on_duel_complete(self, winner, points_won, **rest):
+    def on_duel_complete(self, winner: User, points_won: int, **rest) -> bool:
         if points_won < 1:
             # This duel did not award any points.
             # That means it's entirely irrelevant to us
-            return
+            return True
+
+        if self.points_required is None:
+            # This duel happened before the quest was initialized
+            return True
 
         total_points_won = self.get_user_progress(winner, default=0)
         if total_points_won >= self.points_required:
             # The user has already won enough points, and been rewarded already.
-            return
+            return True
 
         # If we get here, this means the user has not completed the quest yet.
         # And the user won some points in this duel
@@ -75,6 +79,8 @@ class WinDuelPointsQuestModule(BaseQuest):
 
         # Save the users "points won" progress
         self.set_user_progress(winner, total_points_won, redis=redis)
+
+        return True
 
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
