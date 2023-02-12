@@ -14,6 +14,7 @@ import requests
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
+    from pajbot.models.user import User
 
 from pajbot.managers.schedule import ScheduleManager
 
@@ -91,8 +92,6 @@ class ActionParser:
             return MultiAction(data["args"], data["default"])
         else:
             raise Exception(f"Unknown action type: {data['type']}")
-
-        return None
 
 
 class IfSubstitution:
@@ -183,6 +182,9 @@ class BaseAction:
     def reset(self):
         pass
 
+    def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}) -> Any:
+        pass
+
 
 class MultiAction(BaseAction):
     type = "multi"
@@ -237,6 +239,7 @@ class MultiAction(BaseAction):
         """
 
         cmd = None
+        extra_msg = None
         if message:
             msg_lower_parts = message.lower().split(" ")
             command = msg_lower_parts[0]

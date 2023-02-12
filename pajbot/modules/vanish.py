@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
 from pajbot.models.command import Command
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.user import User
+from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -59,10 +67,12 @@ class VanishModule(BaseModule):
         ),
     ]
 
-    def vanish_command(self, bot, source, **rest):
-        bot.execute_delayed(0.5, bot.timeout, source, 1, reason=self.settings["timeout_reason"], once=True)
+    def vanish_command(self, bot: Bot, source: User, **rest) -> bool:
+        bot.execute_delayed(0.5, lambda: bot.timeout(source, 1, reason=self.settings["timeout_reason"]))
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.vanish_command,
             delay_all=self.settings["online_global_cd"],

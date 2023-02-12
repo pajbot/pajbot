@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -87,15 +95,19 @@ class ActionCheckerModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source, message, event, msg_id, **rest):
+    def on_message(self, source: User, event: Any, msg_id: str, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return
+            return True
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return
+            return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return True
 
         if event.type == "action" and self.settings["disallow_action_messages"] is True:
             self.bot.delete_or_timeout(
@@ -105,7 +117,6 @@ class ActionCheckerModule(BaseModule):
                 self.settings["timeout_length"],
                 self.settings["disallow_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
@@ -117,12 +128,13 @@ class ActionCheckerModule(BaseModule):
                 self.settings["timeout_length"],
                 self.settings["allow_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
             return False
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
