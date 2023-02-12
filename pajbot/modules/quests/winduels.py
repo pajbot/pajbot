@@ -43,7 +43,7 @@ class WinDuelsQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         if user_progress == self.get_limit():
-            self.finish_quest(redis, winner)
+            self.finish_quest(winner)
 
         self.set_user_progress(winner, user_progress, redis=redis)
 

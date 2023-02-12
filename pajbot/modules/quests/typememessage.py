@@ -56,7 +56,7 @@ class TypeMeMessageQuestModule(BaseQuest):
         redis = RedisManager.get()
 
         if user_progress == self.get_limit():
-            self.finish_quest(redis, source)
+            self.finish_quest(source)
 
         self.set_user_progress(source, user_progress, redis=redis)
 

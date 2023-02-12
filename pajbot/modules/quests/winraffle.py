@@ -25,7 +25,7 @@ class WinRaffleQuestModule(BaseQuest):
 
         redis = RedisManager.get()
 
-        self.finish_quest(redis, winner)
+        self.finish_quest(winner)
 
         self.set_user_progress(winner, user_progress, redis=redis)
 

@@ -12,7 +12,6 @@ from pajbot.streamhelper import StreamHelper
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.managers.redis import RedisType
     from pajbot.modules.quest import QuestModule
 
 log = logging.getLogger(__name__)
@@ -28,8 +27,7 @@ class BaseQuest(BaseModule):
         self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
         self.quest_module: Optional[QuestModule] = None
 
-    # TODO remove redis parameter
-    def finish_quest(self, redis: RedisType, user: User) -> None:
+    def finish_quest(self, user: User) -> None:
         if not self.quest_module:
             log.error("Quest module not initialized")
             return
@@ -37,6 +35,8 @@ class BaseQuest(BaseModule):
         if self.bot is None:
             log.warning("Module bot is None")
             return
+
+        redis = RedisManager.get()
 
         stream_id = StreamHelper.get_current_stream_id()
 
