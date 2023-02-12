@@ -757,6 +757,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
             follower_mode=follower_mode,
             follower_mode_duration=follower_mode_duration,
         )
+
     def update_emote_only_mode(self, channel_id: str, bot_id: str, authorization, emote_mode: bool):
         """Calls the _unique_chat_settings function using the emote_mode parameter.
         channel_id, bot_id and emote_mode are all required fields. bot_id must match the user ID in authorization."""
