@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 
 
 def parse_follower_duration(duration_str: str) -> Optional[int]:
+    """Parse an input string (e.g. 2w) and output it as a number of minutes,
+    or None if the string was unable to be parsed.
+    We ensure the duration returned is no less than 0 and no more than 3 months."""
     if duration_str == "":
         return None
 
@@ -28,12 +31,9 @@ def parse_follower_duration(duration_str: str) -> Optional[int]:
         log.error(f"Failed to parse time from {duration_str}")
         return None
 
-    duration_m = math.floor(duration_s / 60)
+    duration_m = max(math.floor(duration_s / 60), 0)
 
-    if duration_m < 1:
-        return None
-
-    return duration_m
+    return min(duration_m, 129600)
 
 
 class DefaultChatStatesModule(BaseModule):
