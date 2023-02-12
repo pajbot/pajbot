@@ -83,9 +83,7 @@ class WinDuelPointsQuestModule(BaseQuest):
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
 
-        redis = RedisManager.get()
-
-        self.load_progress(redis=redis)
+        self.load_progress()
         self.load_data()
 
     def load_data(self) -> None:

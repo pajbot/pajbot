@@ -3,7 +3,6 @@ from typing import List
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
 from pajbot.modules.quest import QuestModule
 from pajbot.modules.quests import BaseQuest

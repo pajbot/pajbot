@@ -1,7 +1,6 @@
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
@@ -51,9 +50,7 @@ class WinDuelsQuestModule(BaseQuest):
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
 
-        redis = RedisManager.get()
-
-        self.load_progress(redis=redis)
+        self.load_progress()
 
     def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_duel_complete", self.on_duel_complete)

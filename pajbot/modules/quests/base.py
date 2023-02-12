@@ -95,10 +95,11 @@ class BaseQuest(BaseModule):
         redis.hset(self.progress_key, user.id, new_progress)
         self.progress[user.id] = new_progress
 
-    # TODO remove redis parameter
-    def load_progress(self, redis=None) -> None:
-        if redis is None:
-            redis = RedisManager.get()
+    def load_progress(self) -> None:
+        """Reset & load progress from Redis
+        Used when a quest is already started and the bot restarts"""
+        redis = RedisManager.get()
+
         self.progress = {}
         old_progress = redis.hgetall(self.progress_key)
         for user_id, progress in old_progress.items():

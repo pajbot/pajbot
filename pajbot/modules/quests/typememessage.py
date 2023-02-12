@@ -3,7 +3,6 @@ from typing import Any
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
@@ -66,9 +65,7 @@ class TypeMeMessageQuestModule(BaseQuest):
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
 
-        redis = RedisManager.get()
-
-        self.load_progress(redis=redis)
+        self.load_progress()
 
     def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

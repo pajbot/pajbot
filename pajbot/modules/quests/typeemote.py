@@ -67,9 +67,7 @@ class TypeEmoteQuestModule(BaseQuest):
     def start_quest(self) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
 
-        redis = RedisManager.get()
-
-        self.load_progress(redis=redis)
+        self.load_progress()
         self.load_data()
 
     def load_data(self) -> None:
