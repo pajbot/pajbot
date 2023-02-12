@@ -6,11 +6,13 @@ import json
 import logging
 
 from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.base import BaseModule
 from pajbot.streamhelper import StreamHelper
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
+    from pajbot.managers.redis import RedisType
     from pajbot.modules.quest import QuestModule
 
 log = logging.getLogger(__name__)
@@ -27,9 +29,13 @@ class BaseQuest(BaseModule):
         self.quest_module: Optional[QuestModule] = None
 
     # TODO remove redis parameter
-    def finish_quest(self, redis, user):
+    def finish_quest(self, redis: RedisType, user: User) -> None:
         if not self.quest_module:
             log.error("Quest module not initialized")
+            return
+
+        if self.bot is None:
+            log.warning("Module bot is None")
             return
 
         stream_id = StreamHelper.get_current_stream_id()
