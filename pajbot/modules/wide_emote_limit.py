@@ -130,7 +130,6 @@ class WideEmoteLimitModule(BaseModule):
                 self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
                 self.settings["timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
-                once=True,
             )
 
             return False
