@@ -78,7 +78,7 @@ class WinDuelPointsQuestModule(BaseQuest):
         # Save the users "points won" progress
         self.set_user_progress(winner, total_points_won, redis=redis)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
 
         redis = RedisManager.get()
@@ -86,7 +86,8 @@ class WinDuelPointsQuestModule(BaseQuest):
         self.load_progress(redis=redis)
         self.load_data(redis=redis)
 
-        self.LIMIT = self.points_required
+        if self.points_required is not None:
+            self.LIMIT = self.points_required
 
     def load_data(self, redis=None):
         if redis is None:

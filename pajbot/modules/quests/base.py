@@ -75,7 +75,7 @@ class BaseQuest(BaseModule):
         message = f"You finished todays quest! You have been awarded with {reward_amount} {reward_type}."
         self.bot.whisper(user, message)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         """This method is triggered by either the stream starting, or the bot loading up
         while a quest/stream is already active"""
         log.error("No start quest implemented for this quest.")

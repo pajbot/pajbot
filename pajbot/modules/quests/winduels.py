@@ -47,7 +47,7 @@ class WinDuelsQuestModule(BaseQuest):
 
         self.set_user_progress(winner, user_progress, redis=redis)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
 
         redis = RedisManager.get()

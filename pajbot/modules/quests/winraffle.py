@@ -39,7 +39,7 @@ class WinRaffleQuestModule(BaseQuest):
         for winner in winners:
             self.on_raffle_win(winner)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_raffle_win", self.on_raffle_win)
         HandlerManager.add_handler("on_bingo_win", self.on_bingo_win)
         HandlerManager.add_handler("on_multiraffle_win", self.on_multiraffle_win)

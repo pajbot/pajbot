@@ -60,7 +60,7 @@ class TypeMeMessageQuestModule(BaseQuest):
 
         self.set_user_progress(source, user_progress, redis=redis)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
 
         redis = RedisManager.get()
