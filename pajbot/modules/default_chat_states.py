@@ -98,7 +98,7 @@ class DefaultChatStatesModule(BaseModule):
         ),
         ModuleSetting(
             key="followersonly_time",
-            label="Amount of time to use when setting followers only mode | Format is number followed by time format. E.g. 30m, 1 week, 5 days 12 hours",
+            label="Amount of time to use when setting followers only mode | Format is number followed by time format. E.g. 30m, 1 week, 5 days 12 hours. Valid time selectors are seconds, minutes, hours, days, and weeks.",
             type="text",
             required=False,
             placeholder="",
