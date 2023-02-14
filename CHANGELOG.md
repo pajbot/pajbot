@@ -21,6 +21,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Breaking: Migrated Unique Chat function from IRC to Helix. (#2177)
 - Breaking: Migrated Announce from IRC to Helix. (#2141)
 - Breaking: Migrated Delete moderation action from IRC to Helix. (#2173)
+- Bugfix: Handle empty strings in the point parser. (#2325)
 - Bugfix: Exclude deleted accounts from twitch subscribers list. (#2292)
 - Bugfix: Fix bot not correctly tracking online/offline state of stream due to TwitchGame not being deserialized properly. (#2243)
 - Bugfix: Exclude deleted accounts from Twitch VIP & Moderators lists, and try to handle empty usernames better in other places. (#2319)
