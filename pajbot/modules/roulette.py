@@ -211,7 +211,7 @@ class RouletteModule(BaseModule):
             )
             return False
 
-        msg_split = message.split(" ")
+        msg_split = [part for part in message.split(" ") if part != ""]
         try:
             bet = utils.parse_points_amount(source, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
