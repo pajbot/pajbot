@@ -24,6 +24,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Bugfix: Exclude deleted accounts from twitch subscribers list. (#2292)
 - Bugfix: Fix bot not correctly tracking online/offline state of stream due to TwitchGame not being deserialized properly. (#2243)
 - Bugfix: Exclude deleted accounts from Twitch VIP & Moderators lists, and try to handle empty usernames better in other places. (#2319)
+- Bugfix: Fix bot not handling missing streamer token when trying to refresh moderators. (#2324)
 - Minor: Updated `Wide Emote Limit` module to account for wide BTTV emotes (##2272)
 - Minor: Migrated LastFM module to the `reply` response type. (#2118, #2128)
 - Minor: Increased efficiency and speed of subscriber status refresh. (#2203)
@@ -32,6 +33,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Dev: Migrated to 7TV's new REST API. (#2268)
 - Dev: Add a bunch of typing related to `on_message`/`on_pubmsg` & command actions. (#2321)
 - Dev: Add typing to all quest modules. (#2322)
+- Dev: Add typing to the ModeratorsRefresh module. (#2324)
 
 ## v1.62
 
