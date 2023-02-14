@@ -6,7 +6,7 @@ import logging
 
 from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
-from pajbot.managers.schedule import ScheduleManager, ScheduledJob
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleType
