@@ -13,6 +13,9 @@ ALLIN_PHRASES = {"all", "allin"}
 
 
 def parse_points_amount(user: User, point_string: str) -> int:
+    if parse_points_amount == "":
+        return 0
+
     if point_string.startswith("0b"):
         try:
             bet = int(point_string, 2)
