@@ -68,9 +68,10 @@ class ModeratorsRefreshModule(BaseModule):
                 log.error(
                     "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."
                 )
-                return
             else:
                 log.error(f"Failed to update moderators: {e} - {e.response.text}")
+
+            return
 
         with DBManager.create_session_scope() as db_session:
             db_session.execute(
