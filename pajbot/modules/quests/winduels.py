@@ -1,10 +1,10 @@
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
-from pajbot.modules.quests import BaseQuest
+from pajbot.modules.quests.base import BaseQuest
 
 log = logging.getLogger(__name__)
 
@@ -27,39 +27,35 @@ class WinDuelsQuestModule(BaseQuest):
         )
     ]
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def on_duel_complete(self, winner, points_won, **rest):
+    def on_duel_complete(self, winner: User, points_won: int, **rest) -> bool:
         if points_won < 1:
-            return
+            return True
 
         user_progress = self.get_user_progress(winner, default=0)
         if user_progress >= self.get_limit():
-            return
+            return True
 
         user_progress += 1
 
-        redis = RedisManager.get()
-
         if user_progress == self.get_limit():
-            self.finish_quest(redis, winner)
+            self.finish_quest(winner)
 
-        self.set_user_progress(winner, user_progress, redis=redis)
+        self.set_user_progress(winner, user_progress)
 
-    def start_quest(self):
+        return True
+
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_duel_complete", self.on_duel_complete)
 
-        redis = RedisManager.get()
+        self.load_progress()
 
-        self.load_progress(redis=redis)
-
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_duel_complete", self.on_duel_complete)
 
-        redis = RedisManager.get()
+        self.reset_progress()
 
-        self.reset_progress(redis=redis)
-
-    def get_objective(self):
+    def get_objective(self) -> str:
         return f"Win {self.get_limit()} duels and make profit in every duel."

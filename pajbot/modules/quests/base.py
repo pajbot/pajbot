@@ -1,9 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Optional, final
+
 import json
 import logging
 
 from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.base import BaseModule
 from pajbot.streamhelper import StreamHelper
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
+    from pajbot.modules.quest import QuestModule
 
 log = logging.getLogger(__name__)
 
@@ -11,18 +20,23 @@ log = logging.getLogger(__name__)
 class BaseQuest(BaseModule):
     OBJECTIVE = "No objective set."
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.progress = {}
+        self.progress: Dict[str, int] = {}
         self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
         self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
-        self.quest_module = None
+        self.quest_module: Optional[QuestModule] = None
 
-    # TODO remove redis parameter
-    def finish_quest(self, redis, user):
+    def finish_quest(self, user: User) -> None:
         if not self.quest_module:
             log.error("Quest module not initialized")
             return
+
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return
+
+        redis = RedisManager.get()
 
         stream_id = StreamHelper.get_current_stream_id()
 
@@ -61,29 +75,31 @@ class BaseQuest(BaseModule):
         message = f"You finished todays quest! You have been awarded with {reward_amount} {reward_type}."
         self.bot.whisper(user, message)
 
-    def start_quest(self):
+    def start_quest(self) -> None:
         """This method is triggered by either the stream starting, or the bot loading up
         while a quest/stream is already active"""
         log.error("No start quest implemented for this quest.")
 
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         """This method is ONLY called when the stream is stopped."""
         log.error("No stop quest implemented for this quest.")
 
-    def get_user_progress(self, user, default=False):
+    @final
+    def get_user_progress(self, user: User, default: int = 0) -> int:
         return self.progress.get(user.id, default)
 
-    # TODO remove redis parameter
-    def set_user_progress(self, user, new_progress, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    @final
+    def set_user_progress(self, user: User, new_progress: int) -> None:
+        redis = RedisManager.get()
+
         redis.hset(self.progress_key, user.id, new_progress)
         self.progress[user.id] = new_progress
 
-    # TODO remove redis parameter
-    def load_progress(self, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    def load_progress(self) -> None:
+        """Reset & load progress from Redis
+        Used when a quest is already started and the bot restarts"""
+        redis = RedisManager.get()
+
         self.progress = {}
         old_progress = redis.hgetall(self.progress_key)
         for user_id, progress in old_progress.items():
@@ -92,27 +108,23 @@ class BaseQuest(BaseModule):
             except (TypeError, ValueError):
                 pass
 
-    # TODO remove redis parameter
-    def load_data(self, redis=None):
+    def load_data(self) -> None:
         """
         Useful base method for loading dynamic parts of the quest.
         For example, what emote is supposed to be used in the type emote quest
         """
 
-    # TODO remove redis parameter
-    def reset_progress(self, redis=None):
-        if redis is None:
-            redis = RedisManager.get()
+    def reset_progress(self) -> None:
+        redis = RedisManager.get()
+
         redis.delete(self.progress_key)
 
-    def get_objective(self):
+    def get_objective(self) -> str:
         return self.OBJECTIVE
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         """Returns the quest limit specified in the module.
-        If no quest limit is set, return None."""
+        If no quest limit is set by the module, return 1.
+        A value of 1 would indicate a quest that only has an incomplete/complete state."""
 
-        try:
-            return self.LIMIT
-        except:
-            return None
+        return 1

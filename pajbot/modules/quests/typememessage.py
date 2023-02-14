@@ -1,10 +1,12 @@
+from typing import Any
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
-from pajbot.managers.redis import RedisManager
+from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
-from pajbot.modules.quests import BaseQuest
+from pajbot.modules.quests.base import BaseQuest
 
 log = logging.getLogger(__name__)
 
@@ -36,43 +38,39 @@ class TypeMeMessageQuestModule(BaseQuest):
         ),
     ]
 
-    def get_limit(self):
+    def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def get_quest_message_length(self):
+    def get_quest_message_length(self) -> int:
         return self.settings["quest_message_length"]
 
-    def on_message(self, source, message, event, **rest):
+    def on_message(self, source: User, message: str, event: Any, **rest) -> bool:
         if len(message) < self.get_quest_message_length() or event.type != "action":
-            return
+            return True
 
         user_progress = self.get_user_progress(source, default=0)
 
         if user_progress >= self.get_limit():
-            return
+            return True
 
         user_progress += 1
 
-        redis = RedisManager.get()
-
         if user_progress == self.get_limit():
-            self.finish_quest(redis, source)
+            self.finish_quest(source)
 
-        self.set_user_progress(source, user_progress, redis=redis)
+        self.set_user_progress(source, user_progress)
 
-    def start_quest(self):
+        return True
+
+    def start_quest(self) -> None:
         HandlerManager.add_handler("on_message", self.on_message)
 
-        redis = RedisManager.get()
+        self.load_progress()
 
-        self.load_progress(redis=redis)
-
-    def stop_quest(self):
+    def stop_quest(self) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
 
-        redis = RedisManager.get()
+        self.reset_progress()
 
-        self.reset_progress(redis=redis)
-
-    def get_objective(self):
+    def get_objective(self) -> str:
         return f"Type {self.get_limit()} /me messages with a length of minimum {self.get_quest_message_length()} letters KappaPride "

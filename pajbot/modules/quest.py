@@ -1,12 +1,21 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
+
 import logging
 import random
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.command import Command
+from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
+from pajbot.modules.quests.base import BaseQuest
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import find
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -52,17 +61,17 @@ class QuestModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.current_quest = None
-        self.current_quest_key = None
+        self.current_quest: Optional[BaseQuest] = None
+        self.current_quest_key: Optional[str] = None
 
-    def my_progress(self, bot, source, **rest):
+    def my_progress(self, bot: Bot, source: User, **rest) -> bool:
         if self.current_quest is not None:
             quest_progress = self.current_quest.get_user_progress(source)
             quest_limit = self.current_quest.get_limit()
 
-            if quest_limit is not None and quest_progress >= quest_limit:
+            if quest_progress >= quest_limit:
                 bot.whisper(source, "You have completed todays quest!")
             elif quest_progress is not False:
                 bot.whisper(source, f"Your current quest progress is {quest_progress}")
@@ -71,7 +80,9 @@ class QuestModule(BaseModule):
         else:
             bot.say(f"{source}, There is no quest active right now.")
 
-    def get_current_quest(self, bot, event, source, **rest):
+        return True
+
+    def get_current_quest(self, bot: Bot, event: Any, source: User, **rest) -> bool:
         if self.current_quest:
             message_quest = f"the current quest active is {self.current_quest.get_objective()}."
         else:
@@ -79,11 +90,15 @@ class QuestModule(BaseModule):
 
         bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
 
-    def get_user_tokens(self, bot, event, source, **rest):
+        return True
+
+    def get_user_tokens(self, bot: Bot, event: Any, source: User, **rest) -> bool:
         message_tokens = f"You have {source.tokens} tokens."
         bot.send_message_to_user(source, message_tokens, event, method=self.settings["action_tokens"])
 
-    def load_commands(self, **options):
+        return True
+
+    def load_commands(self, **options) -> None:
         self.commands["myprogress"] = Command.raw_command(
             self.my_progress, can_execute_with_whisper=True, delay_all=0, delay_user=10
         )
@@ -96,7 +111,11 @@ class QuestModule(BaseModule):
 
         self.commands["quest"] = self.commands["currentquest"]
 
-    def on_stream_start(self, **rest):
+    def on_stream_start(self, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if not self.current_quest_key:
             log.error("Current quest key not set when on_stream_start event fired, something is wrong")
             return False
@@ -107,6 +126,12 @@ class QuestModule(BaseModule):
             return False
 
         self.current_quest = random.choice(available_quests)
+
+        if self.current_quest is None:
+            # Protective, should be covered by the check above
+            log.error("No quests enabled.")
+            return False
+
         self.current_quest.quest_module = self
         self.current_quest.start_quest()
 
@@ -119,7 +144,11 @@ class QuestModule(BaseModule):
 
         return True
 
-    def on_stream_stop(self, **rest):
+    def on_stream_stop(self, **rest) -> bool:
+        if self.bot is None:
+            log.warning("Module bot is None")
+            return True
+
         if self.current_quest is None:
             log.info("No quest active on stream stop.")
             return False
@@ -145,15 +174,15 @@ class QuestModule(BaseModule):
 
         return True
 
-    def on_managers_loaded(self, **rest):
+    def on_managers_loaded(self, **rest) -> bool:
         # This function is used to resume a quest in case the bot starts when the stream is already live
         if not self.current_quest_key:
             log.error("Current quest key not set when on_managers_loaded event fired, something is wrong")
-            return
+            return True
 
         if self.current_quest:
             # There's already a quest chosen for today
-            return
+            return True
 
         redis = RedisManager.get()
 
@@ -163,21 +192,25 @@ class QuestModule(BaseModule):
 
         if not current_quest_id:
             # No "current quest" was chosen by an above manager
-            return
+            return True
 
         current_quest_id = current_quest_id
         quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
         if not quest:
             log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
-            return
+            return True
+
+        assert isinstance(quest, BaseQuest)
 
         self.current_quest = quest
         self.current_quest.quest_module = self
         self.current_quest.start_quest()
         log.info(f"Resumed quest {quest.get_objective()}")
 
-    def enable(self, bot) -> None:
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
         if self.bot:
             self.current_quest_key = f"{self.bot.streamer.login}:current_quest"
 
@@ -185,7 +218,7 @@ class QuestModule(BaseModule):
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
         HandlerManager.add_handler("on_managers_loaded", self.on_managers_loaded)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_stream_start", self.on_stream_start)
         HandlerManager.remove_handler("on_stream_stop", self.on_stream_stop)
         HandlerManager.remove_handler("on_managers_loaded", self.on_managers_loaded)
