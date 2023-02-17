@@ -749,8 +749,6 @@ class Bot:
 
     def _timeout(self, user_id: str, duration: int, reason: Optional[str] = None) -> None:
         try:
-            if reason:
-                reason = f"forsen - {reason} - forsen"
             self.twitch_helix_api.timeout_user(
                 self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, duration, reason
             )
