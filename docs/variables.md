@@ -86,11 +86,10 @@ Both `increasekvi` and `decreasekvi` return the final value after the modificati
 #### Data from `extra`:
 
 `$(tb:trigger)` - String - Command trigger (e.g. "logs" for "!logs")\
-`$(tb:user)` - String - Sender login name\
+~~`$(tb:user)`~~ - Use `$(source:login)` for the sender's login name instead\
 `$(tb:emote_instances)` - List of EmoteInstance objects - useful for debugging. Outputs something like this: [[twitch] Kappa @ 11-16, [twitch] Keepo @ 17-22, [twitch] Keepo @ 23-28]\
 `$(tb:emote_counts)` - List of EmoteInstanceCount objects - useful for debugging. Outputs something like this: {'Kappa': [twitch] Kappa @ [12-17], 'Keepo': [twitch] Keepo @ [18-23, 24-29]}\
-`$(tb:source)` - pajbot.models.user.UserCombined - (Command sender)\
- -> see user: for all fields on user objects\
+~~`$(tb:source)`~~ - Use `$(source:name)` for the sender's display name instead\
 `$(tb:command)` - pajbot.models.command.Command\
 `$(tb:message)` - String - message after the command
 

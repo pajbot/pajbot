@@ -31,6 +31,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Increased efficiency and speed of subscriber status refresh. (#2203)
 - Minor: Install documentation now recommends the use of limited-scope CloudFlare API tokens. (#2201)
 - Minor: Add setting to control how frequently user ranks should be refreshed. (#2320)
+- Minor: Update variable documentation to clarify how (not) to use `tb:user` and `tb:source`. (#2333)
 - Dev: Migrated to 7TV's new REST API. (#2268)
 - Dev: Add a bunch of typing related to `on_message`/`on_pubmsg` & command actions. (#2321)
 - Dev: Add typing to all quest modules. (#2322)
