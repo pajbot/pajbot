@@ -18,3 +18,11 @@ Current minimal supported Python version is **3.8**.
 ## Detailed install
 
 You can find a detailed installation guide for **pajbot** in the [`install-docs` directory](./install-docs) of this repository.
+
+## Run-time options
+
+Some values can be set to apply to your bot without modifying the config file, these are mostly for out-of-bot things.  
+They are configured using environment variables. The following options are available:
+
+- `PB1_LOG_HIDE_TIMESTAMPS`  
+   If this option is set to `1`, all log entries will be printed without a timestamp prefix.

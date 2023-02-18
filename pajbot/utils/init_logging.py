@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 from colorama import Fore, Style
@@ -36,7 +37,15 @@ def init_logging(app: str = "pajbot") -> logging.Logger:
     logger = logging.getLogger(app)
     logger.setLevel(logging.DEBUG)
 
-    colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
+    hide_timestamps = os.getenv("PB1_LOG_HIDE_TIMESTAMPS", "0") == "1"
+
+    colored_formatter: ColoredFormatter
+
+    if hide_timestamps:
+        colored_formatter = ColoredFormatter("[%(levelname)-20s] %(message)s")
+    else:
+        colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
+
     log_filter = LogFilter(logging.WARNING)
 
     logger_stdout = logging.StreamHandler(sys.stdout)
