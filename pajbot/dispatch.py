@@ -353,14 +353,17 @@ class Dispatch:
 
     @staticmethod
     def tweet(bot, source, message, event, args):
-        if message and len(message) > 1:
-            try:
-                log.info("sending tweet: %s", message[:140])
-                bot.twitter_manager.twitter_client.update_status(status=message)
-                bot.whisper(source, "Tweet sent successfully!")
-            except Exception:
-                log.exception("Caught an exception")
-                bot.whisper(source, "An error occurred while trying to send your tweet.")
+        if bot.twitter_mode in ["0", "2"]:
+            if message and len(message) > 1:
+                try:
+                    log.info("sending tweet: %s", message[:140])
+                    bot.twitter_manager.twitter_client.update_status(status=message)
+                    bot.whisper(source, "Tweet sent successfully!")
+                except Exception:
+                    log.exception("Caught an exception")
+                    bot.whisper(source, "An error occurred while trying to send your tweet.")
+        else:
+            log.error("Twitter mode in config not set to 0 or 2, will not send tweet.")
 
     @staticmethod
     def eval(bot, source, message, event, args):
