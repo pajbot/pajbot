@@ -353,7 +353,7 @@ class Dispatch:
 
     @staticmethod
     def tweet(bot, source, message, event, args):
-        if bot.twitter_disallow_writing == "0":
+        if bot.twitter_disallow_write == "0":
             if message and len(message) > 1:
                 try:
                     log.info("sending tweet: %s", message[:140])

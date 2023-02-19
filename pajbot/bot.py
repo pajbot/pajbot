@@ -254,7 +254,7 @@ class Bot:
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
         self.websocket_manager = WebSocketManager(self)
-        self.twitter_disallow_writing = config["twitter"].get("disallow_write", "0")
+        self.twitter_disallow_write = config["twitter"].get("disallow_write", "0")
 
         HandlerManager.trigger("on_managers_loaded")
 
