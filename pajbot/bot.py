@@ -354,10 +354,10 @@ class Bot:
             return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
-        if self.twitter_mode in ["0", "1"]:
-            return self.twitter_manager.get_last_tweet(key)
-        else:
+        if self.twitter_mode not in ["0", "1"]:
             log.error("Twitter mode in config not set to 0 or 1, will not get tweet.")
+        else:
+            return self.twitter_manager.get_last_tweet(key)
 
     def get_emote_epm(self, key, extra={}) -> Optional[str]:
         epm = self.epm_manager.get_emote_epm(key)
