@@ -254,6 +254,7 @@ class Bot:
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
         self.websocket_manager = WebSocketManager(self)
+        self.twitter_mode = config["twitter"].get("mode", "0")
 
         HandlerManager.trigger("on_managers_loaded")
 
@@ -353,7 +354,9 @@ class Bot:
             return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
-        return self.twitter_manager.get_last_tweet(key)
+        if self.twitter_mode in ["0", "1"]:
+            return self.twitter_manager.get_last_tweet(key)
+        return log.error("Twitter mode in config not set to 0 or 1, will not get tweet.")
 
     def get_emote_epm(self, key, extra={}) -> Optional[str]:
         epm = self.epm_manager.get_emote_epm(key)
