@@ -18,7 +18,6 @@ pylast==5.1.0
 pyOpenSSL==23.0.0 # for twisted.internet.ssl
 pytz==2022.7.1
 rapidfuzz==2.13.7
-ratelimiter==1.2.0.post0
 redis==4.5.1
 regex==2022.10.31
 requests==2.28.2
