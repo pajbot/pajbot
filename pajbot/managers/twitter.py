@@ -61,7 +61,7 @@ class ClientProtocol(WebSocketClientProtocol):
 
         message = json.loads(payload)
         if message["type"] == "tweet":
-            if self.bot.twitter_mode in ["0", "1"]:
+            if self.manager.bot.twitter_mode in ["0", "1"]:
                 tweet = message["data"]
                 if (
                     tweet["user"]["screen_name"].lower() in self.manager.relevant_users
@@ -119,7 +119,7 @@ class MyStreamListener(tweepy.Stream):
         )
 
     def on_status(self, status: tweepy.models.Status) -> None:
-        if self.bot.twitter_mode in ["0", "1"]:
+        if self.manager.bot.twitter_mode in ["0", "1"]:
             if (
                 status.user.screen_name.lower() in self.relevant_users
                 and not status.text.startswith("RT ")
