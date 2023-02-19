@@ -370,6 +370,10 @@ class Dispatch:
         else:
             log.error("Disallow writing set to 1 in config, will not send tweet.")
             bot.whisper(source, "Unable to send tweet due to configuration.")
+        if bot.twitter_manager.twitter_client is None:
+            log.warn("Twitter manager is not setup!")
+            return
+
 
     @staticmethod
     def eval(bot, source, message, event, args):
