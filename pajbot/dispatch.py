@@ -1,4 +1,6 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 import re
@@ -6,6 +8,9 @@ import re
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -352,7 +357,7 @@ class Dispatch:
             bot.whisper(source, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
     @staticmethod
-    def tweet(bot, source, message, event, args):
+    def tweet(bot: Bot, source: User, message: str, event: Any, args: Any) -> None:
         if bot.twitter_disallow_write == "0":
             if message and len(message) > 1:
                 try:
