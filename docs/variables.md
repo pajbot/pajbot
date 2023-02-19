@@ -128,7 +128,7 @@ Both `increasekvi` and `decreasekvi` return the final value after the modificati
 
 #### lasttweet - last tweet
 
-`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)". You can use arguments to allow users to choose their own twitter user to fetch. E.g. `$(lasttweet;1)` would fetch the twitter user in the first argument.
+`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)". You can use arguments to allow users to choose their own twitter user to fetch. E.g. `$(lasttweet;1)` would fetch the twitter user in the first argument. Will only work if `mode` config option is set to `0` or `1`.
 
 #### Source
 
