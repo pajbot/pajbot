@@ -353,7 +353,7 @@ class Dispatch:
 
     @staticmethod
     def tweet(bot, source, message, event, args):
-        if bot.twitter_mode in ["0", "2"]:
+        if bot.twitter_disallow_writing == "0":
             if message and len(message) > 1:
                 try:
                     log.info("sending tweet: %s", message[:140])
@@ -363,7 +363,7 @@ class Dispatch:
                     log.exception("Caught an exception")
                     bot.whisper(source, "An error occurred while trying to send your tweet.")
         else:
-            log.error("Twitter mode in config not set to 0 or 2, will not send tweet.")
+            log.error("Disallow writing set to 1 in config, will not send tweet.")
             bot.whisper(source, "Unable to send tweet due to configuration.")
 
     @staticmethod

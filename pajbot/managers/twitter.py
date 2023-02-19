@@ -61,18 +61,15 @@ class ClientProtocol(WebSocketClientProtocol):
 
         message = json.loads(payload)
         if message["type"] == "tweet":
-            if self.manager.bot.twitter_mode in ["0", "1"]:
-                tweet = message["data"]
-                if (
-                    tweet["user"]["screen_name"].lower() in self.manager.relevant_users
-                    and not tweet["text"].startswith("RT ")
-                    and tweet["in_reply_to_screen_name"] is None
-                ):
-                    tweet_message = tweet_provider_stringify_tweet(tweet)
-                    self.manager.bot.say(f"B) New cool tweet from {tweet['user']['screen_name']}: {tweet_message}")
-                    log.debug(f"Got tweet: {message['data']}")
-            else:
-                log.error("Twitter mode in config not set to 0 or 1, will not get tweet.")
+            tweet = message["data"]
+            if (
+                tweet["user"]["screen_name"].lower() in self.manager.relevant_users
+                and not tweet["text"].startswith("RT ")
+                and tweet["in_reply_to_screen_name"] is None
+            ):
+                tweet_message = tweet_provider_stringify_tweet(tweet)
+                self.manager.bot.say(f"B) New cool tweet from {tweet['user']['screen_name']}: {tweet_message}")
+                log.debug(f"Got tweet: {message['data']}")
         else:
             log.debug(f"Unhandled message from tweet-provider: {message}")
 
@@ -119,17 +116,14 @@ class MyStreamListener(tweepy.Stream):
         )
 
     def on_status(self, status: tweepy.models.Status) -> None:
-        if self.manager.bot.twitter_mode in ["0", "1"]:
-            if (
-                status.user.screen_name.lower() in self.relevant_users
-                and not status.text.startswith("RT ")
-                and status.in_reply_to_screen_name is None
-            ):
-                log.debug("On status from tweepy: %s", status.text)
-                tweet_message = stringify_tweet(status)
-                self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
-        else:
-            log.error("Twitter mode in config not set to 0 or 1, will not get tweet.")
+        if (
+            status.user.screen_name.lower() in self.relevant_users
+            and not status.text.startswith("RT ")
+            and status.in_reply_to_screen_name is None
+        ):
+            log.debug("On status from tweepy: %s", status.text)
+            tweet_message = stringify_tweet(status)
+            self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
 
     def on_request_error(self, status_code: int) -> None:
         log.warning("Unhandled in twitter stream: %s", status_code)
