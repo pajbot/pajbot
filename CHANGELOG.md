@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+- Dev: Remove `ratelimiter` dependency, it was used to rate limit IRC connection creations which is not necessary any longer. (#2340)
+
 ## v1.63
 
 Due to Twitch deprecating most IRC commands, we are now migrating to the equivalent Helix calls.

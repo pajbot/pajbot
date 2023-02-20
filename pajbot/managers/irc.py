@@ -10,7 +10,6 @@ from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 
 from irc.client import InvalidCharacters, MessageTooLong, ServerConnection, ServerNotConnectedError
 from irc.connection import Factory
-from ratelimiter import RateLimiter
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -68,8 +67,7 @@ class IRCManager:
         bot.reactor.add_global_handler("disconnect", self._on_disconnect)
         bot.reactor.add_global_handler("welcome", self._on_welcome)
 
-    @RateLimiter(max_calls=1, period=2)
-    def start(self):
+    def start(self) -> None:
         if self.conn is not None or self.ping_task is not None:
             raise AssertionError("start() should not be called while a connection is active")
 
