@@ -104,12 +104,7 @@ class Bot:
         RedisManager.init(redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
-        if cfg.get_boolean(config["main"], "verified", False):
-            self.tmi_rate_limits = TMIRateLimits.VERIFIED
-        elif cfg.get_boolean(config["main"], "known", False):
-            self.tmi_rate_limits = TMIRateLimits.KNOWN
-        else:
-            self.tmi_rate_limits = TMIRateLimits.BASE
+        self.tmi_rate_limits = TMIRateLimits.BASE
 
         self.whisper_output_mode = WhisperOutputMode.from_config_value(
             config["main"].get("whisper_output_mode", "normal")

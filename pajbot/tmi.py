@@ -21,8 +21,6 @@ class WhisperOutputMode(Enum):
 
 class TMIRateLimits:
     BASE: TMIRateLimits
-    KNOWN: TMIRateLimits
-    VERIFIED: TMIRateLimits
 
     def __init__(self, privmsg_per_30: int, whispers_per_second: int, whispers_per_minute: int) -> None:
         self.privmsg_per_30 = privmsg_per_30
@@ -31,7 +29,5 @@ class TMIRateLimits:
 
 
 TMIRateLimits.BASE = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
-TMIRateLimits.KNOWN = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
-TMIRateLimits.VERIFIED = TMIRateLimits(privmsg_per_30=90, whispers_per_second=2, whispers_per_minute=90)
 
 CHARACTER_LIMIT = 500
