@@ -2,6 +2,7 @@
 
 ## Unversioned
 
+- Bugfix: Fix bad assert in global CD checker. (#2363)
 - Dev: Remove `ratelimiter` dependency, it was used to rate limit IRC connection creations which is not necessary any longer. (#2340)
 
 ## v1.63

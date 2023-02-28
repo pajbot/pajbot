@@ -20,7 +20,8 @@ from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
+
+    # from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 
 log = logging.getLogger(__name__)
 
@@ -431,10 +432,10 @@ class Command(Base):
             # Command has chosen to respect the Global command cooldown module
             global_cd_module = bot.module_manager["global_command_cooldown"]
             if global_cd_module:
-                assert isinstance(global_cd_module, GlobalCommandCooldown)
+                # assert isinstance(global_cd_module, GlobalCommandCooldown)
 
                 # The global command cooldown module is enabled
-                if not global_cd_module.run_command():
+                if not global_cd_module.run_command():  # type: ignore
                     # The global command cooldown is currently active, command will be available to run when it has expired
                     return False
 
