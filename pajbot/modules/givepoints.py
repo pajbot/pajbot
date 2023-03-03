@@ -46,6 +46,13 @@ class GivePointsModule(BaseModule):
             required=True,
             default=False,
         ),
+        ModuleSetting(
+            key="notify_target",
+            label="Notify the target after they receive points",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
     ]
 
     def give_points(self, bot: Bot, source: User, message: str, **rest) -> bool:
@@ -98,7 +105,9 @@ class GivePointsModule(BaseModule):
             target.points += num_points
 
             bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
-            bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
+
+            if self.settings["notify_target"] is True:
+                bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
 
             return True
 
