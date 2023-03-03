@@ -1,15 +1,22 @@
 import random
+import logging
 
 import pajbot.config as cfg
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.utils import time_method
 
+log = logging.getLogger(__name__)
+
 
 class UserRanksRefreshManager:
     def __init__(self, config: cfg.Config) -> None:
         self.jitter = 60
-        self.delay = int(config["main"].get("rank_refresh_delay", "5")) * 60
+        try:
+            self.delay = int(config["main"].get("rank_refresh_delay", "5")) * 60
+        except ValueError:
+            log.exception("Bad rank_refresh_delay in your config")
+            self.delay = 5 * 60
 
     def _jitter(self) -> int:
         return random.randint(0, self.jitter)
