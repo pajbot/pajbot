@@ -181,11 +181,12 @@ class Bot:
 
         # refresh points_rank and num_lines_rank regularly
 
+        self.user_ranks_refresh_manager = UserRanksRefreshManager(config)
         rank_refresh_mode = config["main"].get("rank_refresh_mode", "0")
         if rank_refresh_mode == "0":
-            UserRanksRefreshManager.start(self.action_queue)
+            self.user_ranks_refresh_manager.start(self.action_queue)
         elif rank_refresh_mode == "1":
-            UserRanksRefreshManager.run_once(self.action_queue)
+            self.user_ranks_refresh_manager.run_once(self.action_queue)
         elif rank_refresh_mode == "2":
             log.info("Not refreshing user rank")
         else:
