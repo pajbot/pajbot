@@ -7,14 +7,14 @@ from pajbot.utils import time_method
 
 
 class UserRanksRefreshManager:
-    def __init__(self, config: cfg.Config):
+    def __init__(self, config: cfg.Config) -> None:
         self.jitter = 60
         self.delay = int(config["main"].get("rank_refresh_delay", "5")) * 60
 
-    def _jitter(self):
+    def _jitter(self) -> int:
         return random.randint(0, self.jitter)
 
-    def start(self, action_queue):
+    def start(self, action_queue) -> None:
         # We add up to 1 minute of jitter to try to alleviate CPU spikes when multiple pajbot instances restart at the same time.
         # The jitter is added to both the initial refresh, and the scheduled one every 5 minutes.
 
@@ -24,7 +24,7 @@ class UserRanksRefreshManager:
             lambda: action_queue.submit(self._refresh, action_queue),
         )
 
-    def run_once(self, action_queue):
+    def run_once(self, action_queue) -> None:
         # Initial refresh, run only once on startup
         ScheduleManager.execute_delayed(
             self._jitter() * 5,
@@ -32,7 +32,7 @@ class UserRanksRefreshManager:
         )
 
     @time_method
-    def _refresh(self, action_queue, once_only: bool = False):
+    def _refresh(self, action_queue, once_only: bool = False) -> None:
         try:
             with DBManager.create_dbapi_cursor_scope(autocommit=True) as cursor:
                 cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY user_rank")
