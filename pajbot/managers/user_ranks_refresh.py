@@ -1,5 +1,5 @@
-import random
 import logging
+import random
 
 import pajbot.config as cfg
 from pajbot.managers.db import DBManager
