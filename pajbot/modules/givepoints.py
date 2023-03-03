@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
 from pajbot import utils
@@ -6,6 +10,9 @@ from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +48,7 @@ class GivePointsModule(BaseModule):
         ),
     ]
 
-    def give_points(self, bot, source, message, **rest):
+    def give_points(self, bot: Bot, source: User, message: str, **rest) -> bool:
         if message is None or len(message) == 0:
             # The user did not supply any arguments
             return False
@@ -93,7 +100,9 @@ class GivePointsModule(BaseModule):
             bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
             bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
 
-    def load_commands(self, **options):
+            return True
+
+    def load_commands(self, **options) -> None:
         self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
         self.commands[self.command_name] = Command.raw_command(
             self.give_points,
