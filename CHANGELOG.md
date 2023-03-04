@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+## v1.64
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Bugfix: Fix bad assert in global CD checker. (#2363)
 - Bugfix: Fix Type Emote not loading in the web UI properly. (#2365)
 - Minor: Add setting to control the delay of the rank refresh. (#2358)
