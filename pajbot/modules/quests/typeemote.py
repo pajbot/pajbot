@@ -71,8 +71,6 @@ class TypeEmoteQuestModule(BaseQuest):
         self.load_data()
 
     def load_data(self) -> None:
-        assert self.bot is not None
-
         redis = RedisManager.get()
 
         redis_json = redis.get(self.current_emote_key)
@@ -80,10 +78,11 @@ class TypeEmoteQuestModule(BaseQuest):
             # randomize an emote
             # TODO possibly a setting to allow the user to configure the twitch_global=True, etc
             #      parameters to random_emote?
-            self.current_emote = self.bot.emote_manager.random_emote(twitch_global=True)
-            # If EmoteManager has no global emotes, current_emote will be None
-            if self.current_emote is not None:
-                redis.set(self.current_emote_key, json.dumps(self.current_emote.jsonify()))
+            if self.bot is not None:
+                self.current_emote = self.bot.emote_manager.random_emote(twitch_global=True)
+                # If EmoteManager has no global emotes, current_emote will be None
+                if self.current_emote is not None:
+                    redis.set(self.current_emote_key, json.dumps(self.current_emote.jsonify()))
         else:
             self.current_emote = Emote(**json.loads(redis_json))
 

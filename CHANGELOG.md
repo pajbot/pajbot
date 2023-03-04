@@ -3,6 +3,7 @@
 ## Unversioned
 
 - Bugfix: Fix bad assert in global CD checker. (#2363)
+- Bugfix: Fix Type Emote not loading in the web UI properly. (#2365)
 - Minor: Add setting to control the delay of the rank refresh. (#2358)
 - Dev: Remove `ratelimiter` dependency, it was used to rate limit IRC connection creations which is not necessary any longer. (#2340)
 
