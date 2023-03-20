@@ -1,3 +1,9 @@
+"""
+Admin logs are created with post and add_entry
+
+Admin logs are read & rendered by admin's home.{py.html}
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
