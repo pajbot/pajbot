@@ -178,8 +178,8 @@ class BanphraseData(Base):
         Integer, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False
     )
     num_uses: Mapped[int]
-    added_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
-    edited_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
+    added_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
 
     user = relationship(
         User,
@@ -201,7 +201,7 @@ class BanphraseData(Base):
         viewonly=True,
     )
 
-    def __init__(self, banphrase_id, **options):
+    def __init__(self, banphrase_id: int, **options) -> None:
         self.banphrase_id = banphrase_id
         self.num_uses = 0
         self.added_by = None
