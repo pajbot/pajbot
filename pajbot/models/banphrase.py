@@ -39,7 +39,7 @@ class Banphrase(Base):
 
     DEFAULT_TIMEOUT_LENGTH = 300
 
-    def __init__(self, **options):
+    def __init__(self, **options) -> None:
         self.name = "No name"
         self.length = self.DEFAULT_TIMEOUT_LENGTH
         self.permanent = False
@@ -53,7 +53,7 @@ class Banphrase(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options) -> None:
         self.name = options.get("name", self.name)
         self.phrase = options.get("phrase", self.phrase)
         self.length = options.get("length", self.length)
@@ -208,7 +208,7 @@ class BanphraseData(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options) -> None:
         self.num_uses = options.get("num_uses", self.num_uses)
         self.added_by = options.get("added_by", self.added_by)
         self.edited_by = options.get("edited_by", self.edited_by)
