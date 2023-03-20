@@ -166,7 +166,6 @@ class DBManager:
         # To be able to use the connection as a contextmanager for transaction control,
         # we need the actual underlying connection, the SQLAlchemy proxy will not work for this.
         raw_connection: Optional[Psycopg2Connection] = pool_connection.driver_connection
-        print(type(raw_connection))
         if raw_connection is None:
             raise ValueError("unable to get raw db api object")
 
