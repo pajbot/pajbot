@@ -1,3 +1,15 @@
+"""
+Banphrases must be creatable from chat
+Banphrases must be creatable from the web UI
+Banphrases must be editable from chat
+Banphrases must be editable from the web UI
+
+Banphrases must start triggering when they're created
+Banphrases must stop triggering when they're removed
+
+Banphrases must update their operator properly when the operator is changed
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Union
