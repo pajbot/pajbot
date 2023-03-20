@@ -10,8 +10,7 @@ from pajbot.models.user import User
 from pajbot.utils import find
 
 import regex as re
-import sqlalchemy
-from sqlalchemy import Boolean, ForeignKey, Integer, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, Text, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from unidecode import unidecode
 
@@ -161,12 +160,12 @@ class Banphrase(Base):
         }
 
 
-@sqlalchemy.event.listens_for(Banphrase, "load")
+@event.listens_for(Banphrase, "load")
 def on_banphrase_load(target, _context):
     target.refresh_operator()
 
 
-@sqlalchemy.event.listens_for(Banphrase, "refresh")
+@event.listens_for(Banphrase, "refresh")
 def on_banphrase_refresh(target, _context, _attrs):
     target.refresh_operator()
 
