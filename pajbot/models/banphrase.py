@@ -58,6 +58,7 @@ class Banphrase(Base):
         self.warning = True
         self.case_sensitive = False
         self.enabled = True
+        self.sub_immunity = False
         self.operator = "contains"
         self.remove_accents = False
         self.compiled_regex = None
