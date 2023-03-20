@@ -92,8 +92,7 @@ class HandlerManager:
             HandlerManager.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
         except KeyError:
             # No handlers for this event found
-            pass
-            # log.error(f"HandlerManager.add_handler: No handler for {event} found.")
+            log.error(f"HandlerManager.add_handler: No handler for {event} found.")
 
     @staticmethod
     def remove_handler(event: str, method: Callable[..., bool]) -> None:
