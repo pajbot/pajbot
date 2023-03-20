@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import logging
@@ -14,7 +14,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User  # noqa: F401 (imported but unused)
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -32,12 +32,12 @@ class AdminLogEntry(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     type: Mapped[str]
-    user_id: Mapped[str] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
     message: Mapped[str]
     created_at: Mapped[datetime.datetime] = mapped_column(UtcDateTime(), index=True)
     data: Mapped[Any] = mapped_column(JSONB, nullable=False)
 
-    user = relationship("User")
+    user: Mapped[Optional[User]] = relationship("User")
 
 
 class AdminLogManager:
