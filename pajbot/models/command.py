@@ -89,9 +89,9 @@ class CommandData(Base):
     )
     num_uses: Mapped[int]
 
-    added_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    edited_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column("last_date_used", UtcDateTime(), nullable=True)
+    added_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
+    _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column("last_date_used", UtcDateTime())
 
     user = relationship(
         User,
@@ -152,7 +152,7 @@ class CommandExample(Base):
     __tablename__ = "command_example"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    command_id: Mapped[int] = mapped_column(Integer, ForeignKey("command.id", ondelete="CASCADE"), nullable=False)
+    command_id: Mapped[int] = mapped_column(Integer, ForeignKey("command.id", ondelete="CASCADE"))
     title: Mapped[str]
     chat: Mapped[str]
     description: Mapped[str]
