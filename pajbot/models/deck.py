@@ -1,3 +1,5 @@
+from typing import Optional
+
 import datetime
 import logging
 
@@ -15,8 +17,8 @@ class Deck(Base):
     __tablename__ = "deck"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str]
-    deck_class: Mapped[str] = mapped_column("class", Text)
+    name: Mapped[Optional[str]]
+    deck_class: Mapped[Optional[str]] = mapped_column("class", Text)
     link: Mapped[str]
     first_used: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
     last_used: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
