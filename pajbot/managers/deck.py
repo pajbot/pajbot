@@ -1,3 +1,5 @@
+from typing import Any, Dict, Literal, Optional, Tuple, Union
+
 import argparse
 import logging
 from collections import UserList
@@ -10,12 +12,12 @@ log = logging.getLogger(__name__)
 
 
 class DeckManager(UserList):
-    def __init__(self):
+    def __init__(self) -> None:
         UserList.__init__(self)
-        self.current_deck = None
+        self.current_deck: Optional[Deck] = None
         self.reload()
 
-    def find(self, id=None, link=None):
+    def find(self, id: Optional[int] = None, link: Optional[str] = None) -> Optional[Deck]:
         if id is not None:
             for deck in self.data:
                 if id == deck.id:
@@ -26,7 +28,7 @@ class DeckManager(UserList):
                     return deck
         return None
 
-    def action_get_curdeck(self, key, extra={}):
+    def action_get_curdeck(self, key: str, extra={}) -> Optional[Any]:
         if self.current_deck is not None:
             return getattr(self.current_deck, key, None)
 
@@ -48,7 +50,7 @@ class DeckManager(UserList):
             log.info("refreshing current deck")
             self.refresh_current_deck()
 
-    def set_current_deck(self, deck_link):
+    def set_current_deck(self, deck_link: str) -> Tuple[Deck, bool]:
         # Loop through our already loaded decks
         now = utils.now()
         for deck in self.data:
@@ -70,7 +72,7 @@ class DeckManager(UserList):
         return deck, True
 
     @staticmethod
-    def update_deck(deck, **options):
+    def update_deck(deck: Deck, **options) -> None:
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             db_session.add(deck)
             deck.set(**options)
@@ -78,7 +80,9 @@ class DeckManager(UserList):
             db_session.expunge(deck)
 
     @staticmethod
-    def parse_update_arguments(message):
+    def parse_update_arguments(
+        message: str,
+    ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--id", type=int, dest="id")
         parser.add_argument("--name", nargs="+", dest="name")
@@ -101,7 +105,7 @@ class DeckManager(UserList):
 
         return options, response
 
-    def reload(self):
+    def reload(self) -> None:
         self.data = []
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             for deck in db_session.query(Deck).order_by(Deck.last_used.desc()):
