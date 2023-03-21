@@ -199,8 +199,8 @@ class Command(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     level: Mapped[int] = mapped_column(Integer, default=100)
-    action_json: Mapped[str] = mapped_column("action", Text)
-    extra_extra_args: Mapped[str] = mapped_column("extra_args", Text)
+    action_json: Mapped[Optional[str]] = mapped_column("action", Text)
+    extra_extra_args: Mapped[Optional[str]] = mapped_column("extra_args", Text)
     command: Mapped[str]
     description: Mapped[Optional[str]]
     delay_all: Mapped[int] = mapped_column(Integer, default=5)
@@ -208,7 +208,7 @@ class Command(Base):
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     cost: Mapped[int]
     tokens_cost: Mapped[int]
-    can_execute_with_whisper: Mapped[bool]
+    can_execute_with_whisper: Mapped[Optional[bool]]
     sub_only: Mapped[bool]
     mod_only: Mapped[bool]
     run_through_banphrases: Mapped[bool]

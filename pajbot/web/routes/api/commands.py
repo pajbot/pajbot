@@ -135,6 +135,9 @@ def init(bp: Blueprint) -> None:
             if command.level > extra_args["user"].level:
                 return {"error": "Unauthorized"}, 403
 
+            if command.action_json is None:
+                return {"error": "Command must have an action"}, 500
+
             parsed_action = json.loads(command.action_json)
             if data.data_action_type:
                 parsed_action["type"] = data.data_action_type
