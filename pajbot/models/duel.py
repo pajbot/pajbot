@@ -39,6 +39,7 @@ class UserDuelStats(Base):
         self.duels_total = 0
         self.points_won = 0
         self.points_lost = 0
+        self.last_duel = None
         self.current_streak = 0
         self.longest_winstreak = 0
         self.longest_losestreak = 0
