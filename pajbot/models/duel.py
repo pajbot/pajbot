@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 class UserDuelStats(Base):
     __tablename__ = "user_duel_stats"
 
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         Integer, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False
     )
     duels_won: Mapped[int]
