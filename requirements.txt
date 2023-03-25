@@ -15,7 +15,7 @@ marshmallow-dataclass==8.5.12
 marshmallow==3.19.0
 psycopg2==2.9.5
 pylast==5.1.0
-pyOpenSSL==23.0.0 # for twisted.internet.ssl
+pyOpenSSL==23.1.0 # for twisted.internet.ssl
 pytz==2022.7.1
 rapidfuzz==2.13.7
 redis==4.5.3
