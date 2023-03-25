@@ -147,6 +147,7 @@ class User(Base):
         self.timeout_end = None
         self.vip = False
         self.founder = False
+        self.login_last_updated = utils.now()
 
     _duel_stats: Mapped[UserDuelStats] = relationship(
         UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
