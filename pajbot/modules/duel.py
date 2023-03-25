@@ -13,7 +13,7 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules.base import BaseModule, ModuleSetting
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
