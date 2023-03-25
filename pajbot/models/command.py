@@ -89,8 +89,8 @@ class CommandData(Base):
     )
     num_uses: Mapped[int]
 
-    added_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
-    edited_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
+    added_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
     _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column("last_date_used", UtcDateTime())
 
     user = relationship(
