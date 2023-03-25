@@ -10,6 +10,7 @@ class TwitterUser(Base):
     __tablename__ = "twitter_following"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # TODO: Make a DB migration to make username not null
     username: Mapped[Optional[str]]
 
     def __init__(self, username: str) -> None:
