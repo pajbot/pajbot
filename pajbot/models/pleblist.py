@@ -18,11 +18,12 @@ class PleblistSong(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     stream_id: Mapped[int] = mapped_column(Integer, ForeignKey("stream.id", ondelete="CASCADE"), index=True)
-    user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
     youtube_id: Mapped[str] = mapped_column(Text, index=True)
     date_added: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
     date_played: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
     skip_after: Mapped[Optional[int]]
+    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+
     song_info = relationship(
         "PleblistSongInfo",
         uselist=False,
