@@ -1,3 +1,13 @@
+"""
+Playsounds can be created through chat
+Playsounds can be created through the web UI
+Playsounds can be updated through chat
+Playsounds can be updated through the web UI
+Playsounds can be deleted through chat
+Playsounds can be deleted through the web UI
+Playsounds can be played through chat
+Playsounds can be viewed in the web UI
+"""
 from typing import Optional
 
 from pajbot.managers.db import Base
