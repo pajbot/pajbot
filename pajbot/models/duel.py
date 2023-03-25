@@ -1,3 +1,8 @@
+"""
+Duels for zero points can be made: !duel pajlada
+Duels for points can be made: !duel pajlada 5
+Duel stats update as expected in the web UI on the user profile page
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
