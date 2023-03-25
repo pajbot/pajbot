@@ -31,7 +31,7 @@ class UserDuelStats(Base):
     longest_winstreak = Column(INT, nullable=False)
     longest_losestreak = Column(INT, nullable=False)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self) -> None:
         self.duels_won = 0
         self.duels_total = 0
         self.points_won = 0
@@ -41,22 +41,20 @@ class UserDuelStats(Base):
         self.longest_winstreak = 0
         self.longest_losestreak = 0
 
-        super().__init__(*args, **kwargs)
-
     user: RelationshipProperty[User] = relationship(
         "User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats"
     )
 
     @hybrid_property
-    def duels_lost(self):
+    def duels_lost(self) -> int:
         return self.duels_total - self.duels_won
 
     @hybrid_property
-    def winrate(self):
+    def winrate(self) -> float:
         return self.duels_won * 100 / self.duels_total
 
     @hybrid_property
-    def profit(self):
+    def profit(self) -> int:
         return self.points_won - self.points_lost
 
     def won(self, points_won: int) -> None:
