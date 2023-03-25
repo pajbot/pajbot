@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional, TypedDict
+
 import datetime
 import logging
 import random
@@ -9,9 +13,20 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.roulette import Roulette
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.user import User
+from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
+
+
+class RouletteArguments(TypedDict):
+    bet: int
+    user: str
+    points: int
+    win: bool
 
 
 class RouletteModule(BaseModule):
@@ -163,14 +178,14 @@ class RouletteModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.last_sub = None
+        self.last_sub: Optional[datetime.datetime] = None
         self.output_buffer = ""
-        self.output_buffer_args = []
-        self.last_add = None
+        self.output_buffer_args: List[RouletteArguments] = []
+        self.last_add: Optional[datetime.datetime] = None
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
@@ -188,15 +203,17 @@ class RouletteModule(BaseModule):
             ],
         )
 
-    def rigged_random_result(self):
-        return random.randint(1, 100) > self.settings["rigged_percentage"]
+    def rigged_random_result(self) -> bool:
+        v = random.randint(1, 100)
+        rigged_percentage: int = self.settings["rigged_percentage"]
+        return v > rigged_percentage
 
-    def roulette(self, bot, source, message, **rest):
+    def roulette(self, bot: Bot, source: User, message: str, **rest) -> bool:
         if self.settings["stream_status"] == "Online" and not bot.is_online:
-            return
+            return False
 
         if self.settings["stream_status"] == "Offline" and bot.is_online:
-            return
+            return False
 
         if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
@@ -235,7 +252,7 @@ class RouletteModule(BaseModule):
             r = Roulette(source.id, points)
             db_session.add(r)
 
-        arguments = {"bet": bet, "user": source.name, "points": source.points, "win": points > 0}
+        arguments: RouletteArguments = {"bet": bet, "user": source.name, "points": source.points, "win": points > 0}
 
         if points > 0:
             out_message = self.get_phrase("message_won", **arguments)
@@ -243,10 +260,10 @@ class RouletteModule(BaseModule):
             out_message = self.get_phrase("message_lost", **arguments)
 
         if self.settings["options_output"] == "5. Combine output in chat AND offline chat":
-            self.add_message(bot, arguments)
+            self.add_message(arguments)
         if self.settings["options_output"] == "4. Combine output in chat":
             if bot.is_online:
-                self.add_message(bot, arguments)
+                self.add_message(arguments)
             else:
                 bot.me(out_message)
         if self.settings["options_output"] == "1. Show results in chat":
@@ -264,25 +281,32 @@ class RouletteModule(BaseModule):
 
         HandlerManager.trigger("on_roulette_finish", user=source, points=points)
 
-    def on_tick(self, **rest):
+        return True
+
+    def on_tick(self, **rest) -> bool:
         if self.output_buffer == "":
-            return
+            return True
 
         if self.last_add is None:
-            return
+            return True
 
         diff = utils.now() - self.last_add
 
         if diff.seconds > 3:
             self.flush_output_buffer()
 
-    def flush_output_buffer(self):
+        return True
+
+    def flush_output_buffer(self) -> None:
+        if self.bot is None:
+            raise ValueError("Bot must not be None")
+
         msg = self.output_buffer
         self.bot.me(msg)
         self.output_buffer = ""
         self.output_buffer_args = []
 
-    def add_message(self, bot, arguments):
+    def add_message(self, arguments: RouletteArguments) -> None:
         parts = []
         new_buffer = "Roulette: "
         win_emote = self.settings["combined_output_win_emote"]
@@ -309,7 +333,10 @@ class RouletteModule(BaseModule):
 
         self.last_add = utils.now()
 
-    def on_user_sub_or_resub(self, **rest):
+    def on_user_sub_or_resub(self, **rest) -> bool:
+        if self.bot is None:
+            raise ValueError("Bot must not be None")
+
         now = utils.now()
 
         # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
@@ -326,12 +353,20 @@ class RouletteModule(BaseModule):
                 self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
             )
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is None:
+            return
+
         HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)
         HandlerManager.add_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.add_handler("on_tick", self.on_tick)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is None:
+            return
+
         HandlerManager.remove_handler("on_user_sub", self.on_user_sub_or_resub)
         HandlerManager.remove_handler("on_user_resub", self.on_user_sub_or_resub)
         HandlerManager.remove_handler("on_tick", self.on_tick)
