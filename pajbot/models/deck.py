@@ -3,6 +3,7 @@ from typing import Optional
 import datetime
 import logging
 
+from pajbot import utils
 from pajbot.managers.db import Base
 from pajbot.utils import time_ago
 
@@ -24,9 +25,12 @@ class Deck(Base):
     last_used: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
     times_used: Mapped[int] = mapped_column(Integer, default=1)
 
-    def __init__(self) -> None:
+    def __init__(self, link: str) -> None:
         self.name = ""
         self.deck_class = "undefined"
+        self.link = link
+        self.first_used = utils.now()
+        self.last_used = utils.now()
         self.times_used = 1
 
     def set(self, **options) -> None:

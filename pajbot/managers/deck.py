@@ -62,8 +62,7 @@ class DeckManager(UserList[Deck]):
 
         # No old deck matched the link, create a new deck!
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
-            deck = Deck()
-            deck.set(link=deck_link, times_used=1, first_used=now, last_used=now)
+            deck = Deck(deck_link)
             self.current_deck = deck
             self.data.append(deck)
             db_session.add(deck)
