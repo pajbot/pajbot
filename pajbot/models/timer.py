@@ -10,8 +10,8 @@ from pajbot.models.action import ActionParser, BaseAction
 from pajbot.models.user import User
 from pajbot.utils import find
 
-from sqlalchemy import Boolean, Integer, Text
-from sqlalchemy.orm import Mapped, mapped_column, reconstructor
+from sqlalchemy import Boolean, Integer, Text, event
+from sqlalchemy.orm import Mapped, QueryContext, mapped_column
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -56,12 +56,6 @@ class Timer(Base):
         self.interval_online = options.get("interval_online", self.interval_online)
         self.interval_offline = options.get("interval_offline", self.interval_offline)
 
-    @reconstructor
-    def init_on_load(self):
-        self.action = ActionParser.parse(self.action_json)
-
-        self.refresh_tts()
-
     def refresh_tts(self) -> None:
         self.time_to_send_online = self.interval_online
         self.time_to_send_offline = self.interval_offline
@@ -76,6 +70,13 @@ class Timer(Base):
 
         dummy_user = User()
         self.action.run(bot, dummy_user, "")
+
+
+@event.listens_for(Timer, "load")
+def on_timer_load(target: Timer, context: QueryContext) -> None:
+    log.info("REFRESHING TIMER SINCE IT UPDATED")
+    target.action = ActionParser.parse(target.action_json)
+    target.refresh_tts()
 
 
 class TimerManager:
