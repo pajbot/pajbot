@@ -1,3 +1,9 @@
+"""
+Follow user through !twitterfollow command in chat
+Unfollow user through !twitterunfollow command in chat
+Follow user through admin web UI
+Unfollow user through admin web UI
+"""
 from typing import Any, Dict, Optional
 
 from pajbot.managers.db import Base
