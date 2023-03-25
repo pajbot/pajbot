@@ -11,7 +11,7 @@ from pajbot.models.deck import Deck
 log = logging.getLogger(__name__)
 
 
-class DeckManager(UserList):
+class DeckManager(UserList[Deck]):
     def __init__(self) -> None:
         UserList.__init__(self)
         self.current_deck: Optional[Deck] = None
@@ -28,19 +28,19 @@ class DeckManager(UserList):
                     return deck
         return None
 
-    def action_get_curdeck(self, key: str, extra={}) -> Optional[Any]:
+    def action_get_curdeck(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
         if self.current_deck is not None:
             return getattr(self.current_deck, key, None)
 
         return None
 
-    def refresh_current_deck(self):
+    def refresh_current_deck(self) -> None:
         self.current_deck = None
         for deck in self.data:
             if self.current_deck is None or deck.last_used > self.current_deck.last_used:
                 self.current_deck = deck
 
-    def remove_deck(self, deck):
+    def remove_deck(self, deck: Deck) -> None:
         self.data.remove(deck)
         with DBManager.create_session_scope_nc(expire_on_commit=False) as db_session:
             db_session.delete(deck)

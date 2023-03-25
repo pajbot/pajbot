@@ -6,7 +6,7 @@ import logging
 
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule
+from pajbot.modules.base import BaseModule
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
