@@ -145,11 +145,13 @@ def init(bp: Blueprint) -> None:
             aj = json.loads(command.action_json)
             old_message = ""
             new_message = ""
-            try:
-                old_message = command.action.response
+            if command.action is not None:
+                old_response = command.action.get_action_response()
+                if old_response is not None:
+                    old_message = old_response
+
+            if "message" in aj:
                 new_message = aj["message"]
-            except:
-                pass
 
             command.set(**payload)
             command.data.set(**payload)
