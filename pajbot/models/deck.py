@@ -21,10 +21,8 @@ class Deck(Base):
     times_used = Column(INT, nullable=False, default=1)
 
     def __init__(self) -> None:
-        self.id = None
         self.name = ""
         self.deck_class = "undefined"
-        self.link = None
         self.times_used = 1
 
     def set(self, **options) -> None:

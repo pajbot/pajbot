@@ -24,7 +24,6 @@ class LinkTrackerLink(Base):
     last_linked = Column(UtcDateTime())
 
     def __init__(self, url: str) -> None:
-        self.id = None
         self.url = url
         self.times_linked = 0
         now = utils.now()
