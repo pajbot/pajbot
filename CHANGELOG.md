@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Dev: Add typing to the deck manager & model. (#2390)
 - Dev: Add typing & refactor stream manager & model. (#2389)
 
 ## v1.64
