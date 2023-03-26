@@ -185,6 +185,9 @@ class BaseAction:
     def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}) -> Any:
         pass
 
+    def get_action_response(self) -> Optional[str]:
+        return None
+
 
 class MultiAction(BaseAction):
     type = "multi"
@@ -473,6 +476,9 @@ class MessageAction(BaseAction):
             self.argument_subs = get_argument_substitutions(self.response)
             self.subs = get_substitutions(self.response, bot)
             self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
+
+    def get_action_response(self) -> Optional[str]:
+        return self.response
 
     def get_response(self, bot: Bot, extra) -> Optional[str]:
         resp = self.response
