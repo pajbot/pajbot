@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Set, Tuple, Union
+
 import json
 import logging
 import re
@@ -7,7 +11,11 @@ from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command
 from pajbot.models.playsound import Playsound
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.models.user import User
+from pajbot.modules.base import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -106,19 +114,23 @@ class PlaysoundModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
         # this is for the "Test on stream" button on the admin page
         if bot:
             bot.socket_manager.add_handler("playsound.play", self.on_web_playsound)
 
-        self.sample_cooldown = set()
-        self.user_cooldown = set()
+        self.sample_cooldown: Set[str] = set()
+        self.user_cooldown: Set[str] = set()
         self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
-    def on_web_playsound(self, data):
+    def on_web_playsound(self, data: Dict[str, Any]) -> None:
+        if self.bot is None:
+            log.warning("PlaysoundModule.on_web_playsound failed because bot is None")
+            return
+
         # on playsound test triggered by the Web UI
         # this works even if the module is not enabled.
         playsound_name = data["name"]
@@ -138,12 +150,16 @@ class PlaysoundModule(BaseModule):
             log.debug(f"Playsound module is emitting payload: {json.dumps(payload)}")
             self.bot.websocket_manager.emit("play_sound", payload)
 
-    def reset_global_cd(self):
+    def reset_global_cd(self) -> None:
         self.global_cooldown = False
 
-    def play_sound(self, bot, source, message, **rest):
+    def play_sound(self, bot: Bot, source: User, message: str, **rest) -> bool:
         if not message:
-            return
+            return False
+
+        if self.bot is None:
+            log.warning("PlaysoundModule.play_sound failed because bot is None")
+            return False
 
         playsound_name = self.massage_name(message.split(" ")[0])
 
@@ -210,8 +226,12 @@ class PlaysoundModule(BaseModule):
             bot.execute_delayed(self.settings["user_cd"], self.user_cooldown.remove, source.id)
             bot.execute_delayed(self.settings["global_cd"], self.reset_global_cd)
 
+            return True
+
     @staticmethod
-    def parse_playsound_arguments(message):
+    def parse_playsound_arguments(
+        message: str,
+    ) -> Tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str], Union[Literal[False], Optional[str]]]:
         """
         Available options:
         --volume VOLUME
@@ -246,7 +266,7 @@ class PlaysoundModule(BaseModule):
         return options, name, link
 
     @staticmethod
-    def massage_name(name):
+    def massage_name(name: str) -> str:
         if name is not None:
             return name.lower()
 
@@ -255,16 +275,18 @@ class PlaysoundModule(BaseModule):
     re_valid_names = re.compile("^[a-z0-9\\-_]+$")
 
     @staticmethod
-    def validate_name(name):
-        return name is not None and PlaysoundModule.re_valid_names.match(name)
+    def validate_name(name: str) -> bool:
+        match = PlaysoundModule.re_valid_names.match(name)
+        return match is not None
 
     re_valid_links = re.compile("^https://\\S*$")
 
     @staticmethod
-    def validate_link(link):
-        return link is not None and PlaysoundModule.re_valid_links.match(link)
+    def validate_link(link: str) -> bool:
+        match = PlaysoundModule.re_valid_links.match(link)
+        return match is not None
 
-    def update_link(self, bot, source, playsound, link):
+    def update_link(self, bot: Bot, source: User, playsound: Playsound, link: Optional[str]) -> bool:
         if link is not None:
             if not self.validate_link(link):
                 bot.whisper(
@@ -275,10 +297,10 @@ class PlaysoundModule(BaseModule):
         return True
 
     @staticmethod
-    def validate_volume(volume):
+    def validate_volume(volume: Optional[int]) -> bool:
         return volume is not None and 0 <= volume <= 100
 
-    def update_volume(self, bot, source, playsound, parsed_options):
+    def update_volume(self, bot: Bot, source: User, playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
         if "volume" in parsed_options:
             if not self.validate_volume(parsed_options["volume"]):
                 bot.whisper(source, "Error: Volume must be between 0 and 100.")
@@ -287,10 +309,10 @@ class PlaysoundModule(BaseModule):
         return True
 
     @staticmethod
-    def validate_cooldown(cooldown):
+    def validate_cooldown(cooldown: Optional[int]) -> bool:
         return cooldown is None or cooldown >= 0
 
-    def update_cooldown(self, bot, source, playsound, parsed_options):
+    def update_cooldown(self, bot: Bot, source: User, playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
         if "cooldown" in parsed_options:
             if parsed_options["cooldown"].lower() == "none":
                 cooldown_int = None
@@ -309,12 +331,12 @@ class PlaysoundModule(BaseModule):
         return True
 
     @staticmethod
-    def update_enabled(bot, source, playsound, parsed_options):
+    def update_enabled(playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
         if "enabled" in parsed_options:
             playsound.enabled = parsed_options["enabled"]
         return True
 
-    def add_playsound_command(self, bot, source, message, **rest):
+    def add_playsound_command(self, bot: Bot, source: User, message: str, **rest) -> None:
         """Method for creating playsounds.
         Usage: !add playsound PLAYSOUNDNAME LINK [options]
         Multiple options available:
@@ -366,7 +388,7 @@ class PlaysoundModule(BaseModule):
             if not self.update_cooldown(bot, source, playsound, options):
                 return
 
-            if not self.update_enabled(bot, source, playsound, options):
+            if not self.update_enabled(playsound, options):
                 return
 
             session.add(playsound)
@@ -374,7 +396,7 @@ class PlaysoundModule(BaseModule):
             log_msg = f"The {name} playsound has been added"
             AdminLogManager.add_entry("Playsound added", source, log_msg)
 
-    def edit_playsound_command(self, bot, source, message, **rest):
+    def edit_playsound_command(self, bot: Bot, source: User, message: str, **rest) -> None:
         """Method for editing playsounds.
         Usage: !edit playsound PLAYSOUNDNAME [LINK] [options]
         Multiple options available:
@@ -414,10 +436,10 @@ class PlaysoundModule(BaseModule):
             if not self.update_cooldown(bot, source, playsound, options):
                 return
 
-            if not self.update_enabled(bot, source, playsound, options):
+            if not self.update_enabled(playsound, options):
                 return
 
-            if link in message:
+            if link is not None:
                 log_msg = f"The {name} playsound has been updated from {old_link} to {link}"
             else:
                 log_msg = f"The {name} playsound has been updated"
@@ -427,7 +449,7 @@ class PlaysoundModule(BaseModule):
             AdminLogManager.add_entry("Playsound edited", source, log_msg)
 
     @staticmethod
-    def remove_playsound_command(bot, source, message, **rest):
+    def remove_playsound_command(bot: Bot, source: User, message: str, **rest) -> None:
         """Method for removing playsounds.
         Usage: !remove playsound PLAYSOUNDNAME
         """
@@ -450,7 +472,7 @@ class PlaysoundModule(BaseModule):
             AdminLogManager.add_entry("Playsound removed", source, log_msg)
 
     @staticmethod
-    def debug_playsound_command(bot, source, message, **rest):
+    def debug_playsound_command(bot: Bot, source: User, message: str, **rest) -> None:
         """Method for debugging (printing info about) playsounds.
         Usage: !debug playsound PLAYSOUNDNAME
         """
@@ -472,7 +494,7 @@ class PlaysoundModule(BaseModule):
                 f"name={playsound.name}, link={playsound.link}, volume={playsound.volume}, cooldown={playsound.cooldown}, enabled={playsound.enabled}",
             )
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         from pajbot.models.command import Command, CommandExample
 
         self.commands[self.settings["command_name"].lower().replace("!", "")] = Command.raw_command(
