@@ -20,9 +20,13 @@ class LinkTrackerLink(Base):
     __tablename__ = "link_data"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # TODO: url is actually nullable. Fix with a migration
     url: Mapped[str]
+    # TODO: times_linked is actually nullable. Fix with a migration
     times_linked: Mapped[int]
+    # TODO: first_linked is actually nullable. Fix with a migration
     first_linked: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
+    # TODO: last_linked is actually nullable. Fix with a migration
     last_linked: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
 
     def __init__(self, url: str) -> None:
