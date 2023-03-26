@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pajbot.managers.db import Base
 
 from sqlalchemy import Integer
@@ -11,4 +9,4 @@ class WebContent(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     page: Mapped[str]
-    content: Mapped[Optional[str]]
+    content: Mapped[str]
