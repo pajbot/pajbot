@@ -11,8 +11,8 @@ from pajbot.utils import find
 
 import regex as re
 import sqlalchemy
-from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from unidecode import unidecode
 
 if TYPE_CHECKING:
@@ -24,24 +24,23 @@ log = logging.getLogger("pajbot")
 class Banphrase(Base):
     __tablename__ = "banphrase"
 
-    id = Column(INT, primary_key=True)
-    name = Column(TEXT, nullable=False, default="")
-    phrase = Column(TEXT, nullable=False)
-    length = Column(INT, nullable=False, default=300)
-    permanent = Column(BOOLEAN, nullable=False, default=False)
-    warning = Column(BOOLEAN, nullable=False, default=True)
-    case_sensitive = Column(BOOLEAN, nullable=False, default=False)
-    remove_accents = Column(BOOLEAN, nullable=False, default=False)
-    enabled = Column(BOOLEAN, nullable=False, default=True)
-    sub_immunity = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
-    operator = Column(TEXT, nullable=False, default="contains", server_default="contains")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str]
+    phrase: Mapped[str]
+    length: Mapped[int] = mapped_column(Integer, default=300)
+    permanent: Mapped[bool]
+    warning: Mapped[bool] = mapped_column(Boolean, default=True)
+    case_sensitive: Mapped[bool]
+    remove_accents: Mapped[bool]
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    sub_immunity: Mapped[bool]
+    operator: Mapped[str] = mapped_column(Text, default="contains", server_default="contains")
 
     data = relationship("BanphraseData", uselist=False, cascade="", lazy="joined")
 
     DEFAULT_TIMEOUT_LENGTH = 300
 
     def __init__(self, **options):
-        self.id = None
         self.name = "No name"
         self.length = self.DEFAULT_TIMEOUT_LENGTH
         self.permanent = False
@@ -175,10 +174,12 @@ def on_banphrase_refresh(target, _context, _attrs):
 class BanphraseData(Base):
     __tablename__ = "banphrase_data"
 
-    banphrase_id = Column(INT, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False)
-    num_uses = Column(INT, nullable=False, default=0)
-    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    banphrase_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False
+    )
+    num_uses: Mapped[int]
+    added_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id", ondelete="SET NULL"))
 
     user = relationship(
         User,

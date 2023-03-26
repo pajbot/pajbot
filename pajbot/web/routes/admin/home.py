@@ -14,7 +14,7 @@ def init(page) -> None:
         with DBManager.create_session_scope() as db_session:
             latest_logs = (
                 db_session.query(AdminLogEntry)
-                .options(joinedload("user"))
+                .options(joinedload(AdminLogEntry.user))
                 .order_by(AdminLogEntry.created_at.desc())
                 .limit(50)
                 .all()

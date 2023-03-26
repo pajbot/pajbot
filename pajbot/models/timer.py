@@ -10,8 +10,8 @@ from pajbot.models.action import ActionParser, BaseAction
 from pajbot.models.user import User
 from pajbot.utils import find
 
-from sqlalchemy import BOOLEAN, INT, TEXT, Column
-from sqlalchemy.orm import reconstructor
+from sqlalchemy import Boolean, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, reconstructor
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -29,12 +29,12 @@ class TimerOptions(TypedDict):
 class Timer(Base):
     __tablename__ = "timer"
 
-    id = Column(INT, primary_key=True)
-    name = Column(TEXT, nullable=False)
-    action_json = Column("action", TEXT, nullable=False)
-    interval_online = Column(INT, nullable=False)
-    interval_offline = Column(INT, nullable=False)
-    enabled = Column(BOOLEAN, nullable=False, default=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str]
+    action_json: Mapped[str] = mapped_column("action", Text)
+    interval_online: Mapped[int]
+    interval_offline: Mapped[int]
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
 
     def __init__(self) -> None:
         self.name = "??"

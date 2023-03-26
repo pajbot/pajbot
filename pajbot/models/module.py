@@ -8,8 +8,8 @@ import logging
 from pajbot.managers.db import Base, DBManager
 from pajbot.utils import find
 
-import sqlalchemy
-from sqlalchemy import BOOLEAN, TEXT, Column
+from sqlalchemy import Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -22,9 +22,9 @@ log = logging.getLogger("pajbot")
 class Module(Base):
     __tablename__ = "module"
 
-    id = Column(TEXT, primary_key=True)
-    enabled = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
-    settings = Column(TEXT, nullable=True, default=None, server_default=sqlalchemy.sql.expression.null())
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
+    enabled: Mapped[bool]
+    settings: Mapped[Optional[str]]
 
     def __init__(self, module_id: str, **options: Any) -> None:
         self.id = module_id

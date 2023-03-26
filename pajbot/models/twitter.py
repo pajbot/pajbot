@@ -1,15 +1,16 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pajbot.managers.db import Base
 
-from sqlalchemy import INT, TEXT, Column
+from sqlalchemy import Integer
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TwitterUser(Base):
     __tablename__ = "twitter_following"
 
-    id = Column(INT, primary_key=True)
-    username = Column(TEXT)  # NOTE: This should *not* be nullable. A DB migration will be necessary for this change
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[Optional[str]]
 
     def __init__(self, username: str) -> None:
         self.username = username

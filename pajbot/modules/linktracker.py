@@ -1,5 +1,6 @@
 from typing import Any, List
 
+import datetime
 import logging
 from urllib.parse import urlsplit
 
@@ -8,7 +9,8 @@ from pajbot.managers.db import Base, DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 
-from sqlalchemy import INT, TEXT, Column
+from sqlalchemy import Integer
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utc import UtcDateTime
 
 log = logging.getLogger(__name__)
@@ -17,11 +19,11 @@ log = logging.getLogger(__name__)
 class LinkTrackerLink(Base):
     __tablename__ = "link_data"
 
-    id = Column(INT, primary_key=True)
-    url = Column(TEXT)
-    times_linked = Column(INT)
-    first_linked = Column(UtcDateTime())
-    last_linked = Column(UtcDateTime())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    url: Mapped[str]
+    times_linked: Mapped[int]
+    first_linked: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
+    last_linked: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
 
     def __init__(self, url: str) -> None:
         self.url = url

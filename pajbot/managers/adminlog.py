@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+import datetime
 import logging
 
 from pajbot import utils
 from pajbot.managers.db import Base, DBManager
 
-from sqlalchemy import INT, TEXT, Column, ForeignKey
+from sqlalchemy import ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
@@ -29,12 +30,12 @@ class LogEntryTemplate:
 class AdminLogEntry(Base):
     __tablename__ = "admin_log_entry"
 
-    id = Column(INT, primary_key=True)
-    type = Column(TEXT, nullable=False)
-    user_id = Column(TEXT, ForeignKey("user.id", ondelete="SET NULL"))
-    message = Column(TEXT, nullable=False)
-    created_at = Column(UtcDateTime(), nullable=False, index=True)
-    data = Column(JSONB, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    type: Mapped[str]
+    user_id: Mapped[str] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    message: Mapped[str]
+    created_at: Mapped[datetime.datetime] = mapped_column(UtcDateTime(), index=True)
+    data: Mapped[Any] = mapped_column(JSONB, nullable=False)
 
     user = relationship("User")
 
