@@ -108,7 +108,9 @@ class LinkCheckerCache:
 
 class LinkCheckerLink:
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # TODO: domain is actually nullable in the database. We should run a migration on link_blacklist and link_whitelist
     domain: Mapped[str]
+    # TODO: path is actually nullable in the database. We should run a migration on link_blacklist and link_whitelist
     path: Mapped[str]
 
     def is_subdomain(self, x: str) -> bool:
@@ -134,6 +136,7 @@ class LinkCheckerLink:
 class BlacklistedLink(Base, LinkCheckerLink):
     __tablename__ = "link_blacklist"
 
+    # TODO: level is actually nullable in the database. We should run a migration on link_blacklist
     level: Mapped[int]
 
     def __init__(self, domain: str, path: str, level: int) -> None:
