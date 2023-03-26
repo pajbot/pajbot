@@ -14,7 +14,7 @@ from sqlalchemy import BOOLEAN, TEXT, Column
 if TYPE_CHECKING:
     from pajbot.bot import Bot
     from pajbot.models.sock import HandlerParam, SocketManager
-    from pajbot.modules import BaseModule
+    from pajbot.modules.base import BaseModule
 
 log = logging.getLogger("pajbot")
 
