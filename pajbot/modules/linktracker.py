@@ -1,4 +1,6 @@
-from typing import Any, List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import logging
 from urllib.parse import urlsplit
@@ -10,6 +12,9 @@ from pajbot.modules import BaseModule
 
 from sqlalchemy import INT, TEXT, Column
 from sqlalchemy_utc import UtcDateTime
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +35,7 @@ class LinkTrackerLink(Base):
         self.first_linked = now
         self.last_linked = now
 
-    def increment(self):
+    def increment(self) -> None:
         self.times_linked += 1
         self.last_linked = utils.now()
 
@@ -43,17 +48,19 @@ class LinkTrackerModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS: List[Any] = []
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.db_session = None
-        self.links = {}
+        self.db_session: Optional[Session] = None
+        self.links: Dict[str, LinkTrackerLink] = {}
 
-    def on_message(self, whisper, urls, **rest):
+    def on_message(self, whisper: bool, urls: List[str], **rest) -> bool:
         if whisper is False:
             for url in urls:
                 self.add_url(url)
 
-    def add_url(self, url):
+        return True
+
+    def add_url(self, url: str) -> None:
         if self.db_session is None:
             return
         url_data = urlsplit(url)
@@ -84,11 +91,16 @@ class LinkTrackerModule(BaseModule):
 
         self.links[url].increment()
 
-    def on_commit(self, **rest):
+    def on_commit(self, **rest) -> bool:
         if self.db_session is not None:
             self.db_session.commit()
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is None:
+            return
+
         HandlerManager.add_handler("on_message", self.on_message, priority=200)
         HandlerManager.add_handler("on_commit", self.on_commit)
 
@@ -99,7 +111,10 @@ class LinkTrackerModule(BaseModule):
             self.links = {}
         self.db_session = DBManager.create_session()
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is None:
+            return
+
         HandlerManager.remove_handler("on_message", self.on_message)
         HandlerManager.remove_handler("on_commit", self.on_commit)
 
