@@ -11,6 +11,7 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule
 
 from sqlalchemy import INT, TEXT, Column
+from sqlalchemy.orm import Session
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
