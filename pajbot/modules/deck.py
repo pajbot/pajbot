@@ -1,7 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
 from pajbot.models.command import Command, CommandExample
-from pajbot.modules import BaseModule
+from pajbot.models.user import User
+from pajbot.modules.base import BaseModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger("pajbot")
 
@@ -12,7 +20,7 @@ class DeckModule(BaseModule):
     DESCRIPTION = "Handles displaying/updating decks through commands and the website."
     CATEGORY = "Feature"
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         self.commands["setdeck"] = Command.raw_command(
             self.set_deck,
             level=420,
@@ -113,7 +121,7 @@ class DeckModule(BaseModule):
         )
 
     @staticmethod
-    def set_deck(bot, source, message, **rest):
+    def set_deck(bot: Bot, source: User, message: str, **rest) -> bool:
         """Dispatch method for setting the current deck.
         The command takes a link as its argument.
         If the link is an already-added deck, the deck should be set as the current deck
@@ -133,7 +141,7 @@ class DeckModule(BaseModule):
         return False
 
     @staticmethod
-    def update_deck(bot, source, message, **rest):
+    def update_deck(bot: Bot, source: User, message: str, **rest) -> bool:
         """Dispatch method for updating a deck.
         By default this will update things for the current deck, but you can update
         any deck assuming you know its ID.
@@ -168,8 +176,10 @@ class DeckModule(BaseModule):
         bot.decks.update_deck(deck, **options)
         bot.whisper(source, f"Updated deck with ID {deck.id}. Updated {', '.join([key for key in options])}")
 
+        return True
+
     @staticmethod
-    def remove_deck(bot, source, message, **rest):
+    def remove_deck(bot: Bot, source: User, message: str, **rest) -> bool:
         """Dispatch method for removing a deck.
         Usage: !removedeck imgur.com/abcdef
         OR
