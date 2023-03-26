@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Dev: Add typing to the roulette module. (#2393)
 - Dev: Add typing to the playsound module. (#2392)
+- Dev: Add mini typing to various models & modules. (#2395)
 - Dev: Add typing to the duel model. (#2391)
 - Dev: Add typing to the deck manager & model. (#2390)
 - Dev: Add typing & refactor stream manager & model. (#2389)

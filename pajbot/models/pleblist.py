@@ -29,8 +29,7 @@ class PleblistSong(Base):
         lazy="joined",
     )
 
-    def __init__(self, stream_id, youtube_id, **options):
-        self.id = None
+    def __init__(self, stream_id: int, youtube_id: str, **options) -> None:
         self.stream_id = stream_id
         self.user_id = options.get("user_id", None)
         self.youtube_id = youtube_id
@@ -63,7 +62,7 @@ class PleblistSongInfo(Base):
     duration = Column(INT, nullable=False)
     default_thumbnail = Column(TEXT, nullable=False)
 
-    def __init__(self, youtube_id, title, duration, default_thumbnail):
+    def __init__(self, youtube_id: str, title: str, duration: int, default_thumbnail: str) -> None:
         self.pleblist_song_youtube_id = youtube_id
         self.title = title
         self.duration = duration

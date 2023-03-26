@@ -87,9 +87,7 @@ def init(page) -> None:
                 "operator": operator,
             }
 
-            if id is None:
-                banphrase = Banphrase(**options)
-                banphrase.data = BanphraseData(banphrase.id, added_by=options["added_by"])
+            final_banphrase: Banphrase
 
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 if id is not None:
@@ -103,17 +101,21 @@ def init(page) -> None:
                     log.info(f"Updated banphrase ID {banphrase.id} by user ID {options['edited_by']}")
                     AdminLogManager.post("Banphrase edited", user, banphrase.id, banphrase.phrase)
                 else:
+                    banphrase = Banphrase(**options)
+                    banphrase.data = BanphraseData(banphrase.id, added_by=options["added_by"])
                     db_session.add(banphrase)
                     db_session.add(banphrase.data)
                     db_session.flush()
                     log.info(f"Added a new banphrase by user ID {options['added_by']}")
                     AdminLogManager.post("Banphrase added", user, banphrase.id, banphrase.phrase)
 
-            SocketClientManager.send("banphrase.update", {"id": banphrase.id})
+                final_banphrase = banphrase
+
+            SocketClientManager.send("banphrase.update", {"id": final_banphrase.id})
             if id is None:
-                session["banphrase_created_id"] = banphrase.id
+                session["banphrase_created_id"] = final_banphrase.id
             else:
-                session["banphrase_edited_id"] = banphrase.id
+                session["banphrase_edited_id"] = final_banphrase.id
             return redirect("/admin/banphrases", 303)
         else:
             return render_template("admin/create_banphrase.html")

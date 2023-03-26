@@ -20,14 +20,12 @@ class Deck(Base):
     last_used = Column(UtcDateTime(), nullable=False)
     times_used = Column(INT, nullable=False, default=1)
 
-    def __init__(self):
-        self.id = None
+    def __init__(self) -> None:
         self.name = ""
         self.deck_class = "undefined"
-        self.link = None
         self.times_used = 1
 
-    def set(self, **options):
+    def set(self, **options) -> None:
         self.name = options.get("name", self.name)
         self.deck_class = options.get("class", self.deck_class)
         self.link = options.get("link", self.link)
@@ -36,9 +34,9 @@ class Deck(Base):
         self.last_used = options.get("last_used", self.last_used)
 
     @property
-    def last_used_ago(self):
+    def last_used_ago(self) -> str:
         return time_ago(self.last_used, "long")
 
     @property
-    def first_used_ago(self):
+    def first_used_ago(self) -> str:
         return time_ago(self.last_used, "long")

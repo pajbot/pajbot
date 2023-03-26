@@ -145,7 +145,7 @@ class BlacklistedLink(Base, LinkCheckerLink):
 class WhitelistedLink(LinkCheckerLink, Base):
     __tablename__ = "link_whitelist"
 
-    def __init__(self, domain, path):
+    def __init__(self, domain: str, path: str) -> None:
         self.domain = domain
         self.path = path
 

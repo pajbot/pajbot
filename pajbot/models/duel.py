@@ -70,7 +70,7 @@ class UserDuelStats(Base):
         if self.current_streak > self.longest_winstreak:
             self.longest_winstreak = self.current_streak
 
-    def lost(self, points_lost):
+    def lost(self, points_lost: int) -> None:
         self.duels_total += 1
         self.points_lost += points_lost
         self.last_duel = utils.now()
