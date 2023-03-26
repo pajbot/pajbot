@@ -7,7 +7,7 @@ import logging
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.models.timer import Timer
+from pajbot.models.timer import Timer, TimerOptions
 from pajbot.web.utils import requires_level
 
 from flask import abort, redirect, render_template, request, session
@@ -41,7 +41,7 @@ def init(page) -> None:
 
     @page.route("/timers/create", methods=["GET", "POST"])
     @requires_level(500)
-    def timers_create(**options) -> ResponseReturnValue:
+    def timers_create(**kwargs) -> ResponseReturnValue:
         session.pop("timer_created_id", None)
         session.pop("timer_edited_id", None)
         if request.method != "POST":
@@ -67,20 +67,24 @@ def init(page) -> None:
         if not message:
             abort(403)
 
-        user = options.get("user", None)
+        user = kwargs.get("user", None)
 
         if user is None:
             abort(403)
 
-        options = {"name": name, "interval_online": interval_online, "interval_offline": interval_offline}
-
         action = {"type": message_type, "message": message}
-        options["action"] = action
+        options: TimerOptions = {
+            "name": name,
+            "interval_online": interval_online,
+            "interval_offline": interval_offline,
+            "action": action,
+        }
 
         timer: Optional[Timer] = None
 
         if id is None:
-            timer = Timer(**options)
+            timer = Timer()
+            timer.set(options)
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             if timer is None:
@@ -91,12 +95,15 @@ def init(page) -> None:
                 old_message = ""
                 new_message = ""
                 try:
-                    old_message = timer.action.response
+                    if timer.action is not None:
+                        action_response = timer.action.get_action_response()
+                        if action_response is not None:
+                            old_message = action_response
                     new_message = action["message"]
                 except:
                     pass
 
-                timer.set(**options)
+                timer.set(options)
 
                 if old_message and old_message != new_message:
                     log_msg = f'Timer "{timer.name}" has been updated from "{old_message}" to "{new_message}"'

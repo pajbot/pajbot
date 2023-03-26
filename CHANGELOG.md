@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Dev: Add typing to the timer model. (#2394)
 - Dev: Add typing to the roulette module. (#2393)
 - Dev: Add typing to the playsound module. (#2392)
 - Dev: Add mini typing to various models & modules. (#2395)
