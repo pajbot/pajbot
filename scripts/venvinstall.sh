@@ -10,11 +10,12 @@ fi
 
 if [ ! -d venv ]; then
     # Create virtual environment
-    echo "Creating python venv"
     if [ "$SKIP_PYENV" = "1" ]; then
-        pyenv exec python3 -m venv venv
-    else
+        echo "Creating python venv without pyenv"
         python3 -m venv venv
+    else
+        echo "Creating python venv with pyenv"
+        pyenv exec python3 -m venv venv
     fi
 fi
 
