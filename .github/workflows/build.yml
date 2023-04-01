@@ -9,24 +9,24 @@ on:
 
 jobs:
   test:
+    name: "Test ubuntu-latest, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
-    container: debian:bullseye
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - name: Update apt database
-        run: apt-get update
-
-      - name: Install python and dependencies for python packages
-        run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
-
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Cache virtual environment
         id: cache-venv
         uses: actions/cache@v3
         with:
           path: ./venv
-          key: v2-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+          key: ubuntu-latest-${{ matrix.python-version }}-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -36,37 +36,28 @@ jobs:
         run: ./venv/bin/pytest
 
   check_format:
+    name: "Check format ubuntu-latest, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
-    container: debian:bullseye
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - name: Update apt database
-        run: apt-get update
-
-      - name: Install python and dependencies for python packages
-        run: apt-get install git python3 python3-pip python3-venv libssl-dev libpq-dev -y
-
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Cache virtual environment
         id: cache-venv
         uses: actions/cache@v3
         with:
           path: ./venv
-          key: v2-requirements-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
+          key: ubuntu-latest-${{ matrix.python-version }}-prod@${{ hashFiles('requirements.txt') }}-dev@${{ hashFiles('requirements-dev.txt') }}
 
       - name: Install dependencies
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: ./scripts/venvinstall.sh --dev
-
-      - name: Install curl
-        run: apt-get install curl -y
-
-      - name: Install apt repository for Node.js 12
-        run: curl -sL https://deb.nodesource.com/setup_12.x | bash -
-
-      - name: Install Node.js 12
-        run: apt-get install nodejs -y
 
       - name: Check code style
         run: . venv/bin/activate && ./scripts/reformat.sh --check

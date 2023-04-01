@@ -7,7 +7,14 @@ Note: pajbot is in **maintenance mode**.
 This means we focus on keeping the project alive by not allowing major overhauls of any pajbot system or any major features.
 Fixing bugs, updating dependencies and ensuring that code interacting with external APIs still function will be our main goal.
 Feature requests will not be accepted unless someone is willing to own the feature, and even then some features that change too much of the architecture won't be allowed.
-Current minimal supported Python version is **3.8**.
+Current minimal supported Python version is **3.9**.
+
+## Python versioning
+
+We use [pyenv](https://github.com/pyenv/pyenv) to manage Python versions. Get familiar with this tool.  
+Quick install of pyenv on Linux systems: `curl https://pyenv.run | bash`
+
+If you don't want to use pyenv's version of Python in any of our scripts, set the `SKIP_PYENV` environment variable to `1`.
 
 ## Quick install
 
