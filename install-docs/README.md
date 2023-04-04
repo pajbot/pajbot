@@ -43,17 +43,46 @@ sudo apt update
 sudo apt install python3 python3-dev python3-pip python3-venv
 ```
 
-Now, double-check that you have Python 3.8 or newer installed:
-
-```bash
-python3 --version
-```
-
 We also need the following libraries and build tools:
 
 ```bash
 sudo apt install libssl-dev libpq-dev build-essential git
 ```
+
+Now, double-check that you have Python 3.9 or newer installed:
+
+```bash
+python3 --version
+```
+
+If your system Python version is not 3.9 or above, you must install [pyenv](https://github.com/pyenv/pyenv) following the instructions below.
+
+### Installing pyenv
+
+Install the required dependencies to build Python (instructions from [here](https://github.com/pyenv/pyenv/wiki#suggested-build-environment))
+
+```bash
+sudo apt update
+sudo apt install build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev curl \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+```
+
+Install pyenv on your system (instructions from [here](https://github.com/pyenv/pyenv#automatic-installer), there are other alternative methods of installations avilable if you want)
+
+```bash
+curl https://pyenv.run | bash
+```
+
+Set up your bash shell environment for Pyenv (instructions from [here](https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv))
+
+```bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+```
+
+Then restart your shell.
 
 ## Set up a system user
 
@@ -76,6 +105,13 @@ Install pajbot's dependencies like this:
 ```bash
 cd /opt/pajbot
 sudo -H -u pajbot ./scripts/venvinstall.sh
+```
+
+If you wanted to use your system version of Python, run the command like this instead:
+
+```bash
+cd /opt/pajbot
+sudo -H -u pajbot SKIP_PYENV=1 ./scripts/venvinstall.sh
 ```
 
 ## Install and set up the database server
