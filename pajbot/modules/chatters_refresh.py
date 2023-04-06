@@ -68,11 +68,9 @@ class ChattersRefreshModule(BaseModule):
             log.warn("_update_chatters failed in ChattersRefreshModule because bot is None")
             return
 
-        chatter_logins = self.bot.twitch_tmi_api.get_chatter_logins_by_login(self.bot.streamer.login)
-        unfiltered_chatter_basics = self.bot.twitch_helix_api.bulk_get_user_basics_by_login(chatter_logins)
-
-        # filter out invalid/deleted/etc. users
-        chatter_basics = [e for e in unfiltered_chatter_basics if e is not None]
+        chatter_basics = self.bot.twitch_helix_api.get_all_chatters(
+            self.bot.streamer.id, self.bot.bot_user.id, self.bot.bot_token_manager
+        )
 
         is_stream_online = self.bot.stream_manager.online
 
