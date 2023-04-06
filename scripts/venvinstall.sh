@@ -17,7 +17,7 @@ if [ ! -d venv ]; then
         python3 --version
     else
         echo "Attempting to create virtual environment using pyenv's Python"
-        if ! command -v pyenvv >/dev/null; then
+        if ! command -v pyenv >/dev/null; then
             echo "Error: Unable to find pyenv to create the virtual environment with the appropriate Python version."
             echo "You must install pyenv & put the appropriate shell initialization into your .bashrc or .zshrc to be able to use pyenv."
             echo "If you want to use your system Python (and your system Python is high enough version), run this script again with the SKIP_PYENV=1 environment variable set."
