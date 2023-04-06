@@ -14,8 +14,8 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.user import UserChannelInformation, UserStream
 
-from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
@@ -27,13 +27,13 @@ log = logging.getLogger("pajbot")
 class StreamChunk(Base):
     __tablename__ = "stream_chunk"
 
-    id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), nullable=False)
-    broadcast_id = Column(TEXT, nullable=False)
-    video_url = Column(TEXT, nullable=True)
-    video_preview_image_url = Column(TEXT, nullable=True)
-    chunk_start = Column(UtcDateTime(), nullable=False)
-    chunk_end = Column(UtcDateTime(), nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    stream_id: Mapped[int] = mapped_column(Integer, ForeignKey("stream.id", ondelete="CASCADE"))
+    broadcast_id: Mapped[str]
+    video_url: Mapped[Optional[str]]
+    video_preview_image_url: Mapped[Optional[str]]
+    chunk_start: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
+    chunk_end: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
 
     def __init__(self, stream: Stream, broadcast_id: str, created_at: str) -> None:
         self.stream_id = stream.id
@@ -49,11 +49,11 @@ class StreamChunk(Base):
 class Stream(Base):
     __tablename__ = "stream"
 
-    id = Column(INT, primary_key=True)
-    title = Column(TEXT, nullable=False)
-    stream_start = Column(UtcDateTime(), nullable=False)
-    stream_end = Column(UtcDateTime(), nullable=True)
-    ended = Column(BOOLEAN, nullable=False, default=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str]
+    stream_start: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
+    stream_end: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    ended: Mapped[bool]
 
     stream_chunks = relationship(
         StreamChunk, uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"

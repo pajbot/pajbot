@@ -1,3 +1,14 @@
+"""
+Commands must be creatable from chat
+Commands must be creatable from the web UI
+Commands must be editable from chat
+Commands must be editable from the web UI
+
+Commands must start triggering when they're created
+Commands must start triggering using an alias when an alias is added
+Commands must stop triggering when they're created
+Commands must stop triggering using an alias when an alias is removed
+"""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
@@ -14,8 +25,8 @@ from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
 from pajbot.models.user import User
 
-from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
-from sqlalchemy.orm import reconstructor, relationship
+from sqlalchemy import Boolean, ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, reconstructor, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
@@ -84,12 +95,14 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: List[Web
 class CommandData(Base):
     __tablename__ = "command_data"
 
-    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
-    num_uses = Column(INT, nullable=False, default=0)
+    command_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("command.id", ondelete="CASCADE"), primary_key=True, autoincrement=False
+    )
+    num_uses: Mapped[int]
 
-    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    _last_date_used = Column("last_date_used", UtcDateTime(), nullable=True, default=None)
+    added_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column("last_date_used", UtcDateTime())
 
     user = relationship(
         User,
@@ -149,11 +162,11 @@ class CommandData(Base):
 class CommandExample(Base):
     __tablename__ = "command_example"
 
-    id = Column(INT, primary_key=True)
-    command_id = Column(INT, ForeignKey("command.id", ondelete="CASCADE"), nullable=False)
-    title = Column(TEXT, nullable=False)
-    chat = Column(TEXT, nullable=False)
-    description = Column(TEXT, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    command_id: Mapped[int] = mapped_column(Integer, ForeignKey("command.id", ondelete="CASCADE"))
+    title: Mapped[str]
+    chat: Mapped[str]
+    description: Mapped[str]
 
     def __init__(self, command_id: Optional[int], title: str, chat: str = "", description: str = "") -> None:
         if command_id:
@@ -195,22 +208,22 @@ class CommandExample(Base):
 class Command(Base):
     __tablename__ = "command"
 
-    id = Column(INT, primary_key=True)
-    level = Column(INT, nullable=False, default=100)
-    action_json = Column("action", TEXT, nullable=False)
-    extra_extra_args = Column("extra_args", TEXT)
-    command = Column(TEXT, nullable=False)
-    description = Column(TEXT, nullable=True)
-    delay_all = Column(INT, nullable=False, default=5)
-    delay_user = Column(INT, nullable=False, default=15)
-    enabled = Column(BOOLEAN, nullable=False, default=True)
-    cost = Column(INT, nullable=False, default=0)
-    tokens_cost = Column(INT, nullable=False, default=0, server_default="0")
-    can_execute_with_whisper = Column(BOOLEAN)
-    sub_only = Column(BOOLEAN, nullable=False, default=False)
-    mod_only = Column(BOOLEAN, nullable=False, default=False)
-    run_through_banphrases = Column(BOOLEAN, nullable=False, default=False, server_default="0")
-    use_global_cd = Column(BOOLEAN, nullable=False, default=False, server_default="0")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    level: Mapped[int] = mapped_column(Integer, default=100)
+    action_json: Mapped[Optional[str]] = mapped_column("action", Text)
+    extra_extra_args: Mapped[Optional[str]] = mapped_column("extra_args", Text)
+    command: Mapped[str]
+    description: Mapped[Optional[str]]
+    delay_all: Mapped[int] = mapped_column(Integer, default=5)
+    delay_user: Mapped[int] = mapped_column(Integer, default=15)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    cost: Mapped[int]
+    tokens_cost: Mapped[int]
+    can_execute_with_whisper: Mapped[Optional[bool]]
+    sub_only: Mapped[bool]
+    mod_only: Mapped[bool]
+    run_through_banphrases: Mapped[bool]
+    use_global_cd: Mapped[bool]
     long_description = ""
 
     data = relationship(CommandData, uselist=False, cascade="", lazy="joined")
@@ -228,7 +241,8 @@ class Command(Base):
     notify_on_error = False
 
     def __init__(self, **options) -> None:
-        self.id = options.get("id", None)
+        if "id" in options:
+            self.id = options["id"]
 
         self.level = Command.DEFAULT_LEVEL
         self.action: Optional[BaseAction] = None

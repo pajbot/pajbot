@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple
 
+import datetime
 import logging
 from contextlib import contextmanager
 from datetime import timedelta
@@ -13,10 +14,11 @@ from pajbot.managers.redis import RedisManager
 from pajbot.models.duel import UserDuelStats
 
 from redis import Redis
-from sqlalchemy import BIGINT, BOOLEAN, INT, TEXT, Column, Interval, and_, or_
-from sqlalchemy.orm import RelationshipProperty, Session, foreign, relationship
+from sqlalchemy import BigInteger, Integer, Interval, Text, and_, or_
+from sqlalchemy.orm import Mapped, Session, foreign, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import functions
+from sqlalchemy.sql.expression import select
 from sqlalchemy.sql.functions import func
 from sqlalchemy_utc import UtcDateTime
 
@@ -34,9 +36,9 @@ log = logging.getLogger(__name__)
 class UserRank(Base):
     __tablename__ = "user_rank"
 
-    user_id = Column(TEXT, primary_key=True, nullable=False)
-    points_rank = Column(BIGINT, nullable=False)
-    num_lines_rank = Column(BIGINT, nullable=False)
+    user_id: Mapped[str] = mapped_column(Text, primary_key=True)
+    points_rank: Mapped[int]
+    num_lines_rank: Mapped[int]
 
 
 class UserBasics:
@@ -77,10 +79,10 @@ class User(Base):
     __tablename__ = "user"
 
     # Twitch user ID
-    id = Column(TEXT, primary_key=True, nullable=False)
+    id: Mapped[str] = mapped_column(Text, primary_key=True)
 
     # Twitch user login name
-    _login = Column("login", TEXT, nullable=False, index=True)
+    _login: Mapped[str] = mapped_column("login", Text, index=True)
 
     # login_last_updated describes when this user's login name was last authoritatively updated,
     # for example through an API response from Twitch,
@@ -106,26 +108,26 @@ class User(Base):
     #     user.name = 'Snusbot'
     # This would issue an `UPDATE` command that sets user.login even if the login was already "snusbot" before,
     # and so the login_last_updated becomes updated on the database side via the trigger.
-    login_last_updated = Column(UtcDateTime(), nullable=False, server_default="NOW()")
+    login_last_updated: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
 
     # Twitch user display name
-    name = Column(TEXT, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(Text, index=True)
 
-    level = Column(INT, nullable=False, server_default="100")
-    points = Column(BIGINT, nullable=False, server_default="0", index=True)
-    subscriber = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    moderator = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    time_in_chat_online = Column(Interval, nullable=False, server_default="INTERVAL '0 minutes'")
-    time_in_chat_offline = Column(Interval, nullable=False, server_default="INTERVAL '0 minutes'")
-    num_lines = Column(BIGINT, nullable=False, server_default="0", index=True)
-    tokens = Column(INT, nullable=False, server_default="0")
-    last_seen = Column(UtcDateTime(), nullable=True, server_default="NULL")
-    last_active = Column(UtcDateTime(), nullable=True, server_default="NULL")
-    ignored = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    banned = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    timeout_end = Column(UtcDateTime(), nullable=True, server_default="NULL")
-    vip = Column(BOOLEAN, nullable=False, server_default="FALSE")
-    founder = Column(BOOLEAN, nullable=False, server_default="FALSE")
+    level: Mapped[int] = mapped_column(Integer, default=100)
+    points: Mapped[int] = mapped_column(BigInteger, index=True)
+    subscriber: Mapped[bool]
+    moderator: Mapped[bool]
+    time_in_chat_online: Mapped[timedelta] = mapped_column(Interval, server_default="INTERVAL '0 minutes'")
+    time_in_chat_offline: Mapped[timedelta] = mapped_column(Interval, server_default="INTERVAL '0 minutes'")
+    num_lines: Mapped[int] = mapped_column(BigInteger, index=True)
+    tokens: Mapped[int]
+    last_seen: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    last_active: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    ignored: Mapped[bool]
+    banned: Mapped[bool]
+    timeout_end: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    vip: Mapped[bool]
+    founder: Mapped[bool]
 
     _rank = relationship(UserRank, primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
 
@@ -145,8 +147,9 @@ class User(Base):
         self.timeout_end = None
         self.vip = False
         self.founder = False
+        self.login_last_updated = utils.now()
 
-    _duel_stats: RelationshipProperty[UserDuelStats] = relationship(
+    _duel_stats: Mapped[UserDuelStats] = relationship(
         UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
     )
 
@@ -394,7 +397,7 @@ class User(Base):
         if not always_fresh:
             user_from_db = (
                 db_session.query(User)
-                .filter(or_(User.login == input, User.name == input))
+                .filter(or_(User._login == input, User.name == input))
                 .order_by(User.login_last_updated.desc())
                 .limit(1)
                 .one_or_none()
@@ -427,13 +430,13 @@ class User(Base):
         user_name = User._normalize_user_username_input(user_name)
 
         # look for a match in both the login and name
-        return (
-            db_session.query(User)
-            .filter(or_(User.login == user_name, func.lower(User.name) == user_name))
+        result = db_session.execute(
+            select(User)
+            .filter(or_(User._login == user_name, func.lower(User.name) == user_name))
             .order_by(User.login_last_updated.desc())
             .limit(1)
-            .one_or_none()
         )
+        return result.scalar_one_or_none()
 
     @staticmethod
     def find_by_login(db_session: Session, login: str) -> Optional[User]:

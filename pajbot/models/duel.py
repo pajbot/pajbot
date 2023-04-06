@@ -1,15 +1,21 @@
+"""
+Duels for zero points can be made: !duel pajlada
+Duels for points can be made: !duel pajlada 5
+Duel stats update as expected in the web UI on the user profile page
+"""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
+import datetime
 import logging
 
 from pajbot import utils
 from pajbot.managers.db import Base
 
-from sqlalchemy import INT, Column, ForeignKey
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import RelationshipProperty, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
@@ -21,15 +27,17 @@ log = logging.getLogger(__name__)
 class UserDuelStats(Base):
     __tablename__ = "user_duel_stats"
 
-    user_id = Column(INT, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False)
-    duels_won = Column(INT, nullable=False)
-    duels_total = Column(INT, nullable=False)
-    points_won = Column(INT, nullable=False)
-    points_lost = Column(INT, nullable=False)
-    last_duel = Column(UtcDateTime(), nullable=True)
-    current_streak = Column(INT, nullable=False)
-    longest_winstreak = Column(INT, nullable=False)
-    longest_losestreak = Column(INT, nullable=False)
+    user_id: Mapped[str] = mapped_column(
+        Integer, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False
+    )
+    duels_won: Mapped[int]
+    duels_total: Mapped[int]
+    points_won: Mapped[int]
+    points_lost: Mapped[int]
+    last_duel: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    current_streak: Mapped[int]
+    longest_winstreak: Mapped[int]
+    longest_losestreak: Mapped[int]
 
     def __init__(self) -> None:
         self.duels_won = 0
@@ -41,9 +49,7 @@ class UserDuelStats(Base):
         self.longest_winstreak = 0
         self.longest_losestreak = 0
 
-    user: RelationshipProperty[User] = relationship(
-        "User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats"
-    )
+    user: Mapped[User] = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats")
 
     @hybrid_property
     def duels_lost(self) -> int:

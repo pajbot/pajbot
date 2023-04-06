@@ -36,7 +36,7 @@ def parse_points_amount(user: User, point_string: str) -> int:
             if percentage <= 0 or percentage > 100:
                 raise InvalidPointAmount("Invalid percentage format (example: 43.5%) :o")
 
-            return math.floor(user.points * (percentage / 100))
+            return math.floor(float(user.points) * (percentage / 100))
         except (ValueError, TypeError):
             raise InvalidPointAmount("Invalid percentage format (example: 43.5%)")
     elif point_string[0].isnumeric():

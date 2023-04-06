@@ -1,3 +1,15 @@
+"""
+Banphrases must be creatable from chat
+Banphrases must be creatable from the web UI
+Banphrases must be editable from chat
+Banphrases must be editable from the web UI
+
+Banphrases must start triggering when they're created
+Banphrases must stop triggering when they're removed
+
+Banphrases must update their operator properly when the operator is changed
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Union
@@ -10,9 +22,8 @@ from pajbot.models.user import User
 from pajbot.utils import find
 
 import regex as re
-import sqlalchemy
-from sqlalchemy import BOOLEAN, INT, TEXT, Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, ForeignKey, Integer, Text, event
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from unidecode import unidecode
 
 if TYPE_CHECKING:
@@ -24,30 +35,30 @@ log = logging.getLogger("pajbot")
 class Banphrase(Base):
     __tablename__ = "banphrase"
 
-    id = Column(INT, primary_key=True)
-    name = Column(TEXT, nullable=False, default="")
-    phrase = Column(TEXT, nullable=False)
-    length = Column(INT, nullable=False, default=300)
-    permanent = Column(BOOLEAN, nullable=False, default=False)
-    warning = Column(BOOLEAN, nullable=False, default=True)
-    case_sensitive = Column(BOOLEAN, nullable=False, default=False)
-    remove_accents = Column(BOOLEAN, nullable=False, default=False)
-    enabled = Column(BOOLEAN, nullable=False, default=True)
-    sub_immunity = Column(BOOLEAN, nullable=False, default=False, server_default=sqlalchemy.sql.expression.false())
-    operator = Column(TEXT, nullable=False, default="contains", server_default="contains")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str]
+    phrase: Mapped[str]
+    length: Mapped[int] = mapped_column(Integer, default=300)
+    permanent: Mapped[bool]
+    warning: Mapped[bool] = mapped_column(Boolean, default=True)
+    case_sensitive: Mapped[bool]
+    remove_accents: Mapped[bool]
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    sub_immunity: Mapped[bool]
+    operator: Mapped[str] = mapped_column(Text, default="contains", server_default="contains")
 
     data = relationship("BanphraseData", uselist=False, cascade="", lazy="joined")
 
     DEFAULT_TIMEOUT_LENGTH = 300
 
-    def __init__(self, **options):
-        self.id = None
+    def __init__(self, **options) -> None:
         self.name = "No name"
         self.length = self.DEFAULT_TIMEOUT_LENGTH
         self.permanent = False
         self.warning = True
         self.case_sensitive = False
         self.enabled = True
+        self.sub_immunity = False
         self.operator = "contains"
         self.remove_accents = False
         self.compiled_regex = None
@@ -55,7 +66,7 @@ class Banphrase(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options) -> None:
         self.name = options.get("name", self.name)
         self.phrase = options.get("phrase", self.phrase)
         self.length = options.get("length", self.length)
@@ -162,12 +173,12 @@ class Banphrase(Base):
         }
 
 
-@sqlalchemy.event.listens_for(Banphrase, "load")
+@event.listens_for(Banphrase, "load")
 def on_banphrase_load(target, _context):
     target.refresh_operator()
 
 
-@sqlalchemy.event.listens_for(Banphrase, "refresh")
+@event.listens_for(Banphrase, "refresh")
 def on_banphrase_refresh(target, _context, _attrs):
     target.refresh_operator()
 
@@ -175,10 +186,12 @@ def on_banphrase_refresh(target, _context, _attrs):
 class BanphraseData(Base):
     __tablename__ = "banphrase_data"
 
-    banphrase_id = Column(INT, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False)
-    num_uses = Column(INT, nullable=False, default=0)
-    added_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    edited_by = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
+    banphrase_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("banphrase.id"), primary_key=True, autoincrement=False
+    )
+    num_uses: Mapped[int]
+    added_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    edited_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
 
     user = relationship(
         User,
@@ -200,7 +213,7 @@ class BanphraseData(Base):
         viewonly=True,
     )
 
-    def __init__(self, banphrase_id, **options):
+    def __init__(self, banphrase_id: int, **options) -> None:
         self.banphrase_id = banphrase_id
         self.num_uses = 0
         self.added_by = None
@@ -208,7 +221,7 @@ class BanphraseData(Base):
 
         self.set(**options)
 
-    def set(self, **options):
+    def set(self, **options) -> None:
         self.num_uses = options.get("num_uses", self.num_uses)
         self.added_by = options.get("added_by", self.added_by)
         self.edited_by = options.get("edited_by", self.edited_by)

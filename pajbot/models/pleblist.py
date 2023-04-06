@@ -1,10 +1,13 @@
+from typing import Optional
+
+import datetime
 import logging
 
 from pajbot import utils
 from pajbot.managers.db import Base
 
-from sqlalchemy import INT, TEXT, Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 log = logging.getLogger("pajbot")
@@ -13,13 +16,14 @@ log = logging.getLogger("pajbot")
 class PleblistSong(Base):
     __tablename__ = "pleblist_song"
 
-    id = Column(INT, primary_key=True)
-    stream_id = Column(INT, ForeignKey("stream.id", ondelete="CASCADE"), index=True, nullable=False)
-    user_id = Column(INT, ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
-    youtube_id = Column(TEXT, index=True, nullable=False)
-    date_added = Column(UtcDateTime(), nullable=False)
-    date_played = Column(UtcDateTime(), nullable=True)
-    skip_after = Column(INT, nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    stream_id: Mapped[int] = mapped_column(Integer, ForeignKey("stream.id", ondelete="CASCADE"), index=True)
+    youtube_id: Mapped[str] = mapped_column(Text, index=True)
+    date_added: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
+    date_played: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+    skip_after: Mapped[Optional[int]]
+    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+
     song_info = relationship(
         "PleblistSongInfo",
         uselist=False,
@@ -57,10 +61,10 @@ class PleblistSong(Base):
 class PleblistSongInfo(Base):
     __tablename__ = "pleblist_song_info"
 
-    pleblist_song_youtube_id = Column(TEXT, primary_key=True, autoincrement=False)
-    title = Column(TEXT, nullable=False)
-    duration = Column(INT, nullable=False)
-    default_thumbnail = Column(TEXT, nullable=False)
+    pleblist_song_youtube_id: Mapped[str] = mapped_column(Text, primary_key=True, autoincrement=False)
+    title: Mapped[str]
+    duration: Mapped[int]
+    default_thumbnail: Mapped[str]
 
     def __init__(self, youtube_id: str, title: str, duration: int, default_thumbnail: str) -> None:
         self.pleblist_song_youtube_id = youtube_id

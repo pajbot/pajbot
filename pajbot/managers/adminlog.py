@@ -1,19 +1,26 @@
+"""
+Admin logs are created with post and add_entry
+
+Admin logs are read & rendered by admin's home.{py.html}
+"""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
+import datetime
 import logging
 
 from pajbot import utils
 from pajbot.managers.db import Base, DBManager
 
-from sqlalchemy import INT, TEXT, Column, ForeignKey
+from sqlalchemy import ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utc import UtcDateTime
 
 if TYPE_CHECKING:
-    from pajbot.models.user import User  # noqa: F401 (imported but unused)
+    from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
 
@@ -29,14 +36,14 @@ class LogEntryTemplate:
 class AdminLogEntry(Base):
     __tablename__ = "admin_log_entry"
 
-    id = Column(INT, primary_key=True)
-    type = Column(TEXT, nullable=False)
-    user_id = Column(TEXT, ForeignKey("user.id", ondelete="SET NULL"))
-    message = Column(TEXT, nullable=False)
-    created_at = Column(UtcDateTime(), nullable=False, index=True)
-    data = Column(JSONB, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    type: Mapped[str]
+    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    message: Mapped[str]
+    created_at: Mapped[datetime.datetime] = mapped_column(UtcDateTime(), index=True)
+    data: Mapped[Any] = mapped_column(JSONB, nullable=False)
 
-    user = relationship("User")
+    user: Mapped[Optional[User]] = relationship("User")
 
 
 class AdminLogManager:
@@ -57,7 +64,7 @@ class AdminLogManager:
     }
 
     @staticmethod
-    def add_entry(entry_type, source, message, data={}) -> None:
+    def add_entry(entry_type: str, source: User, message: str, data={}) -> None:
         with DBManager.create_session_scope() as db_session:
             entry_object = AdminLogEntry(
                 type=entry_type, user_id=source.id, message=message, created_at=utils.now(), data=data
@@ -65,6 +72,6 @@ class AdminLogManager:
             db_session.add(entry_object)
 
     @staticmethod
-    def post(entry_type, source, *args, data={}) -> None:
+    def post(entry_type: str, source: User, *args, data={}) -> None:
         message = AdminLogManager.TEMPLATES[entry_type].get_message(*args)
         AdminLogManager.add_entry(entry_type, source, message, data=data)

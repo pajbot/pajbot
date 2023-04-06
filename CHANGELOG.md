@@ -14,6 +14,7 @@ Note that with this version, `venvinstall.sh` will now try and use `pyenv` by de
 - Dev: Add typing to the duel model. (#2391)
 - Dev: Add typing to the deck manager & model. (#2390)
 - Dev: Add typing & refactor stream manager & model. (#2389)
+- Dev: Upgrade to SQLAlchemy 2.x. (#2378)
 
 ## v1.64
 
