@@ -949,3 +949,45 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
             json={"message": message},
         )
+
+    def _fetch_chatters_page(
+        self,
+        broadcaster_id: str,
+        moderator_id: str,
+        authorization,
+        after_pagination_cursor=None,
+    ) -> Tuple[List[UserBasics], Optional[str]]:
+        """
+        Calls the Get Chatters Helix endpoint using the broadcaster_id parameter.
+        broadcaster_id is a required field. broadcaster_id must be a channel the moderator_id user has moderator privileges in.
+        moderator_id is a required field. moderator_id must match the user ID in authorization.
+        """
+
+        response = self.get(
+            "/chat/chatters",
+            {
+                "broadcaster_id": broadcaster_id,
+                "moderator_id": moderator_id,
+                "first": 1000,
+                **self._with_pagination(after_pagination_cursor),
+            },
+            authorization=authorization,
+        )
+
+        chatters = [UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]]
+        pagination_cursor = response["pagination"].get("cursor", None)
+
+        return chatters, pagination_cursor
+
+    def get_all_chatters(self, broadcaster_id: str, moderator_id: str, authorization) -> List[UserBasics]:
+        """
+        Calls the _fetch_chatters_page function using the broadcaster_id & moderator_id parameter.
+        broadcaster_id is a required field. broadcaster_id must be a channel the moderator_id user has moderator privileges in.
+        moderator_id is a required field. moderator_id must match the user ID in authorization.
+        """
+
+        chatters = self._fetch_all_pages(self._fetch_chatters_page, broadcaster_id, moderator_id, authorization)
+
+        chatters = list(set(chatters))
+
+        return chatters
