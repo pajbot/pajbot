@@ -1048,13 +1048,16 @@ class TwitchHelixAPI(BaseTwitchAPI):
         return chatters
 
     def get_channel_badges(self, broadcaster_id: str) -> TwitchBadgeSets:
+        """
+        Calls the Get Channel Chat Badges endpoint https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges
+        broadcaster_id is a required field, and is the Twitch User ID of the channel whose chat badges you want to get.
+        """
+
         response = self.get(
             "/chat/badges",
             {
                 "broadcaster_id": broadcaster_id,
             },
         )
-
-        # print(response)
 
         return [TwitchBadgeSet.from_json(d) for d in response["data"]]
