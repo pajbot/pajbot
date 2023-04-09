@@ -16,6 +16,7 @@ Note that with this version, `venvinstall.sh` will now try and use `pyenv` by de
 - Dev: Add typing to the deck manager & model. (#2390)
 - Dev: Add typing & refactor stream manager & model. (#2389)
 - Dev: Upgrade to SQLAlchemy 2.x. (#2378)
+- Dev: Migrate to Helix's Badge API. (#2428)
 
 ## v1.64
 
