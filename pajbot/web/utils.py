@@ -11,7 +11,6 @@ import pajbot.exc
 import pajbot.managers
 from pajbot import utils
 from pajbot.apiwrappers.base import BaseAPI
-from pajbot.apiwrappers.twitch.badges import BadgeNotFoundError
 from pajbot.managers.db import DBManager
 from pajbot.managers.redis import RedisManager
 from pajbot.models.module import ModuleManager
@@ -22,7 +21,6 @@ from pajbot.utils import time_method
 from flask import abort, make_response, session
 
 if TYPE_CHECKING:
-    from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.models.user import UserBasics
 
@@ -83,20 +81,36 @@ def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> Non
         logo_raw_file.write(logo_image_bytes)
 
 
-def download_sub_badge(twitch_badges_api: TwitchBadgesAPI, streamer: UserBasics, subscriber_badge_version: str) -> None:
+def download_sub_badge(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, subscriber_badge_version: str) -> None:
+    out_path = f"static/images/badge_sub_{streamer.login}.png"
+
+    log.info(f"Downloading sub badge for {streamer.login} (badge version {subscriber_badge_version}) to {out_path}")
+
+    badge_sets = twitch_helix_api.get_channel_badges(streamer.id)
+
     try:
-        subscriber_badge = twitch_badges_api.get_channel_subscriber_badge(streamer.id, subscriber_badge_version)
-    except BadgeNotFoundError as e:
-        log.warn(f"Unable to download subscriber badge: {e}")
+        subscriber_badge_set = next(badge_set for badge_set in badge_sets if badge_set.set_id == "subscriber")
+    except StopIteration:
+        log.error(f"No subscriber badge set found for {streamer.login}")
         return
 
-    subscriber_badge_path = f"static/images/badge_sub_{streamer.login}.png"
+    try:
+        subscriber_badge = next(
+            badge_version
+            for badge_version in subscriber_badge_set.versions
+            if badge_version.id == subscriber_badge_version
+        )
+    except StopIteration:
+        log.error(
+            f"No subscriber badge found for {streamer.login} with the requested version {subscriber_badge_version}"
+        )
+        return
 
     # returns bytes
     subscriber_badge_bytes = BaseAPI(None).get_binary(subscriber_badge.image_url_1x)
 
     # write image...
-    with open(subscriber_badge_path, "wb") as subscriber_badge_file:
+    with open(out_path, "wb") as subscriber_badge_file:
         subscriber_badge_file.write(subscriber_badge_bytes)
 
 

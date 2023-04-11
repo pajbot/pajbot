@@ -174,6 +174,61 @@ class TwitchVideo:
         )
 
 
+class TwitchBadgeVersion:
+    def __init__(
+        self, id: str, image_url_1x: str, image_url_2x: str, image_url_4x: str, description: str, title: str
+    ) -> None:
+        self.id = id
+        self.image_url_1x = image_url_1x
+        self.image_url_2x = image_url_2x
+        self.image_url_4x = image_url_4x
+        self.description = description
+        self.title = title
+
+    def jsonify(self) -> Dict[str, str]:
+        return {
+            "id": self.id,
+            "image_url_1x": self.image_url_1x,
+            "image_url_2x": self.image_url_2x,
+            "image_url_4x": self.image_url_4x,
+            "description": self.description,
+            "title": self.title,
+        }
+
+    @staticmethod
+    def from_json(json_data: Dict[str, Any]) -> TwitchBadgeVersion:
+        return TwitchBadgeVersion(
+            json_data["id"],
+            json_data["image_url_1x"],
+            json_data["image_url_2x"],
+            json_data["image_url_4x"],
+            json_data["description"],
+            json_data["title"],
+        )
+
+
+class TwitchBadgeSet:
+    def __init__(self, set_id: str, versions: list[TwitchBadgeVersion]) -> None:
+        self.set_id = set_id
+        self.versions = versions
+
+    def jsonify(self) -> Dict[str, Any]:
+        return {
+            "set_id": self.set_id,
+            "versions": [v.jsonify() for v in self.versions],
+        }
+
+    @staticmethod
+    def from_json(json_data: Dict[str, Any]) -> TwitchBadgeSet:
+        return TwitchBadgeSet(
+            json_data["set_id"],
+            [TwitchBadgeVersion.from_json(v) for v in json_data["versions"]],
+        )
+
+
+TwitchBadgeSets = list[TwitchBadgeSet]
+
+
 class TwitchHelixAPI(BaseTwitchAPI):
     authorization_header_prefix = "Bearer"
 
@@ -991,3 +1046,18 @@ class TwitchHelixAPI(BaseTwitchAPI):
         chatters = list(set(chatters))
 
         return chatters
+
+    def get_channel_badges(self, broadcaster_id: str) -> TwitchBadgeSets:
+        """
+        Calls the Get Channel Chat Badges endpoint https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges
+        broadcaster_id is a required field, it specifies the Twitch User ID of the channel whose chat badges you want to get.
+        """
+
+        response = self.get(
+            "/chat/badges",
+            {
+                "broadcaster_id": broadcaster_id,
+            },
+        )
+
+        return [TwitchBadgeSet.from_json(d) for d in response["data"]]

@@ -4,7 +4,6 @@ import os
 import pajbot.config as cfg
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager
-from pajbot.apiwrappers.twitch.badges import TwitchBadgesAPI
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
@@ -84,7 +83,6 @@ def init(args):
     twitch_id_api = TwitchIDAPI(api_client_credentials)
     app_token_manager = AppAccessTokenManager(twitch_id_api, RedisManager.get())
     twitch_helix_api = TwitchHelixAPI(RedisManager.get(), app_token_manager)
-    twitch_badges_api = TwitchBadgesAPI(RedisManager.get())
 
     app.api_client_credentials = api_client_credentials
     app.twitch_id_api = twitch_id_api
@@ -114,7 +112,7 @@ def init(args):
     # Specifying a value of -1 in the config will disable sub badge downloading. Useful if you want to keep a custom version of a sub badge for a streamer
     if subscriber_badge_version != "-1":
         try:
-            download_sub_badge(twitch_badges_api, app.streamer, subscriber_badge_version)
+            download_sub_badge(twitch_helix_api, app.streamer, subscriber_badge_version)
         except:
             log.exception("Error downloading the streamers subscriber badge")
 
