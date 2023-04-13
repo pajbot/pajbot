@@ -56,8 +56,8 @@ class SubscriberFetchModule(BaseModule):
             else:
                 raise
 
-        # count how many subs we have (we don't want to count the broadcaster with his permasub)
-        sub_count = sum(1 for basics in subscribers if basics.id != self.bot.streamer.id)
+        # count how many subs we have, excluding the broadcaster with his permasub
+        sub_count = max(0, len(subscribers) - 1)
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:
