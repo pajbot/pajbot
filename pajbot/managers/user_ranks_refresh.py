@@ -51,5 +51,5 @@ class UserRanksRefreshManager:
             # Queue up the refresh in 5-6 minutes
             ScheduleManager.execute_delayed(
                 self.delay + self._jitter(),
-                lambda: action_queue.submit(UserRanksRefreshManager._refresh, action_queue),
+                lambda: action_queue.submit(self._refresh, action_queue),
             )

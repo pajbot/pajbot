@@ -7,6 +7,7 @@ Note that with this version, `venvinstall.sh` will now try and use `pyenv` by de
 
 - Breaking: Changed the minimal supported Python version from 3.8 to 3.9. (#2397)
 - Bugfix: Migrated our use of the TMI Chatters API to the supported Helix Chatters API. (#2425)
+- Bugfix: Fix issue with the user rank refresh when using default settings. (#2435)
 - Minor: Add native support for pyenv for managing Python versions (as noted above). (#2397, #2414)
 - Dev: Add typing to the timer model. (#2394)
 - Dev: Add typing to the roulette module. (#2393)
