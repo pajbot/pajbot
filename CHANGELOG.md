@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+## v1.65
+
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!  
 Note that with this version, `venvinstall.sh` will now try and use `pyenv` by default. We recommend you start using this tool, but if you wish to keep your previous setup (use the system python version), from now on, you will need to specify this by using `SKIP_PYENV=1 ./scripts/venvinstall.sh`.
 
