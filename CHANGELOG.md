@@ -4,6 +4,12 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.66
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+Make sure to update your dependencies with this release.
+
 - Bugfix: Fix an issue where the 7TV channel emote fetching would fail if the user didn't have an emote set created, or no emotes in their current emote set. (#2448)
 
 ## v1.65
