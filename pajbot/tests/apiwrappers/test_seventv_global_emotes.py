@@ -1,4 +1,5 @@
 import os
+
 from pajbot.apiwrappers.seventv import SevenTVAPI
 
 
