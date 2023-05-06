@@ -11,8 +11,8 @@ from pajbot.models.twitter import TwitterUser
 from pajbot.utils import now, stringify_tweet, time_since, tweet_provider_stringify_tweet
 
 import tweepy
-from tweepy.errors import NotFound
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
+from tweepy.errors import NotFound
 from twisted.internet.protocol import ReconnectingClientFactory
 
 if TYPE_CHECKING:
