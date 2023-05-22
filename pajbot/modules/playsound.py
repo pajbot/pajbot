@@ -157,12 +157,7 @@ class PlaysoundModule(BaseModule):
         if not message:
             return False
 
-        if self.bot is None:
-            log.warning("PlaysoundModule.play_sound failed because bot is None")
-            return False
-
         playsound_name = self.massage_name(message.split(" ")[0])
-
         with DBManager.create_session_scope() as session:
             # load playsound from the database
             playsound = session.query(Playsound).filter_by(name=playsound_name).one_or_none()
@@ -170,7 +165,7 @@ class PlaysoundModule(BaseModule):
             if playsound is None:
                 bot.whisper(
                     source,
-                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
+                    f"The playsound you gave does not exist. Check out all the valid playsounds here: https://{bot.bot_domain}/playsounds",
                 )
                 return False
 
@@ -204,7 +199,7 @@ class PlaysoundModule(BaseModule):
             if not playsound.enabled:
                 bot.whisper(
                     source,
-                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{self.bot.bot_domain}/playsounds",
+                    f"The playsound you gave is disabled. Check out all the valid playsounds here: https://{bot.bot_domain}/playsounds",
                 )
                 return False
 
