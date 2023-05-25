@@ -61,7 +61,7 @@ def init(app):
             MenuItem("/admin/timers", "admin_timers", "Timers"),
             MenuItem("/admin/moderators", "admin_moderators", "Moderators"),
             MenuItem("/admin/modules", "admin_modules", "Modules"),
-            MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds", "playsound" in enabled_modules),
+            MenuItem("/admin/playsounds", "admin_playsounds", "Playsounds"),
             MenuItem("/admin/streamer", "admin_streamer", "Streamer Info"),
         ]
 
