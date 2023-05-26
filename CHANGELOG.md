@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Fix playsounds tab in the top navigation bar not being visible on the admin page when the module was disabled. (#2469)
+
 ## v1.66
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
