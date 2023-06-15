@@ -23,7 +23,7 @@ regex==2023.6.3
 requests==2.31.0
 retry==0.9.2
 riotwatcher==3.2.5
-service-identity==21.1.0 # for twisted SSL as well
+service-identity==23.1.0 # for twisted SSL as well
 SQLAlchemy==2.0.7
 SQLAlchemy-Utc==0.14.0
 tempora==5.3.0
