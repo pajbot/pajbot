@@ -11,7 +11,7 @@ types-ipaddress==1.0.8
 types-Markdown==3.4.2.9
 types-pkg-resources==0.1.3
 types-pytz==2023.3.0.0
-types-redis==4.5.5.2
+types-redis==4.6.0.0
 types-requests==2.31.0.1
 types-retry==0.9.9.3
 types-psycopg2==2.9.21.10
