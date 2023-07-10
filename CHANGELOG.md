@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Bugfix: Fix playsounds tab in the top navigation bar not being visible on the admin page when the module was disabled. (#2469)
+- Bugfix: Multi-Raffle no longer raises an exception without picking any winners when the raffle ends. (#2492)
 
 ## v1.66
 
