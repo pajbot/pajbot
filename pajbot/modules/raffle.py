@@ -424,7 +424,7 @@ class RaffleModule(BaseModule):
         points_per_user = int(round(self.raffle_points / num_winners))
 
         # and we can pick the winners!
-        winner_ids = random.sample(self.raffle_users, num_winners)
+        winner_ids = random.sample(list(self.raffle_users), num_winners)
         with DBManager.create_session_scope() as db_session:
             winners = db_session.query(User).filter(User.id.in_(winner_ids)).all()
 
