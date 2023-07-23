@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, List, Optional, Set
+
 import logging
 import math
 import random
@@ -6,18 +10,21 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
-from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.modules.base import BaseModule, ModuleSetting
 from pajbot.streamhelper import StreamHelper
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
 
-def generate_winner_list(winners):
+def generate_winner_list(winners: List[User]) -> str:
     """Takes a list of winners, and combines them into a string."""
     return ", ".join(winner.name for winner in winners)
 
 
-def format_win(points_amount):
+def format_win(points_amount: int) -> str:
     if points_amount >= 0:
         return f"won {points_amount}"
 
@@ -161,15 +168,15 @@ class RaffleModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
         self.raffle_running = False
-        self.raffle_users = set()
+        self.raffle_users: Set[str] = set()
         self.raffle_points = 0
         self.raffle_length = 0
 
-    def load_commands(self, **options):
+    def load_commands(self, **options: Any) -> None:
         self.commands["singleraffle"] = Command.raw_command(
             self.raffle,
             delay_all=0,
@@ -241,7 +248,7 @@ class RaffleModule(BaseModule):
         else:
             self.commands["raffle"] = self.commands["singleraffle"]
 
-    def raffle(self, bot, source, message, **rest):
+    def raffle(self, bot: Bot, source: User, message: str, **rest: Any) -> bool:
         if self.raffle_running is True:
             bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
@@ -289,7 +296,9 @@ class RaffleModule(BaseModule):
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
-    def join(self, source, **rest):
+        return True
+
+    def join(self, source: User, **rest: Any) -> bool:
         if not self.raffle_running:
             return False
 
@@ -299,21 +308,25 @@ class RaffleModule(BaseModule):
         # Added user to the raffle
         self.raffle_users.add(source.id)
 
-    def end_raffle(self):
+        return True
+
+    def end_raffle(self) -> None:
+        assert self.bot is not None
+
         if not self.raffle_running:
-            return False
+            return
 
         self.raffle_running = False
 
         if len(self.raffle_users) == 0:
             self.bot.me("Wow, no one joined the raffle DansGame")
-            return False
+            return
 
         with DBManager.create_session_scope() as db_session:
             winner_id = random.choice(list(self.raffle_users))
             winner = User.find_by_id(db_session, winner_id)
             if winner is None:
-                return False
+                return
 
             self.raffle_users = set()
 
@@ -328,9 +341,11 @@ class RaffleModule(BaseModule):
 
             HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
 
-    def multi_start_raffle(self, points, length):
+    def multi_start_raffle(self, points: int, length: int) -> None:
+        assert self.bot is not None
+
         if self.raffle_running:
-            return False
+            return
 
         self.raffle_users = set()
         self.raffle_running = True
@@ -367,7 +382,7 @@ class RaffleModule(BaseModule):
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
 
-    def multi_raffle(self, bot, source, message, **rest):
+    def multi_raffle(self, bot: Bot, source: User, message: str, **rest: Any) -> bool:
         if self.raffle_running is True:
             bot.say(f"{source}, a raffle is already running OMGScoots")
             return False
@@ -392,15 +407,19 @@ class RaffleModule(BaseModule):
 
         self.multi_start_raffle(points, length)
 
-    def multi_end_raffle(self):
+        return True
+
+    def multi_end_raffle(self) -> None:
+        assert self.bot is not None
+
         if not self.raffle_running:
-            return False
+            return
 
         self.raffle_running = False
 
         if len(self.raffle_users) == 0:
             self.bot.me("Wow, no one joined the raffle DansGame")
-            return False
+            return
 
         num_participants = len(self.raffle_users)
 
@@ -460,9 +479,9 @@ class RaffleModule(BaseModule):
 
             HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
 
-    def on_user_sub(self, **rest):
+    def on_user_sub(self, **rest: Any) -> bool:
         if self.settings["multi_raffle_on_sub"] is False:
-            return
+            return True
 
         MAX_REWARD = 10000
 
@@ -475,9 +494,11 @@ class RaffleModule(BaseModule):
 
         self.multi_start_raffle(points, length)
 
-    def on_user_resub(self, num_months, **rest):
+        return True
+
+    def on_user_resub(self, num_months: int, **rest: Any) -> bool:
         if self.settings["multi_raffle_on_sub"] is False:
-            return
+            return True
 
         MAX_REWARD = 10000
 
@@ -492,10 +513,12 @@ class RaffleModule(BaseModule):
 
         self.multi_start_raffle(points, length)
 
-    def enable(self, bot):
+        return True
+
+    def enable(self, bot: Optional[Bot]) -> None:
         HandlerManager.add_handler("on_user_sub", self.on_user_sub)
         HandlerManager.add_handler("on_user_resub", self.on_user_resub)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_user_sub", self.on_user_sub)
         HandlerManager.remove_handler("on_user_resub", self.on_user_resub)
