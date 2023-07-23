@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-import sys
 import importlib
-from importlib.abc import PathEntryFinder, MetaPathFinder
-from importlib.util import module_from_spec
 import logging
 import pkgutil
 import re
+from importlib.abc import MetaPathFinder, PathEntryFinder
+from importlib.util import module_from_spec
 
 from pajbot.migration.revision import Revision
 
