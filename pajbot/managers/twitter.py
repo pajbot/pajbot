@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import datetime
 import json
 import logging
-import threading
 
 from pajbot.managers.db import DBManager
 from pajbot.models.twitter import TwitterUser
@@ -13,6 +12,7 @@ from pajbot.utils import now, stringify_tweet, time_since, tweet_provider_string
 
 import tweepy
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
+from tweepy.errors import Forbidden, NotFound, Unauthorized
 from twisted.internet.protocol import ReconnectingClientFactory
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ class ClientProtocol(WebSocketClientProtocol):
         for screen_name in self.manager.relevant_users:
             try:
                 user_id = self.manager.tweepy.get_user(screen_name=screen_name).id
-            except tweepy.errors.NotFound:
+            except NotFound:
                 log.warn(f"Twitter user {screen_name} does not exist")
                 continue
             except:
@@ -81,7 +81,7 @@ class ClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
     maxDelay = 30
     manager: Optional[PBTwitterManager] = None
 
-    def buildProtocol(self, addr):
+    def buildProtocol(self, addr) -> Any:
         if self.manager is None:
             raise ValueError("ClientFactory's manager not initialized")
 
@@ -98,45 +98,12 @@ class ClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
         self.retry(connector)
 
 
-class MyStreamListener(tweepy.Stream):
-    def __init__(self, bot: Bot):
-        self.relevant_users: List[str] = []
-        self.bot = bot
-
-        if "twitter" not in bot.config:
-            return
-
-        twitter_config = bot.config["twitter"]
-
-        super().__init__(
-            twitter_config["consumer_key"],
-            twitter_config["consumer_secret"],
-            twitter_config["access_token"],
-            twitter_config["access_token_secret"],
-        )
-
-    def on_status(self, status: tweepy.models.Status) -> None:
-        if (
-            status.user.screen_name.lower() in self.relevant_users
-            and not status.text.startswith("RT ")
-            and status.in_reply_to_screen_name is None
-        ):
-            log.debug("On status from tweepy: %s", status.text)
-            tweet_message = stringify_tweet(status)
-            self.bot.say(f"B) New cool tweet from {status.user.screen_name}: {tweet_message}")
-
-    def on_request_error(self, status_code: int) -> None:
-        log.warning("Unhandled in twitter stream: %s", status_code)
-
-        super().on_error(status_code)
-
-
 class GenericTwitterManager:
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
         self.twitter_client: Optional[tweepy.API] = None
-        self.listener: Union[None, MyStreamListener, PBTwitterManager] = None
+        self.listener: Optional[PBTwitterManager] = None
 
         if self.bot:
             self.bot.socket_manager.add_handler("twitter.follow", self.on_twitter_follow)
@@ -226,6 +193,16 @@ class GenericTwitterManager:
                         created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
                         tweet_message = stringify_tweet(tweet)
                         return f"{tweet_message} ({time_since(now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
+            except Unauthorized:
+                log.error(
+                    "Unable to get last tweet, got error 401 Unauthorized from Twitter. Validate that your Twitter credentials are correct"
+                )
+                return "Twitter error: Bad token"
+            except Forbidden as e:
+                log.error(
+                    f"Unable to get last tweet, got error 401 Unauthorized from Twitter. Validate that your Twitter credentials are correct. {' '.join(e.api_messages)}"
+                )
+                return "Twitter error: Need to pay for access"
             except Exception:
                 log.exception("Exception caught while getting last tweet")
                 return "FeelsBadMan"
@@ -236,82 +213,6 @@ class GenericTwitterManager:
 
     def quit(self) -> None:
         pass
-
-
-# TwitterManager loads live tweets from Twitter's Streaming API
-class TwitterManager(GenericTwitterManager):
-    def __init__(self, bot: Bot) -> None:
-        super().__init__(bot)
-
-        self.twitter_stream: Optional[MyStreamListener] = None
-
-        if "twitter" not in bot.config:
-            return
-
-        try:
-            if self.use_twitter_stream:
-                self.check_twitter_connection()
-                bot.execute_every(60 * 5, self.check_twitter_connection)
-        except:
-            log.exception("Twitter authentication failed.")
-
-    def initialize_twitter_stream(self) -> None:
-        if self.twitter_stream is None:
-            self.twitter_stream = MyStreamListener(self.bot)
-            self.listener = self.twitter_stream
-
-            self.reload()
-
-    def _run_twitter_stream(self) -> None:
-        if self.twitter_client is None:
-            log.warn("Unable to run twitter stream: local twitter client not configured")
-            return
-
-        self.initialize_twitter_stream()
-
-        if self.twitter_stream is None:
-            log.warn("Unable to run twitter stream: twitter stream failed to initialize")
-            return
-
-        user_ids = []
-        with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(TwitterUser):
-                try:
-                    twitter_user: tweepy.User = self.twitter_client.get_user(screen_name=user.username)
-                except tweepy.errors.NotFound:
-                    log.warn(f"Twitter user {user.username} does not exist")
-                    continue
-                except:
-                    log.exception("Unhandled exception from tweepy.get_user (v1)")
-                    continue
-
-                user_ids.append(twitter_user.id_str)
-
-        if not user_ids:
-            return
-
-        try:
-            self.twitter_stream.filter(follow=user_ids, threaded=False)
-        except:
-            log.exception("Exception caught in twitter stream _run")
-
-    def check_twitter_connection(self) -> None:
-        """Check if the twitter stream is running.
-        If it's not running, try to restart it.
-        """
-        if self.twitter_stream and self.twitter_stream.running:
-            return
-
-        try:
-            t = threading.Thread(target=self._run_twitter_stream, name="Twitter")
-            t.daemon = True
-            t.start()
-        except:
-            log.exception("Caught exception while checking twitter connection")
-
-    def quit(self) -> None:
-        if self.twitter_stream:
-            self.twitter_stream.disconnect()
 
 
 # PBTwitterManager reads live tweets from a pajbot tweet-provider (https://github.com/pajbot/tweet-provider) instead of Twitter's streaming API
