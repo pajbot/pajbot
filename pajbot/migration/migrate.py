@@ -6,6 +6,8 @@ import importlib
 import logging
 import pkgutil
 import re
+from importlib.abc import MetaPathFinder, PathEntryFinder
+from importlib.util import module_from_spec
 
 from pajbot.migration.revision import Revision
 
@@ -69,11 +71,17 @@ class Migration:
             if ispkg:
                 continue
 
-            if isinstance(importer, importlib.abc.PathEntryFinder):
-                maybe_module = importer.find_module(modname)
-                if maybe_module is None:
+            if isinstance(importer, PathEntryFinder):
+                module_spec = importer.find_spec(modname)
+                if module_spec is None:
                     continue
-                module = maybe_module.load_module(modname)
+                if module_spec.loader is None:
+                    # Module spec did not manage to make a loader, probably not a python file?
+                    continue
+                module = module_from_spec(module_spec)
+
+                module_spec.loader.exec_module(module)
+
                 id_in_module = getattr(module, "ID", None)
                 name_in_module = getattr(module, "NAME", None)
                 up_action = getattr(module, "up", None)
@@ -115,7 +123,7 @@ class Migration:
                 revision = Revision(id, name, up_action)
 
                 revisions.append(revision)
-            elif isinstance(importer, importlib.abc.MetaPathFinder):
+            elif isinstance(importer, MetaPathFinder):
                 log.info(f"Not sure how to handle metapathfinder {importer}, {type(importer)}")
 
         if len(revisions) <= 0:
