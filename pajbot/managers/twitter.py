@@ -12,7 +12,7 @@ from pajbot.utils import now, stringify_tweet, time_since, tweet_provider_string
 
 import tweepy
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
-from tweepy.errors import NotFound
+from tweepy.errors import NotFound, Unauthorized, Forbidden
 from twisted.internet.protocol import ReconnectingClientFactory
 
 if TYPE_CHECKING:
@@ -193,6 +193,16 @@ class GenericTwitterManager:
                         created_at = tweet.created_at.replace(tzinfo=datetime.timezone.utc)
                         tweet_message = stringify_tweet(tweet)
                         return f"{tweet_message} ({time_since(now().timestamp(), created_at.timestamp(), time_format='short')} ago)"
+            except Unauthorized:
+                log.error(
+                    "Unable to get last tweet, got error 401 Unauthorized from Twitter. Validate that your Twitter credentials are correct"
+                )
+                return "Twitter error: Bad token"
+            except Forbidden as e:
+                log.error(
+                    f"Unable to get last tweet, got error 401 Unauthorized from Twitter. Validate that your Twitter credentials are correct. {' '.join(e.api_messages)}"
+                )
+                return "Twitter error: Need to pay for access"
             except Exception:
                 log.exception("Exception caught while getting last tweet")
                 return "FeelsBadMan"
