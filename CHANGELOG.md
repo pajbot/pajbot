@@ -6,6 +6,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Bugfix: Fix playsounds tab in the top navigation bar not being visible on the admin page when the module was disabled. (#2469)
 - Bugfix: Multi-Raffle no longer raises an exception without picking any winners when the raffle ends. (#2492)
+- Dev: Fix deprecated use of `load_module` slated for removal in Python 3.12. (#2499)
 
 ## v1.66
 
