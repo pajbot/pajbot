@@ -284,7 +284,7 @@ class StreamManager:
             f"{key_prefix}title": channel_information.title,
         }
 
-        redis.hmset("stream_data", stream_data)
+        redis.hset("stream_data", mapping=stream_data)
 
         self.game = channel_information.game_name
         self.title = channel_information.title
@@ -345,7 +345,7 @@ class StreamManager:
                     log.info("Switching to offline state!")
                     self.go_offline()
 
-        redis.hmset("stream_data", stream_data)
+        redis.hset("stream_data", mapping=stream_data)
 
     def refresh_video_url_stage1(self) -> None:
         self.fetch_video_url_stage1()
