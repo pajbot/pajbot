@@ -284,7 +284,7 @@ class StreamManager:
             f"{key_prefix}title": channel_information.title,
         }
 
-        redis.hmset("stream_data", stream_data)
+        redis.hset("stream_data", mapping=stream_data)
 
         self.game = channel_information.game_name
         self.title = channel_information.title
