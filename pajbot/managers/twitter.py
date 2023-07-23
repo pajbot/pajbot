@@ -12,7 +12,7 @@ from pajbot.utils import now, stringify_tweet, time_since, tweet_provider_string
 
 import tweepy
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
-from tweepy.errors import NotFound, Unauthorized, Forbidden
+from tweepy.errors import Forbidden, NotFound, Unauthorized
 from twisted.internet.protocol import ReconnectingClientFactory
 
 if TYPE_CHECKING:
