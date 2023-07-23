@@ -345,7 +345,7 @@ class StreamManager:
                     log.info("Switching to offline state!")
                     self.go_offline()
 
-        redis.hmset("stream_data", stream_data)
+        redis.hset("stream_data", mapping=stream_data)
 
     def refresh_video_url_stage1(self) -> None:
         self.fetch_video_url_stage1()
