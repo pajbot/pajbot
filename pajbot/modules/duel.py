@@ -82,7 +82,11 @@ class DuelModule(BaseModule):
             constraints={"min_value": 0, "max_value": 240},
         ),
         ModuleSetting(
-            key="show_on_clr", label="Show duels on the clr overlay", type="boolean", required=True, default=True
+            key="show_on_clr",
+            label="Show duels on the clr overlay",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="max_duel_age",
