@@ -385,7 +385,7 @@ class DuelModule(BaseModule):
                 bot.whisper(source, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!")
 
     @staticmethod
-    def get_duel_stats(bot: Bot, source: User, **rest: Any) -> None:
+    def get_duel_stats(bot: Bot, source: User, **rest: Any) -> bool:
         """
         Whispers the users duel winratio to the user
         """
@@ -397,6 +397,8 @@ class DuelModule(BaseModule):
             source,
             f"duels: {source.duel_stats.duels_total} winrate: {source.duel_stats.winrate:.2f}% streak: {source.duel_stats.current_streak} profit: {source.duel_stats.profit}",
         )
+
+        return True
 
     def _cancel_expired_duels(self) -> None:
         if self.bot is None:
