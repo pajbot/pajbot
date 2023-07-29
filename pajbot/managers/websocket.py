@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
 import json
 import logging
@@ -114,7 +114,7 @@ class WebSocketManager:
         except:
             log.exception("Uncaught exception in WebSocketManager")
 
-    def emit(self, event, data={}):
+    def emit(self, event: Any, data: Dict[str, Any] = {}) -> None:
         if self.server:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:
