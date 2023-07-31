@@ -20,7 +20,7 @@ def test_valid_int_conversions() -> None:
         expected_value = tests[input_value]
         output_value = parse_number_from_string(input_value)
 
-        assert type(output_value) == type(expected_value)
+        assert type(output_value) is type(expected_value)
         assert output_value == expected_value
 
 
@@ -41,7 +41,7 @@ def test_valid_float_conversions() -> None:
         expected_value = tests[input_value]
         output_value = parse_number_from_string(input_value)
 
-        assert type(output_value) == type(expected_value)
+        assert type(output_value) is type(expected_value)
         assert output_value == expected_value
 
 
