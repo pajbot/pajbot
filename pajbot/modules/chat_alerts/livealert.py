@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -42,10 +49,12 @@ class LiveAlertModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-    def on_stream_start(self, **rest):
+    def on_stream_start(self) -> bool:
+        assert self.bot is not None
+
         arguments = {
             "streamer": self.bot.streamer_display,
             "game": self.bot.stream_manager.game,
@@ -57,8 +66,12 @@ class LiveAlertModule(BaseModule):
         if self.settings["extra_message"] != "":
             self.bot.send_message(self.get_phrase("extra_message", **arguments), method=self.settings["message_type"])
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_stream_start", self.on_stream_start)
+        return True
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_stream_start", self.on_stream_start)
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.add_handler("on_stream_start", self.on_stream_start)
+
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.remove_handler("on_stream_start", self.on_stream_start)
