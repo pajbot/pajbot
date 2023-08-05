@@ -1,9 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Optional
+
 import logging
 import math
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -139,14 +147,16 @@ class CheerAlertModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-    def on_cheer(self, user, num_bits):
+    def on_cheer(self, user: User, num_bits: int) -> None:
         """
         A user just cheered bits.
         Send the event to the websocket manager, and send a customized message in chat.
         """
+
+        assert self.bot is not None
 
         payload = {"username": user.name, "num_bits": num_bits}
         self.bot.websocket_manager.emit("cheer", payload)
@@ -248,23 +258,27 @@ class CheerAlertModule(BaseModule):
             if alert_message != "":
                 self.bot.say(alert_message.format(username=user, points=points_to_grant, num_bits=num_bits))
 
-    def on_pubmsg(self, source, tags, **rest):
+    def on_pubmsg(self, source: User, message: str, tags: Dict[str, str]) -> bool:
         if "bits" not in tags:
-            return
+            return True
 
         try:
             num_bits = int(tags["bits"])
         except ValueError:
             log.error("BabyRage error occurred with getting the bits integer")
-            return
+            return True
 
         if "display-name" not in tags:
             log.debug(f"cheeralert requires a display-name, but it is missing: {tags}")
-            return
+            return True
         self.on_cheer(source, num_bits)
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
+        return True
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
+
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)
