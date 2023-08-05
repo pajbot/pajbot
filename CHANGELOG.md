@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Dev: Add typing to the Sub Alert module. (#2512)
+
 ## v1.67
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
