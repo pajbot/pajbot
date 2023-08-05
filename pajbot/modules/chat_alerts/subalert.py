@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Optional
+
 import logging
 
 from pajbot.managers.db import DBManager
@@ -5,6 +9,9 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -175,10 +182,12 @@ class SubAlertModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-    def on_sub_shared(self, user):
+    def on_sub_shared(self, user: User) -> None:
+        assert self.bot is not None
+
         if self.settings["grant_points_on_sub"] <= 0:
             return
 
@@ -188,12 +197,14 @@ class SubAlertModule(BaseModule):
         if alert_message != "":
             self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_sub"]))
 
-    def on_new_sub(self, user, sub_type, gifted_by=None):
+    def on_new_sub(self, user: User, sub_type: str, gifted_by: Optional[str] = None) -> None:
         """
         A new user just subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
         Also increase the number of active subscribers in the database by one.
         """
+
+        assert self.bot is not None
 
         self.on_sub_shared(user)
 
@@ -216,11 +227,15 @@ class SubAlertModule(BaseModule):
                 self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("new_sub_whisper", **payload)
             )
 
-    def on_resub(self, user, num_months, sub_type, gifted_by=None, substreak_count=0):
+    def on_resub(
+        self, user: User, num_months: int, sub_type: str, gifted_by: Optional[str] = None, substreak_count: int = 0
+    ) -> None:
         """
         A user just re-subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
         """
+
+        assert self.bot is not None
 
         self.on_sub_shared(user)
 
@@ -247,7 +262,9 @@ class SubAlertModule(BaseModule):
                 self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("resub_whisper", **payload)
             )
 
-    def on_gift_upgrade(self, user):
+    def on_gift_upgrade(self, user: User) -> None:
+        assert self.bot is not None
+
         if self.settings["gift_upgrade"] != "":
             self.bot.say(self.settings["gift_upgrade"].format(user=user))
 
@@ -259,7 +276,9 @@ class SubAlertModule(BaseModule):
                 self.settings["gift_upgrade_whisper"].format(user=user),
             )
 
-    def on_extend_sub(self, user):
+    def on_extend_sub(self, user: User) -> None:
+        assert self.bot is not None
+
         if self.settings["extend_sub"] != "":
             self.bot.say(self.settings["extend_sub"].format(user=user))
 
@@ -271,9 +290,9 @@ class SubAlertModule(BaseModule):
                 self.settings["extend_sub_whisper"].format(user=user),
             )
 
-    def on_usernotice(self, source, tags, **rest):
+    def on_usernotice(self, source: User, message: str, tags: Dict[str, str]) -> bool:
         if "msg-id" not in tags:
-            return
+            return True
 
         if tags["msg-id"] == "resub":
             num_months = -1
@@ -291,7 +310,7 @@ class SubAlertModule(BaseModule):
 
             if "msg-param-sub-plan" not in tags:
                 log.debug(f"subalert msg-id is resub, but missing msg-param-sub-plan: {tags}")
-                return
+                return True
 
             # log.debug('msg-id resub tags: {}'.format(tags))
 
@@ -314,7 +333,7 @@ class SubAlertModule(BaseModule):
 
             if "display-name" not in tags:
                 log.debug(f"subalert msg-id is subgift, but missing display-name: {tags}")
-                return
+                return True
 
             with DBManager.create_session_scope() as db_session:
                 receiver_id = tags["msg-param-recipient-id"]
@@ -335,7 +354,7 @@ class SubAlertModule(BaseModule):
         elif tags["msg-id"] == "sub":
             if "msg-param-sub-plan" not in tags:
                 log.debug(f"subalert msg-id is sub, but missing msg-param-sub-plan: {tags}")
-                return
+                return True
 
             self.on_new_sub(source, tags["msg-param-sub-plan"])
             HandlerManager.trigger("on_user_sub", user=source)
@@ -346,8 +365,12 @@ class SubAlertModule(BaseModule):
         else:
             log.debug(f"Unhandled msg-id: {tags['msg-id']} - tags: {tags}")
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+        return True
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
