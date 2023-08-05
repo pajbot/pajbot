@@ -22,7 +22,7 @@ class ActionQueue:
         future.add_done_callback(self._on_future_done)
         return future
 
-    def _on_future_done(self, future: Future[_T]) -> None:
+    def _on_future_done(self, future: Future) -> None:
         exc = future.exception()
         if exc is not None:
             log.exception("Logging an uncaught exception (ActionQueue)", exc_info=exc)

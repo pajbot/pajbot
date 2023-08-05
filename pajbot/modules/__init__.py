@@ -1,5 +1,11 @@
 # Skip sorting base module due to circular imports
-from pajbot.modules.base import BaseModule, ModuleSetting, ModuleType  # isort:skip
+from pajbot.modules.base import BaseModule, ModuleSetting, ModuleType
+
+__all__ = [
+    "BaseModule",
+    "ModuleSetting",
+    "ModuleType",
+]
 
 from pajbot.modules.actionchecker import ActionCheckerModule
 from pajbot.modules.ascii import AsciiProtectionModule
