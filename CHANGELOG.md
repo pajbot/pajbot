@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Dev: Add typing to the Sub Alert module. (#2512)
+- Dev: Add typing to the Raid Alert module. (#2513)
 
 ## v1.67
 

@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, Optional
+
 import logging
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.chat_alerts import ChatAlertModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -91,14 +99,16 @@ class RaidAlertModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot):
+    def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-    def on_raid(self, user, num_viewers):
+    def on_raid(self, user: User, num_viewers: int) -> None:
         """
         A new user just raided.
         Send the event to the websocket manager, and send a customized message in chat.
         """
+
+        assert self.bot is not None
 
         payload = {"username": user.name, "num_viewers": num_viewers}
         self.bot.websocket_manager.emit("new_raid", payload)
@@ -126,24 +136,28 @@ class RaidAlertModule(BaseModule):
         if alert_message != "":
             self.bot.say(alert_message.format(user=user, points=awarded_points))
 
-    def on_usernotice(self, source, tags, **rest):
+    def on_usernotice(self, source: User, message: str, tags: Dict[str, str]) -> bool:
         if "msg-id" not in tags:
-            return
+            return True
 
         if tags["msg-id"] == "raid":
             if "msg-param-viewerCount" in tags:
                 num_viewers = int(tags["msg-param-viewerCount"])
             else:
                 log.debug(f"raidalert requires viewerCount, but it is missing: {tags}")
-                return
+                return True
 
             if "display-name" not in tags:
                 log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
-                return
+                return True
             self.on_raid(source, num_viewers)
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+        return True
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
+    def enable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.add_handler("on_usernotice", self.on_usernotice)
+
+    def disable(self, bot: Optional[Bot]) -> None:
+        if bot is not None:
+            HandlerManager.remove_handler("on_usernotice", self.on_usernotice)
