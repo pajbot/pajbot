@@ -8,7 +8,7 @@
 source venv/bin/activate
 
 # then:
-./scripts/dump_all_redis.py streamer > redis_dump_streamer.bin
+./scripts/redis-dump.py streamer > redis_dump_streamer.bin
 
 # and restore:
 redis-cli --pipe < redis_dump_streamer.bin
