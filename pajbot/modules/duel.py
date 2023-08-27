@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import datetime
 import logging
 import random
+from dataclasses import dataclass
 from datetime import timedelta
 
 from pajbot import utils
@@ -434,9 +435,14 @@ class DuelModule(BaseModule):
         return True
 
     def _cancel_expired_duels(self) -> None:
-        if self.bot is None:
-            log.warn("_cancel_expired_duels of DuelModule failed because bot is None")
-            return
+        assert self.bot is not None
+
+        @dataclass
+        class DuelRemoval:
+            source_id: str
+            target_id: str
+
+        duels_to_remove: List[DuelRemoval] = []
 
         now = utils.now()
         for source_id, started_at in self.duel_begin_time.items():
@@ -452,13 +458,21 @@ class DuelModule(BaseModule):
 
                 target_id = self.duel_requests[source.id]
 
-                del self.duel_targets[target_id]
-                del self.duel_requests[source.id]
-                del self.duel_request_price[source.id]
-                del self.duel_begin_time[source.id]
+                duels_to_remove.append(DuelRemoval(source.id, target_id))
 
-                challenged = User.find_by_id(db_session, target_id)
+        for duel in duels_to_remove:
+            del self.duel_targets[duel.target_id]
+            del self.duel_requests[duel.source_id]
+            del self.duel_request_price[duel.source_id]
+            del self.duel_begin_time[duel.source_id]
+
+            with DBManager.create_session_scope() as db_session:
+                challenged = User.find_by_id(db_session, duel.target_id)
                 if challenged is None:
+                    continue
+
+                source = User.find_by_id(db_session, duel.source_id)
+                if source is None:
                     continue
 
                 self.bot.whisper(
@@ -470,7 +484,7 @@ class DuelModule(BaseModule):
             return
 
         # We can't use bot.execute_every directly since we can't later cancel jobs created through bot.execute_every
-        self.gc_job = ScheduleManager.execute_every(30, lambda: bot.execute_now(self._cancel_expired_duels))
+        self.gc_job = ScheduleManager.execute_every(30, self._cancel_expired_duels)
 
     def disable(self, bot: Optional[Bot]) -> None:
         if not bot:

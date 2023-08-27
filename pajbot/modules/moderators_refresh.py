@@ -143,9 +143,7 @@ WHERE
             return
 
         # every 10 minutes, send a helix request to get moderators
-        self.scheduled_job = ScheduleManager.execute_every(
-            self.UPDATE_INTERVAL * 60, lambda: bot.execute_now(self._update_moderators)
-        )
+        self.scheduled_job = ScheduleManager.execute_every(self.UPDATE_INTERVAL * 60, self._update_moderators)
 
     def disable(self, bot: Optional[Bot]) -> None:
         # Web interface, nothing to do

@@ -9,7 +9,7 @@ from pajbot import utils
 from pajbot.apiwrappers.queup import QueUpAPI, QueUpQueueSong
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
@@ -161,7 +161,7 @@ class QueUpModule(BaseModule):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.api = QueUpAPI(RedisManager.get())
-        self.scheduled_job = None
+        self.scheduled_job: Optional[ScheduledJob] = None
 
         # allows us to differentiate between "no song -> a song starts playing" vs "module was unintialized
         # (current song is also None) -> first fetch succeeds (which is not a condition where the new song
