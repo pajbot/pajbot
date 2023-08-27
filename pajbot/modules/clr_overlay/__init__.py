@@ -66,13 +66,3 @@ class CLROverlayModule(BaseModule):
             return emote_code in self.allowlisted_emotes
 
         return emote_code not in self.blocklisted_emotes
-
-    @classmethod
-    def convert(cls, obj: Optional[BaseModule]) -> None:
-        if obj is None:
-            return
-
-        if obj is not CLROverlayModule:
-            raise RuntimeError("Paraneter sent to CLROverlay.convert must be a CLROverlayModule")
-
-        obj.__class__ = CLROverlayModule

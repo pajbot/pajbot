@@ -84,9 +84,8 @@ class EmotesOnScreenModule(BaseModule):
         self.allowlisted_emotes: Set[str] = set()
         self.blocklisted_emotes: Set[str] = set()
 
-        self.parent_module: Optional[CLROverlayModule] = (
-            CLROverlayModule.convert(self.bot.module_manager["clroverlay-group"]) if self.bot else None
-        )
+        # Override the parent module type since we 100% know it
+        self.parent_module: Optional[CLROverlayModule] = None
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
