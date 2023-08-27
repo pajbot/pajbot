@@ -9,11 +9,10 @@ from pajbot import utils
 from pajbot.apiwrappers.queup import QueUpAPI, QueUpQueueSong
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager
-from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.managers.schedule import ScheduledJob
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot

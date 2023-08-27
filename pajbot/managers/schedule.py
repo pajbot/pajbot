@@ -1,13 +1,13 @@
-from typing import Optional, Iterable, Any, Mapping, Callable
+from typing import Any, Callable, Iterable, Mapping, Optional
 
 import datetime
 import logging
 
 from pajbot import utils
 
+from apscheduler.job import Job
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.base import BaseScheduler
-from apscheduler.job import Job
 
 log = logging.getLogger(__name__)
 
