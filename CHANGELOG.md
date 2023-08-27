@@ -9,6 +9,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Dev: Add typing to the remaining chat alert modules. (#2514)
 - Dev: Add more typing to the CLR Overlay modules. (#2530)
 - Dev: Add typing to the Schedule manager. (#2531)
+- Dev: Add more typing to the Command Manager. (#2532)
 
 ## v1.67
 
