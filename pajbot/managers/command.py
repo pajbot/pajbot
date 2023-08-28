@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-class CommandManager(UserDict):
+class CommandManager(UserDict[str, Command]):
     """This class is responsible for compiling commands from multiple sources
     into one easily accessible source.
     The following sources are used:

@@ -1027,7 +1027,7 @@ class Bot:
             msg_lower_parts = msg_lower.split(" ")
             trigger = msg_lower_parts[0][1:]
             msg_raw_parts = message.split(" ")
-            remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else None
+            remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else ""
             if trigger in self.commands:
                 command = self.commands[trigger]
                 extra_args = {
