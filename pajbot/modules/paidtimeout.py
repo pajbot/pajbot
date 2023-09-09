@@ -25,6 +25,14 @@ class PaidTimeoutModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
+            key="enabled_by_stream_status",
+            label="Enable when the stream is:",
+            type="options",
+            required=True,
+            default="Offline and Online",
+            options=["Online Only", "Offline Only", "Offline and Online"],
+        ),
+        ModuleSetting(
             key="command_name",
             label="Command name (i.e. $timeout)",
             type="text",
@@ -102,6 +110,12 @@ class PaidTimeoutModule(BaseModule):
         target = message.split(" ")[0]
         if len(target) < 2:
             return False
+
+        if self.settings["enabled_by_stream_status"] == "Online Only" and not bot.is_online:
+            return True
+
+        if self.settings["enabled_by_stream_status"] == "Offline Only" and bot.is_online:
+            return True
 
         with DBManager.create_session_scope() as db_session:
             victim = User.find_by_user_input(db_session, target)

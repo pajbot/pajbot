@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Add an online only/offline only toggle to the Paid Timeout module. (#2539)
 - Dev: Add typing to the Sub Alert module. (#2512)
 - Dev: Add typing to the Raid Alert module. (#2513)
 - Dev: Add typing to the remaining chat alert modules. (#2514)
