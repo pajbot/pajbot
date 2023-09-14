@@ -14,6 +14,6 @@ types-pytz==2023.3.0.1
 types-redis==4.6.0.6
 types-requests==2.31.0.2
 types-retry==0.9.9.4
-types-psycopg2==2.9.21.11
+types-psycopg2==2.9.21.12
 types-colorama==0.4.15.12
 types-beautifulsoup4==4.12.0.6
