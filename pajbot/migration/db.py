@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Iterator, Optional
 from contextlib import contextmanager
 
 if TYPE_CHECKING:
-    from psycopg2 import connection as Psycopg2Connection
-    from psycopg2 import cursor as Psycopg2Cursor
+    from psycopg2.extensions import connection as Psycopg2Connection
+    from psycopg2.extensions import cursor as Psycopg2Cursor
 
 
 class DatabaseMigratable:
