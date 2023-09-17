@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pajbot.bot import Bot
     from pajbot.managers.redis import RedisType
 
-    from psycopg2 import cursor as Psycopg2Cursor
+    from psycopg2.extensions import cursor as Psycopg2Cursor
 
 
 class Revision:
