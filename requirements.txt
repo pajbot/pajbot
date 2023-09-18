@@ -11,7 +11,7 @@ Jinja2==3.1.2
 jsmin==3.0.1
 Markdown==3.4.4
 MarkupSafe==2.1.3
-marshmallow-dataclass==8.5.14
+marshmallow-dataclass==8.6.0
 marshmallow==3.20.1
 psycopg2==2.9.7
 pylast==5.2.0
