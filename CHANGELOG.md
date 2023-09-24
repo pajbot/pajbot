@@ -5,6 +5,7 @@
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Minor: Add an online only/offline only toggle to the Paid Timeout module. (#2539)
+- Minor: Filter out characters that are filtered by Twitch from the banphrase test API. (#2552)
 - Dev: Add support for the ruff linter. (#2551)
 - Dev: Add typing to the Sub Alert module. (#2512)
 - Dev: Add typing to the Raid Alert module. (#2513)

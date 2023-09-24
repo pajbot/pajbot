@@ -10,3 +10,9 @@ ignore = [
 ]
 
 ignore-init-module-imports = true
+
+[tool.ruff.isort.sections]
+"typing" = ["typing"]
+
+[tool.ruff.isort]
+section-order = ["future", "typing", "standard-library", "first-party", "third-party", "local-folder"]
