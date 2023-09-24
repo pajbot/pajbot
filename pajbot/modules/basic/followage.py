@@ -215,7 +215,7 @@ class FollowAgeModule(BaseModule):
                 bot.execute_now(
                     bot.send_message_to_user,
                     source,
-                    f'Bot does not have permission to check follow age for "{broadcaster_input}"',
+                    f"Bot does not have permission to check follow age for streamer {broadcaster_input}",
                     event,
                     method=message_method,
                 )
