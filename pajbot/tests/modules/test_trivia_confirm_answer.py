@@ -1,4 +1,3 @@
-
 from pajbot.modules.trivia import TriviaModule
 
 import pytest
