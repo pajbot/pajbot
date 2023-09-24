@@ -15,9 +15,16 @@ ignore = [
     "FIX", # Ignore flake8-fixme rules
     "D", # Ignore doc style stuff
     "ERA", # Ignore eradicate rules
-    "ANN", # Ignore annotation/typing rules, rely on mypy for now
+# "ANN", # Ignore annotation/typing rules, rely on mypy for now
+    "ANN101", # missing-type-self
+    "ANN401", # disable any
+    "ARG002", # unused method arg
+    "RUF012", # class has mutable member
     "C901", # too complex
+    "SIM108", # use-ternary
     "PLR0915", # too many statements
+    "PLR0913", # too many arguments to function call
+    "PLR2004", # magic value used in comparison
     "E722", # bare except
     "E501", # line too long
 ]
@@ -29,3 +36,6 @@ ignore-init-module-imports = true
 
 [tool.ruff.isort]
 section-order = ["future", "typing", "standard-library", "first-party", "third-party", "local-folder"]
+
+[tool.ruff.pyupgrade]
+keep-runtime-typing = true

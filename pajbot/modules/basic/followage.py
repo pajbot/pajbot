@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Optional
+
 import logging
 
 from pajbot import utils
@@ -8,7 +12,14 @@ from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.utils import time_since
 
-log = logging.getLogger("pajbot")
+from requests import HTTPError
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from pajbot.bot import Bot
+
+log = logging.getLogger(__name__)
 
 
 class FollowAgeModule(BaseModule):
@@ -54,7 +65,7 @@ class FollowAgeModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options):
+    def load_commands(self, **options: Any) -> None:
         self.commands["followage"] = Command.raw_command(
             self.follow_age,
             delay_all=self.settings["global_cd"],
@@ -65,7 +76,7 @@ class FollowAgeModule(BaseModule):
                 CommandExample(
                     None,
                     "Check your own followage",
-                    chat="user:!followage\n" "bot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
+                    chat="user:!followage\nbot:pajlada, you have been following Karl_Kons for 4 months and 24 days",
                     description="Check how long you have been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
@@ -131,17 +142,17 @@ class FollowAgeModule(BaseModule):
         )
 
     @staticmethod
-    def _format_for_follow_age(follow_since):
+    def _format_for_follow_age(follow_since: datetime) -> str:
         human_age = time_since(utils.now().timestamp() - follow_since.timestamp(), 0)
         return f"for {human_age}"
 
     @staticmethod
-    def _format_for_follow_since(follow_since):
+    def _format_for_follow_since(follow_since: datetime) -> str:
         human_age = follow_since.strftime("%d %B %Y, %X %Z")
         return f"since {human_age}"
 
     @staticmethod
-    def _parse_message(message):
+    def _parse_message(message: str) -> tuple[Optional[str], Optional[str]]:
         from_input = None
         to_input = None
         if message is not None and len(message) > 0:
@@ -153,61 +164,84 @@ class FollowAgeModule(BaseModule):
 
         return from_input, to_input
 
-    def _handle_command(self, bot, source, message, event, format_cb, message_method):
-        from_input, to_input = self._parse_message(message)
+    def _handle_command(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any,
+        format_cb: Callable[[datetime], str],
+        message_method: str,
+    ) -> None:
+        # user is the user we check the followage for
+        # broadcaster is the broadcaster we check the followage against
+        user_input, broadcaster_input = self._parse_message(message)
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            if from_input is not None:
-                from_user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, from_input)
+            if user_input is not None:
+                user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, user_input)
 
-                if from_user is None:
+                if user is None:
                     bot.execute_now(
                         bot.send_message_to_user,
                         source,
-                        f'User "{from_input}" could not be found',
+                        f'User "{user_input}" could not be found',
                         event,
                         method=self.settings["action_followage"],
                     )
                     return
             else:
-                from_user = source
+                user = source
 
-            if to_input is None:
-                to_input = bot.streamer.login
+            if broadcaster_input is None:
+                broadcaster_input = bot.streamer.login
 
-            to_user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, to_input)
-            if to_user is None:
+            broadcaster = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, broadcaster_input)
+            if broadcaster is None:
                 bot.execute_now(
                     bot.send_message_to_user,
                     source,
-                    f'User "{to_input}" could not be found',
+                    f'User "{broadcaster_input}" could not be found',
                     event,
                     method=message_method,
                 )
                 return
 
-        follow_since = bot.twitch_helix_api.get_follow_since(from_user.id, to_user.id)
-        is_self = source == from_user
+        try:
+            follow_since = bot.twitch_helix_api.get_follow_since(broadcaster.id, user.id, bot.bot_token_manager)
+        except HTTPError as e:
+            if e.response.status_code == 401:
+                log.info(f"Failed to fetch follow since, error 401: {e.response.text}")
+                bot.execute_now(
+                    bot.send_message_to_user,
+                    source,
+                    f"Bot does not have permission to check follow age for streamer {broadcaster_input}",
+                    event,
+                    method=message_method,
+                )
+                return
+            raise e
+        is_self = source == user
 
         if follow_since is not None:
             # Following
-            suffix = f"been following {to_user} {format_cb(follow_since)}"
+            suffix = f"been following {broadcaster} {format_cb(follow_since)}"
             if is_self:
                 message = f"You have {suffix}"
             else:
-                message = f"{from_user.name} has {suffix}"
+                message = f"{user.name} has {suffix}"
         else:
             # Not following
-            suffix = f"not following {to_user}"
+            suffix = f"not following {broadcaster}"
             if is_self:
                 message = f"You are {suffix}"
             else:
-                message = f"{from_user.name} is {suffix}"
+                message = f"{user.name} is {suffix}"
 
         bot.execute_now(bot.send_message_to_user, source, message, event, method=message_method)
 
-    def follow_age(self, bot, source, message, event, **rest):
-        self.bot.action_queue.submit(
+    def follow_age(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+        bot.action_queue.submit(
             self._handle_command,
             bot,
             source,
@@ -217,8 +251,8 @@ class FollowAgeModule(BaseModule):
             self.settings["action_followage"],
         )
 
-    def follow_since(self, bot, source, message, event, **rest):
-        self.bot.action_queue.submit(
+    def follow_since(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+        bot.action_queue.submit(
             self._handle_command,
             bot,
             source,
