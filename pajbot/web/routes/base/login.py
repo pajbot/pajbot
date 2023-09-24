@@ -51,6 +51,7 @@ def init(app):
         "moderator:manage:chat_messages",  # For deleting messages
         "moderator:manage:chat_settings",  # For changing chat settings (e.g. followers mode, unique mode, slow mode)
         "moderator:read:chatters",  # For getting chatters in the channel
+        "moderator:read:followers",  # For reading follow age of users
     ]
 
     streamer_scopes = [

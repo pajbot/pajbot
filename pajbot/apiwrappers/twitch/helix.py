@@ -367,19 +367,26 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response else 300,
         )
 
-    def fetch_follow_since(self, from_id: str, to_id: str) -> Optional[datetime]:
-        response = self.get("/users/follows", {"from_id": from_id, "to_id": to_id})
+    def _fetch_follow_since(self, broadcaster_id: str, user_id: str, authorization) -> Optional[datetime]:
+        response = self.get(
+            "/channels/followers",
+            {
+                "broadcaster_id": broadcaster_id,
+                "user_id": user_id,
+            },
+            authorization=authorization,
+        )
 
         if len(response["data"]) <= 0:
             return None
 
         return self.parse_datetime(response["data"][0]["followed_at"])
 
-    def get_follow_since(self, from_id: str, to_id: str) -> Optional[datetime]:
+    def get_follow_since(self, broadcaster_id: str, user_id: str, authorization) -> Optional[datetime]:
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:twitch:helix:follow-since:{from_id}:{to_id}",
+            redis_key=f"api:twitch:helix:follow-since:{broadcaster_id}:{user_id}",
             serializer=DateTimeSerializer(),
-            fetch_fn=lambda: self.fetch_follow_since(from_id, to_id),
+            fetch_fn=lambda: self._fetch_follow_since(broadcaster_id, user_id, authorization),
             expiry=lambda response: 30 if response is None else 300,
         )
 
