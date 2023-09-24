@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 import logging
 

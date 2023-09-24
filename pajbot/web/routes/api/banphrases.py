@@ -71,7 +71,8 @@ def init(bp: Blueprint) -> None:
     def banphrases_test():
         if request.is_json:
             # Example request:
-            # curl -XPOST -d'{"message": "xD"}' -H'Content-Type: application/json' http://localhost:7070/api/v1/banphrases/test
+            # curl --json '{"message": "xD"}'  http://localhost:7070/api/v1/banphrases/test
+
             json_data = request.get_json()
             if not json_data:
                 return {"error": "Missing json body"}, 400
@@ -82,8 +83,8 @@ def init(bp: Blueprint) -> None:
         else:
             # This endpoint must handle form requests
             # Example requests:
-            # curl -XPOST -H 'Content-Type: application/x-www-form-urlencoded' -d 'message=xD2' http://localhost:7070/api/v1/banphrases/test
-            # curl -XPOST -F 'message=xD2' http://localhost:7070/api/v1/banphrases/test
+            # curl -d 'message=xD2' http://localhost:7070/api/v1/banphrases/test
+            # curl -F 'message=xD3' http://localhost:7070/api/v1/banphrases/test
             try:
                 data: TestBanphrase = TestBanphraseSchema().load(request.form.to_dict())
             except ValidationError as err:

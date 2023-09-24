@@ -1,2 +1,12 @@
 [tool.black]
 line-length = 120
+
+[tool.ruff]
+line-length = 120
+
+ignore = [
+    "E722", # bare except
+    "E501", # line too long
+]
+
+ignore-init-module-imports = true
