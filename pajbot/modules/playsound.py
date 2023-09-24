@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import json
 import logging
@@ -121,12 +121,12 @@ class PlaysoundModule(BaseModule):
         if bot:
             bot.socket_manager.add_handler("playsound.play", self.on_web_playsound)
 
-        self.sample_cooldown: Set[str] = set()
-        self.user_cooldown: Set[str] = set()
+        self.sample_cooldown: set[str] = set()
+        self.user_cooldown: set[str] = set()
         self.global_cooldown = False
 
     # when a "Test on stream" is triggered via the Web UI.
-    def on_web_playsound(self, data: Dict[str, Any]) -> None:
+    def on_web_playsound(self, data: dict[str, Any]) -> None:
         if self.bot is None:
             log.warning("PlaysoundModule.on_web_playsound failed because bot is None")
             return
@@ -226,7 +226,7 @@ class PlaysoundModule(BaseModule):
     @staticmethod
     def parse_playsound_arguments(
         message: str,
-    ) -> Tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str], Union[Literal[False], Optional[str]]]:
+    ) -> tuple[Union[Literal[False], dict[str, Any]], Union[Literal[False], str], Union[Literal[False], Optional[str]]]:
         """
         Available options:
         --volume VOLUME
@@ -295,7 +295,7 @@ class PlaysoundModule(BaseModule):
     def validate_volume(volume: Optional[int]) -> bool:
         return volume is not None and 0 <= volume <= 100
 
-    def update_volume(self, bot: Bot, source: User, playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
+    def update_volume(self, bot: Bot, source: User, playsound: Playsound, parsed_options: dict[str, Any]) -> bool:
         if "volume" in parsed_options:
             if not self.validate_volume(parsed_options["volume"]):
                 bot.whisper(source, "Error: Volume must be between 0 and 100.")
@@ -307,7 +307,7 @@ class PlaysoundModule(BaseModule):
     def validate_cooldown(cooldown: Optional[int]) -> bool:
         return cooldown is None or cooldown >= 0
 
-    def update_cooldown(self, bot: Bot, source: User, playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
+    def update_cooldown(self, bot: Bot, source: User, playsound: Playsound, parsed_options: dict[str, Any]) -> bool:
         if "cooldown" in parsed_options:
             if parsed_options["cooldown"].lower() == "none":
                 cooldown_int = None
@@ -326,7 +326,7 @@ class PlaysoundModule(BaseModule):
         return True
 
     @staticmethod
-    def update_enabled(playsound: Playsound, parsed_options: Dict[str, Any]) -> bool:
+    def update_enabled(playsound: Playsound, parsed_options: dict[str, Any]) -> bool:
         if "enabled" in parsed_options:
             playsound.enabled = parsed_options["enabled"]
         return True

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
 from dataclasses import dataclass
 
@@ -25,7 +25,7 @@ class File:
 @dataclass
 class Host:
     url: str
-    files: List[File]
+    files: list[File]
 
 
 @dataclass
@@ -47,7 +47,7 @@ class Emote:
 
 @dataclass
 class EmoteSet:
-    emotes: Optional[List[Emote]]
+    emotes: Optional[list[Emote]]
 
 
 @dataclass
@@ -61,7 +61,7 @@ GetTwitchUserResponseSchema = marshmallow_dataclass.class_schema(GetTwitchUserRe
 
 @dataclass
 class GetEmoteSetResponse:
-    emotes: List[Emote]
+    emotes: list[Emote]
 
 
 # From the https://7tv.io/v3/emote-sets/global API

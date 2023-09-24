@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -290,7 +290,7 @@ class SubAlertModule(BaseModule):
                 self.settings["extend_sub_whisper"].format(user=user),
             )
 
-    def on_usernotice(self, source: User, message: str, tags: Dict[str, str]) -> bool:
+    def on_usernotice(self, source: User, message: str, tags: dict[str, str]) -> bool:
         if "msg-id" not in tags:
             return True
 

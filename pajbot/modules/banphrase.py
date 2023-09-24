@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 import logging
 
@@ -17,7 +17,7 @@ class BanphraseModule(BaseModule):
     DESCRIPTION = "Looks at each message for banned phrases, and takes actions accordingly"
     ENABLED_DEFAULT = True
     CATEGORY = "Moderation"
-    SETTINGS: List[Any] = []
+    SETTINGS: list[Any] = []
 
     def is_message_bad(self, source, msg_raw, _event):
         res = self.bot.banphrase_manager.check_message(msg_raw, source)

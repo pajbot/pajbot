@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 
 class Emote:
@@ -19,7 +19,7 @@ class Emote:
     :type max_height: int"""
 
     def __init__(
-        self, code: str, provider: str, id: str, urls: Dict[str, str], max_width: int, max_height: int
+        self, code: str, provider: str, id: str, urls: dict[str, str], max_width: int, max_height: int
     ) -> None:
         self.code = code
         self.provider = provider
@@ -42,7 +42,7 @@ class Emote:
     def __repr__(self) -> str:
         return f"[{self.provider}] {self.code}"
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "code": self.code,
             "provider": self.provider,
@@ -83,7 +83,7 @@ class EmoteInstance:
     def __repr__(self) -> str:
         return f"{self.emote} @ {self.start}-{self.end}"
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {"start": self.start, "end": self.end, "emote": self.emote.jsonify()}
 
 
@@ -97,7 +97,7 @@ class EmoteInstanceCount:
     :type emote_instances: list[EmoteInstance]
     """
 
-    def __init__(self, count: int, emote: Emote, emote_instances: List[EmoteInstance]) -> None:
+    def __init__(self, count: int, emote: Emote, emote_instances: list[EmoteInstance]) -> None:
         self.count = count
         self.emote = emote
         self.emote_instances = emote_instances
@@ -116,7 +116,7 @@ class EmoteInstanceCount:
 
         return f"{self.emote} @ [{', '.join(indices)}]"
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "count": self.count,
             "emote": self.emote.jsonify(),
@@ -124,4 +124,4 @@ class EmoteInstanceCount:
         }
 
 
-EmoteInstanceCountMap = Dict[str, EmoteInstanceCount]
+EmoteInstanceCountMap = dict[str, EmoteInstanceCount]

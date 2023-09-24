@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 import configparser
 import logging
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 def config_to_dict(config: configparser.ConfigParser) -> cfg.Config:
-    r: Dict[str, Any] = {}
+    r: dict[str, Any] = {}
 
     for section in config.sections():
         r[section] = {}

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
 
 import argparse
 import logging
@@ -28,7 +28,7 @@ class DeckManager(UserList[Deck]):
                     return deck
         return None
 
-    def action_get_curdeck(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
+    def action_get_curdeck(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         if self.current_deck is not None:
             return getattr(self.current_deck, key, None)
 
@@ -50,7 +50,7 @@ class DeckManager(UserList[Deck]):
             log.info("refreshing current deck")
             self.refresh_current_deck()
 
-    def set_current_deck(self, deck_link: str) -> Tuple[Deck, bool]:
+    def set_current_deck(self, deck_link: str) -> tuple[Deck, bool]:
         # Loop through our already loaded decks
         now = utils.now()
         for deck in self.data:
@@ -81,7 +81,7 @@ class DeckManager(UserList[Deck]):
     @staticmethod
     def parse_update_arguments(
         message: str,
-    ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
+    ) -> tuple[Union[dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--id", type=int, dest="id")
         parser.add_argument("--name", nargs="+", dest="name")

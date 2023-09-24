@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Tuple, Type, Union
+from typing import TYPE_CHECKING, Union
 
 import logging
 
@@ -10,13 +10,13 @@ if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.models.user import UserBasics
 
-ConfigSection = Dict[str, str]
-Config = Dict[str, ConfigSection]
+ConfigSection = dict[str, str]
+Config = dict[str, ConfigSection]
 
 log = logging.getLogger(__name__)
 
 
-def load_streamer_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
+def load_streamer_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str]]:
     """
     Load either the streamer Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from streamer_id, and the Twitch User Login us read from streamer
@@ -48,7 +48,7 @@ def load_streamer(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasic
     raise ValueError("Bad config, missing streamer id or login")
 
 
-def load_bot_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str]]:
+def load_bot_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str]]:
     """
     Load either the bot Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from bot_id, and the Twitch User Login us read from nickname
@@ -76,7 +76,7 @@ def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
     raise ValueError("Bad config, missing bot id or login")
 
 
-def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str], Tuple[None, None]]:
+def load_control_hub_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the control hub Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from control_hub_id, and the Twitch User Login us read from control_hub
@@ -95,7 +95,7 @@ def load_control_hub_id_or_login(config: Config) -> Union[Tuple[str, None], Tupl
     return None, None
 
 
-def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None, str], Tuple[None, None]]:
+def load_admin_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the admin Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from admin_id, and the Twitch User Login us read from admin
@@ -114,7 +114,7 @@ def load_admin_id_or_login(config: Config) -> Union[Tuple[str, None], Tuple[None
     return None, None
 
 
-def load_twitter_manager(config: Config) -> Type[PBTwitterManager]:
+def load_twitter_manager(config: Config) -> type[PBTwitterManager]:
     streaming_type = "twitter"
     if "twitter" in config:
         streaming_type = config["twitter"].get("streaming_type", "twitter")

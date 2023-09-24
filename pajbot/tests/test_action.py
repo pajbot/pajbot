@@ -1,11 +1,11 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 from pajbot.models.action import Substitution
 
 import pytest
 
 
-def get_argument_value_cases() -> List[Tuple[Optional[str], Optional[int], str]]:
+def get_argument_value_cases() -> list[tuple[Optional[str], Optional[int], str]]:
     return [
         ("foo bar", 1, "foo"),
         ("foo bar", 0, ""),
@@ -26,7 +26,7 @@ def test_get_argument_value(input_message: Optional[str], input_index: Optional[
     assert get_argument_value(input_message, input_index) == expected
 
 
-def get_argument_substitutions_cases() -> List[Tuple[str, List[Substitution]]]:
+def get_argument_substitutions_cases() -> list[tuple[str, list[Substitution]]]:
     return [
         ("foo", []),
         ("foo $(1) bar", [Substitution(None, needle="$(1)", argument=1)]),
@@ -34,7 +34,7 @@ def get_argument_substitutions_cases() -> List[Tuple[str, List[Substitution]]]:
 
 
 @pytest.mark.parametrize("input_message,expected_substitutions", get_argument_substitutions_cases())
-def test_argument_substitutions(input_message: str, expected_substitutions: List[Substitution]):
+def test_argument_substitutions(input_message: str, expected_substitutions: list[Substitution]):
     from pajbot.models.action import get_argument_substitutions
 
     assert get_argument_substitutions(input_message) == expected_substitutions
@@ -43,7 +43,7 @@ def test_argument_substitutions(input_message: str, expected_substitutions: List
 method_mapping = {"foo": lambda x: "bar"}
 
 
-def get_substitutions_cases() -> List[Tuple[str, Dict[str, Substitution]]]:
+def get_substitutions_cases() -> list[tuple[str, dict[str, Substitution]]]:
     return [
         ("foo", {}),
         ("foo $(1) bar", {}),
@@ -75,7 +75,7 @@ def get_substitutions_cases() -> List[Tuple[str, Dict[str, Substitution]]]:
 
 
 @pytest.mark.parametrize("input_message,expected_substitutions", get_substitutions_cases())
-def test_substitutions(input_message: str, expected_substitutions: Dict[str, Substitution]):
+def test_substitutions(input_message: str, expected_substitutions: dict[str, Substitution]):
     from pajbot.models.action import get_substitutions
 
     assert get_substitutions(input_message, None, method_mapping=method_mapping) == expected_substitutions

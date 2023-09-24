@@ -1,10 +1,22 @@
+[project]
+name = "pajbot"
+requires-python = ">=3.9"
+
 [tool.black]
 line-length = 120
 
 [tool.ruff]
 line-length = 120
 
+select = [ "ALL" ]
+
 ignore = [
+    "FIX", # Ignore flake8-fixme rules
+    "D", # Ignore doc style stuff
+    "ERA", # Ignore eradicate rules
+    "ANN", # Ignore annotation/typing rules, rely on mypy for now
+    "C901", # too complex
+    "PLR0915", # too many statements
     "E722", # bare except
     "E501", # line too long
 ]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import cgi
 import collections
@@ -44,7 +44,7 @@ class ActionParser:
 
     @staticmethod
     def parse(
-        str_data: Optional[str] = None, dict_data: Optional[Dict[str, str]] = None, command=""
+        str_data: Optional[str] = None, dict_data: Optional[dict[str, str]] = None, command=""
     ) -> Optional[BaseAction]:
         try:
             from pajbot.userdispatch import UserDispatch
@@ -58,7 +58,7 @@ class ActionParser:
             log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
             sys.exit(1)
 
-        data: Dict[str, str] = {}
+        data: dict[str, str] = {}
 
         if dict_data is not None:
             data = dict_data
@@ -134,7 +134,7 @@ class IfSubstitution:
 
 
 class SubstitutionFilter:
-    def __init__(self, name: str, arguments: List[str]):
+    def __init__(self, name: str, arguments: list[str]):
         self.name = name
         self.arguments = arguments
 
@@ -154,7 +154,7 @@ class Substitution:
         needle: str,
         key: Optional[str] = None,
         argument: Optional[int] = None,
-        filters: List[SubstitutionFilter] = [],
+        filters: list[SubstitutionFilter] = [],
     ) -> None:
         self.cb = cb
         self.key = key
@@ -288,14 +288,14 @@ class RawFuncAction(BaseAction):
         return self.cb(bot=bot, source=source, message=message, event=event, args=args)
 
 
-def get_argument_substitutions(string: str) -> List[Substitution]:
+def get_argument_substitutions(string: str) -> list[Substitution]:
     """
     Returns a list of `Substitution` objects that are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same number.
     This means string "$(1) $(1) $(2)" will only return two Substitutions.
     """
 
-    argument_substitutions: List[Substitution] = []
+    argument_substitutions: list[Substitution] = []
 
     for sub_key in Substitution.argument_substitution_regex.finditer(string):
         needle = sub_key.group(0)
@@ -327,11 +327,11 @@ def get_substitution_arguments(sub_key):
     matched_filters = sub_key.captures(4)
     matched_filter_arguments = sub_key.captures(5)
 
-    filters: List[SubstitutionFilter] = []
+    filters: list[SubstitutionFilter] = []
     filter_argument_index = 0
     for f in matched_filters:
         f = f[1:]
-        filter_arguments: List[str] = []
+        filter_arguments: list[str] = []
         if "(" in f:
             f = f[: -len(matched_filter_arguments[filter_argument_index])]
             filter_arguments = [matched_filter_arguments[filter_argument_index][1:-1]]
@@ -346,8 +346,8 @@ def get_substitution_arguments(sub_key):
 
 
 def get_substitutions(
-    string: str, bot: Optional[Bot], method_mapping: Optional[Dict[str, Callable[..., Any]]] = None
-) -> Dict[str, Substitution]:
+    string: str, bot: Optional[Bot], method_mapping: Optional[dict[str, Callable[..., Any]]] = None
+) -> dict[str, Substitution]:
     """
     Returns a dictionary of `Substitution` objects that are are found in the passed `string`.
     Will not return multiple `Substitution` objects for the same string.
@@ -468,8 +468,8 @@ class MessageAction(BaseAction):
     def __init__(self, response: str, bot: Optional[Bot]):
         self.response = response
 
-        self.argument_subs: List[Substitution] = []
-        self.subs: Dict[str, Substitution] = {}
+        self.argument_subs: list[Substitution] = []
+        self.subs: dict[str, Substitution] = {}
         self.num_urlfetch_subs = 0
 
         if bot:
@@ -705,7 +705,7 @@ class ReplyAction(MessageAction):
         )
 
 
-def apply_substitutions(text, substitutions: Dict[Any, Substitution], bot: Bot, extra):
+def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, extra):
     for needle, sub in substitutions.items():
         if sub.key and sub.argument:
             param = sub.key

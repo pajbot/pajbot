@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -23,8 +23,8 @@ class SevenTVAPI(BaseAPI):
         super().__init__(base_url="https://7tv.io/v3/", redis=redis)
 
     @staticmethod
-    def parse_emotes(api_emotes: List[model.Emote]) -> List[Emote]:
-        def get_emote_urls(host: model.Host) -> Tuple[Dict[str, str], int, int]:
+    def parse_emotes(api_emotes: list[model.Emote]) -> list[Emote]:
+        def get_emote_urls(host: model.Host) -> tuple[dict[str, str], int, int]:
             urls = {}
             base_url = "https:" + host.url
             emote_size = 1
@@ -59,7 +59,7 @@ class SevenTVAPI(BaseAPI):
             )
         return emotes
 
-    def fetch_global_emotes(self) -> List[Emote]:
+    def fetch_global_emotes(self) -> list[Emote]:
         """Returns a list of global 7TV emotes in the standard Emote format."""
         raw_response = self.get_response("emote-sets/global")
 
@@ -70,7 +70,7 @@ class SevenTVAPI(BaseAPI):
 
         return self.parse_emotes(response.emotes)
 
-    def get_global_emotes(self, force_fetch: bool = False) -> List[Emote]:
+    def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key="api:7tv:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
@@ -79,7 +79,7 @@ class SevenTVAPI(BaseAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_id: str) -> List[Emote]:
+    def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
         """Returns a list of channel-specific 7TV emotes in the standard Emote format."""
         try:
             raw_response = self.get_response(f"users/twitch/{channel_id}")
@@ -105,7 +105,7 @@ class SevenTVAPI(BaseAPI):
 
         return self.parse_emotes(response.emote_set.emotes)
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> List[Emote]:
+    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:7tv:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id),

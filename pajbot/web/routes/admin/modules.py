@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import json
 
@@ -61,7 +61,7 @@ def init(page) -> None:
                 return render_template("admin/module_404.html"), 404
 
             if request.method != "POST":
-                settings: Optional[Dict[str, Any]] = None
+                settings: Optional[dict[str, Any]] = None
                 try:
                     if current_module.db_module.settings:
                         settings = json.loads(current_module.db_module.settings)
@@ -71,7 +71,7 @@ def init(page) -> None:
 
                 return render_template("admin/configure_module.html", module=current_module, sub_modules=sub_modules)
 
-            form_values: Dict[str, Any] = {key: value for key, value in request.form.items() if key != "csrf_token"}
+            form_values: dict[str, Any] = {key: value for key, value in request.form.items() if key != "csrf_token"}
             res = current_module.parse_settings(**form_values)
             if res is False:
                 return render_template("admin/module_404.html"), 404

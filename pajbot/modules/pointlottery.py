@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 import logging
 import random
@@ -14,7 +14,7 @@ class PointLotteryModule(BaseModule):
     NAME = "Point Lottery"
     DESCRIPTION = "Lets players participate in lottery for points"
     CATEGORY = "Game"
-    SETTINGS: List[Any] = []
+    SETTINGS: list[Any] = []
 
     def __init__(self, bot):
         super().__init__(bot)

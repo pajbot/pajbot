@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import datetime
 import logging
@@ -93,7 +93,7 @@ class StreamManager:
         data = self.bot.twitch_helix_api.get_videos_by_user_id(self.bot.streamer.id)
         self.bot.execute_now(self.refresh_video_url_stage2, data)
 
-    def fetch_video_url_stage2(self, data: List[TwitchVideo]) -> Optional[TwitchVideo]:
+    def fetch_video_url_stage2(self, data: list[TwitchVideo]) -> Optional[TwitchVideo]:
         if self.current_stream_chunk is None:
             # Nothing to update
             return None
@@ -279,7 +279,7 @@ class StreamManager:
         redis = RedisManager.get()
         key_prefix = self.bot.streamer.login + ":"
 
-        stream_data: Dict[Union[bytes, str], Any] = {
+        stream_data: dict[Union[bytes, str], Any] = {
             f"{key_prefix}game": channel_information.game_name,
             f"{key_prefix}title": channel_information.title,
         }
@@ -298,7 +298,7 @@ class StreamManager:
         key_prefix = self.bot.streamer.login + ":"
 
         # Default data we want to update in case the stream is offline
-        stream_data: Dict[Union[bytes, str], Any] = {
+        stream_data: dict[Union[bytes, str], Any] = {
             f"{key_prefix}online": "False",
             f"{key_prefix}viewers": 0,
         }
@@ -350,7 +350,7 @@ class StreamManager:
     def refresh_video_url_stage1(self) -> None:
         self.fetch_video_url_stage1()
 
-    def refresh_video_url_stage2(self, data: List[TwitchVideo]) -> None:
+    def refresh_video_url_stage2(self, data: list[TwitchVideo]) -> None:
         if self.online is False:
             return
 
@@ -394,16 +394,16 @@ class StreamManager:
                 db_session.expunge_all()
             log.info("Successfully commited video url data in a new chunk.")
 
-    def get_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
+    def get_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         return getattr(self, key, None)
 
-    def get_current_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
+    def get_current_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         if self.current_stream is not None:
             return getattr(self.current_stream, key, None)
 
         return None
 
-    def get_last_stream_value(self, key: str, extra: Dict[str, Any] = {}) -> Optional[Any]:
+    def get_last_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         if self.last_stream is not None:
             return getattr(self.last_stream, key, None)
 

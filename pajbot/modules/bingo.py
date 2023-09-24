@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 import random
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from pajbot.bot import Bot
     from pajbot.managers.emote import GenericChannelEmoteManager, TwitchEmoteManager
 
-BingoEmoteDict = Dict[str, Tuple[str, List[Emote]]]
+BingoEmoteDict = dict[str, tuple[str, list[Emote]]]
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class BingoGame:
         self.points_reward = points_reward
 
 
-def two_word_variations(word1: str, word2: str, value: Any) -> Dict[str, Any]:
+def two_word_variations(word1: str, word2: str, value: Any) -> dict[str, Any]:
     # this produces:
     # bttv_global
     # global_bttv
@@ -154,7 +154,7 @@ class BingoModule(BaseModule):
             **two_word_variations(key, "all", all_emotes),
         }
 
-    def make_known_sets_dict(self, bot: Bot) -> Dict[str, Tuple[str, Tuple[Emote, ...], bool]]:
+    def make_known_sets_dict(self, bot: Bot) -> dict[str, tuple[str, tuple[Emote, ...], bool]]:
         # we first make a dict containing lists as the list of emotes (because it's less to type...)
         list_dict: BingoEmoteDict = {
             **self.make_twitch_sets(bot.emote_manager.twitch_emote_manager),
@@ -182,7 +182,7 @@ class BingoModule(BaseModule):
         emote_instances = args["emote_instances"]
         known_sets = self.make_known_sets_dict(bot)
 
-        selected_sets: Set[Tuple[str, Tuple[Emote, ...], bool]] = set()
+        selected_sets: set[tuple[str, tuple[Emote, ...], bool]] = set()
         points_reward: Optional[int] = None
         unparsed_options = []
 
@@ -287,7 +287,7 @@ class BingoModule(BaseModule):
 
         selected_set_names = []
         selected_discrete_emote_codes = []
-        selected_emotes: Set[Emote] = set()
+        selected_emotes: set[Emote] = set()
         for set_name, set_emotes, is_discrete_emote in selected_sets:
             if is_discrete_emote:
                 selected_discrete_emote_codes.append(set_name)

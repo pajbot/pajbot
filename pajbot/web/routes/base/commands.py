@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import pajbot.web.utils
 from pajbot.utils import find
@@ -7,7 +7,7 @@ from flask import render_template
 
 
 def init(app):
-    def get_commands_list() -> List[Dict[str, Any]]:
+    def get_commands_list() -> list[dict[str, Any]]:
         return pajbot.web.utils.get_cached_commands()
 
     @app.route("/commands")

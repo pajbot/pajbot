@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import logging
@@ -150,16 +150,16 @@ class DuelModule(BaseModule):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         # key=dueler_id, value=victim_id
-        self.duel_requests: Dict[str, str] = {}
+        self.duel_requests: dict[str, str] = {}
 
         # key=dueler_id, value=point_amount
-        self.duel_request_price: Dict[str, int] = {}
+        self.duel_request_price: dict[str, int] = {}
 
         # key=victim_id, value=dueler_id
-        self.duel_targets: Dict[str, str] = {}
+        self.duel_targets: dict[str, str] = {}
 
         # key=dueler_id, value=datetime object of when duel was requested
-        self.duel_begin_time: Dict[str, datetime.datetime] = {}
+        self.duel_begin_time: dict[str, datetime.datetime] = {}
 
         self.gc_job: Optional[ScheduledJob] = None
 
@@ -400,7 +400,7 @@ class DuelModule(BaseModule):
         """
 
         with DBManager.create_session_scope() as db_session:
-            msg: List[str] = []
+            msg: list[str] = []
             if source.id in self.duel_requests:
                 duelling = User.find_by_id(db_session, self.duel_requests[source.id])
                 if duelling:
@@ -442,7 +442,7 @@ class DuelModule(BaseModule):
             source_id: str
             target_id: str
 
-        duels_to_remove: List[DuelRemoval] = []
+        duels_to_remove: list[DuelRemoval] = []
 
         now = utils.now()
         for source_id, started_at in self.duel_begin_time.items():

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 import socket
@@ -58,7 +58,7 @@ class IRCManager:
 
         self.num_privmsg_sent = 0
 
-        self.channels: List[str] = [self.bot.channel]
+        self.channels: list[str] = [self.bot.channel]
 
         if self.bot.control_hub_channel is not None:
             self.channels.append(self.bot.control_hub_channel)

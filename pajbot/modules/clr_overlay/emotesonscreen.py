@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 import random
@@ -81,8 +81,8 @@ class EmotesOnScreenModule(BaseModule):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-        self.allowlisted_emotes: Set[str] = set()
-        self.blocklisted_emotes: Set[str] = set()
+        self.allowlisted_emotes: set[str] = set()
+        self.blocklisted_emotes: set[str] = set()
 
         # Override the parent module type since we 100% know it
         self.parent_module: Optional[CLROverlayModule] = None
@@ -107,7 +107,7 @@ class EmotesOnScreenModule(BaseModule):
 
         return self.parent_module.is_emote_allowed(emote_code)
 
-    def on_message(self, emote_instances: List[EmoteInstance], whisper: bool, **rest: Any) -> bool:
+    def on_message(self, emote_instances: list[EmoteInstance], whisper: bool, **rest: Any) -> bool:
         if whisper:
             return True
 

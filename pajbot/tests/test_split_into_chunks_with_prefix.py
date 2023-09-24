@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 from pajbot.utils import split_into_chunks_with_prefix
 
 import pytest
@@ -14,7 +12,7 @@ def test_basic() -> None:
 
 
 def test_no_parts() -> None:
-    expected: List[str] = []
+    expected: list[str] = []
     actual = split_into_chunks_with_prefix([{"prefix": "TEST:", "parts": []}])
     assert actual == expected
 

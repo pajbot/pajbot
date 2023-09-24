@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 import logging
 from collections import UserDict
@@ -79,7 +79,7 @@ class KVIManager(UserDict):
         return KVIData(self.streamer, kvi_id)
 
 
-def parse_kvi_arguments(input_str: str) -> Tuple[Optional[str], int]:
+def parse_kvi_arguments(input_str: str) -> tuple[Optional[str], int]:
     amount = 1
 
     if not input_str:

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 
 import json
 import logging
@@ -9,7 +9,7 @@ log = logging.getLogger("pajbot")
 
 
 class WebSocketServer:
-    clients: List[Any] = []
+    clients: list[Any] = []
 
     def __init__(self, manager, port, secure=False, key_path=None, crt_path=None, unix_socket_path=None):
         self.manager = manager
@@ -114,7 +114,7 @@ class WebSocketManager:
         except:
             log.exception("Uncaught exception in WebSocketManager")
 
-    def emit(self, event: Any, data: Dict[str, Any] = {}) -> None:
+    def emit(self, event: Any, data: dict[str, Any] = {}) -> None:
         if self.server:
             payload = json.dumps({"event": event, "data": data}).encode("utf8")
             for client in self.server.clients:

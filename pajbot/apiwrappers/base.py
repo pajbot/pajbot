@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import datetime
 import logging
@@ -14,7 +14,7 @@ from requests import Response, Session
 if TYPE_CHECKING:
     from pajbot.managers.redis import RedisType
 
-AnyEndpoint = Union[List[Any], str]
+AnyEndpoint = Union[list[Any], str]
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class BaseAPI:
         return naive_dt.replace(tzinfo=datetime.timezone.utc)
 
     @staticmethod
-    def join_base_and_list(base: str, path_segments: List[Any]) -> str:
+    def join_base_and_list(base: str, path_segments: list[Any]) -> str:
         url = base
         for path_segment in path_segments:
             # str(endpoint) so numbers can be used as path segments too

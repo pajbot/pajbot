@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -50,8 +50,8 @@ class CLROverlayModule(BaseModule):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-        self.allowlisted_emotes: Set[str] = set()
-        self.blocklisted_emotes: Set[str] = set()
+        self.allowlisted_emotes: set[str] = set()
+        self.blocklisted_emotes: set[str] = set()
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(

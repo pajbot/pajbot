@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import logging
@@ -52,14 +52,14 @@ class LinkTrackerModule(BaseModule):
     DESCRIPTION = "Tracks chat to see which links are most frequently posted in your chat"
     ENABLED_DEFAULT = True
     CATEGORY = "Feature"
-    SETTINGS: List[Any] = []
+    SETTINGS: list[Any] = []
 
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
         self.db_session: Optional[Session] = None
-        self.links: Dict[str, LinkTrackerLink] = {}
+        self.links: dict[str, LinkTrackerLink] = {}
 
-    def on_message(self, whisper: bool, urls: List[str], **rest) -> bool:
+    def on_message(self, whisper: bool, urls: list[str], **rest) -> bool:
         if whisper is False:
             for url in urls:
                 self.add_url(url)

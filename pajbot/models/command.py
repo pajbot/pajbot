@@ -11,7 +11,7 @@ Commands must stop triggering using an alias when an alias is removed
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import json
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias: str, i_command: Command, command_list: List[WebCommand]) -> None:
+def parse_command_for_web(alias: str, i_command: Command, command_list: list[WebCommand]) -> None:
     import markdown
     from markupsafe import Markup
 
@@ -150,7 +150,7 @@ class CommandData(Base):
     def last_date_used(self, value: Optional[datetime.datetime]) -> None:
         self._last_date_used = value
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "num_uses": self.num_uses,
             "added_by": self.added_by,
@@ -174,7 +174,7 @@ class CommandExample(Base):
         self.title = title
         self.chat = chat
         self.description = description
-        self.chat_messages: List[Dict[str, Any]] = []
+        self.chat_messages: list[dict[str, Any]] = []
 
     @reconstructor
     def init_on_load(self) -> None:
@@ -195,7 +195,7 @@ class CommandExample(Base):
                 self.add_chat_message("say", message, users)
         return self
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "command_id": self.command_id,
@@ -261,7 +261,7 @@ class Command(Base):
         self.use_global_cd = False
 
         self.last_run: int | float = 0
-        self.last_run_by_user: Dict[str, datetime.datetime] = {}
+        self.last_run_by_user: dict[str, datetime.datetime] = {}
 
         self.run_in_thread = False
         self.notify_on_error = False
@@ -482,8 +482,8 @@ class Command(Base):
             self.last_run = cur_time_ts
             self.last_run_by_user[source.id] = cur_time
 
-    def jsonify(self) -> Dict[str, Any]:
-        payload: Dict[str, Any] = {
+    def jsonify(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
             "id": self.id,
             "level": self.level,
             "description": self.description,
@@ -519,7 +519,7 @@ class WebCommand:
         self.main_alias = f"!{self.command}"
 
         self.parsed_description = ""
-        self.json_description: Optional[Dict[str, Any]] = None
+        self.json_description: Optional[dict[str, Any]] = None
         self.resolve_string: Optional[str] = None
 
     @property
@@ -550,7 +550,7 @@ class WebCommand:
     def id(self):
         return self._command.id
 
-    def autogenerate_examples(self) -> List[CommandExample]:
+    def autogenerate_examples(self) -> list[CommandExample]:
         if self._command.examples:
             # Command has a 'hard-coded' list of examples, return it!
             return self._command.examples
@@ -588,7 +588,7 @@ class WebCommand:
 
         return []
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         b = self._command.jsonify()
 
         return {

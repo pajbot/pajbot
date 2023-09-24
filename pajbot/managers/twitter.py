@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import json
@@ -37,7 +37,7 @@ class ClientProtocol(WebSocketClientProtocol):
             )
             return
 
-        user_ids: List[int] = []
+        user_ids: list[int] = []
 
         for screen_name in self.manager.relevant_users:
             try:
@@ -223,7 +223,7 @@ class PBTwitterManager(GenericTwitterManager):
     def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
 
-        self.relevant_users: List[str] = []
+        self.relevant_users: list[str] = []
 
         PBTwitterManager.bot = bot
         PBTwitterManager.tweepy = self.twitter_client

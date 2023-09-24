@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional, Protocol, Tuple
+from typing import TYPE_CHECKING, Optional, Protocol
 
 import logging
 import random
@@ -18,10 +18,10 @@ log = logging.getLogger(__name__)
 
 
 class EmoteAPI(Protocol):
-    def get_global_emotes(self, force_fetch: bool = ...) -> List[Emote]:
+    def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]:
         ...
 
-    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> List[Emote]:
+    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> list[Emote]:
         ...
 
 
@@ -30,30 +30,30 @@ class GenericChannelEmoteManager:
 
     # to be implemented
     def __init__(self, api: Optional[EmoteAPI]) -> None:
-        self._global_emotes: List[Emote] = []
-        self._channel_emotes: List[Emote] = []
+        self._global_emotes: list[Emote] = []
+        self._channel_emotes: list[Emote] = []
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.global_lookup_table: Dict[str, Emote] = {}
-        self.channel_lookup_table: Dict[str, Emote] = {}
+        self.global_lookup_table: dict[str, Emote] = {}
+        self.channel_lookup_table: dict[str, Emote] = {}
 
         self.api = api
 
     @property
-    def global_emotes(self) -> List[Emote]:
+    def global_emotes(self) -> list[Emote]:
         return self._global_emotes
 
     @global_emotes.setter
-    def global_emotes(self, value: List[Emote]) -> None:
+    def global_emotes(self, value: list[Emote]) -> None:
         self._global_emotes = value
         self.global_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
     @property
-    def channel_emotes(self) -> List[Emote]:
+    def channel_emotes(self) -> list[Emote]:
         return self._channel_emotes
 
     @channel_emotes.setter
-    def channel_emotes(self, value: List[Emote]) -> None:
+    def channel_emotes(self, value: list[Emote]) -> None:
         self._channel_emotes = value
         self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
@@ -109,14 +109,14 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         self.twitch_helix_api = twitch_helix_api
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
-        self.tier_one_emotes: List[Emote] = []
-        self.tier_two_emotes: List[Emote] = []
-        self.tier_three_emotes: List[Emote] = []
+        self.tier_one_emotes: list[Emote] = []
+        self.tier_two_emotes: list[Emote] = []
+        self.tier_three_emotes: list[Emote] = []
 
         super().__init__(None)
 
     @property  # type: ignore
-    def channel_emotes(self) -> List[Emote]:
+    def channel_emotes(self) -> list[Emote]:
         return self.tier_one_emotes
 
     def load_global_emotes(self) -> None:
@@ -240,11 +240,11 @@ class EmoteManager:
         return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
 
     @staticmethod
-    def parse_twitch_emotes_tag(tag: str, message: str) -> List[EmoteInstance]:
+    def parse_twitch_emotes_tag(tag: str, message: str) -> list[EmoteInstance]:
         if len(tag) <= 0:
             return []
 
-        emote_instances: List[EmoteInstance] = []
+        emote_instances: list[EmoteInstance] = []
 
         for emote_src in tag.split("/"):
             emote_id, emote_instances_src = emote_src.split(":")
@@ -288,7 +288,7 @@ class EmoteManager:
 
     def parse_all_emotes(
         self, message: str, twitch_emotes_tag: str = ""
-    ) -> Tuple[List[EmoteInstance], EmoteInstanceCountMap]:
+    ) -> tuple[list[EmoteInstance], EmoteInstanceCountMap]:
         # Twitch Emotes
         twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
         twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
@@ -359,10 +359,10 @@ class EmoteManager:
         return random.choice(emotes)
 
 
-def compute_emote_counts(emote_instances: List[EmoteInstance]) -> Dict[str, EmoteInstanceCount]:
+def compute_emote_counts(emote_instances: list[EmoteInstance]) -> dict[str, EmoteInstanceCount]:
     """Turns a list of emote instances into a map mapping emote code
     to count and a list of instances."""
-    emote_counts: Dict[str, EmoteInstanceCount] = {}
+    emote_counts: dict[str, EmoteInstanceCount] = {}
     for emote_instance in emote_instances:
         emote_code = emote_instance.emote.code
         current_value = emote_counts.get(emote_code, None)
@@ -379,7 +379,7 @@ def compute_emote_counts(emote_instances: List[EmoteInstance]) -> Dict[str, Emot
 
 class EpmManager:
     def __init__(self) -> None:
-        self.epm: Dict[str, int] = {}
+        self.epm: dict[str, int] = {}
 
         redis = RedisManager.get()
         self.redis_zadd_if_higher = redis.register_script(

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import cgi
 import datetime
@@ -324,10 +324,10 @@ class Bot:
         """Start the IRC client."""
         self.reactor.process_forever()
 
-    def get_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
+    def get_kvi_value(self, key: str, extra: dict[Any, Any] = {}) -> int:
         return self.kvi[key].get()
 
-    def increase_kvi_value(self, key: str, extra: Dict[Any, Any] = {}) -> int:
+    def increase_kvi_value(self, key: str, extra: dict[Any, Any] = {}) -> int:
         kvi_key, kvi_amount = parse_kvi_arguments(key)
         if kvi_key is None:
             return 0
@@ -338,7 +338,7 @@ class Bot:
             log.exception(f"Failed to increase '{kvi_key}' by {kvi_amount}")
             return 0
 
-    def decrease_kvi_value(self, key: str, extra: Dict[Any, Any] = {}):
+    def decrease_kvi_value(self, key: str, extra: dict[Any, Any] = {}):
         kvi_key, kvi_amount = parse_kvi_arguments(key)
         if kvi_key is None:
             return 0
@@ -502,7 +502,7 @@ class Bot:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
 
-    def get_randomchoice_value(self, key: str, extra: Dict[Any, Any] = {}) -> str:
+    def get_randomchoice_value(self, key: str, extra: dict[Any, Any] = {}) -> str:
         arguments = RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
         if not arguments:
             return ""
@@ -765,7 +765,7 @@ class Bot:
                 return
             self._timeout(user_id, duration, reason)
 
-    def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> Tuple[int, str]:
+    def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> tuple[int, str]:
         from pajbot.modules import WarningModule
 
         duration, punishment = user.timeout(
@@ -1230,7 +1230,7 @@ class Bot:
         sys.exit(0)
 
     def apply_filter(self, resp, f: SubstitutionFilter) -> Any:
-        available_filters: Dict[str, Callable[[Any, List[str]], Any]] = {
+        available_filters: dict[str, Callable[[Any, list[str]], Any]] = {
             "strftime": _filter_strftime,
             "lower": lambda var, args: var.lower(),
             "upper": lambda var, args: var.upper(),
@@ -1262,16 +1262,16 @@ class Bot:
             return available_filters[f.name](resp, f.arguments)
         return resp
 
-    def _filter_or_broadcaster(self, var: Any, args: List[str]) -> Any:
+    def _filter_or_broadcaster(self, var: Any, args: list[str]) -> Any:
         return _filter_or_else(var, [self.streamer.login])
 
-    def find_unique_urls(self, message: str) -> Set[str]:
+    def find_unique_urls(self, message: str) -> set[str]:
         from pajbot.modules.linkchecker import find_unique_urls
 
         return find_unique_urls(message)
 
 
-def _filter_time_since_dt(var: Any, args: List[str]) -> Any:
+def _filter_time_since_dt(var: Any, args: list[str]) -> Any:
     try:
         ts = utils.time_since(utils.now().timestamp(), var.timestamp())
         if ts:
@@ -1282,7 +1282,7 @@ def _filter_time_since_dt(var: Any, args: List[str]) -> Any:
         return "never FeelsBadMan ?"
 
 
-def _filter_time_until_dt(var: Any, args: List[str]) -> Any:
+def _filter_time_until_dt(var: Any, args: list[str]) -> Any:
     try:
         ts = utils.time_since(var.timestamp(), utils.now().timestamp())
         if ts:
@@ -1293,7 +1293,7 @@ def _filter_time_until_dt(var: Any, args: List[str]) -> Any:
         return "never FeelsBadMan ?"
 
 
-def _filter_timedelta_days(var: Any, args: List[str]) -> Any:
+def _filter_timedelta_days(var: Any, args: list[str]) -> Any:
     try:
         td = utils.now() - var
         return str(td.days)
@@ -1301,7 +1301,7 @@ def _filter_timedelta_days(var: Any, args: List[str]) -> Any:
         return "0"
 
 
-def _filter_join(var: Any, args: List[str]) -> Any:
+def _filter_join(var: Any, args: list[str]) -> Any:
     try:
         separator = args[0]
     except IndexError:
@@ -1310,7 +1310,7 @@ def _filter_join(var: Any, args: List[str]) -> Any:
     return separator.join(var.split(" "))
 
 
-def _filter_number_format(var: Any, args: List[str]) -> Any:
+def _filter_number_format(var: Any, args: list[str]) -> Any:
     try:
         return f"{int(var):,d}"
     except:
@@ -1318,15 +1318,15 @@ def _filter_number_format(var: Any, args: List[str]) -> Any:
     return var
 
 
-def _filter_strftime(var: Any, args: List[str]) -> Any:
+def _filter_strftime(var: Any, args: list[str]) -> Any:
     return var.strftime(args[0])
 
 
-def _filter_urlencode(var: Any, args: List[str]) -> Any:
+def _filter_urlencode(var: Any, args: list[str]) -> Any:
     return urllib.parse.urlencode({"x": var})[2:]
 
 
-def _filter_add(var: Any, args: List[str]) -> Any:
+def _filter_add(var: Any, args: list[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1336,7 +1336,7 @@ def _filter_add(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_subtract(var: Any, args: List[str]) -> Any:
+def _filter_subtract(var: Any, args: list[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1346,7 +1346,7 @@ def _filter_subtract(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_multiply(var: Any, args: List[str]) -> Any:
+def _filter_multiply(var: Any, args: list[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1356,7 +1356,7 @@ def _filter_multiply(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_divide(var: Any, args: List[str]) -> Any:
+def _filter_divide(var: Any, args: list[str]) -> Any:
     try:
         lh = utils.parse_number_from_string(var)
         rh = utils.parse_number_from_string(args[0])
@@ -1366,7 +1366,7 @@ def _filter_divide(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_floor(var: Any, args: List[str]) -> Any:
+def _filter_floor(var: Any, args: list[str]) -> Any:
     import math
 
     try:
@@ -1375,7 +1375,7 @@ def _filter_floor(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_ceil(var: Any, args: List[str]) -> Any:
+def _filter_ceil(var: Any, args: list[str]) -> Any:
     import math
 
     try:
@@ -1384,14 +1384,14 @@ def _filter_ceil(var: Any, args: List[str]) -> Any:
         return ""
 
 
-def _filter_or_else(var: Any, args: List[str]) -> Any:
+def _filter_or_else(var: Any, args: list[str]) -> Any:
     if var is None or len(var) <= 0:
         return args[0]
     else:
         return var
 
 
-def _filter_slice(var: Any, args: List[str]) -> Any:
+def _filter_slice(var: Any, args: list[str]) -> Any:
     m = SLICE_REGEX.match(args[0])
     if m:
         groups = m.groups()

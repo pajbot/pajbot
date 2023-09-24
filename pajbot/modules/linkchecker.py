@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import argparse
 import logging
@@ -70,7 +70,7 @@ def is_same_url(x: Url, y: Url) -> bool:
     )
 
 
-def find_unique_urls(message: str) -> Set[str]:
+def find_unique_urls(message: str) -> set[str]:
     urls = []
     for url in extractor.gen_urls(message):
         if not (url.startswith("http://") or url.startswith("https://")):
@@ -90,7 +90,7 @@ class Url:
 
 class LinkCheckerCache:
     def __init__(self) -> None:
-        self.cache: Dict[str, bool] = {}
+        self.cache: dict[str, bool] = {}
         return
 
     def __getitem__(self, url: str) -> bool:
@@ -229,8 +229,8 @@ class LinkCheckerModule(BaseModule):
         super().__init__(bot)
         self.db_session: Optional[Session] = None
 
-        self.blacklisted_links: List[BlacklistedLink] = []
-        self.whitelisted_links: List[WhitelistedLink] = []
+        self.blacklisted_links: list[BlacklistedLink] = []
+        self.whitelisted_links: list[WhitelistedLink] = []
 
         self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
 
@@ -506,9 +506,9 @@ class LinkCheckerModule(BaseModule):
         except:
             log.exception("LinkChecker unhandled exception while _check_url")
 
-    def _bs_get_site_links(self, html) -> List[str]:
+    def _bs_get_site_links(self, html) -> list[str]:
         # Checks the HTML content of the site and parses out any links
-        urls: List[str] = []
+        urls: list[str] = []
 
         soup = BeautifulSoup(html, "html.parser")
 
@@ -872,7 +872,7 @@ class LinkCheckerModule(BaseModule):
     @staticmethod
     def parse_link_blacklist_arguments(
         message: str,
-    ) -> Tuple[Union[Literal[False], Dict[str, Any]], Union[Literal[False], str]]:
+    ) -> tuple[Union[Literal[False], dict[str, Any]], Union[Literal[False], str]]:
         parser = argparse.ArgumentParser()
         parser.add_argument("--deep", dest="level", action="store_true")
         parser.add_argument("--shallow", dest="level", action="store_false")

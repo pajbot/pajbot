@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import json
 import logging
@@ -45,7 +45,7 @@ class TypeEmoteQuestModule(BaseQuest):
     def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def on_message(self, source: User, emote_instances: List[EmoteInstance], **rest) -> bool:
+    def on_message(self, source: User, emote_instances: list[EmoteInstance], **rest) -> bool:
         typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
         if self.current_emote not in typed_emotes:
             return True

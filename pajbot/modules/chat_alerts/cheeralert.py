@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 import math
@@ -258,7 +258,7 @@ class CheerAlertModule(BaseModule):
             if alert_message != "":
                 self.bot.say(alert_message.format(username=user, points=points_to_grant, num_bits=num_bits))
 
-    def on_pubmsg(self, source: User, message: str, tags: Dict[str, str]) -> bool:
+    def on_pubmsg(self, source: User, message: str, tags: dict[str, str]) -> bool:
         if "bits" not in tags:
             return True
 
