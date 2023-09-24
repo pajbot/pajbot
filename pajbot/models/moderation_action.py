@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 import logging
 from contextlib import contextmanager
@@ -48,7 +48,7 @@ def _combine_reasons(a: Optional[str], b: Optional[str]) -> Optional[str]:
 
 class ModerationActions:
     # Maps login -> action to execute
-    actions: Dict[str, ModerationAction]
+    actions: dict[str, ModerationAction]
 
     def __init__(self) -> None:
         super().__init__()

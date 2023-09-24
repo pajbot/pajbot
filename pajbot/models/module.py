@@ -4,7 +4,7 @@ Modules can be configured from the web UI
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import json
 import logging
@@ -39,10 +39,10 @@ class Module(Base):
 class ModuleManager:
     def __init__(self, socket_manager: Optional[SocketManager], bot: Optional[Bot] = None) -> None:
         # List of all enabled modules
-        self.modules: List[BaseModule] = []
+        self.modules: list[BaseModule] = []
 
         # List of all available modules, both enabled and disabled
-        self.all_modules: List[BaseModule] = []
+        self.all_modules: list[BaseModule] = []
 
         self.bot = bot
 
@@ -145,7 +145,7 @@ class ModuleManager:
                     module.enable(self.bot)
 
     def _disable_orphan_modules(self) -> None:
-        to_be_removed: List[BaseModule] = []
+        to_be_removed: list[BaseModule] = []
         self.modules.sort(key=lambda m: 1 if m.PARENT_MODULE is not None else 0)
         for module in self.modules:
             if module.PARENT_MODULE is None:

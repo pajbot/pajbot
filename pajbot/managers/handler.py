@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable
 
 import logging
 import operator
@@ -12,7 +12,7 @@ class HandlerManager:
     """This Dict maps event name -> List of event handlers
     Event handler is a triple: (Callable event handler, priority, run_if_propagation_stopped)"""
 
-    handlers: Dict[str, List[Tuple[Callable[..., bool], int, bool]]] = {}
+    handlers: dict[str, list[tuple[Callable[..., bool], int, bool]]] = {}
 
     @staticmethod
     def init_handlers() -> None:

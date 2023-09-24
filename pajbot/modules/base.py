@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
 
 import json
 import logging
@@ -38,8 +38,8 @@ class ModuleSetting:
         required: bool = False,
         placeholder: str = "",
         default: Optional[Any] = None,
-        constraints: Dict[str, Any] = {},
-        options: List[str] = [],
+        constraints: dict[str, Any] = {},
+        options: list[str] = [],
     ) -> None:
         self.key = key
         self.label = label
@@ -50,7 +50,7 @@ class ModuleSetting:
         self.constraints = constraints
         self.options = options
 
-    def validate(self, value: str) -> Tuple[bool, Any]:
+    def validate(self, value: str) -> tuple[bool, Any]:
         """Validate the input for this module.
         This will call the relevant submethod, located as validate_{type}.
         You always get a tuple back, with the first value being True or False depending
@@ -70,7 +70,7 @@ class ModuleSetting:
 
         return validator(value)
 
-    def validate_text(self, value: str) -> Tuple[bool, str]:
+    def validate_text(self, value: str) -> tuple[bool, str]:
         """Validate a text value"""
         value = value.strip()
         if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
@@ -79,7 +79,7 @@ class ModuleSetting:
             return (False, f"needs to be at most {self.constraints['max_str_len']} characters long")
         return True, value
 
-    def validate_number(self, str_value: str) -> Tuple[bool, Union[str, int]]:
+    def validate_number(self, str_value: str) -> tuple[bool, Union[str, int]]:
         """Validate a number value"""
         try:
             value = int(str_value)
@@ -93,11 +93,11 @@ class ModuleSetting:
         return True, value
 
     @staticmethod
-    def validate_boolean(value: str) -> Tuple[bool, bool]:
+    def validate_boolean(value: str) -> tuple[bool, bool]:
         """Validate a boolean value"""
         return True, value == "on"
 
-    def validate_options(self, value: str) -> Tuple[bool, str]:
+    def validate_options(self, value: str) -> tuple[bool, str]:
         """Validate a options value"""
         return value in self.options, value
 
@@ -122,7 +122,7 @@ class BaseModule:
     )
     # PAGE_DESCRIPTION is an optional longer description that is shown on the configure page
     PAGE_DESCRIPTION: Optional[str] = None
-    SETTINGS: List[Any] = []
+    SETTINGS: list[Any] = []
     ENABLED_DEFAULT = False
     PARENT_MODULE: Optional[Any] = None
     CATEGORY = "Uncategorized"
@@ -159,7 +159,7 @@ class BaseModule:
         return self
 
     @classmethod
-    def db_settings(cls) -> Dict[str, Any]:
+    def db_settings(cls) -> dict[str, Any]:
         settings = {}
         with DBManager.create_session_scope() as session:
             module = session.query(Module).filter(Module.id == cls.ID).one()
@@ -172,7 +172,7 @@ class BaseModule:
         return settings
 
     @classmethod
-    def module_settings(cls) -> Dict[str, Any]:
+    def module_settings(cls) -> dict[str, Any]:
         settings = cls.db_settings()
 
         # Load any unset settings
@@ -194,7 +194,7 @@ class BaseModule:
     def load_commands(self, **options: Any) -> None:
         pass
 
-    def parse_settings(self, **in_settings: Dict[str, Any]) -> Union[Literal[False], Dict[str, Any]]:
+    def parse_settings(self, **in_settings: dict[str, Any]) -> Union[Literal[False], dict[str, Any]]:
         ret = {}
         for key, value in in_settings.items():
             setting = find(lambda setting: setting.key == key, self.SETTINGS)

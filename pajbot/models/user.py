@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Iterator, Optional
 
 import datetime
 import logging
@@ -71,7 +71,7 @@ class UserBasics:
 
         return len(self.id) > 0 and len(self.login) > 0 and len(self.name) > 0
 
-    def jsonify(self) -> Dict[str, str]:
+    def jsonify(self) -> dict[str, str]:
         return {"id": self.id, "login": self.login, "name": self.name}
 
 
@@ -249,13 +249,13 @@ class User(Base):
             setattr(self, currency, getattr(self, currency) + amount)
             raise
 
-    def get_warning_keys(self, total_chances: int, prefix: str) -> List[str]:
+    def get_warning_keys(self, total_chances: int, prefix: str) -> list[str]:
         """Returns a list of keys that are used to store the users warning status in redis.
         Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']"""
         return [f"warnings:{prefix}:{self.id}:{warning_id}" for warning_id in range(0, total_chances)]
 
     @staticmethod
-    def get_warnings(redis: Redis, warning_keys: List[str]) -> List[Optional[str]]:
+    def get_warnings(redis: Redis, warning_keys: list[str]) -> list[Optional[str]]:
         """Pass through a list of warning keys.
         Example of warning_keys syntax: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']
         Returns a list of values for the warning keys list above.
@@ -273,7 +273,7 @@ class User(Base):
         return len(warnings) - warnings.count(None)
 
     @staticmethod
-    def add_warning(redis: Redis, timeout: int, warning_keys: List[str], warnings: List[Optional[str]]) -> bool:
+    def add_warning(redis: Redis, timeout: int, warning_keys: list[str], warnings: list[Optional[str]]) -> bool:
         """Returns a number between 0 and n where n is the amount of
         chances a user has before he should face the full timeout length."""
 
@@ -286,7 +286,7 @@ class User(Base):
 
     def timeout(
         self, timeout_length: int, warning_module: Optional[WarningModule] = None, use_warnings: bool = True
-    ) -> Tuple[int, str]:
+    ) -> tuple[int, str]:
         """Returns a tuple with the follow data:
         How long to timeout the user for, and what the punishment string is
         set to.
@@ -316,7 +316,7 @@ class User(Base):
 
         return (timeout_length, punishment)
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "login": self.login,
@@ -480,7 +480,7 @@ class UserChannelInformation:
         self.game_name = game_name
         self.title = title
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "broadcaster_language": self.broadcaster_language,
             "game_id": self.game_id,
@@ -489,7 +489,7 @@ class UserChannelInformation:
         }
 
     @staticmethod
-    def from_json(json_data: Dict[str, Any]) -> UserChannelInformation:
+    def from_json(json_data: dict[str, Any]) -> UserChannelInformation:
         return UserChannelInformation(
             broadcaster_language=json_data["broadcaster_language"],
             game_id=json_data["game_id"],
@@ -506,7 +506,7 @@ class UserStream:
         self.started_at = started_at
         self.id = id
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "viewer_count": self.viewer_count,
             "game_id": self.game_id,
@@ -516,7 +516,7 @@ class UserStream:
         }
 
     @staticmethod
-    def from_json(json_data: Dict[str, Any]) -> UserStream:
+    def from_json(json_data: dict[str, Any]) -> UserStream:
         return UserStream(
             json_data["viewer_count"],
             json_data["game_id"],

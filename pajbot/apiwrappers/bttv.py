@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
@@ -17,7 +17,7 @@ class BTTVAPI(BaseAPI):
         super().__init__(base_url="https://api.betterttv.net/3/", redis=redis)
 
     @staticmethod
-    def parse_emotes(api_response_data: List[Dict[str, Any]]) -> List[Emote]:
+    def parse_emotes(api_response_data: list[dict[str, Any]]) -> list[Emote]:
         def get_url(emote_id: str, size: str) -> str:
             return f"https://cdn.betterttv.net/emote/{emote_id}/{size}x"
 
@@ -36,12 +36,12 @@ class BTTVAPI(BaseAPI):
             )
         return emotes
 
-    def fetch_global_emotes(self) -> List[Emote]:
+    def fetch_global_emotes(self) -> list[Emote]:
         """Returns a list of global BTTV emotes in the standard Emote format."""
         response = self.get("/cached/emotes/global")
         return self.parse_emotes(response)
 
-    def get_global_emotes(self, force_fetch: bool = False) -> List[Emote]:
+    def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key="api:bttv:global-emotes",
             fetch_fn=lambda: self.fetch_global_emotes(),
@@ -50,7 +50,7 @@ class BTTVAPI(BaseAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_id: str) -> List[Emote]:
+    def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
         try:
             response = self.get(["cached", "users", "twitch", channel_id])
@@ -62,7 +62,7 @@ class BTTVAPI(BaseAPI):
             raise e
         return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(response["sharedEmotes"])
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> List[Emote]:
+    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:bttv:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id),

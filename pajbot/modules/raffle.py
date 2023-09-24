@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 import math
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def generate_winner_list(winners: List[User]) -> str:
+def generate_winner_list(winners: list[User]) -> str:
     """Takes a list of winners, and combines them into a string."""
     return ", ".join(winner.name for winner in winners)
 
@@ -172,7 +172,7 @@ class RaffleModule(BaseModule):
         super().__init__(bot)
 
         self.raffle_running = False
-        self.raffle_users: Set[str] = set()
+        self.raffle_users: set[str] = set()
         self.raffle_points = 0
         self.raffle_length = 0
 

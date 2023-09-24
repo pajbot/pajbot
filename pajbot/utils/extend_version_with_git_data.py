@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import logging
 import os
 import subprocess
@@ -7,14 +5,14 @@ import subprocess
 log = logging.getLogger(__name__)
 
 
-def _read_git_info_from_subprocess() -> Tuple[str, str, str]:
+def _read_git_info_from_subprocess() -> tuple[str, str, str]:
     current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
     latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
     commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
     return current_branch, latest_commit, commit_number
 
 
-def _read_git_info_from_environment_variables() -> Tuple[str, str, str]:
+def _read_git_info_from_environment_variables() -> tuple[str, str, str]:
     # These fail with a KeyError if one of these is not set
     current_branch = os.environ["PB1_BRANCH"]
     latest_commit = os.environ["PB1_COMMIT"][:8]

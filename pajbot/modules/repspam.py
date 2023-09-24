@@ -1,6 +1,6 @@
 from __future__ import annotations, print_function
 
-from typing import TYPE_CHECKING, Dict, Optional, Set
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -151,7 +151,7 @@ class RepspamModule(BaseModule):
 
         # reverse the mapping to frequency -> set of words that repeat that amount
         # (sorted by frequency, from most frequent to lowest frequent)
-        freq_to_word: Dict[int, Set[str]] = {}
+        freq_to_word: dict[int, set[str]] = {}
         for word, freq in word_freq.items():
             freq_to_word.setdefault(freq, set()).add(word)
 

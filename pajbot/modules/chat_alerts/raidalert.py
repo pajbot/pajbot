@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -136,7 +136,7 @@ class RaidAlertModule(BaseModule):
         if alert_message != "":
             self.bot.say(alert_message.format(user=user, points=awarded_points))
 
-    def on_usernotice(self, source: User, message: str, tags: Dict[str, str]) -> bool:
+    def on_usernotice(self, source: User, message: str, tags: dict[str, str]) -> bool:
         if "msg-id" not in tags:
             return True
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import argparse
 import logging
@@ -41,9 +41,9 @@ class CommandManager(UserDict[str, Command]):
         UserDict.__init__(self)
         self.db_session: Session = DBManager.create_session()
 
-        self.internal_commands: Dict[str, Command] = {}
-        self.db_commands: Dict[str, Command] = {}
-        self.module_commands: Dict[str, Command] = {}
+        self.internal_commands: dict[str, Command] = {}
+        self.db_commands: dict[str, Command] = {}
+        self.module_commands: dict[str, Command] = {}
         self.data = {}
 
         self.bot = bot
@@ -101,7 +101,7 @@ class CommandManager(UserDict[str, Command]):
     def commit(self) -> None:
         self.db_session.commit()
 
-    def load_internal_commands(self) -> Dict[str, Command]:
+    def load_internal_commands(self) -> dict[str, Command]:
         if self.internal_commands:
             return self.internal_commands
 
@@ -284,7 +284,7 @@ class CommandManager(UserDict[str, Command]):
 
         return self.internal_commands
 
-    def create_command(self, alias_str: str, **options: Any) -> Tuple[Command, bool, str]:
+    def create_command(self, alias_str: str, **options: Any) -> tuple[Command, bool, str]:
         aliases = alias_str.lower().replace("!", "").split("|")
         for alias in aliases:
             if alias in self.data:
@@ -336,7 +336,7 @@ class CommandManager(UserDict[str, Command]):
 
         return len(aliases)
 
-    def load_db_commands(self, **options: Any) -> Dict[str, Command]:
+    def load_db_commands(self, **options: Any) -> dict[str, Command]:
         """This method is only meant to be run once.
         Any further updates to the db_commands dictionary will be done
         in other methods.
@@ -416,8 +416,8 @@ class CommandManager(UserDict[str, Command]):
                 command.data = CommandData(command.id)
             self.db_session.add(command.data)
 
-    def parse_for_web(self) -> List[WebCommand]:
-        commands: List[WebCommand] = []
+    def parse_for_web(self) -> list[WebCommand]:
+        commands: list[WebCommand] = []
 
         for alias, command in self.data.items():
             parse_command_for_web(alias, command, commands)
@@ -427,7 +427,7 @@ class CommandManager(UserDict[str, Command]):
     @staticmethod
     def parse_command_arguments(
         message: str,
-    ) -> Tuple[Union[Dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
+    ) -> tuple[Union[dict[str, Any], Literal[False]], Union[str, Literal[False]]]:
         parser = argparse.ArgumentParser()
 
         # Update action type/response type

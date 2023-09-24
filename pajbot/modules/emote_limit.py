@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
@@ -87,7 +87,7 @@ class EmoteLimitModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: List[EmoteInstance], msg_id: str, **rest) -> bool:
+    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True

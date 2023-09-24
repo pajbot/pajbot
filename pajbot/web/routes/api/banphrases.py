@@ -18,6 +18,19 @@ from marshmallow import Schema, ValidationError
 log = logging.getLogger(__name__)
 
 
+def filter_message(message: str) -> str:
+    """
+    Filter out invalid Twitch characters from this message
+    """
+
+    filtered_chars = {
+        "\n",
+        "\r",
+    }
+
+    return "".join(filter(lambda c: c not in filtered_chars, [c for c in message]))
+
+
 @dataclass
 class TestBanphrase(Schema):
     message: str
@@ -90,7 +103,7 @@ def init(bp: Blueprint) -> None:
             except ValidationError as err:
                 return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
-        message = data.message
+        message = filter_message(data.message)
 
         if not message:
             return {"error": "Parameter `message` cannot be empty."}, 400

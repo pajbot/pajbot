@@ -6,7 +6,7 @@ Timers should run after being created
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypedDict
+from typing import TYPE_CHECKING, Any, Optional, TypedDict
 
 import json
 import logging
@@ -29,7 +29,7 @@ class TimerOptions(TypedDict):
     name: str
     interval_online: int
     interval_offline: int
-    action: Dict[str, Any]
+    action: dict[str, Any]
 
 
 class Timer(Base):
@@ -89,9 +89,9 @@ class TimerManager:
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-        self.timers: List[Timer] = []
-        self.online_timers: List[Timer] = []
-        self.offline_timers: List[Timer] = []
+        self.timers: list[Timer] = []
+        self.online_timers: list[Timer] = []
+        self.offline_timers: list[Timer] = []
 
         self.bot.execute_every(60, self.tick)
 
@@ -99,7 +99,7 @@ class TimerManager:
             self.bot.socket_manager.add_handler("timer.update", self.on_timer_update)
             self.bot.socket_manager.add_handler("timer.remove", self.on_timer_remove)
 
-    def on_timer_update(self, data: Dict[str, Any]) -> None:
+    def on_timer_update(self, data: dict[str, Any]) -> None:
         try:
             timer_id = int(data["id"])
         except (KeyError, ValueError):
@@ -140,7 +140,7 @@ class TimerManager:
             if timer.enabled is False or timer.interval_offline <= 0:
                 self.offline_timers.remove(timer)
 
-    def on_timer_remove(self, data: Dict[str, Any]) -> None:
+    def on_timer_remove(self, data: dict[str, Any]) -> None:
         try:
             timer_id = int(data["id"])
         except (KeyError, ValueError):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 import logging
 
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 class MenuItem:
     def __init__(
         self,
-        href: Union[str, List[MenuItem]],
+        href: Union[str, list[MenuItem]],
         menu_id: str,
         caption: str,
         enabled: bool = True,
@@ -31,11 +31,11 @@ class MenuItem:
 
 def init(app):
     @app.context_processor
-    def menu() -> Dict[str, Any]:
+    def menu() -> dict[str, Any]:
         enabled_modules = get_cached_enabled_modules()
 
         # Menu items that are shown for normal users
-        menu_items: List[MenuItem] = [
+        menu_items: list[MenuItem] = [
             MenuItem("/", "home", "Home"),
             MenuItem("/commands", "commands", "Commands"),
             MenuItem("/points", "points", "Points", "chatters_refresh" in enabled_modules),
@@ -45,7 +45,7 @@ def init(app):
         ]
 
         # Menu items that are shown to admin when in an /admin page
-        admin_menu_items: List[MenuItem] = [
+        admin_menu_items: list[MenuItem] = [
             MenuItem("/", "home", "Home"),
             MenuItem("/admin", "admin_home", "Admin Home"),
             MenuItem(

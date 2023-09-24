@@ -4,7 +4,7 @@ Unfollow user through !twitterunfollow command in chat
 Follow user through admin web UI
 Unfollow user through admin web UI
 """
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from pajbot.managers.db import Base
 
@@ -22,5 +22,5 @@ class TwitterUser(Base):
     def __init__(self, username: str) -> None:
         self.username = username
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {"id": self.id, "username": self.username}

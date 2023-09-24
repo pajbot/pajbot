@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, TypedDict
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 import datetime
 import logging
@@ -182,7 +182,7 @@ class RouletteModule(BaseModule):
         super().__init__(bot)
         self.last_sub: Optional[datetime.datetime] = None
         self.output_buffer = ""
-        self.output_buffer_args: List[RouletteArguments] = []
+        self.output_buffer_args: list[RouletteArguments] = []
         self.last_add: Optional[datetime.datetime] = None
 
     def load_commands(self, **options) -> None:

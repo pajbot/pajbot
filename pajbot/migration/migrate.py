@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import importlib
 import logging
@@ -60,13 +60,13 @@ class Migration:
                 # NOTE: I don't know how to prove migratable is the same type from start to finish without adding a bunch of ugly ifs
                 self.migratable.set_revision(resource, rev.id)  # type:ignore
 
-    def get_revisions(self) -> List[Revision]:
+    def get_revisions(self) -> list[Revision]:
         package = self.revisions_package
 
         if isinstance(package, str):
             package = importlib.import_module(package)
 
-        revisions: List[Revision] = []
+        revisions: list[Revision] = []
         for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if ispkg:
                 continue

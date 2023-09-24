@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional, final
+from typing import TYPE_CHECKING, Optional, final
 
 import json
 import logging
@@ -22,7 +22,7 @@ class BaseQuest(BaseModule):
 
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.progress: Dict[str, int] = {}
+        self.progress: dict[str, int] = {}
         self.progress_key = f"{StreamHelper.get_streamer()}:current_quest_progress"
         self.quest_finished_key = f"{StreamHelper.get_streamer()}:quests:finished"
         self.quest_module: Optional[QuestModule] = None

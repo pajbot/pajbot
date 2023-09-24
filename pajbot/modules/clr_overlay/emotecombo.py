@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 
@@ -53,8 +53,8 @@ class EmoteComboModule(BaseModule):
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
 
-        self.allowlisted_emotes: Set[str] = set()
-        self.blocklisted_emotes: Set[str] = set()
+        self.allowlisted_emotes: set[str] = set()
+        self.blocklisted_emotes: set[str] = set()
 
         self.emote_count: int = 0
         self.current_emote: Optional[Emote] = None
@@ -101,7 +101,7 @@ class EmoteComboModule(BaseModule):
         self.current_emote = None
 
     def on_message(
-        self, emote_instances: List[EmoteInstance], emote_counts: EmoteInstanceCountMap, whisper: bool, **rest: Any
+        self, emote_instances: list[EmoteInstance], emote_counts: EmoteInstanceCountMap, whisper: bool, **rest: Any
     ) -> bool:
         if whisper:
             return True

@@ -52,7 +52,7 @@ CommandUpdateSchema = marshmallow_dataclass.class_schema(CommandUpdate)
 
 def init(bp: Blueprint) -> None:
     @bp.route("/commands")
-    def commands():
+    def commands() -> ResponseReturnValue:
         commands = pajbot.web.utils.get_cached_commands()
 
         commands = list(filter(lambda c: c["id"] is not None, commands))
@@ -60,7 +60,7 @@ def init(bp: Blueprint) -> None:
         return {"commands": commands}, 200
 
     @bp.route("/commands/<raw_command_id>")
-    def command_get(raw_command_id):
+    def command_get(raw_command_id) -> ResponseReturnValue:
         command_string = raw_command_id
         command_id = None
 

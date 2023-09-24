@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Set
+from typing import TYPE_CHECKING, Any
 
 import datetime
 import json
@@ -114,12 +114,12 @@ def download_sub_badge(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, s
         subscriber_badge_file.write(subscriber_badge_bytes)
 
 
-def get_top_emotes() -> List[Dict[str, str]]:
+def get_top_emotes() -> list[dict[str, str]]:
     redis = RedisManager.get()
     streamer = StreamHelper.get_streamer()
 
-    top_emotes_list: List[Dict[str, str]] = []
-    top_emotes = {
+    top_emotes_list: list[dict[str, str]] = []
+    top_emotes = {  # noqa: C416
         emote: emote_count
         for emote, emote_count in sorted(
             redis.zscan_iter(f"{streamer}:emotes:count"), key=lambda e_ecount_pair: e_ecount_pair[1], reverse=True
@@ -135,7 +135,7 @@ def get_top_emotes() -> List[Dict[str, str]]:
 
 
 @time_method
-def get_cached_commands() -> List[Dict[str, Any]]:
+def get_cached_commands() -> list[dict[str, Any]]:
     CACHE_TIME = 30  # seconds
 
     redis = RedisManager.get()
@@ -161,11 +161,11 @@ def get_cached_commands() -> List[Dict[str, Any]]:
 
 
 @time_method
-def get_cached_enabled_modules() -> Set[str]:
+def get_cached_enabled_modules() -> set[str]:
     CACHE_TIME = 30  # seconds
     CACHE_KEY = f"{StreamHelper.get_streamer()}:cache:enabled_modules"
 
-    enabled_modules: Set[str] = set()
+    enabled_modules: set[str] = set()
 
     redis = RedisManager.get()
     redis_enabled_modules = redis.get(CACHE_KEY)
@@ -206,15 +206,3 @@ def seconds_to_vodtime(t):
     m = s % 3600 / 60
     s = s % 60
     return "%dh%02dm%02ds" % (h, m, s)
-
-
-def format_tb(tb, limit=None):
-    import traceback
-
-    stacktrace = traceback.extract_tb(tb)
-
-    ret = ""
-    for stack in stacktrace:
-        ret += f"*{stack[0]}*:{stack[1]} ({stack[2]}): {stack[3]}\n"
-
-    return ret

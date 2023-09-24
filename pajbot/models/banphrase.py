@@ -12,7 +12,7 @@ Banphrases must update their operator properly when the operator is changed
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import argparse
 import logging
@@ -230,8 +230,8 @@ class BanphraseData(Base):
 class BanphraseManager:
     def __init__(self, bot: Optional[Bot]) -> None:
         self.bot = bot
-        self.banphrases: List[Banphrase] = []
-        self.enabled_banphrases: List[Banphrase] = []
+        self.banphrases: list[Banphrase] = []
+        self.enabled_banphrases: list[Banphrase] = []
         self.db_session = DBManager.create_session(expire_on_commit=False)
 
         if self.bot:
@@ -296,7 +296,7 @@ class BanphraseManager:
     def commit(self) -> None:
         self.db_session.commit()
 
-    def create_banphrase(self, phrase, **options) -> Tuple[Banphrase, bool]:
+    def create_banphrase(self, phrase, **options) -> tuple[Banphrase, bool]:
         for banphrase in self.banphrases:
             if banphrase.phrase == phrase:
                 return banphrase, False

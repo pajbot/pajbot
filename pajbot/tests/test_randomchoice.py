@@ -1,9 +1,7 @@
-from typing import List, Tuple
-
 import pytest
 
 
-def randomchoice_cases() -> List[Tuple[str, List[str]]]:
+def randomchoice_cases() -> list[tuple[str, list[str]]]:
     return [
         ('"foo"', ["foo"]),
         ('"foo""bar"', ["foo", "bar"]),
@@ -21,7 +19,7 @@ def randomchoice_cases() -> List[Tuple[str, List[str]]]:
 
 
 @pytest.mark.parametrize("input_string,expected_matches", randomchoice_cases())
-def test_get_argument_value(input_string: str, expected_matches: List[str]) -> None:
+def test_get_argument_value(input_string: str, expected_matches: list[str]) -> None:
     from pajbot.bot import RANDOMCHOICE_ARGUMENT_REGEX
 
     matches = RANDOMCHOICE_ARGUMENT_REGEX.findall(input_string)

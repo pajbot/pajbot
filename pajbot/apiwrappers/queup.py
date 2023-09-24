@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
 import html
@@ -36,7 +36,7 @@ class QueUpQueueSong:
         self.played_at = played_at
         self.length = length
 
-    def jsonify(self) -> Dict[str, Any]:
+    def jsonify(self) -> dict[str, Any]:
         return {
             "song_id": self.song_id,
             "song_name": self.song_name,
@@ -47,7 +47,7 @@ class QueUpQueueSong:
         }
 
     @staticmethod
-    def from_json(json_data: Dict[str, Any]) -> QueUpQueueSong:
+    def from_json(json_data: dict[str, Any]) -> QueUpQueueSong:
         song_id = json_data["song_id"]
         song_name = json_data["song_name"]
         requester_id = json_data["requester_id"]
@@ -136,10 +136,10 @@ class QueUpAPI(BaseAPI):
             expiry=lambda response: 0 if response is None else 5,
         )
 
-    def fetch_past_songs(self, room_id: str) -> List[QueUpQueueSong]:
+    def fetch_past_songs(self, room_id: str) -> list[QueUpQueueSong]:
         response = self.get(["room", room_id, "playlist", "history"])
 
-        def parse_song(song_json: Dict[str, Any]) -> QueUpQueueSong:
+        def parse_song(song_json: dict[str, Any]) -> QueUpQueueSong:
             song_id = song_json["songid"]
             requester_id = song_json["_user"]["_id"]
             requester_name = song_json["_user"]["username"]
@@ -157,7 +157,7 @@ class QueUpAPI(BaseAPI):
 
         return [parse_song(song_json) for song_json in response["data"]]
 
-    def get_past_songs(self, room_id: str) -> List[QueUpQueueSong]:
+    def get_past_songs(self, room_id: str) -> list[QueUpQueueSong]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:queup:past-songs:{room_id}",
             fetch_fn=lambda: self.fetch_past_songs(room_id),

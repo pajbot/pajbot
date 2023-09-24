@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
+import datetime
 import functools
-import sys
+import logging
 import os
+import sys
 
 import MySQLdb
-import datetime
-
-import logging
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import execute_values
