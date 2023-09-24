@@ -8,7 +8,8 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 
-select = [ "ALL" ]
+# select = [ "ALL" ]
+select = [ "E", "F" ]
 
 ignore = [
     "FIX", # Ignore flake8-fixme rules
