@@ -49,8 +49,8 @@ from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 from pajbot.modules.lastfm import LastfmModule
 from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.linefarming import LineFarmingModule
-from pajbot.modules.linkchecker import BlacklistedLink, LinkCheckerModule, WhitelistedLink
-from pajbot.modules.linktracker import LinkTrackerLink, LinkTrackerModule
+from pajbot.modules.linkchecker import LinkCheckerModule
+from pajbot.modules.linktracker import LinkTrackerModule
 from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule

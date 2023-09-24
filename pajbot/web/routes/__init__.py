@@ -1,4 +1,4 @@
-import pajbot.web.routes.admin
-import pajbot.web.routes.api
-import pajbot.web.routes.base
-import pajbot.web.routes.clr
+from . import admin as admin
+from . import api as api
+from . import base as base
+from . import clr as clr
