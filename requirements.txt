@@ -29,7 +29,7 @@ SQLAlchemy-Utc==0.14.0
 tempora==5.5.0
 tweepy==4.14.0
 Twisted==23.8.0
-Unidecode==1.3.6
+Unidecode==1.3.7
 uWSGI==2.0.22
 urlextract==1.8.0
 Flask-WTF==1.1.1
