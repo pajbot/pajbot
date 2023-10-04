@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 import logging
 import os
 
@@ -48,7 +49,7 @@ def _load_secret_key(bot_id: str, streamer_id: str) -> str:
     return value
 
 
-def init(args):
+def init(config_path: str) -> None:
     import subprocess
     import sys
 
@@ -66,7 +67,7 @@ def init(args):
 
     from flask import request, session
 
-    config = load_config(args.config)
+    config = load_config(config_path)
 
     api_client_credentials = ClientCredentials(
         config["twitchapi"]["client_id"],

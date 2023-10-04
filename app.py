@@ -17,7 +17,7 @@ parser.set_defaults(debug=False)
 
 args = parser.parse_args()
 
-pajbot.web.init(args)
+pajbot.web.init(args.config)
 
 if __name__ == "__main__":
     app.run(debug=args.debug, host=args.host, port=args.port)
