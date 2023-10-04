@@ -14,6 +14,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Dev: Add more typing to the CLR Overlay modules. (#2530)
 - Dev: Add typing to the Schedule manager. (#2531)
 - Dev: Add more typing to the Command Manager. (#2532)
+- Dev: Change to nkgilleys' flask-assets fork to add Flask3 support. (#2571)
 
 ## v1.67
 
