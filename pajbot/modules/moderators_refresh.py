@@ -64,6 +64,9 @@ class ModeratorsRefreshModule(BaseModule):
             )
             return
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 401:
                 log.error(
                     "Cannot fetch moderators because no streamer token is present. Have the streamer login with the /streamer_login web route to enable moderator fetch."

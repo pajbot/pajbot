@@ -244,6 +244,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         try:
             return super().request(method, endpoint, params, headers, authorization, json)
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 429:
                 # retry once after rate limit resets...
                 rate_limit_reset = datetime.fromtimestamp(int(e.response.headers["Ratelimit-Reset"]), tz=timezone.utc)

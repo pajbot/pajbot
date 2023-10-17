@@ -210,6 +210,9 @@ class FollowAgeModule(BaseModule):
         try:
             follow_since = bot.twitch_helix_api.get_follow_since(broadcaster.id, user.id, bot.bot_token_manager)
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 401:
                 log.info(f"Failed to fetch follow since, error 401: {e.response.text}")
                 bot.execute_now(

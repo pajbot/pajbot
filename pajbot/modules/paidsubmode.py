@@ -72,11 +72,16 @@ class PaidSubmodeModule(BaseModule):
             try:
                 bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, True)
             except HTTPError as e:
+                if not e.response:
+                    raise e
+
                 if e.response.status_code == 401:
                     log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
                     bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
+
+                # TODO: Investigate whether we should return here
 
             bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
 
@@ -94,11 +99,16 @@ class PaidSubmodeModule(BaseModule):
             try:
                 bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, False)
             except HTTPError as e:
+                if not e.response:
+                    raise e
+
                 if e.response.status_code == 401:
                     log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
                     bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
+
+                # TODO: Investigate if we should return here
 
             bot.whisper(source, f"You just used {_cost} points to turn off subscribers mode!")
 

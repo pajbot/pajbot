@@ -47,6 +47,9 @@ class SubscriberFetchModule(BaseModule):
             )
             return
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 401:
                 log.error(
                     "Cannot fetch subscribers because the streamer token does not grant access to the "
