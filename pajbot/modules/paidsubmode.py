@@ -81,6 +81,8 @@ class PaidSubmodeModule(BaseModule):
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
 
+                # TODO: Investigate whether we should return here
+
             bot.whisper(source, f"You just used {_cost} points to put the chat into subscribers mode!")
 
         return True
@@ -105,6 +107,8 @@ class PaidSubmodeModule(BaseModule):
                     bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
                 else:
                     log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
+
+                # TODO: Investigate if we should return here
 
             bot.whisper(source, f"You just used {_cost} points to turn off subscribers mode!")
 
