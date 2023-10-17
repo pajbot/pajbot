@@ -93,6 +93,9 @@ class StreamUpdateModule(BaseModule):
                 authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 401:
                 log.error(f"Failed to update game to '{game_name}' - auth error")
                 bot.say(auth_error)
@@ -135,6 +138,9 @@ class StreamUpdateModule(BaseModule):
                 authorization=bot.streamer_access_token_manager,
             )
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 401:
                 log.error(f"Failed to update title to '{title}' - auth error")
                 bot.say(auth_error)

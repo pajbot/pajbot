@@ -107,6 +107,9 @@ class QueUpAPI(BaseAPI):
         try:
             response = self.get(["room", room_id, "playlist", "active"])
         except HTTPError as e:
+            if not e.response:
+                raise e
+
             if e.response.status_code == 404:
                 # No songs in active queue.
                 return None
