@@ -4,6 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.68
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Minor: Add an online only/offline only toggle to the Paid Timeout module. (#2539)
 - Minor: Filter out characters that are filtered by Twitch from the banphrase test API. (#2552)
 - Bugfix: Fixed followage command not working. It will only start working again once you've re-authenticated with the bot. (#2553)
