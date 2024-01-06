@@ -64,7 +64,7 @@ class ModeratorsRefreshModule(BaseModule):
             )
             return
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:

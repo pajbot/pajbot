@@ -84,7 +84,7 @@ class SevenTVAPI(BaseAPI):
         try:
             raw_response = self.get_response(f"users/twitch/{channel_id}")
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 404:

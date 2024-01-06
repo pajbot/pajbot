@@ -648,7 +648,7 @@ class Bot:
         try:
             self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, reason)
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -677,7 +677,7 @@ class Bot:
         try:
             self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -715,7 +715,7 @@ class Bot:
                 log.error(f"User with ID {user_id} is currently banned! Will not untimeout.")
                 return
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -728,7 +728,7 @@ class Bot:
         try:
             self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -762,7 +762,7 @@ class Bot:
                 self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, duration, reason
             )
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -796,7 +796,7 @@ class Bot:
         try:
             self.twitch_helix_api.delete_single_message(channel_id, self.bot_user.id, self.bot_token_manager, msg_id)
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
@@ -834,7 +834,7 @@ class Bot:
             try:
                 self.twitch_helix_api.send_whisper(self.bot_user.id, user.id, message, self.bot_token_manager)
             except HTTPError as e:
-                if not e.response:
+                if e.response is None:
                     raise e
 
                 if e.response.status_code == 401:
@@ -977,7 +977,7 @@ class Bot:
                 self.bot_token_manager,
             )
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 401:

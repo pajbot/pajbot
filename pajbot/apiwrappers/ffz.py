@@ -51,11 +51,14 @@ class FFZAPI(BaseAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_name):
+    def fetch_channel_emotes(self, channel_name: str) -> list[Emote]:
         """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
         try:
             response = self.get(["room", channel_name])
         except HTTPError as e:
+            if e.response is None:
+                raise e
+
             if e.response.status_code == 404:
                 # user does not have any FFZ emotes
                 return []

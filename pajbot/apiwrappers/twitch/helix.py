@@ -244,7 +244,7 @@ class TwitchHelixAPI(BaseTwitchAPI):
         try:
             return super().request(method, endpoint, params, headers, authorization, json)
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 429:

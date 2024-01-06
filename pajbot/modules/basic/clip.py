@@ -143,6 +143,9 @@ class ClipCommandModule(BaseModule):
                     StreamHelper.get_streamer_id(), self.bot.bot_token_manager
                 )
         except HTTPError as e:
+            if e.response is None:
+                raise e
+
             if e.response.status_code == 503:
                 bot.send_message_to_user(
                     source,

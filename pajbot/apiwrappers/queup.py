@@ -107,7 +107,7 @@ class QueUpAPI(BaseAPI):
         try:
             response = self.get(["room", room_id, "playlist", "active"])
         except HTTPError as e:
-            if not e.response:
+            if e.response is None:
                 raise e
 
             if e.response.status_code == 404:
