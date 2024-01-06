@@ -839,6 +839,10 @@ class Bot:
 
                 if e.response.status_code == 401:
                     log.error(f"Failed to send whisper, unauthorized: {e} - {e.response.text}")
+                elif e.response.status_code == 403:
+                    log.error(
+                        f"Failed to send whisper, forbidden. user might not accept whispers: {e} - {e.response.text}"
+                    )
                 else:
                     log.error(f"Failed to send whisper: {e} - {e.response.text}")
         if self.whisper_output_mode == WhisperOutputMode.CHAT:
