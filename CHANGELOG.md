@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Bugfix: Fixed whispers being unable to be sent breaking commands. (#2624)
+
 ## v1.68
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!

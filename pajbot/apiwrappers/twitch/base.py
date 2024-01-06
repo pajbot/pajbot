@@ -52,6 +52,9 @@ class BaseTwitchAPI(BaseAPI):
         try:
             return super().request(method, endpoint, params, headers, json)
         except HTTPError as e:
+            if e.response is None:
+                raise e
+
             if (
                 # we got a WWW-Authenticate and status 401 back
                 e.response.status_code == 401

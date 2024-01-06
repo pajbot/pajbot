@@ -51,6 +51,9 @@ class VIPRefreshModule(BaseModule):
             )
             return
         except HTTPError as e:
+            if e.response is None:
+                raise e
+
             if e.response.status_code == 401:
                 log.error(
                     "Cannot fetch VIPs because no streamer token is present. Have the streamer login with the /streamer_login web route to enable VIP fetch."

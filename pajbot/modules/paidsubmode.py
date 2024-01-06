@@ -72,7 +72,7 @@ class PaidSubmodeModule(BaseModule):
             try:
                 bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, True)
             except HTTPError as e:
-                if not e.response:
+                if e.response is None:
                     raise e
 
                 if e.response.status_code == 401:
@@ -99,7 +99,7 @@ class PaidSubmodeModule(BaseModule):
             try:
                 bot.twitch_helix_api.update_sub_mode(bot.streamer.id, bot.bot_user.id, bot.bot_token_manager, False)
             except HTTPError as e:
-                if not e.response:
+                if e.response is None:
                     raise e
 
                 if e.response.status_code == 401:
