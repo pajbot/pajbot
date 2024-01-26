@@ -4,6 +4,7 @@ Timers should be editable from web UI
 Timers should be removable from web UI
 Timers should run after being created
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, TypedDict

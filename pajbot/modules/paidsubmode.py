@@ -115,9 +115,9 @@ class PaidSubmodeModule(BaseModule):
         return True
 
     def load_commands(self, **options) -> None:
-        self.commands[
-            self.settings["subon_command_name"].lower().replace("!", "").replace(" ", "")
-        ] = Command.raw_command(self.paid_subon, cost=self.settings["subon_cost"])
-        self.commands[
-            self.settings["suboff_command_name"].lower().replace("!", "").replace(" ", "")
-        ] = Command.raw_command(self.paid_suboff, cost=self.settings["suboff_cost"])
+        self.commands[self.settings["subon_command_name"].lower().replace("!", "").replace(" ", "")] = (
+            Command.raw_command(self.paid_subon, cost=self.settings["subon_cost"])
+        )
+        self.commands[self.settings["suboff_command_name"].lower().replace("!", "").replace(" ", "")] = (
+            Command.raw_command(self.paid_suboff, cost=self.settings["suboff_cost"])
+        )

@@ -9,6 +9,7 @@ Commands must start triggering using an alias when an alias is added
 Commands must stop triggering when they're created
 Commands must stop triggering using an alias when an alias is removed
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
