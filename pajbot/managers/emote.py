@@ -18,11 +18,9 @@ log = logging.getLogger(__name__)
 
 
 class EmoteAPI(Protocol):
-    def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]:
-        ...
+    def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]: ...
 
-    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> list[Emote]:
-        ...
+    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> list[Emote]: ...
 
 
 class GenericChannelEmoteManager:

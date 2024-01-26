@@ -1265,9 +1265,9 @@ class Bot:
             "title": lambda var, args: var.title(),
             "capitalize": lambda var, args: var.capitalize(),
             "swapcase": lambda var, args: var.swapcase(),
-            "time_since_minutes": lambda var, args: "no time"
-            if var == 0
-            else utils.time_since(var * 60, 0, time_format="long"),
+            "time_since_minutes": lambda var, args: (
+                "no time" if var == 0 else utils.time_since(var * 60, 0, time_format="long")
+            ),
             "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
             "time_since_dt": _filter_time_since_dt,
             "time_until_dt": _filter_time_until_dt,

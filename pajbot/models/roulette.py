@@ -2,6 +2,7 @@
 Run roulette through chat
 Roulette stats should update in the web UI on user profiles
 """
+
 import datetime
 import logging
 

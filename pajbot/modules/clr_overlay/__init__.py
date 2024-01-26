@@ -23,8 +23,12 @@ class CLROverlayModule(BaseModule):
 
     BASE_ALLOWLIST_LABEL: str = "Allowlisted emotes (separate by spaces). Leave empty to use the blocklist."
     BASE_BLOCKLIST_LABEL: str = "Blocklisted emotes (separate by spaces). Leave empty to allow all emotes."
-    ALLOWLIST_LABEL: str = f"{BASE_ALLOWLIST_LABEL} If this and the blocklist are empty, the parent module's allow and blocklist will be used."
-    BLOCKLIST_LABEL: str = f"{BASE_BLOCKLIST_LABEL} If this and the allowlist are empty, the parent module's allow and blocklist will be used."
+    ALLOWLIST_LABEL: str = (
+        f"{BASE_ALLOWLIST_LABEL} If this and the blocklist are empty, the parent module's allow and blocklist will be used."
+    )
+    BLOCKLIST_LABEL: str = (
+        f"{BASE_BLOCKLIST_LABEL} If this and the allowlist are empty, the parent module's allow and blocklist will be used."
+    )
 
     EMOTELIST_PLACEHOLDER_TEXT: str = "e.g. Kappa Keepo PogChamp KKona"
 

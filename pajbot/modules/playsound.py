@@ -511,9 +511,9 @@ class PlaysoundModule(BaseModule):
             ],
         )
 
-        self.commands[
-            self.settings["command_name"].lower().replace("!", "")
-        ].long_description = 'Playsounds can be tried out <a href="/playsounds">here</a>'
+        self.commands[self.settings["command_name"].lower().replace("!", "")].long_description = (
+            'Playsounds can be tried out <a href="/playsounds">here</a>'
+        )
 
         self.commands["add"] = Command.multiaction_command(
             level=100,

@@ -2,6 +2,7 @@
 Modules can be enabled & disabled from the web UI
 Modules can be configured from the web UI
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional

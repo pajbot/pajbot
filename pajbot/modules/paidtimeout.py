@@ -183,19 +183,19 @@ class PaidTimeoutModule(BaseModule):
             ],
         )
         if self.settings["second_command"]:
-            self.commands[
-                self.settings["command_name2"].lower().replace("!", "").replace(" ", "")
-            ] = Command.raw_command(
-                self.paid_timeout2,
-                cost=self.settings["cost2"],
-                examples=[
-                    CommandExample(
-                        None,
-                        f"Timeout someone for {self.settings['timeout_length2']} seconds",
-                        chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
-                        description="",
-                    ).parse()
-                ],
+            self.commands[self.settings["command_name2"].lower().replace("!", "").replace(" ", "")] = (
+                Command.raw_command(
+                    self.paid_timeout2,
+                    cost=self.settings["cost2"],
+                    examples=[
+                        CommandExample(
+                            None,
+                            f"Timeout someone for {self.settings['timeout_length2']} seconds",
+                            chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
+                            description="",
+                        ).parse()
+                    ],
+                )
             )
 
     def on_message(self, source: User, whisper: bool, **rest) -> bool:
