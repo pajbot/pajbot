@@ -16,4 +16,4 @@ types-requests==2.31.0.20240218
 types-retry==0.9.9.4
 types-psycopg2==2.9.21.20240218
 types-colorama==0.4.15.20240205
-types-beautifulsoup4==4.12.0.20240106
+types-beautifulsoup4==4.12.0.20240229
