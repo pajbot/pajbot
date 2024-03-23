@@ -388,7 +388,7 @@ class CommandManager(UserDict[str, Command]):
                     out[alias] = command
 
         self.data = {}
-        db_commands = {alias: command for alias, command in self.db_commands.items() if command.enabled is True}
+        db_commands = {alias: command for alias, command in self.db_commands.items()}
 
         merge_commands(self.internal_commands, self.data)
         merge_commands(db_commands, self.data)
