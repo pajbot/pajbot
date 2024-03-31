@@ -536,6 +536,14 @@ class WebCommand:
         return self._command.level
 
     @property
+    def enabled(self) -> bool:
+        return self._command.enabled
+
+    @property
+    def disabled(self) -> bool:
+        return not self.enabled
+
+    @property
     def mod_only(self) -> bool:
         return self._command.mod_only
 
