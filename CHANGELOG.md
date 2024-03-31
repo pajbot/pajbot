@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Disabled commands are now included in the admin command list. They can be re-enabled by pressing "Edit" & checking the Enabled checkbox. (#2664)
 - Bugfix: Fixed whispers being unable to be sent breaking commands. (#2624)
 
 ## v1.68
