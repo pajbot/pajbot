@@ -12,7 +12,7 @@ types-Markdown==3.6.0.20240316
 types-pkg-resources==0.1.3
 types-pytz==2024.1.0.20240203
 types-redis==4.6.0.20240409
-types-requests==2.31.0.20240403
+types-requests==2.31.0.20240406
 types-retry==0.9.9.4
 types-psycopg2==2.9.21.20240311
 types-colorama==0.4.15.20240311
