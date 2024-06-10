@@ -5,7 +5,7 @@ colorama==0.4.6
 cssmin==0.2.0
 Flask==3.0.3
 Flask-Assets2==2.1
-irc==20.4.0
+irc==20.4.1
 isodate==0.6.1
 Jinja2==3.1.4
 jsmin==3.0.1
