@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Optional
 
 import logging
 import re
@@ -8,9 +8,6 @@ import re
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
-
-if TYPE_CHECKING:
-    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
