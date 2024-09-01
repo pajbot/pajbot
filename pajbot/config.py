@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING, Union
 
 import logging
 
-from pajbot.managers.twitter import PBTwitterManager
-
 if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
     from pajbot.models.user import UserBasics
@@ -112,20 +110,6 @@ def load_admin_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None
         return None, config["main"]["admin"]
 
     return None, None
-
-
-def load_twitter_manager(config: Config) -> type[PBTwitterManager]:
-    streaming_type = "twitter"
-    if "twitter" in config:
-        streaming_type = config["twitter"].get("streaming_type", "twitter")
-
-    if streaming_type == "tweet-provider":
-        return PBTwitterManager
-
-    log.warning(
-        f"DEPRECATED - The streaming type {streaming_type} is deprecated, only `tweet-provider` is supported. This will be the default going forward."
-    )
-    return PBTwitterManager
 
 
 def get_boolean(o: ConfigSection, key: str, default_value: bool) -> bool:

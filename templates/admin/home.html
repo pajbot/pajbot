@@ -5,7 +5,6 @@
 <h2>Admin Zone</h2>
 Use the links in the menu to browse admin-only sites.
 
-{% include 'admin/twitter.html' %}
 {% include 'admin/logs.html' %}
 
 {% endblock %}
@@ -13,66 +12,4 @@ Use the links in the menu to browse admin-only sites.
 {%- assets 'paginate_js' %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets -%}
-<script type="text/javascript">
-function on_success(response, key)
-{
-    console.log(response);
-
-    var rows = [];
-    for (var i in response.follows) {
-        (function() {
-            var follow = response.follows[i];
-            var $tr = $('<tr>');
-            $tr.append($('<td>').text(follow.username));
-            var $action_td = $('<td>');
-            var $unfollow_btn = $('<button>', {
-                class: 'ui {{ "disabled" if session.user.level < 1000 }} button',
-            }).html('<i class="icon minus red"></i>Unfollow');
-            $unfollow_btn.api({
-                action: 'twitter_unfollow',
-                method: 'POST',
-                beforeSend: function(settings) {
-                    settings.contentType = 'application/json';
-                    settings.data = JSON.stringify({"username": follow.username});
-                    return settings;
-                },
-                onSuccess: function(response, element, xhr) {
-                    element.closest('tr').hide();
-                },
-                beforeXHR: function(xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', csrf_token);
-                    return xhr;
-                },
-            });
-            $action_td.append($unfollow_btn);
-            $tr.append($action_td);
-            rows.push($tr)
-        })();
-    }
-    paginate_add_rows(key, rows);
-}
-
-$(document).ready(function() {
-    paginate('.twitter_follows', 5, 'desc', 'get_twitter_follows', on_success);
-
-    $('.twitter-follow button').api({
-        action: 'twitter_follow',
-        method: 'POST',
-        beforeSend: function(settings) {
-            settings.contentType = 'application/json';
-            settings.data = JSON.stringify({"username": $('.twitter-follow input[type="text"]').val()});
-            return settings;
-        },
-        onSuccess: function(response, element, xhr) {
-            console.log(response);
-            $('.twitter-follow input[type="text"]').val('');
-            paginate_reload('.twitter_follows');
-        },
-        beforeXHR: function(xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            return xhr;
-        },
-    });
-});
-</script>
 {% endblock %}

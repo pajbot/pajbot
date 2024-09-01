@@ -241,16 +241,12 @@ class Bot:
         self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
-        self.twitter_manager = cfg.load_twitter_manager(config)(self)
         self.module_manager = ModuleManager(self.socket_manager, bot=self)
         self.module_manager.load()
         self.commands = CommandManager(
             socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
         ).load()
         self.websocket_manager = WebSocketManager(self)
-        self.twitter_disallow_write = False
-        if "twitter" in config:
-            self.twitter_disallow_write = cfg.get_boolean(config["twitter"], "disallow_write", False)
 
         HandlerManager.trigger("on_managers_loaded")
 
@@ -350,7 +346,7 @@ class Bot:
             return 0
 
     def get_last_tweet(self, key, extra={}) -> str:
-        return self.twitter_manager.get_last_tweet(key)
+        return "Twitter integration disabled"
 
     def get_emote_epm(self, key, extra={}) -> Optional[str]:
         epm = self.epm_manager.get_emote_epm(key)
@@ -1252,7 +1248,6 @@ class Bot:
         except Exception:
             log.exception("Exception caught while trying to say quit phrase")
 
-        self.twitter_manager.quit()
         self.socket_manager.quit()
 
         sys.exit(0)

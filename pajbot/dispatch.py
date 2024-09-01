@@ -357,26 +357,6 @@ class Dispatch:
             bot.whisper(source, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
     @staticmethod
-    def tweet(bot: Bot, source: User, message: str, event: Any, args: Any) -> None:
-        if bot.twitter_manager.twitter_client is None:
-            log.warn("Twitter manager is not setup!")
-            return
-
-        if bot.twitter_disallow_write:
-            log.info("Unable to send tweet, sending tweets is disabled in the bot config.")
-            bot.whisper(source, "Unable to send tweet, sending tweets is disabled in the bot config.")
-            return
-
-        if message and len(message) > 1:
-            try:
-                log.info("sending tweet: %s", message[:140])
-                bot.twitter_manager.twitter_client.update_status(status=message)
-                bot.whisper(source, "Tweet sent successfully!")
-            except Exception:
-                log.exception("Caught an exception")
-                bot.whisper(source, "An error occurred while trying to send your tweet.")
-
-    @staticmethod
     def eval(bot, source, message, event, args):
         if not bot.dev:
             return

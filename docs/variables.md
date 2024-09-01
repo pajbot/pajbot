@@ -126,10 +126,6 @@ Both `increasekvi` and `decreasekvi` return the final value after the modificati
 `$(ecount:<emote>)` - String - "10482" (how often the emote was used, over all time)\
 `$(epmrecord:<emote>)` - String - "103232" (highest ever epm value)
 
-#### lasttweet - last tweet
-
-`$(lasttweet:<TWITTERUSER>)` - String - "\<tweet text\> (5h44m ago)". You can use arguments to allow users to choose their own twitter user to fetch. E.g. `$(lasttweet;1)` would fetch the twitter user in the first argument.
-
 #### Source
 
 `$(source:<thing>)` - pajbot.models.user.User - same as tb:source\
