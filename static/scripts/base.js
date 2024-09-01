@@ -11,9 +11,6 @@ $.fn.api.settings.api = {
     toggle_module: '/api/v1/modules/toggle/{id}',
     social_set: '/api/v1/social/{key}/set',
     commands: '/api/v1/commands/{raw_command_id}',
-    get_twitter_follows: '/api/v1/twitter/follows',
-    twitter_unfollow: '/api/v1/twitter/unfollow',
-    twitter_follow: '/api/v1/twitter/follow',
 };
 
 $(document).ready(function() {

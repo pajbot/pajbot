@@ -5,7 +5,6 @@ import pajbot.web.routes.api.modules
 import pajbot.web.routes.api.playsound
 import pajbot.web.routes.api.social
 import pajbot.web.routes.api.timers
-import pajbot.web.routes.api.twitter
 import pajbot.web.routes.api.users
 
 from flask import Blueprint
@@ -21,9 +20,6 @@ def init(app) -> None:
 
     # /users
     pajbot.web.routes.api.users.init(bp)
-
-    # /twitter
-    pajbot.web.routes.api.twitter.init(bp)
 
     # /commands
     pajbot.web.routes.api.commands.init(bp)
