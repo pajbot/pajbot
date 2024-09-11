@@ -1,6 +1,6 @@
 black==24.8.0
 flake8==7.1.1
-pytest==8.3.2
+pytest==8.3.3
 mypy==1.11.2
 isort==5.13.2
 
