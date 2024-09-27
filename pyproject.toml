@@ -1,6 +1,11 @@
 [project]
 name = "pajbot"
+version = "1.68"
+description = "Add your description here"
+readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [
+]
 
 [tool.black]
 line-length = 120
@@ -39,3 +44,9 @@ section-order = ["future", "typing", "standard-library", "first-party", "third-p
 
 [tool.ruff.pyupgrade]
 keep-runtime-typing = true
+
+[tool.uv.workspace]
+members = ["bot", "pajbot", "web"]
+
+[tool.uv.sources]
+pajbot = { workspace = true }
