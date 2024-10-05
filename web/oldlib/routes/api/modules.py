@@ -3,14 +3,14 @@ import logging
 
 import pajbot.modules
 import pajbot.utils
-import pajbot.web.utils
+import oldlib.utils
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules.base import ModuleType
 from pajbot.utils import find
-from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
+from oldlib.schemas.toggle_state import ToggleState, ToggleStateSchema
 
 from flask import Blueprint, request
 from flask.typing import ResponseReturnValue
@@ -30,7 +30,7 @@ def validate_module(module_id):
 
 def init(bp: Blueprint) -> None:
     @bp.route("/modules/toggle/<row_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def module_toggle(row_id: str, **options) -> ResponseReturnValue:
         try:
             json_data = request.get_json()

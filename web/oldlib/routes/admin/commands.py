@@ -6,7 +6,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandData
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.web.utils import requires_level
+from oldlib.utils import requires_level
 
 from flask import abort, redirect, render_template, request, session
 from flask.typing import ResponseReturnValue

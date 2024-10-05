@@ -1,14 +1,12 @@
 import json
 import logging
 
-import pajbot.modules
-import pajbot.utils
-import pajbot.web.utils
+import oldlib.utils
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.sock import SocketClientManager
 from pajbot.models.timer import Timer
-from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
+from oldlib.schemas.toggle_state import ToggleState, ToggleStateSchema
 
 from flask import Blueprint, request
 from flask.typing import ResponseReturnValue
@@ -19,7 +17,7 @@ log = logging.getLogger(__name__)
 
 def init(bp: Blueprint) -> None:
     @bp.route("/timers/remove/<int:timer_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def timer_remove(timer_id: int, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             timer = db_session.query(Timer).filter_by(id=timer_id).one_or_none()
@@ -31,7 +29,7 @@ def init(bp: Blueprint) -> None:
             return {"success": "good job"}
 
     @bp.route("/timers/toggle/<int:timer_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def timer_toggle(timer_id: int, **options) -> ResponseReturnValue:
         try:
             json_data = request.get_json()

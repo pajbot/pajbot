@@ -2,7 +2,7 @@ import collections
 
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
-from pajbot.web.utils import requires_level
+from oldlib.utils import requires_level
 
 from flask import render_template
 from flask.typing import ResponseReturnValue

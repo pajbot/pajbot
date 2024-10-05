@@ -2,14 +2,12 @@ import json
 import logging
 from dataclasses import dataclass
 
-import pajbot.modules
-import pajbot.utils
-import pajbot.web.utils
+import oldlib.utils
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.banphrase import Banphrase, BanphraseManager
 from pajbot.models.sock import SocketClientManager
-from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
+from oldlib.schemas.toggle_state import ToggleState, ToggleStateSchema
 
 import marshmallow_dataclass
 from flask import Blueprint, request
@@ -41,7 +39,7 @@ TestBanphraseSchema = marshmallow_dataclass.class_schema(TestBanphrase)
 
 def init(bp: Blueprint) -> None:
     @bp.route("/banphrases/remove/<int:banphrase_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def banphrases_remove(banphrase_id, **options):
         with DBManager.create_session_scope() as db_session:
             banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
@@ -54,7 +52,7 @@ def init(bp: Blueprint) -> None:
             return {"success": "good job"}, 200
 
     @bp.route("/banphrases/toggle/<int:row_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def banphrases_toggle(row_id, **options):
         json_data = request.get_json()
         if not json_data:

@@ -9,7 +9,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.playsound import Playsound
 from pajbot.models.sock import SocketClientManager
 from pajbot.modules import PlaysoundModule
-from pajbot.web.utils import requires_level
+from oldlib.utils import requires_level
 
 import marshmallow_dataclass
 from flask import Blueprint, request

@@ -1,6 +1,6 @@
 import logging
 
-from pajbot.web.utils import nocache
+from oldlib.utils import nocache
 
 from flask import Blueprint, render_template
 

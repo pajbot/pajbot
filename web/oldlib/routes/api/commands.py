@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import pajbot.modules
 import pajbot.utils
-import pajbot.web.utils
+import oldlib.utils
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandData
@@ -53,7 +53,7 @@ CommandUpdateSchema = marshmallow_dataclass.class_schema(CommandUpdate)
 def init(bp: Blueprint) -> None:
     @bp.route("/commands")
     def commands() -> ResponseReturnValue:
-        commands = pajbot.web.utils.get_cached_commands()
+        commands = oldlib.utils.get_cached_commands()
 
         commands = list(filter(lambda c: c["id"] is not None, commands))
 
@@ -70,9 +70,9 @@ def init(bp: Blueprint) -> None:
             pass
 
         if command_id:
-            command = find(lambda c: c["id"] == command_id, pajbot.web.utils.get_cached_commands())
+            command = find(lambda c: c["id"] == command_id, oldlib.utils.get_cached_commands())
         else:
-            command = find(lambda c: c["resolve_string"] == command_string, pajbot.web.utils.get_cached_commands())
+            command = find(lambda c: c["resolve_string"] == command_string, oldlib.utils.get_cached_commands())
 
         if not command:
             return {"message": "A command with the given ID was not found."}, 404
@@ -80,7 +80,7 @@ def init(bp: Blueprint) -> None:
         return {"command": command}, 200
 
     @bp.route("/commands/remove/<int:command_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def command_remove(command_id, **options):
         with DBManager.create_session_scope() as db_session:
             command = db_session.query(Command).filter_by(id=command_id).one_or_none()
@@ -99,7 +99,7 @@ def init(bp: Blueprint) -> None:
             return {"error": "could not push update"}, 500
 
     @bp.route("/commands/update/<int:command_id>", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def command_update(command_id: int, **extra_args) -> ResponseReturnValue:
         try:
             json_data = request.get_json()
@@ -177,7 +177,7 @@ def init(bp: Blueprint) -> None:
             return {"error": "could not push update"}, 500
 
     @bp.route("/commands/checkalias", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def command_checkalias(**extra_args):
         json_data = request.get_json()
         if not json_data:

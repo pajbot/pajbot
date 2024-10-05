@@ -1,4 +1,4 @@
-import pajbot.web.utils
+import oldlib.utils
 from pajbot.managers.db import DBManager
 from pajbot.models.duel import UserDuelStats
 from pajbot.models.user import User
@@ -9,8 +9,8 @@ from flask import render_template
 def init(app):
     @app.route("/stats")
     def stats():
-        bot_commands_list = pajbot.web.utils.get_cached_commands()
-        top_100_emotes = pajbot.web.utils.get_top_emotes()
+        bot_commands_list = oldlib.utils.get_cached_commands()
+        top_100_emotes = oldlib.utils.get_top_emotes()
         top_5_commands = sorted(
             bot_commands_list, key=lambda c: c["data"]["num_uses"] if c["data"] is not None else -1, reverse=True
         )[:5]

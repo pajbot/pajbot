@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 
-import pajbot.web
+from oldlib import init, app
 from pajbot.utils import init_logging
-from pajbot.web import app
 
 init_logging("pajbot")
 
@@ -17,7 +16,7 @@ parser.set_defaults(debug=False)
 
 args = parser.parse_args()
 
-pajbot.web.init(args.config)
+init(args.config)
 
 if __name__ == "__main__":
     app.run(debug=args.debug, host=args.host, port=args.port)

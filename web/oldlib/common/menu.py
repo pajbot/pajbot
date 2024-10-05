@@ -4,7 +4,7 @@ from typing import Any, Union
 
 import logging
 
-from pajbot.web.utils import get_cached_enabled_modules
+from oldlib.utils import get_cached_enabled_modules
 
 log = logging.getLogger(__name__)
 

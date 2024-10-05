@@ -2,7 +2,7 @@ from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.models.playsound import Playsound
 from pajbot.modules import PlaysoundModule
-from pajbot.web.utils import requires_level
+from oldlib.utils import requires_level
 
 from flask import render_template
 from flask.typing import ResponseReturnValue

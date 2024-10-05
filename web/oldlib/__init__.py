@@ -54,16 +54,16 @@ def init(config_path: str) -> None:
     import sys
 
     import pajbot.utils
-    import pajbot.web.common
-    import pajbot.web.routes
+    import oldlib.common
+    import oldlib.routes
     from pajbot.managers.db import DBManager
     from pajbot.managers.redis import RedisManager
     from pajbot.models.module import ModuleManager
     from pajbot.models.sock import SocketClientManager
     from pajbot.streamhelper import StreamHelper
     from pajbot.utils import load_config
-    from pajbot.web.models import errors
-    from pajbot.web.utils import download_logo, download_sub_badge
+    from oldlib.models import errors
+    from oldlib.utils import download_logo, download_sub_badge
 
     from flask import request, session
 
@@ -137,21 +137,21 @@ def init(config_path: str) -> None:
 
     app.module_manager = ModuleManager(None).load()
 
-    pajbot.web.routes.admin.init(app)
-    pajbot.web.routes.api.init(app)
-    pajbot.web.routes.base.init(app)
+    oldlib.routes.admin.init(app)
+    oldlib.routes.api.init(app)
+    oldlib.routes.base.init(app)
 
     # Make a CSRF exemption for the /api/v1/banphrases/test endpoint
-    csrf.exempt("pajbot.web.routes.api.banphrases.banphrases_test")
+    csrf.exempt("oldlib.routes.api.banphrases.banphrases_test")
 
-    pajbot.web.common.filters.init(app)
-    pajbot.web.common.assets.init(app)
-    pajbot.web.common.menu.init(app)
+    oldlib.common.filters.init(app)
+    oldlib.common.assets.init(app)
+    oldlib.common.menu.init(app)
 
-    app.register_blueprint(pajbot.web.routes.clr.page)
+    app.register_blueprint(oldlib.routes.clr.page)
 
     errors.init(app, config)
-    pajbot.web.routes.clr.config = config
+    oldlib.routes.clr.config = config
 
     version = VERSION
     last_commit = None

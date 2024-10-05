@@ -8,7 +8,7 @@ from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.banphrase import Banphrase, BanphraseData
 from pajbot.models.sock import SocketClientManager
-from pajbot.web.utils import requires_level
+from oldlib.utils import requires_level
 
 from flask import abort, redirect, render_template, request, session
 from flask.typing import ResponseReturnValue

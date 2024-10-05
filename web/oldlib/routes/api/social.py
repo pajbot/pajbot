@@ -1,8 +1,7 @@
 import json
 from dataclasses import dataclass
 
-import pajbot.modules
-import pajbot.web.utils  # NOQA
+import oldlib.utils  # NOQA
 from pajbot.managers.redis import RedisManager
 from pajbot.streamhelper import StreamHelper
 
@@ -22,7 +21,7 @@ SocialSetSchema = marshmallow_dataclass.class_schema(SocialSet)
 
 def init(bp: Blueprint) -> None:
     @bp.route("/social/<social_key>/set", methods=["POST"])
-    @pajbot.web.utils.requires_level(500)
+    @oldlib.utils.requires_level(500)
     def social_set(social_key: str, **options) -> ResponseReturnValue:
         try:
             json_data = request.get_json()
