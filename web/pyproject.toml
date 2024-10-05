@@ -1,0 +1,12 @@
+[project]
+name = "web"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "flask-assets2>=2.1",
+    "flask-wtf>=1.2.1",
+    "flask>=3.0.3",
+    "pajbot",
+]

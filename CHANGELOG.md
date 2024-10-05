@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Major: Change python tooling to uv. (#2787)
+
 ## v1.69
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
