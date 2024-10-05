@@ -45,6 +45,11 @@ section-order = ["future", "typing", "standard-library", "first-party", "third-p
 [tool.ruff.pyupgrade]
 keep-runtime-typing = true
 
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.2"
+]
+
 [tool.uv.workspace]
 members = ["bot", "pajbot", "web"]
 

@@ -30,6 +30,17 @@ dependencies = [
     "urlextract>=1.9.0",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.2"
+]
+
+# [build-system]
+# requires = ["hatchling"]
+# build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+addopts = [
+    "-vvv",
+]
+pythonpath = "src"
