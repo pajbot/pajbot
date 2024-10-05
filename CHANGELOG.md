@@ -4,6 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.69
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 - Major: Completely disabled all Twitter functionality. (#2767)
 - Minor: Disabled commands are now included in the admin command list. They can be re-enabled by pressing "Edit" & checking the Enabled checkbox. (#2664)
 - Bugfix: Fixed whispers being unable to be sent breaking commands. (#2624)
