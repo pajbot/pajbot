@@ -127,16 +127,23 @@ class ClipCommandModule(BaseModule):
             if self.settings["offline_response"] != "":
                 bot.send_message_to_user(
                     source,
-                    self.settings["offline_response"].format(source="{source}", streamer=bot.streamer_display),
+                    self.settings["offline_response"].format(
+                        source="{source}", streamer=bot.streamer_display
+                    ),
                     event,
                     method=self.settings["response_method"],
                 )
             return True
 
         try:
-            if self.settings["delay_clip"] or (source.name == StreamHelper.get_streamer()) is True:
+            if (
+                self.settings["delay_clip"]
+                or (source.name == StreamHelper.get_streamer()) is True
+            ):
                 clip_id = self.bot.twitch_helix_api.create_clip(
-                    StreamHelper.get_streamer_id(), self.bot.bot_token_manager, has_delay=True
+                    StreamHelper.get_streamer_id(),
+                    self.bot.bot_token_manager,
+                    has_delay=True,
                 )
             else:
                 clip_id = self.bot.twitch_helix_api.create_clip(

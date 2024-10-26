@@ -23,15 +23,39 @@ class EmoteTimeoutModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="timeout_twitch", label="Timeout any Twitch emotes", type="boolean", required=True, default=False
+            key="timeout_twitch",
+            label="Timeout any Twitch emotes",
+            type="boolean",
+            required=True,
+            default=False,
         ),
-        ModuleSetting(key="timeout_ffz", label="Timeout any FFZ emotes", type="boolean", required=True, default=False),
         ModuleSetting(
-            key="timeout_bttv", label="Timeout any BTTV emotes", type="boolean", required=True, default=False
+            key="timeout_ffz",
+            label="Timeout any FFZ emotes",
+            type="boolean",
+            required=True,
+            default=False,
         ),
-        ModuleSetting(key="timeout_7tv", label="Timeout any 7TV emotes", type="boolean", required=True, default=False),
         ModuleSetting(
-            key="timeout_emoji", label="Timeout any unicode emoji", type="boolean", required=True, default=False
+            key="timeout_bttv",
+            label="Timeout any BTTV emotes",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="timeout_7tv",
+            label="Timeout any 7TV emotes",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="timeout_emoji",
+            label="Timeout any unicode emoji",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="bypass_level",
@@ -60,10 +84,18 @@ class EmoteTimeoutModule(BaseModule):
             constraints={"min_value": 1, "max_value": 1209600},
         ),
         ModuleSetting(
-            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
+            key="enable_in_online_chat",
+            label="Enabled in online chat",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
-            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
+            key="enable_in_offline_chat",
+            label="Enabled in offline chat",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="twitch_timeout_reason",
@@ -119,7 +151,14 @@ class EmoteTimeoutModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
+    def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        msg_id: str,
+        **rest,
+    ) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True
@@ -133,7 +172,9 @@ class EmoteTimeoutModule(BaseModule):
         if not self.bot.is_online and not self.settings["enable_in_offline_chat"]:
             return True
 
-        if self.settings["timeout_twitch"] and any(e.emote.provider == "twitch" for e in emote_instances):
+        if self.settings["timeout_twitch"] and any(
+            e.emote.provider == "twitch" for e in emote_instances
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -144,7 +185,9 @@ class EmoteTimeoutModule(BaseModule):
             )
             return False
 
-        if self.settings["timeout_ffz"] and any(e.emote.provider == "ffz" for e in emote_instances):
+        if self.settings["timeout_ffz"] and any(
+            e.emote.provider == "ffz" for e in emote_instances
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -155,7 +198,9 @@ class EmoteTimeoutModule(BaseModule):
             )
             return False
 
-        if self.settings["timeout_bttv"] and any(e.emote.provider == "bttv" for e in emote_instances):
+        if self.settings["timeout_bttv"] and any(
+            e.emote.provider == "bttv" for e in emote_instances
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -166,7 +211,9 @@ class EmoteTimeoutModule(BaseModule):
             )
             return False
 
-        if self.settings["timeout_7tv"] and any(e.emote.provider == "7tv" for e in emote_instances):
+        if self.settings["timeout_7tv"] and any(
+            e.emote.provider == "7tv" for e in emote_instances
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -177,7 +224,9 @@ class EmoteTimeoutModule(BaseModule):
             )
             return False
 
-        if self.settings["timeout_emoji"] and any(emoji in message for emoji in ALL_EMOJI):
+        if self.settings["timeout_emoji"] and any(
+            emoji in message for emoji in ALL_EMOJI
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -191,7 +240,9 @@ class EmoteTimeoutModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

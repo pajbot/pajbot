@@ -61,7 +61,9 @@ if __name__ == "__main__":
     from pajbot.utils import dump_threads, init_logging
 
     def on_sigusr1(signal, frame):
-        log.info("Process was interrupted with SIGUSR1, dumping all thread stack traces")
+        log.info(
+            "Process was interrupted with SIGUSR1, dumping all thread stack traces"
+        )
         dump_threads()
 
     # dump all stack traces on SIGUSR1

@@ -29,7 +29,7 @@ class KVIData:
         if redis is None:
             redis = RedisManager.get()
 
-        redis.hset(self.key, self.id, new_value)
+        redis.hset(self.key, self.id, str(new_value))
 
     def get(self, redis: Optional[RedisType] = None) -> int:
         if redis is None:
@@ -39,6 +39,7 @@ class KVIData:
 
         try:
             raw_value = redis.hget(self.key, self.id)
+            assert isinstance(raw_value, bytes)
             if raw_value:
                 value = int(raw_value)
         except (TypeError, ValueError):

@@ -52,7 +52,12 @@ def init(bp: Blueprint) -> None:
             row.enabled = data.new_state
             db_session.commit()
             payload = {"id": row.id, "new_state": data.new_state}
-            AdminLogManager.post("Module toggled", options["user"], "Enabled" if row.enabled else "Disabled", row.id)
+            AdminLogManager.post(
+                "Module toggled",
+                options["user"],
+                "Enabled" if row.enabled else "Disabled",
+                row.id,
+            )
             SocketClientManager.send("module.update", payload)
             log.info(f"new state: {data} - {data.new_state}")
             return {"success": "successful toggle", "new_state": data.new_state}

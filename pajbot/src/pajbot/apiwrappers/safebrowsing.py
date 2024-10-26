@@ -31,7 +31,11 @@ class SafeBrowsingAPI(BaseAPI):
                         "ALL_PLATFORMS",
                         "CHROME",
                     ],
-                    "threatEntryTypes": ["THREAT_ENTRY_TYPE_UNSPECIFIED", "URL", "EXECUTABLE"],
+                    "threatEntryTypes": [
+                        "THREAT_ENTRY_TYPE_UNSPECIFIED",
+                        "URL",
+                        "EXECUTABLE",
+                    ],
                     "threatEntries": [{"url": url}],
                 },
             },

@@ -1,7 +1,10 @@
 from .clean_up_message import clean_up_message
 from .datetime_from_utc_milliseconds import datetime_from_utc_milliseconds
 from .dump_threads import dump_threads
-from .extend_version_with_git_data import extend_version_if_possible, extend_version_with_git_data
+from .extend_version_with_git_data import (
+    extend_version_if_possible,
+    extend_version_with_git_data,
+)
 from .find import find
 from .get_class_that_defined_method import get_class_that_defined_method
 from .init_logging import init_logging

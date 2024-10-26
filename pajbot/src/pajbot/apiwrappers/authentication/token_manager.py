@@ -2,7 +2,10 @@ import json
 import logging
 from abc import ABC, abstractmethod
 
-from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
+from pajbot.apiwrappers.authentication.access_token import (
+    AppAccessToken,
+    UserAccessToken,
+)
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +26,12 @@ class RedisTokenStorage:
 
     def save(self, token):
         if self.expire:
-            redis_expire_in = token.expires_in.total_seconds() * token.SHOULD_REFRESH_THRESHOLD
-            self.redis.setex(self.redis_key, int(redis_expire_in), json.dumps(token.jsonify()))
+            redis_expire_in = (
+                token.expires_in.total_seconds() * token.SHOULD_REFRESH_THRESHOLD
+            )
+            self.redis.setex(
+                self.redis_key, int(redis_expire_in), json.dumps(token.jsonify())
+            )
         else:
             self.redis.set(self.redis_key, json.dumps(token.jsonify()))
 
@@ -107,4 +114,6 @@ class UserAccessTokenManager(AccessTokenManager):
         self.user_id = user_id
 
     def fetch_new(self):
-        raise NoTokenError(f"No authentication token found for user {self.username} ({self.user_id}) in redis")
+        raise NoTokenError(
+            f"No authentication token found for user {self.username} ({self.user_id}) in redis"
+        )

@@ -75,7 +75,11 @@ class TopModule(BaseModule):
     def top_chatters(self, bot, **rest):
         data = []
         with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(User).order_by(User.num_lines.desc()).limit(self.settings["num_top"]):
+            for user in (
+                db_session.query(User)
+                .order_by(User.num_lines.desc())
+                .limit(self.settings["num_top"])
+            ):
                 data.append(f"{user} ({user.num_lines})")
 
         bot.say(f"Top {self.settings['num_top']} chatters: {', '.join(data)}")
@@ -84,9 +88,13 @@ class TopModule(BaseModule):
         data = []
         with DBManager.create_session_scope() as db_session:
             for user in (
-                db_session.query(User).order_by(User.time_in_chat_online.desc()).limit(self.settings["num_top"])
+                db_session.query(User)
+                .order_by(User.time_in_chat_online.desc())
+                .limit(self.settings["num_top"])
             ):
-                data.append(f"{user} ({time_since(user.time_in_chat_online.total_seconds(), 0, time_format='short')})")
+                data.append(
+                    f"{user} ({time_since(user.time_in_chat_online.total_seconds(), 0, time_format='short')})"
+                )
 
         bot.say(f"Top {self.settings['num_top']} watchers: {', '.join(data)}")
 
@@ -94,16 +102,24 @@ class TopModule(BaseModule):
         data = []
         with DBManager.create_session_scope() as db_session:
             for user in (
-                db_session.query(User).order_by(User.time_in_chat_offline.desc()).limit(self.settings["num_top"])
+                db_session.query(User)
+                .order_by(User.time_in_chat_offline.desc())
+                .limit(self.settings["num_top"])
             ):
-                data.append(f"{user} ({time_since(user.time_in_chat_offline.total_seconds(), 0, time_format='short')})")
+                data.append(
+                    f"{user} ({time_since(user.time_in_chat_offline.total_seconds(), 0, time_format='short')})"
+                )
 
         bot.say(f"Top {self.settings['num_top']} offline chatters: {', '.join(data)}")
 
     def top_points(self, bot, **rest):
         data = []
         with DBManager.create_session_scope() as db_session:
-            for user in db_session.query(User).order_by(User.points.desc()).limit(self.settings["num_top"]):
+            for user in (
+                db_session.query(User)
+                .order_by(User.points.desc())
+                .limit(self.settings["num_top"])
+            ):
                 data.append(f"{user} ({user.points})")
 
         bot.say(f"Top {self.settings['num_top']} banks: {', '.join(data)}")
@@ -116,11 +132,16 @@ class TopModule(BaseModule):
         top_emotes = {
             emote: emote_count
             for emote, emote_count in sorted(
-                redis.zscan_iter(f"{streamer}:emotes:count"), key=lambda e_ecount_pair: e_ecount_pair[1], reverse=True
+                redis.zscan_iter(f"{streamer}:emotes:count"),
+                key=lambda e_ecount_pair: e_ecount_pair[1],
+                reverse=True,
             )[:num_emotes]
         }
         if top_emotes:
-            top_list_str = ", ".join(f"{emote} ({emote_count:,.0f})" for emote, emote_count in top_emotes.items())
+            top_list_str = ", ".join(
+                f"{emote} ({emote_count:,.0f})"
+                for emote, emote_count in top_emotes.items()
+            )
             bot.say(f"Top {num_emotes} emotes: {top_list_str}")
         else:
             bot.say("No emote data available")

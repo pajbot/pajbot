@@ -87,7 +87,8 @@ class IgnoreModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!unignore Karl_Kons\n" "bot>user:No longer ignoring Karl_Kons",
+                    chat="user:!unignore Karl_Kons\n"
+                    "bot>user:No longer ignoring Karl_Kons",
                     description="Unignore user Karl_Kons",
                 ).parse()
             ],

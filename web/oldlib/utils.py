@@ -34,7 +34,11 @@ def requires_level(level):
             if "user" not in session:
                 abort(403)
             with DBManager.create_session_scope() as db_session:
-                user = db_session.query(User).filter_by(id=session["user"]["id"]).one_or_none()
+                user = (
+                    db_session.query(User)
+                    .filter_by(id=session["user"]["id"])
+                    .one_or_none()
+                )
                 if user is None:
                     abort(403)
 
@@ -56,7 +60,9 @@ def nocache(view):
     def no_cache(*args, **kwargs):
         response = make_response(view(*args, **kwargs))
         response.headers["Last-Modified"] = utils.now()
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
+        )
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "-1"
         return response
@@ -68,7 +74,9 @@ def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> Non
     logo_url = twitch_helix_api.get_profile_image_url(streamer.id)
 
     if logo_url is None:
-        log.warn(f"Failed to query Twitch API for the profile image url of streamer {streamer.login}")
+        log.warn(
+            f"Failed to query Twitch API for the profile image url of streamer {streamer.login}"
+        )
         return
 
     logo_raw_path = f"static/images/logo_{streamer.login}.png"
@@ -81,15 +89,23 @@ def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> Non
         logo_raw_file.write(logo_image_bytes)
 
 
-def download_sub_badge(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, subscriber_badge_version: str) -> None:
+def download_sub_badge(
+    twitch_helix_api: TwitchHelixAPI,
+    streamer: UserBasics,
+    subscriber_badge_version: str,
+) -> None:
     out_path = f"static/images/badge_sub_{streamer.login}.png"
 
-    log.info(f"Downloading sub badge for {streamer.login} (badge version {subscriber_badge_version}) to {out_path}")
+    log.info(
+        f"Downloading sub badge for {streamer.login} (badge version {subscriber_badge_version}) to {out_path}"
+    )
 
     badge_sets = twitch_helix_api.get_channel_badges(streamer.id)
 
     try:
-        subscriber_badge_set = next(badge_set for badge_set in badge_sets if badge_set.set_id == "subscriber")
+        subscriber_badge_set = next(
+            badge_set for badge_set in badge_sets if badge_set.set_id == "subscriber"
+        )
     except StopIteration:
         log.error(f"No subscriber badge set found for {streamer.login}")
         return
@@ -122,13 +138,16 @@ def get_top_emotes() -> list[dict[str, str]]:
     top_emotes = {  # noqa: C416
         emote: emote_count
         for emote, emote_count in sorted(
-            redis.zscan_iter(f"{streamer}:emotes:count"), key=lambda e_ecount_pair: e_ecount_pair[1], reverse=True
+            redis.zscan_iter(f"{streamer}:emotes:count"),
+            key=lambda e_ecount_pair: e_ecount_pair[1],
+            reverse=True,
         )[:100]
     }
 
     if top_emotes:
         top_emotes_list.extend(
-            {"emote_name": emote, "emote_count": str(int(emote_count))} for emote, emote_count in top_emotes.items()
+            {"emote_name": emote, "emote_count": str(int(emote_count))}
+            for emote, emote_count in top_emotes.items()
         )
 
     return top_emotes_list
@@ -155,7 +174,11 @@ def get_cached_commands() -> list[dict[str, Any]]:
 
     bot_commands_list.sort(key=lambda x: (x.id or -1, x.main_alias))
     jsonified_bot_commands_list = [c.jsonify() for c in bot_commands_list]
-    redis.setex(commands_key, value=json.dumps(jsonified_bot_commands_list, separators=(",", ":")), time=CACHE_TIME)
+    redis.setex(
+        commands_key,
+        value=json.dumps(jsonified_bot_commands_list, separators=(",", ":")),
+        time=CACHE_TIME,
+    )
 
     return jsonified_bot_commands_list
 

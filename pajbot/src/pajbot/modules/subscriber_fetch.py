@@ -33,7 +33,9 @@ class SubscriberFetchModule(BaseModule):
     @time_method
     def _update_subscribers(self) -> None:
         if self.bot is None:
-            log.error("_update_subscribers failed in SubscriberFetchModule because bot is None")
+            log.error(
+                "_update_subscribers failed in SubscriberFetchModule because bot is None"
+            )
             return
 
         try:
@@ -82,7 +84,9 @@ ON COMMIT DROP"""
                 # which would then fail.
                 # len(subscribers) can be 0 if the broadcaster does not have a subscription program.
                 db_session.execute(
-                    text("INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"),
+                    text(
+                        "INSERT INTO subscribers(id, login, name) VALUES (:id, :login, :name)"
+                    ),
                     [basics.jsonify() for basics in subscribers],
                 )
 
@@ -139,4 +143,6 @@ WHERE
             return
 
         # every 10 minutes, add the subscribers update to the action queue
-        ScheduleManager.execute_every(10 * 60, lambda: self.bot.action_queue.submit(self._update_subscribers))
+        ScheduleManager.execute_every(
+            10 * 60, lambda: self.bot.action_queue.submit(self._update_subscribers)
+        )

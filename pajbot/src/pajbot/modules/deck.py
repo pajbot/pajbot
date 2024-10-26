@@ -105,7 +105,8 @@ class DeckModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove a deck by ID",
-                            chat="user:!remove deck 123\n" "bot>user:Successfully removed the deck.",
+                            chat="user:!remove deck 123\n"
+                            "bot>user:Successfully removed the deck.",
                             description="The ID in this case is 123",
                         ).parse(),
                         CommandExample(
@@ -133,7 +134,9 @@ class DeckModule(BaseModule):
             if new_deck is True:
                 bot.whisper(source, f"This deck is a new deck. Its ID is {deck.id}")
             else:
-                bot.whisper(source, f"Updated an already-existing deck. Its ID is {deck.id}")
+                bot.whisper(
+                    source, f"Updated an already-existing deck. Its ID is {deck.id}"
+                )
 
             bot.say("Successfully updated the latest deck.")
             return True
@@ -149,7 +152,10 @@ class DeckModule(BaseModule):
         """
 
         if not message:
-            bot.whisper(source, "Usage example: !updatedeck --name Midrange Secret --class paladin")
+            bot.whisper(
+                source,
+                "Usage example: !updatedeck --name Midrange Secret --class paladin",
+            )
             return False
 
         options, response = bot.decks.parse_update_arguments(message)
@@ -174,7 +180,10 @@ class DeckModule(BaseModule):
             return False
 
         bot.decks.update_deck(deck, **options)
-        bot.whisper(source, f"Updated deck with ID {deck.id}. Updated {', '.join([key for key in options])}")
+        bot.whisper(
+            source,
+            f"Updated deck with ID {deck.id}. Updated {', '.join([key for key in options])}",
+        )
 
         return True
 
@@ -203,7 +212,9 @@ class DeckModule(BaseModule):
                 bot.decks.remove_deck(deck)
                 bot.whisper(source, "Successfully removed the deck.")
             except:
-                log.exception("An exception occured while attempting to remove the deck")
+                log.exception(
+                    "An exception occured while attempting to remove the deck"
+                )
                 bot.whisper(source, "An error occured while removing your deck.")
                 return False
             return True

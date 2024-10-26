@@ -73,10 +73,22 @@ class ModuleSetting:
     def validate_text(self, value: str) -> tuple[bool, str]:
         """Validate a text value"""
         value = value.strip()
-        if "min_str_len" in self.constraints and len(value) < self.constraints["min_str_len"]:
-            return (False, f"needs to be at least {self.constraints['min_str_len']} characters long")
-        if "max_str_len" in self.constraints and len(value) > self.constraints["max_str_len"]:
-            return (False, f"needs to be at most {self.constraints['max_str_len']} characters long")
+        if (
+            "min_str_len" in self.constraints
+            and len(value) < self.constraints["min_str_len"]
+        ):
+            return (
+                False,
+                f"needs to be at least {self.constraints['min_str_len']} characters long",
+            )
+        if (
+            "max_str_len" in self.constraints
+            and len(value) > self.constraints["max_str_len"]
+        ):
+            return (
+                False,
+                f"needs to be at most {self.constraints['max_str_len']} characters long",
+            )
         return True, value
 
     def validate_number(self, str_value: str) -> tuple[bool, Union[str, int]]:
@@ -87,9 +99,15 @@ class ModuleSetting:
             return False, "Not a valid integer"
 
         if "min_value" in self.constraints and value < self.constraints["min_value"]:
-            return (False, f"needs to have a value that is at least {self.constraints['min_value']}")
+            return (
+                False,
+                f"needs to have a value that is at least {self.constraints['min_value']}",
+            )
         if "max_value" in self.constraints and value > self.constraints["max_value"]:
-            return (False, f"needs to have a value that is at most {self.constraints['max_value']}")
+            return (
+                False,
+                f"needs to have a value that is at most {self.constraints['max_value']}",
+            )
         return True, value
 
     @staticmethod
@@ -132,7 +150,8 @@ class BaseModule:
 
     def __init__(self, bot: Optional[Bot], config: Optional[Config] = None) -> None:
         """Initialize any dictionaries the module might or might not use.
-        This is called once on bot startup, and once in the website whenever the module list is accessed"""
+        This is called once on bot startup, and once in the website whenever the module list is accessed
+        """
         self.bot = bot
 
         self.commands: Any = {}
@@ -194,7 +213,9 @@ class BaseModule:
     def load_commands(self, **options: Any) -> None:
         pass
 
-    def parse_settings(self, **in_settings: dict[str, Any]) -> Union[Literal[False], dict[str, Any]]:
+    def parse_settings(
+        self, **in_settings: dict[str, Any]
+    ) -> Union[Literal[False], dict[str, Any]]:
         ret = {}
         for key, value in in_settings.items():
             setting = find(lambda setting: setting.key == key, self.SETTINGS)
@@ -242,6 +263,8 @@ class BaseModule:
         try:
             return self.default_settings[key].format(**arguments)
         except:
-            log.exception(f"ABORT - The default phrase {self.default_settings[key]} is BAD. Arguments: ({arguments})")
+            log.exception(
+                f"ABORT - The default phrase {self.default_settings[key]} is BAD. Arguments: ({arguments})"
+            )
 
         return "FatalError in get_phrase"

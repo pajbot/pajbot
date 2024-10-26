@@ -81,7 +81,8 @@ class TriviaModule(BaseModule):
 
     def poll_trivia(self):
         if self.question is None and (
-            self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=12)
+            self.last_question is None
+            or utils.now() - self.last_question >= datetime.timedelta(seconds=12)
         ):
             url = "http://jservice.io/api/random"
             r = requests.get(url, headers={"User-Agent": self.bot.user_agent})
@@ -109,12 +110,15 @@ class TriviaModule(BaseModule):
             self.last_step = None
 
         # Is it time for the next step?
-        condition = self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(
-            seconds=self.settings["question_delay"]
+        condition = (
+            self.last_question is None
+            or utils.now() - self.last_question
+            >= datetime.timedelta(seconds=self.settings["question_delay"])
         )
         if (self.last_step is None and condition) or (
             self.last_step is not None
-            and utils.now() - self.last_step >= datetime.timedelta(seconds=self.settings["step_delay"])
+            and utils.now() - self.last_step
+            >= datetime.timedelta(seconds=self.settings["step_delay"])
         ):
             self.last_step = utils.now()
             self.step += 1
@@ -139,7 +143,9 @@ class TriviaModule(BaseModule):
     def step_hint(self):
         # find out what % of the answer should be revealed
         full_hint_reveal = int(math.floor(len(self.question["answer"]) / 2))
-        current_hint_reveal = int(math.floor(((self.step) / self.settings["hint_count"]) * full_hint_reveal))
+        current_hint_reveal = int(
+            math.floor(((self.step) / self.settings["hint_count"]) * full_hint_reveal)
+        )
         hint_arr = []
         index = 0
         for c in self.question["answer"]:
@@ -182,7 +188,9 @@ class TriviaModule(BaseModule):
             self.point_bounty = self.settings["default_point_bounty"]
 
         if self.point_bounty > 0:
-            bot.safe_me(f"The trivia has started! {self.point_bounty} points for each right answer!")
+            bot.safe_me(
+                f"The trivia has started! {self.point_bounty} points for each right answer!"
+            )
         else:
             bot.safe_me("The trivia has started!")
 

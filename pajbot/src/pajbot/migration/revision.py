@@ -10,7 +10,12 @@ if TYPE_CHECKING:
 
 
 class Revision:
-    def __init__(self, id: int, name: str, up_action: Callable[[Union[Psycopg2Cursor, RedisType], Bot], None]) -> None:
+    def __init__(
+        self,
+        id: int,
+        name: str,
+        up_action: Callable[[Union[Psycopg2Cursor, RedisType], Bot], None],
+    ) -> None:
         self.id = id
         self.name = name
         self.up_action = up_action

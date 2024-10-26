@@ -14,7 +14,9 @@ Config = dict[str, ConfigSection]
 log = logging.getLogger(__name__)
 
 
-def load_streamer_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str]]:
+def load_streamer_id_or_login(
+    config: Config,
+) -> Union[tuple[str, None], tuple[None, str]]:
     """
     Load either the streamer Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from streamer_id, and the Twitch User Login us read from streamer
@@ -31,7 +33,9 @@ def load_streamer_id_or_login(config: Config) -> Union[tuple[str, None], tuple[N
         )
         return None, config["main"]["streamer"]
     elif "target" in config["main"]:
-        log.warning("DEPRECATED - You should specify the streamer using the streamer_id config value")
+        log.warning(
+            "DEPRECATED - You should specify the streamer using the streamer_id config value"
+        )
         return None, config["main"]["target"][1:]
 
     raise KeyError("Missing streamer_id key from config")
@@ -74,7 +78,9 @@ def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
     raise ValueError("Bad config, missing bot id or login")
 
 
-def load_control_hub_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
+def load_control_hub_id_or_login(
+    config: Config,
+) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the control hub Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from control_hub_id, and the Twitch User Login us read from control_hub
@@ -93,7 +99,9 @@ def load_control_hub_id_or_login(config: Config) -> Union[tuple[str, None], tupl
     return None, None
 
 
-def load_admin_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
+def load_admin_id_or_login(
+    config: Config,
+) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the admin Twitch User ID or Twitch User Login from the config
     The Twitch User ID is read from admin_id, and the Twitch User Login us read from admin

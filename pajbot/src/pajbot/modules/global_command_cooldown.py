@@ -16,7 +16,9 @@ log = logging.getLogger(__name__)
 class GlobalCommandCooldown(BaseModule):
     ID = __name__.rsplit(".", maxsplit=1)[-1]
     NAME = "Global command cooldown"
-    DESCRIPTION = "Shared cooldown between all commands that opt into this functionality"
+    DESCRIPTION = (
+        "Shared cooldown between all commands that opt into this functionality"
+    )
     PAGE_DESCRIPTION = "For commands to respect this global command cooldown, you must edit the command in the admin panel and check 'Use global cooldown' or edit the command in the chat and use the flag --use-global-cooldown (e.g. !edit command asciiman --use-global-cooldown or !edit command asciiman --no-use-global-cooldown)"
     CATEGORY = "Moderation"
     SETTINGS = [

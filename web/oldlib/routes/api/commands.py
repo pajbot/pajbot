@@ -70,9 +70,14 @@ def init(bp: Blueprint) -> None:
             pass
 
         if command_id:
-            command = find(lambda c: c["id"] == command_id, oldlib.utils.get_cached_commands())
+            command = find(
+                lambda c: c["id"] == command_id, oldlib.utils.get_cached_commands()
+            )
         else:
-            command = find(lambda c: c["resolve_string"] == command_string, oldlib.utils.get_cached_commands())
+            command = find(
+                lambda c: c["resolve_string"] == command_string,
+                oldlib.utils.get_cached_commands(),
+            )
 
         if not command:
             return {"message": "A command with the given ID was not found."}, 404
@@ -93,7 +98,10 @@ def init(bp: Blueprint) -> None:
             db_session.delete(command.data)
             db_session.delete(command)
 
-        if SocketClientManager.send("command.remove", {"command_id": command_id}) is True:
+        if (
+            SocketClientManager.send("command.remove", {"command_id": command_id})
+            is True
+        ):
             return {"success": "good job"}, 200
         else:
             return {"error": "could not push update"}, 500
@@ -162,7 +170,9 @@ def init(bp: Blueprint) -> None:
             if len(old_message) > 0 and old_message != new_message:
                 log_msg = f'The !{command.command.split("|")[0]} command has been updated from "{old_message}" to "{new_message}"'
             else:
-                log_msg = f"The !{command.command.split('|')[0]} command has been updated"
+                log_msg = (
+                    f"The !{command.command.split('|')[0]} command has been updated"
+                )
 
             AdminLogManager.add_entry(
                 "Command edited",
@@ -171,7 +181,10 @@ def init(bp: Blueprint) -> None:
                 data={"old_message": old_message, "new_message": new_message},
             )
 
-        if SocketClientManager.send("command.update", {"command_id": command_id}) is True:
+        if (
+            SocketClientManager.send("command.update", {"command_id": command_id})
+            is True
+        ):
             return {"success": "good job"}, 200
         else:
             return {"error": "could not push update"}, 500

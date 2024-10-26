@@ -47,7 +47,9 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def __init__(self, bot: Optional[Bot]) -> None:
         super().__init__(bot)
-        self.points_required_key = f"{StreamHelper.get_streamer()}:current_quest_points_required"
+        self.points_required_key = (
+            f"{StreamHelper.get_streamer()}:current_quest_points_required"
+        )
         # The points_required variable is randomized at the start of the quest.
         # It will be a value between settings['min_value'] and settings['max_value']
         self.points_required: Optional[int] = None
@@ -99,7 +101,9 @@ class WinDuelPointsQuestModule(BaseQuest):
 
         if self.points_required is None:
             try:
-                self.points_required = random.randint(self.settings["min_value"], self.settings["max_value"])
+                self.points_required = random.randint(
+                    self.settings["min_value"], self.settings["max_value"]
+                )
             except ValueError:
                 # someone fucked up
                 self.points_required = 500

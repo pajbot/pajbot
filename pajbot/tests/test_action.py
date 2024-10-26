@@ -19,8 +19,12 @@ def get_argument_value_cases() -> list[tuple[Optional[str], Optional[int], str]]
     ]
 
 
-@pytest.mark.parametrize("input_message,input_index,expected", get_argument_value_cases())
-def test_get_argument_value(input_message: Optional[str], input_index: Optional[int], expected: str) -> None:
+@pytest.mark.parametrize(
+    "input_message,input_index,expected", get_argument_value_cases()
+)
+def test_get_argument_value(
+    input_message: Optional[str], input_index: Optional[int], expected: str
+) -> None:
     from pajbot.models.action import get_argument_value
 
     assert get_argument_value(input_message, input_index) == expected
@@ -33,8 +37,12 @@ def get_argument_substitutions_cases() -> list[tuple[str, list[Substitution]]]:
     ]
 
 
-@pytest.mark.parametrize("input_message,expected_substitutions", get_argument_substitutions_cases())
-def test_argument_substitutions(input_message: str, expected_substitutions: list[Substitution]):
+@pytest.mark.parametrize(
+    "input_message,expected_substitutions", get_argument_substitutions_cases()
+)
+def test_argument_substitutions(
+    input_message: str, expected_substitutions: list[Substitution]
+):
     from pajbot.models.action import get_argument_substitutions
 
     assert get_argument_substitutions(input_message) == expected_substitutions
@@ -47,16 +55,30 @@ def get_substitutions_cases() -> list[tuple[str, dict[str, Substitution]]]:
     return [
         ("foo", {}),
         ("foo $(1) bar", {}),
-        ("foo $(foo) bar", {"$(foo)": Substitution(method_mapping["foo"], needle="$(foo)", key=None, argument=None)}),
+        (
+            "foo $(foo) bar",
+            {
+                "$(foo)": Substitution(
+                    method_mapping["foo"], needle="$(foo)", key=None, argument=None
+                )
+            },
+        ),
         (
             "foo $(foo:bar) bar",
-            {"$(foo:bar)": Substitution(method_mapping["foo"], needle="$(foo:bar)", key="bar", argument=None)},
+            {
+                "$(foo:bar)": Substitution(
+                    method_mapping["foo"], needle="$(foo:bar)", key="bar", argument=None
+                )
+            },
         ),
         (
             'foo $(foo:"bar", "baz") bar',
             {
                 '$(foo:"bar", "baz")': Substitution(
-                    method_mapping["foo"], needle='$(foo:"bar", "baz")', key='"bar", "baz"', argument=None
+                    method_mapping["foo"],
+                    needle='$(foo:"bar", "baz")',
+                    key='"bar", "baz"',
+                    argument=None,
                 )
             },
         ),
@@ -74,8 +96,15 @@ def get_substitutions_cases() -> list[tuple[str, dict[str, Substitution]]]:
     ]
 
 
-@pytest.mark.parametrize("input_message,expected_substitutions", get_substitutions_cases())
-def test_substitutions(input_message: str, expected_substitutions: dict[str, Substitution]):
+@pytest.mark.parametrize(
+    "input_message,expected_substitutions", get_substitutions_cases()
+)
+def test_substitutions(
+    input_message: str, expected_substitutions: dict[str, Substitution]
+):
     from pajbot.models.action import get_substitutions
 
-    assert get_substitutions(input_message, None, method_mapping=method_mapping) == expected_substitutions
+    assert (
+        get_substitutions(input_message, None, method_mapping=method_mapping)
+        == expected_substitutions
+    )

@@ -64,10 +64,18 @@ class EmoteLimitModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
-            key="enable_in_online_chat", label="Enabled in online chat", type="boolean", required=True, default=True
+            key="enable_in_online_chat",
+            label="Enabled in online chat",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
-            key="enable_in_offline_chat", label="Enabled in offline chat", type="boolean", required=True, default=True
+            key="enable_in_offline_chat",
+            label="Enabled in offline chat",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="timeout_reason",
@@ -87,7 +95,14 @@ class EmoteLimitModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
+    def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        msg_id: str,
+        **rest,
+    ) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True
@@ -119,7 +134,9 @@ class EmoteLimitModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

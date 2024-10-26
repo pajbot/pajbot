@@ -12,7 +12,9 @@ log = logging.getLogger(__name__)
 class CheckModModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Check Moderator"
-    DESCRIPTION = "Checks if a user is marked as a moderator or not via the !checkmod command"
+    DESCRIPTION = (
+        "Checks if a user is marked as a moderator or not via the !checkmod command"
+    )
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
 
@@ -34,4 +36,6 @@ class CheckModModule(BaseModule):
             bot.say(f"{user} is not a moderator FeelsBadMan")
 
     def load_commands(self, **options):
-        self.commands["checkmod"] = Command.raw_command(self.check_mod, level=100, delay_all=3, delay_user=6)
+        self.commands["checkmod"] = Command.raw_command(
+            self.check_mod, level=100, delay_all=3, delay_user=6
+        )

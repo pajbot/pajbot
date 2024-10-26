@@ -49,7 +49,10 @@ class AdminCommandsModule(BaseModule):
             num_points = int(msg_split[1])
         except (ValueError, TypeError):
             # The user did not specify a valid integer for points
-            bot.whisper(source, f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(
+                source,
+                f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS",
+            )
             return False
 
         with DBManager.create_session_scope() as db_session:
@@ -63,7 +66,10 @@ class AdminCommandsModule(BaseModule):
             if num_points >= 0:
                 bot.whisper(source, f"Successfully gave {user} {num_points} points.")
             else:
-                bot.whisper(source, f"Successfully removed {abs(num_points)} points from {user}.")
+                bot.whisper(
+                    source,
+                    f"Successfully removed {abs(num_points)} points from {user}.",
+                )
 
     def set_points(self, bot, source, message, **rest):
         if not message:
@@ -84,7 +90,10 @@ class AdminCommandsModule(BaseModule):
             num_points = int(msg_split[1])
         except (ValueError, TypeError):
             # The user did not specify a valid integer for points
-            bot.whisper(source, f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(
+                source,
+                f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS",
+            )
             return False
 
         with DBManager.create_session_scope() as db_session:
@@ -110,14 +119,21 @@ class AdminCommandsModule(BaseModule):
         username = msg_args[0].lower()
         new_level = int(msg_args[1])
         if new_level >= source.level:
-            bot.whisper(source, f"You cannot promote someone to the same or higher level as you ({source.level}).")
+            bot.whisper(
+                source,
+                f"You cannot promote someone to the same or higher level as you ({source.level}).",
+            )
             return False
 
         # We create the user if the user didn't already exist in the database.
         with DBManager.create_session_scope() as db_session:
-            user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, username)
+            user = User.find_or_create_from_user_input(
+                db_session, bot.twitch_helix_api, username
+            )
             if user is None:
-                bot.whisper(source, f'A user with the name "{username}" could not be found.')
+                bot.whisper(
+                    source, f'A user with the name "{username}" could not be found.'
+                )
                 return False
 
             if user.level >= source.level:
@@ -170,7 +186,12 @@ class AdminCommandsModule(BaseModule):
 
         if sub_command == "list":
             messages = split_into_chunks_with_prefix(
-                [{"prefix": "Available modules:", "parts": [module.ID for module in module_manager.all_modules]}],
+                [
+                    {
+                        "prefix": "Available modules:",
+                        "parts": [module.ID for module in module_manager.all_modules],
+                    }
+                ],
                 " ",
                 default="No modules available.",
             )
@@ -192,7 +213,9 @@ class AdminCommandsModule(BaseModule):
                 return
 
             if not module_manager.disable_module(module_id):
-                bot.say(f"Unable to disable module {module_id}, maybe it's not enabled?")
+                bot.say(
+                    f"Unable to disable module {module_id}, maybe it's not enabled?"
+                )
                 return
 
             # Rebuild command cache
@@ -221,7 +244,9 @@ class AdminCommandsModule(BaseModule):
                 return
 
             if not module_manager.enable_module(module_id):
-                bot.say(f"Unable to enable module {module_id}, maybe it's already enabled?")
+                bot.say(
+                    f"Unable to enable module {module_id}, maybe it's already enabled?"
+                )
                 return
 
             # Rebuild command cache
@@ -236,7 +261,9 @@ class AdminCommandsModule(BaseModule):
             bot.say(f"Enabled module {module_id}")
 
     def load_commands(self, **options):
-        self.commands["w"] = Command.raw_command(self.whisper, level=2000, description="Send a whisper from the bot")
+        self.commands["w"] = Command.raw_command(
+            self.whisper, level=2000, description="Send a whisper from the bot"
+        )
         self.commands["editpoints"] = Command.raw_command(
             self.edit_points,
             level=1500,
@@ -245,13 +272,15 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Give a user points",
-                    chat="user:!editpoints pajlada 500\n" "bot>user:Successfully gave pajlada 500 points.",
+                    chat="user:!editpoints pajlada 500\n"
+                    "bot>user:Successfully gave pajlada 500 points.",
                     description="This creates 500 points and gives them to pajlada",
                 ).parse(),
                 CommandExample(
                     None,
                     "Remove points from a user",
-                    chat="user:!editpoints pajlada -500\n" "bot>user:Successfully removed 500 points from pajlada.",
+                    chat="user:!editpoints pajlada -500\n"
+                    "bot>user:Successfully removed 500 points from pajlada.",
                     description="This removes 500 points from pajlada. Users can go into negative points with this.",
                 ).parse(),
             ],
@@ -264,17 +293,24 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Set a user's points",
-                    chat="user:!setpoints pajlada 500\n" "bot>user:Successfully set pajlada's points to 500.",
+                    chat="user:!setpoints pajlada 500\n"
+                    "bot>user:Successfully set pajlada's points to 500.",
                     description="This sets pajlada's points to 500.",
                 ).parse()
             ],
         )
-        self.commands["level"] = Command.raw_command(self.level, level=1000, description="Set a users level")
+        self.commands["level"] = Command.raw_command(
+            self.level, level=1000, description="Set a users level"
+        )
 
-        self.commands["silence"] = Command.raw_command(self.cmd_silence, level=500, description="Silence the bot")
+        self.commands["silence"] = Command.raw_command(
+            self.cmd_silence, level=500, description="Silence the bot"
+        )
         self.commands["mute"] = self.commands["silence"]
 
-        self.commands["unsilence"] = Command.raw_command(self.cmd_unsilence, level=500, description="Unsilence the bot")
+        self.commands["unsilence"] = Command.raw_command(
+            self.cmd_unsilence, level=500, description="Unsilence the bot"
+        )
         self.commands["unmute"] = self.commands["unsilence"]
 
         self.commands["module"] = Command.raw_command(
@@ -294,13 +330,15 @@ class AdminCommandsModule(BaseModule):
                 CommandExample(
                     None,
                     "Disable a module",
-                    chat="user:!module disable massping\n" "bot>user:Disabled module massping",
+                    chat="user:!module disable massping\n"
+                    "bot>user:Disabled module massping",
                     description="This disables massping module.",
                 ).parse(),
                 CommandExample(
                     None,
                     "Enable a module",
-                    chat="user:!module enable playsound\n" "bot>user:Enabled module playsound",
+                    chat="user:!module enable playsound\n"
+                    "bot>user:Enabled module playsound",
                     description="This enables playsound module.",
                 ).parse(),
             ],

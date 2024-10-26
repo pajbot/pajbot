@@ -34,5 +34,8 @@ def init(app, config):
     def all_exception_handler(error):
         log.exception("Unhandled exception")
         if request.path.startswith("/api/"):
-            return jsonify({"error": "Internal server error - Unhandled exception"}), 500
+            return (
+                jsonify({"error": "Internal server error - Unhandled exception"}),
+                500,
+            )
         return render_template("errors/500_unhandled.html"), 500

@@ -14,7 +14,11 @@ def init(page) -> None:
     def playsounds(**options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as session:
             playsounds = session.query(Playsound).order_by(Playsound.name).all()
-            playsound_module = session.query(Module).filter(Module.id == PlaysoundModule.ID).one_or_none()
+            playsound_module = (
+                session.query(Module)
+                .filter(Module.id == PlaysoundModule.ID)
+                .one_or_none()
+            )
 
             enabled = False
             if playsound_module is not None:

@@ -102,7 +102,9 @@ class RepspamModule(BaseModule):
     ]
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)
@@ -123,10 +125,16 @@ class RepspamModule(BaseModule):
             log.warning("Module bot is None")
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Online Only"
+            and not self.bot.is_online
+        ):
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Offline Only"
+            and self.bot.is_online
+        ):
             return True
 
         if whisper:
@@ -139,7 +147,9 @@ class RepspamModule(BaseModule):
             # Message too short
             return True
 
-        word_list = [word for word in message.split(" ") if not self.is_word_ignored(word)]
+        word_list = [
+            word for word in message.split(" ") if not self.is_word_ignored(word)
+        ]
         word_set = set(word_list)
 
         if len(word_set) < self.settings["min_unique_words"]:

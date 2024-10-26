@@ -56,7 +56,9 @@ def up(cursor, bot):
     rows = [redis_to_db_row(redis_entry) for redis_entry in redis_list]
 
     psycopg2.extras.execute_values(
-        cursor, "INSERT INTO admin_log_entry(type, user_id, message, created_at, data) VALUES %s", rows
+        cursor,
+        "INSERT INTO admin_log_entry(type, user_id, message, created_at, data) VALUES %s",
+        rows,
     )
 
     # on success, delete admin logs in redis

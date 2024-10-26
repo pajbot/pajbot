@@ -22,7 +22,13 @@ class DummyModule(BaseModule):
             default="reddit",
             constraints={"min_str_len": 2, "max_str_len": 15},
         ),
-        ModuleSetting(key="boolean_shit", label="boolean setting!", type="boolean", required=True, default=False),
+        ModuleSetting(
+            key="boolean_shit",
+            label="boolean setting!",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
         ModuleSetting(
             key="timeout_length",
             label="Timeout length",

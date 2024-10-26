@@ -30,7 +30,13 @@ def dump(streamer):
 
         if blob is None:
             # DEL <key>
-            sys.stdout.buffer.write(b"*2\r\n$3\r\nDEL\r\n$" + binary_key_len + b"\r\n" + binary_key + b"\r\n")
+            sys.stdout.buffer.write(
+                b"*2\r\n$3\r\nDEL\r\n$"
+                + binary_key_len
+                + b"\r\n"
+                + binary_key
+                + b"\r\n"
+            )
             continue
 
         binary_blob_len = str(len(blob)).encode("ascii")
@@ -53,7 +59,10 @@ def dump(streamer):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Error: first argument missing (should be the streamer name)", file=sys.stderr)
+        print(
+            "Error: first argument missing (should be the streamer name)",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     if sys.stdout.isatty():
@@ -66,4 +75,7 @@ Redirect this script's output to a file, e.g. {sys.argv[0]} > redis_dump_{sys.ar
         sys.exit(1)
 
     dump(sys.argv[1])
-    print("Success! Restore the data with redis-cli --pipe < your_dump_file.bin", file=sys.stderr)
+    print(
+        "Success! Restore the data with redis-cli --pipe < your_dump_file.bin",
+        file=sys.stderr,
+    )

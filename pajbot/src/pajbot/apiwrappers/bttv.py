@@ -29,9 +29,15 @@ class BTTVAPI(BaseAPI):
                     code=emote_data["code"],
                     provider="bttv",
                     id=emote_id,
-                    urls={"1": get_url(emote_id, "1"), "2": get_url(emote_id, "2"), "4": get_url(emote_id, "3")},
+                    urls={
+                        "1": get_url(emote_id, "1"),
+                        "2": get_url(emote_id, "2"),
+                        "4": get_url(emote_id, "3"),
+                    },
                     max_width=emote_data["width"] * 4 if "width" in emote_data else 112,
-                    max_height=emote_data["height"] * 4 if "height" in emote_data else 112,
+                    max_height=(
+                        emote_data["height"] * 4 if "height" in emote_data else 112
+                    ),
                 )
             )
         return emotes
@@ -63,9 +69,13 @@ class BTTVAPI(BaseAPI):
                 return []
 
             raise e
-        return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(response["sharedEmotes"])
+        return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(
+            response["sharedEmotes"]
+        )
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
+    def get_channel_emotes(
+        self, channel_id: str, force_fetch: bool = False
+    ) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:bttv:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id),

@@ -9,7 +9,9 @@ def init(app):
     def decks():
         session = DBManager.create_session()
         top_decks = []
-        for deck in session.query(Deck).order_by(Deck.last_used.desc(), Deck.first_used.desc())[:25]:
+        for deck in session.query(Deck).order_by(
+            Deck.last_used.desc(), Deck.first_used.desc()
+        )[:25]:
             top_decks.append(deck)
         session.close()
         return render_template("decks/all.html", top_decks=top_decks, deck_class=None)

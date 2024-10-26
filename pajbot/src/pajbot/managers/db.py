@@ -33,7 +33,9 @@ class DBManager:
 
     @staticmethod
     def init(url: str) -> None:
-        DBManager.engine = create_engine(url, pool_pre_ping=True, pool_size=10, max_overflow=20)
+        DBManager.engine = create_engine(
+            url, pool_pre_ping=True, pool_size=10, max_overflow=20
+        )
 
         # https://docs.sqlalchemy.org/en/13/core/events.html#sqlalchemy.events.PoolEvents.connect
         @event.listens_for(DBManager.engine, "connect")

@@ -103,12 +103,16 @@ class SevenTVAPI(BaseAPI):
             return []
 
         if response.emote_set.emotes is None:
-            log.debug("Streamer has a 7TV account, an emote set created, but no emotes in that emote set")
+            log.debug(
+                "Streamer has a 7TV account, an emote set created, but no emotes in that emote set"
+            )
             return []
 
         return self.parse_emotes(response.emote_set.emotes)
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
+    def get_channel_emotes(
+        self, channel_id: str, force_fetch: bool = False
+    ) -> list[Emote]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:7tv:channel-emotes:{channel_id}",
             fetch_fn=lambda: self.fetch_channel_emotes(channel_id),

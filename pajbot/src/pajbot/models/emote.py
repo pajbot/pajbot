@@ -19,7 +19,13 @@ class Emote:
     :type max_height: int"""
 
     def __init__(
-        self, code: str, provider: str, id: str, urls: dict[str, str], max_width: int, max_height: int
+        self,
+        code: str,
+        provider: str,
+        id: str,
+        urls: dict[str, str],
+        max_width: int,
+        max_height: int,
     ) -> None:
         self.code = code
         self.provider = provider
@@ -75,7 +81,11 @@ class EmoteInstance:
         if not isinstance(other, EmoteInstance):
             return False
 
-        return self.start == other.start and self.end == other.end and self.emote == other.emote
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.emote == other.emote
+        )
 
     def __hash__(self) -> int:
         return hash((self.start, self.end, self.emote))
@@ -97,7 +107,9 @@ class EmoteInstanceCount:
     :type emote_instances: list[EmoteInstance]
     """
 
-    def __init__(self, count: int, emote: Emote, emote_instances: list[EmoteInstance]) -> None:
+    def __init__(
+        self, count: int, emote: Emote, emote_instances: list[EmoteInstance]
+    ) -> None:
         self.count = count
         self.emote = emote
         self.emote_instances = emote_instances
@@ -106,13 +118,19 @@ class EmoteInstanceCount:
         if not isinstance(other, EmoteInstanceCount):
             return False
 
-        return self.count == other.count and self.emote == other.emote and self.emote_instances == other.emote_instances
+        return (
+            self.count == other.count
+            and self.emote == other.emote
+            and self.emote_instances == other.emote_instances
+        )
 
     def __hash__(self) -> int:
         return hash((self.count, self.emote, self.emote_instances))
 
     def __repr__(self) -> str:
-        indices = [f"{instance.start}-{instance.end}" for instance in self.emote_instances]
+        indices = [
+            f"{instance.start}-{instance.end}" for instance in self.emote_instances
+        ]
 
         return f"{self.emote} @ [{', '.join(indices)}]"
 

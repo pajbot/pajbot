@@ -168,9 +168,19 @@ class LinkCheckerModule(BaseModule):
             default=False,
         ),
         ModuleSetting(
-            key="ban_sub_links", label="Disallow links from subscribers", type="boolean", required=True, default=False
+            key="ban_sub_links",
+            label="Disallow links from subscribers",
+            type="boolean",
+            required=True,
+            default=False,
         ),
-        ModuleSetting(key="vip_exemption", label="Allow links from VIPs", type="boolean", required=True, default=False),
+        ModuleSetting(
+            key="vip_exemption",
+            label="Allow links from VIPs",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
         ModuleSetting(
             key="timeout_length",
             label="Timeout length",
@@ -232,7 +242,9 @@ class LinkCheckerModule(BaseModule):
         self.blacklisted_links: list[BlacklistedLink] = []
         self.whitelisted_links: list[WhitelistedLink] = []
 
-        self.cache = LinkCheckerCache()  # cache[url] = True means url is safe, False means the link is bad
+        self.cache = (
+            LinkCheckerCache()
+        )  # cache[url] = True means url is safe, False means the link is bad
 
         self.safe_browsing_api: Optional[SafeBrowsingAPI] = None
 
@@ -240,13 +252,17 @@ class LinkCheckerModule(BaseModule):
             # XXX: This should be loaded as a setting instead.
             # There needs to be a setting for settings to have them as "passwords"
             # so they're not displayed openly
-            self.safe_browsing_api = SafeBrowsingAPI(bot.config["main"]["safebrowsingapi"])
+            self.safe_browsing_api = SafeBrowsingAPI(
+                bot.config["main"]["safebrowsingapi"]
+            )
 
     def enable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
         HandlerManager.add_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
@@ -266,8 +282,12 @@ class LinkCheckerModule(BaseModule):
         if not bot:
             return
 
-        pajbot.managers.handler.HandlerManager.remove_handler("on_message", self.on_message)
-        pajbot.managers.handler.HandlerManager.remove_handler("on_commit", self.on_commit)
+        pajbot.managers.handler.HandlerManager.remove_handler(
+            "on_message", self.on_message
+        )
+        pajbot.managers.handler.HandlerManager.remove_handler(
+            "on_commit", self.on_commit
+        )
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -277,7 +297,9 @@ class LinkCheckerModule(BaseModule):
             self.whitelisted_links = []
 
     def reload(self):
-        log.info(f"Loaded {len(self.blacklisted_links)} bad links and {len(self.whitelisted_links)} good links")
+        log.info(
+            f"Loaded {len(self.blacklisted_links)} bad links and {len(self.whitelisted_links)} good links"
+        )
         return self
 
     super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
@@ -320,9 +342,17 @@ class LinkCheckerModule(BaseModule):
 
                     if whitelisted is False:
                         if self.settings["disable_warnings"] is True:
-                            self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                            self.bot.timeout(
+                                source,
+                                self.settings["timeout_length"],
+                                reason=ban_reason,
+                            )
                         else:
-                            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=ban_reason)
+                            self.bot.timeout_warn(
+                                source,
+                                self.settings["timeout_length"],
+                                reason=ban_reason,
+                            )
                         return False
 
         for url in urls:
@@ -330,11 +360,15 @@ class LinkCheckerModule(BaseModule):
             def action():
                 if self.settings["disable_warnings"] is True:
                     self.bot.timeout(
-                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                        source,
+                        self.settings["timeout_length"],
+                        reason=self.settings["banned_link_timeout_reason"],
                     )
                 else:
                     self.bot.timeout_warn(
-                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
+                        source,
+                        self.settings["timeout_length"],
+                        reason=self.settings["banned_link_timeout_reason"],
                     )
 
             # First we perform a basic check
@@ -357,7 +391,9 @@ class LinkCheckerModule(BaseModule):
         self.cache[url] = safe
         self.bot.execute_delayed(20, self.delete_from_cache, url)
 
-    def counteract_bad_url(self, url, action=None, want_to_cache=True, want_to_blacklist=False):
+    def counteract_bad_url(
+        self, url, action=None, want_to_cache=True, want_to_blacklist=False
+    ):
         log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
             action()
@@ -368,7 +404,9 @@ class LinkCheckerModule(BaseModule):
             return True
 
     def blacklist_url(self, url, parsed_url=None, level=0):
-        if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
+        if not (
+            url.lower().startswith("http://") or url.lower().startswith("https://")
+        ):
             url = "http://" + url
 
         if parsed_url is None:
@@ -393,7 +431,9 @@ class LinkCheckerModule(BaseModule):
         self.db_session.commit()
 
     def whitelist_url(self, url, parsed_url=None):
-        if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
+        if not (
+            url.lower().startswith("http://") or url.lower().startswith("https://")
+        ):
             url = "http://" + url
         if parsed_url is None:
             parsed_url = urllib.parse.urlparse(url)
@@ -535,14 +575,23 @@ class LinkCheckerModule(BaseModule):
         read_timeout = 1
         try:
             r = requests.head(
-                url.url, allow_redirects=True, timeout=connection_timeout, headers={"User-Agent": self.bot.user_agent}
+                url.url,
+                allow_redirects=True,
+                timeout=connection_timeout,
+                headers={"User-Agent": self.bot.user_agent},
             )
         except:
             self.cache_url(url.url, True)
             return
 
-        checkcontenttype = "content-type" in r.headers and r.headers["content-type"] == "application/octet-stream"
-        checkdispotype = "disposition-type" in r.headers and r.headers["disposition-type"] == "attachment"
+        checkcontenttype = (
+            "content-type" in r.headers
+            and r.headers["content-type"] == "application/octet-stream"
+        )
+        checkdispotype = (
+            "disposition-type" in r.headers
+            and r.headers["disposition-type"] == "attachment"
+        )
 
         if checkcontenttype or checkdispotype:  # triggering a download not allowed
             self.counteract_bad_url(url, action)
@@ -556,13 +605,17 @@ class LinkCheckerModule(BaseModule):
             elif res == self.RET_BAD_LINK:
                 return
 
-        if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
+        if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(
+            redirected_url.url
+        ):  # harmful url detected
             log.debug("Google Safe Browsing API lists URL")
             self.counteract_bad_url(url, action, want_to_blacklist=False)
             self.counteract_bad_url(redirected_url, want_to_blacklist=False)
             return
 
-        if "content-type" not in r.headers or not r.headers["content-type"].startswith("text/html"):
+        if "content-type" not in r.headers or not r.headers["content-type"].startswith(
+            "text/html"
+        ):
             return  # can't analyze non-html content
         maximum_size = 1024 * 1024 * 10  # 10 MB
         receive_timeout = 3
@@ -577,7 +630,10 @@ class LinkCheckerModule(BaseModule):
             )
 
             content_length = response.headers.get("Content-Length")
-            if content_length and int(response.headers.get("Content-Length")) > maximum_size:
+            if (
+                content_length
+                and int(response.headers.get("Content-Length")) > maximum_size
+            ):
                 log.error("This file is too big!")
                 return
 
@@ -627,7 +683,9 @@ class LinkCheckerModule(BaseModule):
             if res == self.RET_BAD_LINK:
                 self.counteract_bad_url(url)
                 self.counteract_bad_url(original_url, want_to_blacklist=False)
-                self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
+                self.counteract_bad_url(
+                    original_redirected_url, want_to_blacklist=False
+                )
                 return
             elif res == self.RET_GOOD_LINK:
                 continue
@@ -648,12 +706,16 @@ class LinkCheckerModule(BaseModule):
                 if res == self.RET_BAD_LINK:
                     self.counteract_bad_url(url)
                     self.counteract_bad_url(original_url, want_to_blacklist=False)
-                    self.counteract_bad_url(original_redirected_url, want_to_blacklist=False)
+                    self.counteract_bad_url(
+                        original_redirected_url, want_to_blacklist=False
+                    )
                     return
                 elif res == self.RET_GOOD_LINK:
                     continue
 
-            if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(redirected_url.url):  # harmful url detected
+            if self.safe_browsing_api and self.safe_browsing_api.is_url_bad(
+                redirected_url.url
+            ):  # harmful url detected
                 log.debug(f"Evil sublink {url} by google API")
                 self.counteract_bad_url(original_url, action)
                 self.counteract_bad_url(original_redirected_url)

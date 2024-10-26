@@ -81,7 +81,10 @@ class GivePointsModule(BaseModule):
 
         if not source.can_afford(num_points):
             # The user tried giving away more points than he owns
-            bot.whisper(source, f"You cannot give away more points than you have. You have {source.points} points.")
+            bot.whisper(
+                source,
+                f"You cannot give away more points than you have. You have {source.points} points.",
+            )
             return False
 
         with DBManager.create_session_scope() as db_session:
@@ -96,7 +99,10 @@ class GivePointsModule(BaseModule):
                 bot.whisper(source, "You can't give points to yourself OMGScoots")
                 return True
 
-            if self.settings["target_requires_sub"] is True and target.subscriber is False:
+            if (
+                self.settings["target_requires_sub"] is True
+                and target.subscriber is False
+            ):
                 # Settings indicate that the target must be a subscriber, which he isn't
                 bot.whisper(source, "Your target must be a subscriber.")
                 return False
@@ -104,15 +110,22 @@ class GivePointsModule(BaseModule):
             source.points -= num_points
             target.points += num_points
 
-            bot.whisper(source, f"Successfully gave away {num_points} points to {target}")
+            bot.whisper(
+                source, f"Successfully gave away {num_points} points to {target}"
+            )
 
             if self.settings["notify_target"] is True:
-                bot.whisper(target, f"{source} just gave you {num_points} points! You should probably thank them ;-)")
+                bot.whisper(
+                    target,
+                    f"{source} just gave you {num_points} points! You should probably thank them ;-)",
+                )
 
             return True
 
     def load_commands(self, **options) -> None:
-        self.command_name = self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        self.command_name = (
+            self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        )
         self.commands[self.command_name] = Command.raw_command(
             self.give_points,
             sub_only=self.settings["source_requires_sub"],

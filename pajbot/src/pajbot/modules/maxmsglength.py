@@ -82,7 +82,9 @@ class MaxMsgLengthModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, whisper: bool, msg_id: str, **rest) -> bool:
+    def on_message(
+        self, source: User, message: str, whisper: bool, msg_id: str, **rest
+    ) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True
@@ -118,7 +120,9 @@ class MaxMsgLengthModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

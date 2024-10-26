@@ -56,7 +56,9 @@ class GetTwitchUserResponse:
 
 
 # From the https://7tv.io/v3/users/twitch/11148817 API
-GetTwitchUserResponseSchema = marshmallow_dataclass.class_schema(GetTwitchUserResponse, base_schema=BaseSchema)
+GetTwitchUserResponseSchema = marshmallow_dataclass.class_schema(
+    GetTwitchUserResponse, base_schema=BaseSchema
+)
 
 
 @dataclass
@@ -65,4 +67,6 @@ class GetEmoteSetResponse:
 
 
 # From the https://7tv.io/v3/emote-sets/global API
-GetEmoteSetResponseSchema = marshmallow_dataclass.class_schema(GetEmoteSetResponse, base_schema=BaseSchema)
+GetEmoteSetResponseSchema = marshmallow_dataclass.class_schema(
+    GetEmoteSetResponse, base_schema=BaseSchema
+)

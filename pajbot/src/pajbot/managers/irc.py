@@ -8,7 +8,12 @@ import ssl
 
 from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 
-from irc.client import InvalidCharacters, MessageTooLong, ServerConnection, ServerNotConnectedError
+from irc.client import (
+    InvalidCharacters,
+    MessageTooLong,
+    ServerConnection,
+    ServerNotConnectedError,
+)
 from irc.connection import Factory
 
 if TYPE_CHECKING:
@@ -69,7 +74,9 @@ class IRCManager:
 
     def start(self) -> None:
         if self.conn is not None or self.ping_task is not None:
-            raise AssertionError("start() should not be called while a connection is active")
+            raise AssertionError(
+                "start() should not be called while a connection is active"
+            )
 
         try:
             self._make_new_connection()
@@ -98,7 +105,9 @@ class IRCManager:
         )
         self.conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
 
-        self.ping_task = ScheduleManager.execute_every(30, lambda: self.bot.execute_now(self._send_ping))
+        self.ping_task = ScheduleManager.execute_every(
+            30, lambda: self.bot.execute_now(self._send_ping)
+        )
 
     def _send_ping(self):
         if self.conn is not None:
@@ -106,7 +115,9 @@ class IRCManager:
 
     def privmsg(self, channel: str, message: str) -> None:
         if self.conn is None:
-            log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
+            log.error(
+                "Not connected or rate limit was reached. Delaying message a few seconds."
+            )
             self.bot.execute_delayed(2, self.privmsg, channel, message)
             return
 
@@ -117,7 +128,9 @@ class IRCManager:
 
     def send_raw(self, message):
         if self.conn is None:
-            log.error("Not connected or rate limit was reached. Delaying message a few seconds.")
+            log.error(
+                "Not connected or rate limit was reached. Delaying message a few seconds."
+            )
             self.bot.execute_delayed(2, self.send_raw, message)
             return
 

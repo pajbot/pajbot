@@ -10,7 +10,9 @@ class AccessToken(ABC):
     should actually be utilized. E.g. if this is set to 0.9, the implementation will refresh the token
     once at least 90% of the full validity period (expires_in) is over."""
 
-    def __init__(self, access_token, created_at, expires_in, token_type, refresh_token, scope):
+    def __init__(
+        self, access_token, created_at, expires_in, token_type, refresh_token, scope
+    ):
         self.access_token = access_token
 
         self.created_at = created_at
@@ -83,7 +85,9 @@ class AccessToken(ABC):
 
         return cls(
             access_token=json_data["access_token"],
-            created_at=pajbot.utils.datetime_from_utc_milliseconds(json_data["created_at"]),
+            created_at=pajbot.utils.datetime_from_utc_milliseconds(
+                json_data["created_at"]
+            ),
             expires_in=expires_in,
             token_type=json_data["token_type"],
             refresh_token=json_data["refresh_token"],
@@ -122,7 +126,9 @@ class UserAccessToken(AccessToken):
 
     def refresh(self, api):
         if not self.can_refresh():
-            raise ValueError("This user access token cannot be refreshed, it has no refresh token")
+            raise ValueError(
+                "This user access token cannot be refreshed, it has no refresh token"
+            )
 
         return api.refresh_user_access_token(self.refresh_token)
 

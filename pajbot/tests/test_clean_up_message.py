@@ -25,9 +25,13 @@ def test_clean_up() -> None:
         assert f".me \U000e0000{prefix}ping" == clean_up_message(f".me {prefix}ping")
         assert f"\U000e0000{prefix}ping" == clean_up_message(f"    {prefix}ping")
         assert f".me \U000e0000{prefix}ping" == clean_up_message(f".me    {prefix}ping")
-        assert f".me \U000e0000{prefix}ping" == clean_up_message(f" .me    {prefix}ping")
+        assert f".me \U000e0000{prefix}ping" == clean_up_message(
+            f" .me    {prefix}ping"
+        )
         assert f"/me \U000e0000{prefix}ping" == clean_up_message(f"/me    {prefix}ping")
-        assert f"/me \U000e0000{prefix}ping" == clean_up_message(f" /me    {prefix}ping")
+        assert f"/me \U000e0000{prefix}ping" == clean_up_message(
+            f" /me    {prefix}ping"
+        )
 
         assert f"\U000e0000{prefix}" == clean_up_message(f"{prefix}")
         assert f"/me \U000e0000{prefix}" == clean_up_message(f"/me {prefix}")

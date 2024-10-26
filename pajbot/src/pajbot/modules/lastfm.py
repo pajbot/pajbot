@@ -83,7 +83,10 @@ class LastfmModule(BaseModule):
     def load_commands(self, **options):
         # TODO: Aliases should be set in settings?
         #       This way, it can be run alongside other modules
-        example_params = {"streamer": StreamHelper.get_streamer(), "song": "Adele - Hello"}
+        example_params = {
+            "streamer": StreamHelper.get_streamer(),
+            "song": "Adele - Hello",
+        }
         self.commands["song"] = Command.raw_command(
             self.song,
             delay_all=self.settings["global_cd"],
@@ -93,7 +96,8 @@ class LastfmModule(BaseModule):
                 CommandExample(
                     None,
                     "Check the current song",
-                    chat="user:!song\n" f"bot: @pajlada {self.get_phrase('current_song', **example_params)}",
+                    chat="user:!song\n"
+                    f"bot: @pajlada {self.get_phrase('current_song', **example_params)}",
                     description="Bot mentions the name of the song and the artist currently playing on stream",
                 ).parse()
             ],
@@ -120,22 +124,39 @@ class LastfmModule(BaseModule):
         lastfmname = self.settings["username"]
 
         if len(API_KEY) < 10 or len(lastfmname) < 2:
-            log.warning("You need to set up the Last FM API stuff in the Module settings.")
+            log.warning(
+                "You need to set up the Last FM API stuff in the Module settings."
+            )
             return False
 
         try:
-            network = pylast.LastFMNetwork(api_key=API_KEY, api_secret="", username=lastfmname, password_hash="")
+            network = pylast.LastFMNetwork(
+                api_key=API_KEY, api_secret="", username=lastfmname, password_hash=""
+            )
             user = network.get_user(lastfmname)
             currentTrack = user.get_now_playing()
-            payload = {"streamer": self.bot.streamer_display, "song": currentTrack, "source": "{source}"}
+            payload = {
+                "streamer": self.bot.streamer_display,
+                "song": currentTrack,
+                "source": "{source}",
+            }
 
             if currentTrack is None:
-                self.bot.send_message_to_user(source, self.get_phrase("no_song", **payload), event, method="reply")
+                self.bot.send_message_to_user(
+                    source, self.get_phrase("no_song", **payload), event, method="reply"
+                )
             else:
-                self.bot.send_message_to_user(source, self.get_phrase("current_song", **payload), event, method="reply")
+                self.bot.send_message_to_user(
+                    source,
+                    self.get_phrase("current_song", **payload),
+                    event,
+                    method="reply",
+                )
         except pylast.WSError:
             log.error("LastFm username not found")
         except IndexError:
-            self.bot.send_message_to_user(source, self.get_phrase("cannot_fetch_song"), event, method="reply")
+            self.bot.send_message_to_user(
+                source, self.get_phrase("cannot_fetch_song"), event, method="reply"
+            )
 
         return True

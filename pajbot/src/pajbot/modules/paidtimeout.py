@@ -60,7 +60,11 @@ class PaidTimeoutModule(BaseModule):
             constraints={"min_value": 1, "max_value": 1000000},
         ),
         ModuleSetting(
-            key="second_command", label="Enable a second timeout command", type="boolean", required=True, default=False
+            key="second_command",
+            label="Enable a second timeout command",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="command_name2",
@@ -99,11 +103,17 @@ class PaidTimeoutModule(BaseModule):
             constraints={"min_value": 100, "max_value": 1000},
         ),
         ModuleSetting(
-            key="show_on_clr", label="Show timeouts on the clr overlay", type="boolean", required=True, default=True
+            key="show_on_clr",
+            label="Show timeouts on the clr overlay",
+            type="boolean",
+            required=True,
+            default=True,
         ),
     ]
 
-    def base_paid_timeout(self, bot: Bot, source: User, message: str, _time: int, _cost: int) -> bool:
+    def base_paid_timeout(
+        self, bot: Bot, source: User, message: str, _time: int, _cost: int
+    ) -> bool:
         if message is None or len(message) == 0:
             return False
 
@@ -111,10 +121,16 @@ class PaidTimeoutModule(BaseModule):
         if len(target) < 2:
             return False
 
-        if self.settings["enabled_by_stream_status"] == "Online Only" and not bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Online Only"
+            and not bot.is_online
+        ):
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Offline Only" and bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Offline Only"
+            and bot.is_online
+        ):
             return True
 
         with DBManager.create_session_scope() as db_session:
@@ -124,28 +140,43 @@ class PaidTimeoutModule(BaseModule):
                 bot.whisper(source, "This user does not exist FailFish")
                 return False
 
-            if victim.last_active is None or (utils.now() - victim.last_active) > datetime.timedelta(minutes=10):
-                bot.whisper(source, "This user has not been active in chat within the last 10 minutes.")
+            if victim.last_active is None or (
+                utils.now() - victim.last_active
+            ) > datetime.timedelta(minutes=10):
+                bot.whisper(
+                    source,
+                    "This user has not been active in chat within the last 10 minutes.",
+                )
                 return False
 
             if victim.moderator is True:
-                bot.whisper(source, "This person has mod privileges, timeouting this person is not worth it.")
+                bot.whisper(
+                    source,
+                    "This person has mod privileges, timeouting this person is not worth it.",
+                )
                 return False
 
             if victim.level >= self.settings["bypass_level"]:
-                bot.whisper(source, "This person's user level is too high, you can't timeout this person.")
+                bot.whisper(
+                    source,
+                    "This person's user level is too high, you can't timeout this person.",
+                )
                 return False
 
             now = utils.now()
             if victim.timeout_end is not None and victim.timeout_end > now:
                 victim.timeout_end += datetime.timedelta(seconds=_time)
                 bot.whisper(
-                    source, f"You just used {_cost} points to time out {victim} for an additional {_time} seconds."
+                    source,
+                    f"You just used {_cost} points to time out {victim} for an additional {_time} seconds.",
                 )
                 num_seconds = int((victim.timeout_end - now).total_seconds())
                 bot.timeout(victim, num_seconds, reason=f"Timed out by {source}")
             else:
-                bot.whisper(source, f"You just used {_cost} points to time out {victim} for {_time} seconds.")
+                bot.whisper(
+                    source,
+                    f"You just used {_cost} points to time out {victim} for {_time} seconds.",
+                )
                 bot.timeout(victim, _time, reason=f"Timed out by {source}")
                 victim.timeout_end = now + datetime.timedelta(seconds=_time)
 
@@ -153,7 +184,13 @@ class PaidTimeoutModule(BaseModule):
                 payload = {"user": source.name, "victim": victim.name}
                 bot.websocket_manager.emit("timeout", payload)
 
-            HandlerManager.trigger("on_paid_timeout", source=source, victim=victim, cost=_cost, stop_on_false=False)
+            HandlerManager.trigger(
+                "on_paid_timeout",
+                source=source,
+                victim=victim,
+                cost=_cost,
+                stop_on_false=False,
+            )
 
         return True
 
@@ -170,7 +207,9 @@ class PaidTimeoutModule(BaseModule):
         return self.base_paid_timeout(bot, source, message, _time, _cost)
 
     def load_commands(self, **options) -> None:
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        self.commands[
+            self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        ] = Command.raw_command(
             self.paid_timeout,
             cost=self.settings["cost"],
             examples=[
@@ -183,19 +222,19 @@ class PaidTimeoutModule(BaseModule):
             ],
         )
         if self.settings["second_command"]:
-            self.commands[self.settings["command_name2"].lower().replace("!", "").replace(" ", "")] = (
-                Command.raw_command(
-                    self.paid_timeout2,
-                    cost=self.settings["cost2"],
-                    examples=[
-                        CommandExample(
-                            None,
-                            f"Timeout someone for {self.settings['timeout_length2']} seconds",
-                            chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
-                            description="",
-                        ).parse()
-                    ],
-                )
+            self.commands[
+                self.settings["command_name2"].lower().replace("!", "").replace(" ", "")
+            ] = Command.raw_command(
+                self.paid_timeout2,
+                cost=self.settings["cost2"],
+                examples=[
+                    CommandExample(
+                        None,
+                        f"Timeout someone for {self.settings['timeout_length2']} seconds",
+                        chat=f"user:!{self.settings['command_name2']} paja\nbot>user: You just used {self.settings['cost2']} points to time out paja for an additional {self.settings['timeout_length2']} seconds.",
+                        description="",
+                    ).parse()
+                ],
             )
 
     def on_message(self, source: User, whisper: bool, **rest) -> bool:

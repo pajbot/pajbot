@@ -22,4 +22,7 @@ def test_length_four():
 
 
 def test_custom_separators():
-    assert join_to_sentence(["asd", "def", "KKona", "xD"], ";", " et ") == "asd;def;KKona et xD"
+    assert (
+        join_to_sentence(["asd", "def", "KKona", "xD"], ";", " et ")
+        == "asd;def;KKona et xD"
+    )

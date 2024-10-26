@@ -13,7 +13,9 @@ Handler = Callable[[HandlerParam], None]
 
 
 class SocketManager:
-    def __init__(self, streamer_name: str, callback: Callable[[Handler, Any], None]) -> None:
+    def __init__(
+        self, streamer_name: str, callback: Callable[[Handler, Any], None]
+    ) -> None:
         self.handlers: dict[str, list[Handler]] = {}
         self.pubsub = RedisManager.get().pubsub()
         self.running = True
@@ -50,7 +52,11 @@ class SocketManager:
             try:
                 parsed_data = json.loads(message["data"])
             except json.decoder.JSONDecodeError:
-                log.exception("Bad JSON data on %s topic: '%s'", message["channel"], message["data"])
+                log.exception(
+                    "Bad JSON data on %s topic: '%s'",
+                    message["channel"],
+                    message["data"],
+                )
                 continue
 
             for handler in self.handlers[message["channel"]]:

@@ -23,7 +23,9 @@ log = logging.getLogger(__name__)
 class QueUpSongInfo:
     """Holds only the info relevant for displaying the song in chat."""
 
-    def __init__(self, song_id: str, song_name: str, song_link: str, requester_name: str) -> None:
+    def __init__(
+        self, song_id: str, song_name: str, song_link: str, requester_name: str
+    ) -> None:
         self.song_id = song_id
         self.song_name = song_name
         self.song_link = song_link
@@ -131,7 +133,13 @@ class QueUpModule(BaseModule):
             default=15,
             constraints={"min_value": 0, "max_value": 240},
         ),
-        ModuleSetting(key="if_qu_alias", label="Alias !qu to !queup", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="if_qu_alias",
+            label="Alias !qu to !queup",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
         ModuleSetting(
             key="if_short_alias",
             label="Alias !queup [s, l, u] to !queup [song, link, update]",
@@ -140,7 +148,11 @@ class QueUpModule(BaseModule):
             default=True,
         ),
         ModuleSetting(
-            key="if_song_alias", label="Alias !song to !queup song", type="boolean", required=True, default=True
+            key="if_song_alias",
+            label="Alias !song to !queup song",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="if_lastsong_alias",
@@ -169,15 +181,21 @@ class QueUpModule(BaseModule):
         self.is_first_automatic_fetch: bool = True
         self.last_seen_song_id: Optional[str] = None
 
-    def cmd_link(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+    def cmd_link(
+        self, bot: Bot, source: User, message: str, event: Any, **rest: Any
+    ) -> None:
         bot.send_message_to_user(
             source,
-            self.settings["phrase_room_link"].format(room_name=self.settings["room_name"]),
+            self.settings["phrase_room_link"].format(
+                room_name=self.settings["room_name"]
+            ),
             event,
             method="reply",
         )
 
-    def cmd_song(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+    def cmd_song(
+        self, bot: Bot, source: User, message: str, event: Any, **rest: Any
+    ) -> None:
         def on_success(song_info: Optional[QueUpSongInfo]) -> None:
             if song_info:
                 response = self.get_phrase(
@@ -194,12 +212,17 @@ class QueUpModule(BaseModule):
         def on_error(e: Exception) -> None:
             log.exception("QueUp API fetch for current song failed", exc_info=e)
             bot.send_message_to_user(
-                source, "There was an error fetching the current QueUp song :/", event, method="reply"
+                source,
+                "There was an error fetching the current QueUp song :/",
+                event,
+                method="reply",
             )
 
         self.api_request_and_callback(self.get_current_song, on_success, on_error)
 
-    def cmd_previous_song(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+    def cmd_previous_song(
+        self, bot: Bot, source: User, message: str, event: Any, **rest: Any
+    ) -> None:
         def on_success(song_info: Optional[QueUpSongInfo]) -> None:
             if song_info:
                 response = self.get_phrase(
@@ -216,7 +239,10 @@ class QueUpModule(BaseModule):
         def on_error(e: Exception) -> None:
             log.exception("QueUp API fetch for previous song failed", exc_info=e)
             bot.send_message_to_user(
-                source, "There was an error fetching the previous QueUp song :/", event, method="reply"
+                source,
+                "There was an error fetching the previous QueUp song :/",
+                event,
+                method="reply",
             )
 
         self.api_request_and_callback(self.get_previous_song, on_success, on_error)
@@ -272,7 +298,9 @@ class QueUpModule(BaseModule):
         on_error: Callable[[Exception], None],
     ) -> None:
         if self.bot is None:
-            log.warning("QueUpModule.api_request_and_callback failed because bot is None")
+            log.warning(
+                "QueUpModule.api_request_and_callback failed because bot is None"
+            )
             return
 
         def action_queue_action() -> None:
@@ -286,7 +314,9 @@ class QueUpModule(BaseModule):
 
         self.bot.action_queue.submit(action_queue_action)
 
-    def process_queue_song_to_song_info(self, queue_song: Optional[QueUpQueueSong]) -> Optional[QueUpSongInfo]:
+    def process_queue_song_to_song_info(
+        self, queue_song: Optional[QueUpQueueSong]
+    ) -> Optional[QueUpSongInfo]:
         """Processes a QueUpQueueSong instance (from the API) into a QueUpSongInfo object (for output to chat)"""
 
         # no current or past song -> no song info
@@ -305,7 +335,12 @@ class QueUpModule(BaseModule):
         song_link: str = self.api.get_song_link(song_id)
         requester_name: str = queue_song.requester_name
 
-        return QueUpSongInfo(song_id=song_id, song_name=song_name, song_link=song_link, requester_name=requester_name)
+        return QueUpSongInfo(
+            song_id=song_id,
+            song_name=song_name,
+            song_link=song_link,
+            requester_name=requester_name,
+        )
 
     def get_current_song(self) -> Optional[QueUpSongInfo]:
         room_id = self.api.get_room_id(self.settings["room_name"])
@@ -356,7 +391,8 @@ class QueUpModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for queup link",
-                        chat="user:!queup link\n" "bot:Request your songs at https://queup.net/join/pajlada",
+                        chat="user:!queup link\n"
+                        "bot:Request your songs at https://queup.net/join/pajlada",
                     ).parse()
                 ],
             ),
@@ -382,7 +418,8 @@ class QueUpModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
-                        chat="user:!queup song\n" "bot:There's no song playing right now BibleThump",
+                        chat="user:!queup song\n"
+                        "bot:There's no song playing right now BibleThump",
                     ).parse(),
                 ],
             ),
@@ -408,7 +445,8 @@ class QueUpModule(BaseModule):
                     CommandExample(
                         None,
                         "Ask bot for current song (nothing playing)",
-                        chat="user:!queup song\n" "bot:There's no song playing right now BibleThump",
+                        chat="user:!queup song\n"
+                        "bot:There's no song playing right now BibleThump",
                     ).parse(),
                 ],
             ),
@@ -471,7 +509,9 @@ class QueUpModule(BaseModule):
         HandlerManager.add_handler("on_stream_stop", self.on_stream_stop)
 
         if self.settings["new_song_auto_enable"]:
-            self.scheduled_job = ScheduleManager.execute_every(15, self.on_scheduled_new_song_check)
+            self.scheduled_job = ScheduleManager.execute_every(
+                15, self.on_scheduled_new_song_check
+            )
 
             if bot.is_online:
                 self.on_stream_start()

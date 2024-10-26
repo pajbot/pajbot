@@ -89,10 +89,14 @@ class EmotesOnScreenModule(BaseModule):
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
-            self.settings["emote_whitelist"].strip().split(" ") if self.settings["emote_whitelist"] else []
+            self.settings["emote_whitelist"].strip().split(" ")
+            if self.settings["emote_whitelist"]
+            else []
         )
         self.blocklisted_emotes = set(
-            self.settings["emote_blacklist"].strip().split(" ") if self.settings["emote_blacklist"] else []
+            self.settings["emote_blacklist"].strip().split(" ")
+            if self.settings["emote_blacklist"]
+            else []
         )
 
     def is_emote_allowed(self, emote_code: str) -> bool:
@@ -107,7 +111,9 @@ class EmotesOnScreenModule(BaseModule):
 
         return self.parent_module.is_emote_allowed(emote_code)
 
-    def on_message(self, emote_instances: list[EmoteInstance], whisper: bool, **rest: Any) -> bool:
+    def on_message(
+        self, emote_instances: list[EmoteInstance], whisper: bool, **rest: Any
+    ) -> bool:
         if whisper:
             return True
 
@@ -116,7 +122,9 @@ class EmotesOnScreenModule(BaseModule):
             return True
 
         # filter out disallowed emotes
-        emotes = [e.emote for e in emote_instances if self.is_emote_allowed(e.emote.code)]
+        emotes = [
+            e.emote for e in emote_instances if self.is_emote_allowed(e.emote.code)
+        ]
 
         sample_size = min(len(emotes), self.settings["max_emotes_per_message"])
         sent_emotes = random.sample(emotes, sample_size)

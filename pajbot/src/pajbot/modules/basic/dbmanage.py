@@ -28,5 +28,7 @@ class DBManageModule(BaseModule):
 
     def load_commands(self, **options):
         self.commands["commit"] = Command.raw_command(
-            self.commit, level=1000, description="Commit data from the bot to the database"
+            self.commit,
+            level=1000,
+            description="Commit data from the bot to the database",
         )

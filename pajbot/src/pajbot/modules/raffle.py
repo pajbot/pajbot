@@ -96,7 +96,11 @@ class RaffleModule(BaseModule):
             constraints={"min_value": 0, "max_value": 1200},
         ),
         ModuleSetting(
-            key="allow_negative_raffles", label="Allow negative raffles", type="boolean", required=True, default=True
+            key="allow_negative_raffles",
+            label="Allow negative raffles",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="max_negative_points",
@@ -164,7 +168,11 @@ class RaffleModule(BaseModule):
             options=["Single Raffle", "Multi Raffle"],
         ),
         ModuleSetting(
-            key="show_on_clr", label="Show raffles on the clr overlay", type="boolean", required=True, default=True
+            key="show_on_clr",
+            label="Show raffles on the clr overlay",
+            type="boolean",
+            required=True,
+            default=True,
         ),
     ]
 
@@ -243,7 +251,10 @@ class RaffleModule(BaseModule):
             )
             self.commands["mraffle"] = self.commands["multiraffle"]
 
-        if self.settings["default_raffle_type"] == "Multi Raffle" and self.settings["multi_enabled"]:
+        if (
+            self.settings["default_raffle_type"] == "Multi Raffle"
+            and self.settings["multi_enabled"]
+        ):
             self.commands["raffle"] = self.commands["multiraffle"]
         else:
             self.commands["raffle"] = self.commands["singleraffle"]
@@ -275,24 +286,56 @@ class RaffleModule(BaseModule):
             pass
 
         if self.raffle_points >= 0:
-            self.raffle_points = min(self.raffle_points, self.settings["single_max_points"])
+            self.raffle_points = min(
+                self.raffle_points, self.settings["single_max_points"]
+            )
         if self.raffle_points <= -1:
-            self.raffle_points = max(self.raffle_points, -self.settings["max_negative_points"])
+            self.raffle_points = max(
+                self.raffle_points, -self.settings["max_negative_points"]
+            )
 
         self.raffle_length = min(self.raffle_length, self.settings["max_length"])
 
         if self.settings["show_on_clr"]:
-            bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
-            bot.execute_delayed(0.75, bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"})
+            bot.websocket_manager.emit(
+                "notification", {"message": "A raffle has been started!"}
+            )
+            bot.execute_delayed(
+                0.75,
+                bot.websocket_manager.emit,
+                "notification",
+                {"message": "Type !join to enter!"},
+            )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         bot.say(self.get_phrase("message_start", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.25, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.50, bot.say, self.get_phrase("message_running", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
-        bot.execute_delayed(self.raffle_length * 0.75, bot.say, self.get_phrase("message_running", **arguments))
+        arguments = {
+            "length": round(self.raffle_length * 0.75),
+            "points": self.raffle_points,
+        }
+        bot.execute_delayed(
+            self.raffle_length * 0.25,
+            bot.say,
+            self.get_phrase("message_running", **arguments),
+        )
+        arguments = {
+            "length": round(self.raffle_length * 0.50),
+            "points": self.raffle_points,
+        }
+        bot.execute_delayed(
+            self.raffle_length * 0.50,
+            bot.say,
+            self.get_phrase("message_running", **arguments),
+        )
+        arguments = {
+            "length": round(self.raffle_length * 0.25),
+            "points": self.raffle_points,
+        }
+        bot.execute_delayed(
+            self.raffle_length * 0.75,
+            bot.say,
+            self.get_phrase("message_running", **arguments),
+        )
 
         bot.execute_delayed(self.raffle_length, self.end_raffle)
 
@@ -332,14 +375,21 @@ class RaffleModule(BaseModule):
 
             if self.settings["show_on_clr"]:
                 self.bot.websocket_manager.emit(
-                    "notification", {"message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"}
+                    "notification",
+                    {
+                        "message": f"{winner} {format_win(self.raffle_points)} points in the raffle!"
+                    },
                 )
 
-            self.bot.me(f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp")
+            self.bot.me(
+                f"The raffle has finished! {winner} {format_win(self.raffle_points)} points! PogChamp"
+            )
 
             winner.points += self.raffle_points
 
-            HandlerManager.trigger("on_raffle_win", winner=winner, points=self.raffle_points)
+            HandlerManager.trigger(
+                "on_raffle_win", winner=winner, points=self.raffle_points
+            )
 
     def multi_start_raffle(self, points: int, length: int) -> None:
         assert self.bot is not None
@@ -353,31 +403,55 @@ class RaffleModule(BaseModule):
         self.raffle_length = length
 
         if self.raffle_points >= 0:
-            self.raffle_points = min(self.raffle_points, self.settings["multi_max_points"])
+            self.raffle_points = min(
+                self.raffle_points, self.settings["multi_max_points"]
+            )
         if self.raffle_points <= -1:
-            self.raffle_points = max(self.raffle_points, -self.settings["multi_max_negative_points"])
+            self.raffle_points = max(
+                self.raffle_points, -self.settings["multi_max_negative_points"]
+            )
 
         self.raffle_length = min(self.raffle_length, self.settings["multi_max_length"])
 
         if self.settings["show_on_clr"]:
-            self.bot.websocket_manager.emit("notification", {"message": "A raffle has been started!"})
+            self.bot.websocket_manager.emit(
+                "notification", {"message": "A raffle has been started!"}
+            )
             self.bot.execute_delayed(
-                0.75, self.bot.websocket_manager.emit, "notification", {"message": "Type !join to enter!"}
+                0.75,
+                self.bot.websocket_manager.emit,
+                "notification",
+                {"message": "Type !join to enter!"},
             )
 
         arguments = {"length": self.raffle_length, "points": self.raffle_points}
         self.bot.say(self.get_phrase("message_start_multi", **arguments))
-        arguments = {"length": round(self.raffle_length * 0.75), "points": self.raffle_points}
+        arguments = {
+            "length": round(self.raffle_length * 0.75),
+            "points": self.raffle_points,
+        }
         self.bot.execute_delayed(
-            self.raffle_length * 0.25, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.25,
+            self.bot.say,
+            self.get_phrase("message_running_multi", **arguments),
         )
-        arguments = {"length": round(self.raffle_length * 0.50), "points": self.raffle_points}
+        arguments = {
+            "length": round(self.raffle_length * 0.50),
+            "points": self.raffle_points,
+        }
         self.bot.execute_delayed(
-            self.raffle_length * 0.50, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.50,
+            self.bot.say,
+            self.get_phrase("message_running_multi", **arguments),
         )
-        arguments = {"length": round(self.raffle_length * 0.25), "points": self.raffle_points}
+        arguments = {
+            "length": round(self.raffle_length * 0.25),
+            "points": self.raffle_points,
+        }
         self.bot.execute_delayed(
-            self.raffle_length * 0.75, self.bot.say, self.get_phrase("message_running_multi", **arguments)
+            self.raffle_length * 0.75,
+            self.bot.say,
+            self.get_phrase("message_running_multi", **arguments),
         )
 
         self.bot.execute_delayed(self.raffle_length, self.multi_end_raffle)
@@ -389,9 +463,15 @@ class RaffleModule(BaseModule):
 
         points = 100
         try:
-            if message is not None and self.settings["multi_allow_negative_raffles"] is True:
+            if (
+                message is not None
+                and self.settings["multi_allow_negative_raffles"] is True
+            ):
                 points = int(message.split()[0])
-            if message is not None and self.settings["multi_allow_negative_raffles"] is False:
+            if (
+                message is not None
+                and self.settings["multi_allow_negative_raffles"] is False
+            ):
                 if int(message.split()[0]) >= 0:
                     points = int(message.split()[0])
         except (IndexError, ValueError, TypeError):
@@ -428,10 +508,18 @@ class RaffleModule(BaseModule):
 
         # we want to impose three limits on the winner picking:
         # - a winner should get 100 points at minimum,
-        num_winners = min(num_winners, math.floor(abs(self.raffle_points) / self.MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT))
+        num_winners = min(
+            num_winners,
+            math.floor(
+                abs(self.raffle_points) / self.MULTI_RAFFLE_MIN_WIN_POINTS_AMOUNT
+            ),
+        )
 
         # - winner percentage should not be higher than 26%,
-        num_winners = min(num_winners, math.floor(num_participants * self.MULTI_RAFFLE_MAX_WINNERS_RATIO))
+        num_winners = min(
+            num_winners,
+            math.floor(num_participants * self.MULTI_RAFFLE_MAX_WINNERS_RATIO),
+        )
 
         # - and we don't want to have more than 200 winners.
         num_winners = min(num_winners, self.MULTI_RAFFLE_MAX_WINNERS_AMOUNT)
@@ -451,7 +539,9 @@ class RaffleModule(BaseModule):
             self.raffle_users = set()
 
             if num_winners == 1:
-                self.bot.me(f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! PogChamp")
+                self.bot.me(
+                    f"The multi-raffle has finished! 1 user {format_win(points_per_user)} points! PogChamp"
+                )
             else:
                 self.bot.me(
                     f"The multi-raffle has finished! {num_winners} users {format_win(points_per_user)} points each! PogChamp"
@@ -465,9 +555,13 @@ class RaffleModule(BaseModule):
                 winners_str = generate_winner_list(winners_arr)
                 if len(winners_str) > 300:
                     if len(winners_arr) == 1:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
+                        self.bot.me(
+                            f"{winners_str} {format_win(points_per_user)} points!"
+                        )
                     else:
-                        self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
+                        self.bot.me(
+                            f"{winners_str} {format_win(points_per_user)} points each!"
+                        )
                     winners_arr = []
 
             if len(winners_arr) > 0:
@@ -475,9 +569,13 @@ class RaffleModule(BaseModule):
                 if len(winners_arr) == 1:
                     self.bot.me(f"{winners_str} {format_win(points_per_user)} points!")
                 else:
-                    self.bot.me(f"{winners_str} {format_win(points_per_user)} points each!")
+                    self.bot.me(
+                        f"{winners_str} {format_win(points_per_user)} points each!"
+                    )
 
-            HandlerManager.trigger("on_multiraffle_win", winners=winners, points_per_user=points_per_user)
+            HandlerManager.trigger(
+                "on_multiraffle_win", winners=winners, points_per_user=points_per_user
+            )
 
     def on_user_sub(self, **rest: Any) -> bool:
         if self.settings["multi_raffle_on_sub"] is False:

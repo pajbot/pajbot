@@ -1,6 +1,11 @@
 import logging
 
-from pajbot.managers.emote import BTTVEmoteManager, FFZEmoteManager, SevenTVEmoteManager, TwitchEmoteManager
+from pajbot.managers.emote import (
+    BTTVEmoteManager,
+    FFZEmoteManager,
+    SevenTVEmoteManager,
+    TwitchEmoteManager,
+)
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
@@ -46,7 +51,11 @@ class EmotesModule(BaseModule):
             constraints={"min_value": 100, "max_value": 2000},
         ),
         ModuleSetting(
-            key="enable_subemotes", label="Enable !subemotes command", type="boolean", required=True, default=True
+            key="enable_subemotes",
+            label="Enable !subemotes command",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="custom_sub_response",
@@ -58,7 +67,11 @@ class EmotesModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="enable_ffzemotes", label="Enable !ffzemotes command", type="boolean", required=True, default=True
+            key="enable_ffzemotes",
+            label="Enable !ffzemotes command",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="custom_ffz_response",
@@ -70,7 +83,11 @@ class EmotesModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="enable_bttvemotes", label="Enable !bttvemotes command", type="boolean", required=True, default=True
+            key="enable_bttvemotes",
+            label="Enable !bttvemotes command",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="custom_bttv_response",
@@ -82,7 +99,11 @@ class EmotesModule(BaseModule):
             constraints={"max_str_len": 400},
         ),
         ModuleSetting(
-            key="enable_7tvemotes", label="Enable !7tvemotes command", type="boolean", required=True, default=True
+            key="enable_7tvemotes",
+            label="Enable !7tvemotes command",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
             key="custom_7tv_response",
@@ -97,12 +118,23 @@ class EmotesModule(BaseModule):
 
     def print_emotes(self, source, manager):
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            custom_message = self.settings[f"custom_{manager.friendly_name.lower()}_response"]
-            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
+            custom_message = self.settings[
+                f"custom_{manager.friendly_name.lower()}_response"
+            ]
+            self.bot.say(
+                custom_message.format(
+                    streamer=StreamHelper.get_streamer_display(), source=source
+                )
+            )
         else:
             emotes = manager.channel_emotes
             messages = split_into_chunks_with_prefix(
-                [{"prefix": f"{manager.friendly_name} emotes:", "parts": [e.code for e in emotes]}],
+                [
+                    {
+                        "prefix": f"{manager.friendly_name} emotes:",
+                        "parts": [e.code for e in emotes],
+                    }
+                ],
                 default=f"No {manager.friendly_name} Emotes active in this chat :(",
             )
             for message in messages:
@@ -111,14 +143,27 @@ class EmotesModule(BaseModule):
     def print_twitch_emotes(self, source, **rest):
         if self.settings["custom_sub_response"] != "":
             custom_message = self.settings["custom_sub_response"]
-            self.bot.say(custom_message.format(streamer=StreamHelper.get_streamer_display(), source=source))
+            self.bot.say(
+                custom_message.format(
+                    streamer=StreamHelper.get_streamer_display(), source=source
+                )
+            )
         else:
             manager = self.bot.emote_manager.twitch_emote_manager
             messages = split_into_chunks_with_prefix(
                 [
-                    {"prefix": "Subscriber emotes:", "parts": [e.code for e in manager.tier_one_emotes]},
-                    {"prefix": "T2:", "parts": [e.code for e in manager.tier_two_emotes]},
-                    {"prefix": "T3:", "parts": [e.code for e in manager.tier_three_emotes]},
+                    {
+                        "prefix": "Subscriber emotes:",
+                        "parts": [e.code for e in manager.tier_one_emotes],
+                    },
+                    {
+                        "prefix": "T2:",
+                        "parts": [e.code for e in manager.tier_two_emotes],
+                    },
+                    {
+                        "prefix": "T3:",
+                        "parts": [e.code for e in manager.tier_three_emotes],
+                    },
                 ],
                 default=f"Looks like {StreamHelper.get_streamer_display()} has no subscriber emotes! :(",
             )
@@ -142,7 +187,8 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Reload all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes reload\n" + f"bot>user: {reload_msg}",
+                    chat=f"user: !{manager.friendly_name.lower()}emotes reload\n"
+                    + f"bot>user: {reload_msg}",
                 ).parse()
             ],
         )
@@ -152,9 +198,9 @@ class EmotesModule(BaseModule):
             self.print_emotes(source, manager)
 
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
-            bot_response = "bot: " + self.settings[f"custom_{manager.friendly_name.lower()}_response"].format(
-                source="pajlada", streamer=StreamHelper.get_streamer_display()
-            )
+            bot_response = "bot: " + self.settings[
+                f"custom_{manager.friendly_name.lower()}_response"
+            ].format(source="pajlada", streamer=StreamHelper.get_streamer_display())
         else:
             bot_response = f"bot: {manager.friendly_name} emotes: {examples}"
 
@@ -167,7 +213,8 @@ class EmotesModule(BaseModule):
                 CommandExample(
                     None,
                     f"Show all active {manager.friendly_name} emotes for this channel.",
-                    chat=f"user: !{manager.friendly_name.lower()}emotes\n" + bot_response,
+                    chat=f"user: !{manager.friendly_name.lower()}emotes\n"
+                    + bot_response,
                 ).parse()
             ],
         )
@@ -178,9 +225,7 @@ class EmotesModule(BaseModule):
                 source="pajlada", streamer=StreamHelper.get_streamer_display()
             )
         else:
-            bot_response = (
-                "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
-            )
+            bot_response = "bot: Subscriber emotes: forsenE forsenC forsenK forsenW Tier 2: forsenSnus Tier 3: forsen2499"
 
         return Command.raw_command(
             self.print_twitch_emotes,
@@ -204,19 +249,30 @@ class EmotesModule(BaseModule):
             self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager
         )
         cmd_reload_7tv_emotes = self.reload_cmd(
-            self.bot.emote_manager.seventv_emote_manager if self.bot else SevenTVEmoteManager
+            self.bot.emote_manager.seventv_emote_manager
+            if self.bot
+            else SevenTVEmoteManager
         )
         cmd_reload_twitch_emotes = self.reload_cmd(
-            self.bot.emote_manager.twitch_emote_manager if self.bot else TwitchEmoteManager
+            self.bot.emote_manager.twitch_emote_manager
+            if self.bot
+            else TwitchEmoteManager
         )
         cmd_print_bttv_emotes = self.print_cmd(
-            self.bot.emote_manager.bttv_emote_manager if self.bot else BTTVEmoteManager, "forsenPls gachiGASM"
+            self.bot.emote_manager.bttv_emote_manager if self.bot else BTTVEmoteManager,
+            "forsenPls gachiGASM",
         )
         cmd_print_ffz_emotes = self.print_cmd(
-            self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager, "FeelsOkayMan Kapp LULW"
+            self.bot.emote_manager.ffz_emote_manager if self.bot else FFZEmoteManager,
+            "FeelsOkayMan Kapp LULW",
         )
         cmd_print_7tv_emotes = self.print_cmd(
-            self.bot.emote_manager.seventv_emote_manager if self.bot else SevenTVEmoteManager, "BasedGod WineTime"
+            (
+                self.bot.emote_manager.seventv_emote_manager
+                if self.bot
+                else SevenTVEmoteManager
+            ),
+            "BasedGod WineTime",
         )
 
         # The ' ' is there to make things look good in the
@@ -262,5 +318,8 @@ class EmotesModule(BaseModule):
                 default=" ",
                 fallback=" ",
                 command="subemotes",
-                commands={"reload": cmd_reload_twitch_emotes, " ": self.print_twitch_cmd()},
+                commands={
+                    "reload": cmd_reload_twitch_emotes,
+                    " ": self.print_twitch_cmd(),
+                },
             )

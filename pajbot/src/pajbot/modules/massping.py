@@ -18,7 +18,9 @@ USERNAME_IN_MESSAGE_PATTERN = re.compile("[A-Za-z0-9_]{4,}")
 class MassPingProtectionModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Mass Ping Protection"
-    DESCRIPTION = "Times out users who post messages that mention too many users at once."
+    DESCRIPTION = (
+        "Times out users who post messages that mention too many users at once."
+    )
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
@@ -120,8 +122,15 @@ class MassPingProtectionModule(BaseModule):
             return (
                 db_session.query(User)
                 .with_entities(count())
-                .filter(or_(User.login.in_(usernames), func.lower(User.name).in_(usernames)))
-                .filter(and_(User.last_seen.isnot(None), (func.now() - User.last_seen) <= timedelta(weeks=2)))
+                .filter(
+                    or_(User.login.in_(usernames), func.lower(User.name).in_(usernames))
+                )
+                .filter(
+                    and_(
+                        User.last_seen.isnot(None),
+                        (func.now() - User.last_seen) <= timedelta(weeks=2),
+                    )
+                )
                 .scalar()
             )
 
@@ -134,7 +143,14 @@ class MassPingProtectionModule(BaseModule):
             start_idx = match.start()
             end_idx = match.end()
 
-            potential_emote = next((e for e in emote_instances if e.start == start_idx and e.end == end_idx), None)
+            potential_emote = next(
+                (
+                    e
+                    for e in emote_instances
+                    if e.start == start_idx and e.end == end_idx
+                ),
+                None,
+            )
             # this "username" is an emote. skip
             if potential_emote is not None:
                 continue
@@ -152,13 +168,18 @@ class MassPingProtectionModule(BaseModule):
         return MassPingProtectionModule.count_known_users(potential_users)
 
     def determine_timeout_length(self, message, source, emote_instances):
-        ping_count = MassPingProtectionModule.count_pings(message, source, emote_instances)
+        ping_count = MassPingProtectionModule.count_pings(
+            message, source, emote_instances
+        )
         pings_too_many = ping_count - self.settings["max_ping_count"]
 
         if pings_too_many <= 0:
             return 0
 
-        return self.settings["timeout_length_base"] + self.settings["extra_timeout_length_per_ping"] * pings_too_many
+        return (
+            self.settings["timeout_length_base"]
+            + self.settings["extra_timeout_length_per_ping"] * pings_too_many
+        )
 
     def check_message(self, message, source):
         emote_instances, _ = self.bot.emote_manager.parse_all_emotes(message)
@@ -181,7 +202,9 @@ class MassPingProtectionModule(BaseModule):
         if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
             return True
 
-        timeout_duration = self.determine_timeout_length(message, source, emote_instances)
+        timeout_duration = self.determine_timeout_length(
+            message, source, emote_instances
+        )
 
         if timeout_duration <= 0:
             return True
@@ -197,7 +220,9 @@ class MassPingProtectionModule(BaseModule):
         return False
 
     def enable(self, bot):
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot):
         HandlerManager.remove_handler("on_message", self.on_message)

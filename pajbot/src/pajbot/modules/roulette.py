@@ -186,7 +186,9 @@ class RouletteModule(BaseModule):
         self.last_add: Optional[datetime.datetime] = None
 
     def load_commands(self, **options) -> None:
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        self.commands[
+            self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        ] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
@@ -218,13 +220,17 @@ class RouletteModule(BaseModule):
         if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
                 return False
-            if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_roulette_time"]):
+            if utils.now() - self.last_sub > datetime.timedelta(
+                seconds=self.settings["after_sub_roulette_time"]
+            ):
                 return False
 
         if message is None:
             bot.whisper(
                 source,
-                "I didn't recognize your bet! Usage: !" + self.settings["command_name"] + " 150 to bet 150 points",
+                "I didn't recognize your bet! Usage: !"
+                + self.settings["command_name"]
+                + " 150 to bet 150 points",
             )
             return False
 
@@ -236,11 +242,17 @@ class RouletteModule(BaseModule):
             return False
 
         if not source.can_afford(bet):
-            bot.whisper(source, f"You don't have enough points to do a roulette for {bet} points :(")
+            bot.whisper(
+                source,
+                f"You don't have enough points to do a roulette for {bet} points :(",
+            )
             return False
 
         if bet < self.settings["min_roulette_amount"]:
-            bot.whisper(source, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
+            bot.whisper(
+                source,
+                f"You have to bet at least {self.settings['min_roulette_amount']} point! :(",
+            )
             return False
 
         # Calculating the result
@@ -252,14 +264,22 @@ class RouletteModule(BaseModule):
             r = Roulette(source.id, points)
             db_session.add(r)
 
-        arguments: RouletteArguments = {"bet": bet, "user": source.name, "points": source.points, "win": points > 0}
+        arguments: RouletteArguments = {
+            "bet": bet,
+            "user": source.name,
+            "points": source.points,
+            "win": points > 0,
+        }
 
         if points > 0:
             out_message = self.get_phrase("message_won", **arguments)
         else:
             out_message = self.get_phrase("message_lost", **arguments)
 
-        if self.settings["options_output"] == "5. Combine output in chat AND offline chat":
+        if (
+            self.settings["options_output"]
+            == "5. Combine output in chat AND offline chat"
+        ):
             self.add_message(arguments)
         if self.settings["options_output"] == "4. Combine output in chat":
             if bot.is_online:
@@ -341,7 +361,10 @@ class RouletteModule(BaseModule):
 
         # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
         # spam after bulk sub gifts.
-        skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
+        skip_message = (
+            self.last_sub is not None
+            and now - self.last_sub < datetime.timedelta(seconds=5)
+        )
 
         self.last_sub = now
         if (
@@ -350,7 +373,9 @@ class RouletteModule(BaseModule):
             and not skip_message
         ):
             self.bot.say(
-                self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_roulette_time"])
+                self.settings["alert_message_after_sub"].format(
+                    seconds=self.settings["after_sub_roulette_time"]
+                )
             )
 
         return True

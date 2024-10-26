@@ -62,7 +62,9 @@ class PNSLModule(BaseModule):
 
     def run_pnsl(self, bot, source, message, event, args):
         if self.settings["offline_only"] and self.bot.is_online:
-            bot.whisper(source, f"{bot.streamer_display} is live! Skipping PNSL list eval.")
+            bot.whisper(
+                source, f"{bot.streamer_display} is live! Skipping PNSL list eval."
+            )
             return False
 
         base_url = "https://bot.tetyys.com/api/v1/BotLists"
@@ -86,12 +88,16 @@ class PNSLModule(BaseModule):
         except HTTPError as e:
             log.exception("babyrage")
             if e.response.status_code == 401:
-                bot.whisper(source, "Something went wrong with the P&SL request: Access Denied (401)")
+                bot.whisper(
+                    source,
+                    "Something went wrong with the P&SL request: Access Denied (401)",
+                )
             else:
                 try:
                     error_data = e.response.json()
                     bot.whisper(
-                        source, f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}"
+                        source,
+                        f"Something went wrong with the P&SL request: {error_data['errors']['Guid'][0]}",
                     )
                 except:
                     log.exception("babyrage2")
@@ -100,10 +106,14 @@ class PNSLModule(BaseModule):
 
         privmsg_list = res.text.split("\n")
 
-        log.info(f"[P&SL] User {source.name} running list {guid} with {len(privmsg_list)} entries")
+        log.info(
+            f"[P&SL] User {source.name} running list {guid} with {len(privmsg_list)} entries"
+        )
 
         bot.privmsg_arr_chunked(
-            privmsg_list, per_chunk=self.settings["per_chunk"], chunk_delay=self.settings["chunk_delay"]
+            privmsg_list,
+            per_chunk=self.settings["per_chunk"],
+            chunk_delay=self.settings["chunk_delay"],
         )
 
     def load_commands(self, **options):

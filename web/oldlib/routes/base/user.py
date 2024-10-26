@@ -13,7 +13,12 @@ def init(app):
             if user is None:
                 return render_template("no_user.html"), 404
 
-            roulettes = db_session.query(Roulette).filter_by(user_id=user.id).order_by(Roulette.created_at.desc()).all()
+            roulettes = (
+                db_session.query(Roulette)
+                .filter_by(user_id=user.id)
+                .order_by(Roulette.created_at.desc())
+                .all()
+            )
 
             roulette_stats = None
             if len(roulettes) > 0:
@@ -72,7 +77,11 @@ def init(app):
                         biggest_winstreak = cw
 
                 if "roulette" in app.module_manager:
-                    roulette_base_winrate = 1.0 - app.module_manager["roulette"].settings["rigged_percentage"] / 100
+                    roulette_base_winrate = (
+                        1.0
+                        - app.module_manager["roulette"].settings["rigged_percentage"]
+                        / 100
+                    )
                 else:
                     roulette_base_winrate = 0.45
 
@@ -89,4 +98,9 @@ def init(app):
                     "roulette_base_winrate": roulette_base_winrate,
                 }
 
-            return render_template("user.html", user=user, roulette_stats=roulette_stats, roulettes=roulettes)
+            return render_template(
+                "user.html",
+                user=user,
+                roulette_stats=roulette_stats,
+                roulettes=roulettes,
+            )

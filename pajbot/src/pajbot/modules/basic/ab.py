@@ -11,7 +11,9 @@ log = logging.getLogger(__name__)
 class AbCommandModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Add Between"
-    DESCRIPTION = "Inject an emote inbetween each letter/word in message via the !ab command"
+    DESCRIPTION = (
+        "Inject an emote inbetween each letter/word in message via the !ab command"
+    )
     CATEGORY = "Feature"
     PARENT_MODULE = BasicCommandsModule
     SETTINGS = [
@@ -57,7 +59,9 @@ class AbCommandModule(BaseModule):
         msg_parts = message.split(" ")
         if len(msg_parts) >= 2:
             outer_str = msg_parts[0]
-            inner_str = f" {outer_str} ".join(msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1])
+            inner_str = f" {outer_str} ".join(
+                msg_parts[1:] if len(msg_parts) >= 3 else msg_parts[1]
+            )
             bot.say(f"{source}, {outer_str} {inner_str} {outer_str}")
 
     def load_commands(self, **options):
@@ -72,7 +76,8 @@ class AbCommandModule(BaseModule):
                 CommandExample(
                     None,
                     "Inject emote inbetween each letter in message",
-                    chat="user:!ab Keepo KEEPO\n" "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
+                    chat="user:!ab Keepo KEEPO\n"
+                    "bot:pajlada, Keepo K Keepo E Keepo E Keepo P Keepo O Keepo",
                     description="",
                 ).parse(),
                 CommandExample(

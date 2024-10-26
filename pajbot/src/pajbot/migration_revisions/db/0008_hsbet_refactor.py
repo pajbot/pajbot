@@ -20,7 +20,9 @@ def up(cursor, bot):
 
     # hsbet_game.game_id: add ON DELETE CASCADE
     cursor.execute("ALTER TABLE hsbet_bet DROP CONSTRAINT hsbet_bet_game_id_fkey")
-    cursor.execute("ALTER TABLE hsbet_bet ADD FOREIGN KEY (game_id) REFERENCES hsbet_game(id) ON DELETE CASCADE")
+    cursor.execute(
+        "ALTER TABLE hsbet_bet ADD FOREIGN KEY (game_id) REFERENCES hsbet_game(id) ON DELETE CASCADE"
+    )
 
     # hsbet_game: Remove id column, add combined primary key
     cursor.execute("ALTER TABLE hsbet_bet DROP CONSTRAINT hsbet_bet_pkey")

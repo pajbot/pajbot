@@ -100,10 +100,16 @@ class ActionCheckerModule(BaseModule):
             log.warning("Module bot is None")
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Online Only"
+            and not self.bot.is_online
+        ):
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Offline Only"
+            and self.bot.is_online
+        ):
             return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
@@ -120,7 +126,10 @@ class ActionCheckerModule(BaseModule):
             )
             return False
 
-        if event.type != "action" and self.settings["only_allow_action_messages"] is True:
+        if (
+            event.type != "action"
+            and self.settings["only_allow_action_messages"] is True
+        ):
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
@@ -134,7 +143,9 @@ class ActionCheckerModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

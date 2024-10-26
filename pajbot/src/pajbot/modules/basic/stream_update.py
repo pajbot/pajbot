@@ -69,7 +69,8 @@ class StreamUpdateModule(BaseModule):
 
         if (
             "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope
-            and "channel:manage:broadcast" not in bot.streamer_access_token_manager.token.scope
+            and "channel:manage:broadcast"
+            not in bot.streamer_access_token_manager.token.scope
         ):
             bot.say(auth_error)
             return
@@ -101,7 +102,9 @@ class StreamUpdateModule(BaseModule):
                 bot.say(auth_error)
                 bot.streamer_access_token_manager.invalidate_token()
             elif e.response.status_code == 500:
-                log.error(f"Failed to update game to '{game_name}' - internal server error")
+                log.error(
+                    f"Failed to update game to '{game_name}' - internal server error"
+                )
                 bot.say(f"{source}, Failed to update game! Please try again.")
             else:
                 log.exception(f"Unhandled HTTPError when updating to {game_name}")
@@ -116,7 +119,8 @@ class StreamUpdateModule(BaseModule):
 
         if (
             "user:edit:broadcast" not in bot.streamer_access_token_manager.token.scope
-            and "channel:manage:broadcast" not in bot.streamer_access_token_manager.token.scope
+            and "channel:manage:broadcast"
+            not in bot.streamer_access_token_manager.token.scope
         ):
             bot.say(auth_error)
             return
@@ -147,9 +151,13 @@ class StreamUpdateModule(BaseModule):
                 bot.streamer_access_token_manager.invalidate_token()
             elif e.response.status_code == 400:
                 log.error(f"Title '{title}' contains banned words")
-                bot.say(f"{source}, Title contained banned words. Please remove the banned words and try again.")
+                bot.say(
+                    f"{source}, Title contained banned words. Please remove the banned words and try again."
+                )
             elif e.response.status_code == 500:
-                log.error(f"Failed to update title to '{title}' - internal server error")
+                log.error(
+                    f"Failed to update title to '{title}' - internal server error"
+                )
                 bot.say(f"{source}, Failed to update the title! Please try again.")
             else:
                 log.exception(f"Unhandled HTTPError when updating to {title}")
@@ -160,7 +168,9 @@ class StreamUpdateModule(BaseModule):
         AdminLogManager.add_entry("Title set", source, log_msg)
 
     def load_commands(self, **options):
-        setgame_trigger = self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
+        setgame_trigger = (
+            self.settings["setgame_trigger"].lower().replace("!", "").replace(" ", "")
+        )
         if self.settings["allow_mods_change_game"] is True:
             self.commands[setgame_trigger] = Command.raw_command(
                 self.update_game,
@@ -191,7 +201,9 @@ class StreamUpdateModule(BaseModule):
                 ],
             )
 
-        settitle_trigger = self.settings["settitle_trigger"].lower().replace("!", "").replace(" ", "")
+        settitle_trigger = (
+            self.settings["settitle_trigger"].lower().replace("!", "").replace(" ", "")
+        )
         if self.settings["allow_mods_change_title"] is True:
             self.commands[settitle_trigger] = Command.raw_command(
                 self.update_title,

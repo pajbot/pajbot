@@ -100,7 +100,14 @@ class WideEmoteLimitModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
+    def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        msg_id: str,
+        **rest,
+    ) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True
@@ -118,13 +125,21 @@ class WideEmoteLimitModule(BaseModule):
             if not self.bot.is_online and self.settings["timeout_offline"] == 0:
                 return True
 
-        wide_emotes = (1 for i in emote_instances if i.emote.max_width > self.settings["emote_max_width"])
+        wide_emotes = (
+            1
+            for i in emote_instances
+            if i.emote.max_width > self.settings["emote_max_width"]
+        )
         if sum(wide_emotes) > self.settings["max_wide_emotes"]:
             self.bot.delete_or_timeout(
                 source,
                 self.settings["moderation_action"],
                 msg_id,
-                self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
+                (
+                    self.settings["timeout_online"]
+                    if self.bot.is_online
+                    else self.settings["timeout_offline"]
+                ),
                 self.settings["timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
@@ -134,7 +149,9 @@ class WideEmoteLimitModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

@@ -62,7 +62,9 @@ class DebugModule(BaseModule):
         elif data["type"] == "func" or data["type"] == "rawfunc":
             data["cb"] = command.action.cb.__name__
 
-        bot.whisper(source, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
+        bot.whisper(
+            source, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()])
+        )
 
     @staticmethod
     def debug_user(bot, source, message, **options):
@@ -82,7 +84,9 @@ class DebugModule(BaseModule):
             #  current output format is time_in_chat_online=673800.0, time_in_chat_offline=7651200.0
             data = user.jsonify()
 
-            bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
+            bot.whisper(
+                source, ", ".join([f"{key}={value}" for (key, value) in data.items()])
+            )
 
     def load_commands(self, **options):
         self.commands["debug"] = Command.multiaction_command(

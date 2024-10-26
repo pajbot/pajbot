@@ -195,9 +195,15 @@ class SubAlertModule(BaseModule):
 
         alert_message = self.settings["alert_message_points_given"]
         if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_sub"]))
+            self.bot.say(
+                alert_message.format(
+                    user=user, points=self.settings["grant_points_on_sub"]
+                )
+            )
 
-    def on_new_sub(self, user: User, sub_type: str, gifted_by: Optional[str] = None) -> None:
+    def on_new_sub(
+        self, user: User, sub_type: str, gifted_by: Optional[str] = None
+    ) -> None:
         """
         A new user just subscribed.
         Send the event to the websocket manager, and send a customized message in chat.
@@ -224,11 +230,19 @@ class SubAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("new_sub_whisper", **payload)
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.get_phrase("new_sub_whisper", **payload),
             )
 
     def on_resub(
-        self, user: User, num_months: int, sub_type: str, gifted_by: Optional[str] = None, substreak_count: int = 0
+        self,
+        user: User,
+        num_months: int,
+        sub_type: str,
+        gifted_by: Optional[str] = None,
+        substreak_count: int = 0,
     ) -> None:
         """
         A user just re-subscribed.
@@ -239,10 +253,17 @@ class SubAlertModule(BaseModule):
 
         self.on_sub_shared(user)
 
-        payload = {"username": user.name, "num_months": num_months, "gifted_by": gifted_by}
+        payload = {
+            "username": user.name,
+            "num_months": num_months,
+            "gifted_by": gifted_by,
+        }
         if substreak_count and substreak_count > 0:
             payload["substreak_string"] = self.get_phrase(
-                "substreak_string", username=user.name, num_months=substreak_count, gifted_by=gifted_by
+                "substreak_string",
+                username=user.name,
+                num_months=substreak_count,
+                gifted_by=gifted_by,
             )
         else:
             payload["substreak_string"] = ""
@@ -259,7 +280,10 @@ class SubAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("resub_whisper", **payload)
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.get_phrase("resub_whisper", **payload),
             )
 
     def on_gift_upgrade(self, user: User) -> None:
@@ -309,13 +333,17 @@ class SubAlertModule(BaseModule):
                     substreak_count = 0
 
             if "msg-param-sub-plan" not in tags:
-                log.debug(f"subalert msg-id is resub, but missing msg-param-sub-plan: {tags}")
+                log.debug(
+                    f"subalert msg-id is resub, but missing msg-param-sub-plan: {tags}"
+                )
                 return True
 
             # log.debug('msg-id resub tags: {}'.format(tags))
 
             # TODO: Should we check room id with streamer ID here? Maybe that's for pajbot2 instead
-            self.on_resub(source, num_months, tags["msg-param-sub-plan"], None, substreak_count)
+            self.on_resub(
+                source, num_months, tags["msg-param-sub-plan"], None, substreak_count
+            )
             HandlerManager.trigger("on_user_resub", user=source, num_months=num_months)
         elif tags["msg-id"] == "subgift":
             num_months = 0
@@ -332,28 +360,42 @@ class SubAlertModule(BaseModule):
                     substreak_count = 0
 
             if "display-name" not in tags:
-                log.debug(f"subalert msg-id is subgift, but missing display-name: {tags}")
+                log.debug(
+                    f"subalert msg-id is subgift, but missing display-name: {tags}"
+                )
                 return True
 
             with DBManager.create_session_scope() as db_session:
                 receiver_id = tags["msg-param-recipient-id"]
                 receiver_login = tags["msg-param-recipient-user-name"]
                 receiver_name = tags["msg-param-recipient-display-name"]
-                receiver = User.from_basics(db_session, UserBasics(receiver_id, receiver_login, receiver_name))
+                receiver = User.from_basics(
+                    db_session, UserBasics(receiver_id, receiver_login, receiver_name)
+                )
 
                 if num_months > 1:
                     # Resub
                     self.on_resub(
-                        receiver, num_months, tags["msg-param-sub-plan"], tags["display-name"], substreak_count
+                        receiver,
+                        num_months,
+                        tags["msg-param-sub-plan"],
+                        tags["display-name"],
+                        substreak_count,
                     )
-                    HandlerManager.trigger("on_user_resub", user=receiver, num_months=num_months)
+                    HandlerManager.trigger(
+                        "on_user_resub", user=receiver, num_months=num_months
+                    )
                 else:
                     # New sub
-                    self.on_new_sub(receiver, tags["msg-param-sub-plan"], tags["display-name"])
+                    self.on_new_sub(
+                        receiver, tags["msg-param-sub-plan"], tags["display-name"]
+                    )
                     HandlerManager.trigger("on_user_sub", user=receiver)
         elif tags["msg-id"] == "sub":
             if "msg-param-sub-plan" not in tags:
-                log.debug(f"subalert msg-id is sub, but missing msg-param-sub-plan: {tags}")
+                log.debug(
+                    f"subalert msg-id is sub, but missing msg-param-sub-plan: {tags}"
+                )
                 return True
 
             self.on_new_sub(source, tags["msg-param-sub-plan"])

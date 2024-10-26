@@ -38,7 +38,9 @@ class AdminLogEntry(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     type: Mapped[str]
-    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    user_id: Mapped[Optional[str]] = mapped_column(
+        Text, ForeignKey("user.id", ondelete="SET NULL")
+    )
     message: Mapped[str]
     created_at: Mapped[datetime.datetime] = mapped_column(UtcDateTime(), index=True)
     data: Mapped[Any] = mapped_column(JSONB, nullable=False)
@@ -67,7 +69,11 @@ class AdminLogManager:
     def add_entry(entry_type: str, source: User, message: str, data={}) -> None:
         with DBManager.create_session_scope() as db_session:
             entry_object = AdminLogEntry(
-                type=entry_type, user_id=source.id, message=message, created_at=utils.now(), data=data
+                type=entry_type,
+                user_id=source.id,
+                message=message,
+                created_at=utils.now(),
+                data=data,
             )
             db_session.add(entry_object)
 

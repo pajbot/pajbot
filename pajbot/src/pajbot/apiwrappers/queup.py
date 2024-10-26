@@ -93,7 +93,9 @@ class QueUpAPI(BaseAPI):
         )
 
     def fetch_song_link(self, song_id: str) -> str:
-        response = self.get_response(["song", song_id, "redirect"], allow_redirects=False)
+        response = self.get_response(
+            ["song", song_id, "redirect"], allow_redirects=False
+        )
         return response.headers["Location"]
 
     def get_song_link(self, song_id: str) -> str:
@@ -119,7 +121,9 @@ class QueUpAPI(BaseAPI):
         song_id = response["data"]["song"]["songid"]
         song_name = html.unescape(response["data"]["songInfo"]["name"])
         requester_id = response["data"]["song"]["userid"]
-        played_at = utils.datetime_from_utc_milliseconds(response["data"]["song"]["played"])
+        played_at = utils.datetime_from_utc_milliseconds(
+            response["data"]["song"]["played"]
+        )
         length = datetime.timedelta(milliseconds=response["data"]["song"]["songLength"])
 
         return QueUpQueueSong(

@@ -49,7 +49,10 @@ def init(bp: Blueprint) -> None:
             db_session.commit()
             payload = {"id": row.id, "new_state": data.new_state}
             AdminLogManager.post(
-                "Timer toggled", options["user"], "Enabled" if data.new_state else "Disabled", row.name
+                "Timer toggled",
+                options["user"],
+                "Enabled" if data.new_state else "Disabled",
+                row.name,
             )
             SocketClientManager.send("timer.update", payload)
             return {"success": "successful toggle", "new_state": data.new_state}

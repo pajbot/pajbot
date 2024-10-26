@@ -61,10 +61,16 @@ class LiveAlertModule(BaseModule):
             "title": self.bot.stream_manager.title,
         }
 
-        self.bot.send_message(self.get_phrase("live_message", **arguments), method=self.settings["message_type"])
+        self.bot.send_message(
+            self.get_phrase("live_message", **arguments),
+            method=self.settings["message_type"],
+        )
 
         if self.settings["extra_message"] != "":
-            self.bot.send_message(self.get_phrase("extra_message", **arguments), method=self.settings["message_type"])
+            self.bot.send_message(
+                self.get_phrase("extra_message", **arguments),
+                method=self.settings["message_type"],
+            )
 
         return True
 

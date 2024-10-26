@@ -16,7 +16,10 @@ class FFZAPI(BaseAPI):
             for emote in emote_set["emoticons"]:
                 # FFZ returns relative URLs (e.g. //cdn.frankerfacez.com/...)
                 # so we fill in the scheme if it's missing :)
-                urls = {size: FFZAPI.fill_in_url_scheme(url) for size, url in emote["urls"].items()}
+                urls = {
+                    size: FFZAPI.fill_in_url_scheme(url)
+                    for size, url in emote["urls"].items()
+                }
                 emotes.append(
                     Emote(
                         code=emote["name"],
@@ -38,7 +41,9 @@ class FFZAPI(BaseAPI):
         # in all channels, those are available under "default_sets", e.g. a list of set IDs like this:
         # [ 3, 6, 7, 14342 ]
         global_set_ids = response["default_sets"]
-        global_sets = {str(set_id): response["sets"][str(set_id)] for set_id in global_set_ids}
+        global_sets = {
+            str(set_id): response["sets"][str(set_id)] for set_id in global_set_ids
+        }
 
         return self.parse_sets(global_sets)
 

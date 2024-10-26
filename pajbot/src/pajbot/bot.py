@@ -18,7 +18,10 @@ from pajbot import utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
-from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
+from pajbot.apiwrappers.authentication.token_manager import (
+    AppAccessTokenManager,
+    UserAccessTokenManager,
+)
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
@@ -39,7 +42,13 @@ from pajbot.migration.migrate import Migration
 from pajbot.migration.redis import RedisMigratable
 from pajbot.models.action import ActionParser, SubstitutionFilter
 from pajbot.models.banphrase import BanphraseManager
-from pajbot.models.moderation_action import Ban, Timeout, Unban, Untimeout, new_message_processing_scope
+from pajbot.models.moderation_action import (
+    Ban,
+    Timeout,
+    Unban,
+    Untimeout,
+    new_message_processing_scope,
+)
 from pajbot.models.module import ModuleManager
 from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
@@ -82,12 +91,16 @@ class Bot:
             admin = self.twitch_helix_api.get_user_basics_by_id(admin_id)
             if admin is not None:
                 return admin
-            log.warning(f"Could not resolve admin user ID {admin_id}, verify your config!")
+            log.warning(
+                f"Could not resolve admin user ID {admin_id}, verify your config!"
+            )
         elif admin_login is not None:
             admin = self.twitch_helix_api.get_user_basics_by_login(admin_login)
             if admin is not None:
                 return admin
-            log.warning(f"Could not resolve admin user login {admin_login}, verify your config!")
+            log.warning(
+                f"Could not resolve admin user login {admin_login}, verify your config!"
+            )
         return None
 
     def __init__(self, config: cfg.Config, args: argparse.Namespace) -> None:
@@ -130,12 +143,18 @@ class Bot:
         self.api_client_credentials = ClientCredentials(
             config["twitchapi"]["client_id"],
             config["twitchapi"]["client_secret"],
-            config["twitchapi"].get("redirect_uri", f"https://{config['web']['domain']}/login/authorized"),
+            config["twitchapi"].get(
+                "redirect_uri", f"https://{config['web']['domain']}/login/authorized"
+            ),
         )
 
         self.twitch_id_api = TwitchIDAPI(self.api_client_credentials)
-        self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
-        self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
+        self.app_token_manager = AppAccessTokenManager(
+            self.twitch_id_api, RedisManager.get()
+        )
+        self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(
+            RedisManager.get(), self.app_token_manager
+        )
 
         self.streamer: UserBasics = cfg.load_streamer(config, self.twitch_helix_api)
         self.channel = f"#{self.streamer.login}"
@@ -161,17 +180,25 @@ class Bot:
             user_id=self.streamer.id,
         )
 
-        StreamHelper.init_streamer(self.streamer.login, self.streamer.id, self.streamer.name)
+        StreamHelper.init_streamer(
+            self.streamer.login, self.streamer.id, self.streamer.name
+        )
 
         # SQL migrations
         with DBManager.create_dbapi_connection_scope() as sql_conn:
             sql_migratable = DatabaseMigratable(sql_conn)
-            sql_migration = Migration(sql_migratable, pajbot.migration_revisions.db, self)
+            sql_migration = Migration(
+                sql_migratable, pajbot.migration_revisions.db, self
+            )
             sql_migration.run()
 
         # Redis migrations
-        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer.login)
-        redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
+        redis_migratable = RedisMigratable(
+            redis_options=redis_options, namespace=self.streamer.login
+        )
+        redis_migration = Migration(
+            redis_migratable, pajbot.migration_revisions.redis, self
+        )
         redis_migration.run()
 
         # Thread pool executor for async actions
@@ -188,7 +215,9 @@ class Bot:
         elif rank_refresh_mode == "2":
             log.info("Not refreshing user rank")
         else:
-            log.error(f"Invalid rank refresh mode {rank_refresh_mode}, valid options are: 0, 1, or 2")
+            log.error(
+                f"Invalid rank refresh mode {rank_refresh_mode}, valid options are: 0, 1, or 2"
+            )
 
         self.reactor = irc.client.Reactor()
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
@@ -244,14 +273,19 @@ class Bot:
         self.module_manager = ModuleManager(self.socket_manager, bot=self)
         self.module_manager.load()
         self.commands = CommandManager(
-            socket_manager=self.socket_manager, module_manager=self.module_manager, bot=self
+            socket_manager=self.socket_manager,
+            module_manager=self.module_manager,
+            bot=self,
         ).load()
         self.websocket_manager = WebSocketManager(self)
 
         HandlerManager.trigger("on_managers_loaded")
 
         # Commitable managers
-        self.commitable = {"commands": self.commands, "banphrases": self.banphrase_manager}
+        self.commitable = {
+            "commands": self.commands,
+            "banphrases": self.banphrase_manager,
+        }
 
         self.execute_every(60, self.commit_all)
         self.execute_every(1, self.do_tick)
@@ -259,7 +293,9 @@ class Bot:
         admin: Optional[UserBasics] = self._load_admin(config)
 
         if admin is None:
-            log.warning("No admin user specified. See the [main] section in the example config for its usage.")
+            log.warning(
+                "No admin user specified. See the [main] section in the example config for its usage."
+            )
         else:
             log.info(f"Granting admin privileges to {admin.login} ({admin.id})")
             with DBManager.create_session_scope() as db_session:
@@ -268,13 +304,19 @@ class Bot:
 
         # silent mode
         self.silent = (
-            "flags" in config and "silent" in config["flags"] and config["flags"]["silent"] == "1"
+            "flags" in config
+            and "silent" in config["flags"]
+            and config["flags"]["silent"] == "1"
         ) or args.silent
         if self.silent:
             log.info("Silent mode enabled")
 
         # dev mode
-        self.dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
+        self.dev = (
+            "flags" in config
+            and "dev" in config["flags"]
+            and config["flags"]["dev"] == "1"
+        )
         if self.dev:
             self.version_long = utils.extend_version_if_possible(VERSION)
         else:
@@ -528,7 +570,9 @@ class Bot:
             if i == 0:
                 self.privmsg_arr(arr[:per_chunk], target)
             else:
-                self.execute_delayed(chunk_delay * i, self.privmsg_arr, arr[:per_chunk], target)
+                self.execute_delayed(
+                    chunk_delay * i, self.privmsg_arr, arr[:per_chunk], target
+                )
 
             del arr[:per_chunk]
 
@@ -540,12 +584,19 @@ class Bot:
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
-                log.error("privmsg_from_file should be fed with a text/plain URL. Refusing to send.")
+            if (
+                content_type is not None
+                and cgi.parse_header(content_type)[0] != "text/plain"
+            ):
+                log.error(
+                    "privmsg_from_file should be fed with a text/plain URL. Refusing to send."
+                )
                 return
 
             lines = r.text.splitlines()
-            self.privmsg_arr_chunked(lines, per_chunk=per_chunk, chunk_delay=chunk_delay, target=target)
+            self.privmsg_arr_chunked(
+                lines, per_chunk=per_chunk, chunk_delay=chunk_delay, target=target
+            )
         except:
             log.exception("error in privmsg_from_file")
 
@@ -557,8 +608,13 @@ class Bot:
             r.raise_for_status()
 
             content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
-                log.error("eval_from_file should be fed with a text/plain URL. Refusing to send.")
+            if (
+                content_type is not None
+                and cgi.parse_header(content_type)[0] != "text/plain"
+            ):
+                log.error(
+                    "eval_from_file should be fed with a text/plain URL. Refusing to send."
+                )
                 return
 
             lines = r.text.splitlines()
@@ -569,7 +625,9 @@ class Bot:
                 cloned_event.arguments = [msg]
                 # omit the source connection as None (since its not used)
                 self.on_pubmsg(None, cloned_event)
-            self.whisper_login(event.source.user.lower(), f"Successfully evaluated {len(lines)} lines")
+            self.whisper_login(
+                event.source.user.lower(), f"Successfully evaluated {len(lines)} lines"
+            )
         except:
             log.exception("BabyRage")
             self.whisper_login(event.source.user.lower(), "Exception BabyRage")
@@ -614,7 +672,10 @@ class Bot:
         if self.stream_manager.online and self.stream_manager.current_stream:
             return utils.time_ago(self.stream_manager.current_stream.stream_start)
 
-        if self.stream_manager.last_stream is not None and self.stream_manager.last_stream.stream_end is not None:
+        if (
+            self.stream_manager.last_stream is not None
+            and self.stream_manager.last_stream.stream_end is not None
+        ):
             return utils.time_ago(self.stream_manager.last_stream.stream_end)
 
         return "No recorded stream FeelsBadMan "
@@ -642,15 +703,25 @@ class Bot:
 
     def _ban(self, user_id: str, reason: Optional[str] = None) -> None:
         try:
-            self.twitch_helix_api.ban_user(self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, reason)
+            self.twitch_helix_api.ban_user(
+                self.streamer.id,
+                self.bot_user.id,
+                self.bot_token_manager,
+                user_id,
+                reason,
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to ban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to ban user with id {user_id}, unauthorized: {e} - {e.response.text}"
+                )
             else:
-                log.error(f"Failed to ban user with id {user_id}: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to ban user with id {user_id}: {e} - {e.response.text}"
+                )
 
     def ban(self, user: User, reason: Optional[str] = None) -> None:
         self.ban_id(user.id, reason)
@@ -661,7 +732,9 @@ class Bot:
     def ban_login(self, login: str, reason: Optional[str] = None) -> None:
         user_id = self.twitch_helix_api.get_user_id(login)
         if user_id is None:
-            log.error(f"Attempted to ban user with login {login}, but no such user was found")
+            log.error(
+                f"Attempted to ban user with login {login}, but no such user was found"
+            )
             return
 
         if self._has_moderation_actions():
@@ -671,15 +744,21 @@ class Bot:
 
     def _unban(self, user_id: str) -> None:
         try:
-            self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
+            self.twitch_helix_api.unban_user(
+                self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to unban user with id {user_id}, unauthorized: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to unban user with id {user_id}, unauthorized: {e} - {e.response.text}"
+                )
             else:
-                log.error(f"Failed to unban user with id {user_id}: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to unban user with id {user_id}: {e} - {e.response.text}"
+                )
 
     def unban(self, user: User) -> None:
         self.unban_id(user.id)
@@ -690,7 +769,9 @@ class Bot:
     def unban_login(self, login: str) -> None:
         user_id = self.twitch_helix_api.get_user_id(login)
         if user_id is None:
-            log.error(f"Attempted to unban user with login {login}, but no such user was found")
+            log.error(
+                f"Attempted to unban user with login {login}, but no such user was found"
+            )
             return
 
         if self._has_moderation_actions():
@@ -704,33 +785,47 @@ class Bot:
                 self.streamer.id, self.streamer_access_token_manager, user_id
             )
             if ban_data is None:
-                log.warning(f"User with ID {user_id} is already not banned or timed-out.")
+                log.warning(
+                    f"User with ID {user_id} is already not banned or timed-out."
+                )
                 return
             # As per the Helix docs, expires_at will return empty if the user is permabanned.
             if not ban_data.expires_at:
-                log.error(f"User with ID {user_id} is currently banned! Will not untimeout.")
+                log.error(
+                    f"User with ID {user_id} is currently banned! Will not untimeout."
+                )
                 return
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to get banned user status with id {user_id}, unauthorized: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to get banned user status with id {user_id}, unauthorized: {e} - {e.response.text}"
+                )
                 return
             else:
-                log.error(f"Failed to get banned user status with id {user_id}: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to get banned user status with id {user_id}: {e} - {e.response.text}"
+                )
                 return
 
         try:
-            self.twitch_helix_api.unban_user(self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager)
+            self.twitch_helix_api.unban_user(
+                self.streamer.id, self.bot_user.id, user_id, self.bot_token_manager
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to untimeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to untimeout user with id {user_id}, unauthorized: {e} - {e.response.text}"
+                )
             else:
-                log.error(f"Failed to untimeout user with id {user_id}: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to untimeout user with id {user_id}: {e} - {e.response.text}"
+                )
 
     def untimeout(self, user: User) -> None:
         self.untimeout_id(user.id)
@@ -741,7 +836,9 @@ class Bot:
     def untimeout_login(self, login: str) -> None:
         user_id = self.twitch_helix_api.get_user_id(login)
         if user_id is None:
-            log.error(f"Attempted to untimeout user with login {login}, but no such user was found")
+            log.error(
+                f"Attempted to untimeout user with login {login}, but no such user was found"
+            )
             return
 
         if self._has_moderation_actions():
@@ -752,35 +849,55 @@ class Bot:
     def timeout(self, user: User, duration: int, reason: Optional[str] = None) -> None:
         self.timeout_login(user.login, duration, reason)
 
-    def _timeout(self, user_id: str, duration: int, reason: Optional[str] = None) -> None:
+    def _timeout(
+        self, user_id: str, duration: int, reason: Optional[str] = None
+    ) -> None:
         try:
             self.twitch_helix_api.timeout_user(
-                self.streamer.id, self.bot_user.id, self.bot_token_manager, user_id, duration, reason
+                self.streamer.id,
+                self.bot_user.id,
+                self.bot_token_manager,
+                user_id,
+                duration,
+                reason,
             )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to timeout user with id {user_id}, unauthorized: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to timeout user with id {user_id}, unauthorized: {e} - {e.response.text}"
+                )
             else:
-                log.error(f"Failed to timeout user with id {user_id}: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to timeout user with id {user_id}: {e} - {e.response.text}"
+                )
 
-    def timeout_login(self, login: str, duration: int, reason: Optional[str] = None) -> None:
+    def timeout_login(
+        self, login: str, duration: int, reason: Optional[str] = None
+    ) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason))
         else:
             user_id = self.twitch_helix_api.get_user_id(login)
             if user_id is None:
-                log.error(f"Attempted to ban user with login {login}, but no such user was found")
+                log.error(
+                    f"Attempted to ban user with login {login}, but no such user was found"
+                )
                 return
             self._timeout(user_id, duration, reason)
 
-    def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> tuple[int, str]:
+    def timeout_warn(
+        self, user: User, duration: int, reason: Optional[str] = None
+    ) -> tuple[int, str]:
         from pajbot.modules import WarningModule
 
         duration, punishment = user.timeout(
-            duration, warning_module=cast(Optional[WarningModule], self.module_manager["warning"])
+            duration,
+            warning_module=cast(
+                Optional[WarningModule], self.module_manager["warning"]
+            ),
         )
         self.timeout(user, duration, reason)
         return (duration, punishment)
@@ -790,16 +907,24 @@ class Bot:
             channel_id = self.streamer.id
 
         try:
-            self.twitch_helix_api.delete_single_message(channel_id, self.bot_user.id, self.bot_token_manager, msg_id)
+            self.twitch_helix_api.delete_single_message(
+                channel_id, self.bot_user.id, self.bot_token_manager, msg_id
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to delete message, unauthorized: {e} - {e.response.text}")
-                self.send_message("Error: The bot must be re-authed in order to delete a message.")
+                log.error(
+                    f"Failed to delete message, unauthorized: {e} - {e.response.text}"
+                )
+                self.send_message(
+                    "Error: The bot must be re-authed in order to delete a message."
+                )
             elif e.response.status_code == 403:
-                log.error(f"Failed to delete message - bot is not a moderator: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to delete message - bot is not a moderator: {e} - {e.response.text}"
+                )
             else:
                 log.error(f"Failed to delete message: {e} - {e.response.text}")
 
@@ -817,7 +942,9 @@ class Bot:
 
         if moderation_action == "Delete":
             if msg_id is None:
-                raise ValueError("Cannot use the Delete moderation_action if msg_id is None!")
+                raise ValueError(
+                    "Cannot use the Delete moderation_action if msg_id is None!"
+                )
             self.delete_message(msg_id)
         elif moderation_action == "Timeout":
             if disable_warnings:
@@ -828,13 +955,17 @@ class Bot:
     def whisper(self, user: User | UserBasics, message: str) -> None:
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             try:
-                self.twitch_helix_api.send_whisper(self.bot_user.id, user.id, message, self.bot_token_manager)
+                self.twitch_helix_api.send_whisper(
+                    self.bot_user.id, user.id, message, self.bot_token_manager
+                )
             except HTTPError as e:
                 if e.response is None:
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to send whisper, unauthorized: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to send whisper, unauthorized: {e} - {e.response.text}"
+                    )
                 elif e.response.status_code == 403:
                     log.error(
                         f"Failed to send whisper, forbidden. user might not accept whispers: {e} - {e.response.text}"
@@ -853,7 +984,9 @@ class Bot:
                 )
 
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
-            log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
+            log.debug(
+                f'Whisper "{message}" to user "{user}" was not sent (due to config setting)'
+            )
 
     def whisper_login(self, login: str, message: str) -> None:
         user = self.twitch_helix_api.get_user_basics_by_login(login)
@@ -864,7 +997,12 @@ class Bot:
         self.whisper(user, message)
 
     def send_message_to_user(
-        self, user: User, message: str, event, method: str = "say", check_msg: bool = False
+        self,
+        user: User,
+        message: str,
+        event,
+        method: str = "say",
+        check_msg: bool = False,
     ) -> None:
         """
 
@@ -891,7 +1029,9 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
-    def send_message(self, message: str, method: str = "say", check_msg: bool = False) -> None:
+    def send_message(
+        self, message: str, method: str = "say", check_msg: bool = False
+    ) -> None:
         """
         Keyword arguments:
         check_msg -- indicates whether the message should be run through the is_bad_message check before being sent (default False)
@@ -981,10 +1121,16 @@ class Bot:
                 raise e
 
             if e.response.status_code == 401:
-                log.error(f"Failed to post announcement, unauthorized: {e} - {e.response.text}")
-                self.send_message("Error: The bot must be re-authed in order to post announcements.")
+                log.error(
+                    f"Failed to post announcement, unauthorized: {e} - {e.response.text}"
+                )
+                self.send_message(
+                    "Error: The bot must be re-authed in order to post announcements."
+                )
             elif e.response.status_code == 403:
-                log.error(f"Failed to post announcement - bot is not a moderator: {e} - {e.response.text}")
+                log.error(
+                    f"Failed to post announcement - bot is not a moderator: {e} - {e.response.text}"
+                )
             else:
                 log.error(f"Failed to post announcement: {e} - {e.response.text}")
 
@@ -997,7 +1143,9 @@ class Bot:
         emote_tag = tags["emotes"]
         msg_id = tags.get("id", None)  # None on whispers!
         badges_string = tags.get("badges", "")
-        badges = dict((badge.split("/") for badge in badges_string.split(",") if badge != ""))
+        badges = dict(
+            (badge.split("/") for badge in badges_string.split(",") if badge != "")
+        )
 
         if not whisper and event.target == self.channel:
             # Moderator or broadcaster, both count
@@ -1017,7 +1165,9 @@ class Bot:
             return False
 
         # Parse emotes in the message
-        emote_instances, emote_counts = self.emote_manager.parse_all_emotes(message, emote_tag)
+        emote_instances, emote_counts = self.emote_manager.parse_all_emotes(
+            message, emote_tag
+        )
 
         now = utils.now()
         source.last_seen = now
@@ -1051,7 +1201,9 @@ class Bot:
             msg_lower_parts = msg_lower.split(" ")
             trigger = msg_lower_parts[0][1:]
             msg_raw_parts = message.split(" ")
-            remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else ""
+            remaining_message = (
+                " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else ""
+            )
             if trigger in self.commands:
                 command = self.commands[trigger]
                 extra_args = {
@@ -1060,12 +1212,22 @@ class Bot:
                     "trigger": trigger,
                     "msg_id": msg_id,
                 }
-                command.run(self, source, remaining_message, event=event, args=extra_args, whisper=whisper)
+                command.run(
+                    self,
+                    source,
+                    remaining_message,
+                    event=event,
+                    args=extra_args,
+                    whisper=whisper,
+                )
 
         return True
 
     def on_whisper(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
 
         id = tags["user-id"]
         login = event.source.user
@@ -1076,7 +1238,10 @@ class Bot:
             self.parse_message(event.arguments[0], source, event, tags, whisper=True)
 
     def on_usernotice(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
 
         if event.target != self.channel:
             return
@@ -1093,7 +1258,9 @@ class Bot:
                 msg = None  # e.g. user didn't type an extra message to share with the streamer
 
             with new_message_processing_scope(self):
-                HandlerManager.trigger("on_usernotice", source=source, message=msg, tags=tags)
+                HandlerManager.trigger(
+                    "on_usernotice", source=source, message=msg, tags=tags
+                )
 
                 if msg is not None:
                     self.parse_message(msg, source, event, tags)
@@ -1102,7 +1269,10 @@ class Bot:
         self.on_pubmsg(chatconn, event)
 
     def on_pubmsg(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
 
         id = tags["user-id"]
         login = event.source.user
@@ -1144,14 +1314,19 @@ class Bot:
             source = User.from_basics(db_session, UserBasics(id, login, name))
 
             with new_message_processing_scope(self):
-                res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0], tags=tags)
+                res = HandlerManager.trigger(
+                    "on_pubmsg", source=source, message=event.arguments[0], tags=tags
+                )
                 if res is False:
                     return False
 
                 self.parse_message(event.arguments[0], source, event, tags=tags)
 
     def on_pubnotice(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
         HandlerManager.trigger(
             "on_pubnotice",
             stop_on_false=False,
@@ -1161,7 +1336,10 @@ class Bot:
         )
 
     def on_clearchat(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
 
         # Ignore "Chat has been cleared by a moderator" messages
         if "target-user-id" not in tags:
@@ -1180,7 +1358,9 @@ class Bot:
             if "ban-duration" in tags:
                 # timeout
                 ban_duration = int(tags["ban-duration"])
-                user.timeout_end = utils.now() + datetime.timedelta(seconds=ban_duration)
+                user.timeout_end = utils.now() + datetime.timedelta(
+                    seconds=ban_duration
+                )
             else:
                 # permaban
                 # this sets timeout_end to None
@@ -1192,12 +1372,17 @@ class Bot:
             return
 
         for p in self.phrases["welcome"]:
-            self.privmsg(p.format(nickname=self.bot_user.login, version=self.version_long))
+            self.privmsg(
+                p.format(nickname=self.bot_user.login, version=self.version_long)
+            )
 
         self.welcome_messages_sent = True
 
     def on_roomstate(self, chatconn, event):
-        tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
+        tags = {
+            tag["key"]: tag["value"] if tag["value"] is not None else ""
+            for tag in event.tags
+        }
 
         if event.target != self.channel:
             return
@@ -1218,7 +1403,10 @@ class Bot:
     def quit(self, message, event, **options) -> None:
         quit_delay = 0
 
-        if self.control_hub_channel is not None and event.target == self.control_hub_channel:
+        if (
+            self.control_hub_channel is not None
+            and event.target == self.control_hub_channel
+        ):
             quit_delay_random = 300
             try:
                 if message is not None and int(message.split()[0]) >= 1:
@@ -1261,9 +1449,13 @@ class Bot:
             "capitalize": lambda var, args: var.capitalize(),
             "swapcase": lambda var, args: var.swapcase(),
             "time_since_minutes": lambda var, args: (
-                "no time" if var == 0 else utils.time_since(var * 60, 0, time_format="long")
+                "no time"
+                if var == 0
+                else utils.time_since(var * 60, 0, time_format="long")
             ),
-            "time_since": lambda var, args: "no time" if var == 0 else utils.time_since(var, 0, time_format="long"),
+            "time_since": lambda var, args: (
+                "no time" if var == 0 else utils.time_since(var, 0, time_format="long")
+            ),
             "time_since_dt": _filter_time_since_dt,
             "time_until_dt": _filter_time_until_dt,
             "timedelta_days": _filter_timedelta_days,

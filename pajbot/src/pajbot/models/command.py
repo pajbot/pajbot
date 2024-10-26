@@ -23,7 +23,14 @@ import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
+from pajbot.models.action import (
+    ActionParser,
+    BaseAction,
+    MessageAction,
+    MultiAction,
+    RawFuncAction,
+    Substitution,
+)
 from pajbot.models.user import User
 
 from sqlalchemy import Boolean, ForeignKey, Integer, Text
@@ -38,7 +45,9 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def parse_command_for_web(alias: str, i_command: Command, command_list: list[WebCommand]) -> None:
+def parse_command_for_web(
+    alias: str, i_command: Command, command_list: list[WebCommand]
+) -> None:
     import markdown
     from markupsafe import Markup
 
@@ -54,7 +63,9 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
             if isinstance(json_description, dict):
                 command.json_description = json_description
                 if "description" in command.json_description:
-                    command.parsed_description = Markup(markdown.markdown(command.json_description["description"]))
+                    command.parsed_description = Markup(
+                        markdown.markdown(command.json_description["description"])
+                    )
                 if command.json_description.get("hidden", False) is True:
                     return
     except ValueError:
@@ -68,12 +79,20 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
     if command.command is None:
         command.command = alias
 
-    if command.action is not None and command.action.type == "multi" and isinstance(command.action, MultiAction):
+    if (
+        command.action is not None
+        and command.action.type == "multi"
+        and isinstance(command.action, MultiAction)
+    ):
         if command.command is not None:
             command.main_alias = command.command.split("|")[0]
         for inner_alias, inner_command in command.action.commands.items():
             parse_command_for_web(
-                alias if command.command is None else command.main_alias + " " + inner_alias,
+                (
+                    alias
+                    if command.command is None
+                    else command.main_alias + " " + inner_alias
+                ),
                 inner_command,
                 command_list,
             )
@@ -84,7 +103,9 @@ def parse_command_for_web(alias: str, i_command: Command, command_list: list[Web
         command.main_alias = "!" + first_alias
         if not command.parsed_description:
             if command.action is not None:
-                if command.action.type == "message" and isinstance(command.action, MessageAction):
+                if command.action.type == "message" and isinstance(
+                    command.action, MessageAction
+                ):
                     command.parsed_description = command.action.response
                     if not command.action.response:
                         return
@@ -97,13 +118,22 @@ class CommandData(Base):
     __tablename__ = "command_data"
 
     command_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("command.id", ondelete="CASCADE"), primary_key=True, autoincrement=False
+        Integer,
+        ForeignKey("command.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
     )
     num_uses: Mapped[int]
 
-    added_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
-    edited_by: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
-    _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column("last_date_used", UtcDateTime())
+    added_by: Mapped[Optional[str]] = mapped_column(
+        Text, ForeignKey("user.id", ondelete="SET NULL")
+    )
+    edited_by: Mapped[Optional[str]] = mapped_column(
+        Text, ForeignKey("user.id", ondelete="SET NULL")
+    )
+    _last_date_used: Mapped[Optional[datetime.datetime]] = mapped_column(
+        "last_date_used", UtcDateTime()
+    )
 
     user = relationship(
         User,
@@ -156,7 +186,9 @@ class CommandData(Base):
             "num_uses": self.num_uses,
             "added_by": self.added_by,
             "edited_by": self.edited_by,
-            "last_date_used": self.last_date_used.isoformat() if self.last_date_used else None,
+            "last_date_used": (
+                self.last_date_used.isoformat() if self.last_date_used else None
+            ),
         }
 
 
@@ -164,12 +196,20 @@ class CommandExample(Base):
     __tablename__ = "command_example"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    command_id: Mapped[int] = mapped_column(Integer, ForeignKey("command.id", ondelete="CASCADE"))
+    command_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("command.id", ondelete="CASCADE")
+    )
     title: Mapped[str]
     chat: Mapped[str]
     description: Mapped[str]
 
-    def __init__(self, command_id: Optional[int], title: str, chat: str = "", description: str = "") -> None:
+    def __init__(
+        self,
+        command_id: Optional[int],
+        title: str,
+        chat: str = "",
+        description: str = "",
+    ) -> None:
         if command_id:
             self.command_id = command_id
         self.title = title
@@ -181,8 +221,13 @@ class CommandExample(Base):
     def init_on_load(self) -> None:
         self.parse()
 
-    def add_chat_message(self, type: str, message: str, user_from: str, user_to: Optional[str] = None) -> None:
-        chat_message = {"source": {"type": type, "from": user_from, "to": user_to}, "message": message}
+    def add_chat_message(
+        self, type: str, message: str, user_from: str, user_to: Optional[str] = None
+    ) -> None:
+        chat_message = {
+            "source": {"type": type, "from": user_from, "to": user_to},
+            "message": message,
+        }
         self.chat_messages.append(chat_message)
 
     def parse(self) -> CommandExample:
@@ -274,7 +319,9 @@ class Command(Base):
         action_dict = options.get("action", None)
         if action_dict:
             self.action_json = json.dumps(action_dict)
-            self.action = ActionParser.parse(str_data=self.action_json, command=self.command)
+            self.action = ActionParser.parse(
+                str_data=self.action_json, command=self.command
+            )
         self.command = options.get("command", self.command)
         self.description = options.get("description", self.description)
         self.delay_all = options.get("delay_all", self.delay_all)
@@ -290,10 +337,14 @@ class Command(Base):
         self.tokens_cost = options.get("tokens_cost", self.tokens_cost)
         if self.tokens_cost < 0:
             self.tokens_cost = 0
-        self.can_execute_with_whisper = options.get("can_execute_with_whisper", self.can_execute_with_whisper)
+        self.can_execute_with_whisper = options.get(
+            "can_execute_with_whisper", self.can_execute_with_whisper
+        )
         self.sub_only = options.get("sub_only", self.sub_only)
         self.mod_only = options.get("mod_only", self.mod_only)
-        self.run_through_banphrases = options.get("run_through_banphrases", self.run_through_banphrases)
+        self.run_through_banphrases = options.get(
+            "run_through_banphrases", self.run_through_banphrases
+        )
         self.examples = options.get("examples", self.examples)
         self.run_in_thread = options.get("run_in_thread", self.run_in_thread)
         self.notify_on_error = options.get("notify_on_error", self.notify_on_error)
@@ -322,13 +373,17 @@ class Command(Base):
         cmd = cls()
         if "level" in json_object:
             cmd.level = json_object["level"]
-        cmd.action = ActionParser.parse(dict_data=json_object["action"], command=cmd.command)
+        cmd.action = ActionParser.parse(
+            dict_data=json_object["action"], command=cmd.command
+        )
         return cmd
 
     @classmethod
     def dispatch_command(cls, cb: Any, **options: Any) -> Command:
         cmd = cls(**options)
-        cmd.action = ActionParser.parse('{"type": "func", "cb": "' + cb + '"}', command=cmd.command)
+        cmd.action = ActionParser.parse(
+            '{"type": "func", "cb": "' + cb + '"}', command=cmd.command
+        )
         return cmd
 
     @classmethod
@@ -337,12 +392,16 @@ class Command(Base):
         try:
             cmd.action = RawFuncAction(cb)
         except:
-            log.exception("Uncaught exception in Command.raw_command. catch the following exception manually!")
+            log.exception(
+                "Uncaught exception in Command.raw_command. catch the following exception manually!"
+            )
             cmd.enabled = False
         return cmd
 
     @classmethod
-    def pajbot_command(cls, bot: Optional[Bot], method_name: str, level: int = 1000, **options) -> Command:
+    def pajbot_command(
+        cls, bot: Optional[Bot], method_name: str, level: int = 1000, **options
+    ) -> Command:
         cmd = cls(**options)
         cmd.level = level
         cmd.description = options.get("description", None)
@@ -359,7 +418,9 @@ class Command(Base):
         from pajbot.models.action import MultiAction
 
         cmd = cls(**options)
-        cmd.action = MultiAction.ready_built(options.get("commands"), default=default, fallback=fallback)
+        cmd.action = MultiAction.ready_built(
+            options.get("commands"), default=default, fallback=fallback
+        )
         return cmd
 
     def load_args(self, level: int, action) -> None:
@@ -392,13 +453,25 @@ class Command(Base):
             # User is not a sub or a moderator, and cannot use the command.
             return False
 
-        if self.mod_only and source.moderator is False and source.level < Command.BYPASS_MOD_ONLY_LEVEL:
+        if (
+            self.mod_only
+            and source.moderator is False
+            and source.level < Command.BYPASS_MOD_ONLY_LEVEL
+        ):
             # User is not a twitch moderator, or a bot moderator
             return False
 
         return True
 
-    def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}, whisper: bool = False) -> bool:
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+        whisper: bool = False,
+    ) -> bool:
         if self.action is None:
             log.warning("This command is not available.")
             return False
@@ -411,8 +484,13 @@ class Command(Base):
         cur_time = pajbot.utils.now().timestamp()
         time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
-        if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
-            log.debug(f"Command was run {time_since_last_run:.2f} seconds ago, waiting...")
+        if (
+            time_since_last_run < self.delay_all
+            and source.level < Command.BYPASS_DELAY_LEVEL
+        ):
+            log.debug(
+                f"Command was run {time_since_last_run:.2f} seconds ago, waiting..."
+            )
             return False
 
         last_run_by_user_f: int | float = 0
@@ -421,8 +499,13 @@ class Command(Base):
             last_run_by_user_f = last_run_by_user_dt.timestamp()
         time_since_last_run_user = (cur_time - last_run_by_user_f) / cd_modifier
 
-        if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
-            log.debug(f"{source} ran command {time_since_last_run_user:.2f} seconds ago, waiting...")
+        if (
+            time_since_last_run_user < self.delay_user
+            and source.level < Command.BYPASS_DELAY_LEVEL
+        ):
+            log.debug(
+                f"{source} ran command {time_since_last_run_user:.2f} seconds ago, waiting..."
+            )
             return False
 
         if self.cost > 0 and not source.can_afford(self.cost):
@@ -457,13 +540,17 @@ class Command(Base):
         args.update(self.extra_args)
         if self.run_in_thread:
             log.debug(f"Running {self} in a thread")
-            ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
+            ScheduleManager.execute_now(
+                self.run_action, args=[bot, source, message, event, args]
+            )
         else:
             self.run_action(bot, source, message, event, args)
 
         return True
 
-    def run_action(self, bot: Bot, source: User, message: str, event: Any, args: Any) -> None:
+    def run_action(
+        self, bot: Bot, source: User, message: str, event: Any, args: Any
+    ) -> None:
         # Pre-requisite
         assert self.action is not None
 
@@ -576,7 +663,9 @@ class WebCommand:
             example = CommandExample(self.id, "Default usage")
             subtype = self.action.subtype if self.action.subtype != "reply" else "say"
             example.add_chat_message("say", self.main_alias, "user")
-            clean_response = Substitution.urlfetch_substitution_regex.sub("(urlfetch)", self.action.response)
+            clean_response = Substitution.urlfetch_substitution_regex.sub(
+                "(urlfetch)", self.action.response
+            )
 
             if subtype in ("say", "me", "announce"):
                 example.add_chat_message(subtype, clean_response, "bot")
@@ -586,7 +675,9 @@ class WebCommand:
 
             if self._command.can_execute_with_whisper is True:
                 example = CommandExample(self.id, "Default usage through whisper")
-                subtype = self.action.subtype if self.action.subtype != "reply" else "say"
+                subtype = (
+                    self.action.subtype if self.action.subtype != "reply" else "say"
+                )
                 example.add_chat_message("whisper", self.main_alias, "user", "bot")
                 if subtype in ("say", "me", "announce"):
                     example.add_chat_message(subtype, clean_response, "bot")

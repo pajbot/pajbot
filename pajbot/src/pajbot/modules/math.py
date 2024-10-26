@@ -48,7 +48,9 @@ class PBMath:
             return node.n
 
         if isinstance(node, ast.BinOp):  # <left> <operator> <right>
-            return PBMath.operators[type(node.op)](PBMath.eval_(node.left), PBMath.eval_(node.right))
+            return PBMath.operators[type(node.op)](
+                PBMath.eval_(node.left), PBMath.eval_(node.right)
+            )
 
         if isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
             return PBMath.operators[type(node.op)](PBMath.eval_(node.operand))
@@ -136,11 +138,18 @@ class MathModule(BaseModule):
         except:
             pass
 
-        bot.send_message_to_user(source, f"{expr_res} {emote}", event, method=self.settings["response_method"])
+        bot.send_message_to_user(
+            source,
+            f"{expr_res} {emote}",
+            event,
+            method=self.settings["response_method"],
+        )
 
     def math(self, bot, event, source, message, **rest):
         if source.id == "68706331":  # Karl_Kons
-            bot.send_message_to_user(source, "8 Kappa", event, method=self.settings["response_method"])
+            bot.send_message_to_user(
+                source, "8 Kappa", event, method=self.settings["response_method"]
+            )
             return
 
         if message:

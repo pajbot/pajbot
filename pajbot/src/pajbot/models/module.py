@@ -38,7 +38,9 @@ class Module(Base):
 
 
 class ModuleManager:
-    def __init__(self, socket_manager: Optional[SocketManager], bot: Optional[Bot] = None) -> None:
+    def __init__(
+        self, socket_manager: Optional[SocketManager], bot: Optional[Bot] = None
+    ) -> None:
         # List of all enabled modules
         self.modules: list[BaseModule] = []
 
@@ -78,7 +80,9 @@ class ModuleManager:
         module.enable(self.bot)
 
         if module in self.modules:
-            log.error("Module %s is already in the list of enabled modules pajaW", module_id)
+            log.error(
+                "Module %s is already in the list of enabled modules pajaW", module_id
+            )
             return False
 
         self.modules.append(module)
@@ -152,7 +156,9 @@ class ModuleManager:
             if module.PARENT_MODULE is None:
                 module.submodules = []
             else:
-                parent = find(lambda m: m.__class__ == module.PARENT_MODULE, self.modules)
+                parent = find(
+                    lambda m: m.__class__ == module.PARENT_MODULE, self.modules
+                )
                 if parent is not None:
                     parent.submodules.append(module)
                     module.parent_module = parent

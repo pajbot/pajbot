@@ -17,7 +17,9 @@ class DeckManager(UserList[Deck]):
         self.current_deck: Optional[Deck] = None
         self.reload()
 
-    def find(self, id: Optional[int] = None, link: Optional[str] = None) -> Optional[Deck]:
+    def find(
+        self, id: Optional[int] = None, link: Optional[str] = None
+    ) -> Optional[Deck]:
         if id is not None:
             for deck in self.data:
                 if id == deck.id:
@@ -37,7 +39,10 @@ class DeckManager(UserList[Deck]):
     def refresh_current_deck(self) -> None:
         self.current_deck = None
         for deck in self.data:
-            if self.current_deck is None or deck.last_used > self.current_deck.last_used:
+            if (
+                self.current_deck is None
+                or deck.last_used > self.current_deck.last_used
+            ):
                 self.current_deck = deck
 
     def remove_deck(self, deck: Deck) -> None:

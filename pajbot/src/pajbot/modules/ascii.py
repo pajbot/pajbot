@@ -17,7 +17,9 @@ log = logging.getLogger(__name__)
 class AsciiProtectionModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "ASCII Protection"
-    DESCRIPTION = "Times out users who post messages that contain too many ASCII characters."
+    DESCRIPTION = (
+        "Times out users who post messages that contain too many ASCII characters."
+    )
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
@@ -106,10 +108,16 @@ class AsciiProtectionModule(BaseModule):
             log.warning("Module bot is None")
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Online Only"
+            and not self.bot.is_online
+        ):
             return True
 
-        if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
+        if (
+            self.settings["enabled_by_stream_status"] == "Offline Only"
+            and self.bot.is_online
+        ):
             return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
@@ -125,7 +133,11 @@ class AsciiProtectionModule(BaseModule):
             source,
             self.settings["moderation_action"],
             tags["id"],
-            self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
+            (
+                self.settings["timeout_online"]
+                if self.bot.is_online
+                else self.settings["timeout_offline"]
+            ),
             self.settings["timeout_reason"],
             disable_warnings=self.settings["disable_warnings"],
         )
@@ -133,7 +145,9 @@ class AsciiProtectionModule(BaseModule):
         return False
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_pubmsg", self.on_pubmsg, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)

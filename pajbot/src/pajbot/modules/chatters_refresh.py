@@ -17,7 +17,9 @@ log = logging.getLogger(__name__)
 class ChattersRefreshModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Loyalty"
-    DESCRIPTION = "Earn points and build your watchtime while you watch your favourite streamer!"
+    DESCRIPTION = (
+        "Earn points and build your watchtime while you watch your favourite streamer!"
+    )
     ENABLED_DEFAULT = True
     CATEGORY = "Feature"
     SETTINGS = [
@@ -65,7 +67,9 @@ class ChattersRefreshModule(BaseModule):
     @time_method
     def _update_chatters(self, only_last_seen: bool = False) -> None:
         if self.bot is None:
-            log.warn("_update_chatters failed in ChattersRefreshModule because bot is None")
+            log.warn(
+                "_update_chatters failed in ChattersRefreshModule because bot is None"
+            )
             return
 
         chatters = self.bot.twitch_helix_api.get_all_chatters(
@@ -152,7 +156,8 @@ ON CONFLICT (id) DO UPDATE SET
 
         # every 10 minutes, add the chatters update to the action queue
         self.scheduled_job = ScheduleManager.execute_every(
-            self.UPDATE_INTERVAL * 60, lambda: self.bot.action_queue.submit(self._update_chatters)
+            self.UPDATE_INTERVAL * 60,
+            lambda: self.bot.action_queue.submit(self._update_chatters),
         )
 
     def disable(self, bot):

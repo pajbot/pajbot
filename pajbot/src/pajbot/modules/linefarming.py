@@ -14,7 +14,11 @@ class LineFarmingModule(BaseModule):
     CATEGORY = "Feature"
     SETTINGS = [
         ModuleSetting(
-            key="count_offline", label="Count lines in offline chat", type="boolean", required=True, default=False
+            key="count_offline",
+            label="Count lines in offline chat",
+            type="boolean",
+            required=True,
+            default=False,
         )
     ]
 

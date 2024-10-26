@@ -11,9 +11,20 @@ log = logging.getLogger("pajbot")
 class WebSocketServer:
     clients: list[Any] = []
 
-    def __init__(self, manager, port, secure=False, key_path=None, crt_path=None, unix_socket_path=None):
+    def __init__(
+        self,
+        manager,
+        port,
+        secure=False,
+        key_path=None,
+        crt_path=None,
+        unix_socket_path=None,
+    ):
         self.manager = manager
-        from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
+        from autobahn.twisted.websocket import (
+            WebSocketServerFactory,
+            WebSocketServerProtocol,
+        )
         from twisted.internet import reactor, ssl
 
         class MyServerProtocol(WebSocketServerProtocol):
@@ -43,7 +54,9 @@ class WebSocketServer:
         factory.setProtocolOptions(autoPingInterval=15, autoPingTimeout=5)
         factory.protocol = MyServerProtocol
 
-        def reactor_run(reactor, factory, port, context_factory=None, unix_socket_path=None):
+        def reactor_run(
+            reactor, factory, port, context_factory=None, unix_socket_path=None
+        ):
             if unix_socket_path:
                 sock_file = Path(unix_socket_path)
                 if sock_file.exists():
@@ -64,7 +77,9 @@ class WebSocketServer:
             context_factory = None
 
         reactor_thread = threading.Thread(
-            target=reactor_run, args=(reactor, factory, port, context_factory, unix_socket_path), name="WebSocketThread"
+            target=reactor_run,
+            args=(reactor, factory, port, context_factory, unix_socket_path),
+            name="WebSocketThread",
         )
         reactor_thread.daemon = True
         reactor_thread.start()
@@ -93,7 +108,9 @@ class WebSocketManager:
 
                     twisted_log.addObserver(WebSocketManager.on_log_message)
                 except ImportError:
-                    log.error("twisted is not installed, websocket cannot be initialized.")
+                    log.error(
+                        "twisted is not installed, websocket cannot be initialized."
+                    )
                     return
                 except:
                     log.exception("Uncaught exception")
@@ -103,14 +120,20 @@ class WebSocketManager:
                 port = int(cfg.get("port", "443" if ssl else "80"))
                 key_path = cfg.get("key_path", "")
                 crt_path = cfg.get("crt_path", "")
-                unix_socket_path = cfg.get("unix_socket", f"/var/run/pajbot/{streamer}/websocket.sock")
+                unix_socket_path = cfg.get(
+                    "unix_socket", f"/var/run/pajbot/{streamer}/websocket.sock"
+                )
 
                 if ssl:
                     if key_path == "" or crt_path == "":
-                        log.error("SSL enabled in config, but missing key_path or crt_path")
+                        log.error(
+                            "SSL enabled in config, but missing key_path or crt_path"
+                        )
                         return
 
-                self.server = WebSocketServer(self, port, ssl, key_path, crt_path, unix_socket_path)
+                self.server = WebSocketServer(
+                    self, port, ssl, key_path, crt_path, unix_socket_path
+                )
         except:
             log.exception("Uncaught exception in WebSocketManager")
 

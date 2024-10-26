@@ -46,7 +46,8 @@ class PointLotteryModule(BaseModule):
                 CommandExample(
                     None,
                     "Lottery stop",
-                    chat="user:!pointlottery stop\n" "bot:The lottery has finished! {} won {} points",
+                    chat="user:!pointlottery stop\n"
+                    "bot:The lottery has finished! {} won {} points",
                     description="Finish lottery",
                 ).parse(),
                 CommandExample(
@@ -93,9 +94,14 @@ class PointLotteryModule(BaseModule):
         self.lottery_running = True
         self.lottery_points = 0
 
-        bot.websocket_manager.emit("notification", {"message": "A lottery has been started!"})
+        bot.websocket_manager.emit(
+            "notification", {"message": "A lottery has been started!"}
+        )
         bot.execute_delayed(
-            0.75, bot.websocket_manager.emit, "notification", {"message": "Type !pointlottery join to enter!"}
+            0.75,
+            bot.websocket_manager.emit,
+            "notification",
+            {"message": "Type !pointlottery join to enter!"},
         )
 
         bot.me(
@@ -123,7 +129,9 @@ class PointLotteryModule(BaseModule):
                 return False
 
             if tickets <= 0:
-                bot.me(f"Sorry, {source}, you have to buy at least 1 ticket! FeelsBadMan")
+                bot.me(
+                    f"Sorry, {source}, you have to buy at least 1 ticket! FeelsBadMan"
+                )
                 return False
 
             source.points -= tickets
@@ -151,9 +159,12 @@ class PointLotteryModule(BaseModule):
         log.info(f"at end, lottery points is now at {self.lottery_points}")
 
         bot.websocket_manager.emit(
-            "notification", {"message": f"{winner} won {self.lottery_points} points in the lottery!"}
+            "notification",
+            {"message": f"{winner} won {self.lottery_points} points in the lottery!"},
         )
-        bot.me(f"The lottery has finished! {winner} won {self.lottery_points} points! PogChamp")
+        bot.me(
+            f"The lottery has finished! {winner} won {self.lottery_points} points! PogChamp"
+        )
 
         winner.points += self.lottery_points
 

@@ -7,7 +7,13 @@ import logging
 from collections import UserDict
 
 from pajbot.managers.db import DBManager
-from pajbot.models.command import Command, CommandData, CommandExample, WebCommand, parse_command_for_web
+from pajbot.models.command import (
+    Command,
+    CommandData,
+    CommandExample,
+    WebCommand,
+    parse_command_for_web,
+)
 from pajbot.utils import find
 
 from sqlalchemy.orm import joinedload
@@ -66,7 +72,9 @@ class CommandManager(UserDict[str, Command]):
             log.warning("No command ID found in on_command_update")
             return
 
-        command = find(lambda command: command.id == command_id, self.db_commands.values())
+        command = find(
+            lambda command: command.id == command_id, self.db_commands.values()
+        )
         if command is not None:
             self.remove_command_aliases(command)
 
@@ -83,7 +91,9 @@ class CommandManager(UserDict[str, Command]):
             log.warning("No command ID found in on_command_update")
             return
 
-        command = find(lambda command: command.id == command_id, self.db_commands.values())
+        command = find(
+            lambda command: command.id == command_id, self.db_commands.values()
+        )
         if command is None:
             log.warning("Invalid ID sent to on_command_update")
             return
@@ -132,20 +142,26 @@ class CommandManager(UserDict[str, Command]):
                         CommandExample(
                             None,
                             "Create a normal command",
-                            chat="user:!add command test Kappa 123\n" "bot>user:Added your command (ID: 7)",
+                            chat="user:!add command test Kappa 123\n"
+                            "bot>user:Added your command (ID: 7)",
                             description="This creates a normal command with the trigger !test which outputs Kappa 123 to chat",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a command that responds with a whisper",
-                            chat="user:!add command test Kappa 123 --whisper\n" "bot>user:Added your command (ID: 7)",
+                            chat="user:!add command test Kappa 123 --whisper\n"
+                            "bot>user:Added your command (ID: 7)",
                             description="This creates a command with the trigger !test which responds with Kappa 123 as a whisper to the user who called the command",
                         ).parse(),
                     ],
                 ),
-                "win": Command.dispatch_command("add_win", level=500, description="Add a win to something!"),
+                "win": Command.dispatch_command(
+                    "add_win", level=500, description="Add a win to something!"
+                ),
                 "funccommand": Command.dispatch_command(
-                    "add_funccommand", level=2000, description="Add a command that uses a command"
+                    "add_funccommand",
+                    level=2000,
+                    description="Add a command that uses a command",
                 ),
                 "alias": Command.dispatch_command(
                     "add_alias",
@@ -192,43 +208,51 @@ class CommandManager(UserDict[str, Command]):
                         CommandExample(
                             None,
                             "Change the Global Cooldown",
-                            chat="user:!edit command test --cd 10\n" "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --cd 10\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="Changes the global cooldown for the command !test to 10 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the User-specific Cooldown",
-                            chat="user:!edit command test --usercd 30\n" "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --usercd 30\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="Changes the user-specific cooldown for the command !test to 30 seconds",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Level for a command",
-                            chat="user:!edit command test --level 500\n" "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --level 500\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="Changes the command level for !test to level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change the Cost for a command",
-                            chat="user:!edit command $test1 --cost 50\n" "bot>user:Updated the command (ID: 27)",
+                            chat="user:!edit command $test1 --cost 50\n"
+                            "bot>user:Updated the command (ID: 27)",
                             description="Changes the command cost for !$test1 to 50 points, you should always use a $ for a command that cost points.",
                         ).parse(),
                         CommandExample(
                             None,
                             "Change a command to Moderator only",
-                            chat="user:!edit command test --modonly\n" "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --modonly\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="This command can only be used for user with level 100 and Moderator status or user over level 500",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove Moderator only from a command",
-                            chat="user:!edit command test --no-modonly\n" "bot>user:Updated the command (ID: 29)",
+                            chat="user:!edit command test --no-modonly\n"
+                            "bot>user:Updated the command (ID: 29)",
                             description="This command can be used for normal users again.",
                         ).parse(),
                     ],
                 ),
                 "funccommand": Command.dispatch_command(
-                    "edit_funccommand", level=2000, description="Edit a command that uses a command"
+                    "edit_funccommand",
+                    level=2000,
+                    description="Edit a command that uses a command",
                 ),
             },
         )
@@ -247,18 +271,22 @@ class CommandManager(UserDict[str, Command]):
                         CommandExample(
                             None,
                             "Remove a command",
-                            chat="user:!remove command Keepo123\n" "bot>user:Successfully removed command with id 27",
+                            chat="user:!remove command Keepo123\n"
+                            "bot>user:Successfully removed command with id 27",
                             description="Removes a command with the trigger !Keepo123",
                         ).parse(),
                         CommandExample(
                             None,
                             "Remove a command with the given ID.",
-                            chat="user:!remove command 28\n" "bot>user:Successfully removed command with id 28",
+                            chat="user:!remove command 28\n"
+                            "bot>user:Successfully removed command with id 28",
                             description="Removes a command with id 28",
                         ).parse(),
                     ],
                 ),
-                "win": Command.dispatch_command("remove_win", level=500, description="Remove a win to something!"),
+                "win": Command.dispatch_command(
+                    "remove_win", level=500, description="Remove a win to something!"
+                ),
                 "alias": Command.dispatch_command(
                     "remove_alias",
                     level=500,
@@ -284,7 +312,9 @@ class CommandManager(UserDict[str, Command]):
 
         return self.internal_commands
 
-    def create_command(self, alias_str: str, **options: Any) -> tuple[Command, bool, str]:
+    def create_command(
+        self, alias_str: str, **options: Any
+    ) -> tuple[Command, bool, str]:
         aliases = alias_str.lower().replace("!", "").split("|")
         for alias in aliases:
             if alias in self.data:
@@ -317,7 +347,9 @@ class CommandManager(UserDict[str, Command]):
             if alias in self.db_commands:
                 del self.db_commands[alias]
             else:
-                log.warning(f"For some reason, {alias} was not in the list of commands when we removed it.")
+                log.warning(
+                    f"For some reason, {alias} was not in the list of commands when we removed it."
+                )
 
     def remove_command(self, command: Command) -> None:
         self.remove_command_aliases(command)
@@ -407,7 +439,11 @@ class CommandManager(UserDict[str, Command]):
 
     def load_by_id(self, command_id: int) -> None:
         self.db_session.commit()
-        command = self.db_session.query(Command).filter_by(id=command_id, enabled=True).one_or_none()
+        command = (
+            self.db_session.query(Command)
+            .filter_by(id=command_id, enabled=True)
+            .one_or_none()
+        )
         if command:
             self.add_db_command_aliases(command)
             self.db_session.expunge(command)
@@ -431,10 +467,30 @@ class CommandManager(UserDict[str, Command]):
         parser = argparse.ArgumentParser()
 
         # Update action type/response type
-        parser.add_argument("--whisper", dest="action_type", action="store_const", const="whisper", default=None)
-        parser.add_argument("--reply", dest="action_type", action="store_const", const="reply", default=None)
-        parser.add_argument("--say", dest="action_type", action="store_const", const="say", default=None)
-        parser.add_argument("--announce", dest="action_type", action="store_const", const="announce", default=None)
+        parser.add_argument(
+            "--whisper",
+            dest="action_type",
+            action="store_const",
+            const="whisper",
+            default=None,
+        )
+        parser.add_argument(
+            "--reply",
+            dest="action_type",
+            action="store_const",
+            const="reply",
+            default=None,
+        )
+        parser.add_argument(
+            "--say", dest="action_type", action="store_const", const="say", default=None
+        )
+        parser.add_argument(
+            "--announce",
+            dest="action_type",
+            action="store_const",
+            const="announce",
+            default=None,
+        )
 
         parser.add_argument("--cd", type=int, dest="delay_all")
         parser.add_argument("--usercd", type=int, dest="delay_user")
@@ -445,14 +501,26 @@ class CommandManager(UserDict[str, Command]):
         parser.add_argument("--no-modonly", dest="mod_only", action="store_false")
         parser.add_argument("--subonly", dest="sub_only", action="store_true")
         parser.add_argument("--no-subonly", dest="sub_only", action="store_false")
-        parser.add_argument("--checkmsg", dest="run_through_banphrases", action="store_true")
-        parser.add_argument("--no-checkmsg", dest="run_through_banphrases", action="store_false")
+        parser.add_argument(
+            "--checkmsg", dest="run_through_banphrases", action="store_true"
+        )
+        parser.add_argument(
+            "--no-checkmsg", dest="run_through_banphrases", action="store_false"
+        )
         parser.add_argument("--disable", dest="enabled", action="store_false")
         parser.add_argument("--enable", dest="enabled", action="store_true")
-        parser.add_argument("--use-global-cooldown", dest="use_global_cd", action="store_true")
-        parser.add_argument("--no-use-global-cooldown", dest="use_global_cd", action="store_false")
-        parser.add_argument("--use-global-cd", dest="use_global_cd", action="store_true")
-        parser.add_argument("--no-use-global-cd", dest="use_global_cd", action="store_false")
+        parser.add_argument(
+            "--use-global-cooldown", dest="use_global_cd", action="store_true"
+        )
+        parser.add_argument(
+            "--no-use-global-cooldown", dest="use_global_cd", action="store_false"
+        )
+        parser.add_argument(
+            "--use-global-cd", dest="use_global_cd", action="store_true"
+        )
+        parser.add_argument(
+            "--no-use-global-cd", dest="use_global_cd", action="store_false"
+        )
 
         try:
             args, unknown = parser.parse_known_args(message)

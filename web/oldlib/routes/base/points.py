@@ -19,11 +19,15 @@ def init(app):
     @app.route("/points")
     def points() -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
-            custom_web_content = db_session.query(WebContent).filter_by(page="points").first()
+            custom_web_content = (
+                db_session.query(WebContent).filter_by(page="points").first()
+            )
             custom_content: str = ""
             if custom_web_content and custom_web_content.content:
                 try:
-                    custom_content = Markup(markdown.markdown(custom_web_content.content))
+                    custom_content = Markup(
+                        markdown.markdown(custom_web_content.content)
+                    )
                 except:
                     log.exception("Unhandled exception in def index")
 

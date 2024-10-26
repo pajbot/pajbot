@@ -7,9 +7,16 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--config", "-c", default="config.ini", help="Specify which config file to use (default: config.ini)"
+        "--config",
+        "-c",
+        default="config.ini",
+        help="Specify which config file to use (default: config.ini)",
     )
-    parser.add_argument("--silent", action="count", help="Decides whether the bot should be silent or not")
+    parser.add_argument(
+        "--silent",
+        action="count",
+        help="Decides whether the bot should be silent or not",
+    )
     # TODO: Add a log level argument.
 
     return parser.parse_args()

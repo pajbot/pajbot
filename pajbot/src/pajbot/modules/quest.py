@@ -50,7 +50,13 @@ class QuestModule(BaseModule):
             default="tokens",
             options=["tokens", "points"],
         ),
-        ModuleSetting(key="reward_amount", label="Reward amount", type="number", required=True, default=5),
+        ModuleSetting(
+            key="reward_amount",
+            label="Reward amount",
+            type="number",
+            required=True,
+            default=5,
+        ),
         ModuleSetting(
             key="max_tokens",
             label="Max tokens",
@@ -84,17 +90,23 @@ class QuestModule(BaseModule):
 
     def get_current_quest(self, bot: Bot, event: Any, source: User, **rest) -> bool:
         if self.current_quest:
-            message_quest = f"the current quest active is {self.current_quest.get_objective()}."
+            message_quest = (
+                f"the current quest active is {self.current_quest.get_objective()}."
+            )
         else:
             message_quest = "there is no quest active right now."
 
-        bot.send_message_to_user(source, message_quest, event, method=self.settings["action_currentquest"])
+        bot.send_message_to_user(
+            source, message_quest, event, method=self.settings["action_currentquest"]
+        )
 
         return True
 
     def get_user_tokens(self, bot: Bot, event: Any, source: User, **rest) -> bool:
         message_tokens = f"You have {source.tokens} tokens."
-        bot.send_message_to_user(source, message_tokens, event, method=self.settings["action_tokens"])
+        bot.send_message_to_user(
+            source, message_tokens, event, method=self.settings["action_tokens"]
+        )
 
         return True
 
@@ -103,10 +115,16 @@ class QuestModule(BaseModule):
             self.my_progress, can_execute_with_whisper=True, delay_all=0, delay_user=10
         )
         self.commands["currentquest"] = Command.raw_command(
-            self.get_current_quest, can_execute_with_whisper=True, delay_all=2, delay_user=10
+            self.get_current_quest,
+            can_execute_with_whisper=True,
+            delay_all=2,
+            delay_user=10,
         )
         self.commands["tokens"] = Command.raw_command(
-            self.get_user_tokens, can_execute_with_whisper=True, delay_all=0, delay_user=10
+            self.get_user_tokens,
+            can_execute_with_whisper=True,
+            delay_all=0,
+            delay_user=10,
         )
 
         self.commands["quest"] = self.commands["currentquest"]
@@ -117,10 +135,14 @@ class QuestModule(BaseModule):
             return True
 
         if not self.current_quest_key:
-            log.error("Current quest key not set when on_stream_start event fired, something is wrong")
+            log.error(
+                "Current quest key not set when on_stream_start event fired, something is wrong"
+            )
             return False
 
-        available_quests = list(filter(lambda m: m.ID.startswith("quest-"), self.submodules))
+        available_quests = list(
+            filter(lambda m: m.ID.startswith("quest-"), self.submodules)
+        )
         if not available_quests:
             log.error("No quests enabled.")
             return False
@@ -154,7 +176,9 @@ class QuestModule(BaseModule):
             return False
 
         if not self.current_quest_key:
-            log.error("Current quest key not set when on_stream_stop event fired, something is wrong")
+            log.error(
+                "Current quest key not set when on_stream_stop event fired, something is wrong"
+            )
             return False
 
         self.current_quest.stop_quest()
@@ -177,7 +201,9 @@ class QuestModule(BaseModule):
     def on_managers_loaded(self, **rest) -> bool:
         # This function is used to resume a quest in case the bot starts when the stream is already live
         if not self.current_quest_key:
-            log.error("Current quest key not set when on_managers_loaded event fired, something is wrong")
+            log.error(
+                "Current quest key not set when on_managers_loaded event fired, something is wrong"
+            )
             return True
 
         if self.current_quest:
@@ -198,7 +224,11 @@ class QuestModule(BaseModule):
         quest = find(lambda m: m.ID == current_quest_id, self.submodules)
 
         if not quest:
-            log.info("No quest with id %s found in submodules (%s)", current_quest_id, self.submodules)
+            log.info(
+                "No quest with id %s found in submodules (%s)",
+                current_quest_id,
+                self.submodules,
+            )
             return True
 
         assert isinstance(quest, BaseQuest)

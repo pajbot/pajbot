@@ -34,7 +34,9 @@ def parse_points_amount(user: User, point_string: str) -> int:
         try:
             percentage = float(point_string[:-1])
             if percentage <= 0 or percentage > 100:
-                raise InvalidPointAmount("Invalid percentage format (example: 43.5%) :o")
+                raise InvalidPointAmount(
+                    "Invalid percentage format (example: 43.5%) :o"
+                )
 
             return math.floor(float(user.points) * (percentage / 100))
         except (ValueError, TypeError):
@@ -55,7 +57,9 @@ def parse_points_amount(user: User, point_string: str) -> int:
 
             return round(bet_f)
         except (ValueError, TypeError):
-            raise InvalidPointAmount("Non-recognizable point amount (examples: 100, 10k, 1m, 0.5k)")
+            raise InvalidPointAmount(
+                "Non-recognizable point amount (examples: 100, 10k, 1m, 0.5k)"
+            )
     elif point_string.lower() in ALLIN_PHRASES:
         return user.points
 

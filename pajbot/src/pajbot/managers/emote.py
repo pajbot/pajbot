@@ -7,7 +7,12 @@ import random
 
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCount, EmoteInstanceCountMap
+from pajbot.models.emote import (
+    Emote,
+    EmoteInstance,
+    EmoteInstanceCount,
+    EmoteInstanceCountMap,
+)
 from pajbot.streamhelper import StreamHelper
 from pajbot.utils import iterate_split_with_index
 
@@ -20,7 +25,9 @@ log = logging.getLogger(__name__)
 class EmoteAPI(Protocol):
     def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]: ...
 
-    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> list[Emote]: ...
+    def get_channel_emotes(
+        self, streamer_name: str, force_fetch: bool = ...
+    ) -> list[Emote]: ...
 
 
 class GenericChannelEmoteManager:
@@ -44,7 +51,9 @@ class GenericChannelEmoteManager:
     @global_emotes.setter
     def global_emotes(self, value: list[Emote]) -> None:
         self._global_emotes = value
-        self.global_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
+        self.global_lookup_table = (
+            {emote.code: emote for emote in value} if value is not None else {}
+        )
 
     @property
     def channel_emotes(self) -> list[Emote]:
@@ -53,7 +62,9 @@ class GenericChannelEmoteManager:
     @channel_emotes.setter
     def channel_emotes(self, value: list[Emote]) -> None:
         self._channel_emotes = value
-        self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
+        self.channel_lookup_table = (
+            {emote.code: emote for emote in value} if value is not None else {}
+        )
 
     def load_global_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
@@ -79,7 +90,9 @@ class GenericChannelEmoteManager:
         if self.api is None:
             raise ValueError("API not initialized in Emote Manager")
 
-        self.channel_emotes = self.api.get_channel_emotes(self.streamer, force_fetch=True)
+        self.channel_emotes = self.api.get_channel_emotes(
+            self.streamer, force_fetch=True
+        )
 
     def update_all(self) -> None:
         self.update_global_emotes()
@@ -124,13 +137,15 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
         self.global_emotes = self.twitch_helix_api.get_global_emotes(force_fetch=True)
 
     def load_channel_emotes(self) -> None:
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
-            self.streamer_id, self.streamer
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = (
+            self.twitch_helix_api.get_channel_emotes(self.streamer_id, self.streamer)
         )
 
     def update_channel_emotes(self) -> None:
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
-            self.streamer_id, self.streamer, force_fetch=True
+        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = (
+            self.twitch_helix_api.get_channel_emotes(
+                self.streamer_id, self.streamer, force_fetch=True
+            )
         )
 
 
@@ -161,7 +176,9 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
         self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id)
 
     def update_channel_emotes(self) -> None:
-        self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
+        self.channel_emotes = self.bttv_api.get_channel_emotes(
+            self.streamer_id, force_fetch=True
+        )
 
 
 class SevenTVEmoteManager(GenericChannelEmoteManager):
@@ -180,7 +197,9 @@ class SevenTVEmoteManager(GenericChannelEmoteManager):
         self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id)
 
     def update_channel_emotes(self) -> None:
-        self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
+        self.channel_emotes = self.seventv_api.get_channel_emotes(
+            self.streamer_id, force_fetch=True
+        )
 
 
 class EmoteManager:
@@ -215,7 +234,9 @@ class EmoteManager:
 
     @staticmethod
     def twitch_emote_url(emote_id: str, size: str) -> str:
-        return f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/{size}"
+        return (
+            f"https://static-cdn.jtvnw.net/emoticons/v2/{emote_id}/default/dark/{size}"
+        )
 
     @staticmethod
     def twitch_emote(emote_id: str, code: str) -> Emote:
@@ -234,8 +255,12 @@ class EmoteManager:
         )
 
     @staticmethod
-    def twitch_emote_instance(emote_id: str, code: str, start: int, end: int) -> EmoteInstance:
-        return EmoteInstance(start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code))
+    def twitch_emote_instance(
+        emote_id: str, code: str, start: int, end: int
+    ) -> EmoteInstance:
+        return EmoteInstance(
+            start=start, end=end, emote=EmoteManager.twitch_emote(emote_id, code)
+        )
 
     @staticmethod
     def parse_twitch_emotes_tag(tag: str, message: str) -> list[EmoteInstance]:
@@ -253,7 +278,9 @@ class EmoteManager:
                 end = int(end_src) + 1
                 code = message[start:end]
 
-                emote_instances.append(EmoteManager.twitch_emote_instance(emote_id, code, start, end))
+                emote_instances.append(
+                    EmoteManager.twitch_emote_instance(emote_id, code, start, end)
+                )
 
         return emote_instances
 
@@ -288,8 +315,12 @@ class EmoteManager:
         self, message: str, twitch_emotes_tag: str = ""
     ) -> tuple[list[EmoteInstance], EmoteInstanceCountMap]:
         # Twitch Emotes
-        twitch_emote_instances = self.parse_twitch_emotes_tag(twitch_emotes_tag, message)
-        twitch_emote_start_indices = {instance.start for instance in twitch_emote_instances}
+        twitch_emote_instances = self.parse_twitch_emotes_tag(
+            twitch_emotes_tag, message
+        )
+        twitch_emote_start_indices = {
+            instance.start for instance in twitch_emote_instances
+        }
 
         # for the other providers, split the message by spaces
         # and then, if word is not a twitch emote, consider ffz channel -> bttv channel ->
@@ -308,7 +339,11 @@ class EmoteManager:
                 continue
 
             third_party_emote_instances.append(
-                EmoteInstance(start=current_word_index, end=current_word_index + len(word), emote=emote)
+                EmoteInstance(
+                    start=current_word_index,
+                    end=current_word_index + len(word),
+                    emote=emote,
+                )
             )
 
         all_instances = twitch_emote_instances + third_party_emote_instances
@@ -357,7 +392,9 @@ class EmoteManager:
         return random.choice(emotes)
 
 
-def compute_emote_counts(emote_instances: list[EmoteInstance]) -> dict[str, EmoteInstanceCount]:
+def compute_emote_counts(
+    emote_instances: list[EmoteInstance],
+) -> dict[str, EmoteInstanceCount]:
     """Turns a list of emote instances into a map mapping emote code
     to count and a list of instances."""
     emote_counts: dict[str, EmoteInstanceCount] = {}
@@ -366,7 +403,9 @@ def compute_emote_counts(emote_instances: list[EmoteInstance]) -> dict[str, Emot
         current_value = emote_counts.get(emote_code, None)
 
         if current_value is None:
-            current_value = EmoteInstanceCount(count=1, emote=emote_instance.emote, emote_instances=[emote_instance])
+            current_value = EmoteInstanceCount(
+                count=1, emote=emote_instance.emote, emote_instances=[emote_instance]
+            )
             emote_counts[emote_code] = current_value
         else:
             current_value.count += 1
@@ -413,7 +452,9 @@ end
 
     def save_epm_record(self, code: str, count: int) -> None:
         streamer = StreamHelper.get_streamer()
-        self.redis_zadd_if_higher(keys=[f"{streamer}:emotes:epmrecord", count], args=[code])
+        self.redis_zadd_if_higher(
+            keys=[f"{streamer}:emotes:epmrecord", count], args=[code]
+        )
 
     def get_emote_epm(self, emote_code: str) -> Optional[int]:
         """Returns the current "emote per minute" usage of the given emote code,

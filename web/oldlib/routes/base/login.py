@@ -19,12 +19,16 @@ def init(app):
         csrf_token = base64.b64encode(os.urandom(64)).decode("utf-8")
         session["csrf_token"] = csrf_token
 
-        state = {"csrf_token": csrf_token, "return_to": request.args.get("returnTo", None)}
+        state = {
+            "csrf_token": csrf_token,
+            "return_to": request.args.get("returnTo", None),
+        }
 
         params = {
             "client_id": app.bot_config["twitchapi"]["client_id"],
             "redirect_uri": app.bot_config["twitchapi"].get(
-                "redirect_uri", f"https://{app.bot_config['web']['domain']}/login/authorized"
+                "redirect_uri",
+                f"https://{app.bot_config['web']['domain']}/login/authorized",
             ),
             "response_type": "code",
             "scope": " ".join(scopes),
@@ -32,7 +36,9 @@ def init(app):
             "force_verify": "true" if should_verify else "false",
         }
 
-        authorize_url = "https://id.twitch.tv/oauth2/authorize?" + urllib.parse.urlencode(params)
+        authorize_url = (
+            "https://id.twitch.tv/oauth2/authorize?" + urllib.parse.urlencode(params)
+        )
         return redirect(authorize_url)
 
     bot_scopes = [
@@ -80,12 +86,26 @@ def init(app):
         state_str = request.args.get("state", None)
 
         if state_str is None:
-            return render_template("login_error.html", return_to="/", detail_msg="State parameter missing"), 400
+            return (
+                render_template(
+                    "login_error.html",
+                    return_to="/",
+                    detail_msg="State parameter missing",
+                ),
+                400,
+            )
 
         try:
             state = json.loads(state_str)
         except JSONDecodeError:
-            return render_template("login_error.html", return_to="/", detail_msg="State parameter not valid JSON"), 400
+            return (
+                render_template(
+                    "login_error.html",
+                    return_to="/",
+                    detail_msg="State parameter not valid JSON",
+                ),
+                400,
+            )
 
         # we now have a valid state object, we can send the user back to the place they came from
         return_to = state.get("return_to", None)
@@ -95,7 +115,12 @@ def init(app):
             return_to = "/"
 
         def login_error(code, detail_msg=None):
-            return render_template("login_error.html", return_to=return_to, detail_msg=detail_msg), code
+            return (
+                render_template(
+                    "login_error.html", return_to=return_to, detail_msg=detail_msg
+                ),
+                code,
+            )
 
         csrf_token = state.get("csrf_token", None)
         if csrf_token is None:
@@ -140,7 +165,9 @@ def init(app):
             access_token = app.twitch_id_api.get_user_access_token(code)
         except:
             log.exception("Could not exchange given code for access token with Twitch")
-            return login_error(500, "Could not exchange the given code for an access token.")
+            return login_error(
+                500, "Could not exchange the given code for an access token."
+            )
 
         user_basics = app.twitch_helix_api.fetch_user_basics_from_authorization(
             (app.api_client_credentials, access_token)
@@ -168,8 +195,13 @@ def init(app):
                 )
             else:
                 redis = RedisManager.get()
-                redis.set(f"authentication:user-access-token:{me.id}", json.dumps(access_token.jsonify()))
-                log.info(f"Successfully updated {me.login}'s token in redis to {access_token.scope}")
+                redis.set(
+                    f"authentication:user-access-token:{me.id}",
+                    json.dumps(access_token.jsonify()),
+                )
+                log.info(
+                    f"Successfully updated {me.login}'s token in redis to {access_token.scope}"
+                )
 
         return redirect(return_to)
 

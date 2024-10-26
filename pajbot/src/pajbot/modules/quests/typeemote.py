@@ -23,7 +23,9 @@ log = logging.getLogger(__name__)
 class TypeEmoteQuestModule(BaseQuest):
     ID = "quest-" + __name__.split(".")[-1]
     NAME = "Type X emote Y times"
-    DESCRIPTION = "A user needs to type a specific emote Y times to complete this quest."
+    DESCRIPTION = (
+        "A user needs to type a specific emote Y times to complete this quest."
+    )
     PARENT_MODULE = QuestModule
     SETTINGS = [
         ModuleSetting(
@@ -45,7 +47,9 @@ class TypeEmoteQuestModule(BaseQuest):
     def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def on_message(self, source: User, emote_instances: list[EmoteInstance], **rest) -> bool:
+    def on_message(
+        self, source: User, emote_instances: list[EmoteInstance], **rest
+    ) -> bool:
         typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
         if self.current_emote not in typed_emotes:
             return True
@@ -79,10 +83,14 @@ class TypeEmoteQuestModule(BaseQuest):
             # TODO possibly a setting to allow the user to configure the twitch_global=True, etc
             #      parameters to random_emote?
             if self.bot is not None:
-                self.current_emote = self.bot.emote_manager.random_emote(twitch_global=True)
+                self.current_emote = self.bot.emote_manager.random_emote(
+                    twitch_global=True
+                )
                 # If EmoteManager has no global emotes, current_emote will be None
                 if self.current_emote is not None:
-                    redis.set(self.current_emote_key, json.dumps(self.current_emote.jsonify()))
+                    redis.set(
+                        self.current_emote_key, json.dumps(self.current_emote.jsonify())
+                    )
         else:
             self.current_emote = Emote(**json.loads(redis_json))
 

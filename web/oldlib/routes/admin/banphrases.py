@@ -92,22 +92,33 @@ def init(page) -> None:
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 if id is not None:
                     banphrase = (
-                        db_session.query(Banphrase).options(joinedload(Banphrase.data)).filter_by(id=id).one_or_none()
+                        db_session.query(Banphrase)
+                        .options(joinedload(Banphrase.data))
+                        .filter_by(id=id)
+                        .one_or_none()
                     )
                     if banphrase is None:
                         return redirect("/admin/banphrases", 303)
                     banphrase.set(**options)
                     banphrase.data.set(edited_by=options["edited_by"])
-                    log.info(f"Updated banphrase ID {banphrase.id} by user ID {options['edited_by']}")
-                    AdminLogManager.post("Banphrase edited", user, banphrase.id, banphrase.phrase)
+                    log.info(
+                        f"Updated banphrase ID {banphrase.id} by user ID {options['edited_by']}"
+                    )
+                    AdminLogManager.post(
+                        "Banphrase edited", user, banphrase.id, banphrase.phrase
+                    )
                 else:
                     banphrase = Banphrase(**options)
-                    banphrase.data = BanphraseData(banphrase.id, added_by=options["added_by"])
+                    banphrase.data = BanphraseData(
+                        banphrase.id, added_by=options["added_by"]
+                    )
                     db_session.add(banphrase)
                     db_session.add(banphrase.data)
                     db_session.flush()
                     log.info(f"Added a new banphrase by user ID {options['added_by']}")
-                    AdminLogManager.post("Banphrase added", user, banphrase.id, banphrase.phrase)
+                    AdminLogManager.post(
+                        "Banphrase added", user, banphrase.id, banphrase.phrase
+                    )
 
                 final_banphrase = banphrase
 
@@ -124,7 +135,9 @@ def init(page) -> None:
     @requires_level(500)
     def banphrases_edit(banphrase_id, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
-            banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+            banphrase = (
+                db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+            )
 
             if banphrase is None:
                 return render_template("admin/banphrase_404.html"), 404

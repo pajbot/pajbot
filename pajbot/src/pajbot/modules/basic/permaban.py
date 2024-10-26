@@ -104,7 +104,9 @@ class PermabanModule(BaseModule):
                 bot.unban(user)
 
                 if self.settings["enable_send_timeout"] is True:
-                    bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source))
+                    bot.timeout(
+                        user, 1, self.settings["timeout_reason"].format(source=source)
+                    )
 
         return True
 
@@ -117,7 +119,8 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!permaban Karl_Kons\n" "bot>user:Karl_Kons has now been permabanned",
+                    chat="user:!permaban Karl_Kons\n"
+                    "bot>user:Karl_Kons has now been permabanned",
                     description="Permanently ban Karl_Kons from the chat",
                 ).parse()
             ],
@@ -131,7 +134,8 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!unpermaban Karl_Kons\n" "bot>user:Karl_Kons is no longer permabanned",
+                    chat="user:!unpermaban Karl_Kons\n"
+                    "bot>user:Karl_Kons is no longer permabanned",
                     description="Remove permanent ban from Karl_Kons",
                 ).parse()
             ],

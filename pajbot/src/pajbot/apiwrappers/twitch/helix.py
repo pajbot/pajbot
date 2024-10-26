@@ -176,7 +176,13 @@ class TwitchVideo:
 
 class TwitchBadgeVersion:
     def __init__(
-        self, id: str, image_url_1x: str, image_url_2x: str, image_url_4x: str, description: str, title: str
+        self,
+        id: str,
+        image_url_1x: str,
+        image_url_2x: str,
+        image_url_4x: str,
+        description: str,
+        title: str,
     ) -> None:
         self.id = id
         self.image_url_1x = image_url_1x
@@ -242,22 +248,30 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def request(self, method, endpoint, params, headers, authorization=None, json=None):
         try:
-            return super().request(method, endpoint, params, headers, authorization, json)
+            return super().request(
+                method, endpoint, params, headers, authorization, json
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 429:
                 # retry once after rate limit resets...
-                rate_limit_reset = datetime.fromtimestamp(int(e.response.headers["Ratelimit-Reset"]), tz=timezone.utc)
+                rate_limit_reset = datetime.fromtimestamp(
+                    int(e.response.headers["Ratelimit-Reset"]), tz=timezone.utc
+                )
                 time_to_wait = rate_limit_reset - utils.now()
                 time.sleep(math.ceil(time_to_wait.total_seconds()))
-                return super().request(method, endpoint, params, headers, authorization, json)
+                return super().request(
+                    method, endpoint, params, headers, authorization, json
+                )
 
             raise e
 
     @staticmethod
-    def _with_pagination(after_pagination_cursor: Optional[str] = None) -> dict[str, str]:
+    def _with_pagination(
+        after_pagination_cursor: Optional[str] = None,
+    ) -> dict[str, str]:
         """Returns a dict with extra query parameters based on the given pagination cursor.
         This makes a dict with the ?after=xxxx query parameter if a pagination cursor is present,
         and if no pagination cursor is present, returns an empty dict."""
@@ -274,7 +288,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         responses = []
 
         while True:
-            response, pagination_cursor = page_fetch_fn(after_pagination_cursor=pagination_cursor, *args, **kwargs)
+            response, pagination_cursor = page_fetch_fn(
+                after_pagination_cursor=pagination_cursor, *args, **kwargs
+            )
 
             # add this chunk's responses to the list of all responses
             responses.extend(response)
@@ -348,7 +364,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         return user_data["login"] if user_data is not None else None
 
-    def fetch_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
+    def fetch_channel_information(
+        self, user_id: str
+    ) -> Optional[UserChannelInformation]:
         response = self.get("/channels", {"broadcaster_id": user_id})
 
         if len(response["data"]) <= 0:
@@ -356,7 +374,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         info = response["data"][0]
 
-        return UserChannelInformation(info["broadcaster_language"], info["game_id"], info["game_name"], info["title"])
+        return UserChannelInformation(
+            info["broadcaster_language"],
+            info["game_id"],
+            info["game_name"],
+            info["title"],
+        )
 
     def get_channel_information(self, user_id: str) -> Optional[UserChannelInformation]:
         """Gets the channel information of a Twitch user for the given Twitch user ID,
@@ -370,7 +393,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response else 300,
         )
 
-    def _fetch_follow_since(self, broadcaster_id: str, user_id: str, authorization) -> Optional[datetime]:
+    def _fetch_follow_since(
+        self, broadcaster_id: str, user_id: str, authorization
+    ) -> Optional[datetime]:
         response = self.get(
             "/channels/followers",
             {
@@ -385,11 +410,15 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return self.parse_datetime(response["data"][0]["followed_at"])
 
-    def get_follow_since(self, broadcaster_id: str, user_id: str, authorization) -> Optional[datetime]:
+    def get_follow_since(
+        self, broadcaster_id: str, user_id: str, authorization
+    ) -> Optional[datetime]:
         return self.cache.cache_fetch_fn(
             redis_key=f"api:twitch:helix:follow-since:{broadcaster_id}:{user_id}",
             serializer=DateTimeSerializer(),
-            fetch_fn=lambda: self._fetch_follow_since(broadcaster_id, user_id, authorization),
+            fetch_fn=lambda: self._fetch_follow_since(
+                broadcaster_id, user_id, authorization
+            ),
             expiry=lambda response: 30 if response is None else 300,
         )
 
@@ -401,7 +430,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_login(login)
         if user_data is None:
             return None
-        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+        return UserBasics(
+            user_data["id"], user_data["login"], user_data["display_name"]
+        )
 
     def require_user_basics_by_login(self, login: str) -> UserBasics:
         user_basics = self.get_user_basics_by_login(login)
@@ -413,7 +444,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
         user_data = self._get_user_data_by_id(user_id)
         if user_data is None:
             return None
-        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+        return UserBasics(
+            user_data["id"], user_data["login"], user_data["display_name"]
+        )
 
     def require_user_basics_by_id(self, user_id: str) -> UserBasics:
         user_basics = self.get_user_basics_by_id(user_id)
@@ -423,17 +456,27 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def fetch_user_basics_from_authorization(self, authorization) -> UserBasics:
         """Fetch the UserBasics for the user identified by the given authorization object.
-        `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken)."""
+        `authorization` can be a UserAccessTokenManager or a tuple (ClientCredentials, UserAccessToken).
+        """
         user_data = self._fetch_user_data_from_authorization(authorization)
-        return UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+        return UserBasics(
+            user_data["id"], user_data["login"], user_data["display_name"]
+        )
 
     def _fetch_subscribers_page(
-        self, broadcaster_id: str, authorization, after_pagination_cursor: Optional[str] = None
+        self,
+        broadcaster_id: str,
+        authorization,
+        after_pagination_cursor: Optional[str] = None,
     ) -> tuple[list[UserBasics], Optional[str]]:
         """Fetch a list of subscribers (user IDs) of a broadcaster + a pagination cursor as a tuple."""
         response = self.get(
             "/subscriptions",
-            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            {
+                "broadcaster_id": broadcaster_id,
+                "first": 100,
+                **self._with_pagination(after_pagination_cursor),
+            },
             authorization=authorization,
         )
 
@@ -474,15 +517,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return subscribers, pagination_cursor
 
-    def fetch_all_subscribers(self, broadcaster_id: str, authorization) -> set[UserBasics]:
+    def fetch_all_subscribers(
+        self, broadcaster_id: str, authorization
+    ) -> set[UserBasics]:
         """Fetch a list of all subscribers (user IDs) of a broadcaster."""
-        subscribers = self._fetch_all_pages(self._fetch_subscribers_page, broadcaster_id, authorization)
+        subscribers = self._fetch_all_pages(
+            self._fetch_subscribers_page, broadcaster_id, authorization
+        )
 
         # Dedupe the list of subscribers since the API can return the same IDs multiple times
 
         return set(subscribers)
 
-    def _bulk_fetch_user_data(self, key_type: str, lookup_keys: list[str]) -> list[Optional[Any]]:
+    def _bulk_fetch_user_data(
+        self, key_type: str, lookup_keys: list[str]
+    ) -> list[Optional[Any]]:
         all_entries = []
 
         # We can fetch a maximum of 100 users on each helix request
@@ -492,7 +541,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
             # using a response map means we don't rely on twitch returning the data entries in the exact
             # order we requested them
-            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+            response_map = {
+                response_entry[key_type]: response_entry
+                for response_entry in response["data"]
+            }
 
             # then fill in the gaps with None
             for lookup_key in lookup_keys_chunk:
@@ -518,22 +570,30 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def bulk_get_user_basics_by_id(self, user_ids: list[str]) -> list[Optional[UserBasics]]:
+    def bulk_get_user_basics_by_id(
+        self, user_ids: list[str]
+    ) -> list[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_id(user_ids)
         return [
             (
-                UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+                UserBasics(
+                    user_data["id"], user_data["login"], user_data["display_name"]
+                )
                 if user_data is not None
                 else None
             )
             for user_data in bulk_user_data
         ]
 
-    def bulk_get_user_basics_by_login(self, logins: list[str]) -> list[Optional[UserBasics]]:
+    def bulk_get_user_basics_by_login(
+        self, logins: list[str]
+    ) -> list[Optional[UserBasics]]:
         bulk_user_data = self.bulk_get_user_data_by_login(logins)
         return [
             (
-                UserBasics(user_data["id"], user_data["login"], user_data["display_name"])
+                UserBasics(
+                    user_data["id"], user_data["login"], user_data["display_name"]
+                )
                 if user_data is not None
                 else None
             )
@@ -542,7 +602,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def create_clip(self, broadcaster_id: str, authorization, has_delay=False) -> str:
         response = self.post(
-            "/clips", {"broadcaster_id": broadcaster_id, "has_delay": has_delay}, authorization=authorization
+            "/clips",
+            {"broadcaster_id": broadcaster_id, "has_delay": has_delay},
+            authorization=authorization,
         )
         clip_id = response["data"][0]["id"]
 
@@ -608,7 +670,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
             expiry=lambda response: 30 if response is None else 300,
         )
 
-    def _fetch_games(self, key_type: str, lookup_keys: list[str]) -> list[Optional[TwitchGame]]:
+    def _fetch_games(
+        self, key_type: str, lookup_keys: list[str]
+    ) -> list[Optional[TwitchGame]]:
         all_entries: list[Optional[TwitchGame]] = []
 
         # We can fetch a maximum of 100 users on each helix request
@@ -618,7 +682,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
             # using a response map means we don't rely on twitch returning the data entries in the exact
             # order we requested them
-            response_map = {response_entry[key_type]: response_entry for response_entry in response["data"]}
+            response_map = {
+                response_entry[key_type]: response_entry
+                for response_entry in response["data"]
+            }
 
             # then fill in the gaps with None
             for lookup_key in lookup_keys_chunk:
@@ -626,7 +693,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
                 if game_dict is None:
                     all_entries.append(None)
                 else:
-                    all_entries.append(TwitchGame(game_dict["id"], game_dict["name"], game_dict["box_art_url"]))
+                    all_entries.append(
+                        TwitchGame(
+                            game_dict["id"], game_dict["name"], game_dict["box_art_url"]
+                        )
+                    )
 
         return all_entries
 
@@ -662,14 +733,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return games[0]
 
-    def modify_channel_information(self, broadcaster_id: str, body: dict[str, str], authorization=None) -> bool:
+    def modify_channel_information(
+        self, broadcaster_id: str, body: dict[str, str], authorization=None
+    ) -> bool:
         if not body:
             log.error(
                 "Invalid call to modify_channel_information, missing query parameter(s). game_id or title must be specified"
             )
             return False
 
-        response = self.patch("/channels", {"broadcaster_id": broadcaster_id}, authorization=authorization, json=body)
+        response = self.patch(
+            "/channels",
+            {"broadcaster_id": broadcaster_id},
+            authorization=authorization,
+            json=body,
+        )
 
         return response.status_code == 204
 
@@ -679,7 +757,10 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         resp = self.get("/chat/emotes/global")
 
-        return [EmoteManager.twitch_emote(str(emote["id"]), emote["name"]) for emote in resp["data"]]
+        return [
+            EmoteManager.twitch_emote(str(emote["id"]), emote["name"])
+            for emote in resp["data"]
+        ]
 
     def get_global_emotes(self, force_fetch=False) -> list[Emote]:
         return self.cache.cache_fetch_fn(
@@ -690,9 +771,12 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
-    def fetch_channel_emotes(self, channel_id: str, channel_name: str) -> tuple[list[Emote], list[Emote], list[Emote]]:
+    def fetch_channel_emotes(
+        self, channel_id: str, channel_name: str
+    ) -> tuple[list[Emote], list[Emote], list[Emote]]:
         """Returns a tuple of three lists of emotes, each one corresponding to tier 1, tier 2 and tier 3 respectively.
-        Tier 2 and Tier 3 ONLY contain the respective extra emotes added to that tier."""
+        Tier 2 and Tier 3 ONLY contain the respective extra emotes added to that tier.
+        """
         # circular import prevention
         from pajbot.managers.emote import EmoteManager
 
@@ -717,7 +801,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
                     log.warning(f"Unknown channel emote tier fetched: '{emote}'")
                     continue
 
-                ret_data[tier - 1].append(EmoteManager.twitch_emote(str(emote["id"]), emote["name"]))
+                ret_data[tier - 1].append(
+                    EmoteManager.twitch_emote(str(emote["id"]), emote["name"])
+                )
             elif emote["emote_type"] == "bitstier":
                 # TODO: Figure out where bit emotes fit into pajbot
                 pass
@@ -736,7 +822,9 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
-    def send_chat_announcement(self, channel_id: str, bot_id: str, message: str, authorization) -> None:
+    def send_chat_announcement(
+        self, channel_id: str, bot_id: str, message: str, authorization
+    ) -> None:
         """Posts the message and colour provided in order to post an announcement.
         channel_id, bot_id and message are all required fields. bot_id must match the user ID
         in authorization.
@@ -750,18 +838,28 @@ class TwitchHelixAPI(BaseTwitchAPI):
         )
 
     def _delete_chat_messages(
-        self, channel_id: str, bot_id: str, authorization, message_id: Optional[str] = None
+        self,
+        channel_id: str,
+        bot_id: str,
+        authorization,
+        message_id: Optional[str] = None,
     ) -> None:
         """Deletes message entry from helix using the message_id. If no message_id is provided, the request removes all messages in chat.
         channel_id and bot_id are required fields. bot_id must match the user ID in authorization.
         An exception is raised if there are any invalid or missing details."""
         self.delete(
             "/moderation/chat",
-            {"broadcaster_id": channel_id, "moderator_id": bot_id, "message_id": message_id},
+            {
+                "broadcaster_id": channel_id,
+                "moderator_id": bot_id,
+                "message_id": message_id,
+            },
             authorization=authorization,
         )
 
-    def delete_single_message(self, channel_id: str, bot_id: str, authorization, message_id: str) -> None:
+    def delete_single_message(
+        self, channel_id: str, bot_id: str, authorization, message_id: str
+    ) -> None:
         """Deletes a single message from the chatroom using the message_id.
         channel_id, bot_id and message_id are all required fields. bot_id must match the user ID
         in authorization.
@@ -828,32 +926,54 @@ class TwitchHelixAPI(BaseTwitchAPI):
             follower_mode_duration=duration_m,
         )
 
-    def update_emote_only_mode(self, channel_id: str, bot_id: str, authorization, emote_mode: bool):
+    def update_emote_only_mode(
+        self, channel_id: str, bot_id: str, authorization, emote_mode: bool
+    ):
         """Calls the _unique_chat_settings function using the emote_mode parameter.
-        channel_id, bot_id and emote_mode are all required fields. bot_id must match the user ID in authorization."""
-        self._update_chat_settings(channel_id, bot_id, authorization, emote_mode=emote_mode)
+        channel_id, bot_id and emote_mode are all required fields. bot_id must match the user ID in authorization.
+        """
+        self._update_chat_settings(
+            channel_id, bot_id, authorization, emote_mode=emote_mode
+        )
 
-    def update_unique_chat_mode(self, channel_id: str, bot_id: str, authorization, unique_chat_mode: bool) -> None:
+    def update_unique_chat_mode(
+        self, channel_id: str, bot_id: str, authorization, unique_chat_mode: bool
+    ) -> None:
         """Calls the _update_chat_settings function using the unique_chat_mode parameter.
         channel_id, bot_id and unique_chat_mode are all required fields. bot_id must match the user ID in authorization.
         """
-        self._update_chat_settings(channel_id, bot_id, authorization, unique_chat_mode=unique_chat_mode)
+        self._update_chat_settings(
+            channel_id, bot_id, authorization, unique_chat_mode=unique_chat_mode
+        )
 
     def update_slow_mode(
-        self, channel_id: str, bot_id: str, authorization, slow_mode: bool, slow_mode_wait_time: int
+        self,
+        channel_id: str,
+        bot_id: str,
+        authorization,
+        slow_mode: bool,
+        slow_mode_wait_time: int,
     ) -> None:
         """Calls the _update_chat_settings function using the slow_mode and slow_mode_wait_time parametes.
         channel_id, bot_id, slow_mode and slow_mode_wait_time are all required fields. bot_id must match the user ID in authorization.
         """
         self._update_chat_settings(
-            channel_id, bot_id, authorization, slow_mode=slow_mode, slow_mode_wait_time=slow_mode_wait_time
+            channel_id,
+            bot_id,
+            authorization,
+            slow_mode=slow_mode,
+            slow_mode_wait_time=slow_mode_wait_time,
         )
 
-    def update_sub_mode(self, channel_id: str, bot_id: str, authorization, subscriber_mode: bool) -> None:
+    def update_sub_mode(
+        self, channel_id: str, bot_id: str, authorization, subscriber_mode: bool
+    ) -> None:
         """Calls the _update_chat_settings function using the subscriber_mode parameter.
         channel_id, bot_id and subscriber_mode are all required fields. bot_id must match the user ID in authorization.
         """
-        self._update_chat_settings(channel_id, bot_id, authorization, subscriber_mode=subscriber_mode)
+        self._update_chat_settings(
+            channel_id, bot_id, authorization, subscriber_mode=subscriber_mode
+        )
 
     def _fetch_moderators_page(
         self,
@@ -862,15 +982,21 @@ class TwitchHelixAPI(BaseTwitchAPI):
         after_pagination_cursor=None,
     ):
         """Calls the Get Moderators Helix endpoint using the broadcaster_id parameter.
-        broadcaster_id is a required field. broadcaster_id must match the user ID in authorization."""
+        broadcaster_id is a required field. broadcaster_id must match the user ID in authorization.
+        """
         response = self.get(
             "/moderation/moderators",
-            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            {
+                "broadcaster_id": broadcaster_id,
+                "first": 100,
+                **self._with_pagination(after_pagination_cursor),
+            },
             authorization=authorization,
         )
 
         moderators = [
-            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"])
+            for entry in response["data"]
         ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
@@ -878,8 +1004,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
     def fetch_all_moderators(self, broadcaster_id: str, authorization):
         """Calls the _fetch_moderators_page function using the broadcaster_id parameter.
-        broadcaster_id is a required field and must match the user ID in authorization."""
-        moderator_ids = self._fetch_all_pages(self._fetch_moderators_page, broadcaster_id, authorization)
+        broadcaster_id is a required field and must match the user ID in authorization.
+        """
+        moderator_ids = self._fetch_all_pages(
+            self._fetch_moderators_page, broadcaster_id, authorization
+        )
 
         moderator_ids = list(set(moderator_ids))
 
@@ -892,22 +1021,33 @@ class TwitchHelixAPI(BaseTwitchAPI):
         after_pagination_cursor: Optional[str] = None,
     ) -> tuple[list[UserBasics], Optional[str]]:
         """Calls the Get VIPs Helix endpoint using the broadcaster_id parameter.
-        broadcaster_id is a required field and must match the user ID in authorization."""
+        broadcaster_id is a required field and must match the user ID in authorization.
+        """
         response = self.get(
             "/channels/vips",
-            {"broadcaster_id": broadcaster_id, "first": 100, **self._with_pagination(after_pagination_cursor)},
+            {
+                "broadcaster_id": broadcaster_id,
+                "first": 100,
+                **self._with_pagination(after_pagination_cursor),
+            },
             authorization=authorization,
         )
 
-        vips = [UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]]
+        vips = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"])
+            for entry in response["data"]
+        ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
         return vips, pagination_cursor
 
     def fetch_all_vips(self, broadcaster_id: str, authorization) -> set[UserBasics]:
         """Calls the _fetch_vips_page function using the broadcaster_id parameter.
-        broadcaster_id is a required field and must match the user ID in authorization."""
-        vips = self._fetch_all_pages(self._fetch_vips_page, broadcaster_id, authorization)
+        broadcaster_id is a required field and must match the user ID in authorization.
+        """
+        vips = self._fetch_all_pages(
+            self._fetch_vips_page, broadcaster_id, authorization
+        )
 
         return set(vips)
 
@@ -970,7 +1110,11 @@ class TwitchHelixAPI(BaseTwitchAPI):
         All parameters are required. bot_id must match the user_id in authorization."""
         self.delete(
             "/moderation/bans",
-            {"broadcaster_id": broadcaster_id, "moderator_id": bot_id, "user_id": user_id},
+            {
+                "broadcaster_id": broadcaster_id,
+                "moderator_id": bot_id,
+                "user_id": user_id,
+            },
             authorization=authorization,
         )
 
@@ -982,7 +1126,8 @@ class TwitchHelixAPI(BaseTwitchAPI):
         after_pagination_cursor: Optional[str] = None,
     ) -> tuple[list[TwitchBannedUser], Optional[str]]:
         """Calls the Get Banned Users Helix endpoint using the broadcaster_id & user_id parameter.
-        broadcaster_id is a required field and must match the user ID in authorization."""
+        broadcaster_id is a required field and must match the user ID in authorization.
+        """
         response = self.get(
             "/moderation/banned",
             {
@@ -999,14 +1144,19 @@ class TwitchHelixAPI(BaseTwitchAPI):
 
         return users, pagination_cursor
 
-    def get_banned_user(self, broadcaster_id: str, authorization, user_id: str) -> Optional[TwitchBannedUser]:
+    def get_banned_user(
+        self, broadcaster_id: str, authorization, user_id: str
+    ) -> Optional[TwitchBannedUser]:
         """Calls the _get_banned_users function using the broadcaster_id and user_id parameter.
-        All parameters are required and broadcaster_id must match the user ID in authorization."""
+        All parameters are required and broadcaster_id must match the user ID in authorization.
+        """
         response, _ = self._get_banned_users(broadcaster_id, authorization, user_id)
 
         return response[0] if len(response) > 0 else None
 
-    def send_whisper(self, sender_id: str, recepient_id: str, message: str, authorization) -> None:
+    def send_whisper(
+        self, sender_id: str, recepient_id: str, message: str, authorization
+    ) -> None:
         """Calls the Helix Send Whisper endpoint
         sender_id must match user id in authorization.
         message must be at most 500 characters if sending a whisper to a new user, or 10,000 characters if sending to a user that has whispered you before.
@@ -1043,19 +1193,26 @@ class TwitchHelixAPI(BaseTwitchAPI):
             authorization=authorization,
         )
 
-        chatters = [UserBasics(entry["user_id"], entry["user_login"], entry["user_name"]) for entry in response["data"]]
+        chatters = [
+            UserBasics(entry["user_id"], entry["user_login"], entry["user_name"])
+            for entry in response["data"]
+        ]
         pagination_cursor = response["pagination"].get("cursor", None)
 
         return chatters, pagination_cursor
 
-    def get_all_chatters(self, broadcaster_id: str, moderator_id: str, authorization) -> list[UserBasics]:
+    def get_all_chatters(
+        self, broadcaster_id: str, moderator_id: str, authorization
+    ) -> list[UserBasics]:
         """
         Calls the _fetch_chatters_page function using the broadcaster_id & moderator_id parameter.
         broadcaster_id is a required field. broadcaster_id must be a channel the moderator_id user has moderator privileges in.
         moderator_id is a required field. moderator_id must match the user ID in authorization.
         """
 
-        chatters = self._fetch_all_pages(self._fetch_chatters_page, broadcaster_id, moderator_id, authorization)
+        chatters = self._fetch_all_pages(
+            self._fetch_chatters_page, broadcaster_id, moderator_id, authorization
+        )
 
         chatters = list(set(chatters))
 

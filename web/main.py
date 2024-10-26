@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 
-from oldlib import init, app
+from .oldlib import init, app
 from pajbot.utils import init_logging
 
 init_logging("pajbot")

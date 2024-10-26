@@ -77,9 +77,13 @@ class BaseTwitchAPI(BaseAPI):
         return self.request("GET", endpoint, params, headers, authorization).content
 
     def post(self, endpoint, params=None, headers=None, authorization=None, json=None):
-        return self.request("POST", endpoint, params, headers, authorization, json).json()
+        return self.request(
+            "POST", endpoint, params, headers, authorization, json
+        ).json()
 
-    def post_204(self, endpoint, params=None, headers=None, authorization=None, json=None) -> Response:
+    def post_204(
+        self, endpoint, params=None, headers=None, authorization=None, json=None
+    ) -> Response:
         """
         Send a POST request to an endpoint where we expect no content from it, so no parsing
         is done on the response.
@@ -89,10 +93,14 @@ class BaseTwitchAPI(BaseAPI):
         return self.request("POST", endpoint, params, headers, authorization, json)
 
     def put(self, endpoint, params=None, headers=None, authorization=None, json=None):
-        return self.request("PUT", endpoint, params, headers, authorization, json).json()
+        return self.request(
+            "PUT", endpoint, params, headers, authorization, json
+        ).json()
 
     def patch(self, endpoint, params=None, headers=None, authorization=None, json=None):
         return self.request("PATCH", endpoint, params, headers, authorization, json)
 
-    def delete(self, endpoint, params=None, headers=None, authorization=None, json=None):
+    def delete(
+        self, endpoint, params=None, headers=None, authorization=None, json=None
+    ):
         return self.request("DELETE", endpoint, params, headers, authorization, json)

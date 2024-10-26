@@ -107,19 +107,43 @@ class PyramidModule(BaseModule):
                                         if len(x) > peak_length:
                                             peak_length = len(x)
 
-                                    arguments = {"emote": pyramid_thing, "user": source.name, "width": peak_length}
+                                    arguments = {
+                                        "emote": pyramid_thing,
+                                        "user": source.name,
+                                        "width": peak_length,
+                                    }
 
                                     if peak_length > 2:
                                         if peak_length < 5:
-                                            self.bot.say(self.get_phrase("message_5", **arguments))
+                                            self.bot.say(
+                                                self.get_phrase(
+                                                    "message_5", **arguments
+                                                )
+                                            )
                                         elif peak_length < 7:
-                                            self.bot.say(self.get_phrase("message_7", **arguments))
+                                            self.bot.say(
+                                                self.get_phrase(
+                                                    "message_7", **arguments
+                                                )
+                                            )
                                         elif peak_length < 15:
-                                            self.bot.say(self.get_phrase("message_15", **arguments))
+                                            self.bot.say(
+                                                self.get_phrase(
+                                                    "message_15", **arguments
+                                                )
+                                            )
                                         elif peak_length < 25:
-                                            self.bot.say(self.get_phrase("message_25", **arguments))
+                                            self.bot.say(
+                                                self.get_phrase(
+                                                    "message_25", **arguments
+                                                )
+                                            )
                                         else:
-                                            self.bot.say(self.get_phrase("message_else", **arguments))
+                                            self.bot.say(
+                                                self.get_phrase(
+                                                    "message_else", **arguments
+                                                )
+                                            )
                                     self.data = []
                                     self.going_down = False
                         else:

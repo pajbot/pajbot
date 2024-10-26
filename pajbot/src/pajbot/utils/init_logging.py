@@ -26,7 +26,9 @@ def init_logging(app: str = "pajbot") -> logging.Logger:
         def format(self, record: logging.LogRecord) -> str:
             levelname = record.levelname
             if levelname in colors:
-                levelname_color = Style.BRIGHT + colors[levelname] + levelname + Style.RESET_ALL
+                levelname_color = (
+                    Style.BRIGHT + colors[levelname] + levelname + Style.RESET_ALL
+                )
                 record.levelname = levelname_color
             return logging.Formatter.format(self, record)
 
@@ -44,7 +46,9 @@ def init_logging(app: str = "pajbot") -> logging.Logger:
     if hide_timestamps:
         colored_formatter = ColoredFormatter("[%(levelname)-20s] %(message)s")
     else:
-        colored_formatter = ColoredFormatter("[%(asctime)s] [%(levelname)-20s] %(message)s")
+        colored_formatter = ColoredFormatter(
+            "[%(asctime)s] [%(levelname)-20s] %(message)s"
+        )
 
     log_filter = LogFilter(logging.WARNING)
 

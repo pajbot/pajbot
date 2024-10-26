@@ -62,7 +62,11 @@ def init(bp: Blueprint) -> None:
             return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
 
         with DBManager.create_session_scope() as db_session:
-            count = db_session.query(Playsound).filter(Playsound.name == playsound_name).count()
+            count = (
+                db_session.query(Playsound)
+                .filter(Playsound.name == playsound_name)
+                .count()
+            )
             if count >= 1:
                 return "Playsound already exists", 400
 
@@ -91,7 +95,10 @@ def init(bp: Blueprint) -> None:
         link = data.link
         # TODO: Migrate to validator
         if not PlaysoundModule.validate_link(link):
-            return "Empty or bad link, links must start with https:// and must not contain spaces", 400
+            return (
+                "Empty or bad link, links must start with https:// and must not contain spaces",
+                400,
+            )
 
         volume = data.volume
         # TODO: Migrate to validator
@@ -110,7 +117,11 @@ def init(bp: Blueprint) -> None:
             return "Bad enabled argument", 400
 
         with DBManager.create_session_scope() as db_session:
-            playsound = db_session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
+            playsound = (
+                db_session.query(Playsound)
+                .filter(Playsound.name == playsound_name)
+                .one_or_none()
+            )
 
             if playsound is None:
                 return "Playsound does not exist", 404
@@ -121,7 +132,9 @@ def init(bp: Blueprint) -> None:
                 "cooldown": (playsound.cooldown, cooldown),
             }
             # make a dictionary with all the changed values (except for enabled, which has a special case below)
-            filtered_edited_data = {k: v for k, v in raw_edited_data.items() if v[0] != v[1]}
+            filtered_edited_data = {
+                k: v for k, v in raw_edited_data.items() if v[0] != v[1]
+            }
 
             log_msg = f"The {playsound_name} playsound has been updated: "
             log_msg_changes = []
@@ -151,7 +164,11 @@ def init(bp: Blueprint) -> None:
     @requires_level(500)
     def playsound_delete(playsound_name: str, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
-            playsound = db_session.query(Playsound).filter(Playsound.name == playsound_name).one_or_none()
+            playsound = (
+                db_session.query(Playsound)
+                .filter(Playsound.name == playsound_name)
+                .one_or_none()
+            )
 
             if playsound is None:
                 return "Playsound does not exist", 404
@@ -166,7 +183,11 @@ def init(bp: Blueprint) -> None:
     @requires_level(500)
     def playsound_play(playsound_name: str, **options) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
-            count = db_session.query(Playsound).filter(Playsound.name == playsound_name).count()
+            count = (
+                db_session.query(Playsound)
+                .filter(Playsound.name == playsound_name)
+                .count()
+            )
 
             if count <= 0:
                 return "Playsound does not exist", 404

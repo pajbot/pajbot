@@ -35,7 +35,9 @@ class WinRaffleQuestModule(BaseQuest):
 
         return True
 
-    def on_multiraffle_win(self, winners: list[User], points_per_user: int, **rest) -> bool:
+    def on_multiraffle_win(
+        self, winners: list[User], points_per_user: int, **rest
+    ) -> bool:
         for winner in winners:
             self.on_raffle_win(winner)
 

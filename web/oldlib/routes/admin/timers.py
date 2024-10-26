@@ -111,7 +111,10 @@ def init(page) -> None:
                     log_msg = f'Timer "{timer.name}" has been updated'
 
                 AdminLogManager.add_entry(
-                    "Timer edited", user, log_msg, data={"old_message": old_message, "new_message": new_message}
+                    "Timer edited",
+                    user,
+                    log_msg,
+                    data={"old_message": old_message, "new_message": new_message},
                 )
             else:
                 db_session.add(timer)

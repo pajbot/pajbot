@@ -179,7 +179,9 @@ class FollowAgeModule(BaseModule):
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             if user_input is not None:
-                user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, user_input)
+                user = User.find_or_create_from_user_input(
+                    db_session, bot.twitch_helix_api, user_input
+                )
 
                 if user is None:
                     bot.execute_now(
@@ -196,7 +198,9 @@ class FollowAgeModule(BaseModule):
             if broadcaster_input is None:
                 broadcaster_input = bot.streamer.login
 
-            broadcaster = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, broadcaster_input)
+            broadcaster = User.find_or_create_from_user_input(
+                db_session, bot.twitch_helix_api, broadcaster_input
+            )
             if broadcaster is None:
                 bot.execute_now(
                     bot.send_message_to_user,
@@ -208,7 +212,9 @@ class FollowAgeModule(BaseModule):
                 return
 
         try:
-            follow_since = bot.twitch_helix_api.get_follow_since(broadcaster.id, user.id, bot.bot_token_manager)
+            follow_since = bot.twitch_helix_api.get_follow_since(
+                broadcaster.id, user.id, bot.bot_token_manager
+            )
         except HTTPError as e:
             if e.response is None:
                 raise e
@@ -241,9 +247,13 @@ class FollowAgeModule(BaseModule):
             else:
                 message = f"{user.name} is {suffix}"
 
-        bot.execute_now(bot.send_message_to_user, source, message, event, method=message_method)
+        bot.execute_now(
+            bot.send_message_to_user, source, message, event, method=message_method
+        )
 
-    def follow_age(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+    def follow_age(
+        self, bot: Bot, source: User, message: str, event: Any, **rest: Any
+    ) -> None:
         bot.action_queue.submit(
             self._handle_command,
             bot,
@@ -254,7 +264,9 @@ class FollowAgeModule(BaseModule):
             self.settings["action_followage"],
         )
 
-    def follow_since(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
+    def follow_since(
+        self, bot: Bot, source: User, message: str, event: Any, **rest: Any
+    ) -> None:
         bot.action_queue.submit(
             self._handle_command,
             bot,

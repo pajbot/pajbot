@@ -121,7 +121,10 @@ class RaidAlertModule(BaseModule):
 
         if self.settings["whisper_message"] is True:
             self.bot.execute_delayed(
-                self.settings["whisper_after"], self.bot.whisper, user, self.get_phrase("raid_whisper", **payload)
+                self.settings["whisper_after"],
+                self.bot.whisper,
+                user,
+                self.get_phrase("raid_whisper", **payload),
             )
         if self.settings["grant_points_on_raid"] <= 0:
             return
@@ -148,7 +151,9 @@ class RaidAlertModule(BaseModule):
                 return True
 
             if "display-name" not in tags:
-                log.debug(f"raidalert requires a display-name, but it is missing: {tags}")
+                log.debug(
+                    f"raidalert requires a display-name, but it is missing: {tags}"
+                )
                 return True
             self.on_raid(source, num_viewers)
 

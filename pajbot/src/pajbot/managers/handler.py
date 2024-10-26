@@ -10,7 +10,8 @@ log = logging.getLogger("pajbot")
 
 class HandlerManager:
     """This Dict maps event name -> List of event handlers
-    Event handler is a triple: (Callable event handler, priority, run_if_propagation_stopped)"""
+    Event handler is a triple: (Callable event handler, priority, run_if_propagation_stopped)
+    """
 
     handlers: dict[str, list[tuple[Callable[..., bool], int, bool]]] = {}
 
@@ -85,11 +86,18 @@ class HandlerManager:
 
     @staticmethod
     def add_handler(
-        event: str, method: Callable[..., bool], priority: int = 0, run_if_propagation_stopped: bool = False
+        event: str,
+        method: Callable[..., bool],
+        priority: int = 0,
+        run_if_propagation_stopped: bool = False,
     ) -> None:
         try:
-            HandlerManager.handlers[event].append((method, priority, run_if_propagation_stopped))
-            HandlerManager.handlers[event].sort(key=operator.itemgetter(1), reverse=True)
+            HandlerManager.handlers[event].append(
+                (method, priority, run_if_propagation_stopped)
+            )
+            HandlerManager.handlers[event].sort(
+                key=operator.itemgetter(1), reverse=True
+            )
         except KeyError:
             # No handlers for this event found
             log.error(f"HandlerManager.add_handler: No handler for {event} found.")
@@ -105,13 +113,17 @@ class HandlerManager:
             log.error(f"remove_handler No handler for {event} found.")
 
     @staticmethod
-    def trigger(event_name: str, stop_on_false: bool = True, *args: Any, **kwargs: Any) -> bool:
+    def trigger(
+        event_name: str, stop_on_false: bool = True, *args: Any, **kwargs: Any
+    ) -> bool:
         if event_name not in HandlerManager.handlers:
             log.error(f"HandlerManager.trigger: No handler set for event {event_name}")
             return False
 
         propagation_stopped = False
-        for handler, _, run_if_propagation_stopped in HandlerManager.handlers[event_name]:
+        for handler, _, run_if_propagation_stopped in HandlerManager.handlers[
+            event_name
+        ]:
             if propagation_stopped and not run_if_propagation_stopped:
                 continue
 

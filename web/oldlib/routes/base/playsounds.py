@@ -9,7 +9,12 @@ def init(app):
     @app.route("/playsounds")
     def user_playsounds():
         with DBManager.create_session_scope() as session:
-            playsounds = session.query(Playsound).filter(Playsound.enabled).order_by(Playsound.name).all()
+            playsounds = (
+                session.query(Playsound)
+                .filter(Playsound.enabled)
+                .order_by(Playsound.name)
+                .all()
+            )
 
             return render_template(
                 "playsounds.html",

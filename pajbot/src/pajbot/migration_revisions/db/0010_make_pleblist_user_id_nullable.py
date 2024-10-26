@@ -37,10 +37,14 @@ def up(cursor, bot):
     # If the column is marked NOT NULL, then the database was migrated with the bugged version of 0004_unify_user_model.
     if pleblist_song_user_id_column_unnullable:
         # Remove pleblist_song.user_id foreign key
-        cursor.execute("ALTER TABLE pleblist_song DROP CONSTRAINT pleblist_song_user_id_fkey")
+        cursor.execute(
+            "ALTER TABLE pleblist_song DROP CONSTRAINT pleblist_song_user_id_fkey"
+        )
 
         # Make pleblist_song.user_id column nullable
         cursor.execute("ALTER TABLE pleblist_song ALTER COLUMN user_id DROP NOT NULL")
 
         # Re-add pleblist_song.user_id foreign key, with ON DELETE SET NULL (instead of ON DELETE CASCADE like before)
-        cursor.execute('ALTER TABLE pleblist_song ADD FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE SET NULL')
+        cursor.execute(
+            'ALTER TABLE pleblist_song ADD FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE SET NULL'
+        )

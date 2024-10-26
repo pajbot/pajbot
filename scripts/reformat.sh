@@ -7,11 +7,6 @@ set -euo pipefail
 # if --check is specified, no files will be changed, and the script will exit with a non-zero exit code
 # if any file does not match the code style.
 
-if ! command -v black >/dev/null; then
-  >&2 echo "$0: The black command line tool is not available. (tip: try ./scripts/venvinstall.sh --dev, then source venv/bin/activate)"
-  exit 1
-fi
-
 if ! command -v flake8 >/dev/null; then
   >&2 echo "$0: The flake8 command line tool is not available. (tip: try ./scripts/venvinstall.sh --dev, then source venv/bin/activate)"
   exit 1
@@ -34,16 +29,19 @@ else
 fi
 
 # reformat/check every python file, except venv
-black $BLACK_OPTIONS . --exclude=venv
+>&2 echo " * Running black"
+# uv run black $BLACK_OPTIONS . --exclude=venv --exclude=.venv
+
+uv run ruff check
+
+if [ "${1-}" != "--check" ]; then
+    uv run ruff format
+fi
 
 # reformat markdown, js, css
+>&2 echo " * Running prettier"
 npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
 
-# Run linter
-flake8
-
 # Run mypy static typing checker
-mypy pajbot
-
-# Sort imports
-isort pajbot "${ISORT_OPTIONS[@]}"
+>&2 echo " * Running mypy"
+uv run mypy pajbot

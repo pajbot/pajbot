@@ -10,7 +10,7 @@ from redis.client import Pipeline
 
 if TYPE_CHECKING:
     _StrType = str
-    RedisType = Redis[_StrType]
+    RedisType = Redis[str]
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,9 @@ class RedisManager:
             raise ValueError("RedisManager.init has already been called once")
 
         if "decode_responses" in options:
-            raise ValueError("You may not change decode_responses in RedisManager.init options")
+            raise ValueError(
+                "You may not change decode_responses in RedisManager.init options"
+            )
 
         options["decode_responses"] = True
 
@@ -44,7 +46,7 @@ class RedisManager:
         return RedisManager.redis
 
     @staticmethod
-    def pipeline_context() -> ContextManager[Pipeline[_StrType]]:
+    def pipeline_context() -> ContextManager[Pipeline]:
         return redis.utils.pipeline(RedisManager.get())
 
     @classmethod
@@ -52,4 +54,8 @@ class RedisManager:
         if cls.redis is None:
             raise ValueError("RedisManager.publish called before RedisManager.init")
 
-        return cls.redis.publish(channel, message)
+        res = cls.redis.publish(channel, message)
+
+        assert isinstance(res, int)
+
+        return res

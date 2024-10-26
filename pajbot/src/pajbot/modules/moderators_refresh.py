@@ -47,7 +47,9 @@ class ModeratorsRefreshModule(BaseModule):
     @time_method
     def _update_moderators(self) -> None:
         if self.bot is None:
-            log.error("_update_moderators failed in ModeratorsRefreshModule because bot is None")
+            log.error(
+                "_update_moderators failed in ModeratorsRefreshModule because bot is None"
+            )
             return
 
         try:
@@ -90,7 +92,9 @@ ON COMMIT DROP"""
             )
 
             db_session.execute(
-                text("INSERT INTO moderators(id, login, name) VALUES (:id, :login, :name)"),
+                text(
+                    "INSERT INTO moderators(id, login, name) VALUES (:id, :login, :name)"
+                ),
                 [basics.jsonify() for basics in moderators],
             )
 
@@ -146,7 +150,9 @@ WHERE
             return
 
         # every 10 minutes, send a helix request to get moderators
-        self.scheduled_job = ScheduleManager.execute_every(self.UPDATE_INTERVAL * 60, self._update_moderators)
+        self.scheduled_job = ScheduleManager.execute_every(
+            self.UPDATE_INTERVAL * 60, self._update_moderators
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         # Web interface, nothing to do

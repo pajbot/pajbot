@@ -114,7 +114,9 @@ class WolframModule(BaseModule):
                 query_parameters["location"] = location
 
             res = requests.get(
-                "https://api.wolframalpha.com/v2/query", params=query_parameters, headers={"User-Agent": bot.user_agent}
+                "https://api.wolframalpha.com/v2/query",
+                params=query_parameters,
+                headers={"User-Agent": bot.user_agent},
             )
             answer = res.json()["queryresult"]
 
@@ -124,7 +126,10 @@ class WolframModule(BaseModule):
 
             if is_error:
                 bot.send_message_to_user(
-                    source, "Your query errored FeelsBadMan", event, method=self.settings["response_method"]
+                    source,
+                    "Your query errored FeelsBadMan",
+                    event,
+                    method=self.settings["response_method"],
                 )
                 return False
 
@@ -140,9 +145,13 @@ class WolframModule(BaseModule):
                         # a single object under the "didyoumeans" key, so we convert it
                         # into a single-element list.
                         didyoumeans = [didyoumeans]
-                    reply += " | ".join(list(map(lambda x: x.get("val", None), didyoumeans)))
+                    reply += " | ".join(
+                        list(map(lambda x: x.get("val", None), didyoumeans))
+                    )
                 log.debug(reply)
-                bot.send_message_to_user(source, reply, event, method=self.settings["response_method"])
+                bot.send_message_to_user(
+                    source, reply, event, method=self.settings["response_method"]
+                )
                 return False
 
             # pods and subpods explanation: https://products.wolframalpha.com/api/documentation/#subpod-states
@@ -171,9 +180,15 @@ class WolframModule(BaseModule):
 
             pods = answer["pods"]
 
-            input_pod = next((pod for pod in pods if pod["id"].lower() == "input"), None)
-            result_pod = next((pod for pod in pods if pod["id"].lower() == "result"), None)
-            is_direct_input_pod = input_pod is not None and input_pod["title"].lower() == "input"
+            input_pod = next(
+                (pod for pod in pods if pod["id"].lower() == "input"), None
+            )
+            result_pod = next(
+                (pod for pod in pods if pod["id"].lower() == "result"), None
+            )
+            is_direct_input_pod = (
+                input_pod is not None and input_pod["title"].lower() == "input"
+            )
 
             if input_pod is not None and result_pod is not None:
                 selected_pods = [input_pod, result_pod]
@@ -186,9 +201,15 @@ class WolframModule(BaseModule):
             stringified_pods = map(stringify_pod, selected_pods)
             complete_answer = " ❚ ".join(stringified_pods)
 
-            reply = (complete_answer[:499] + "…") if len(complete_answer) > 500 else complete_answer
+            reply = (
+                (complete_answer[:499] + "…")
+                if len(complete_answer) > 500
+                else complete_answer
+            )
 
-            bot.send_message_to_user(source, reply, event, method=self.settings["response_method"])
+            bot.send_message_to_user(
+                source, reply, event, method=self.settings["response_method"]
+            )
 
         except:
             log.exception("wolfram query errored")

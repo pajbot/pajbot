@@ -31,11 +31,17 @@ class SafeInvokeScheduler(Scheduler):
 # same as DefaultScheduler from the original implementation,
 # but extends SafeInvokeScheduler instead
 class SafeDefaultScheduler(SafeInvokeScheduler, IScheduler):
-    def execute_every(self, period: Union[float, datetime.timedelta], func: Callable[..., Any]) -> None:
+    def execute_every(
+        self, period: Union[float, datetime.timedelta], func: Callable[..., Any]
+    ) -> None:
         self.add(schedule.PeriodicCommand.after(period, func))
 
-    def execute_at(self, when: Union[numbers.Real, datetime.datetime], func: Callable[..., Any]) -> None:
+    def execute_at(
+        self, when: Union[numbers.Real, datetime.datetime], func: Callable[..., Any]
+    ) -> None:
         self.add(schedule.DelayedCommand.at_time(when, func))
 
-    def execute_after(self, delay: Union[float, datetime.timedelta], func: Callable[..., Any]) -> None:
+    def execute_after(
+        self, delay: Union[float, datetime.timedelta], func: Callable[..., Any]
+    ) -> None:
         self.add(schedule.DelayedCommand.after(delay, func))

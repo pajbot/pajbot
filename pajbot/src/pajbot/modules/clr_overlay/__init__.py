@@ -16,19 +16,21 @@ log = logging.getLogger(__name__)
 class CLROverlayModule(BaseModule):
     ID = "clroverlay-group"
     NAME = "CLR Overlay"
-    DESCRIPTION = "A collection of overlays that can be used in the streaming software of choice"
+    DESCRIPTION = (
+        "A collection of overlays that can be used in the streaming software of choice"
+    )
     CATEGORY = "Feature"
     ENABLED_DEFAULT = True
     MODULE_TYPE = ModuleType.TYPE_ALWAYS_ENABLED
 
-    BASE_ALLOWLIST_LABEL: str = "Allowlisted emotes (separate by spaces). Leave empty to use the blocklist."
-    BASE_BLOCKLIST_LABEL: str = "Blocklisted emotes (separate by spaces). Leave empty to allow all emotes."
-    ALLOWLIST_LABEL: str = (
-        f"{BASE_ALLOWLIST_LABEL} If this and the blocklist are empty, the parent module's allow and blocklist will be used."
+    BASE_ALLOWLIST_LABEL: str = (
+        "Allowlisted emotes (separate by spaces). Leave empty to use the blocklist."
     )
-    BLOCKLIST_LABEL: str = (
-        f"{BASE_BLOCKLIST_LABEL} If this and the allowlist are empty, the parent module's allow and blocklist will be used."
+    BASE_BLOCKLIST_LABEL: str = (
+        "Blocklisted emotes (separate by spaces). Leave empty to allow all emotes."
     )
+    ALLOWLIST_LABEL: str = f"{BASE_ALLOWLIST_LABEL} If this and the blocklist are empty, the parent module's allow and blocklist will be used."
+    BLOCKLIST_LABEL: str = f"{BASE_BLOCKLIST_LABEL} If this and the allowlist are empty, the parent module's allow and blocklist will be used."
 
     EMOTELIST_PLACEHOLDER_TEXT: str = "e.g. Kappa Keepo PogChamp KKona"
 
@@ -59,10 +61,14 @@ class CLROverlayModule(BaseModule):
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
-            self.settings["emote_allowlist"].strip().split(" ") if self.settings["emote_allowlist"] else []
+            self.settings["emote_allowlist"].strip().split(" ")
+            if self.settings["emote_allowlist"]
+            else []
         )
         self.blocklisted_emotes = set(
-            self.settings["emote_blocklist"].strip().split(" ") if self.settings["emote_blocklist"] else []
+            self.settings["emote_blocklist"].strip().split(" ")
+            if self.settings["emote_blocklist"]
+            else []
         )
 
     def is_emote_allowed(self, emote_code: str) -> bool:

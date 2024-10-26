@@ -114,7 +114,11 @@ class NewChatterAlertModule(BaseModule):
 
         alert_message = self.settings["alert_message_points_given"]
         if alert_message != "":
-            self.bot.say(alert_message.format(user=user, points=self.settings["grant_points_on_new_chatter"]))
+            self.bot.say(
+                alert_message.format(
+                    user=user, points=self.settings["grant_points_on_new_chatter"]
+                )
+            )
 
     def on_usernotice(self, source: User, message: str, tags: dict[str, str]) -> bool:
         if "msg-id" not in tags:
@@ -122,7 +126,9 @@ class NewChatterAlertModule(BaseModule):
 
         if tags["msg-id"] == "ritual":
             if "display-name" not in tags:
-                log.debug(f"newchatteralert requires a display-name, but it is missing: {tags}")
+                log.debug(
+                    f"newchatteralert requires a display-name, but it is missing: {tags}"
+                )
                 return True
             self.on_new_chatter(source)
 

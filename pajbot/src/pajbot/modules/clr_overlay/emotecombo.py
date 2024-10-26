@@ -64,10 +64,14 @@ class EmoteComboModule(BaseModule):
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
-            self.settings["emote_allowlist"].strip().split(" ") if self.settings["emote_allowlist"] else []
+            self.settings["emote_allowlist"].strip().split(" ")
+            if self.settings["emote_allowlist"]
+            else []
         )
         self.blocklisted_emotes = set(
-            self.settings["emote_blocklist"].strip().split(" ") if self.settings["emote_blocklist"] else []
+            self.settings["emote_blocklist"].strip().split(" ")
+            if self.settings["emote_blocklist"]
+            else []
         )
 
     def is_emote_allowed(self, emote_code: str) -> bool:
@@ -93,7 +97,8 @@ class EmoteComboModule(BaseModule):
 
         if self.emote_count >= self.settings["min_emote_combo"]:
             self.bot.websocket_manager.emit(
-                "emote_combo", {"emote": self.current_emote.jsonify(), "count": self.emote_count}
+                "emote_combo",
+                {"emote": self.current_emote.jsonify(), "count": self.emote_count},
             )
 
     def reset(self) -> None:
@@ -101,7 +106,11 @@ class EmoteComboModule(BaseModule):
         self.current_emote = None
 
     def on_message(
-        self, emote_instances: list[EmoteInstance], emote_counts: EmoteInstanceCountMap, whisper: bool, **rest: Any
+        self,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        whisper: bool,
+        **rest: Any,
     ) -> bool:
         if whisper:
             return True

@@ -78,7 +78,9 @@ ON COMMIT DROP"""
 
             if len(vips) > 0:
                 db_session.execute(
-                    text("INSERT INTO vips(id, login, name) VALUES (:id, :login, :name)"),
+                    text(
+                        "INSERT INTO vips(id, login, name) VALUES (:id, :login, :name)"
+                    ),
                     [basics.jsonify() for basics in vips],
                 )
 

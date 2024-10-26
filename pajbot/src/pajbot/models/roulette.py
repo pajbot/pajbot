@@ -20,7 +20,9 @@ class Roulette(Base):
     __tablename__ = "roulette"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[str] = mapped_column(Text, ForeignKey("user.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("user.id", ondelete="CASCADE"), index=True
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
     points: Mapped[int]
 

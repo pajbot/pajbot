@@ -38,10 +38,17 @@ def init(app):
         menu_items: list[MenuItem] = [
             MenuItem("/", "home", "Home"),
             MenuItem("/commands", "commands", "Commands"),
-            MenuItem("/points", "points", "Points", "chatters_refresh" in enabled_modules),
+            MenuItem(
+                "/points", "points", "Points", "chatters_refresh" in enabled_modules
+            ),
             MenuItem("/stats", "stats", "Stats"),
             MenuItem("/decks", "decks", "Decks", "deck" in enabled_modules),
-            MenuItem("/playsounds", "user_playsounds", "Playsounds", "playsound" in enabled_modules),
+            MenuItem(
+                "/playsounds",
+                "user_playsounds",
+                "Playsounds",
+                "playsound" in enabled_modules,
+            ),
         ]
 
         # Menu items that are shown to admin when in an /admin page
@@ -51,8 +58,16 @@ def init(app):
             MenuItem(
                 [
                     MenuItem("/admin/banphrases", "admin_banphrases", "Banphrases"),
-                    MenuItem("/admin/links/blacklist", "admin_links_blacklist", "Blacklisted links"),
-                    MenuItem("/admin/links/whitelist", "admin_links_whitelist", "Whitelisted links"),
+                    MenuItem(
+                        "/admin/links/blacklist",
+                        "admin_links_blacklist",
+                        "Blacklisted links",
+                    ),
+                    MenuItem(
+                        "/admin/links/whitelist",
+                        "admin_links_whitelist",
+                        "Whitelisted links",
+                    ),
                 ],
                 "filters",
                 "Filters",

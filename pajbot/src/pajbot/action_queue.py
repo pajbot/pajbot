@@ -17,7 +17,9 @@ class ActionQueue:
     def __init__(self) -> None:
         self.thread_pool_executor = ThreadPoolExecutor()
 
-    def submit(self, function: Callable[..., _T], *args: Any, **kwargs: Any) -> Future[_T]:
+    def submit(
+        self, function: Callable[..., _T], *args: Any, **kwargs: Any
+    ) -> Future[_T]:
         future = self.thread_pool_executor.submit(function, *args, **kwargs)
         future.add_done_callback(self._on_future_done)
         return future

@@ -64,7 +64,9 @@ class ModerationActions:
         if isinstance(action, Ban):
             if isinstance(existing_action, Ban):
                 # combine the two
-                self.actions[login] = Ban(reason=_combine_reasons(existing_action.reason, action.reason))
+                self.actions[login] = Ban(
+                    reason=_combine_reasons(existing_action.reason, action.reason)
+                )
             else:
                 # ban wins over lower-tier action
                 self.actions[login] = action
@@ -130,4 +132,6 @@ def new_message_processing_scope(bot):
         try:
             mod_actions.execute(bot)
         except:
-            log.exception("Failed to execute moderation actions after message processing scope ended")
+            log.exception(
+                "Failed to execute moderation actions after message processing scope ended"
+            )

@@ -117,8 +117,12 @@ class User(Base):
     points: Mapped[int] = mapped_column(BigInteger, index=True)
     subscriber: Mapped[bool]
     moderator: Mapped[bool]
-    time_in_chat_online: Mapped[timedelta] = mapped_column(Interval, server_default="INTERVAL '0 minutes'")
-    time_in_chat_offline: Mapped[timedelta] = mapped_column(Interval, server_default="INTERVAL '0 minutes'")
+    time_in_chat_online: Mapped[timedelta] = mapped_column(
+        Interval, server_default="INTERVAL '0 minutes'"
+    )
+    time_in_chat_offline: Mapped[timedelta] = mapped_column(
+        Interval, server_default="INTERVAL '0 minutes'"
+    )
     num_lines: Mapped[int] = mapped_column(BigInteger, index=True)
     tokens: Mapped[int]
     last_seen: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
@@ -129,7 +133,12 @@ class User(Base):
     vip: Mapped[bool]
     founder: Mapped[bool]
 
-    _rank = relationship(UserRank, primaryjoin=foreign(id) == UserRank.user_id, lazy="select", viewonly=True)
+    _rank = relationship(
+        UserRank,
+        primaryjoin=foreign(id) == UserRank.user_id,
+        lazy="select",
+        viewonly=True,
+    )
 
     def __init__(self) -> None:
         self.level = 100
@@ -150,7 +159,11 @@ class User(Base):
         self.login_last_updated = utils.now()
 
     _duel_stats: Mapped[UserDuelStats] = relationship(
-        UserDuelStats, uselist=False, cascade="all, delete-orphan", passive_deletes=True, back_populates="user"
+        UserDuelStats,
+        uselist=False,
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        back_populates="user",
     )
 
     @hybrid_property
@@ -232,7 +245,10 @@ class User(Base):
     @contextmanager
     def spend_currency_context(self, points: int, tokens: int) -> Iterator[None]:
         try:
-            with self._spend_currency_context(points, "points"), self._spend_currency_context(tokens, "tokens"):
+            with (
+                self._spend_currency_context(points, "points"),
+                self._spend_currency_context(tokens, "tokens"),
+            ):
                 yield
         except FailedCommand:
             pass
@@ -251,8 +267,12 @@ class User(Base):
 
     def get_warning_keys(self, total_chances: int, prefix: str) -> list[str]:
         """Returns a list of keys that are used to store the users warning status in redis.
-        Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']"""
-        return [f"warnings:{prefix}:{self.id}:{warning_id}" for warning_id in range(0, total_chances)]
+        Example: ['warnings:some-prefix:11148817:0', 'warnings:some-prefix:11148817:1']
+        """
+        return [
+            f"warnings:{prefix}:{self.id}:{warning_id}"
+            for warning_id in range(0, total_chances)
+        ]
 
     @staticmethod
     def get_warnings(redis: Redis, warning_keys: list[str]) -> list[Optional[str]]:
@@ -273,7 +293,12 @@ class User(Base):
         return len(warnings) - warnings.count(None)
 
     @staticmethod
-    def add_warning(redis: Redis, timeout: int, warning_keys: list[str], warnings: list[Optional[str]]) -> bool:
+    def add_warning(
+        redis: Redis,
+        timeout: int,
+        warning_keys: list[str],
+        warnings: list[Optional[str]],
+    ) -> bool:
         """Returns a number between 0 and n where n is the amount of
         chances a user has before he should face the full timeout length."""
 
@@ -285,7 +310,10 @@ class User(Base):
         return False
 
     def timeout(
-        self, timeout_length: int, warning_module: Optional[WarningModule] = None, use_warnings: bool = True
+        self,
+        timeout_length: int,
+        warning_module: Optional[WarningModule] = None,
+        use_warnings: bool = True,
     ) -> tuple[int, str]:
         """Returns a tuple with the follow data:
         How long to timeout the user for, and what the punishment string is
@@ -301,7 +329,9 @@ class User(Base):
             # How many chances the user has before receiving a full timeout.
             total_chances = warning_module.settings["total_chances"]
 
-            warning_keys = self.get_warning_keys(total_chances, warning_module.settings["redis_prefix"])
+            warning_keys = self.get_warning_keys(
+                total_chances, warning_module.settings["redis_prefix"]
+            )
             warnings = self.get_warnings(redis, warning_keys)
 
             chances_used = self.get_chances_used(warnings)
@@ -309,10 +339,14 @@ class User(Base):
             if chances_used < total_chances:
                 """The user used up one of his warnings.
                 Calculate for how long we should time him out."""
-                timeout_length = warning_module.settings["base_timeout"] * (chances_used + 1)
+                timeout_length = warning_module.settings["base_timeout"] * (
+                    chances_used + 1
+                )
                 punishment = f"timed out for {timeout_length} seconds (warning)"
 
-                self.add_warning(redis, warning_module.settings["length"], warning_keys, warnings)
+                self.add_warning(
+                    redis, warning_module.settings["length"], warning_keys, warnings
+                )
 
         return (timeout_length, punishment)
 
@@ -331,11 +365,17 @@ class User(Base):
             "num_lines": self.num_lines,
             "num_lines_rank": self.num_lines_rank,
             "tokens": self.tokens,
-            "last_seen": self.last_seen.isoformat() if self.last_seen is not None else None,
-            "last_active": self.last_active.isoformat() if self.last_active is not None else None,
+            "last_seen": (
+                self.last_seen.isoformat() if self.last_seen is not None else None
+            ),
+            "last_active": (
+                self.last_active.isoformat() if self.last_active is not None else None
+            ),
             "ignored": self.ignored,
             "banned": self.banned,
-            "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
+            "timeout_end": (
+                self.timeout_end.isoformat() if self.timeout_end is not None else None
+            ),
             "vip": self.vip,
             "founder": self.founder,
         }
@@ -376,9 +416,14 @@ class User(Base):
         return User._create(db_session, basics.id, basics.login, basics.name)
 
     @staticmethod
-    def find_or_create_from_login(db_session, twitch_helix_api: TwitchHelixAPI, login: str) -> Optional[User]:
+    def find_or_create_from_login(
+        db_session, twitch_helix_api: TwitchHelixAPI, login: str
+    ) -> Optional[User]:
         user_from_db = (
-            db_session.query(User).filter_by(login=login).order_by(User.login_last_updated.desc()).one_or_none()
+            db_session.query(User)
+            .filter_by(login=login)
+            .order_by(User.login_last_updated.desc())
+            .one_or_none()
         )
         if user_from_db is not None:
             return user_from_db
@@ -391,7 +436,9 @@ class User(Base):
         return User.from_basics(db_session, basics)
 
     @staticmethod
-    def find_or_create_from_user_input(db_session, twitch_helix_api, input: str, always_fresh=False) -> Optional[User]:
+    def find_or_create_from_user_input(
+        db_session, twitch_helix_api, input: str, always_fresh=False
+    ) -> Optional[User]:
         input = User._normalize_user_username_input(input)
 
         if not always_fresh:
@@ -472,9 +519,12 @@ class User(Base):
 
 class UserChannelInformation:
     """UserChannelInformation represents part of the information fetched
-    from the Helix Get Channel Information endpoint https://dev.twitch.tv/docs/api/reference#get-channel-information"""
+    from the Helix Get Channel Information endpoint https://dev.twitch.tv/docs/api/reference#get-channel-information
+    """
 
-    def __init__(self, broadcaster_language: str, game_id: str, game_name: str, title: str):
+    def __init__(
+        self, broadcaster_language: str, game_id: str, game_name: str, title: str
+    ):
         self.broadcaster_language = broadcaster_language
         self.game_id = game_id
         self.game_name = game_name
@@ -499,7 +549,9 @@ class UserChannelInformation:
 
 
 class UserStream:
-    def __init__(self, viewer_count: int, game_id: str, title: str, started_at: str, id: str):
+    def __init__(
+        self, viewer_count: int, game_id: str, title: str, started_at: str, id: str
+    ):
         self.viewer_count = viewer_count
         self.game_id = game_id
         self.title = title

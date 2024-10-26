@@ -54,16 +54,21 @@ class BaseQuest(BaseModule):
         reward_type = self.quest_module.settings["reward_type"]
         reward_amount = self.quest_module.settings["reward_amount"]
 
-        if reward_type == "tokens" and user.tokens > self.quest_module.settings["max_tokens"]:
-            message = (
-                "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
-            )
+        if (
+            reward_type == "tokens"
+            and user.tokens > self.quest_module.settings["max_tokens"]
+        ):
+            message = "You finished todays quest, but you have more than the max tokens allowed already. Spend some tokens!"
             self.bot.whisper(user, message)
             return
 
         # Mark the current stream ID has finished
         quests_finished.append(stream_id)
-        redis.hset(self.quest_finished_key, user.id, json.dumps(quests_finished, separators=(",", ":")))
+        redis.hset(
+            self.quest_finished_key,
+            user.id,
+            json.dumps(quests_finished, separators=(",", ":")),
+        )
 
         # Award the user appropriately
         if reward_type == "tokens":
@@ -125,6 +130,7 @@ class BaseQuest(BaseModule):
     def get_limit(self) -> int:
         """Returns the quest limit specified in the module.
         If no quest limit is set by the module, return 1.
-        A value of 1 would indicate a quest that only has an incomplete/complete state."""
+        A value of 1 would indicate a quest that only has an incomplete/complete state.
+        """
 
         return 1

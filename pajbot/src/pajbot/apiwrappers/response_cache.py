@@ -115,7 +115,13 @@ class APIResponseCache:
         return fetch_result
 
     def cache_bulk_fetch_fn(
-        self, input_data, redis_key_fn, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=False
+        self,
+        input_data,
+        redis_key_fn,
+        fetch_fn,
+        serializer=JsonSerializer(),
+        expiry=120,
+        force_fetch=False,
     ):
         # results contains the wanted results, already in the correct list index (e.g. if we had a cache
         # hit for the third element (index 2),
@@ -129,7 +135,9 @@ class APIResponseCache:
 
         # redis MGET (Multi-GET) to check all at once quickly
         if not force_fetch:
-            cache_results = self.redis.mget([redis_key_fn(input_entry) for input_entry in input_data])
+            cache_results = self.redis.mget(
+                [redis_key_fn(input_entry) for input_entry in input_data]
+            )
             for idx, cache_result in enumerate(cache_results):
                 if cache_result is not None:
                     results.insert(idx, serializer.deserialize(cache_result))
@@ -160,6 +168,10 @@ class APIResponseCache:
                     expiry_value = expiry
 
                 if expiry_value > 0:
-                    self.redis.setex(redis_key_fn(input_data[idx]), expiry_value, serializer.serialize(fetch_result))
+                    self.redis.setex(
+                        redis_key_fn(input_data[idx]),
+                        expiry_value,
+                        serializer.serialize(fetch_result),
+                    )
 
         return results

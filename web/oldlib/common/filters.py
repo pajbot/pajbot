@@ -76,7 +76,9 @@ def init(app):
 
     @app.template_filter("time_diff")
     def time_diff(t1, t2, time_format="long"):
-        return pajbot.utils.time_since(t1.timestamp(), t2.timestamp(), time_format=time_format)
+        return pajbot.utils.time_since(
+            t1.timestamp(), t2.timestamp(), time_format=time_format
+        )
 
     @app.template_filter("time_ago_timespan_seconds")
     def time_ago_timespan_seconds(t, time_format="long"):

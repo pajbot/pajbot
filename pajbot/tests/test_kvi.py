@@ -14,7 +14,9 @@ def get_cases() -> list[tuple[str, tuple[Optional[str], int]]]:
 
 
 @pytest.mark.parametrize("input_str,expected", get_cases())
-def test_parse_kvi_arguments(input_str: str, expected: tuple[Optional[str], int]) -> None:
+def test_parse_kvi_arguments(
+    input_str: str, expected: tuple[Optional[str], int]
+) -> None:
     from pajbot.managers.kvi import parse_kvi_arguments
 
     assert parse_kvi_arguments(input_str) == expected

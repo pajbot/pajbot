@@ -5,7 +5,9 @@ import requests
 
 
 def get_se_channel(twitch_channel):
-    response = requests.get("https://api.streamelements.com/kappa/v2/channels/" + twitch_channel)
+    response = requests.get(
+        "https://api.streamelements.com/kappa/v2/channels/" + twitch_channel
+    )
     response.raise_for_status()
     json = response.json()
     display_name = json["displayName"]
@@ -16,13 +18,21 @@ def get_se_channel(twitch_channel):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--channel", "-c", type=str, required=True, help="Twitch channel name (lowercase)")
+    parser.add_argument(
+        "--channel",
+        "-c",
+        type=str,
+        required=True,
+        help="Twitch channel name (lowercase)",
+    )
     args = parser.parse_args()
 
     twitch_channel = args.channel
     se_channel = get_se_channel(twitch_channel)
 
-    request = requests.get(f"https://api.streamelements.com/kappa/v2/store/{se_channel}/items")
+    request = requests.get(
+        f"https://api.streamelements.com/kappa/v2/store/{se_channel}/items"
+    )
     request.raise_for_status()
     se_playsounds = request.json()
 
@@ -37,7 +47,9 @@ def main():
         cooldown = se_playsound["cooldown"]["user"]
         enabled = se_playsound["enabled"]
 
-        print(f"!add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}")
+        print(
+            f"!add playsound {name} {link} --volume {volume} --cooldown {cooldown}{'' if enabled else ' --disabled'}"
+        )
 
     print()
     print()

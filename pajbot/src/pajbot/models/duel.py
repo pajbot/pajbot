@@ -29,7 +29,10 @@ class UserDuelStats(Base):
     __tablename__ = "user_duel_stats"
 
     user_id: Mapped[str] = mapped_column(
-        Integer, ForeignKey("user.id", ondelete="CASCADE"), primary_key=True, autoincrement=False
+        Integer,
+        ForeignKey("user.id", ondelete="CASCADE"),
+        primary_key=True,
+        autoincrement=False,
     )
     duels_won: Mapped[int]
     duels_total: Mapped[int]
@@ -50,7 +53,12 @@ class UserDuelStats(Base):
         self.longest_winstreak = 0
         self.longest_losestreak = 0
 
-    user: Mapped[User] = relationship("User", cascade="save-update, merge", lazy="joined", back_populates="_duel_stats")
+    user: Mapped[User] = relationship(
+        "User",
+        cascade="save-update, merge",
+        lazy="joined",
+        back_populates="_duel_stats",
+    )
 
     @hybrid_property
     def duels_lost(self) -> int:

@@ -15,7 +15,9 @@ log = logging.getLogger(__name__)
 
 
 # pull_lol returns the: (bet_return, emotes)
-def pull_lol(low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltbw, htbw):
+def pull_lol(
+    low_tier_emotes, high_tier_emotes, bet, house_edge, ltsw, htsw, ltbw, htbw
+):
     slot_options = []
     for e in low_tier_emotes:
         slot_options += [e] * 3
@@ -230,7 +232,8 @@ class SlotMachineModule(BaseModule):
                 CommandExample(
                     None,
                     "SlotMachine for 69 points",
-                    chat="user:!slotmachine 69\n" "bot:pajlada won 69 points in slotmachine xd! FeelsGoodMan",
+                    chat="user:!slotmachine 69\n"
+                    "bot:pajlada won 69 points in slotmachine xd! FeelsGoodMan",
                     description="Do a slot machine pull for 69 points",
                 ).parse()
             ],
@@ -242,11 +245,16 @@ class SlotMachineModule(BaseModule):
         if self.settings["only_slots_after_sub"]:
             if self.last_sub is None:
                 return False
-            if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_slots_time"]):
+            if utils.now() - self.last_sub > datetime.timedelta(
+                seconds=self.settings["after_sub_slots_time"]
+            ):
                 return False
 
         if message is None:
-            bot.whisper(source, "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points")
+            bot.whisper(
+                source,
+                "I didn't recognize your bet! Usage: !slotmachine 150 to bet 150 points",
+            )
             return False
 
         low_tier_emotes = self.settings["low_tier_emotes"].split()
@@ -263,11 +271,16 @@ class SlotMachineModule(BaseModule):
             return False
 
         if not source.can_afford(bet):
-            bot.whisper(source, f"You don't have enough points to do a slot machine pull for {bet} points :(")
+            bot.whisper(
+                source,
+                f"You don't have enough points to do a slot machine pull for {bet} points :(",
+            )
             return False
 
         if bet < self.settings["min_bet"]:
-            bot.whisper(source, f"You have to bet at least {self.settings['min_bet']} point! :(")
+            bot.whisper(
+                source, f"You have to bet at least {self.settings['min_bet']} point! :("
+            )
             return False
 
         # how much of the users point they're expected to get back (basically how much the house yoinks)
@@ -279,7 +292,14 @@ class SlotMachineModule(BaseModule):
         htbw = self.settings["htbw"] / 100.0
 
         bet_return, randomized_emotes = pull_lol(
-            low_tier_emotes, high_tier_emotes, bet, expected_return, ltsw, htsw, ltbw, htbw
+            low_tier_emotes,
+            high_tier_emotes,
+            bet,
+            expected_return,
+            ltsw,
+            htsw,
+            ltbw,
+            htbw,
         )
 
         # Calculating the result
@@ -374,7 +394,10 @@ class SlotMachineModule(BaseModule):
 
         # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
         # spam after bulk sub gifts.
-        skip_message = self.last_sub is not None and now - self.last_sub < datetime.timedelta(seconds=5)
+        skip_message = (
+            self.last_sub is not None
+            and now - self.last_sub < datetime.timedelta(seconds=5)
+        )
 
         self.last_sub = now
         if (
@@ -382,7 +405,11 @@ class SlotMachineModule(BaseModule):
             and self.settings["alert_message_after_sub"] != ""
             and not skip_message
         ):
-            self.bot.say(self.settings["alert_message_after_sub"].format(seconds=self.settings["after_sub_slots_time"]))
+            self.bot.say(
+                self.settings["alert_message_after_sub"].format(
+                    seconds=self.settings["after_sub_slots_time"]
+                )
+            )
 
     def enable(self, bot):
         HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)

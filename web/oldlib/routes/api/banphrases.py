@@ -42,10 +42,14 @@ def init(bp: Blueprint) -> None:
     @oldlib.utils.requires_level(500)
     def banphrases_remove(banphrase_id, **options):
         with DBManager.create_session_scope() as db_session:
-            banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+            banphrase = (
+                db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
+            )
             if banphrase is None:
                 return {"error": "Invalid banphrase ID"}, 404
-            AdminLogManager.post("Banphrase removed", options["user"], banphrase.id, banphrase.phrase)
+            AdminLogManager.post(
+                "Banphrase removed", options["user"], banphrase.id, banphrase.phrase
+            )
             db_session.delete(banphrase)
             db_session.delete(banphrase.data)
             SocketClientManager.send("banphrase.remove", {"id": banphrase.id})
@@ -73,7 +77,11 @@ def init(bp: Blueprint) -> None:
             db_session.commit()
             payload = {"id": row.id, "new_state": data.new_state}
             AdminLogManager.post(
-                "Banphrase toggled", options["user"], "Enabled" if data.new_state else "Disabled", row.id, row.phrase
+                "Banphrase toggled",
+                options["user"],
+                "Enabled" if data.new_state else "Disabled",
+                row.id,
+                row.phrase,
             )
             SocketClientManager.send("banphrase.update", payload)
             return {"success": "successful toggle", "new_state": data.new_state}
@@ -90,7 +98,9 @@ def init(bp: Blueprint) -> None:
             try:
                 data: TestBanphrase = TestBanphraseSchema().load(json_data)
             except ValidationError as err:
-                return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
+                return {
+                    "error": f"Did not match schema: {json.dumps(err.messages)}"
+                }, 400
         else:
             # This endpoint must handle form requests
             # Example requests:
@@ -99,7 +109,9 @@ def init(bp: Blueprint) -> None:
             try:
                 data: TestBanphrase = TestBanphraseSchema().load(request.form.to_dict())
             except ValidationError as err:
-                return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
+                return {
+                    "error": f"Did not match schema: {json.dumps(err.messages)}"
+                }, 400
 
         message = filter_message(data.message)
 

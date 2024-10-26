@@ -24,5 +24,9 @@ def init(page) -> None:
         streamer_info = collections.OrderedDict()
         for key in keys:
             value = streamer_info_list.pop(0)
-            streamer_info[key] = {"value": value, "title": keys[key]["title"], "format": keys[key]["format"]}
+            streamer_info[key] = {
+                "value": value,
+                "title": keys[key]["title"],
+                "format": keys[key]["format"],
+            }
         return render_template("admin/streamer.html", streamer_info=streamer_info)

@@ -12,7 +12,10 @@ def randomchoice_cases() -> list[tuple[str, list[str]]]:
         ('""', [""]),
         ('"foo.bar"', ["foo.bar"]),
         ('"foo,bar"', ["foo,bar"]),
-        ('"foo:bar"', []),  # : is not allowed because it wouldn't pass the model action regex
+        (
+            '"foo:bar"',
+            [],
+        ),  # : is not allowed because it wouldn't pass the model action regex
         ('"foo bar"', ["foo bar"]),
         ('"foo bar", "foo"', ["foo bar", "foo"]),
     ]

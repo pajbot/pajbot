@@ -112,7 +112,9 @@ class DefaultChatStatesModule(BaseModule):
 
     def on_stream_start(self, **rest) -> bool:
         if self.bot is None:
-            log.warning("on_stream_start failed in DefaultChatStatesModule because bot is None")
+            log.warning(
+                "on_stream_start failed in DefaultChatStatesModule because bot is None"
+            )
             return True
 
         if self.settings["emoteonly"] == self.ONLINE_PHRASE:
@@ -128,10 +130,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update emote only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update emote only mode.")
+                    log.error(
+                        f"Failed to update emote only mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update emote only mode."
+                    )
                 else:
-                    log.error(f"Failed to update emote only mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update emote only mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["subonly"] == self.ONLINE_PHRASE:
             try:
@@ -146,10 +154,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                    log.error(
+                        f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update subscriber only mode."
+                    )
                 else:
-                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update subscriber only mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["r9k"] == self.ONLINE_PHRASE:
             try:
@@ -164,10 +178,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update unique chat mode.")
+                    log.error(
+                        f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update unique chat mode."
+                    )
                 else:
-                    log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update unique chat mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["slow_option"] == self.ONLINE_PHRASE:
             try:
@@ -183,8 +203,12 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
+                    log.error(
+                        f"Failed to update slow mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update slow mode."
+                    )
                 else:
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
@@ -204,16 +228,24 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update follower mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update follower mode.")
+                    log.error(
+                        f"Failed to update follower mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update follower mode."
+                    )
                 else:
-                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update follower_mode: {e} - {e.response.text}"
+                    )
 
         return True
 
     def on_stream_stop(self, **rest) -> bool:
         if self.bot is None:
-            log.warning("on_stream_stop failed in DefaultChatStatesModule because bot is None")
+            log.warning(
+                "on_stream_stop failed in DefaultChatStatesModule because bot is None"
+            )
             return True
 
         if self.settings["emoteonly"] == self.OFFLINE_PHRASE:
@@ -229,10 +261,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update emote only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update emote only mode.")
+                    log.error(
+                        f"Failed to update emote only mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update emote only mode."
+                    )
                 else:
-                    log.error(f"Failed to update emote only mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update emote only mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["subonly"] == self.OFFLINE_PHRASE:
             try:
@@ -247,10 +285,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update subscriber only mode.")
+                    log.error(
+                        f"Failed to update subscriber only mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update subscriber only mode."
+                    )
                 else:
-                    log.error(f"Failed to update subscriber only mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update subscriber only mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["r9k"] == self.OFFLINE_PHRASE:
             try:
@@ -265,10 +309,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update unique chat mode.")
+                    log.error(
+                        f"Failed to update unique chat mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update unique chat mode."
+                    )
                 else:
-                    log.error(f"Failed to update unique chat mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update unique chat mode: {e} - {e.response.text}"
+                    )
 
         if self.settings["slow_option"] == self.OFFLINE_PHRASE:
             try:
@@ -284,8 +334,12 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update slow mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update slow mode.")
+                    log.error(
+                        f"Failed to update slow mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update slow mode."
+                    )
                 else:
                     log.error(f"Failed to update slow_mode: {e} - {e.response.text}")
 
@@ -305,10 +359,16 @@ class DefaultChatStatesModule(BaseModule):
                     raise e
 
                 if e.response.status_code == 401:
-                    log.error(f"Failed to update follower mode, unauthorized: {e} - {e.response.text}")
-                    self.bot.send_message("Error: The bot must be re-authed in order to update follower mode.")
+                    log.error(
+                        f"Failed to update follower mode, unauthorized: {e} - {e.response.text}"
+                    )
+                    self.bot.send_message(
+                        "Error: The bot must be re-authed in order to update follower mode."
+                    )
                 else:
-                    log.error(f"Failed to update follower_mode: {e} - {e.response.text}")
+                    log.error(
+                        f"Failed to update follower_mode: {e} - {e.response.text}"
+                    )
 
         return True
 

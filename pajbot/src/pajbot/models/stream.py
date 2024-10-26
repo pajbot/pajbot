@@ -28,7 +28,9 @@ class StreamChunk(Base):
     __tablename__ = "stream_chunk"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    stream_id: Mapped[int] = mapped_column(Integer, ForeignKey("stream.id", ondelete="CASCADE"))
+    stream_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stream.id", ondelete="CASCADE")
+    )
     broadcast_id: Mapped[str]
     video_url: Mapped[Optional[str]]
     video_preview_image_url: Mapped[Optional[str]]
@@ -56,7 +58,11 @@ class Stream(Base):
     ended: Mapped[bool]
 
     stream_chunks = relationship(
-        StreamChunk, uselist=True, backref="stream", cascade="save-update, merge, expunge", lazy="joined"
+        StreamChunk,
+        uselist=True,
+        backref="stream",
+        cascade="save-update, merge, expunge",
+        lazy="joined",
     )
 
     def __init__(self, created_at: str, **options: Any) -> None:
@@ -117,7 +123,9 @@ class StreamManager:
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-        self.current_stream_chunk: Optional[StreamChunk] = None  # should this even exist?
+        self.current_stream_chunk: Optional[StreamChunk] = (
+            None  # should this even exist?
+        )
         self.current_stream: Optional[Stream] = None
 
         self.num_offlines: int = 0
@@ -144,10 +152,14 @@ class StreamManager:
         # Polls Helix's "Get Streams" endpoint and updates the liveness of the stream.
         # If the stream is live, we also update some data such as title and stream id
         self.bot.execute_every(
-            self.STATUS_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_stream_status_stage1
+            self.STATUS_CHECK_INTERVAL,
+            self.bot.action_queue.submit,
+            self.refresh_stream_status_stage1,
         )
         self.bot.execute_every(
-            self.VIDEO_URL_CHECK_INTERVAL, self.bot.action_queue.submit, self.refresh_video_url_stage1
+            self.VIDEO_URL_CHECK_INTERVAL,
+            self.bot.action_queue.submit,
+            self.refresh_video_url_stage1,
         )
 
         self.last_stream: Optional[Stream]
@@ -155,9 +167,17 @@ class StreamManager:
         # This will load the latest stream so we can post an accurate "time since last online" figure.
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             self.current_stream = (
-                db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+                db_session.query(Stream)
+                .filter_by(ended=False)
+                .order_by(Stream.stream_start.desc())
+                .first()
             )
-            self.last_stream = db_session.query(Stream).filter_by(ended=True).order_by(Stream.stream_end.desc()).first()
+            self.last_stream = (
+                db_session.query(Stream)
+                .filter_by(ended=True)
+                .order_by(Stream.stream_end.desc())
+                .first()
+            )
             if self.current_stream:
                 self.current_stream_chunk = (
                     db_session.query(StreamChunk)
@@ -165,7 +185,9 @@ class StreamManager:
                     .order_by(StreamChunk.chunk_start.desc())
                     .first()
                 )
-                log.info(f"Set current stream chunk here to {self.current_stream_chunk}")
+                log.info(
+                    f"Set current stream chunk here to {self.current_stream_chunk}"
+                )
             db_session.expunge_all()
 
     @property
@@ -193,10 +215,16 @@ class StreamManager:
         stream_chunk: Optional[StreamChunk] = None
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status.id).one_or_none()
+            stream_chunk = (
+                db_session.query(StreamChunk)
+                .filter_by(broadcast_id=status.id)
+                .one_or_none()
+            )
             if stream_chunk is None:
                 log.info("Creating stream chunk, from create_stream_chunk")
-                stream_chunk = StreamChunk(self.current_stream, status.id, status.started_at)
+                stream_chunk = StreamChunk(
+                    self.current_stream, status.id, status.started_at
+                )
                 self.current_stream_chunk = stream_chunk
                 db_session.add(stream_chunk)
                 db_session.commit()
@@ -212,14 +240,23 @@ class StreamManager:
     def create_stream(self, status: UserStream) -> None:
         log.info("Attempting to create a stream!")
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
-            stream_chunk = db_session.query(StreamChunk).filter_by(broadcast_id=status.id).one_or_none()
+            stream_chunk = (
+                db_session.query(StreamChunk)
+                .filter_by(broadcast_id=status.id)
+                .one_or_none()
+            )
             new_stream = False
             stream: Stream
             if stream_chunk is not None:
                 stream = stream_chunk.stream
             else:
                 log.info("checking if there is an active stream already")
-                stream2 = db_session.query(Stream).filter_by(ended=False).order_by(Stream.stream_start.desc()).first()
+                stream2 = (
+                    db_session.query(Stream)
+                    .filter_by(ended=False)
+                    .order_by(Stream.stream_start.desc())
+                    .first()
+                )
                 new_stream = stream2 is None
 
                 if stream2 is None:
@@ -268,12 +305,14 @@ class StreamManager:
         HandlerManager.trigger("on_stream_stop", stop_on_false=False)
 
     def refresh_channel_information(self) -> None:
-        channel_information: Optional[UserChannelInformation] = self.bot.twitch_helix_api.get_channel_information(
-            self.bot.streamer.id
+        channel_information: Optional[UserChannelInformation] = (
+            self.bot.twitch_helix_api.get_channel_information(self.bot.streamer.id)
         )
 
         if channel_information is None:
-            log.error(f"Unable to fetch channel information about {self.bot.streamer.id}")
+            log.error(
+                f"Unable to fetch channel information about {self.bot.streamer.id}"
+            )
             return
 
         redis = RedisManager.get()
@@ -290,7 +329,9 @@ class StreamManager:
         self.title = channel_information.title
 
     def refresh_stream_status_stage1(self) -> None:
-        status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(self.bot.streamer.id)
+        status: Optional[UserStream] = self.bot.twitch_helix_api.get_stream_by_user_id(
+            self.bot.streamer.id
+        )
         self.bot.execute_now(self.refresh_stream_status_stage2, status)
 
     def refresh_stream_status_stage2(self, status: Optional[UserStream]) -> None:
@@ -309,7 +350,9 @@ class StreamManager:
             stream_data[f"{key_prefix}online"] = "True"
             stream_data[f"{key_prefix}viewers"] = status.viewer_count
 
-            game_info: Optional[TwitchGame] = self.bot.twitch_helix_api.get_game_by_game_id(status.game_id)
+            game_info: Optional[TwitchGame] = (
+                self.bot.twitch_helix_api.get_game_by_game_id(status.game_id)
+            )
             game_name: str = ""
             if game_info is not None:
                 game_name = game_info.name
@@ -330,7 +373,9 @@ class StreamManager:
                 self.create_stream_chunk(status)
             if self.current_stream_chunk is not None:
                 if self.current_stream_chunk.broadcast_id != status.id:
-                    log.debug(f"Detected a new chunk! {self.current_stream_chunk.broadcast_id} != {status.id}")
+                    log.debug(
+                        f"Detected a new chunk! {self.current_stream_chunk.broadcast_id} != {status.id}"
+                    )
                     self.create_stream_chunk(status)
         else:
             # stream reported as offline
@@ -363,7 +408,10 @@ class StreamManager:
             return
 
         log.info(f"Successfully fetched a video url: {video.url}")
-        if self.current_stream_chunk is None or self.current_stream_chunk.video_url is None:
+        if (
+            self.current_stream_chunk is None
+            or self.current_stream_chunk.video_url is None
+        ):
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 self.current_stream_chunk.video_url = video.url
                 self.current_stream_chunk.video_preview_image_url = video.thumbnail_url
@@ -381,7 +429,9 @@ class StreamManager:
 
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
                 stream_chunk = StreamChunk(
-                    self.current_stream, self.current_stream_chunk.broadcast_id, video.created_at
+                    self.current_stream,
+                    self.current_stream_chunk.broadcast_id,
+                    video.created_at,
                 )
                 self.current_stream_chunk = stream_chunk
                 self.current_stream_chunk.video_url = video.url
@@ -397,13 +447,17 @@ class StreamManager:
     def get_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
         return getattr(self, key, None)
 
-    def get_current_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
+    def get_current_stream_value(
+        self, key: str, extra: dict[str, Any] = {}
+    ) -> Optional[Any]:
         if self.current_stream is not None:
             return getattr(self.current_stream, key, None)
 
         return None
 
-    def get_last_stream_value(self, key: str, extra: dict[str, Any] = {}) -> Optional[Any]:
+    def get_last_stream_value(
+        self, key: str, extra: dict[str, Any] = {}
+    ) -> Optional[Any]:
         if self.last_stream is not None:
             return getattr(self.last_stream, key, None)
 

@@ -14,13 +14,17 @@ def up(cursor, bot):
     redis = RedisManager.get()
 
     # new: twitch_id (will be renamed to "id" after the migration below...)
-    cursor.execute('ALTER TABLE "user" ADD COLUMN twitch_id TEXT')  # nullable for now. Will be NOT NULL later
+    cursor.execute(
+        'ALTER TABLE "user" ADD COLUMN twitch_id TEXT'
+    )  # nullable for now. Will be NOT NULL later
     cursor.execute('CREATE UNIQUE INDEX ON "user"(twitch_id)')
 
     # username -> login
     cursor.execute('ALTER TABLE "user" RENAME COLUMN username TO login')
     cursor.execute("DROP INDEX user_username_idx")  # UNIQUE
-    cursor.execute('ALTER TABLE "user" DROP CONSTRAINT user_username_key')  # PRIMARY KEY
+    cursor.execute(
+        'ALTER TABLE "user" DROP CONSTRAINT user_username_key'
+    )  # PRIMARY KEY
     cursor.execute('CREATE INDEX ON "user"(login)')  # create a new index, non-unique
 
     # username_raw -> name
@@ -36,11 +40,15 @@ def up(cursor, bot):
     cursor.execute('ALTER TABLE "user" ALTER COLUMN subscriber SET DEFAULT FALSE')
 
     # new: moderator
-    cursor.execute('ALTER TABLE "user" ADD COLUMN moderator BOOLEAN NOT NULL DEFAULT FALSE')
+    cursor.execute(
+        'ALTER TABLE "user" ADD COLUMN moderator BOOLEAN NOT NULL DEFAULT FALSE'
+    )
 
     # new: num_lines
     cursor.execute('ALTER TABLE "user" ADD COLUMN num_lines BIGINT NOT NULL DEFAULT 0')
-    cursor.execute('CREATE INDEX ON "user"(num_lines)')  # same reason as in 0002_create_index_on_user_points.py
+    cursor.execute(
+        'CREATE INDEX ON "user"(num_lines)'
+    )  # same reason as in 0002_create_index_on_user_points.py
 
     def safe_to_int(input):
         try:
@@ -155,39 +163,63 @@ def up(cursor, bot):
     cursor.execute('ALTER TABLE "user" ALTER COLUMN points SET DATA TYPE BIGINT')
 
     log.info("import lines from redis")
-    for login, num_lines in redis.zscan_iter(f"{bot.streamer.login}:users:num_lines", score_cast_func=safe_to_int):
+    for login, num_lines in redis.zscan_iter(
+        f"{bot.streamer.login}:users:num_lines", score_cast_func=safe_to_int
+    ):
         if num_lines is None:
             # invalid amount in redis, skip
             continue
-        cursor.execute('UPDATE "user" SET num_lines = %s WHERE login = %s', (num_lines, login))
+        cursor.execute(
+            'UPDATE "user" SET num_lines = %s WHERE login = %s', (num_lines, login)
+        )
 
     # new: tokens
     cursor.execute('ALTER TABLE "user" ADD COLUMN tokens INT NOT NULL DEFAULT 0')
-    for login, tokens in redis.zscan_iter(f"{bot.streamer.login}:users:tokens", score_cast_func=safe_to_int):
+    for login, tokens in redis.zscan_iter(
+        f"{bot.streamer.login}:users:tokens", score_cast_func=safe_to_int
+    ):
         if tokens is None:
             # invalid amount in redis, skip
             continue
         if tokens > 50:
             tokens = 50
-        cursor.execute('UPDATE "user" SET tokens = %s WHERE login = %s', (tokens, login))
+        cursor.execute(
+            'UPDATE "user" SET tokens = %s WHERE login = %s', (tokens, login)
+        )
 
     # new: last_seen
     log.info("import last seen from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_seen TIMESTAMPTZ DEFAULT NULL')
-    for login, last_seen_raw in redis.hscan_iter(f"{bot.streamer.login}:users:last_seen"):
-        last_seen = datetime.datetime.fromtimestamp(float(last_seen_raw), tz=datetime.timezone.utc)
-        cursor.execute('UPDATE "user" SET last_seen = %s WHERE login = %s', (last_seen, login))
+    for login, last_seen_raw in redis.hscan_iter(
+        f"{bot.streamer.login}:users:last_seen"
+    ):
+        last_seen = datetime.datetime.fromtimestamp(
+            float(last_seen_raw), tz=datetime.timezone.utc
+        )
+        cursor.execute(
+            'UPDATE "user" SET last_seen = %s WHERE login = %s', (last_seen, login)
+        )
 
     # new: last_active
     log.info("import last active from redis")
     cursor.execute('ALTER TABLE "user" ADD COLUMN last_active TIMESTAMPTZ DEFAULT NULL')
-    for login, last_active_raw in redis.hscan_iter(f"{bot.streamer.login}:users:last_active"):
-        last_seen = datetime.datetime.fromtimestamp(float(last_active_raw), tz=datetime.timezone.utc)
-        cursor.execute('UPDATE "user" SET last_active = %s WHERE login = %s', (last_seen, login))
+    for login, last_active_raw in redis.hscan_iter(
+        f"{bot.streamer.login}:users:last_active"
+    ):
+        last_seen = datetime.datetime.fromtimestamp(
+            float(last_active_raw), tz=datetime.timezone.utc
+        )
+        cursor.execute(
+            'UPDATE "user" SET last_active = %s WHERE login = %s', (last_seen, login)
+        )
 
     # minutes_in_chat_{online,offline} -> INTERVAL type and renamed to time_in_chat_...
-    cursor.execute('ALTER TABLE "user" RENAME COLUMN minutes_in_chat_online TO time_in_chat_online')
-    cursor.execute('ALTER TABLE "user" RENAME COLUMN minutes_in_chat_offline TO time_in_chat_offline')
+    cursor.execute(
+        'ALTER TABLE "user" RENAME COLUMN minutes_in_chat_online TO time_in_chat_online'
+    )
+    cursor.execute(
+        'ALTER TABLE "user" RENAME COLUMN minutes_in_chat_offline TO time_in_chat_offline'
+    )
     cursor.execute(
         """
     ALTER TABLE "user" ALTER COLUMN time_in_chat_online SET DATA TYPE INTERVAL
@@ -200,16 +232,24 @@ def up(cursor, bot):
     USING make_interval(mins := time_in_chat_offline)
     """
     )
-    cursor.execute("ALTER TABLE \"user\" ALTER COLUMN time_in_chat_online SET DEFAULT INTERVAL '0 minutes'")
-    cursor.execute("ALTER TABLE \"user\" ALTER COLUMN time_in_chat_offline SET DEFAULT INTERVAL '0 minutes'")
+    cursor.execute(
+        "ALTER TABLE \"user\" ALTER COLUMN time_in_chat_online SET DEFAULT INTERVAL '0 minutes'"
+    )
+    cursor.execute(
+        "ALTER TABLE \"user\" ALTER COLUMN time_in_chat_offline SET DEFAULT INTERVAL '0 minutes'"
+    )
 
     # new: ignored
-    cursor.execute('ALTER TABLE "user" ADD COLUMN ignored BOOLEAN NOT NULL DEFAULT FALSE')
+    cursor.execute(
+        'ALTER TABLE "user" ADD COLUMN ignored BOOLEAN NOT NULL DEFAULT FALSE'
+    )
     for login in redis.hkeys(f"{bot.streamer.login}:users:ignored"):
         cursor.execute('UPDATE "user" SET ignored = TRUE WHERE login = %s', (login,))
 
     # new: banned
-    cursor.execute('ALTER TABLE "user" ADD COLUMN banned BOOLEAN NOT NULL DEFAULT FALSE')
+    cursor.execute(
+        'ALTER TABLE "user" ADD COLUMN banned BOOLEAN NOT NULL DEFAULT FALSE'
+    )
     for login in redis.hkeys(f"{bot.streamer.login}:users:banned"):
         cursor.execute('UPDATE "user" SET banned = TRUE WHERE login = %s', (login,))
 
@@ -221,7 +261,9 @@ def up(cursor, bot):
     users_count = cursor.fetchone()[0]
 
     # create Server-side cursor
-    cursor.execute('DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE')
+    cursor.execute(
+        'DECLARE all_users CURSOR FOR SELECT id, login FROM "user" ORDER BY id FOR UPDATE'
+    )
 
     offset = 0
     while True:
@@ -237,7 +279,10 @@ def up(cursor, bot):
 
         usernames_to_fetch = [t[1] for t in rows]
         all_user_basics = retry_call(
-            bot.twitch_helix_api.bulk_get_user_basics_by_login, fargs=[usernames_to_fetch], tries=3, delay=5
+            bot.twitch_helix_api.bulk_get_user_basics_by_login,
+            fargs=[usernames_to_fetch],
+            tries=3,
+            delay=5,
         )
 
         for id, basics in zip((t[0] for t in rows), all_user_basics):
@@ -278,7 +323,9 @@ def up(cursor, bot):
         )
         if not nullable:
             cursor.execute(f"ALTER TABLE {table} ALTER COLUMN {column} DROP NOT NULL")
-        cursor.execute(f'UPDATE {table} T SET {column} = (SELECT twitch_id FROM "user" WHERE id = T.{column}::int)')
+        cursor.execute(
+            f'UPDATE {table} T SET {column} = (SELECT twitch_id FROM "user" WHERE id = T.{column}::int)'
+        )
         if not nullable:
             cursor.execute(f"DELETE FROM {table} WHERE {column} IS NULL")
             cursor.execute(f"ALTER TABLE {table} ALTER COLUMN {column} SET NOT NULL")
@@ -364,7 +411,9 @@ def up(cursor, bot):
     add_foreign_key_again("user_duel_stats", "user_id")
 
     # new: login_last_updated (+triggers)
-    cursor.execute('ALTER TABLE "user" ADD COLUMN login_last_updated TIMESTAMPTZ NOT NULL DEFAULT now()')
+    cursor.execute(
+        'ALTER TABLE "user" ADD COLUMN login_last_updated TIMESTAMPTZ NOT NULL DEFAULT now()'
+    )
     cursor.execute(
         """
     CREATE FUNCTION trigger_user_update_login_last_updated()
@@ -390,7 +439,9 @@ def up(cursor, bot):
         # Overwrite admin logs
         redis_pipeline.delete(admin_logs_key)
         if len(new_log_entries) > 0:
-            redis_pipeline.rpush(admin_logs_key, *[json.dumps(entry) for entry in new_log_entries])
+            redis_pipeline.rpush(
+                admin_logs_key, *[json.dumps(entry) for entry in new_log_entries]
+            )
 
         # Delete data that was moved in
         redis_pipeline.delete(

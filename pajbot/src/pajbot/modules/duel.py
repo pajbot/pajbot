@@ -119,32 +119,49 @@ class DuelModule(BaseModule):
                 CommandExample(
                     None,
                     "0-point duel",
-                    chat="user:!duel Karl_Kons\n" "bot>user:You have challenged Karl_Kons for 0 points",
+                    chat="user:!duel Karl_Kons\n"
+                    "bot>user:You have challenged Karl_Kons for 0 points",
                     description="Duel Karl_Kons for 0 points",
                 ).parse(),
                 CommandExample(
                     None,
                     "69-point duel",
-                    chat="user:!duel Karl_Kons 69\n" "bot>user:You have challenged Karl_Kons for 69 points",
+                    chat="user:!duel Karl_Kons 69\n"
+                    "bot>user:You have challenged Karl_Kons for 69 points",
                     description="Duel Karl_Kons for 69 points",
                 ).parse(),
             ],
         )
         self.commands["cancelduel"] = Command.raw_command(
-            self.cancel_duel, delay_all=0, delay_user=10, description="Cancel your duel request"
+            self.cancel_duel,
+            delay_all=0,
+            delay_user=10,
+            description="Cancel your duel request",
         )
         self.commands["accept"] = Command.raw_command(
-            self.accept_duel, delay_all=0, delay_user=0, description="Accept a duel request"
+            self.accept_duel,
+            delay_all=0,
+            delay_user=0,
+            description="Accept a duel request",
         )
         self.commands["decline"] = Command.raw_command(
-            self.decline_duel, delay_all=0, delay_user=0, description="Decline a duel request"
+            self.decline_duel,
+            delay_all=0,
+            delay_user=0,
+            description="Decline a duel request",
         )
         self.commands["deny"] = self.commands["decline"]
         self.commands["duelstatus"] = Command.raw_command(
-            self.status_duel, delay_all=0, delay_user=5, description="Current duel request info"
+            self.status_duel,
+            delay_all=0,
+            delay_user=5,
+            description="Current duel request info",
         )
         self.commands["duelstats"] = Command.raw_command(
-            self.get_duel_stats, delay_all=0, delay_user=120, description="Get your duel statistics"
+            self.get_duel_stats,
+            delay_all=0,
+            delay_user=120,
+            description="Get your duel statistics",
         )
 
     def __init__(self, bot: Optional[Bot]) -> None:
@@ -219,7 +236,9 @@ class DuelModule(BaseModule):
                 return False
 
             if source.id in self.duel_requests:
-                currently_duelling = User.find_by_id(db_session, self.duel_requests[source.id])
+                currently_duelling = User.find_by_id(
+                    db_session, self.duel_requests[source.id]
+                )
                 if currently_duelling is None:
                     del self.duel_requests[source.id]
                     return False
@@ -234,7 +253,9 @@ class DuelModule(BaseModule):
                 # You cannot duel yourself
                 return False
 
-            if user.last_active is None or (utils.now() - user.last_active) > timedelta(minutes=5):
+            if user.last_active is None or (utils.now() - user.last_active) > timedelta(
+                minutes=5
+            ):
                 bot.whisper(
                     source,
                     "This user has not been active in chat within the last 5 minutes. Get them to type in chat before sending another challenge",
@@ -306,12 +327,17 @@ class DuelModule(BaseModule):
         with DBManager.create_session_scope() as db_session:
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
             if not requestor:
-                bot.whisper(source, "The user who challenged you is gone, I don't know where they went!")
+                bot.whisper(
+                    source,
+                    "The user who challenged you is gone, I don't know where they went!",
+                )
                 return
 
             duel_price = self.duel_request_price[self.duel_targets[source.id]]
 
-            if not source.can_afford(duel_price) or not requestor.can_afford(duel_price):
+            if not source.can_afford(duel_price) or not requestor.can_afford(
+                duel_price
+            ):
                 bot.whisper(
                     source,
                     f"Your duel request with {requestor} was cancelled due to one of you not having enough points.",
@@ -352,7 +378,9 @@ class DuelModule(BaseModule):
             if duel_price > 0:
                 message = self.get_phrase("message_won_points", **arguments)
                 if duel_price >= 500 and self.settings["show_on_clr"]:
-                    bot.websocket_manager.emit("notification", {"message": f"{winner} won the duel vs {loser}"})
+                    bot.websocket_manager.emit(
+                        "notification", {"message": f"{winner} won the duel vs {loser}"}
+                    )
             else:
                 message = self.get_phrase("message_won", **arguments)
             bot.say(message)
@@ -363,7 +391,11 @@ class DuelModule(BaseModule):
             del self.duel_targets[source.id]
 
             HandlerManager.trigger(
-                "on_duel_complete", winner=winner, loser=loser, points_won=winning_pot, points_bet=duel_price
+                "on_duel_complete",
+                winner=winner,
+                loser=loser,
+                points_won=winning_pot,
+                points_bet=duel_price,
             )
 
     def decline_duel(self, bot: Bot, source: User, **options: Any) -> None:
@@ -381,7 +413,9 @@ class DuelModule(BaseModule):
             requestor = User.find_by_id(db_session, self.duel_targets[source.id])
 
             if not requestor:
-                bot.whisper(source, "Your challenge never existed, don't ask me what happened!")
+                bot.whisper(
+                    source, "Your challenge never existed, don't ask me what happened!"
+                )
                 return
 
             bot.whisper(source, f"You have declined the duel vs {requestor}")
@@ -404,7 +438,9 @@ class DuelModule(BaseModule):
             if source.id in self.duel_requests:
                 duelling = User.find_by_id(db_session, self.duel_requests[source.id])
                 if duelling:
-                    msg.append(f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}")
+                    msg.append(
+                        f"You have a duel request for {self.duel_request_price[source.id]} points by {duelling}"
+                    )
 
             if source.id in self.duel_targets:
                 challenger = User.find_by_id(db_session, self.duel_targets[source.id])
@@ -416,7 +452,10 @@ class DuelModule(BaseModule):
             if len(msg) > 0:
                 bot.whisper(source, ". ".join(msg))
             else:
-                bot.whisper(source, "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!")
+                bot.whisper(
+                    source,
+                    "You have no duel request or duel target. Type !duel USERNAME POT to duel someone!",
+                )
 
     @staticmethod
     def get_duel_stats(bot: Bot, source: User, **rest: Any) -> bool:
@@ -476,7 +515,8 @@ class DuelModule(BaseModule):
                     continue
 
                 self.bot.whisper(
-                    source, f"{challenged} didn't accept your duel request in time, so the duel has been cancelled."
+                    source,
+                    f"{challenged} didn't accept your duel request in time, so the duel has been cancelled.",
                 )
 
     def enable(self, bot: Optional[Bot]) -> None:

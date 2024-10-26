@@ -111,7 +111,9 @@ class SelfTimeoutModule(BaseModule):
     ]
 
     def load_commands(self, **options) -> None:
-        self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
+        self.commands[
+            self.settings["command_name"].lower().replace("!", "").replace(" ", "")
+        ] = Command.raw_command(
             self.selftimeout,
             sub_only=self.settings["subscribers_only"],
             delay_all=self.settings["global_cd"],
@@ -157,12 +159,17 @@ class SelfTimeoutModule(BaseModule):
         if source.moderator is True:
             return True
 
-        random_value = random.randint(self.settings["low_value"], self.settings["high_value"])
+        random_value = random.randint(
+            self.settings["low_value"], self.settings["high_value"]
+        )
         standard_response = f"You got a {random_value}"
 
         if random_value == 0 and self.settings["zero_response"] != "":
             bot.send_message_to_user(
-                source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
+                source,
+                f"{standard_response}. {self.settings['zero_response']}",
+                event,
+                method="reply",
             )
         else:
             timeout_length = self.seconds_conversion(random_value)

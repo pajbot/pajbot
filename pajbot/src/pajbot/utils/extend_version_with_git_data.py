@@ -6,9 +6,19 @@ log = logging.getLogger(__name__)
 
 
 def _read_git_info_from_subprocess() -> tuple[str, str, str]:
-    current_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf8").strip()
-    latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
-    commit_number = subprocess.check_output(["git", "rev-list", "HEAD", "--count"]).decode("utf8").strip()
+    current_branch = (
+        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        .decode("utf8")
+        .strip()
+    )
+    latest_commit = (
+        subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf8").strip()[:8]
+    )
+    commit_number = (
+        subprocess.check_output(["git", "rev-list", "HEAD", "--count"])
+        .decode("utf8")
+        .strip()
+    )
     return current_branch, latest_commit, commit_number
 
 
@@ -24,7 +34,9 @@ def extend_version_with_git_data(version: str) -> str:
     try:
         current_branch, latest_commit, commit_number = _read_git_info_from_subprocess()
     except:
-        current_branch, latest_commit, commit_number = _read_git_info_from_environment_variables()
+        current_branch, latest_commit, commit_number = (
+            _read_git_info_from_environment_variables()
+        )
     return f"{version} DEV ({current_branch}, {latest_commit}, commit {commit_number})"
 
 
@@ -34,5 +46,7 @@ def extend_version_if_possible(version: str) -> str:
     try:
         return extend_version_with_git_data(version)
     except:
-        log.exception("Failed to parse extra commit data, long version will be %s", version)
+        log.exception(
+            "Failed to parse extra commit data, long version will be %s", version
+        )
         return version

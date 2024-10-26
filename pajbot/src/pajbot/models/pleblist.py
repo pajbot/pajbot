@@ -17,12 +17,16 @@ class PleblistSong(Base):
     __tablename__ = "pleblist_song"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    stream_id: Mapped[int] = mapped_column(Integer, ForeignKey("stream.id", ondelete="CASCADE"), index=True)
+    stream_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stream.id", ondelete="CASCADE"), index=True
+    )
     youtube_id: Mapped[str] = mapped_column(Text, index=True)
     date_added: Mapped[datetime.datetime] = mapped_column(UtcDateTime())
     date_played: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
     skip_after: Mapped[Optional[int]]
-    user_id: Mapped[Optional[str]] = mapped_column(Text, ForeignKey("user.id", ondelete="SET NULL"))
+    user_id: Mapped[Optional[str]] = mapped_column(
+        Text, ForeignKey("user.id", ondelete="SET NULL")
+    )
 
     song_info = relationship(
         "PleblistSongInfo",
@@ -61,16 +65,24 @@ class PleblistSong(Base):
 class PleblistSongInfo(Base):
     __tablename__ = "pleblist_song_info"
 
-    pleblist_song_youtube_id: Mapped[str] = mapped_column(Text, primary_key=True, autoincrement=False)
+    pleblist_song_youtube_id: Mapped[str] = mapped_column(
+        Text, primary_key=True, autoincrement=False
+    )
     title: Mapped[str]
     duration: Mapped[int]
     default_thumbnail: Mapped[str]
 
-    def __init__(self, youtube_id: str, title: str, duration: int, default_thumbnail: str) -> None:
+    def __init__(
+        self, youtube_id: str, title: str, duration: int, default_thumbnail: str
+    ) -> None:
         self.pleblist_song_youtube_id = youtube_id
         self.title = title
         self.duration = duration
         self.default_thumbnail = default_thumbnail
 
     def jsonify(self):
-        return {"title": self.title, "duration": self.duration, "default_thumbnail": self.default_thumbnail}
+        return {
+            "title": self.title,
+            "duration": self.duration,
+            "default_thumbnail": self.default_thumbnail,
+        }

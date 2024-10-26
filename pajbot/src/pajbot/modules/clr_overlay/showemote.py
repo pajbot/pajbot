@@ -40,8 +40,20 @@ class ShowEmoteModule(BaseModule):
             default=0,
             constraints={"min_value": 0, "max_value": 1000000},
         ),
-        ModuleSetting(key="sub_only", label="Subscribers only", type="boolean", required=True, default=False),
-        ModuleSetting(key="can_whisper", label="Command can be whispered", type="boolean", required=True, default=True),
+        ModuleSetting(
+            key="sub_only",
+            label="Subscribers only",
+            type="boolean",
+            required=True,
+            default=False,
+        ),
+        ModuleSetting(
+            key="can_whisper",
+            label="Command can be whispered",
+            type="boolean",
+            required=True,
+            default=True,
+        ),
         ModuleSetting(
             key="global_cd",
             label="Global cooldown (seconds)",
@@ -132,10 +144,14 @@ class ShowEmoteModule(BaseModule):
 
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
-            self.settings["emote_whitelist"].strip().split(" ") if self.settings["emote_whitelist"] else []
+            self.settings["emote_whitelist"].strip().split(" ")
+            if self.settings["emote_whitelist"]
+            else []
         )
         self.blocklisted_emotes = set(
-            self.settings["emote_blacklist"].strip().split(" ") if self.settings["emote_blacklist"] else []
+            self.settings["emote_blacklist"].strip().split(" ")
+            if self.settings["emote_blacklist"]
+            else []
         )
 
     def is_emote_allowed(self, emote_code: str) -> bool:
@@ -150,7 +166,9 @@ class ShowEmoteModule(BaseModule):
 
         return self.parent_module.is_emote_allowed(emote_code)
 
-    def show_emote(self, bot: Bot, source: User, args: dict[str, Any], **rest: Any) -> bool:
+    def show_emote(
+        self, bot: Bot, source: User, args: dict[str, Any], **rest: Any
+    ) -> bool:
         emote_instances = args["emote_instances"]
 
         if len(emote_instances) <= 0:
@@ -175,7 +193,9 @@ class ShowEmoteModule(BaseModule):
         )
 
         if self.settings["success_whisper"]:
-            bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
+            bot.whisper(
+                source, f"Successfully sent the emote {first_emote.code} to the stream!"
+            )
 
         return True
 

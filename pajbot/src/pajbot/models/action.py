@@ -44,7 +44,9 @@ class ActionParser:
 
     @staticmethod
     def parse(
-        str_data: Optional[str] = None, dict_data: Optional[dict[str, str]] = None, command=""
+        str_data: Optional[str] = None,
+        dict_data: Optional[dict[str, str]] = None,
+        command="",
     ) -> Optional[BaseAction]:
         try:
             from pajbot.userdispatch import UserDispatch
@@ -55,7 +57,9 @@ class ActionParser:
 
             Dispatch = NormalDispatch
         except:
-            log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
+            log.exception(
+                "Something went wrong while attemting to import Dispatch, this should never happen"
+            )
             sys.exit(1)
 
         data: dict[str, str] = {}
@@ -86,7 +90,9 @@ class ActionParser:
             try:
                 return FuncAction(getattr(Dispatch, data["cb"]))
             except AttributeError as e:
-                log.error(f'AttributeError caught when parsing action for action "{command}": {e}')
+                log.error(
+                    f'AttributeError caught when parsing action for action "{command}": {e}'
+                )
                 return None
         elif data["type"] == "multi":
             return MultiAction(data["args"], data["default"])
@@ -113,7 +119,9 @@ class IfSubstitution:
         return apply_substitutions(self.true_response, self.true_subs, self.bot, extra)
 
     def get_false_response(self, extra):
-        return apply_substitutions(self.false_response, self.false_subs, self.bot, extra)
+        return apply_substitutions(
+            self.false_response, self.false_subs, self.bot, extra
+        )
 
     def __init__(self, key, arguments, bot):
         self.bot = bot
@@ -145,7 +153,9 @@ class Substitution:
         r'\$\(([a-z_]+)(\;[0-9]+)?(\:[\w\.\/ \'\"\,\-]+|\:\$\([\w_:;\._\/ -]+\))?(\|[\w]+(\([\w%:/ +-.]+\))?)*(\,[\'"]{1}[\w \|$;_\-:()\.]+[\'"]{1}){0,2}\)'
     )
     # https://stackoverflow.com/a/7109208
-    urlfetch_substitution_regex = re.compile(r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)")
+    urlfetch_substitution_regex = re.compile(
+        r"\$\(urlfetch ([A-Za-z0-9\-._~:/?#\[\]@!$%&\'()*+,;=]+)\)"
+    )
     urlfetch_substitution_regex_all = re.compile(r"\$\(urlfetch (.+?)\)")
 
     def __init__(
@@ -182,7 +192,9 @@ class BaseAction:
     def reset(self):
         pass
 
-    def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}) -> Any:
+    def run(
+        self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}
+    ) -> Any:
         pass
 
     def get_action_response(self) -> Optional[str]:
@@ -260,7 +272,9 @@ class MultiAction(BaseAction):
             if source.level >= cmd.level:
                 return cmd.run(bot, source, extra_msg, event, args)
 
-            log.info(f"User {source} tried running a sub-command he had no access to ({command}).")
+            log.info(
+                f"User {source} tried running a sub-command he had no access to ({command})."
+            )
 
         return None
 
@@ -310,7 +324,9 @@ def get_argument_substitutions(string: str) -> list[Substitution]:
         if found:
             continue
 
-        argument_substitutions.append(Substitution(None, needle=needle, argument=argument_num))
+        argument_substitutions.append(
+            Substitution(None, needle=needle, argument=argument_num)
+        )
 
     return argument_substitutions
 
@@ -346,7 +362,9 @@ def get_substitution_arguments(sub_key):
 
 
 def get_substitutions(
-    string: str, bot: Optional[Bot], method_mapping: Optional[dict[str, Callable[..., Any]]] = None
+    string: str,
+    bot: Optional[Bot],
+    method_mapping: Optional[dict[str, Callable[..., Any]]] = None,
 ) -> dict[str, Substitution]:
     """
     Returns a dictionary of `Substitution` objects that are are found in the passed `string`.
@@ -357,7 +375,9 @@ def get_substitutions(
     substitutions = collections.OrderedDict()
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
+        sub_string, path, argument, key, filters, if_arguments = (
+            get_substitution_arguments(sub_key)
+        )
 
         if sub_string in substitutions:
             # We already matched this variable
@@ -369,7 +389,13 @@ def get_substitutions(
                     if_substitution = IfSubstitution(key, if_arguments, bot)
                     if if_substitution.sub is None:
                         continue
-                    sub = Substitution(if_substitution, needle=sub_string, key=key, argument=argument, filters=filters)
+                    sub = Substitution(
+                        if_substitution,
+                        needle=sub_string,
+                        key=key,
+                        argument=argument,
+                        filters=filters,
+                    )
                     substitutions[sub_string] = sub
         except:
             log.exception("BabyRage")
@@ -394,12 +420,18 @@ def get_substitutions(
                 method_mapping["usersource"] = bot.get_usersource_value
                 method_mapping["time"] = bot.get_time_value
                 method_mapping["date"] = bot.get_date_value
-                method_mapping["datetimefromisoformat"] = bot.get_datetimefromisoformat_value
-                method_mapping["datetimefromtimestamp"] = bot.get_datetimefromtimestamp_value
+                method_mapping["datetimefromisoformat"] = (
+                    bot.get_datetimefromisoformat_value
+                )
+                method_mapping["datetimefromtimestamp"] = (
+                    bot.get_datetimefromtimestamp_value
+                )
                 method_mapping["datetime"] = bot.get_datetime_value
                 method_mapping["curdeck"] = bot.decks.action_get_curdeck
                 method_mapping["stream"] = bot.stream_manager.get_stream_value
-                method_mapping["current_stream"] = bot.stream_manager.get_current_stream_value
+                method_mapping["current_stream"] = (
+                    bot.stream_manager.get_current_stream_value
+                )
                 method_mapping["last_stream"] = bot.stream_manager.get_last_stream_value
                 method_mapping["args"] = bot.get_args_value
                 method_mapping["strictargs"] = bot.get_strictargs_value
@@ -410,14 +442,22 @@ def get_substitutions(
             pass
 
     for sub_key in Substitution.substitution_regex.finditer(string):
-        sub_string, path, argument, key, filters, if_arguments = get_substitution_arguments(sub_key)
+        sub_string, path, argument, key, filters, if_arguments = (
+            get_substitution_arguments(sub_key)
+        )
 
         if sub_string in substitutions:
             # We already matched this variable
             continue
 
         if path in method_mapping:
-            sub = Substitution(method_mapping[path], needle=sub_string, key=key, argument=argument, filters=filters)
+            sub = Substitution(
+                method_mapping[path],
+                needle=sub_string,
+                key=key,
+                argument=argument,
+                filters=filters,
+            )
             substitutions[sub_string] = sub
 
     return substitutions
@@ -443,9 +483,13 @@ def is_message_good(bot, message, extra):
     from pajbot.modules.ascii import AsciiProtectionModule
 
     checks = {
-        "banphrase": lambda: bot.banphrase_manager.check_message(message, extra["source"]),
+        "banphrase": lambda: bot.banphrase_manager.check_message(
+            message, extra["source"]
+        ),
         "ascii": lambda: AsciiProtectionModule.check_message(message),
-        "massping": lambda: bot.module_manager.get_module("massping").check_message(message, extra["source"]),
+        "massping": lambda: bot.module_manager.get_module("massping").check_message(
+            message, extra["source"]
+        ),
     }
 
     for check_name, check_fn in checks.items():
@@ -456,7 +500,9 @@ def is_message_good(bot, message, extra):
         # apply the check fn
         # only if the result is False the check was successful
         if check_fn() is not False:
-            log.info(f'Not sending message "{message}" because check "{check_name}" failed.')
+            log.info(
+                f'Not sending message "{message}" because check "{check_name}" failed.'
+            )
             return False
 
     return True
@@ -475,7 +521,9 @@ class MessageAction(BaseAction):
         if bot:
             self.argument_subs = get_argument_substitutions(self.response)
             self.subs = get_substitutions(self.response, bot)
-            self.num_urlfetch_subs = len(get_urlfetch_substitutions(self.response, all=True))
+            self.num_urlfetch_subs = len(
+                get_urlfetch_substitutions(self.response, all=True)
+            )
 
     def get_action_response(self) -> Optional[str]:
         return self.response
@@ -496,7 +544,11 @@ class MessageAction(BaseAction):
             resp = resp.replace(needle, value)
             log.debug(f"Replacing {needle} with {value}")
 
-        if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
+        if (
+            "command" in extra
+            and extra["command"].run_through_banphrases is True
+            and "source" in extra
+        ):
             if not is_message_good(bot, resp, extra):
                 return None
 
@@ -530,7 +582,10 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
         else:
             # An error code was returned, ensure the response is plain text
             content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+            if (
+                content_type is not None
+                and cgi.parse_header(content_type)[0] != "text/plain"
+            ):
                 # The content type is not plain text, return a generic error showing the status code returned
                 value = f"urlfetch error {r.status_code}"
             else:
@@ -538,7 +593,11 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
 
         message = message.replace(needle, value)
 
-    if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
+    if (
+        "command" in extra
+        and extra["command"].run_through_banphrases is True
+        and "source" in extra
+    ):
         if not is_message_good(bot, message, extra):
             return None
 

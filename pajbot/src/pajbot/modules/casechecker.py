@@ -17,14 +17,24 @@ log = logging.getLogger(__name__)
 class CaseCheckerModule(BaseModule):
     ID = __name__.split(".")[-1]
     NAME = "Case Checker"
-    DESCRIPTION = "Times out users who post messages that contain lowercase/uppercase letters."
+    DESCRIPTION = (
+        "Times out users who post messages that contain lowercase/uppercase letters."
+    )
     CATEGORY = "Moderation"
     SETTINGS = [
         ModuleSetting(
-            key="online_chat_only", label="Only enabled in online chat", type="boolean", required=True, default=True
+            key="online_chat_only",
+            label="Only enabled in online chat",
+            type="boolean",
+            required=True,
+            default=True,
         ),
         ModuleSetting(
-            key="offline_chat_only", label="Only enabled in offline chat", type="boolean", required=True, default=False
+            key="offline_chat_only",
+            label="Only enabled in offline chat",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="subscriber_exemption",
@@ -58,7 +68,11 @@ class CaseCheckerModule(BaseModule):
             constraints={"min_value": 100, "max_value": 1000},
         ),
         ModuleSetting(
-            key="lowercase_timeouts", label="Enable lowercase timeouts", type="boolean", required=True, default=False
+            key="lowercase_timeouts",
+            label="Enable lowercase timeouts",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="lowercase_timeout_duration",
@@ -106,7 +120,11 @@ class CaseCheckerModule(BaseModule):
             constraints={"min_value": 0, "max_value": 100},
         ),
         ModuleSetting(
-            key="uppercase_timeouts", label="Enable uppercase timeouts", type="boolean", required=True, default=False
+            key="uppercase_timeouts",
+            label="Enable uppercase timeouts",
+            type="boolean",
+            required=True,
+            default=False,
         ),
         ModuleSetting(
             key="uppercase_timeout_duration",
@@ -196,7 +214,8 @@ class CaseCheckerModule(BaseModule):
 
             if (
                 amount_lowercase >= self.settings["min_lowercase_characters"]
-                and (amount_lowercase / len(message)) * 100 >= self.settings["lowercase_percentage"]
+                and (amount_lowercase / len(message)) * 100
+                >= self.settings["lowercase_percentage"]
             ):
                 self.bot.delete_or_timeout(
                     source,
@@ -223,7 +242,8 @@ class CaseCheckerModule(BaseModule):
 
             if (
                 amount_uppercase >= self.settings["min_uppercase_characters"]
-                and (amount_uppercase / len(message)) * 100 >= self.settings["uppercase_percentage"]
+                and (amount_uppercase / len(message)) * 100
+                >= self.settings["uppercase_percentage"]
             ):
                 self.bot.delete_or_timeout(
                     source,
@@ -238,7 +258,9 @@ class CaseCheckerModule(BaseModule):
         return True
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.add_handler(
+            "on_message", self.on_message, priority=150, run_if_propagation_stopped=True
+        )
 
     def disable(self, bot: Optional[Bot]) -> None:
         HandlerManager.remove_handler("on_message", self.on_message)

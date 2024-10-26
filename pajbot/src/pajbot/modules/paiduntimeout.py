@@ -74,7 +74,9 @@ class PaidUntimeoutModule(BaseModule):
 
     @staticmethod
     def untimeout_source(bot: Bot, source: User, **rest: Any) -> bool:
-        ban_data = bot.twitch_helix_api.get_banned_user(bot.streamer.id, bot.streamer_access_token_manager, source.id)
+        ban_data = bot.twitch_helix_api.get_banned_user(
+            bot.streamer.id, bot.streamer_access_token_manager, source.id
+        )
 
         if not ban_data:
             bot.whisper(source, "You're not timed out FailFish")
@@ -93,10 +95,15 @@ class PaidUntimeoutModule(BaseModule):
 
     @staticmethod
     def unban_source(bot: Bot, source: User, **rest: Any) -> bool:
-        ban_data = bot.twitch_helix_api.get_banned_user(bot.streamer.id, bot.streamer_access_token_manager, source.id)
+        ban_data = bot.twitch_helix_api.get_banned_user(
+            bot.streamer.id, bot.streamer_access_token_manager, source.id
+        )
 
         if not ban_data:
-            bot.whisper(source, "I can't unban you if you aren't banned in the first place FailFish")
+            bot.whisper(
+                source,
+                "I can't unban you if you aren't banned in the first place FailFish",
+            )
             # Request to be unbanned out is ignored, but the return False ensures the user is refunded their points
             return False
 
@@ -108,40 +115,46 @@ class PaidUntimeoutModule(BaseModule):
 
     def load_commands(self, **options):
         if self.settings["untimeout_enable"]:
-            self.commands[self.settings["untimeout_command_name"].lower().replace("!", "").replace(" ", "")] = (
-                Command.raw_command(
-                    self.untimeout_source,
-                    cost=self.settings["untimeout_cost"],
-                    delay_all=0,
-                    delay_user=15,
-                    can_execute_with_whisper=True,
-                    description="Timed out for no apparent reason? Untimeout yourself using points!",
-                    examples=[
-                        CommandExample(
-                            None,
-                            f"Untimeout yourself for {self.settings['untimeout_cost']} points",
-                            chat=f"user>bot:!{self.settings['untimeout_command_name']}\nbot>user: You have been unbanned.",
-                            description="",
-                        ).parse()
-                    ],
-                )
+            self.commands[
+                self.settings["untimeout_command_name"]
+                .lower()
+                .replace("!", "")
+                .replace(" ", "")
+            ] = Command.raw_command(
+                self.untimeout_source,
+                cost=self.settings["untimeout_cost"],
+                delay_all=0,
+                delay_user=15,
+                can_execute_with_whisper=True,
+                description="Timed out for no apparent reason? Untimeout yourself using points!",
+                examples=[
+                    CommandExample(
+                        None,
+                        f"Untimeout yourself for {self.settings['untimeout_cost']} points",
+                        chat=f"user>bot:!{self.settings['untimeout_command_name']}\nbot>user: You have been unbanned.",
+                        description="",
+                    ).parse()
+                ],
             )
         if self.settings["unban_enable"]:
-            self.commands[self.settings["unban_command_name"].lower().replace("!", "").replace(" ", "")] = (
-                Command.raw_command(
-                    self.unban_source,
-                    cost=self.settings["unban_cost"],
-                    delay_all=0,
-                    delay_user=15,
-                    can_execute_with_whisper=True,
-                    description="Banned for no apparent reason? Unban yourself using points!",
-                    examples=[
-                        CommandExample(
-                            None,
-                            f"Unban yourself for {self.settings['unban_cost']} points",
-                            chat=f"user>bot:!{self.settings['unban_command_name']}\nbot>user: You have been unbanned.",
-                            description="",
-                        ).parse()
-                    ],
-                )
+            self.commands[
+                self.settings["unban_command_name"]
+                .lower()
+                .replace("!", "")
+                .replace(" ", "")
+            ] = Command.raw_command(
+                self.unban_source,
+                cost=self.settings["unban_cost"],
+                delay_all=0,
+                delay_user=15,
+                can_execute_with_whisper=True,
+                description="Banned for no apparent reason? Unban yourself using points!",
+                examples=[
+                    CommandExample(
+                        None,
+                        f"Unban yourself for {self.settings['unban_cost']} points",
+                        chat=f"user>bot:!{self.settings['unban_command_name']}\nbot>user: You have been unbanned.",
+                        description="",
+                    ).parse()
+                ],
             )

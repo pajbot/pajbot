@@ -18,8 +18,12 @@ SECRET_KEY_EXPIRY_SECONDS = 86400 * 30
 
 app = Flask(
     __name__,
-    static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"),
-    template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__ + "/../..")), "templates"),
+    static_folder=os.path.join(
+        os.path.dirname(os.path.abspath(__file__ + "/../..")), "static"
+    ),
+    template_folder=os.path.join(
+        os.path.dirname(os.path.abspath(__file__ + "/../..")), "templates"
+    ),
 )
 
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -72,7 +76,9 @@ def init(config_path: str) -> None:
     api_client_credentials = ClientCredentials(
         config["twitchapi"]["client_id"],
         config["twitchapi"]["client_secret"],
-        config["twitchapi"].get("redirect_uri", f"https://{config['web']['domain']}/login/authorized"),
+        config["twitchapi"].get(
+            "redirect_uri", f"https://{config['web']['domain']}/login/authorized"
+        ),
     )
 
     redis_options = {}
@@ -131,7 +137,9 @@ def init(config_path: str) -> None:
     # https://flask.palletsprojects.com/en/1.1.x/api/#sessions
     # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.secret_key
     app.secret_key = _load_secret_key(app.bot_user.id, app.streamer.id)
-    app.bot_dev = "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
+    app.bot_dev = (
+        "flags" in config and "dev" in config["flags"] and config["flags"]["dev"] == "1"
+    )
 
     DBManager.init(config["main"]["db"])
 
@@ -160,7 +168,11 @@ def init(config_path: str) -> None:
         version = extend_version_if_possible(VERSION)
 
         try:
-            last_commit = subprocess.check_output(["git", "log", "-1", "--format=%cd"]).decode("utf8").strip()
+            last_commit = (
+                subprocess.check_output(["git", "log", "-1", "--format=%cd"])
+                .decode("utf8")
+                .strip()
+            )
         except:
             log.exception("Failed to get last_commit, will not show last commit")
 
@@ -171,9 +183,17 @@ def init(config_path: str) -> None:
         "site": {
             "domain": config["web"]["domain"],
             "deck_tab_images": cfg.get_boolean(config["web"], "deck_tab_images", False),
-            "websocket": {"host": config["websocket"].get("host", f"wss://{config['web']['domain']}/clrsocket")},
+            "websocket": {
+                "host": config["websocket"].get(
+                    "host", f"wss://{config['web']['domain']}/clrsocket"
+                )
+            },
         },
-        "streamer": {"name": app.streamer_display, "full_name": app.streamer.login, "id": app.streamer.id},
+        "streamer": {
+            "name": app.streamer_display,
+            "full_name": app.streamer.login,
+            "id": app.streamer.id,
+        },
         "request": request,
         "session": session,
         "google_analytics": config["web"].get("google_analytics", None),
