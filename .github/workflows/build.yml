@@ -28,7 +28,6 @@ jobs:
 
       - name: Run pajbot lib tests
         run: uv run pytest
-        working-directory: pajbot
 
   check_format:
     name: "Check format ubuntu-latest, Python ${{ matrix.python-version }}"
