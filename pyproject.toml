@@ -28,6 +28,9 @@ dependencies = [
     "twisted>=24.7.0",
     "unidecode>=1.3.8",
     "urlextract>=1.9.0",
+    "flask-assets2>=2.1",
+    "flask-wtf>=1.2.1",
+    "flask>=3.0.3",
 ]
 
 [tool.uv]
@@ -84,9 +87,3 @@ ignore = [
 [[tool.mypy.overrides]]
 module = "irc.*"
 ignore_missing_imports = true
-
-[tool.uv.workspace]
-members = ["pajbot", "bot", "web"]
-
-[tool.uv.sources]
-pajbot = { workspace = true }

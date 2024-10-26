@@ -20,19 +20,18 @@ fi
 ISORT_OPTIONS=()
 
 if [ "${1-}" = "--check" ]; then
-  BLACK_OPTIONS="--check --diff"
+  RUFF_OPTIONS=""
   PRETTIER_OPTIONS="--check"
   ISORT_OPTIONS+=("--check")
 else
-  BLACK_OPTIONS=""
+  RUFF_OPTIONS="--fix"
   PRETTIER_OPTIONS="--write"
 fi
 
 # reformat/check every python file, except venv
->&2 echo " * Running black"
-# uv run black $BLACK_OPTIONS . --exclude=venv --exclude=.venv
+>&2 echo " * Running ruff"
 
-uv run ruff check
+uv run ruff check $RUFF_OPTIONS
 
 if [ "${1-}" != "--check" ]; then
     uv run ruff format
@@ -44,4 +43,4 @@ npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
 
 # Run mypy static typing checker
 >&2 echo " * Running mypy"
-uv run mypy pajbot
+uv run mypy .

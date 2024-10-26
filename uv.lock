@@ -1,28 +1,6 @@
 version = 1
 requires-python = ">=3.9"
 
-[manifest]
-members = [
-    "bot",
-    "pajbot",
-    "web",
-]
-requirements = [
-    { name = "black", specifier = ">=24.8.0" },
-    { name = "flake8", specifier = ">=7.1.1" },
-    { name = "isort", specifier = ">=5.13.2" },
-    { name = "mypy", specifier = ">=1.11.2" },
-    { name = "pytest", specifier = ">=8.3.2" },
-    { name = "ruff", specifier = ">=0.6.9" },
-    { name = "types-beautifulsoup4", specifier = ">=4.12.0.20240907" },
-    { name = "types-colorama", specifier = ">=0.4.15.20240311" },
-    { name = "types-markdown", specifier = ">=3.7.0.20240822" },
-    { name = "types-psycopg2" },
-    { name = "types-pytz", specifier = ">=2.32.0.20240914" },
-    { name = "types-requests" },
-    { name = "types-retry" },
-]
-
 [[package]]
 name = "apscheduler"
 version = "3.10.4"
@@ -154,17 +132,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/1e/57/a6a1721eff09598fb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/2a/10164ed1f31196a2f7f3799368a821765c62851ead0e630ab52b8e14b4d0/blinker-1.8.2-py3-none-any.whl", hash = "sha256:1779309f71bf239144b9399d06ae925637cf6634cf6bd131104184531bf67c01", size = 9456 },
 ]
-
-[[package]]
-name = "bot"
-version = "0.1.0"
-source = { editable = "bot" }
-dependencies = [
-    { name = "pajbot" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pajbot", virtual = "pajbot" }]
 
 [[package]]
 name = "certifi"
@@ -450,16 +417,16 @@ sdist = { url = "https://files.pythonhosted.org/packages/32/cc/337a9fdcd3e036258
 
 [[package]]
 name = "flask-wtf"
-version = "1.2.1"
+version = "1.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flask" },
     { name = "itsdangerous" },
     { name = "wtforms" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9b/ef/b6ec35e02f479f6e76e02ede14594c9cfa5e6dcbab6ea0e82fa413993a2a/flask_wtf-1.2.1.tar.gz", hash = "sha256:8bb269eb9bb46b87e7c8233d7e7debdf1f8b74bf90cc1789988c29b37a97b695", size = 42498 }
+sdist = { url = "https://files.pythonhosted.org/packages/80/9b/f1cd6e41bbf874f3436368f2c7ee3216c1e82d666ff90d1d800e20eb1317/flask_wtf-1.2.2.tar.gz", hash = "sha256:79d2ee1e436cf570bccb7d916533fa18757a2f18c290accffab1b9a0b684666b", size = 42641 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/2b/0f0cf68a2f052ea3dbb8b6c8c2a7e8aea5e6df7410f5e289437fefbeb461/flask_wtf-1.2.1-py3-none-any.whl", hash = "sha256:fa6793f2fb7e812e0fe9743b282118e581fb1b6c45d414b8af05e659bd653287", size = 12725 },
+    { url = "https://files.pythonhosted.org/packages/dc/19/354449145fbebb65e7c621235b6ad69bebcfaec2142481f044d0ddc5b5c5/flask_wtf-1.2.2-py3-none-any.whl", hash = "sha256:e93160c5c5b6b571cf99300b6e01b72f9a101027cab1579901f8b10c5daf0b70", size = 12779 },
 ]
 
 [[package]]
@@ -875,12 +842,15 @@ wheels = [
 [[package]]
 name = "pajbot"
 version = "0.1.0"
-source = { virtual = "pajbot" }
+source = { editable = "." }
 dependencies = [
     { name = "apscheduler" },
     { name = "autobahn" },
     { name = "beautifulsoup4" },
     { name = "colorama" },
+    { name = "flask" },
+    { name = "flask-assets2" },
+    { name = "flask-wtf" },
     { name = "irc" },
     { name = "markdown" },
     { name = "markupsafe" },
@@ -904,7 +874,19 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "black" },
+    { name = "flake8" },
+    { name = "isort" },
+    { name = "mypy" },
     { name = "pytest" },
+    { name = "ruff" },
+    { name = "types-beautifulsoup4" },
+    { name = "types-colorama" },
+    { name = "types-markdown" },
+    { name = "types-psycopg2" },
+    { name = "types-pytz" },
+    { name = "types-requests" },
+    { name = "types-retry" },
 ]
 
 [package.metadata]
@@ -913,6 +895,9 @@ requires-dist = [
     { name = "autobahn", specifier = ">=24.4.2" },
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
     { name = "colorama", specifier = ">=0.4.6" },
+    { name = "flask", specifier = ">=3.0.3" },
+    { name = "flask-assets2", specifier = ">=2.1" },
+    { name = "flask-wtf", specifier = ">=1.2.1" },
     { name = "irc", specifier = ">=20.5.0" },
     { name = "markdown", specifier = ">=3.7" },
     { name = "markupsafe", specifier = ">=2.1.5" },
@@ -935,7 +920,21 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=8.3.2" }]
+dev = [
+    { name = "black", specifier = ">=24.8.0" },
+    { name = "flake8", specifier = ">=7.1.1" },
+    { name = "isort", specifier = ">=5.13.2" },
+    { name = "mypy", specifier = ">=1.11.2" },
+    { name = "pytest", specifier = ">=8.3.2" },
+    { name = "ruff", specifier = ">=0.6.9" },
+    { name = "types-beautifulsoup4", specifier = ">=4.12.0.20240907" },
+    { name = "types-colorama", specifier = ">=0.4.15.20240311" },
+    { name = "types-markdown", specifier = ">=3.7.0.20240822" },
+    { name = "types-psycopg2" },
+    { name = "types-pytz", specifier = ">=2.32.0.20240914" },
+    { name = "types-requests" },
+    { name = "types-retry" },
+]
 
 [[package]]
 name = "pathspec"
@@ -1667,25 +1666,6 @@ wheels = [
 ]
 
 [[package]]
-name = "web"
-version = "0.1.0"
-source = { virtual = "web" }
-dependencies = [
-    { name = "flask" },
-    { name = "flask-assets2" },
-    { name = "flask-wtf" },
-    { name = "pajbot" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "flask", specifier = ">=3.0.3" },
-    { name = "flask-assets2", specifier = ">=2.1" },
-    { name = "flask-wtf", specifier = ">=1.2.1" },
-    { name = "pajbot", virtual = "pajbot" },
-]
-
-[[package]]
 name = "webassets"
 version = "2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1696,26 +1676,26 @@ wheels = [
 
 [[package]]
 name = "werkzeug"
-version = "3.0.4"
+version = "3.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markupsafe" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0f/e2/6dbcaab07560909ff8f654d3a2e5a60552d937c909455211b1b36d7101dc/werkzeug-3.0.4.tar.gz", hash = "sha256:34f2371506b250df4d4f84bfe7b0921e4762525762bbd936614909fe25cd7306", size = 803966 }
+sdist = { url = "https://files.pythonhosted.org/packages/d4/f9/0ba83eaa0df9b9e9d1efeb2ea351d0677c37d41ee5d0f91e98423c7281c9/werkzeug-3.0.6.tar.gz", hash = "sha256:a8dd59d4de28ca70471a34cba79bed5f7ef2e036a76b3ab0835474246eb41f8d", size = 805170 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4b/84/997bbf7c2bf2dc3f09565c6d0b4959fefe5355c18c4096cfd26d83e0785b/werkzeug-3.0.4-py3-none-any.whl", hash = "sha256:02c9eb92b7d6c06f31a782811505d2157837cea66aaede3e217c7c27c039476c", size = 227554 },
+    { url = "https://files.pythonhosted.org/packages/6c/69/05837f91dfe42109203ffa3e488214ff86a6d68b2ed6c167da6cdc42349b/werkzeug-3.0.6-py3-none-any.whl", hash = "sha256:1bc0c2310d2fbb07b1dd1105eba2f7af72f322e1e455f2f93c993bee8c8a5f17", size = 227979 },
 ]
 
 [[package]]
 name = "wtforms"
-version = "3.1.2"
+version = "3.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markupsafe" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6a/c7/96d10183c3470f1836846f7b9527d6cb0b6c2226ebca40f36fa29f23de60/wtforms-3.1.2.tar.gz", hash = "sha256:f8d76180d7239c94c6322f7990ae1216dae3659b7aa1cee94b6318bdffb474b9", size = 134705 }
+sdist = { url = "https://files.pythonhosted.org/packages/01/e4/633d080897e769ed5712dcfad626e55dbd6cf45db0ff4d9884315c6a82da/wtforms-3.2.1.tar.gz", hash = "sha256:df3e6b70f3192e92623128123ec8dca3067df9cfadd43d59681e210cfb8d4682", size = 137801 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/18/19/c3232f35e24dccfad372e9f341c4f3a1166ae7c66e4e1351a9467c921cc1/wtforms-3.1.2-py3-none-any.whl", hash = "sha256:bf831c042829c8cdbad74c27575098d541d039b1faa74c771545ecac916f2c07", size = 145961 },
+    { url = "https://files.pythonhosted.org/packages/08/c9/2088fb5645cd289c99ebe0d4cdcc723922a1d8e1beaefb0f6f76dff9b21c/wtforms-3.2.1-py3-none-any.whl", hash = "sha256:583bad77ba1dd7286463f21e11aa3043ca4869d03575921d1a1698d0715e0fd4", size = 152454 },
 ]
 
 [[package]]
