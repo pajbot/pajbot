@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.modules import BaseModule, ModuleSetting
 
 if TYPE_CHECKING:

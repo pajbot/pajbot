@@ -8,7 +8,7 @@ import random
 
 import pajbot.exc
 import pajbot.models
-from pajbot import utils
+import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample

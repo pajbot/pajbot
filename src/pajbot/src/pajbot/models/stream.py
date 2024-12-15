@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 from pajbot.apiwrappers.twitch.helix import TwitchGame, TwitchVideo

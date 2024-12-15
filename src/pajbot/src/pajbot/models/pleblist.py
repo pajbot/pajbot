@@ -3,7 +3,7 @@ from typing import Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import Base
 
 from sqlalchemy import ForeignKey, Integer, Text

@@ -7,7 +7,7 @@ from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.utils import time_method
+from utils import time_method
 
 from sqlalchemy import text
 

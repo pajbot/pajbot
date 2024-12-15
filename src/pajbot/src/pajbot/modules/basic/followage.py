@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
-from pajbot.utils import time_since
+from utils import time_since
 
 from requests import HTTPError
 

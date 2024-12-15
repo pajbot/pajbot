@@ -6,7 +6,7 @@ from pajbot.models.command import Command
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.streamhelper import StreamHelper
-from pajbot.utils import time_since
+from utils import time_since
 
 log = logging.getLogger(__name__)
 

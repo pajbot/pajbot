@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.apiwrappers.queup import QueUpAPI, QueUpQueueSong
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.redis import RedisManager

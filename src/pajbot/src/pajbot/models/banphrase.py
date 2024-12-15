@@ -19,7 +19,7 @@ import logging
 
 from pajbot.managers.db import Base, DBManager
 from pajbot.models.user import User
-from pajbot.utils import find
+from utils import find
 
 import regex as re
 from sqlalchemy import Boolean, ForeignKey, Integer, Text, event

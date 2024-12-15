@@ -3,7 +3,7 @@ from typing import Any, Callable
 import logging
 import operator
 
-from pajbot.utils import find
+from utils import find
 
 log = logging.getLogger("pajbot")
 

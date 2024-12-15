@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.exc import InvalidPointAmount
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandExample

@@ -6,7 +6,7 @@ import datetime
 import logging
 from urllib.parse import urlsplit
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import Base, DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.modules import BaseModule

@@ -7,7 +7,7 @@ import pajbot.exc
 import pajbot.models
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.utils import time_limit
+from utils import time_limit
 
 log = logging.getLogger(__name__)
 

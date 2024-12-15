@@ -9,7 +9,7 @@ from pajbot.bot import Bot
 from pajbot.config import Config
 from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
-from pajbot.utils import find
+from utils import find
 
 log = logging.getLogger(__name__)
 

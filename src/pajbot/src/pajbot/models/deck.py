@@ -3,9 +3,9 @@ from typing import Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import Base
-from pajbot.utils import time_ago
+from utils import time_ago
 
 from sqlalchemy import Integer, Text
 from sqlalchemy.orm import Mapped, mapped_column

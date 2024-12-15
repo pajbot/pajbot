@@ -8,7 +8,7 @@ import urllib.parse
 
 import pajbot.managers
 import pajbot.models
-import pajbot.utils
+import utils
 from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base, DBManager
@@ -638,10 +638,10 @@ class LinkCheckerModule(BaseModule):
                 return
 
             size = 0
-            start = pajbot.utils.now().timestamp()
+            start = utils.now().timestamp()
 
             for chunk in response.iter_content(1024):
-                if pajbot.utils.now().timestamp() - start > receive_timeout:
+                if utils.now().timestamp() - start > receive_timeout:
                     log.error("The site took too long to load")
                     return
 

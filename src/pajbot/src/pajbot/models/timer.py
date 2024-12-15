@@ -15,7 +15,7 @@ import logging
 from pajbot.managers.db import Base, DBManager
 from pajbot.models.action import ActionParser, BaseAction
 from pajbot.models.user import User
-from pajbot.utils import find
+from utils import find
 
 from sqlalchemy import Boolean, Integer, Text, event
 from sqlalchemy.orm import Mapped, QueryContext, mapped_column

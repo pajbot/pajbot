@@ -4,7 +4,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 
-from pajbot import utils
+import utils
 from pajbot.models.emote import Emote
 
 log = logging.getLogger(__name__)

@@ -12,7 +12,7 @@ from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
 from pajbot.modules.quests.base import BaseQuest
 from pajbot.streamhelper import StreamHelper
-from pajbot.utils import find
+from utils import find
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot

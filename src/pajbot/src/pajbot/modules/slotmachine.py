@@ -5,8 +5,7 @@ from collections import Counter
 
 import pajbot.exc
 import pajbot.models
-import pajbot.utils
-from pajbot import utils
+import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
@@ -265,7 +264,7 @@ class SlotMachineModule(BaseModule):
 
         msg_split = message.split(" ")
         try:
-            bet = pajbot.utils.parse_points_amount(source, msg_split[0])
+            bet = utils.parse_points_amount(source, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
             bot.whisper(source, str(e))
             return False

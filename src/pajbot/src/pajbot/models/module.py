@@ -11,7 +11,7 @@ import json
 import logging
 
 from pajbot.managers.db import Base, DBManager
-from pajbot.utils import find
+from utils import find
 
 from sqlalchemy import Text
 from sqlalchemy.orm import Mapped, mapped_column

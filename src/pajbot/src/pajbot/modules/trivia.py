@@ -2,7 +2,7 @@ import datetime
 import logging
 import math
 
-from pajbot import utils
+import utils
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command

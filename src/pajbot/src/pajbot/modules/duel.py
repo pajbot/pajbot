@@ -8,7 +8,7 @@ import random
 from dataclasses import dataclass
 from datetime import timedelta
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.managers.schedule import ScheduledJob, ScheduleManager

@@ -4,7 +4,7 @@ import argparse
 import logging
 from collections import UserList
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import DBManager
 from pajbot.models.deck import Deck
 

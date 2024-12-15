@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 
-import pajbot
+import utils
 
 
 class AccessToken(ABC):
@@ -51,7 +51,7 @@ class AccessToken(ABC):
             expires_after = datetime.timedelta(hours=1)
 
         # how much time has passed since token creation
-        token_age = pajbot.utils.now() - self.created_at
+        token_age = utils.now() - self.created_at
 
         # maximum token age before token should be refreshed (90% of the total token lifetime)
         max_token_age = expires_after * self.SHOULD_REFRESH_THRESHOLD
@@ -85,9 +85,7 @@ class AccessToken(ABC):
 
         return cls(
             access_token=json_data["access_token"],
-            created_at=pajbot.utils.datetime_from_utc_milliseconds(
-                json_data["created_at"]
-            ),
+            created_at=utils.datetime_from_utc_milliseconds(json_data["created_at"]),
             expires_in=expires_in,
             token_type=json_data["token_type"],
             refresh_token=json_data["refresh_token"],
@@ -108,7 +106,7 @@ class AccessToken(ABC):
 
         return cls(
             access_token=response["access_token"],
-            created_at=pajbot.utils.now(),
+            created_at=utils.now(),
             expires_in=expires_in,
             token_type=response["token_type"],
             refresh_token=response.get("refresh_token", None),

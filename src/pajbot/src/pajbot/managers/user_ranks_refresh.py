@@ -4,7 +4,7 @@ import random
 import pajbot.config as cfg
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.utils import time_method
+from utils import time_method
 
 log = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ from typing import Any, Callable, Iterable, Mapping, Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 
 from apscheduler.job import Job
 from apscheduler.schedulers.background import BackgroundScheduler

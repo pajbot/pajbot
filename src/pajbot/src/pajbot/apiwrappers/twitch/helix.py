@@ -7,7 +7,7 @@ import math
 import time
 from datetime import datetime, timezone
 
-from pajbot import utils
+import utils
 from pajbot.apiwrappers.response_cache import (
     ClassInstanceSerializer,
     DateTimeSerializer,
@@ -17,7 +17,7 @@ from pajbot.apiwrappers.response_cache import (
 from pajbot.apiwrappers.twitch.base import BaseTwitchAPI
 from pajbot.models.emote import Emote
 from pajbot.models.user import UserBasics, UserChannelInformation, UserStream
-from pajbot.utils import iterate_in_chunks
+from utils import iterate_in_chunks
 
 from requests import HTTPError
 

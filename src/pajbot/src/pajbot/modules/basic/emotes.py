@@ -10,7 +10,7 @@ from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
 from pajbot.streamhelper import StreamHelper
-from pajbot.utils import split_into_chunks_with_prefix
+from utils import split_into_chunks_with_prefix
 
 log = logging.getLogger(__name__)
 

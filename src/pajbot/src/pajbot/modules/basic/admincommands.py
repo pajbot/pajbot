@@ -7,7 +7,7 @@ from pajbot.models.module import Module
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleType
 from pajbot.modules.basic import BasicCommandsModule
-from pajbot.utils import split_into_chunks_with_prefix
+from utils import split_into_chunks_with_prefix
 
 log = logging.getLogger(__name__)
 

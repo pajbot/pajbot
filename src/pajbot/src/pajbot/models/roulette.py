@@ -6,7 +6,7 @@ Roulette stats should update in the web UI on user profiles
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import Base
 
 from sqlalchemy import ForeignKey, Integer, Text

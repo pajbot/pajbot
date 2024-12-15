@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import DBManager
 from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample

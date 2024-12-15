@@ -6,7 +6,7 @@ import datetime
 import html
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ClassInstanceSerializer, ListSerializer
 

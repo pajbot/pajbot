@@ -14,7 +14,7 @@ from pajbot.models.command import (
     WebCommand,
     parse_command_for_web,
 )
-from pajbot.utils import find
+from utils import find
 
 from sqlalchemy.orm import joinedload
 

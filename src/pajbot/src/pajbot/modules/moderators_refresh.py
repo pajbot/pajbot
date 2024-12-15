@@ -10,7 +10,7 @@ from pajbot.managers.schedule import ScheduledJob, ScheduleManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleType
-from pajbot.utils import time_method
+from utils import time_method
 
 from requests import HTTPError
 from sqlalchemy import text

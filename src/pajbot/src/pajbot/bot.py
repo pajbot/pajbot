@@ -14,7 +14,7 @@ import urllib
 import pajbot.config as cfg
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
-from pajbot import utils
+import utils
 from pajbot.action_queue import ActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials

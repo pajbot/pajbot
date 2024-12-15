@@ -14,7 +14,7 @@ from pajbot.models.emote import (
     EmoteInstanceCountMap,
 )
 from pajbot.streamhelper import StreamHelper
-from pajbot.utils import iterate_split_with_index
+from utils import iterate_split_with_index
 
 if TYPE_CHECKING:
     from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI

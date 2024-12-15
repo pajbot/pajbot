@@ -7,7 +7,7 @@ import logging
 from contextlib import contextmanager
 from datetime import timedelta
 
-from pajbot import utils
+import utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.redis import RedisManager

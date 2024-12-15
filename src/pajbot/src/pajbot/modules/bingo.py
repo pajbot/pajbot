@@ -10,7 +10,7 @@ from pajbot.managers.handler import HandlerManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.emote import Emote
 from pajbot.modules import BaseModule, ModuleSetting
-from pajbot.utils import iterate_split_with_index
+from utils import iterate_split_with_index
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot

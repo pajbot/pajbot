@@ -19,7 +19,7 @@ import json
 import logging
 import re
 
-import pajbot.utils
+import utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
@@ -481,7 +481,7 @@ class Command(Base):
 
         cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
 
-        cur_time = pajbot.utils.now().timestamp()
+        cur_time = utils.now().timestamp()
         time_since_last_run = (cur_time - self.last_run) / cd_modifier
 
         if (
@@ -554,7 +554,7 @@ class Command(Base):
         # Pre-requisite
         assert self.action is not None
 
-        cur_time = pajbot.utils.now()
+        cur_time = utils.now()
         cur_time_ts = cur_time.timestamp()
         with source.spend_currency_context(self.cost, self.tokens_cost):
             ret = self.action.run(bot, source, message, event, args)
@@ -564,7 +564,7 @@ class Command(Base):
             # Only spend points/tokens, and increment num_uses if the action succeded
             if self.data is not None:
                 self.data.num_uses += 1
-                self.data.last_date_used = pajbot.utils.now()
+                self.data.last_date_used = utils.now()
 
             # TODO: Will this be an issue?
             self.last_run = cur_time_ts

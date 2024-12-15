@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Optional
 import datetime
 import logging
 
-from pajbot import utils
+import utils
 from pajbot.managers.db import Base, DBManager
 
 from sqlalchemy import ForeignKey, Integer, Text
