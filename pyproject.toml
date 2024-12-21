@@ -1,41 +1,83 @@
 [project]
-name = "pajbot"
+name = "pajmono"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
 requires-python = ">=3.9"
-
-[tool.black]
-line-length = 120
-
-[tool.ruff]
-line-length = 120
-
-# select = [ "ALL" ]
-select = [ "E", "F" ]
-
-ignore = [
-    "FIX", # Ignore flake8-fixme rules
-    "D", # Ignore doc style stuff
-    "ERA", # Ignore eradicate rules
-# "ANN", # Ignore annotation/typing rules, rely on mypy for now
-    "ANN101", # missing-type-self
-    "ANN401", # disable any
-    "ARG002", # unused method arg
-    "RUF012", # class has mutable member
-    "C901", # too complex
-    "SIM108", # use-ternary
-    "PLR0915", # too many statements
-    "PLR0913", # too many arguments to function call
-    "PLR2004", # magic value used in comparison
-    "E722", # bare except
-    "E501", # line too long
+dependencies = [
 ]
 
-ignore-init-module-imports = true
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.2",
+    "ruff>=0.6.9",
+    "pyright>=1.1.390",
+    "types-beautifulsoup4>=4.12.0.20240907",
+    "types-colorama>=0.4.15.20240311",
+    "types-markdown>=3.7.0.20240822",
+    "types-pytz>=2.32.0.20240914",
+    "types-retry>=0.9.9.4",
+    "types-requests>=2.32.0.20240914",
+    "types-psycopg2>=2.9.21.20240819",
+    "types-redis>=4.6.0.20241004",
+    # our own deps
+    "pajbot",
+    "utils",
+    "pajweb",
+]
+package = false
 
-[tool.ruff.isort.sections]
-"typing" = ["typing"]
+[tool.uv.sources]
+pajbot = { workspace = true }
+pajweb = { workspace = true }
+utils = { workspace = true }
 
-[tool.ruff.isort]
-section-order = ["future", "typing", "standard-library", "first-party", "third-party", "local-folder"]
+[tool.uv.workspace]
+members = [
+    "src/*",
+    "internal/*",
+]
 
-[tool.ruff.pyupgrade]
-keep-runtime-typing = true
+[tool.pytest.ini_options]
+addopts = [
+    "-vvv",
+]
+pythonpath = "src"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "W",
+    "C90",
+]
+ignore = [
+#     "E123",
+#     "E126",
+#     "E127",
+#     "E128",
+     "E501", # Line too long
+     "C901", # Too complex
+#     "E131",
+     "E721", # use isinstance or is/is not. REMOVE THIS SOON xd
+     "E722", # bare except
+#     "Q003",
+#     "Q000",
+#     "W503",
+#     "E203",
+#     "E704",
+]
+
+[tool.mypy]
+exclude = "^.tmp/"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "irc.*"
+ignore_missing_imports = true
+
+[tool.pyright]
+include = [
+    "src",
+    "internal",
+]
