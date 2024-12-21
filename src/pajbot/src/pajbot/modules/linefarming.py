@@ -22,9 +22,11 @@ class LineFarmingModule(BaseModule):
         )
     ]
 
-    def on_pubmsg(self, source, **rest):
+    def on_pubmsg(self, source, **rest) -> bool:
+        assert self.bot is not None
         if self.bot.is_online or self.settings["count_offline"] is True:
             source.num_lines += 1
+        return True
 
     def enable(self, bot):
         HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)

@@ -27,6 +27,8 @@ def main():
     )
     args = parser.parse_args()
 
+    assert isinstance(args.channel, str)
+
     twitch_channel = args.channel
     se_channel = get_se_channel(twitch_channel)
 

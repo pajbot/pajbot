@@ -123,7 +123,7 @@ class MassPingProtectionModule(BaseModule):
                 db_session.query(User)
                 .with_entities(count())
                 .filter(
-                    or_(User.login.in_(usernames), func.lower(User.name).in_(usernames))
+                    or_(User.login.in_(usernames), func.lower(User.name).in_(usernames))  # type:ignore
                 )
                 .filter(
                     and_(
@@ -182,6 +182,8 @@ class MassPingProtectionModule(BaseModule):
         )
 
     def check_message(self, message, source):
+        assert self.bot is not None
+
         emote_instances, _ = self.bot.emote_manager.parse_all_emotes(message)
 
         # returns False if message is good,

@@ -4,6 +4,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 
+from requests import Response
 import utils
 from pajbot.models.emote import Emote
 
@@ -18,8 +19,7 @@ class BaseJsonSerializer(ABC):
         return json.dumps(fetch_result)
 
     @abstractmethod
-    def safe_serialize(self, fetch_result):
-        pass
+    def safe_serialize(self, fetch_result) -> Any: ...
 
     def deserialize(self, cache_result):
         cache_result = json.loads(cache_result)
@@ -28,8 +28,7 @@ class BaseJsonSerializer(ABC):
         return cache_result
 
     @abstractmethod
-    def safe_deserialize(self, cache_result):
-        pass
+    def safe_deserialize(self, cache_result) -> Any: ...
 
 
 class JsonSerializer(BaseJsonSerializer):
@@ -119,8 +118,8 @@ class APIResponseCache:
         input_data,
         redis_key_fn,
         fetch_fn,
-        serializer=JsonSerializer(),
-        expiry=120,
+        serializer: BaseJsonSerializer = JsonSerializer(),
+        expiry: int | Callable[[Response], int] = 120,
         force_fetch=False,
     ):
         # results contains the wanted results, already in the correct list index (e.g. if we had a cache
@@ -133,6 +132,8 @@ class APIResponseCache:
         # should be inserted into `results` at `idx`.
         to_fetch = []
 
+        data_len: int
+
         # redis MGET (Multi-GET) to check all at once quickly
         if not force_fetch:
             cache_results = self.redis.mget(
@@ -143,9 +144,11 @@ class APIResponseCache:
                     results.insert(idx, serializer.deserialize(cache_result))
                 else:
                     to_fetch.append((idx, input_data[idx]))
+            data_len = len(to_fetch)
         else:
             # yields a list zipping [(0, first_element), (1, second_element)] which is what we need in to_fetch
             to_fetch = enumerate(input_data)
+            data_len = len(input_data)
 
         # https://stackoverflow.com/a/19343/4464702
         # unzip [(0, 'first'), (1, 'second'), (4, 'fourtf')] to
@@ -155,7 +158,7 @@ class APIResponseCache:
 
         # the check for length is needed, because tuple(zip(*[])) returns () (an empty tuple),
         # not a tuple with two empty lists.
-        if len(to_fetch) > 0:
+        if data_len > 0:
             to_fetch_indexes, to_fetch_values = tuple(zip(*to_fetch))
             fetch_results = fetch_fn(to_fetch_values)
             for idx, fetch_result in zip(to_fetch_indexes, fetch_results):

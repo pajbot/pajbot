@@ -22,7 +22,7 @@ class SafeInvokeScheduler(Scheduler):
 
     def run(self, command: schedule.DelayedCommand) -> None:
         try:
-            command.target()
+            command.target()  # type:ignore
         except Exception:
             # we do "except Exception" to not catch KeyboardInterrupt and SystemExit (so the bot can properly quit)
             log.exception("Logging an uncaught exception (main thread)")

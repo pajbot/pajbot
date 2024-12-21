@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
-    from pajbot.managers.redis import RedisType
+    from redis import Redis
 
 
-def up(redis: RedisType, bot: Bot) -> None:
+def up(redis: Redis, bot: Bot) -> None:
     redis.delete(f"{bot.streamer.login}:viewer_data")

@@ -9,7 +9,7 @@ import random
 import re
 import sys
 import threading
-import urllib
+import urllib.parse
 
 import pajbot.config as cfg
 import pajbot.migration_revisions.db
@@ -222,8 +222,8 @@ class Bot:
         self.reactor = irc.client.Reactor()
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
         # e.g. on actions via bot.execute_now, etc.
-        self.reactor.scheduler_class = SafeDefaultScheduler
-        self.reactor.scheduler = SafeDefaultScheduler()
+        self.reactor.scheduler_class = SafeDefaultScheduler  # type:ignore
+        self.reactor.scheduler = SafeDefaultScheduler()  # type:ignore
 
         self.start_time = utils.now()
         ActionParser.bot = self
@@ -356,6 +356,8 @@ class Bot:
 
     @property
     def password(self) -> str:
+        if self.bot_token_manager.token is None:
+            raise Exception("No access_token available for bot")
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def start(self) -> None:

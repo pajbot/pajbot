@@ -144,5 +144,5 @@ WHERE
 
         # every 10 minutes, add the subscribers update to the action queue
         ScheduleManager.execute_every(
-            10 * 60, lambda: self.bot.action_queue.submit(self._update_subscribers)
+            10 * 60, lambda: bot.action_queue.submit(self._update_subscribers)
         )

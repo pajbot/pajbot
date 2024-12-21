@@ -1,5 +1,5 @@
 def test_clean_up() -> None:
-    from pajbot.utils import clean_up_message
+    from utils import clean_up_message
 
     assert "󠀀" == "\U000e0000"
 

@@ -22,6 +22,8 @@ class BanphraseModule(BaseModule):
     SETTINGS: list[Any] = []
 
     def is_message_bad(self, source, msg_raw, _event):
+        assert self.bot is not None
+
         res = self.bot.banphrase_manager.check_message(msg_raw, source)
         if res is not False:
             self.bot.banphrase_manager.punish(source, res)
@@ -37,16 +39,18 @@ class BanphraseModule(BaseModule):
     def disable(self, bot):
         HandlerManager.remove_handler("on_message", self.on_message)
 
-    def on_message(self, source, message, whisper, event, **rest):
+    def on_message(self, source, message, whisper, event, **rest) -> bool:
         if whisper:
-            return
+            return True
         if source.level >= 500 or source.moderator:
-            return
+            return True
 
         if self.is_message_bad(source, message, event):
             # we matched a filter.
             # return False so no more code is run for this message
             return False
+
+        return True
 
     @staticmethod
     def add_banphrase(bot, source, message, **rest):

@@ -30,24 +30,21 @@ dependencies = [
     "flask-wtf>=1.2.1",
     "flask>=3.0.3",
     "utils",
+    "pyjwt>=2.10.1",
 ]
 
 [tool.uv]
 dev-dependencies = [
-    "black>=24.8.0",
-    "flake8>=7.1.1",
-    "isort>=5.13.2",
-    "mypy>=1.11.2",
     "pytest>=8.3.2",
     "ruff>=0.6.9",
+    "pyright>=1.1.390",
     "types-beautifulsoup4>=4.12.0.20240907",
     "types-colorama>=0.4.15.20240311",
     "types-markdown>=3.7.0.20240822",
-    "types-psycopg2",
     "types-pytz>=2.32.0.20240914",
-    "types-requests",
-    "types-retry",
-    "pajbot",
+    "types-retry>=0.9.9.4",
+    "types-requests>=2.32.0.20240914",
+    "types-psycopg2>=2.9.21.20240819",
 ]
 
 [project.scripts]

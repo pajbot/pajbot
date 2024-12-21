@@ -9,6 +9,7 @@ import logging
 import sys
 
 import irc
+import irc.client
 import regex as re
 import requests
 
@@ -49,7 +50,7 @@ class ActionParser:
         command="",
     ) -> Optional[BaseAction]:
         try:
-            from pajbot.userdispatch import UserDispatch
+            from pajbot.userdispatch import UserDispatch  # type:ignore
 
             Dispatch = UserDispatch
         except ImportError:
@@ -102,6 +103,8 @@ class ActionParser:
 
 class IfSubstitution:
     def __call__(self, key, extra={}):
+        assert self.sub is not None
+
         if self.sub.key is None:
             msg = get_argument_value(extra.get("message", ""), self.sub.argument)
             if msg:
@@ -109,6 +112,7 @@ class IfSubstitution:
 
             return self.get_false_response(extra)
 
+        assert self.sub.cb is not None
         res = self.sub.cb(self.sub.key, extra)
         if res:
             return self.get_true_response(extra)
@@ -267,6 +271,8 @@ class MultiAction(BaseAction):
             command = self.default
             cmd = self.commands.get(command, None)
             extra_msg = None
+        else:
+            return None
 
         if cmd:
             if source.level >= cmd.level:

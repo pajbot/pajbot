@@ -343,19 +343,23 @@ class SlotMachineModule(BaseModule):
 
         HandlerManager.trigger("on_slot_machine_finish", user=source, points=points)
 
-    def on_tick(self, **rest):
+    def on_tick(self, **rest) -> bool:
         if self.output_buffer == "":
-            return
+            return True
 
         if self.last_add is None:
-            return
+            return True
 
         diff = utils.now() - self.last_add
 
         if diff.seconds > 3:
             self.flush_output_buffer()
 
+        return True
+
     def flush_output_buffer(self):
+        assert self.bot is not None
+
         msg = self.output_buffer
         self.bot.me(msg)
         self.output_buffer = ""
@@ -388,7 +392,9 @@ class SlotMachineModule(BaseModule):
 
         self.last_add = utils.now()
 
-    def on_user_sub_or_resub(self, **rest):
+    def on_user_sub_or_resub(self, **rest) -> bool:
+        assert self.bot is not None
+
         now = utils.now()
 
         # True if we already announced the alert_message_after_sub within the last 5 seconds. Prevents
@@ -409,6 +415,8 @@ class SlotMachineModule(BaseModule):
                     seconds=self.settings["after_sub_slots_time"]
                 )
             )
+
+        return True
 
     def enable(self, bot):
         HandlerManager.add_handler("on_user_sub", self.on_user_sub_or_resub)

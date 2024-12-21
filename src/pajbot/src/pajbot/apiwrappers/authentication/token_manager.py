@@ -48,9 +48,19 @@ class AccessTokenManager(ABC):
         self.storage = storage
         self._token = token
 
+    def can_refresh(self) -> bool:
+        if self._token is None:
+            raise RuntimeError("_token must be set to call can_refresh")
+
+        return self._token.can_refresh()
+
     def refresh(self):
         """called when the current token should be refreshed"""
         log.debug("Refreshing OAuth token")
+
+        if self._token is None:
+            raise RuntimeError("_token must be set to call refresh")
+
         new_token = self._token.refresh(self.api)
         self.storage.save(new_token)
         self._token = new_token
@@ -84,6 +94,8 @@ class AccessTokenManager(ABC):
         and refreshes the token as necessary on every invocation."""
         if self._token is None:
             self.initialize()
+
+        assert self._token is not None
 
         if self._token.should_refresh():
             self.refresh()

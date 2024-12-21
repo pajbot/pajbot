@@ -115,7 +115,7 @@ class LastfmModule(BaseModule):
             return False
 
         try:
-            import pylast
+            import pylast  # type:ignore
         except ImportError:
             log.error("Missing required library for the LastFM Module: pylast")
             return False

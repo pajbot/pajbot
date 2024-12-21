@@ -48,12 +48,12 @@ class PBMath:
             return node.n
 
         if isinstance(node, ast.BinOp):  # <left> <operator> <right>
-            return PBMath.operators[type(node.op)](
+            return PBMath.operators[type(node.op)](  # type:ignore
                 PBMath.eval_(node.left), PBMath.eval_(node.right)
             )
 
         if isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
-            return PBMath.operators[type(node.op)](PBMath.eval_(node.operand))
+            return PBMath.operators[type(node.op)](PBMath.eval_(node.operand))  # type:ignore
 
         raise TypeError(node)
 
@@ -131,9 +131,9 @@ class MathModule(BaseModule):
 
         emote = "Kappa"
         try:
-            if int(expr_res) == 69 or expr_res == 69.69:
+            if int(expr_res) == 69 or expr_res == 69.69:  # type:ignore
                 emote = "Kreygasm"
-            elif int(expr_res) == 420:
+            elif int(expr_res) == 420:  # type:ignore
                 emote = "CiGrip"
         except:
             pass

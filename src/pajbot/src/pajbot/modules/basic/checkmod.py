@@ -27,6 +27,7 @@ class CheckModModule(BaseModule):
 
                 if user is None:
                     bot.say(f"{username} was not found in the user database")
+                    return
         else:
             user = source
 

@@ -16,7 +16,7 @@ class BaseTwitchAPI(BaseAPI):
     # Implements the recommended retry routine described in
     # https://dev.twitch.tv/docs/authentication/#refresh-in-response-to-server-rejection-for-bad-authentication
     # (refreshes the auth header and retries if authorization fails)
-    def request(self, method, endpoint, params, headers, authorization=None, json=None):
+    def request(self, method, endpoint, params, headers, authorization=None, json=None):  # type:ignore
         # authorization can be:
         #   - None (-> default will be assigned)
         #   - False (-> No Authorization)
@@ -70,13 +70,13 @@ class BaseTwitchAPI(BaseAPI):
             else:
                 raise e
 
-    def get(self, endpoint, params=None, headers=None, authorization=None):
+    def get(self, endpoint, params=None, headers=None, authorization=None):  # type:ignore
         return self.request("GET", endpoint, params, headers, authorization).json()
 
-    def get_binary(self, endpoint, params=None, headers=None, authorization=None):
+    def get_binary(self, endpoint, params=None, headers=None, authorization=None):  # type:ignore
         return self.request("GET", endpoint, params, headers, authorization).content
 
-    def post(self, endpoint, params=None, headers=None, authorization=None, json=None):
+    def post(self, endpoint, params=None, headers=None, authorization=None, json=None):  # type:ignore
         return self.request(
             "POST", endpoint, params, headers, authorization, json
         ).json()
@@ -92,15 +92,15 @@ class BaseTwitchAPI(BaseAPI):
         """
         return self.request("POST", endpoint, params, headers, authorization, json)
 
-    def put(self, endpoint, params=None, headers=None, authorization=None, json=None):
+    def put(self, endpoint, params=None, headers=None, authorization=None, json=None):  # type:ignore
         return self.request(
             "PUT", endpoint, params, headers, authorization, json
         ).json()
 
-    def patch(self, endpoint, params=None, headers=None, authorization=None, json=None):
+    def patch(self, endpoint, params=None, headers=None, authorization=None, json=None):  # type:ignore
         return self.request("PATCH", endpoint, params, headers, authorization, json)
 
-    def delete(
+    def delete(  # type:ignore
         self, endpoint, params=None, headers=None, authorization=None, json=None
     ):
         return self.request("DELETE", endpoint, params, headers, authorization, json)

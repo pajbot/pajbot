@@ -216,14 +216,14 @@ class User(Base):
         return int(self.time_in_chat_offline.total_seconds() / 60)
 
     @hybrid_property
-    def timed_out(self) -> bool:
+    def timed_out(self) -> bool:  # type:ignore
         return self.timeout_end is not None and self.timeout_end > utils.now()
 
-    @timed_out.expression
-    def timed_out(self):
-        return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())
+    @timed_out.expression  # type:ignore
+    def timed_out(self):  # type:ignore
+        return and_(self.timeout_end.isnot(None), self.timeout_end > functions.now())  # type:ignore
 
-    @timed_out.setter
+    @timed_out.setter  # type:ignore
     def timed_out(self, timed_out):
         # You can do user.timed_out = False to set user.timeout_end = None
         if timed_out is not False:

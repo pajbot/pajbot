@@ -72,10 +72,10 @@ class FFZAPI(BaseAPI):
 
         return self.parse_sets(response["sets"])
 
-    def get_channel_emotes(self, channel_name, force_fetch=False):
+    def get_channel_emotes(self, channel_id, force_fetch=False):
         return self.cache.cache_fetch_fn(
-            redis_key=f"api:ffz:channel-emotes:{channel_name}",
-            fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
+            redis_key=f"api:ffz:channel-emotes:{channel_id}",
+            fetch_fn=lambda: self.fetch_channel_emotes(channel_id),
             serializer=ListSerializer(Emote),
             expiry=60 * 60,
             force_fetch=force_fetch,

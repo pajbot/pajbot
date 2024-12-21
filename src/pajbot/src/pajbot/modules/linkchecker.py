@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union
 
 import argparse
 import logging
 import urllib.parse
 
-import pajbot.managers
-import pajbot.models
 import utils
 from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
@@ -73,6 +71,8 @@ def is_same_url(x: Url, y: Url) -> bool:
 def find_unique_urls(message: str) -> set[str]:
     urls = []
     for url in extractor.gen_urls(message):
+        # because we don't send in the get_indices parameter to gen_urls
+        assert isinstance(url, str)
         if not (url.startswith("http://") or url.startswith("https://")):
             url = "http://" + url
         if not (url[-1].isalpha() or url[-1].isnumeric() or url[-1] == "/"):
@@ -282,12 +282,8 @@ class LinkCheckerModule(BaseModule):
         if not bot:
             return
 
-        pajbot.managers.handler.HandlerManager.remove_handler(
-            "on_message", self.on_message
-        )
-        pajbot.managers.handler.HandlerManager.remove_handler(
-            "on_commit", self.on_commit
-        )
+        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.remove_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -304,15 +300,17 @@ class LinkCheckerModule(BaseModule):
 
     super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
 
-    def on_message(self, source, whisper, urls, **rest):
+    def on_message(self, source, whisper, urls, **rest) -> bool:
+        assert self.bot is not None
+
         if whisper:
-            return
+            return True
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return True
 
         if self.settings["vip_exemption"] and source.vip is True:
-            return
+            return True
 
         if len(urls) > 0:
             do_timeout = False
@@ -357,15 +355,17 @@ class LinkCheckerModule(BaseModule):
 
         for url in urls:
             # Action which will be taken when a bad link is found
-            def action():
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
+            def action(module: LinkCheckerModule):
+                assert module.bot is not None
+
+                if module.settings["disable_warnings"] is True:
+                    module.bot.timeout(
                         source,
                         self.settings["timeout_length"],
                         reason=self.settings["banned_link_timeout_reason"],
                     )
                 else:
-                    self.bot.timeout_warn(
+                    module.bot.timeout_warn(
                         source,
                         self.settings["timeout_length"],
                         reason=self.settings["banned_link_timeout_reason"],
@@ -376,15 +376,21 @@ class LinkCheckerModule(BaseModule):
                 # If the basic check returns no relevant data, we queue up a proper check on the URL
                 self.bot.action_queue.submit(self.check_url, url, action)
 
-    def on_commit(self, **rest):
+        return True
+
+    def on_commit(self, **rest) -> bool:
         if self.db_session is not None:
             self.db_session.commit()
+
+        return True
 
     def delete_from_cache(self, url):
         if url in self.cache:
             del self.cache[url]
 
     def cache_url(self, url, safe):
+        assert self.bot is not None
+
         if url in self.cache and self.cache[url] == safe:
             return
 
@@ -392,11 +398,15 @@ class LinkCheckerModule(BaseModule):
         self.bot.execute_delayed(20, self.delete_from_cache, url)
 
     def counteract_bad_url(
-        self, url, action=None, want_to_cache=True, want_to_blacklist=False
+        self,
+        url,
+        action: Optional[Callable[[LinkCheckerModule], None]] = None,
+        want_to_cache=True,
+        want_to_blacklist=False,
     ):
         log.debug(f"LinkChecker: BAD URL FOUND {url.url}")
         if action:
-            action()
+            action(self)
         if want_to_cache:
             self.cache_url(url.url, False)
         if want_to_blacklist:
@@ -426,6 +436,10 @@ class LinkCheckerModule(BaseModule):
             path = "/"
 
         link = BlacklistedLink(domain, path, level)
+        if self.db_session is None:
+            log.error("db_session was none when attemping to blacklist a link")
+            return
+
         self.db_session.add(link)
         self.blacklisted_links.append(link)
         self.db_session.commit()
@@ -451,6 +465,10 @@ class LinkCheckerModule(BaseModule):
             path = "/"
 
         link = WhitelistedLink(domain, path)
+        if self.db_session is None:
+            log.error("db_session none when trying to whitelist url")
+            return
+
         self.db_session.add(link)
         self.whitelisted_links.append(link)
         self.db_session.commit()
@@ -502,7 +520,12 @@ class LinkCheckerModule(BaseModule):
     RET_FURTHER_ANALYSIS = 0
     RET_GOOD_LINK = 1
 
-    def basic_check(self, url, action, sublink=False):
+    def basic_check(
+        self,
+        url,
+        action: Optional[Callable[[LinkCheckerModule], None]] = None,
+        sublink=False,
+    ):
         """
         Check if the url is in the cache, or if it's
         Return values:
@@ -527,7 +550,9 @@ class LinkCheckerModule(BaseModule):
 
         return self.RET_FURTHER_ANALYSIS
 
-    def simple_check(self, url, action):
+    def simple_check(
+        self, url, action: Optional[Callable[[LinkCheckerModule], None]] = None
+    ):
         url = Url(url)
         if len(url.parsed.netloc.split(".")) < 2:
             # The URL is broken, ignore it
@@ -535,7 +560,11 @@ class LinkCheckerModule(BaseModule):
 
         return self.basic_check(url, action)
 
-    def check_url(self, url, action):
+    def check_url(
+        self,
+        url,
+        action: Optional[Callable[[LinkCheckerModule], None]] = None,
+    ):
         url = Url(url)
         if len(url.parsed.netloc.split(".")) < 2:
             # The URL is broken, ignore it
@@ -563,7 +592,13 @@ class LinkCheckerModule(BaseModule):
 
         return urls
 
-    def _check_url(self, url, action):
+    def _check_url(
+        self,
+        url,
+        action: Optional[Callable[[LinkCheckerModule], None]] = None,
+    ):
+        assert self.bot is not None
+
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
         if res == self.RET_GOOD_LINK:
@@ -630,10 +665,7 @@ class LinkCheckerModule(BaseModule):
             )
 
             content_length = response.headers.get("Content-Length")
-            if (
-                content_length
-                and int(response.headers.get("Content-Length")) > maximum_size
-            ):
+            if content_length and int(content_length) > maximum_size:
                 log.error("This file is too big!")
                 return
 

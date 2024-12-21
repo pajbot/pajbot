@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ContextManager, Optional
+from typing import Any, ContextManager, Optional
 
 import logging
+from typing_extensions import TYPE_CHECKING
 
-import redis
 from redis import Redis
 from redis.client import Pipeline
 
-if TYPE_CHECKING:
-    _StrType = str
-    RedisType = Redis[str]
-
 log = logging.getLogger(__name__)
+
+# type alias
+if TYPE_CHECKING:
+    RedisType = Redis[str]
 
 
 class RedisManager:
@@ -47,7 +47,8 @@ class RedisManager:
 
     @staticmethod
     def pipeline_context() -> ContextManager[Pipeline]:
-        return redis.utils.pipeline(RedisManager.get())
+        # TODO: Verify that this works
+        return RedisManager.get().pipeline()
 
     @classmethod
     def publish(cls, channel: str, message: str) -> int:

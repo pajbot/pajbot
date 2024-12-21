@@ -59,9 +59,6 @@ class EmoteComboModule(BaseModule):
         self.emote_count: int = 0
         self.current_emote: Optional[Emote] = None
 
-        # Override the parent module type since we 100% know it
-        self.parent_module: Optional[CLROverlayModule] = None
-
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
             self.settings["emote_allowlist"].strip().split(" ")
@@ -83,6 +80,8 @@ class EmoteComboModule(BaseModule):
 
         if not self.parent_module:
             return True
+
+        assert isinstance(self.parent_module, CLROverlayModule)
 
         return self.parent_module.is_emote_allowed(emote_code)
 

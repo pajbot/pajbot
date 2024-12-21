@@ -33,8 +33,7 @@ class AccessToken(ABC):
         self.scope = scope
 
     @abstractmethod
-    def can_refresh(self):
-        pass
+    def can_refresh(self) -> bool: ...
 
     def should_refresh(self):
         """Returns True if less than 10% of the token's lifetime remains, False otherwise"""
@@ -119,7 +118,7 @@ class AccessToken(ABC):
 
 
 class UserAccessToken(AccessToken):
-    def can_refresh(self):
+    def can_refresh(self) -> bool:
         return self.refresh_token is not None
 
     def refresh(self, api):
@@ -143,7 +142,7 @@ class UserAccessToken(AccessToken):
 
 
 class AppAccessToken(AccessToken):
-    def can_refresh(self):
+    def can_refresh(self) -> bool:
         return True
 
     def refresh(self, api):

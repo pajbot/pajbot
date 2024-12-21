@@ -28,10 +28,16 @@ def load_config(path: str) -> cfg.Config:
     config = configparser.ConfigParser()
     config.read_dict({"web": {"deck_tab_images": "1"}})
 
-    res = config.read(os.path.realpath(path))
+    real_path = os.path.realpath(path)
+
+    res = config.read(real_path)
 
     if not res:
-        log.error("%s missing. Check out the example config file.", path)
+        log.error(
+            "Failed to read config from %s (%s). Check out the example config file.",
+            path,
+            real_path,
+        )
         sys.exit(0)
 
     return config_to_dict(config)

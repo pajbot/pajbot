@@ -1,4 +1,4 @@
-from pajbot.utils import iterate_split_with_index
+from utils import iterate_split_with_index
 
 import pytest
 

@@ -34,13 +34,15 @@ class AdminCommandsModule(BaseModule):
             bot.whisper_login(username, rest)
 
     def edit_points(self, bot, source, message, **rest):
+        COMMAND_NAME = "editpoints"
+
         if not message:
             return False
 
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: !{COMMAND_NAME} USERNAME POINTS")
             return False
 
         username_input = msg_split[0]
@@ -51,7 +53,7 @@ class AdminCommandsModule(BaseModule):
             # The user did not specify a valid integer for points
             bot.whisper(
                 source,
-                f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS",
+                f"Invalid amount of points. Usage: !{COMMAND_NAME} USERNAME POINTS",
             )
             return False
 
@@ -72,13 +74,15 @@ class AdminCommandsModule(BaseModule):
                 )
 
     def set_points(self, bot, source, message, **rest):
+        COMMAND_NAME = "setpoints"
+
         if not message:
             return False
 
         msg_split = message.split(" ")
         if len(msg_split) < 2:
             # The user did not supply enough arguments
-            bot.whisper(source, f"Usage: !{self.command_name} USERNAME POINTS")
+            bot.whisper(source, f"Usage: !{COMMAND_NAME} USERNAME POINTS")
             return False
 
         username = msg_split[0]
@@ -92,7 +96,7 @@ class AdminCommandsModule(BaseModule):
             # The user did not specify a valid integer for points
             bot.whisper(
                 source,
-                f"Invalid amount of points. Usage: !{self.command_name} USERNAME POINTS",
+                f"Invalid amount of points. Usage: !{COMMAND_NAME} USERNAME POINTS",
             )
             return False
 

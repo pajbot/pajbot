@@ -93,7 +93,7 @@ class LeagueRankModule(BaseModule):
 
     def league_rank(self, bot, source, message, **rest):
         try:
-            from riotwatcher import ApiError, LolWatcher
+            from riotwatcher import ApiError, LolWatcher  # type:ignore
         except ImportError:
             log.error("Missing required module for League Rank module: riotwatcher")
             return False

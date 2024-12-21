@@ -9,7 +9,7 @@ import marshmallow_dataclass
 
 
 class BaseSchema(marshmallow.Schema):
-    class Meta:
+    class Meta:  # type:ignore
         # Allow for extra fields in the deserialization
         unknown = marshmallow.EXCLUDE
 

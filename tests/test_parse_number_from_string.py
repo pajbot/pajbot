@@ -1,4 +1,4 @@
-from pajbot.utils import parse_number_from_string
+from utils import parse_number_from_string
 
 import pytest
 

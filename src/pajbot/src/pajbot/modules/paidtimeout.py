@@ -170,7 +170,7 @@ class PaidTimeoutModule(BaseModule):
                     source,
                     f"You just used {_cost} points to time out {victim} for an additional {_time} seconds.",
                 )
-                num_seconds = int((victim.timeout_end - now).total_seconds())
+                num_seconds = int((victim.timeout_end - now).total_seconds())  # type:ignore
                 bot.timeout(victim, num_seconds, reason=f"Timed out by {source}")
             else:
                 bot.whisper(

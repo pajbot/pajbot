@@ -415,6 +415,7 @@ class Dispatch:
 
                 if user is None:
                     bot.say("That user was not found in the user database")
+                    return
         else:
             user = source
 

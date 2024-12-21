@@ -269,7 +269,7 @@ class BingoModule(BaseModule):
             )
             return False
 
-        default_points = self.settings["default_points"]
+        default_points: int = self.settings["default_points"]
         if points_reward is None:
             points_reward = default_points
 

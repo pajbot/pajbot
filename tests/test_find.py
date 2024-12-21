@@ -1,5 +1,5 @@
 def test_find_iterate():
-    from pajbot.utils import find
+    from utils import find
 
     d = {
         "foo": True,

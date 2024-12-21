@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterator, Optional
+from typing import Any, Iterator, Optional
 
 from contextlib import contextmanager
 
 from redis import Redis
-
-if TYPE_CHECKING:
-    from pajbot.managers.redis import RedisType
 
 
 class RedisMigratable:
@@ -16,7 +13,7 @@ class RedisMigratable:
         self.namespace = namespace
 
     @contextmanager
-    def create_resource(self) -> Iterator[RedisType]:
+    def create_resource(self) -> Iterator[Redis]:
         redis = None
 
         try:
@@ -26,7 +23,7 @@ class RedisMigratable:
             if redis is not None:
                 redis.connection_pool.disconnect()
 
-    def get_current_revision(self, redis: RedisType) -> Optional[int]:
+    def get_current_revision(self, redis: Redis) -> Optional[int]:
         response = redis.get(self.namespace + ":schema-version")
 
         if response is None:
@@ -34,7 +31,7 @@ class RedisMigratable:
         else:
             return int(response)
 
-    def set_revision(self, redis: RedisType, id: int) -> None:
+    def set_revision(self, redis: Redis, id: int) -> None:
         redis.set(self.namespace + ":schema-version", id)
 
     @staticmethod

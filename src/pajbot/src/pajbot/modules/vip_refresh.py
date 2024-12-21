@@ -1,8 +1,9 @@
 import logging
+from typing import Optional
 
 from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
-from pajbot.managers.schedule import ScheduleManager
+from pajbot.managers.schedule import ScheduleManager, ScheduledJob
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleType
 from utils import time_method
@@ -26,7 +27,7 @@ class VIPRefreshModule(BaseModule):
 
     def __init__(self, bot):
         super().__init__(bot)
-        self.scheduled_job = None
+        self.scheduled_job: Optional[ScheduledJob] = None
 
     def update_vip_cmd(self, bot, source, **rest):
         # TODO if you wanted to improve this: Provide the user with feedback
@@ -137,7 +138,7 @@ WHERE
 
         # every 10 minutes, send a helix request to get VIPs
         self.scheduled_job = ScheduleManager.execute_every(
-            self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_vips)
+            self.UPDATE_INTERVAL * 60, lambda: bot.execute_now(self._update_vips)
         )
 
     def disable(self, bot):
@@ -145,4 +146,5 @@ WHERE
         if not bot:
             return
 
-        self.scheduled_job.remove()
+        if self.scheduled_job is not None:
+            self.scheduled_job.remove()

@@ -23,10 +23,10 @@ log = logging.getLogger(__name__)
 
 
 class EmoteAPI(Protocol):
-    def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]: ...
+    def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]: ...
 
     def get_channel_emotes(
-        self, streamer_name: str, force_fetch: bool = ...
+        self, channel_id: str, force_fetch: bool = False
     ) -> list[Emote]: ...
 
 
@@ -126,8 +126,8 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
         super().__init__(None)
 
-    @property  # type: ignore
-    def channel_emotes(self) -> list[Emote]:
+    @property
+    def channel_emotes(self) -> list[Emote]:  # type:ignore
         return self.tier_one_emotes
 
     def load_global_emotes(self) -> None:

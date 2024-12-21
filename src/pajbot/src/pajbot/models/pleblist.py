@@ -43,11 +43,14 @@ class PleblistSong(Base):
         self.youtube_id = youtube_id
         self.date_added = utils.now()
         self.date_played = None
-        self.skip_after = options.get("skip_after", None)
+        skip_after: Optional[int] = options.get("skip_after", None)
 
-        if self.skip_after is not None and self.skip_after < 0:
-            # Make sure skip_after cannot be a negative number
-            self.skip_after = None
+        if skip_after is not None:
+            if skip_after < 0:
+                # Make sure skip_after cannot be a negative number
+                skip_after = None
+
+        self.skip_after = skip_after
 
     def jsonify(self):
         return {

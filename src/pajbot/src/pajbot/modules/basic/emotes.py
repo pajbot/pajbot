@@ -117,6 +117,8 @@ class EmotesModule(BaseModule):
     ]
 
     def print_emotes(self, source, manager):
+        assert self.bot is not None
+
         if self.settings[f"custom_{manager.friendly_name.lower()}_response"] != "":
             custom_message = self.settings[
                 f"custom_{manager.friendly_name.lower()}_response"
@@ -141,6 +143,8 @@ class EmotesModule(BaseModule):
                 self.bot.say(message)
 
     def print_twitch_emotes(self, source, **rest):
+        assert self.bot is not None
+
         if self.settings["custom_sub_response"] != "":
             custom_message = self.settings["custom_sub_response"]
             self.bot.say(
@@ -176,7 +180,7 @@ class EmotesModule(BaseModule):
 
         def do_reload(bot, source, **rest):
             bot.whisper(source, reload_msg)
-            self.bot.action_queue.submit(manager.update_all)
+            bot.action_queue.submit(manager.update_all)
 
         return Command.raw_command(
             do_reload,

@@ -6,11 +6,6 @@ import sys
 from pajbot.bot import Bot
 from utils import parse_args, load_config
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
 # XXX: What does this achieve exactly?
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 

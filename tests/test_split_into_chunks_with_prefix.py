@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pajbot.utils import split_into_chunks_with_prefix
+from utils import split_into_chunks_with_prefix
 
 import pytest
 

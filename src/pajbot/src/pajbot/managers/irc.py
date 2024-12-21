@@ -13,6 +13,7 @@ from irc.client import (
     MessageTooLong,
     ServerConnection,
     ServerNotConnectedError,
+    functools,
 )
 from irc.connection import Factory
 
@@ -47,6 +48,7 @@ class Connection(ServerConnection):
         if self.socket is None:
             raise ServerNotConnectedError("Not connected.")
         sender = getattr(self.socket, "write", self.socket.send)
+        assert sender is not None
         try:
             sender(bytes)
         except socket.error:
@@ -95,13 +97,17 @@ class IRCManager:
         self.conn = Connection(self.bot.reactor)
         with self.bot.reactor.mutex:
             self.bot.reactor.connections.append(self.conn)
+        context = ssl.create_default_context()
+        wrapper = functools.partial(
+            context.wrap_socket, server_hostname="irc.chat.twitch.tv"
+        )
         self.conn.connect(
             "irc.chat.twitch.tv",
             6697,
             self.bot.bot_user.login,
             self.bot.password,
             self.bot.bot_user.login,
-            connect_factory=Factory(wrapper=ssl.wrap_socket),
+            connect_factory=Factory(wrapper=wrapper),
         )
         self.conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
 

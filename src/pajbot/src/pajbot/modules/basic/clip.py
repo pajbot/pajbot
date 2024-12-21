@@ -1,5 +1,6 @@
 import logging
 
+from pajbot.bot import Bot
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
@@ -119,11 +120,11 @@ class ClipCommandModule(BaseModule):
             ],
         )
 
-    def clip(self, bot, event, source, **rest):
+    def clip(self, bot: Bot, event, source, **rest):
         if self.settings["subscribers_only"] and source.subscriber is False:
             return True
 
-        if not self.bot.is_online:
+        if not bot.is_online:
             if self.settings["offline_response"] != "":
                 bot.send_message_to_user(
                     source,
@@ -140,14 +141,14 @@ class ClipCommandModule(BaseModule):
                 self.settings["delay_clip"]
                 or (source.name == StreamHelper.get_streamer()) is True
             ):
-                clip_id = self.bot.twitch_helix_api.create_clip(
+                clip_id = bot.twitch_helix_api.create_clip(
                     StreamHelper.get_streamer_id(),
-                    self.bot.bot_token_manager,
+                    bot.bot_token_manager,
                     has_delay=True,
                 )
             else:
-                clip_id = self.bot.twitch_helix_api.create_clip(
-                    StreamHelper.get_streamer_id(), self.bot.bot_token_manager
+                clip_id = bot.twitch_helix_api.create_clip(
+                    StreamHelper.get_streamer_id(), bot.bot_token_manager
                 )
         except HTTPError as e:
             if e.response is None:
@@ -178,7 +179,7 @@ class ClipCommandModule(BaseModule):
 
         clip_url = f"https://clips.twitch.tv/{clip_id}"
         if self.settings["thumbnail_check"] is True:
-            self.bot.execute_delayed(
+            bot.execute_delayed(
                 5,
                 bot.send_message_to_user,
                 source,

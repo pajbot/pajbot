@@ -1,5 +1,6 @@
 import logging
 
+from pajbot.bot import Bot
 from pajbot.models.command import Command
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -60,8 +61,8 @@ class PNSLModule(BaseModule):
             if "pnsl" in bot.config:
                 self.pnsl_token = bot.config["pnsl"].get("token", None)
 
-    def run_pnsl(self, bot, source, message, event, args):
-        if self.settings["offline_only"] and self.bot.is_online:
+    def run_pnsl(self, bot: Bot, source, message, event, args):
+        if self.settings["offline_only"] and bot.is_online:
             bot.whisper(
                 source, f"{bot.streamer_display} is live! Skipping PNSL list eval."
             )

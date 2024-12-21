@@ -69,8 +69,12 @@ class PyramidModule(BaseModule):
         self.regex = re.compile(" +")
 
     def on_pubmsg(self, source, message, **rest):
+        assert self.bot is not None
+
         # remove the invisible Chatterino suffix
         message = message.strip(PyramidModule.CHATTERINO_CHARACTER)
+
+        msg_parts = []
 
         try:
             # Filter out any empty parts

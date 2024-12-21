@@ -139,9 +139,6 @@ class ShowEmoteModule(BaseModule):
         self.allowlisted_emotes: set[str] = set()
         self.blocklisted_emotes: set[str] = set()
 
-        # Override the parent module type since we 100% know it
-        self.parent_module: Optional[CLROverlayModule] = None
-
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
             self.settings["emote_whitelist"].strip().split(" ")
@@ -163,6 +160,8 @@ class ShowEmoteModule(BaseModule):
 
         if not self.parent_module:
             return True
+
+        assert isinstance(self.parent_module, CLROverlayModule)
 
         return self.parent_module.is_emote_allowed(emote_code)
 

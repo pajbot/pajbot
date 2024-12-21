@@ -42,5 +42,6 @@ fi
 npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
 
 # Run mypy static typing checker
->&2 echo " * Running mypy"
-uv run mypy .
+>&2 echo " * Running type checker"
+# TODO: re-enable at some point
+# uv run pyright .

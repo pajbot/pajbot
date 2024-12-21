@@ -4,6 +4,7 @@ from typing import Any, Literal, Optional, Union
 
 import json
 import logging
+from typing_extensions import Callable
 
 from pajbot.bot import Bot
 from pajbot.config import Config
@@ -59,7 +60,9 @@ class ModuleSetting:
         So for example, calling validate('50') on a number setting would return (True, 50)
         """
 
-        validator = getattr(self, f"validate_{self.type}", None)
+        validator: Optional[Callable[..., tuple[bool, Any]]] = getattr(
+            self, f"validate_{self.type}", None
+        )
         if validator is None:
             log.info(f"No validator available for type {type}")
             return True, value

@@ -157,7 +157,7 @@ ON CONFLICT (id) DO UPDATE SET
         # every 10 minutes, add the chatters update to the action queue
         self.scheduled_job = ScheduleManager.execute_every(
             self.UPDATE_INTERVAL * 60,
-            lambda: self.bot.action_queue.submit(self._update_chatters),
+            lambda: bot.action_queue.submit(self._update_chatters),
         )
 
     def disable(self, bot):
@@ -165,4 +165,5 @@ ON CONFLICT (id) DO UPDATE SET
         if not bot:
             return
 
-        self.scheduled_job.remove()
+        if self.scheduled_job is not None:
+            self.scheduled_job.remove()
