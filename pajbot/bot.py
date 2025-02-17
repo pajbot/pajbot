@@ -1189,7 +1189,7 @@ class Bot:
         if event.source.user == self.bot_user.login:
             return False
 
-        if self.streamer == "forsen":
+        if self.streamer.login == "forsen":
             if "zonothene" in login:
                 self._ban(id)
                 return True

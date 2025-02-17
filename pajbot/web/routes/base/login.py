@@ -62,6 +62,7 @@ def init(app):
         "channel:bot",  # Grant broadcaster permission for app-token chat send
         "channel:read:vips",  # For polling the list of VIPs in the channel
         "moderation:read",  # For polling the list of moderators in the channel
+        "channel:manage:predictions",
     ]
 
     @app.route("/login")
