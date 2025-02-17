@@ -164,6 +164,8 @@ class ShowEmoteModule(BaseModule):
         if not self.is_emote_allowed(first_emote.code):
             return False
 
+        log.debug(f"User {source} used show_emote {first_emote}")
+
         bot.websocket_manager.emit(
             "new_emotes",
             {
