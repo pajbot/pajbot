@@ -36,6 +36,10 @@ class SubscriberFetchModule(BaseModule):
             log.error("_update_subscribers failed in SubscriberFetchModule because bot is None")
             return
 
+        if self.bot.streamer.login == "kaicenat":
+            log.info("Skipping sub refresh for kaicenat")
+            return
+
         try:
             subscribers = self.bot.twitch_helix_api.fetch_all_subscribers(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
