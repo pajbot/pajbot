@@ -1059,6 +1059,7 @@ class Bot:
     def connect(self) -> None:
         self.irc.start()
 
+    @utils.benchmark
     def parse_message(self, message, source, event, tags={}, whisper=False) -> bool:
         msg_lower = message.lower()
 
