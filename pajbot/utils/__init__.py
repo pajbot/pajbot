@@ -20,11 +20,13 @@ from .time_limit import time_limit
 from .time_method import time_method
 from .time_since import time_since
 from .wait_for_redis_data_loaded import wait_for_redis_data_loaded
+from .benchmark import benchmark
 
 __all__ = [
     "clean_up_message",
     "datetime_from_utc_milliseconds",
     "dump_threads",
+    "benchmark",
     "extend_version_if_possible",
     "extend_version_with_git_data",
     "find",
