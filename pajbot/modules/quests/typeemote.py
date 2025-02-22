@@ -5,9 +5,10 @@ from typing import TYPE_CHECKING, Optional
 import json
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
 from pajbot.managers.redis import RedisManager
-from pajbot.models.emote import Emote, EmoteInstance
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
@@ -45,27 +46,41 @@ class TypeEmoteQuestModule(BaseQuest):
     def get_limit(self) -> int:
         return self.settings["quest_limit"]
 
-    def on_message(self, source: User, emote_instances: list[EmoteInstance], **rest) -> bool:
+    def _try_increase_progress_for_user(self, source: User, emote_instances: list[EmoteInstance]) -> None:
         typed_emotes = {emote_instance.emote for emote_instance in emote_instances}
         if self.current_emote not in typed_emotes:
-            return True
+            return
 
         user_progress = self.get_user_progress(source, default=0) + 1
 
         if user_progress > self.get_limit():
             log.debug(f"{source} has already completed the quest. Moving along.")
             # no need to do more
-            return True
+            return
 
         if user_progress == self.get_limit():
             self.finish_quest(source)
 
         self.set_user_progress(source, user_progress)
 
-        return True
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        self._try_increase_progress_for_user(source, emote_instances)
+
+        return HandlerResponse.null()
 
     def start_quest(self) -> None:
-        HandlerManager.add_handler("on_message", self.on_message)
+        HandlerManager.register_on_message(self.on_message)
 
         self.load_progress()
         self.load_data()
@@ -87,7 +102,7 @@ class TypeEmoteQuestModule(BaseQuest):
             self.current_emote = Emote(**json.loads(redis_json))
 
     def stop_quest(self) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.unregister_on_message(self.on_message)
 
         redis = RedisManager.get()
 

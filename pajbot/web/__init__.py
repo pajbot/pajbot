@@ -49,7 +49,7 @@ def _load_secret_key(bot_id: str, streamer_id: str) -> str:
     return value
 
 
-def init(config_path: str) -> None:
+async def init(config_path: str) -> None:
     import subprocess
     import sys
 
@@ -93,18 +93,18 @@ def init(config_path: str) -> None:
         log.error("Missing [web] section in config.ini")
         sys.exit(1)
 
-    app.streamer = cfg.load_streamer(config, twitch_helix_api)
+    app.streamer = await cfg.load_streamer(config, twitch_helix_api)
 
     app.streamer_display = app.streamer.name
     if "streamer_name" in config["web"]:
         app.streamer_display = config["web"]["streamer_name"]
 
-    app.bot_user = cfg.load_bot(config, twitch_helix_api)
+    app.bot_user = await cfg.load_bot(config, twitch_helix_api)
 
     StreamHelper.init_streamer(app.streamer.login, app.streamer.id, app.streamer.name)
 
     try:
-        download_logo(twitch_helix_api, app.streamer)
+        await download_logo(twitch_helix_api, app.streamer)
     except:
         log.exception("Error downloading the streamers profile picture")
 
@@ -113,7 +113,7 @@ def init(config_path: str) -> None:
     # Specifying a value of -1 in the config will disable sub badge downloading. Useful if you want to keep a custom version of a sub badge for a streamer
     if subscriber_badge_version != "-1":
         try:
-            download_sub_badge(twitch_helix_api, app.streamer, subscriber_badge_version)
+            await download_sub_badge(twitch_helix_api, app.streamer, subscriber_badge_version)
         except:
             log.exception("Error downloading the streamers subscriber badge")
 

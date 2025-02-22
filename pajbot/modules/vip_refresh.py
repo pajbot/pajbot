@@ -1,14 +1,23 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import logging
 
 from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleType
+from pajbot.response import AnyResponse, CommandResponse, WhisperResponse
 from pajbot.utils import time_method
 
 from requests import HTTPError
 from sqlalchemy import text
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -28,20 +37,23 @@ class VIPRefreshModule(BaseModule):
         super().__init__(bot)
         self.scheduled_job = None
 
-    def update_vip_cmd(self, bot, source, **rest):
+    def update_vip_cmd(self, bot: Bot, source: User, **_) -> CommandResponse:
         # TODO if you wanted to improve this: Provide the user with feedback
         #   whether the update succeeded, and if yes, how many users were updated
-        bot.whisper(source, "Reloading list of VIPs...")
         bot.action_queue.submit(self._update_vips)
+        return WhisperResponse.success(
+            source.id,
+            "Reloading list of VIPs...",
+        )
 
     @time_method
-    def _update_vips(self):
+    async def _update_vips(self):
         if self.bot is None:
             log.error("_update_vips failed in VIPRefreshModule because bot is None")
             return
 
         try:
-            vips = self.bot.twitch_helix_api.fetch_all_vips(
+            vips = await self.bot.twitch_helix_api.fetch_all_vips(
                 self.bot.streamer.id, self.bot.streamer_access_token_manager
             )
             vips = [vip for vip in vips if vip.hydrated()]
@@ -108,7 +120,7 @@ WHERE
 
         log.info(f"Successfully updated {len(vips)} VIPs")
 
-    def load_commands(self, **options):
+    def load_commands(self, **options) -> None:
         self.commands["reload"] = Command.multiaction_command(
             command="reload",
             commands={
@@ -128,19 +140,21 @@ WHERE
             },
         )
 
-    def enable(self, bot):
+    def enable(self, bot: Bot | None) -> None:
         # Web interface, nothing to do
         if not bot:
             return
 
         # every 10 minutes, send a helix request to get VIPs
         self.scheduled_job = ScheduleManager.execute_every(
-            self.UPDATE_INTERVAL * 60, lambda: self.bot.execute_now(self._update_vips)
+            self.UPDATE_INTERVAL * 60,
+            lambda: self._update_vips(),
         )
 
-    def disable(self, bot):
+    def disable(self, bot: Bot | None) -> None:
         # Web interface, nothing to do
         if not bot:
             return
 
-        self.scheduled_job.remove()
+        if self.scheduled_job:
+            self.scheduled_job.remove()

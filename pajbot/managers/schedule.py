@@ -8,6 +8,7 @@ from pajbot import utils
 from apscheduler.job import Job
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.base import BaseScheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +28,8 @@ class ScheduledJob:
 
 
 class ScheduleManager:
-    base_scheduler = BackgroundScheduler(daemon=True)
+    # base_scheduler = BackgroundScheduler(daemon=True)
+    base_scheduler: AsyncIOScheduler = AsyncIOScheduler(daemon=True)
 
     @staticmethod
     def init() -> None:
@@ -47,6 +49,7 @@ class ScheduleManager:
     ) -> ScheduledJob:
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler
+            assert isinstance(scheduler, AsyncIOScheduler)
 
         job = scheduler.add_job(method, "date", run_date=utils.now(), args=args, kwargs=kwargs)
         return ScheduledJob(job)
@@ -61,6 +64,7 @@ class ScheduleManager:
     ) -> ScheduledJob:
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler
+            assert isinstance(scheduler, AsyncIOScheduler)
 
         job = scheduler.add_job(
             method, "date", run_date=utils.now() + datetime.timedelta(seconds=delay), args=args, kwargs=kwargs
@@ -78,6 +82,7 @@ class ScheduleManager:
     ) -> ScheduledJob:
         if scheduler is None:
             scheduler = ScheduleManager.base_scheduler
+            assert isinstance(scheduler, AsyncIOScheduler)
 
         job = scheduler.add_job(method, "interval", seconds=interval, args=args, kwargs=kwargs, jitter=jitter)
         return ScheduledJob(job)

@@ -5,8 +5,10 @@ from typing import TYPE_CHECKING, Any, Optional
 import logging
 import random
 
-from pajbot.managers.handler import HandlerManager
-from pajbot.models.emote import EmoteInstance
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.clr_overlay import CLROverlayModule
 
@@ -84,9 +86,6 @@ class EmotesOnScreenModule(BaseModule):
         self.allowlisted_emotes: set[str] = set()
         self.blocklisted_emotes: set[str] = set()
 
-        # Override the parent module type since we 100% know it
-        self.parent_module: Optional[CLROverlayModule] = None
-
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
             self.settings["emote_whitelist"].strip().split(" ") if self.settings["emote_whitelist"] else []
@@ -105,15 +104,17 @@ class EmotesOnScreenModule(BaseModule):
         if not self.parent_module:
             return True
 
+        assert isinstance(self.parent_module, CLROverlayModule)
+
         return self.parent_module.is_emote_allowed(emote_code)
 
-    def on_message(self, emote_instances: list[EmoteInstance], whisper: bool, **rest: Any) -> bool:
-        if whisper:
-            return True
+    def _handle(self, emote_instances: list[EmoteInstance], is_whisper: bool) -> None:
+        if is_whisper:
+            return
 
         if self.bot is None:
             log.warning("EmotesOnScreen on_message called with no bot")
-            return True
+            return
 
         # filter out disallowed emotes
         emotes = [e.emote for e in emote_instances if self.is_emote_allowed(e.emote.code)]
@@ -122,7 +123,7 @@ class EmotesOnScreenModule(BaseModule):
         sent_emotes = random.sample(emotes, sample_size)
 
         if len(sent_emotes) <= 0:
-            return True
+            return
 
         self.bot.websocket_manager.emit(
             "new_emotes",
@@ -134,10 +135,25 @@ class EmotesOnScreenModule(BaseModule):
             },
         )
 
-        return True
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        self._handle(emote_instances, is_whisper)
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.register_on_message(self.on_message)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

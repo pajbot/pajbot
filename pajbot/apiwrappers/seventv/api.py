@@ -59,9 +59,9 @@ class SevenTVAPI(BaseAPI):
             )
         return emotes
 
-    def fetch_global_emotes(self) -> list[Emote]:
+    async def fetch_global_emotes(self) -> list[Emote]:
         """Returns a list of global 7TV emotes in the standard Emote format."""
-        raw_response = self.get_response("emote-sets/global")
+        raw_response = await self._get_response("emote-sets/global")
 
         response = model.GetEmoteSetResponseSchema().loads(raw_response.text)
 
@@ -70,19 +70,19 @@ class SevenTVAPI(BaseAPI):
 
         return self.parse_emotes(response.emotes)
 
-    def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
-        return self.cache.cache_fetch_fn(
-            redis_key="api:7tv:global-emotes",
-            fetch_fn=lambda: self.fetch_global_emotes(),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            "api:7tv:global-emotes",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_global_emotes,
         )
 
-    def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
+    async def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
         """Returns a list of channel-specific 7TV emotes in the standard Emote format."""
         try:
-            raw_response = self.get_response(f"users/twitch/{channel_id}")
+            raw_response = await self._get_response(f"users/twitch/{channel_id}")
         except HTTPError as e:
             if e.response is None:
                 raise e
@@ -108,11 +108,12 @@ class SevenTVAPI(BaseAPI):
 
         return self.parse_emotes(response.emote_set.emotes)
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
-        return self.cache.cache_fetch_fn(
-            redis_key=f"api:7tv:channel-emotes:{channel_id}",
-            fetch_fn=lambda: self.fetch_channel_emotes(channel_id),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_channel_emotes(self, channel: str, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            f"api:7tv:channel-emotes:{channel}",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_channel_emotes,
+            channel,
         )

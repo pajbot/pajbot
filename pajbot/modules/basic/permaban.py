@@ -10,6 +10,7 @@ from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting, ModuleType
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.response import AnyResponse, BanResponse, UnbanResponse, WhisperResponse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -52,51 +53,47 @@ class PermabanModule(BaseModule):
     ]
 
     @staticmethod
-    def permaban_command(bot: Bot, source: User, message: str, **rest) -> bool:
+    async def permaban_command(bot: Bot, source: User, message: str, **_) -> list[AnyResponse]:
         if not message:
-            return False
+            return []
 
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_user_input(db_session, username)
             if not user:
-                bot.whisper(source, "No user with that name found.")
-                return False
+                return WhisperResponse.one(source.id, "No user with that name found.")
 
             if user.banned:
-                bot.whisper(source, "User is already permabanned.")
-                return False
+                return WhisperResponse.one(source.id, "User is already permabanned.")
 
             user.banned = True
-            bot.ban(
-                user,
-                reason=f"User has been added to the {bot.bot_user.login} banlist. Contact a moderator level 1000 or higher for unban.",
-            )
             log_msg = f"{user} has been permabanned"
-            bot.whisper(source, log_msg)
 
             AdminLogManager.add_entry("Permaban added", source, log_msg)
 
-        return True
+            return [
+                BanResponse(
+                    user.id,
+                    f"User has been added to the {bot.bot_user.login} banlist. Contact a moderator level 1000 or higher for unban.",
+                ),
+                WhisperResponse(source.id, log_msg),
+            ]
 
-    def unpermaban_command(self, bot: Bot, source: User, message: str, **rest) -> bool:
+    async def unpermaban_command(self, bot: Bot, source: User, message: str, **_) -> list[AnyResponse]:
         if not message:
-            return False
+            return []
 
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_user_input(db_session, username)
             if not user:
-                bot.whisper(source, "No user with that name found.")
-                return False
+                return WhisperResponse.one(source.id, "No user with that name found.")
 
             if user.banned is False:
-                bot.whisper(source, "User is not permabanned.")
-                return False
+                return WhisperResponse.one(source.id, "User is not permabanned.")
 
             user.banned = False
             log_msg = f"{user} is no longer permabanned"
-            bot.whisper(source, log_msg)
 
             AdminLogManager.add_entry("Permaban remove", source, log_msg)
 
@@ -106,9 +103,14 @@ class PermabanModule(BaseModule):
                 if self.settings["enable_send_timeout"] is True:
                     bot.timeout(user, 1, self.settings["timeout_reason"].format(source=source))
 
-        return True
+            return [
+                UnbanResponse(
+                    user.id,
+                ),
+                WhisperResponse(source.id, log_msg),
+            ]
 
-    def load_commands(self, **options) -> None:
+    def load_commands(self, **_) -> None:
         self.commands["permaban"] = Command.raw_command(
             self.permaban_command,
             level=1000,
@@ -117,7 +119,7 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!permaban Karl_Kons\n" "bot>user:Karl_Kons has now been permabanned",
+                    chat="user:!permaban Karl_Kons\nbot>user:Karl_Kons has now been permabanned",
                     description="Permanently ban Karl_Kons from the chat",
                 ).parse()
             ],
@@ -131,7 +133,7 @@ class PermabanModule(BaseModule):
                 CommandExample(
                     None,
                     "Default usage",
-                    chat="user:!unpermaban Karl_Kons\n" "bot>user:Karl_Kons is no longer permabanned",
+                    chat="user:!unpermaban Karl_Kons\nbot>user:Karl_Kons is no longer permabanned",
                     description="Remove permanent ban from Karl_Kons",
                 ).parse()
             ],

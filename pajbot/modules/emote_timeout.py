@@ -5,8 +5,9 @@ from typing import TYPE_CHECKING, Optional
 import logging
 
 from pajbot.emoji import ALL_EMOJI
-from pajbot.managers.handler import HandlerManager
-from pajbot.models.emote import EmoteInstance
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -119,79 +120,101 @@ class EmoteTimeoutModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
         if self.bot is None:
             log.warning("Module bot is None")
-            return True
+            return HandlerResponse.null()
+
+        if msg_id is None:
+            # Module can only handle messages from Twitch chat
+            return HandlerResponse.null()
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return True
+            return HandlerResponse.null()
 
         if self.bot.is_online and not self.settings["enable_in_online_chat"]:
-            return True
+            return HandlerResponse.null()
 
         if not self.bot.is_online and not self.settings["enable_in_offline_chat"]:
-            return True
+            return HandlerResponse.null()
 
         if self.settings["timeout_twitch"] and any(e.emote.provider == "twitch" for e in emote_instances):
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["twitch_timeout_reason"],
+                reason=self.settings["twitch_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
-            return False
+            return res
 
         if self.settings["timeout_ffz"] and any(e.emote.provider == "ffz" for e in emote_instances):
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["ffz_timeout_reason"],
+                reason=self.settings["ffz_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
-            return False
+            return res
 
         if self.settings["timeout_bttv"] and any(e.emote.provider == "bttv" for e in emote_instances):
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["bttv_timeout_reason"],
+                reason=self.settings["bttv_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
-            return False
+            return res
 
         if self.settings["timeout_7tv"] and any(e.emote.provider == "7tv" for e in emote_instances):
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["7tv_timeout_reason"],
+                reason=self.settings["7tv_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
-            return False
+            return res
 
         if self.settings["timeout_emoji"] and any(emoji in message for emoji in ALL_EMOJI):
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["emoji_timeout_reason"],
+                reason=self.settings["emoji_timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
-            return False
+            return res
 
-        return True
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

@@ -64,8 +64,8 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 
-def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> None:
-    logo_url = twitch_helix_api.get_profile_image_url(streamer.id)
+async def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> None:
+    logo_url = await twitch_helix_api.get_profile_image_url(streamer.id)
 
     if logo_url is None:
         log.warn(f"Failed to query Twitch API for the profile image url of streamer {streamer.login}")
@@ -74,19 +74,21 @@ def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> Non
     logo_raw_path = f"static/images/logo_{streamer.login}.png"
 
     # returns bytes
-    logo_image_bytes = BaseAPI(None).get_binary(logo_url)
+    logo_image_bytes = await BaseAPI(None)._get_binary(logo_url)
 
     # write full-size image...
     with open(logo_raw_path, "wb") as logo_raw_file:
         logo_raw_file.write(logo_image_bytes)
 
 
-def download_sub_badge(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, subscriber_badge_version: str) -> None:
+async def download_sub_badge(
+    twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, subscriber_badge_version: str
+) -> None:
     out_path = f"static/images/badge_sub_{streamer.login}.png"
 
     log.info(f"Downloading sub badge for {streamer.login} (badge version {subscriber_badge_version}) to {out_path}")
 
-    badge_sets = twitch_helix_api.get_channel_badges(streamer.id)
+    badge_sets = await twitch_helix_api.get_channel_badges(streamer.id)
 
     try:
         subscriber_badge_set = next(badge_set for badge_set in badge_sets if badge_set.set_id == "subscriber")
@@ -107,7 +109,7 @@ def download_sub_badge(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics, s
         return
 
     # returns bytes
-    subscriber_badge_bytes = BaseAPI(None).get_binary(subscriber_badge.image_url_1x)
+    subscriber_badge_bytes = await BaseAPI(None)._get_binary(subscriber_badge.image_url_1x)
 
     # write image...
     with open(out_path, "wb") as subscriber_badge_file:

@@ -5,8 +5,10 @@ from typing import TYPE_CHECKING, Any, Optional
 import logging
 
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.emote import EmoteInstance
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.clr_overlay import CLROverlayModule
+from pajbot.response import CommandResponse, WhisperResponse, silent_fail, silent_success
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -127,9 +129,6 @@ class ShowEmoteModule(BaseModule):
         self.allowlisted_emotes: set[str] = set()
         self.blocklisted_emotes: set[str] = set()
 
-        # Override the parent module type since we 100% know it
-        self.parent_module: Optional[CLROverlayModule] = None
-
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
             self.settings["emote_whitelist"].strip().split(" ") if self.settings["emote_whitelist"] else []
@@ -148,21 +147,26 @@ class ShowEmoteModule(BaseModule):
         if not self.parent_module:
             return True
 
+        assert isinstance(self.parent_module, CLROverlayModule)
+
         return self.parent_module.is_emote_allowed(emote_code)
 
-    def show_emote(self, bot: Bot, source: User, args: dict[str, Any], **rest: Any) -> bool:
-        emote_instances = args["emote_instances"]
-
+    async def show_emote(
+        self,
+        bot: Bot,
+        source: User,
+        emote_instances: list[EmoteInstance],
+        **_: Any,
+    ) -> CommandResponse:
         if len(emote_instances) <= 0:
             # No emotes in the given message
-            bot.whisper(source, "No valid emotes were found in your message.")
-            return False
+            return WhisperResponse.fail(source.id, "No valid emotes were found in your message.")
 
         first_emote = emote_instances[0].emote
 
         # request to show emote is ignored but return False ensures user is refunded tokens/points
         if not self.is_emote_allowed(first_emote.code):
-            return False
+            return silent_fail()
 
         bot.websocket_manager.emit(
             "new_emotes",
@@ -175,11 +179,14 @@ class ShowEmoteModule(BaseModule):
         )
 
         if self.settings["success_whisper"]:
-            bot.whisper(source, f"Successfully sent the emote {first_emote.code} to the stream!")
+            return WhisperResponse.success(source.id, f"Successfully sent the emote {first_emote.code} to the stream!")
 
-        return True
+        return silent_success()
 
-    def load_commands(self, **options: Any) -> None:
+    def load_commands(
+        self,
+        **_: Any,
+    ) -> None:
         self.commands[self.settings["command_name"]] = Command.raw_command(
             self.show_emote,
             delay_all=self.settings["global_cd"],

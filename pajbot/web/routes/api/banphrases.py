@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import json
 import logging
-from dataclasses import dataclass
+from typing import Any, ClassVar, Type
+
+from flask.typing import ResponseReturnValue
 
 import pajbot.modules
 import pajbot.utils
@@ -12,6 +16,7 @@ from pajbot.models.sock import SocketClientManager
 from pajbot.web.schemas.toggle_state import ToggleState, ToggleStateSchema
 
 import marshmallow_dataclass
+from marshmallow_dataclass import dataclass
 from flask import Blueprint, request
 from marshmallow import Schema, ValidationError
 
@@ -32,8 +37,9 @@ def filter_message(message: str) -> str:
 
 
 @dataclass
-class TestBanphrase(Schema):
+class TestBanphrase:
     message: str
+    Schema: ClassVar[Type[Schema]] = Schema
 
 
 TestBanphraseSchema = marshmallow_dataclass.class_schema(TestBanphrase)
@@ -42,7 +48,10 @@ TestBanphraseSchema = marshmallow_dataclass.class_schema(TestBanphrase)
 def init(bp: Blueprint) -> None:
     @bp.route("/banphrases/remove/<int:banphrase_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def banphrases_remove(banphrase_id, **options):
+    def banphrases_remove(
+        banphrase_id: int,
+        **options: Any,
+    ) -> ResponseReturnValue:
         with DBManager.create_session_scope() as db_session:
             banphrase = db_session.query(Banphrase).filter_by(id=banphrase_id).one_or_none()
             if banphrase is None:
@@ -55,15 +64,21 @@ def init(bp: Blueprint) -> None:
 
     @bp.route("/banphrases/toggle/<int:row_id>", methods=["POST"])
     @pajbot.web.utils.requires_level(500)
-    def banphrases_toggle(row_id, **options):
+    def banphrases_toggle(
+        row_id: int,
+        **options: Any,
+    ) -> ResponseReturnValue:
         json_data = request.get_json()
         if not json_data:
             return {"error": "No input data provided"}, 400
 
         try:
-            data: ToggleState = ToggleStateSchema().load(json_data)
+            data = ToggleStateSchema().load(json_data)
         except ValidationError as err:
             return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
+
+        if not isinstance(data, ToggleState):
+            return {"error": "Did not return correct type"}, 500
 
         with DBManager.create_session_scope() as db_session:
             row = db_session.query(Banphrase).filter_by(id=row_id).one_or_none()
@@ -81,7 +96,7 @@ def init(bp: Blueprint) -> None:
             return {"success": "successful toggle", "new_state": data.new_state}
 
     @bp.route("/banphrases/test", methods=["POST"])
-    def banphrases_test():
+    def banphrases_test() -> ResponseReturnValue:
         if request.is_json:
             # Example request:
             # curl --json '{"message": "xD"}'  http://localhost:7070/api/v1/banphrases/test
@@ -90,7 +105,7 @@ def init(bp: Blueprint) -> None:
             if not json_data:
                 return {"error": "Missing json body"}, 400
             try:
-                data: TestBanphrase = TestBanphraseSchema().load(json_data)
+                data = TestBanphraseSchema().load(json_data)
             except ValidationError as err:
                 return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
         else:
@@ -99,9 +114,15 @@ def init(bp: Blueprint) -> None:
             # curl -d 'message=xD2' http://localhost:7070/api/v1/banphrases/test
             # curl -F 'message=xD3' http://localhost:7070/api/v1/banphrases/test
             try:
-                data: TestBanphrase = TestBanphraseSchema().load(request.form.to_dict())
+                data = TestBanphraseSchema().load(
+                    request.form.to_dict(),
+                    many=False,
+                )
             except ValidationError as err:
                 return {"error": f"Did not match schema: {json.dumps(err.messages)}"}, 400
+
+        if not isinstance(data, TestBanphrase):
+            return {"error": "Did not return correct type"}, 500
 
         message = filter_message(data.message)
 
@@ -123,7 +144,7 @@ def init(bp: Blueprint) -> None:
         return ret
 
     # @bp.route("/banphrases/dump")
-    # def banphrases_dump():
+    # def banphrases_dump() -> ResponseReturnValue:
     #     banphrase_manager = BanphraseManager(None).load()
     #     try:
     #         payload = {"banphrases": []}

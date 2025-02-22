@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -82,43 +83,59 @@ class MaxMsgLengthModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, whisper: bool, msg_id: str, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: Any,
+        emote_counts: Any,
+        is_whisper: bool,
+        urls: Any,
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
         if self.bot is None:
-            log.warning("Module bot is None")
-            return True
+            # Bot must be set
+            return HandlerResponse.null()
 
-        if whisper:
-            return True
-        if source.level >= self.settings["bypass_level"] or source.moderator:
-            return True
+        if is_whisper:
+            return HandlerResponse.null()
+
+        if msg_id is None:
+            # Module can only handle messages from Twitch chat
+            return HandlerResponse.null()
+
+        if source.level >= self.settings["bypass_level"] or source.moderator is True:
+            return HandlerResponse.null()
 
         if self.bot.is_online:
             if len(message) > self.settings["max_msg_length"]:
-                self.bot.delete_or_timeout(
-                    source,
+                return HandlerResponse.do_delete_or_timeout(
+                    source.id,
                     self.settings["moderation_action"],
                     msg_id,
                     self.settings["timeout_length"],
-                    self.settings["timeout_reason"],
+                    reason=self.settings["timeout_reason"],
                     disable_warnings=self.settings["disable_warnings"],
                 )
-                return False
         else:
             if len(message) > self.settings["max_msg_length_offline"]:
-                self.bot.delete_or_timeout(
-                    source,
+                return HandlerResponse.do_delete_or_timeout(
+                    source.id,
                     self.settings["moderation_action"],
                     msg_id,
                     self.settings["timeout_length"],
-                    self.settings["timeout_reason"],
+                    reason=self.settings["timeout_reason"],
                     disable_warnings=self.settings["disable_warnings"],
                 )
-                return False
 
-        return True
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

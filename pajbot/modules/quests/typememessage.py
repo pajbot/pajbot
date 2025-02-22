@@ -1,8 +1,8 @@
-from typing import Any
-
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.quest import QuestModule
@@ -44,14 +44,25 @@ class TypeMeMessageQuestModule(BaseQuest):
     def get_quest_message_length(self) -> int:
         return self.settings["quest_message_length"]
 
-    def on_message(self, source: User, message: str, event: Any, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
         if len(message) < self.get_quest_message_length() or event.type != "action":
-            return True
+            return HandlerResponse.null()
 
         user_progress = self.get_user_progress(source, default=0)
 
         if user_progress >= self.get_limit():
-            return True
+            return HandlerResponse.null()
 
         user_progress += 1
 
@@ -60,15 +71,15 @@ class TypeMeMessageQuestModule(BaseQuest):
 
         self.set_user_progress(source, user_progress)
 
-        return True
+        return HandlerResponse.null()
 
     def start_quest(self) -> None:
-        HandlerManager.add_handler("on_message", self.on_message)
+        HandlerManager.register_on_message(self.on_message)
 
         self.load_progress()
 
     def stop_quest(self) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.unregister_on_message(self.on_message)
 
         self.reset_progress()
 

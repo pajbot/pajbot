@@ -1,12 +1,20 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.response import BanResponse, TimeoutResponse
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules.base import BaseModule
+from pajbot.modules.warning import WarningModule
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +27,10 @@ class BanphraseModule(BaseModule):
     CATEGORY = "Moderation"
     SETTINGS: list[Any] = []
 
-    def is_message_bad(self, source, msg_raw, _event):
+    def is_message_bad(self, source, msg_raw, _event) -> bool:
+        if self.bot is None:
+            return False
+
         res = self.bot.banphrase_manager.check_message(msg_raw, source)
         if res is not False:
             self.bot.banphrase_manager.punish(source, res)
@@ -27,22 +38,69 @@ class BanphraseModule(BaseModule):
 
         return False  # message was ok
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+    def check_message(self, source: User, msg_raw: str) -> TimeoutResponse | BanResponse | None:
+        if self.bot is None:
+            return None
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_message", self.on_message)
+        res = self.bot.banphrase_manager.check_message(msg_raw, source)
+        if res is not False:
+            reason = f"Banned phrase {res.id} ({res.name})"
+            if res.permanent:
+                return BanResponse(source.id, reason=reason)
 
-    def on_message(self, source, message, whisper, event, **rest):
-        if whisper:
-            return
-        if source.level >= 500 or source.moderator:
-            return
+            warning_module = self.bot.module_manager["warning"]
+            if warning_module is not None:
+                assert isinstance(warning_module, WarningModule)
 
-        if self.is_message_bad(source, message, event):
-            # we matched a filter.
-            # return False so no more code is run for this message
-            return False
+            timeout_length, _punishment = source.timeout(
+                res.length, warning_module=warning_module, use_warnings=res.warning
+            )
+            return TimeoutResponse(source.id, timeout_length, reason=reason)
+
+        return None
+
+    def enable(self, bot) -> None:
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
+
+    def disable(self, bot) -> None:
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)
+
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper:
+            meta.add(__name__, "message was whisper")
+            return HandlerResponse.null()
+        if source.level >= 500:
+            meta.add(__name__, "chatter level >= 500")
+            return HandlerResponse.null()
+        if source.moderator:
+            meta.add(__name__, "chatter was mod")
+            return HandlerResponse.null()
+
+        action = self.check_message(source, message)
+        if action is None:
+            log.info("on_message2: Message did not hit a banphrase(?), do nothing")
+            return HandlerResponse.null()
+
+        log.info(f"on_message2: {message} message hit a banphrase!!!!!!!")
+        # we matched a filter.
+        # return False so no more code is run for this message
+        res = HandlerResponse()
+        res.stop = True
+        res.actions.append(action)
+        return res
 
     @staticmethod
     def add_banphrase(bot, source, message, **rest):
@@ -120,13 +178,13 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Create a banphrase",
-                            chat="user:!add banphrase testman123\n" "bot>user:Inserted your banphrase (ID: 83)",
+                            chat="user:!add banphrase testman123\nbot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase with the default settings. Whenever a non-moderator types testman123 in chat they will be timed out for 300 seconds and notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
                             None,
                             "Create a banphrase that permabans people",
-                            chat="user:!add banphrase testman123 --perma\n" "bot>user:Inserted your banphrase (ID: 83)",
+                            chat="user:!add banphrase testman123 --perma\nbot>user:Inserted your banphrase (ID: 83)",
                             description="This creates a banphrase that permabans the user who types testman123 in chat. The user will be notified through a whisper that they said something they shouldn't have said",
                         ).parse(),
                         CommandExample(
@@ -172,7 +230,7 @@ class BanphraseModule(BaseModule):
                         CommandExample(
                             None,
                             "Remove a banphrase with the given ID.",
-                            chat="user:!remove banphrase 25\n" "bot>user:Successfully removed banphrase with id 25",
+                            chat="user:!remove banphrase 25\nbot>user:Successfully removed banphrase with id 25",
                             description="Removes a banphrase with id 25",
                         ).parse(),
                     ],

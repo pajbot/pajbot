@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING, Optional
 
 import logging
 
-from pajbot.managers.handler import HandlerManager
-from pajbot.models.emote import EmoteInstance
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -87,39 +88,57 @@ class EmoteLimitModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
         if self.bot is None:
             log.warning("Module bot is None")
-            return True
+            return HandlerResponse.null()
+
+        if msg_id is None:
+            # Module can only handle messages from Twitch chat
+            return HandlerResponse.null()
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return True
+            meta.add(__name__, "user is mod")
+            return HandlerResponse.null()
 
         if self.bot.is_online and not self.settings["enable_in_online_chat"]:
-            return True
+            return HandlerResponse.null()
 
         if not self.bot.is_online and not self.settings["enable_in_offline_chat"]:
-            return True
+            return HandlerResponse.null()
 
         if self.settings["allow_subs_to_bypass"] and source.subscriber is True:
-            return True
+            return HandlerResponse.null()
 
         if len(emote_instances) > self.settings["max_emotes"]:
-            self.bot.delete_or_timeout(
-                source,
+            res = HandlerResponse()
+            res.delete_or_timeout(
+                source.id,
                 self.settings["moderation_action"],
                 msg_id,
                 self.settings["timeout_duration"],
-                self.settings["timeout_reason"],
+                reason=self.settings["timeout_reason"],
                 disable_warnings=self.settings["disable_warnings"],
             )
+            return res
 
-            return False
-
-        return True
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

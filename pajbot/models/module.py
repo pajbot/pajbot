@@ -134,6 +134,7 @@ class ModuleManager:
             for enabled_module in db_session.query(Module).filter_by(enabled=True):
                 module = self.get_module(enabled_module.id)
                 if module is not None:
+                    # TODO: We should just pass an optional Any settings to load
                     options = {}
                     if enabled_module.settings is not None:
                         try:

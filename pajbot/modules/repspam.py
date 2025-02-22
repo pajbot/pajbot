@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, Optional
 
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
 
@@ -102,10 +104,12 @@ class RepspamModule(BaseModule):
     ]
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)
 
     ignored_characters = ["\U000e0000", ".", "-"]
 
@@ -118,33 +122,33 @@ class RepspamModule(BaseModule):
 
         return len(word) <= 0
 
-    def on_message(self, source: User, message: str, whisper: bool, **rest) -> bool:
+    def _is_bad_message(self, source: User, message: str, is_whisper: bool) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
-            return True
+            return False
 
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return True
+            return False
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return True
+            return False
 
-        if whisper:
-            return True
+        if is_whisper:
+            return False
 
         if source.level >= self.settings["bypass_level"] or source.moderator:
-            return True
+            return False
 
         if len(message) < self.settings["min_message_length"]:
             # Message too short
-            return True
+            return False
 
         word_list = [word for word in message.split(" ") if not self.is_word_ignored(word)]
         word_set = set(word_list)
 
         if len(word_set) < self.settings["min_unique_words"]:
             # There needs to be at least X unique words
-            return True
+            return False
 
         # create a mapping word -> count/frequency
         word_freq = {word: word_list.count(word) for word in word_set}
@@ -163,19 +167,37 @@ class RepspamModule(BaseModule):
             if freq <= self.settings["max_spam_repetitions"]:
                 continue
 
-            # found a group of equally repeating words (a repeating spam) that repeats more than allowed
+            return True
+
+        return False
+
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if self._is_bad_message(source, message, is_whisper):
+            assert self.bot is not None
+
             if self.settings["disable_warnings"] is True:
-                self.bot.timeout(
-                    source,
+                return HandlerResponse.do_timeout(
+                    source.id,
                     self.settings["timeout_length"],
-                    self.settings["timeout_reason"],
+                    reason=self.settings["timeout_reason"],
                 )
             else:
-                self.bot.timeout_warn(
-                    source,
+                # TODO: Enable warn support
+                return HandlerResponse.do_timeout(
+                    source.id,
                     self.settings["timeout_length"],
-                    self.settings["timeout_reason"],
+                    reason=self.settings["timeout_reason"],
                 )
-            return False
 
-        return True
+        return HandlerResponse.null()

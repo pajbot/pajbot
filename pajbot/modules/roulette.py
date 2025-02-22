@@ -15,6 +15,7 @@ from pajbot.models.command import Command, CommandExample
 from pajbot.models.roulette import Roulette
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
+from pajbot.response import AnyResponse, MeResponse, WhisperResponse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -185,7 +186,7 @@ class RouletteModule(BaseModule):
         self.output_buffer_args: list[RouletteArguments] = []
         self.last_add: Optional[datetime.datetime] = None
 
-    def load_commands(self, **options) -> None:
+    def load_commands(self, **_) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.roulette,
             delay_all=self.settings["online_global_cd"],
@@ -208,40 +209,38 @@ class RouletteModule(BaseModule):
         rigged_percentage: int = self.settings["rigged_percentage"]
         return v > rigged_percentage
 
-    def roulette(self, bot: Bot, source: User, message: str, **rest) -> bool:
+    async def roulette(self, bot: Bot, source: User, message: str, **_) -> list[AnyResponse]:
         if self.settings["stream_status"] == "Online" and not bot.is_online:
-            return False
+            return []
 
         if self.settings["stream_status"] == "Offline" and bot.is_online:
-            return False
+            return []
 
         if self.settings["only_roulette_after_sub"]:
             if self.last_sub is None:
-                return False
+                return []
             if utils.now() - self.last_sub > datetime.timedelta(seconds=self.settings["after_sub_roulette_time"]):
-                return False
+                return []
 
-        if message is None:
-            bot.whisper(
-                source,
+        if not message:
+            return WhisperResponse.one(
+                source.id,
                 "I didn't recognize your bet! Usage: !" + self.settings["command_name"] + " 150 to bet 150 points",
             )
-            return False
 
         msg_split = [part for part in message.split(" ") if part != ""]
         try:
             bet = utils.parse_points_amount(source, msg_split[0])
         except pajbot.exc.InvalidPointAmount as e:
-            bot.whisper(source, str(e))
-            return False
+            return WhisperResponse.one(source.id, str(e))
 
         if not source.can_afford(bet):
-            bot.whisper(source, f"You don't have enough points to do a roulette for {bet} points :(")
-            return False
+            return WhisperResponse.one(source.id, f"You don't have enough points to do a roulette for {bet} points :(")
 
         if bet < self.settings["min_roulette_amount"]:
-            bot.whisper(source, f"You have to bet at least {self.settings['min_roulette_amount']} point! :(")
-            return False
+            return WhisperResponse.one(
+                source.id, f"You have to bet at least {self.settings['min_roulette_amount']} point! :("
+            )
 
         # Calculating the result
         result = self.rigged_random_result()
@@ -254,6 +253,8 @@ class RouletteModule(BaseModule):
 
         arguments: RouletteArguments = {"bet": bet, "user": source.name, "points": source.points, "win": points > 0}
 
+        response = []
+
         if points > 0:
             out_message = self.get_phrase("message_won", **arguments)
         else:
@@ -265,25 +266,25 @@ class RouletteModule(BaseModule):
             if bot.is_online:
                 self.add_message(arguments)
             else:
-                bot.me(out_message)
+                response = MeResponse.one(out_message)
         if self.settings["options_output"] == "1. Show results in chat":
-            bot.me(out_message)
+            response = MeResponse.one(out_message)
         if self.settings["options_output"] == "2. Show results in whispers":
-            bot.whisper(source, out_message)
+            response = WhisperResponse.one(source.id, out_message)
         if (
             self.settings["options_output"]
             == "3. Show results in chat if it's over X points else it will be whispered."
         ):
             if abs(points) >= self.settings["min_show_points"]:
-                bot.me(out_message)
+                response = MeResponse.one(out_message)
             else:
-                bot.whisper(source, out_message)
+                response = WhisperResponse.one(source.id, out_message)
 
         HandlerManager.trigger("on_roulette_finish", user=source, points=points)
 
-        return True
+        return response
 
-    def on_tick(self, **rest) -> bool:
+    def on_tick(self, **_) -> bool:
         if self.output_buffer == "":
             return True
 
@@ -302,6 +303,7 @@ class RouletteModule(BaseModule):
             raise ValueError("Bot must not be None")
 
         msg = self.output_buffer
+        # TODO: Implement grpc thing for this or something idk?
         self.bot.me(msg)
         self.output_buffer = ""
         self.output_buffer_args = []
@@ -333,7 +335,7 @@ class RouletteModule(BaseModule):
 
         self.last_add = utils.now()
 
-    def on_user_sub_or_resub(self, **rest) -> bool:
+    def on_user_sub_or_resub(self, **_) -> bool:
         if self.bot is None:
             raise ValueError("Bot must not be None")
 

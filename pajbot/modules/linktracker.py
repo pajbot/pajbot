@@ -8,7 +8,9 @@ from urllib.parse import urlsplit
 
 from pajbot import utils
 from pajbot.managers.db import Base, DBManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 
 from sqlalchemy import Integer
@@ -59,12 +61,23 @@ class LinkTrackerModule(BaseModule):
         self.db_session: Optional[Session] = None
         self.links: dict[str, LinkTrackerLink] = {}
 
-    def on_message(self, whisper: bool, urls: list[str], **rest) -> bool:
-        if whisper is False:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: Any,
+        emote_counts: Any,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper is False:
             for url in urls:
                 self.add_url(url)
 
-        return True
+        return HandlerResponse.null()
 
     def add_url(self, url: str) -> None:
         if self.db_session is None:
@@ -95,6 +108,8 @@ class LinkTrackerModule(BaseModule):
             self.db_session.add(link)
             self.links[url] = link
 
+        log.info(f"Incrementing link count for {url}")
+
         self.links[url].increment()
 
     def on_commit(self, **rest) -> bool:
@@ -107,7 +122,7 @@ class LinkTrackerModule(BaseModule):
         if bot is None:
             return
 
-        HandlerManager.add_handler("on_message", self.on_message, priority=200)
+        HandlerManager.register_on_message(self.on_message, priority=200)
         HandlerManager.add_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
@@ -121,7 +136,7 @@ class LinkTrackerModule(BaseModule):
         if bot is None:
             return
 
-        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.unregister_on_message(self.on_message)
         HandlerManager.remove_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:

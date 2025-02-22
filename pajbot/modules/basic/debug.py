@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 import collections
 import logging
 
+import pajbot.response
 from pajbot.managers.db import DBManager
 from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleType
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.response import AnyResponse, WhisperResponse
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -65,24 +73,23 @@ class DebugModule(BaseModule):
         bot.whisper(source, ", ".join(["%s=%s" % (key, value) for (key, value) in data.items()]))
 
     @staticmethod
-    def debug_user(bot, source, message, **options):
+    def debug_user(bot: Bot, source: User, message: str, **_) -> list[AnyResponse]:
         if not message or len(message) <= 0:
-            bot.whisper(source, "Usage: !debug user USERNAME")
-            return False
+            return WhisperResponse.one(source.id, "Usage: !debug user USERNAME")
 
         username = message.split(" ")[0]
         with DBManager.create_session_scope() as db_session:
             user = User.find_by_user_input(db_session, username)
 
             if user is None:
-                bot.whisper(source, "No user with this username found.")
-                return False
+                return WhisperResponse.one(source.id, "No user with this username found.")
 
             # TODO the time_in_chat_ properties could be displayed in a more user-friendly way
             #  current output format is time_in_chat_online=673800.0, time_in_chat_offline=7651200.0
             data = user.jsonify()
 
-            bot.whisper(source, ", ".join([f"{key}={value}" for (key, value) in data.items()]))
+            response = ", ".join([f"{key}={value}" for (key, value) in data.items()])
+            return WhisperResponse.one(source.id, response)
 
     def load_commands(self, **options):
         self.commands["debug"] = Command.multiaction_command(

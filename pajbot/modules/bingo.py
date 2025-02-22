@@ -7,9 +7,12 @@ import random
 import re
 
 from pajbot.managers.handler import HandlerManager
+from pajbot.message_event import MessageEvent
 from pajbot.models.command import Command, CommandExample
-from pajbot.models.emote import Emote
+from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+from pajbot.response import CommandResponse, HandlerResponse, MeResponse, ResponseMeta, fail_reply_to_user
 from pajbot.utils import iterate_split_with_index
 
 if TYPE_CHECKING:
@@ -47,7 +50,7 @@ def two_word_variations(word1: str, word2: str, value: Any) -> dict[str, Any]:
     return {key: value for key in variations}
 
 
-def join_to_sentence(list, sep=", ", last_sep=" and "):
+def join_to_sentence(list: list[str], sep: str = ", ", last_sep: str = " and ") -> str:
     if len(list) == 0:
         return ""
 
@@ -60,7 +63,7 @@ def join_to_sentence(list, sep=", ", last_sep=" and "):
 remove_emotes_suffix_regex = re.compile(r"^(.*?)(?:[-_]?emotes?)?$", re.IGNORECASE)
 
 
-def remove_emotes_suffix(word):
+def remove_emotes_suffix(word: str) -> str:
     match = remove_emotes_suffix_regex.match(word)
     if not match:
         # the regex has a .* in it which means it should match anything O_o
@@ -108,13 +111,13 @@ class BingoModule(BaseModule):
         ),
     ]
 
-    def __init__(self, bot) -> None:
+    def __init__(self, bot: Bot | None) -> None:
         super().__init__(bot)
         self.active_game: Optional[BingoGame] = None
         self.no_bingo_running = "No bingo is running FailFish"
 
     @property
-    def bingo_running(self):
+    def bingo_running(self) -> bool:
         return self.active_game is not None
 
     @staticmethod
@@ -123,7 +126,7 @@ class BingoModule(BaseModule):
         tier_two_emotes = ("Tier 2 sub emotes", manager.tier_two_emotes)
         tier_three_emotes = ("Tier 3 sub emotes", manager.tier_three_emotes)
         global_emotes = ("Global Twitch emotes", manager.global_emotes)
-        all_emotes = ("Global + Twitch tier 1 sub emotes", manager.tier_one_emotes + manager.global_emotes)
+        all_emotes = ("Global + Twitch tier 1 sub emotes", manager.tier_one_emotes + manager.get_global_emotes())
         return {
             "twitch": tier_one_emotes,
             "sub": tier_one_emotes,
@@ -144,7 +147,10 @@ class BingoModule(BaseModule):
         friendly_name = manager.friendly_name
         channel_emotes = (f"Channel {friendly_name} emotes", manager.channel_emotes)
         global_emotes = (f"Global {friendly_name} emotes", manager.global_emotes)
-        all_emotes = (f"Global + Channel {friendly_name} emotes", manager.channel_emotes + manager.global_emotes)
+        all_emotes = (
+            f"Global + Channel {friendly_name} emotes",
+            manager.get_channel_emotes() + manager.get_global_emotes(),
+        )
 
         key = friendly_name.lower()
         return {
@@ -163,9 +169,9 @@ class BingoModule(BaseModule):
             **self.make_bttv_ffz_7tv_sets(bot.emote_manager.seventv_emote_manager),
             "all": (
                 "FFZ, BTTV and 7TV Channel emotes + Tier 1 subemotes",
-                bot.emote_manager.ffz_emote_manager.channel_emotes
-                + bot.emote_manager.bttv_emote_manager.channel_emotes
-                + bot.emote_manager.seventv_emote_manager.channel_emotes
+                bot.emote_manager.ffz_emote_manager.get_channel_emotes()
+                + bot.emote_manager.bttv_emote_manager.get_channel_emotes()
+                + bot.emote_manager.seventv_emote_manager.get_channel_emotes()
                 + bot.emote_manager.twitch_emote_manager.tier_one_emotes,
             ),
         }
@@ -174,12 +180,26 @@ class BingoModule(BaseModule):
         # and can be stored in a set of "selected sets" later
         return {key: (set_name, tuple(set_emotes), False) for key, (set_name, set_emotes) in list_dict.items()}
 
-    def bingo_start(self, bot: Bot, source, message: str, event, args) -> bool:
+    async def bingo_start(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        message_id: str | None,
+        emote_instances: list[EmoteInstance],
+        is_whisper: bool,
+        **_: Any,
+    ) -> CommandResponse:
         if self.bingo_running:
-            bot.send_message_to_user(source, "A bingo is already running FailFish", event, method="reply")
-            return False
+            return fail_reply_to_user(
+                "reply",
+                source,
+                "A bingo is already running FailFish",
+                message_id,
+                is_whisper,
+                False,
+            )
 
-        emote_instances = args["emote_instances"]
         known_sets = self.make_known_sets_dict(bot)
 
         selected_sets: set[tuple[str, tuple[Emote, ...], bool]] = set()
@@ -188,13 +208,14 @@ class BingoModule(BaseModule):
 
         words_in_message = [s for s in message.split(" ") if len(s) > 0]
         if len(words_in_message) <= 0:
-            bot.send_message_to_user(
+            return fail_reply_to_user(
+                "reply",
                 source,
                 "You must at least give me some emote sets or emotes to choose from! FailFish",
-                event,
-                method="reply",
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         emote_index_offset = len("!bingo start ")
 
@@ -236,54 +257,65 @@ class BingoModule(BaseModule):
             unparsed_options.append(word)
 
         if len(unparsed_options) > 0:
-            bot.say(
-                "{}, I don't know what to do with the argument{} {} BabyRage".format(
-                    source,
+            return fail_reply_to_user(
+                "reply",
+                source,
+                "I don't know what to do with the argument{} {} BabyRage".format(
                     "" if len(unparsed_options) == 1 else "s",  # pluralization
                     join_to_sentence(['"' + s + '"' for s in unparsed_options]),
-                )
+                ),
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         default_points = self.settings["default_points"]
+        assert isinstance(default_points, int)
         if points_reward is None:
             points_reward = default_points
 
         max_points = self.settings["max_points"]
         if points_reward > max_points:
-            bot.send_message_to_user(
+            return fail_reply_to_user(
+                "reply",
                 source,
                 f"You can't start a bingo with that many points. FailFish {max_points} are allowed at most.",
-                event,
-                method="reply",
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         allow_negative_bingo = self.settings["allow_negative_bingo"]
         if points_reward < 0 and not allow_negative_bingo:
-            bot.send_message_to_user(
-                source, "You can't start a bingo with negative points. FailFish", event, method="reply"
+            return fail_reply_to_user(
+                "reply",
+                source,
+                "You can't start a bingo with negative points. FailFish",
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         min_points = -self.settings["max_negative_points"]
         if points_reward < min_points:
-            bot.send_message_to_user(
+            return fail_reply_to_user(
+                "reply",
                 source,
-                "You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most.",
-                event,
-                method="reply",
+                f"You can't start a bingo with that many negative points. FailFish {min_points} are allowed at most.",
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         if len(selected_sets) <= 0:
-            bot.send_message_to_user(
+            return fail_reply_to_user(
+                "reply",
                 source,
                 "You must at least give me some emotes or emote sets to choose from! FailFish",
-                event,
-                method="reply",
+                message_id,
+                is_whisper,
+                False,
             )
-            return False
 
         selected_set_names = []
         selected_discrete_emote_codes = []
@@ -305,65 +337,96 @@ class BingoModule(BaseModule):
             # the space at the end is so the ! from the below message doesn't stop the last emote from showing up in chat
             user_messages.append(f"these emotes: {' '.join(selected_discrete_emote_codes)} ")
 
-        bot.me(
-            f"A bingo has started! ThunBeast Guess the right emote to win {points_reward} points! B) Only one emote per message! Select from {' and '.join(user_messages)}!"
-        )
-
         log.info(f"A Bingo game has begun for {points_reward} points, correct emote is {correct_emote}")
         self.active_game = BingoGame(correct_emote, points_reward)
 
-        return True
+        return MeResponse.success(
+            f"A bingo has started! ThunBeast Guess the right emote to win {points_reward} points! B) Only one emote per message! Select from {' and '.join(user_messages)}!"
+        )
 
-    def bingo_cancel(self, bot, source, message, event, args) -> bool:
+    async def bingo_cancel(
+        self,
+        source: User,
+        message_id: str | None,
+        is_whisper: bool,
+        **_: Any,
+    ) -> CommandResponse:
         if not self.bingo_running:
-            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
-            return False
+            return fail_reply_to_user(
+                "reply",
+                source,
+                self.no_bingo_running,
+                message_id,
+                is_whisper,
+                False,
+            )
 
         self.active_game = None
-        bot.me(f"Bingo cancelled by {source} FeelsBadMan")
 
-        return True
+        return MeResponse.success(f"Bingo cancelled by {source} FeelsBadMan")
 
-    def bingo_help_random(self, bot, source, message, event, args) -> bool:
+    async def bingo_help_random(
+        self,
+        source: User,
+        message_id: str | None,
+        is_whisper: bool,
+        **_: Any,
+    ) -> CommandResponse:
         if not self.bingo_running:
-            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
-            return False
+            return fail_reply_to_user(
+                "reply",
+                source,
+                self.no_bingo_running,
+                message_id,
+                is_whisper,
+                False,
+            )
+
         assert self.active_game is not None
 
         correct_emote_code = self.active_game.correct_emote.code
         random_letter = random.choice(correct_emote_code)
 
-        bot.me(
+        return MeResponse.success(
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {random_letter} {random_letter} {random_letter} {random_letter} {random_letter} for the target"
         )
 
-        return True
-
-    def bingo_help_first(self, bot, source, message, event, args) -> bool:
+    async def bingo_help_first(
+        self,
+        source: User,
+        message_id: str | None,
+        is_whisper: bool,
+        **_: Any,
+    ) -> CommandResponse:
         if not self.bingo_running:
-            bot.send_message_to_user(source, self.no_bingo_running, event, method="reply")
-            return False
+            return fail_reply_to_user(
+                "reply",
+                source,
+                self.no_bingo_running,
+                message_id,
+                is_whisper,
+                False,
+            )
+
         assert self.active_game is not None
 
         correct_emote_code = self.active_game.correct_emote.code
         first_letter = correct_emote_code[0]
 
-        bot.me(
+        return MeResponse.success(
             f"A bingo for {self.active_game.points_reward} points is still running. You should maybe use {first_letter} {first_letter} {first_letter} {first_letter} {first_letter} for the target"
         )
 
-        return True
-
-    def on_message(self, source, message, emote_instances, **rest) -> bool:
+    def _is_user_message_winner(self, source: User, emote_instances: list[EmoteInstance]) -> tuple[str, int] | None:
         if not self.bot:
-            return True
+            return None
 
         if not self.bingo_running:
-            return True
+            return None
         assert self.active_game is not None
 
         if len(emote_instances) != 1:
-            return True
+            return None
 
         correct_emote = self.active_game.correct_emote
         correct_emote_code = correct_emote.code
@@ -381,21 +444,40 @@ class BingoModule(BaseModule):
         exact_match = correct_emote == typed_emote
         only_code_match = correct_emote_code == typed_emote_code
         if not (exact_match or only_code_match):
-            return True
+            return None
 
         # user guessed the emote
-        HandlerManager.trigger("on_bingo_win", source, self.active_game)
+        HandlerManager.trigger("on_bingo_win", winner=source, active_game=self.active_game)
         points_reward = self.active_game.points_reward
         source.points += points_reward
         self.active_game = None
 
-        self.bot.me(
-            f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp"
-        )
+        return (correct_emote_code, points_reward)
 
-        return True
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        res = self._is_user_message_winner(source, emote_instances)
+        if res is not None:
+            correct_emote_code, points_reward = res
+            assert self.bot is not None
 
-    def load_commands(self, **options) -> None:
+            return HandlerResponse.do_say(
+                f"{source} won the bingo! {correct_emote_code} was the target. Congrats, {points_reward} points to you PogChamp",
+            )
+
+        return HandlerResponse.null()
+
+    def load_commands(self, **_: Any) -> None:
         self.commands["bingo"] = Command.multiaction_command(
             level=500,
             default=None,
@@ -436,7 +518,7 @@ class BingoModule(BaseModule):
                         CommandExample(
                             None,
                             "Cancel a bingo",
-                            chat="user:!bingo cancel\n" "bot: Bingo cancelled by pajlada FeelsBadMan",
+                            chat="user:!bingo cancel\nbot: Bingo cancelled by pajlada FeelsBadMan",
                             description="",
                         ).parse()
                     ],
@@ -476,8 +558,8 @@ class BingoModule(BaseModule):
             },
         )
 
-    def enable(self, bot) -> None:
-        HandlerManager.add_handler("on_message", self.on_message)
+    def enable(self, bot: Optional[Bot]) -> None:
+        HandlerManager.register_on_message(self.on_message)
 
-    def disable(self, bot) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+    def disable(self, bot: Optional[Bot]) -> None:
+        HandlerManager.unregister_on_message(self.on_message)

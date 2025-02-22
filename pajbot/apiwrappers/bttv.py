@@ -36,24 +36,24 @@ class BTTVAPI(BaseAPI):
             )
         return emotes
 
-    def fetch_global_emotes(self) -> list[Emote]:
+    async def fetch_global_emotes(self) -> list[Emote]:
         """Returns a list of global BTTV emotes in the standard Emote format."""
-        response = self.get("/cached/emotes/global")
+        response = await self._get("/cached/emotes/global")
         return self.parse_emotes(response)
 
-    def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
-        return self.cache.cache_fetch_fn(
-            redis_key="api:bttv:global-emotes",
-            fetch_fn=lambda: self.fetch_global_emotes(),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            "api:bttv:global-emotes",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_global_emotes,
         )
 
-    def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
+    async def fetch_channel_emotes(self, channel_id: str) -> list[Emote]:
         """Returns a list of channel-specific BTTV emotes in the standard Emote format."""
         try:
-            response = self.get(["cached", "users", "twitch", channel_id])
+            response = await self._get(["cached", "users", "twitch", channel_id])
         except HTTPError as e:
             if e.response is None:
                 raise e
@@ -65,11 +65,12 @@ class BTTVAPI(BaseAPI):
             raise e
         return self.parse_emotes(response["channelEmotes"]) + self.parse_emotes(response["sharedEmotes"])
 
-    def get_channel_emotes(self, channel_id: str, force_fetch: bool = False) -> list[Emote]:
-        return self.cache.cache_fetch_fn(
-            redis_key=f"api:bttv:channel-emotes:{channel_id}",
-            fetch_fn=lambda: self.fetch_channel_emotes(channel_id),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_channel_emotes(self, channel: str, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            f"api:bttv:channel-emotes:{channel}",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_channel_emotes,
+            channel,
         )

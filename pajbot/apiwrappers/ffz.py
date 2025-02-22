@@ -1,16 +1,18 @@
+from typing import Any
 from pajbot.apiwrappers.base import BaseAPI
 from pajbot.apiwrappers.response_cache import ListSerializer
+from pajbot.managers.redis import RedisType
 from pajbot.models.emote import Emote
 
 from requests import HTTPError
 
 
 class FFZAPI(BaseAPI):
-    def __init__(self, redis) -> None:
+    def __init__(self, redis: RedisType | None) -> None:
         super().__init__(base_url="https://api.frankerfacez.com/v1/", redis=redis)
 
     @staticmethod
-    def parse_sets(emote_sets) -> list[Emote]:
+    def parse_sets(emote_sets: dict[str, Any]) -> list[Emote]:
         emotes = []
         for emote_set in emote_sets.values():
             for emote in emote_set["emoticons"]:
@@ -30,9 +32,9 @@ class FFZAPI(BaseAPI):
 
         return emotes
 
-    def fetch_global_emotes(self) -> list[Emote]:
+    async def fetch_global_emotes(self) -> list[Emote]:
         """Returns a list of global FFZ emotes in the standard Emote format."""
-        response = self.get("/set/global")
+        response = await self._get("/set/global")
 
         # FFZ returns a number of global sets but only a subset of them should be available
         # in all channels, those are available under "default_sets", e.g. a list of set IDs like this:
@@ -42,19 +44,19 @@ class FFZAPI(BaseAPI):
 
         return self.parse_sets(global_sets)
 
-    def get_global_emotes(self, force_fetch=False) -> list[Emote]:
-        return self.cache.cache_fetch_fn(
-            redis_key="api:ffz:global-emotes",
-            fetch_fn=lambda: self.fetch_global_emotes(),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_global_emotes(self, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            "api:ffz:global-emotes",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_global_emotes,
         )
 
-    def fetch_channel_emotes(self, channel_name: str) -> list[Emote]:
+    async def fetch_channel_emotes(self, channel_name: str) -> list[Emote]:
         """Returns a list of channel-specific FFZ emotes in the standard Emote format."""
         try:
-            response = self.get(["room", channel_name])
+            response = await self._get(["room", channel_name])
         except HTTPError as e:
             if e.response is None:
                 raise e
@@ -67,11 +69,12 @@ class FFZAPI(BaseAPI):
 
         return self.parse_sets(response["sets"])
 
-    def get_channel_emotes(self, channel_name, force_fetch=False):
-        return self.cache.cache_fetch_fn(
-            redis_key=f"api:ffz:channel-emotes:{channel_name}",
-            fetch_fn=lambda: self.fetch_channel_emotes(channel_name),
-            serializer=ListSerializer(Emote),
-            expiry=60 * 60,
-            force_fetch=force_fetch,
+    async def get_channel_emotes(self, channel: str, force_fetch: bool = False) -> list[Emote]:
+        return await self.cache.cache_fetch_fn(
+            f"api:ffz:channel-emotes:{channel}",
+            60 * 60,
+            force_fetch,
+            ListSerializer(Emote),
+            self.fetch_channel_emotes,
+            channel,
         )

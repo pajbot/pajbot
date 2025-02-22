@@ -81,7 +81,7 @@ class BaseAPI:
         else:
             return BaseAPI.join_base_and_string(base, endpoint)
 
-    def request(
+    async def _request(
         self,
         method: str,
         endpoint: AnyEndpoint,
@@ -97,35 +97,80 @@ class BaseAPI:
         response.raise_for_status()
         return response
 
-    def get(self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any) -> Any:
-        return self.request("GET", endpoint, params, headers, **request_options).json()
+    async def _get(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        **request_options: Any,
+    ) -> Any:
+        return (
+            await self._request(
+                "GET",
+                endpoint,
+                params,
+                headers,
+                **request_options,
+            )
+        ).json()
 
-    def get_response(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any
+    async def _get_response(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        **request_options: Any,
     ) -> Response:
-        return self.request("GET", endpoint, params, headers, **request_options)
+        return await self._request("GET", endpoint, params, headers, **request_options)
 
-    def get_binary(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, **request_options: Any
+    async def _get_binary(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        **request_options: Any,
     ) -> bytes:
-        return self.request("GET", endpoint, params, headers, **request_options).content
+        response = await self._request("GET", endpoint, params, headers, **request_options)
+        return response.content
 
-    def post(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
-    ) -> Any:
-        return self.request("POST", endpoint, params, headers, json, **request_options).json()
+    async def _post(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        json: Any = None,
+        **request_options: Any,
+    ) -> dict[str, Any]:
+        response = await self._request("POST", endpoint, params, headers, json, **request_options)
+        return response.json()
 
-    def put(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
-    ) -> Any:
-        return self.request("PUT", endpoint, params, headers, json, **request_options).json()
+    async def _put(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        json: Any = None,
+        **request_options: Any,
+    ) -> dict[str, Any]:
+        response = await self._request("PUT", endpoint, params, headers, json, **request_options)
+        return response.json()
 
-    def patch(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    async def _patch(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        json: Any = None,
+        **request_options: Any,
     ) -> Response:
-        return self.request("PATCH", endpoint, params, headers, json, **request_options)
+        return await self._request("PATCH", endpoint, params, headers, json, **request_options)
 
-    def delete(
-        self, endpoint: AnyEndpoint, params: Any = None, headers: Any = None, json: Any = None, **request_options: Any
+    async def _delete(
+        self,
+        endpoint: AnyEndpoint,
+        params: Any = None,
+        headers: Any = None,
+        json: Any = None,
+        **request_options: Any,
     ) -> Response:
-        return self.request("DELETE", endpoint, params, headers, json, **request_options)
+        return await self._request("DELETE", endpoint, params, headers, json, **request_options)

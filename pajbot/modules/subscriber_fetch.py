@@ -1,4 +1,6 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import logging
 
@@ -6,11 +8,16 @@ from pajbot.apiwrappers.authentication.token_manager import NoTokenError
 from pajbot.managers.db import DBManager
 from pajbot.managers.schedule import ScheduleManager
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
+from pajbot.response import AnyResponse, WhisperResponse
 from pajbot.utils import time_method
 
 from requests import HTTPError
 from sqlalchemy import text
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -24,11 +31,11 @@ class SubscriberFetchModule(BaseModule):
     HIDDEN = True
     SETTINGS: list[Any] = []
 
-    def update_subs_cmd(self, bot, source, **rest):
+    def update_subs_cmd(self, bot: Bot, source: User, **_) -> AnyResponse | None:
         # TODO if you wanted to improve this: Provide the user with feedback
         #   whether the update succeeded, and if yes, how many users were updated
-        bot.whisper(source, "Reloading list of subscribers...")
         bot.action_queue.submit(self._update_subscribers)
+        return WhisperResponse(target_user_id=source.id, message="Reloading list of subscribers...")
 
     @time_method
     def _update_subscribers(self) -> None:
@@ -112,7 +119,7 @@ WHERE
 
         log.info(f"Successfully updated {len(subscribers)} subscribers")
 
-    def load_commands(self, **options):
+    def load_commands(self, **_) -> None:
         self.commands["reload"] = Command.multiaction_command(
             command="reload",
             commands={
@@ -139,4 +146,7 @@ WHERE
             return
 
         # every 10 minutes, add the subscribers update to the action queue
-        ScheduleManager.execute_every(10 * 60, lambda: self.bot.action_queue.submit(self._update_subscribers))
+        ScheduleManager.execute_every(
+            10 * 60,
+            lambda: self._update_subscribers(),
+        )

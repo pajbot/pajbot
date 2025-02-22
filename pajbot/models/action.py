@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from regex import Match
+from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol
 
 import cgi
 import collections
@@ -9,16 +10,54 @@ import logging
 import sys
 
 import irc
+import irc.client
 import regex as re
 import requests
+
+from pajbot.message_event import MessageEvent
+from pajbot.managers.handler import ResponseMeta
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.response import AnnounceResponse, AnyResponse, CommandResponse, MeResponse, SayResponse, WhisperResponse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
     from pajbot.models.user import User
-
-from pajbot.managers.schedule import ScheduleManager
+    from pajbot.models.command import Command
 
 log = logging.getLogger(__name__)
+
+
+class BaseAction(Protocol):
+    type: Optional[str] = None
+    subtype: Optional[str] = None
+
+    def reset(self) -> None: ...
+
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any: ...
+
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]: ...
+
+    def get_action_response(self) -> Optional[str]:
+        return None
 
 
 def get_argument_value(message: Optional[str], index: Optional[int]) -> str:
@@ -96,16 +135,18 @@ class ActionParser:
 
 class IfSubstitution:
     def __call__(self, key, extra={}):
-        if self.sub.key is None:
-            msg = get_argument_value(extra.get("message", ""), self.sub.argument)
-            if msg:
-                return self.get_true_response(extra)
+        if self.sub is not None:
+            if self.sub.key is None:
+                msg = get_argument_value(extra.get("message", ""), self.sub.argument)
+                if msg:
+                    return self.get_true_response(extra)
 
-            return self.get_false_response(extra)
+                return self.get_false_response(extra)
 
-        res = self.sub.cb(self.sub.key, extra)
-        if res:
-            return self.get_true_response(extra)
+            if self.sub.cb is not None:
+                res = self.sub.cb(self.sub.key, extra)
+                if res:
+                    return self.get_true_response(extra)
 
         return self.get_false_response(extra)
 
@@ -115,15 +156,16 @@ class IfSubstitution:
     def get_false_response(self, extra):
         return apply_substitutions(self.false_response, self.false_subs, self.bot, extra)
 
-    def __init__(self, key, arguments, bot):
+    def __init__(self, key: str, arguments, bot: Bot | None) -> None:
         self.bot = bot
+        self.sub: Substitution | None = None
         subs = get_substitutions(key, bot)
         if len(subs) == 1:
             self.sub = list(subs.values())[0]
         else:
-            subs = get_argument_substitutions(key)
-            if len(subs) == 1:
-                self.sub = subs[0]
+            argument_subs = get_argument_substitutions(key)
+            if len(argument_subs) == 1:
+                self.sub = argument_subs[0]
             else:
                 self.sub = None
         self.true_response = arguments[0][2:-1] if arguments else "Yes"
@@ -175,27 +217,13 @@ class Substitution:
         )
 
 
-class BaseAction:
-    type: Optional[str] = None
-    subtype: Optional[str] = None
-
-    def reset(self):
-        pass
-
-    def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}) -> Any:
-        pass
-
-    def get_action_response(self) -> Optional[str]:
-        return None
-
-
 class MultiAction(BaseAction):
     type = "multi"
 
-    def __init__(self, args, default=None, fallback=None):
+    def __init__(self, args, default: str | None = None, fallback: str | None = None):
         from pajbot.models.command import Command
 
-        self.commands = {}
+        self.commands: dict[str, Command] = {}
         self.default = default
         self.fallback = fallback
 
@@ -222,7 +250,7 @@ class MultiAction(BaseAction):
         return self
 
     @classmethod
-    def ready_built(cls, commands, default=None, fallback=None):
+    def ready_built(cls, commands: dict[str, Command], default=None, fallback=None) -> MultiAction:
         """Useful if you already have a dictionary
         with commands pre-built.
         """
@@ -234,7 +262,14 @@ class MultiAction(BaseAction):
         multiaction.original_commands = copy.copy(commands)
         return multiaction
 
-    def run(self, bot, source, message, event={}, args={}):
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
         """If there is more text sent to the multicommand after the
         initial alias, we _ALWAYS_ assume it's trying the subaction command.
         If the extra text was not a valid command, we try to run the fallback command.
@@ -242,7 +277,8 @@ class MultiAction(BaseAction):
         """
 
         cmd = None
-        extra_msg = None
+        extra_msg: str = ""
+        command = None
         if message:
             msg_lower_parts = message.lower().split(" ")
             command = msg_lower_parts[0]
@@ -254,7 +290,7 @@ class MultiAction(BaseAction):
         elif self.default:
             command = self.default
             cmd = self.commands.get(command, None)
-            extra_msg = None
+            extra_msg = ""
 
         if cmd:
             if source.level >= cmd.level:
@@ -264,28 +300,161 @@ class MultiAction(BaseAction):
 
         return None
 
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        """If there is more text sent to the multicommand after the
+        initial alias, we _ALWAYS_ assume it's trying the subaction command.
+        If the extra text was not a valid command, we try to run the fallback command.
+        In case there's no extra text sent, we will try to run the default command.
+        """
+
+        cmd = None
+        extra_msg: str = ""
+        command = None
+        if message:
+            msg_lower_parts = message.lower().split(" ")
+            command = msg_lower_parts[0]
+            cmd = self.commands.get(command, None)
+            extra_msg = " ".join(message.split(" ")[1:])
+            if cmd is None and self.fallback:
+                cmd = self.commands.get(self.fallback, None)
+                extra_msg = message
+        elif self.default:
+            command = self.default
+            cmd = self.commands.get(command, None)
+            extra_msg = ""
+
+        if cmd:
+            if source.level >= cmd.level:
+                return await cmd.run2(
+                    bot,
+                    source,
+                    extra_msg,
+                    emote_instances,
+                    emote_counts,
+                    message_id,
+                    event,
+                    urls,
+                    whisper,
+                    meta,
+                )
+
+            log.info(f"User {source} tried running a sub-command he had no access to ({command}).")
+
+        return []
+
 
 class FuncAction(BaseAction):
     type = "func"
 
-    def __init__(self, cb):
+    def __init__(self, cb) -> None:
         self.cb = cb
 
-    def run(self, bot, source, message, event={}, args={}):
+    def reset(self) -> None:
+        return
+
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
         try:
             return self.cb(bot, source, message, event, args)
         except:
             log.exception("Uncaught exception in FuncAction")
 
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        log.warning("FuncAction run2 is not implemented")
+        return []
+
+
+class RawFuncActionCallback(Protocol):
+    async def __call__(
+        self,
+        *,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str | None,
+        is_whisper: bool,
+        urls: list[str],
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> CommandResponse: ...
+
 
 class RawFuncAction(BaseAction):
     type = "rawfunc"
 
-    def __init__(self, cb):
+    def __init__(self, cb: RawFuncActionCallback) -> None:
         self.cb = cb
 
-    def run(self, bot, source, message, event={}, args={}):
-        return self.cb(bot=bot, source=source, message=message, event=event, args=args)
+    def reset(self) -> None:
+        return
+
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("run not implemented")
+
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        return await self.cb(
+            bot=bot,
+            source=source,
+            message=message,
+            emote_instances=emote_instances,
+            emote_counts=emote_counts,
+            message_id=message_id,
+            is_whisper=whisper,
+            urls=urls,
+            event=event,
+            meta=meta,
+        )
 
 
 def get_argument_substitutions(string: str) -> list[Substitution]:
@@ -315,7 +484,9 @@ def get_argument_substitutions(string: str) -> list[Substitution]:
     return argument_substitutions
 
 
-def get_substitution_arguments(sub_key):
+def get_substitution_arguments(
+    sub_key: Match[str],
+) -> tuple[str, str | Any, int | None, str | None, list[SubstitutionFilter], list[str]]:
     sub_string = sub_key.group(0)
     path = sub_key.group(1)
     argument = sub_key.group(2)
@@ -365,7 +536,7 @@ def get_substitutions(
 
         try:
             if path == "if":
-                if if_arguments:
+                if if_arguments and key is not None:
                     if_substitution = IfSubstitution(key, if_arguments, bot)
                     if if_substitution.sub is None:
                         continue
@@ -423,7 +594,7 @@ def get_substitutions(
     return substitutions
 
 
-def get_urlfetch_substitutions(string, all=False):
+def get_urlfetch_substitutions(string: str, all: bool = False) -> dict[str, str]:
     substitutions = {}
 
     if all:
@@ -502,12 +673,76 @@ class MessageAction(BaseAction):
 
         return resp
 
+    def get_action_response2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        args: Any,
+    ) -> str | None:
+        extra = self.get_extra_data(source, message, args)
+        resp = self.get_response(bot, extra)
+
+        if not resp:
+            return None
+
+        if self.num_urlfetch_subs == 0:
+            return resp
+
+        urlfetch_modified_response = urlfetch_msg2(resp, self.num_urlfetch_subs, bot, extra)
+        if not urlfetch_modified_response:
+            return None
+
+        return urlfetch_modified_response
+
     @staticmethod
     def get_extra_data(source, message, args):
         return {"source": source, "message": message, **args}
 
-    def run(self, bot, source, message, event={}, args={}):
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
         raise NotImplementedError("Please implement the run method.")
+
+
+def urlfetch_msg2(message: str, num_urlfetch_subs: int, bot: Bot, extra={}) -> str | None:
+    urlfetch_subs = get_urlfetch_substitutions(message)
+
+    if len(urlfetch_subs) > num_urlfetch_subs:
+        log.error(f"HIJACK ATTEMPT {message}")
+        return None
+
+    for needle, url in urlfetch_subs.items():
+        headers = {
+            "Accept": "text/plain",
+            "Accept-Language": "en-US, en;q=0.9, *;q=0.5",
+            "User-Agent": bot.user_agent,
+        }
+        r = requests.get(url, allow_redirects=True, headers=headers)
+        if r.status_code == requests.codes.ok:
+            # For "legacy" reasons, we don't check the content type of ok status codes
+            value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
+        else:
+            # An error code was returned, ensure the response is plain text
+            content_type = r.headers["Content-Type"]
+            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+                # The content type is not plain text, return a generic error showing the status code returned
+                value = f"urlfetch error {r.status_code}"
+            else:
+                value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
+
+        message = message.replace(needle, value)
+
+    if "command" in extra and extra["command"].run_through_banphrases is True and "source" in extra:
+        if not is_message_good(bot, message, extra):
+            return None
+
+    return message
 
 
 def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwargs={}):
@@ -550,159 +785,197 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
 class SayAction(MessageAction):
     subtype = "say"
 
-    def run(self, bot, source, message, event={}, args={}):
-        extra = self.get_extra_data(source, message, args)
-        resp = self.get_response(bot, extra)
+    def reset(self) -> None:
+        return
 
-        if not resp:
-            return False
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("unimplemented")
 
-        if self.num_urlfetch_subs == 0:
-            return bot.say(resp)
-
-        return ScheduleManager.execute_now(
-            urlfetch_msg,
-            args=[],
-            kwargs={
-                "args": [],
-                "kwargs": {},
-                "method": bot.say,
-                "bot": bot,
-                "extra": extra,
-                "message": resp,
-                "num_urlfetch_subs": self.num_urlfetch_subs,
-            },
-        )
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # TODO: Verify {} param
+        response = self.get_action_response2(bot, source, message, {})
+        if response is not None:
+            return [SayResponse(response)]
+        return []
 
 
 class MeAction(MessageAction):
     subtype = "me"
 
-    def run(self, bot, source, message, event={}, args={}):
-        extra = self.get_extra_data(source, message, args)
-        resp = self.get_response(bot, extra)
+    def reset(self) -> None:
+        return
 
-        if not resp:
-            return False
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("unimplemented")
 
-        if self.num_urlfetch_subs == 0:
-            return bot.me(resp)
-
-        return ScheduleManager.execute_now(
-            urlfetch_msg,
-            args=[],
-            kwargs={
-                "args": [],
-                "kwargs": {},
-                "method": bot.me,
-                "bot": bot,
-                "extra": extra,
-                "message": resp,
-                "num_urlfetch_subs": self.num_urlfetch_subs,
-            },
-        )
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # TODO: Verify {} param
+        response = self.get_action_response2(bot, source, message, {})
+        if response is not None:
+            return [MeResponse(response)]
+        return []
 
 
 class WhisperAction(MessageAction):
     subtype = "whisper"
 
-    def run(self, bot, source, message, event={}, args={}):
-        extra = self.get_extra_data(source, message, args)
-        resp = self.get_response(bot, extra)
+    def reset(self) -> None:
+        return
 
-        if not resp:
-            return False
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("unimplemented")
 
-        if self.num_urlfetch_subs == 0:
-            return bot.whisper(source, resp)
-
-        return ScheduleManager.execute_now(
-            urlfetch_msg,
-            args=[],
-            kwargs={
-                "args": [source],
-                "kwargs": {},
-                "method": bot.whisper,
-                "bot": bot,
-                "extra": extra,
-                "message": resp,
-                "num_urlfetch_subs": self.num_urlfetch_subs,
-            },
-        )
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # TODO: Verify {} param
+        response = self.get_action_response2(bot, source, message, {})
+        if response is not None:
+            return [WhisperResponse(source.id, response)]
+        return []
 
 
 class AnnounceAction(MessageAction):
     subtype = "announce"
 
-    def run(self, bot, source, message, event={}, args={}):
-        extra = self.get_extra_data(source, message, args)
-        resp = self.get_response(bot, extra)
+    def reset(self) -> None:
+        return
 
-        if not resp:
-            return False
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("unimplemented")
 
-        if self.num_urlfetch_subs == 0:
-            return bot.announce(resp)
-
-        return ScheduleManager.execute_now(
-            urlfetch_msg,
-            args=[],
-            kwargs={
-                "args": [],
-                "kwargs": {},
-                "method": bot.announce,
-                "bot": bot,
-                "extra": extra,
-                "message": resp,
-                "num_urlfetch_subs": self.num_urlfetch_subs,
-            },
-        )
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # TODO: Verify {} param
+        response = self.get_action_response2(bot, source, message, {})
+        if response is not None:
+            return [AnnounceResponse(response)]
+        return []
 
 
 class ReplyAction(MessageAction):
     subtype = "reply"
 
-    def run(self, bot, source, message, event={}, args={}):
-        extra = self.get_extra_data(source, message, args)
-        resp = self.get_response(bot, extra)
+    def reset(self) -> None:
+        return
 
-        if not resp:
-            return False
+    def run(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        event: Any = {},
+        args: Any = {},
+    ) -> Any:
+        raise RuntimeError("unimplemented")
+        # extra = self.get_extra_data(source, message, args)
+        # final_response = self.run2(bot, source, message, args["msg_id"], event=event, args=args)
+        # if final_response.error or not final_response.message:
+        #     return False
 
-        if irc.client.is_channel(event.target):
-            if self.num_urlfetch_subs == 0:
-                return bot.reply(extra["msg_id"], resp, channel=event.target)
+        # if irc.client.is_channel(event.target):
+        #     # Message came in through a channel
+        #     bot.reply(extra["msg_id"], final_response.message, channel=event.target)
+        # else:
+        #     # Message came in through a whisper
+        #     bot.whisper(source, final_response.message)
 
-            return ScheduleManager.execute_now(
-                urlfetch_msg,
-                args=[],
-                kwargs={
-                    "args": [],
-                    "kwargs": {"channel": event.target},
-                    "method": bot.say,
-                    "bot": bot,
-                    "extra": extra,
-                    "message": resp,
-                    "num_urlfetch_subs": self.num_urlfetch_subs,
-                },
-            )
+        # return True
 
-        if self.num_urlfetch_subs == 0:
-            return bot.whisper(source, resp)
-
-        return ScheduleManager.execute_now(
-            urlfetch_msg,
-            args=[],
-            kwargs={
-                "args": [source],
-                "kwargs": {},
-                "method": bot.whisper,
-                "bot": bot,
-                "extra": extra,
-                "message": resp,
-                "num_urlfetch_subs": self.num_urlfetch_subs,
-            },
-        )
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        urls: list[str],
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # TODO: Verify {} param
+        response = self.get_action_response2(bot, source, message, {})
+        if response is not None:
+            if irc.client.is_channel(event.target):
+                return [SayResponse(response, msg_id=message_id)]
+            else:
+                return [WhisperResponse(source.id, response)]
+        return []
 
 
 def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, extra):
@@ -722,7 +995,10 @@ def apply_substitutions(text, substitutions: dict[Any, Substitution], bot: Bot, 
         value: Any = sub.cb(param, extra)
         try:
             for f in sub.filters:
-                value = bot.apply_filter(value, f)
+                if bot is not None:
+                    value = bot.apply_filter(value, f)
+                else:
+                    log.warning("Filters cannot be applied without Bot")
         except:
             log.exception("Exception caught in filter application")
         if value is None:

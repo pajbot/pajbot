@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union, TYPE_CHECKING
 
 import json
 import logging
 
-from pajbot.bot import Bot
 from pajbot.config import Config
 from pajbot.managers.db import DBManager
 from pajbot.models.module import Module
 from pajbot.utils import find
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 

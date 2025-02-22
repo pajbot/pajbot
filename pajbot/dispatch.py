@@ -5,6 +5,7 @@ from typing import Optional
 import logging
 import re
 
+from pajbot.bot import Bot
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import DBManager
 from pajbot.models.user import User
@@ -18,13 +19,13 @@ class Dispatch:
     """
 
     @staticmethod
-    def add_win(bot, source, message, event, args):
+    def add_win(bot, source, message, event, args) -> None:
         log.warning("DEPRECATED - Use the $(increasekvi:br_wins) variable")
         bot.kvi["br_wins"].inc()
         bot.me(f"{source} added a BR win!")
 
     @staticmethod
-    def add_command(bot, source, message, event, args):
+    def add_command(bot, source, message, event, args) -> bool:
         """Dispatch method for creating commands.
         Usage: !add command ALIAS [options] RESPONSE
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -72,7 +73,7 @@ class Dispatch:
         return False
 
     @staticmethod
-    def edit_command(bot, source, message, event, args):
+    def edit_command(bot, source, message, event, args) -> bool:
         """Dispatch method for editing commands.
         Usage: !edit command ALIAS [options] RESPONSE
         See pajbot/managers/command.py parse_command_arguments for available options
@@ -129,6 +130,8 @@ class Dispatch:
             AdminLogManager.add_entry(
                 "Command edited", source, log_msg, data={"old_message": old_message, "new_message": new_message}
             )
+
+        return True
 
     @staticmethod
     def add_funccommand(bot, source, message, event, args):
@@ -314,7 +317,7 @@ class Dispatch:
             bot.whisper(source, "Usage: !remove alias EXISTINGALIAS")
 
     @staticmethod
-    def remove_command(bot, source, message, event, args):
+    def remove_command(bot, source, message, event, args) -> bool:
         if message:
             id = None
             command = None
@@ -353,8 +356,10 @@ class Dispatch:
         else:
             bot.whisper(source, "Usage: !remove command (COMMAND_ID|COMMAND_ALIAS)")
 
+        return True
+
     @staticmethod
-    def eval(bot, source, message, event, args):
+    def eval(bot, source, message, event, args) -> None:
         if not bot.dev:
             return
 
@@ -367,7 +372,7 @@ class Dispatch:
             log.exception('Exception caught while trying to evaluate code: "%s"', message)
 
     @staticmethod
-    def check_sub(bot, source, message, event, args):
+    def check_sub(bot: Bot, source: User, message: str, event, args) -> None:
         if message:
             input = message.split(" ")[0]
             with DBManager.create_session_scope(expire_on_commit=False) as db_session:
@@ -375,6 +380,7 @@ class Dispatch:
 
                 if user is None:
                     bot.say("That user was not found in the user database")
+                    return
         else:
             user = source
 
@@ -384,7 +390,7 @@ class Dispatch:
             bot.say(f"{user} is not a subscriber FeelsBadMan")
 
     @staticmethod
-    def remindme(bot, source, message, event, args):
+    def remindme(bot, source, message, event, args) -> bool:
         if not message:
             bot.say(f"{source}, No message provided! Syntax: !remindme TIME MESSAGE")
             return False
@@ -407,3 +413,5 @@ class Dispatch:
         else:
             bot.say(f"{source}, I will remind you of '{reminder_text}' in {delay} seconds. SeemsGood")
             bot.execute_delayed(delay, bot.say, f"{source}, reminder from yourself ({delay}s ago): {reminder_text}")
+
+        return True

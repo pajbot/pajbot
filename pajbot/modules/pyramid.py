@@ -1,8 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import logging
 import re
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.action import SayResponse
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
+
+if TYPE_CHECKING:
+    from pajbot.bot import Bot
 
 log = logging.getLogger(__name__)
 
@@ -68,9 +78,31 @@ class PyramidModule(BaseModule):
         self.going_down = False
         self.regex = re.compile(" +")
 
-    def on_pubmsg(self, source, message, **rest):
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        # NOTE: EventSub webhooks can send messages out of order - this module kinda doesn't work consistently
+        if is_whisper:
+            return HandlerResponse.null()
+
+        if self.bot is None:
+            return HandlerResponse.null()
+
         # remove the invisible Chatterino suffix
         message = message.strip(PyramidModule.CHATTERINO_CHARACTER)
+
+        success_phrase: str | None = None
+
+        msg_parts = []
 
         try:
             # Filter out any empty parts
@@ -111,15 +143,15 @@ class PyramidModule(BaseModule):
 
                                     if peak_length > 2:
                                         if peak_length < 5:
-                                            self.bot.say(self.get_phrase("message_5", **arguments))
+                                            success_phrase = self.get_phrase("message_5", **arguments)
                                         elif peak_length < 7:
-                                            self.bot.say(self.get_phrase("message_7", **arguments))
+                                            success_phrase = self.get_phrase("message_7", **arguments)
                                         elif peak_length < 15:
-                                            self.bot.say(self.get_phrase("message_15", **arguments))
+                                            success_phrase = self.get_phrase("message_15", **arguments)
                                         elif peak_length < 25:
-                                            self.bot.say(self.get_phrase("message_25", **arguments))
+                                            success_phrase = self.get_phrase("message_25", **arguments)
                                         else:
-                                            self.bot.say(self.get_phrase("message_else", **arguments))
+                                            success_phrase = self.get_phrase("message_else", **arguments)
                                     self.data = []
                                     self.going_down = False
                         else:
@@ -149,9 +181,17 @@ class PyramidModule(BaseModule):
             log.exception(
                 f"Unhandled exception in pyramid parser. Message={message}, self.data={self.data}, msg_parts={msg_parts}"
             )
+            return HandlerResponse.null()
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg)
+        if success_phrase is not None:
+            return HandlerResponse.do_say(success_phrase)
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)
+        return HandlerResponse.null()
+
+    def enable(self, bot: Bot | None) -> None:
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
+
+    def disable(self, bot: Bot | None) -> None:
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

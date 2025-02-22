@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
 
@@ -101,39 +103,55 @@ class AsciiProtectionModule(BaseModule):
             return True
         return False
 
-    def on_pubmsg(self, source: User, message: str, tags: Any, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper:
+            return HandlerResponse.null()
+
         if self.bot is None:
-            log.warning("Module bot is None")
-            return True
+            return HandlerResponse.null()
+
+        if msg_id is None:
+            return HandlerResponse.null()
 
         if self.settings["enabled_by_stream_status"] == "Online Only" and not self.bot.is_online:
-            return True
+            return HandlerResponse.null()
 
         if self.settings["enabled_by_stream_status"] == "Offline Only" and self.bot.is_online:
-            return True
+            return HandlerResponse.null()
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return True
+            return HandlerResponse.null()
 
         if len(message) <= self.settings["min_msg_length"]:
-            return True
+            return HandlerResponse.null()
 
         if AsciiProtectionModule.check_message(message) is False:
-            return True
+            return HandlerResponse.null()
 
-        self.bot.delete_or_timeout(
-            source,
+        return HandlerResponse.do_delete_or_timeout(
+            source.id,
             self.settings["moderation_action"],
-            tags["id"],
+            msg_id,
             self.settings["timeout_online"] if self.bot.is_online else self.settings["timeout_offline"],
-            self.settings["timeout_reason"],
+            reason=self.settings["timeout_reason"],
             disable_warnings=self.settings["disable_warnings"],
         )
 
-        return False
-
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_pubmsg", self.on_pubmsg, priority=150, run_if_propagation_stopped=True)
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=150)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_pubmsg", self.on_pubmsg)
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

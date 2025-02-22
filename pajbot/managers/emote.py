@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol
+from typing import TYPE_CHECKING, Never, Optional, Protocol
 
 import logging
 import random
+
+from twitchAPI.object.eventsub import ChatMessageFragment
 
 from pajbot.managers.redis import RedisManager
 from pajbot.managers.schedule import ScheduleManager
@@ -18,9 +20,9 @@ log = logging.getLogger(__name__)
 
 
 class EmoteAPI(Protocol):
-    def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]: ...
+    async def get_global_emotes(self, force_fetch: bool = ...) -> list[Emote]: ...
 
-    def get_channel_emotes(self, streamer_name: str, force_fetch: bool = ...) -> list[Emote]: ...
+    async def get_channel_emotes(self, channel: str, force_fetch: bool = ...) -> list[Emote]: ...
 
 
 class GenericChannelEmoteManager:
@@ -37,57 +39,56 @@ class GenericChannelEmoteManager:
 
         self.api = api
 
-    @property
-    def global_emotes(self) -> list[Emote]:
+        self.global_emotes: Never
+        self.channel_emotes: Never
+
+    def get_global_emotes(self) -> list[Emote]:
         return self._global_emotes
 
-    @global_emotes.setter
-    def global_emotes(self, value: list[Emote]) -> None:
+    def set_global_emotes(self, value: list[Emote]) -> None:
         self._global_emotes = value
         self.global_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
-    @property
-    def channel_emotes(self) -> list[Emote]:
+    def get_channel_emotes(self) -> list[Emote]:
         return self._channel_emotes
 
-    @channel_emotes.setter
-    def channel_emotes(self, value: list[Emote]) -> None:
+    def set_channel_emotes(self, value: list[Emote]) -> None:
         self._channel_emotes = value
         self.channel_lookup_table = {emote.code: emote for emote in value} if value is not None else {}
 
-    def load_global_emotes(self) -> None:
+    async def load_global_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
         if self.api is None:
             raise ValueError("API not initialized in Emote Manager")
 
-        self.global_emotes = self.api.get_global_emotes()
+        self.set_global_emotes(await self.api.get_global_emotes())
 
-    def update_global_emotes(self) -> None:
+    async def update_global_emotes(self) -> None:
         if self.api is None:
             raise ValueError("API not initialized in Emote Manager")
 
-        self.global_emotes = self.api.get_global_emotes(force_fetch=True)
+        self.set_global_emotes(await self.api.get_global_emotes(force_fetch=True))
 
-    def load_channel_emotes(self) -> None:
+    async def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
         if self.api is None:
             raise ValueError("API not initialized in Emote Manager")
 
-        self.channel_emotes = self.api.get_channel_emotes(self.streamer)
+        self.set_channel_emotes(await self.api.get_channel_emotes(self.streamer))
 
-    def update_channel_emotes(self) -> None:
+    async def update_channel_emotes(self) -> None:
         if self.api is None:
             raise ValueError("API not initialized in Emote Manager")
 
-        self.channel_emotes = self.api.get_channel_emotes(self.streamer, force_fetch=True)
+        self.set_channel_emotes(await self.api.get_channel_emotes(self.streamer, force_fetch=True))
 
-    def update_all(self) -> None:
-        self.update_global_emotes()
-        self.update_channel_emotes()
+    async def update_all(self) -> None:
+        await self.update_global_emotes()
+        await self.update_channel_emotes()
 
-    def load_all(self) -> None:
-        self.load_global_emotes()
-        self.load_channel_emotes()
+    async def load_all(self) -> None:
+        await self.load_global_emotes()
+        await self.load_channel_emotes()
 
     def match_channel_emote(self, word: str) -> Optional[Emote]:
         """Attempts to find a matching emote equaling the given word from the channel emotes known to this manager.
@@ -113,24 +114,34 @@ class TwitchEmoteManager(GenericChannelEmoteManager):
 
         super().__init__(None)
 
-    @property  # type: ignore
-    def channel_emotes(self) -> list[Emote]:
+    def get_channel_emotes(self) -> list[Emote]:
         return self.tier_one_emotes
 
-    def load_global_emotes(self) -> None:
-        self.global_emotes = self.twitch_helix_api.get_global_emotes()
+    async def load_global_emotes(self) -> None:
+        self._global_emotes = await self.twitch_helix_api.get_global_emotes()
 
-    def update_global_emotes(self) -> None:
-        self.global_emotes = self.twitch_helix_api.get_global_emotes(force_fetch=True)
+    async def update_global_emotes(self) -> None:
+        self._global_emotes = await self.twitch_helix_api.get_global_emotes(force_fetch=True)
 
-    def load_channel_emotes(self) -> None:
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
-            self.streamer_id, self.streamer
+    async def load_channel_emotes(self) -> None:
+        (
+            self.tier_one_emotes,
+            self.tier_two_emotes,
+            self.tier_three_emotes,
+        ) = await self.twitch_helix_api.get_channel_emotes(
+            self.streamer_id,
+            self.streamer,
         )
 
-    def update_channel_emotes(self) -> None:
-        self.tier_one_emotes, self.tier_two_emotes, self.tier_three_emotes = self.twitch_helix_api.get_channel_emotes(
-            self.streamer_id, self.streamer, force_fetch=True
+    async def update_channel_emotes(self) -> None:
+        (
+            self.tier_one_emotes,
+            self.tier_two_emotes,
+            self.tier_three_emotes,
+        ) = await self.twitch_helix_api.get_channel_emotes(
+            self.streamer_id,
+            self.streamer,
+            force_fetch=True,
         )
 
 
@@ -156,12 +167,12 @@ class BTTVEmoteManager(GenericChannelEmoteManager):
 
         super().__init__(self.bttv_api)
 
-    def load_channel_emotes(self) -> None:
+    async def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id)
+        self._channel_emotes = await self.bttv_api.get_channel_emotes(self.streamer_id)
 
-    def update_channel_emotes(self) -> None:
-        self.channel_emotes = self.bttv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
+    async def update_channel_emotes(self) -> None:
+        self._channel_emotes = await self.bttv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class SevenTVEmoteManager(GenericChannelEmoteManager):
@@ -175,17 +186,16 @@ class SevenTVEmoteManager(GenericChannelEmoteManager):
 
         super().__init__(self.seventv_api)
 
-    def load_channel_emotes(self) -> None:
+    async def load_channel_emotes(self) -> None:
         """Load channel emotes from the cache if available, or else, query the API."""
-        self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id)
+        self._channel_emotes = await self.seventv_api.get_channel_emotes(self.streamer_id)
 
-    def update_channel_emotes(self) -> None:
-        self.channel_emotes = self.seventv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
+    async def update_channel_emotes(self) -> None:
+        self._channel_emotes = await self.seventv_api.get_channel_emotes(self.streamer_id, force_fetch=True)
 
 
 class EmoteManager:
-    def __init__(self, twitch_helix_api, action_queue) -> None:
-        self.action_queue = action_queue
+    def __init__(self, twitch_helix_api: TwitchHelixAPI) -> None:
         self.streamer = StreamHelper.get_streamer()
         self.streamer_id = StreamHelper.get_streamer_id()
         self.twitch_emote_manager = TwitchEmoteManager(twitch_helix_api)
@@ -199,19 +209,14 @@ class EmoteManager:
         # (This also means that the bot will never have emotes older than 2 hours)
         ScheduleManager.execute_every(1 * 60 * 60, self.update_all_emotes)
 
-        self.load_all_emotes()
+    async def update_all_emotes(self) -> None:
+        await self.bttv_emote_manager.update_all()
+        await self.ffz_emote_manager.update_all()
+        await self.seventv_emote_manager.update_all()
+        await self.twitch_emote_manager.update_all()
 
-    def update_all_emotes(self) -> None:
-        self.action_queue.submit(self.bttv_emote_manager.update_all)
-        self.action_queue.submit(self.ffz_emote_manager.update_all)
-        self.action_queue.submit(self.seventv_emote_manager.update_all)
-        self.action_queue.submit(self.twitch_emote_manager.update_all)
-
-    def load_all_emotes(self) -> None:
-        self.action_queue.submit(self.bttv_emote_manager.load_all)
-        self.action_queue.submit(self.ffz_emote_manager.load_all)
-        self.action_queue.submit(self.seventv_emote_manager.load_all)
-        self.action_queue.submit(self.twitch_emote_manager.load_all)
+    async def load_all_emotes(self) -> None:
+        await self.update_all_emotes()
 
     @staticmethod
     def twitch_emote_url(emote_id: str, size: str) -> str:
@@ -316,22 +321,66 @@ class EmoteManager:
 
         return all_instances, compute_emote_counts(all_instances)
 
+    def parse_all_emotes2(
+        self,
+        fragments: list[ChatMessageFragment],
+    ) -> tuple[list[EmoteInstance], EmoteInstanceCountMap]:
+        all_instances = []
+
+        for fragment in fragments:
+            match fragment.type:
+                case "text":
+                    for word in fragment.text.split(" "):
+                        emote = self.match_word_to_emote(word)
+                        if emote is not None:
+                            all_instances.append(
+                                EmoteInstance(
+                                    start=-1,  # unlucky can't get this trivially, yolo
+                                    end=-1,  # unlucky can't get this trivially, yolo
+                                    emote=emote,
+                                )
+                            )
+
+                case "emote":
+                    if fragment.emote is not None:
+                        all_instances.append(
+                            EmoteManager.twitch_emote_instance(
+                                fragment.emote.id,
+                                fragment.text,
+                                -1,  # TODO: I think we can't figure this out trivially, yolo
+                                -1,  # TODO: I think we can't figure this out trivially, yolo
+                            )
+                        )
+                    else:
+                        log.warning("fragment.emote was None on fragment.type emote??")
+
+                case "cheermote":
+                    # we don't really get data we can use here
+                    # {"subscription":{"id":"07e753b8-373e-4be4-a9c9-69beec08d744","status":"enabled","type":"channel.chat.message","version":"1","condition":{"broadcaster_user_id":"11148817","user_id":"117166826"},"transport":{"method":"webhook","callback":"https://pajbot-connector-dev.pajbot.com/twitch/eventsub"},"created_at":"2025-02-13T18:35:01.133468858Z","cost":0},"event":{"broadcaster_user_id":"11148817","broadcaster_user_login":"pajlada","broadcaster_user_name":"pajlada","source_broadcaster_user_id":null,"source_broadcaster_user_login":null,"source_broadcaster_user_name":null,"chatter_user_id":"124967499","chatter_user_login":"cuze","chatter_user_name":"cuze","message_id":"93ad98fd-0284-4a70-a374-d7b867dbf2bd","source_message_id":null,"message":{"text":"Cheer1 don't tell me what to do","fragments":[{"type":"cheermote","text":"Cheer1","cheermote":{"prefix":"cheer","bits":1,"tier":1},"emote":null,"mention":null},{"type":"text","text":" don't tell me what to do","cheermote":null,"emote":null,"mention":null}]},"color":"#77DFFF","badges":[{"set_id":"subtember-2024","id":"1","info":""}],"source_badges":null,"message_type":"text","cheer":{"bits":1},"reply":null,"channel_points_custom_reward_id":null,"channel_points_animation_id":null}}
+                    pass
+
+                case "mention":
+                    # Assume no emote can be found in a mention
+                    pass
+
+        return all_instances, compute_emote_counts(all_instances)
+
     def random_emote(
         self,
-        twitch_global=False,
-        twitch_channel_tier1=False,
-        twitch_channel_tier2=False,
-        twitch_channel_tier3=False,
-        ffz_global=False,
-        ffz_channel=False,
-        bttv_global=False,
-        bttv_channel=False,
-        seventv_global=False,
-        seventv_channel=False,
+        twitch_global: bool = False,
+        twitch_channel_tier1: bool = False,
+        twitch_channel_tier2: bool = False,
+        twitch_channel_tier3: bool = False,
+        ffz_global: bool = False,
+        ffz_channel: bool = False,
+        bttv_global: bool = False,
+        bttv_channel: bool = False,
+        seventv_global: bool = False,
+        seventv_channel: bool = False,
     ) -> Optional[Emote]:
-        emotes = []
+        emotes: list[Emote] = []
         if twitch_global:
-            emotes += self.twitch_emote_manager.global_emotes
+            emotes += self.twitch_emote_manager.get_global_emotes()
         if twitch_channel_tier1:
             emotes += self.twitch_emote_manager.tier_one_emotes
         if twitch_channel_tier2:
@@ -339,17 +388,17 @@ class EmoteManager:
         if twitch_channel_tier3:
             emotes += self.twitch_emote_manager.tier_three_emotes
         if ffz_global:
-            emotes += self.ffz_emote_manager.global_emotes
+            emotes += self.ffz_emote_manager.get_global_emotes()
         if ffz_channel:
-            emotes += self.ffz_emote_manager.channel_emotes
+            emotes += self.ffz_emote_manager.get_channel_emotes()
         if bttv_global:
-            emotes += self.bttv_emote_manager.global_emotes
+            emotes += self.bttv_emote_manager.get_global_emotes()
         if bttv_channel:
-            emotes += self.bttv_emote_manager.channel_emotes
+            emotes += self.bttv_emote_manager.get_channel_emotes()
         if seventv_global:
-            emotes += self.seventv_emote_manager.global_emotes
+            emotes += self.seventv_emote_manager.get_global_emotes()
         if seventv_channel:
-            emotes += self.seventv_emote_manager.channel_emotes
+            emotes += self.seventv_emote_manager.get_channel_emotes()
 
         if len(emotes) <= 0:
             return None
@@ -421,10 +470,11 @@ end
         return self.epm.get(emote_code, None)
 
     @staticmethod
-    def get_emote_epm_record(emote_code) -> Optional[float]:
+    def get_emote_epm_record(emote_code: str) -> Optional[float]:
         redis = RedisManager.get()
         streamer = StreamHelper.get_streamer()
-        return redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
+        score = redis.zscore(f"{streamer}:emotes:epmrecord", emote_code)
+        return score
 
 
 class EcountManager:

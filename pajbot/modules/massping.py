@@ -1,9 +1,13 @@
 import logging
 import re
 from datetime import timedelta
+from typing import Any
+import weakref
 
 from pajbot.managers.db import DBManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -92,7 +96,7 @@ class MassPingProtectionModule(BaseModule):
     ]
 
     @staticmethod
-    def count_known_users(usernames):
+    def count_known_users(usernames: set[str]) -> int:
         if len(usernames) < 1:
             return 0
         with DBManager.create_session_scope() as db_session:
@@ -126,7 +130,7 @@ class MassPingProtectionModule(BaseModule):
             )
 
     @staticmethod
-    def count_pings(message, source, emote_instances):
+    def count_pings(message: str, source: User, emote_instances: list[EmoteInstance]) -> int:
         potential_users = set()
 
         for match in USERNAME_IN_MESSAGE_PATTERN.finditer(message):
@@ -151,7 +155,7 @@ class MassPingProtectionModule(BaseModule):
         # (i.e. we have seen this username before & user was recently seen in chat)
         return MassPingProtectionModule.count_known_users(potential_users)
 
-    def determine_timeout_length(self, message, source, emote_instances):
+    def determine_timeout_length(self, message: str, source: User, emote_instances: list[EmoteInstance]) -> int:
         ping_count = MassPingProtectionModule.count_pings(message, source, emote_instances)
         pings_too_many = ping_count - self.settings["max_ping_count"]
 
@@ -160,44 +164,66 @@ class MassPingProtectionModule(BaseModule):
 
         return self.settings["timeout_length_base"] + self.settings["extra_timeout_length_per_ping"] * pings_too_many
 
-    def check_message(self, message, source):
+    def check_message(self, message: str, source: User) -> int:
+        if self.bot is None:
+            log.warning("massping.check_message called with no Bot")
+            return 0
+
         emote_instances, _ = self.bot.emote_manager.parse_all_emotes(message)
 
         # returns False if message is good,
         # True if message is bad.
         return self.determine_timeout_length(message, source, emote_instances) > 0
 
-    def on_message(self, source, message, emote_instances, msg_id, **rest) -> bool:
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
         if self.bot is None:
             log.warning("on_message failed because bot is None")
-            return False
+            return HandlerResponse.null()
+
+        if msg_id is None:
+            return HandlerResponse.null()
+
+        if is_whisper:
+            return HandlerResponse.null()
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return True
+            return HandlerResponse.null()
 
         if self.settings["stream_status"] == "Online" and self.bot.is_online:
-            return True
+            return HandlerResponse.null()
 
         if self.settings["stream_status"] == "Offline" and not self.bot.is_online:
-            return True
+            return HandlerResponse.null()
 
         timeout_duration = self.determine_timeout_length(message, source, emote_instances)
 
         if timeout_duration <= 0:
-            return True
+            return HandlerResponse.null()
 
-        self.bot.delete_or_timeout(
-            source,
+        return HandlerResponse.do_delete_or_timeout(
+            source.id,
             self.settings["moderation_action"],
             msg_id,
             timeout_duration,
             self.settings["timeout_reason"],
             disable_warnings=self.settings["disable_warnings"],
         )
-        return False
 
-    def enable(self, bot):
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+    def enable(self, bot) -> None:
+        if bot:
+            HandlerManager.register_on_message(self.on_message, priority=140)
 
-    def disable(self, bot):
-        HandlerManager.remove_handler("on_message", self.on_message)
+    def disable(self, bot) -> None:
+        if bot:
+            HandlerManager.unregister_on_message(self.on_message)

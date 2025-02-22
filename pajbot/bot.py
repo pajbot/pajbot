@@ -1,33 +1,40 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional, cast
+import asyncio
+import inspect
+import json
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, cast
+from warnings import deprecated
 
 import cgi
 import datetime
 import logging
 import random
 import re
-import sys
 import threading
 import urllib
+import urllib.parse
+import grpc
+
+from twitchAPI.object.eventsub import ChannelChatMessageData
 
 import pajbot.config as cfg
+from pajbot.message_event import MessageEvent
 import pajbot.migration_revisions.db
 import pajbot.migration_revisions.redis
 from pajbot import utils
-from pajbot.action_queue import ActionQueue
+from pajbot.action_queue import AioActionQueue
 from pajbot.apiwrappers.authentication.access_token import UserAccessToken
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AppAccessTokenManager, UserAccessTokenManager
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
 from pajbot.apiwrappers.twitch.id import TwitchIDAPI
 from pajbot.constants import VERSION
-from pajbot.eventloop import SafeDefaultScheduler
 from pajbot.managers.command import CommandManager
 from pajbot.managers.db import DBManager
 from pajbot.managers.deck import DeckManager
 from pajbot.managers.emote import EcountManager, EmoteManager, EpmManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
 from pajbot.managers.irc import IRCManager
 from pajbot.managers.kvi import KVIManager, parse_kvi_arguments
 from pajbot.managers.redis import RedisManager
@@ -37,7 +44,21 @@ from pajbot.managers.websocket import WebSocketManager
 from pajbot.migration.db import DatabaseMigratable
 from pajbot.migration.migrate import Migration
 from pajbot.migration.redis import RedisMigratable
-from pajbot.models.action import ActionParser, SubstitutionFilter
+from pajbot.models.action import (
+    ActionParser,
+    SubstitutionFilter,
+)
+from pajbot.response import (
+    AnnounceResponse,
+    AnyResponse,
+    BanResponse,
+    DeleteMessageResponse,
+    MeResponse,
+    SayResponse,
+    TimeoutResponse,
+    UnbanResponse,
+    WhisperResponse,
+)
 from pajbot.models.banphrase import BanphraseManager
 from pajbot.models.moderation_action import Ban, Timeout, Unban, Untimeout, new_message_processing_scope
 from pajbot.models.module import ModuleManager
@@ -45,13 +66,18 @@ from pajbot.models.sock import SocketManager
 from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
+from pajbot.protos import bot_pb2
+from pajbot.protos import bot_pb2_grpc
 from pajbot.streamhelper import StreamHelper
 from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
 
 import irc.client
+import irc.client_aio
 import requests
 from pytz import timezone
 from requests import HTTPError
+
+from pajbot.utils.print_traceback import print_traceback
 
 if TYPE_CHECKING:
     import argparse
@@ -63,28 +89,282 @@ SLICE_REGEX = re.compile(r"(-?\d+)?(:?(-?\d+)?)?")
 RANDOMCHOICE_ARGUMENT_REGEX = re.compile(r"\"([ \w\.,]*)\"")
 
 
-class Bot:
+async def test1() -> None:
+    log.info("test1")
+
+
+def test2() -> None:
+    log.info("test2")
+
+
+async def repeat_fn[**P](
+    interval_seconds: float,
+    function: Callable[P, None] | Callable[P, Awaitable[None]],
+    *args: P.args,
+    **kwargs: P.kwargs,
+) -> None:
+    while True:
+        if inspect.iscoroutinefunction(function):
+            await function(*args, **kwargs)
+        else:
+            function(*args, **kwargs)
+
+        await asyncio.sleep(interval_seconds)
+
+
+async def delayed_fn[**P](
+    delay_seconds: float,
+    function: Callable[P, None] | Callable[P, Awaitable[None]],
+    *args: P.args,
+    **kwargs: P.kwargs,
+):
+    await asyncio.sleep(delay_seconds)
+    if inspect.iscoroutinefunction(function):
+        await function(*args, **kwargs)
+    else:
+        function(*args, **kwargs)
+
+
+type AnyGrpcAction = (
+    bot_pb2.NullAction
+    | bot_pb2.DeleteMessageAction
+    | bot_pb2.TimeoutAction
+    | bot_pb2.BanAction
+    | bot_pb2.MessageAction
+    | bot_pb2.WhisperAction
+    | bot_pb2.AnnounceAction
+)
+
+
+def build_grpc_any_action(action_response: AnyResponse) -> bot_pb2.AnyAction:
+    match action_response:
+        case TimeoutResponse():
+            log.info("BUILDING TIMEOUT RESPONSE")
+            return bot_pb2.AnyAction(
+                timeout=bot_pb2.TimeoutAction(
+                    target_user_id=action_response.target_user_id,
+                    duration=action_response.duration,
+                    reason=action_response.reason,
+                ),
+            )
+
+        case BanResponse():
+            return bot_pb2.AnyAction(
+                ban=bot_pb2.BanAction(
+                    target_user_id=action_response.target_user_id,
+                    reason=action_response.reason,
+                )
+            )
+
+        case UnbanResponse():
+            return bot_pb2.AnyAction(
+                unban=bot_pb2.UnbanAction(
+                    target_user_id=action_response.target_user_id,
+                )
+            )
+
+        case DeleteMessageResponse():
+            return bot_pb2.AnyAction(
+                delete_message=bot_pb2.DeleteMessageAction(
+                    target_message_id=action_response.msg_id,
+                )
+            )
+
+        case SayResponse():
+            return bot_pb2.AnyAction(
+                message=bot_pb2.MessageAction(
+                    message=action_response.message,
+                )
+            )
+
+        case MeResponse():
+            return bot_pb2.AnyAction(
+                message=bot_pb2.MessageAction(
+                    message=f"/me {action_response.message}",
+                )
+            )
+
+        case WhisperResponse():
+            return bot_pb2.AnyAction(
+                whisper=bot_pb2.WhisperAction(
+                    target_user_id=action_response.target_user_id,
+                    message=action_response.message,
+                )
+            )
+
+        case AnnounceResponse():
+            return bot_pb2.AnyAction(
+                announce=bot_pb2.AnnounceAction(
+                    message=action_response.message,
+                )
+            )
+
+
+def build_grpc_reply(
+    handler_response: list[AnyResponse] | HandlerResponse | None,
+    response_meta: ResponseMeta,
+) -> bot_pb2.TwitchChatMessageReply:
+    grpc_actions: list[bot_pb2.AnyAction] = []
+
+    match handler_response:
+        case HandlerResponse():
+            for handler_action in handler_response.actions:
+                grpc_actions.append(build_grpc_any_action(handler_action))
+        case None:
+            pass
+        case handler_actions:
+            for handler_action in handler_actions:
+                grpc_actions.append(build_grpc_any_action(handler_action))
+
+    meta = bot_pb2.Meta(comments=response_meta.comments)
+
+    return bot_pb2.TwitchChatMessageReply(
+        meta=meta,
+        actions=grpc_actions,
+    )
+
+
+class Bot(bot_pb2_grpc.BotServicer):
     """
     Main class for the twitch bot
     """
 
-    def _load_control_hub(self, config: cfg.Config) -> Optional[UserBasics]:
+    async def HandleTwitchChatMessage(
+        self,
+        request: bot_pb2.TwitchChatMessageRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> bot_pb2.TwitchChatMessageReply:
+        meta = ResponseMeta()
+
+        log.info(f"Message sent by user ({request.chatter_user_id} - {request.chatter_user_login})")
+
+        if request.chatter_user_id == self.bot_user.id:
+            log.info(f"Message sent by bot user ({self.bot_user.login}), ignore it")
+            return bot_pb2.TwitchChatMessageReply()
+
+        try:
+            d = json.loads(request.event_json)
+
+            parsed_message = ChannelChatMessageData(**d)
+
+            message_text = "".join([f.text for f in parsed_message.message.fragments])
+            log.info(f"parsed_message: '{parsed_message.message.text} / {message_text}'")
+            msg_lower = message_text.lower()
+
+            with DBManager.create_session_scope(expire_on_commit=False) as db_session:
+                source = User.from_basics(
+                    db_session,
+                    UserBasics(
+                        parsed_message.chatter_user_id,
+                        parsed_message.chatter_user_login,
+                        parsed_message.chatter_user_name,
+                    ),
+                )
+
+                # TODO: handle shared chat stuff?
+                badge_types = set([badge.set_id for badge in parsed_message.badges])
+
+                source.moderator = (
+                    parsed_message.chatter_user_id == parsed_message.broadcaster_user_id or "moderator" in badge_types
+                )
+                source.subscriber = "subscriber" in badge_types or "founder" in badge_types
+                source.vip = "vip" in badge_types
+
+                now = utils.now()
+                source.last_seen = now
+                source.last_active = now
+
+                urls = self.find_unique_urls(message_text)
+
+                emote_instances, emote_counts = self.emote_manager.parse_all_emotes2(parsed_message.message.fragments)
+
+                log.info(f"Emote instances: {emote_instances}")
+                log.info(f"Emote counts: {emote_counts}")
+
+                num_bits_spent = parsed_message.cheer.bits if parsed_message.cheer is not None else 0
+
+                event = MessageEvent(
+                    type="action" if parsed_message.message.text.startswith("\u0001ACTION ") else "message",
+                    target=f"#{parsed_message.broadcaster_user_login}",
+                    num_bits_spent=num_bits_spent,
+                )
+                handler_response = await HandlerManager.trigger_on_message(
+                    source,
+                    message_text,
+                    emote_instances,
+                    emote_counts,
+                    False,
+                    urls,
+                    parsed_message.message_id,
+                    event,
+                    meta,
+                )
+                if handler_response.actions:
+                    # One of our modules handled this message!
+                    log.info(f"Handler response: {handler_response}")
+                    return build_grpc_reply(handler_response, meta)
+
+                # check to see if the message matches a command
+                if msg_lower[:1] == "!":
+                    meta.add(__name__, "starts with !")
+                    msg_lower_parts = msg_lower.split(" ")
+                    trigger = msg_lower_parts[0][1:]
+                    msg_raw_parts = message_text.split(" ")
+                    remaining_message = " ".join(msg_raw_parts[1:]) if len(msg_raw_parts) > 1 else ""
+                    if trigger in self.commands:
+                        command = self.commands[trigger]
+                        meta.add(__name__, f"matched !{trigger}")
+                        extra_args = {
+                            # "emote_instances": emote_instances,
+                            # "emote_counts": emote_counts,
+                            "trigger": trigger,
+                            "msg_id": parsed_message.message_id,
+                        }
+                        command_response = await command.run2(
+                            self,
+                            source,
+                            remaining_message,
+                            emote_instances,
+                            emote_counts,
+                            parsed_message.message_id,
+                            event,
+                            extra_args,
+                            False,
+                            meta,
+                        )
+
+                        log.info(f"Command response: {command_response}")
+                        # TODO: Check response response instead
+                        # return bot_pb2.TwitchChatMessageReply(message=bot_pb2.MessageAction(message=response.message))
+
+                        if command_response:
+                            log.info("Building command response")
+                            return build_grpc_reply(command_response, meta)
+                        else:
+                            meta.add(__name__, "")
+
+            return build_grpc_reply(None, meta)
+        except Exception as e:
+            log.exception("BabyRage")
+            return bot_pb2.TwitchChatMessageReply(meta=bot_pb2.Meta(comments=[f"Unhandled exception: {e}"]))
+
+    async def _load_control_hub(self, config: cfg.Config) -> Optional[UserBasics]:
         control_hub_id, control_hub_login = cfg.load_control_hub_id_or_login(config)
         if control_hub_id is not None:
-            return self.twitch_helix_api.require_user_basics_by_id(control_hub_id)
+            return await self.twitch_helix_api.require_user_basics_by_id(control_hub_id)
         if control_hub_login is not None:
-            return self.twitch_helix_api.require_user_basics_by_login(control_hub_login)
+            return await self.twitch_helix_api.require_user_basics_by_login(control_hub_login)
         return None
 
-    def _load_admin(self, config: cfg.Config) -> Optional[UserBasics]:
+    async def _load_admin(self, config: cfg.Config) -> Optional[UserBasics]:
         admin_id, admin_login = cfg.load_admin_id_or_login(config)
         if admin_id is not None:
-            admin = self.twitch_helix_api.get_user_basics_by_id(admin_id)
+            admin = await self.twitch_helix_api.get_user_basics_by_id(admin_id)
             if admin is not None:
                 return admin
             log.warning(f"Could not resolve admin user ID {admin_id}, verify your config!")
         elif admin_login is not None:
-            admin = self.twitch_helix_api.get_user_basics_by_login(admin_login)
+            admin = await self.twitch_helix_api.get_user_basics_by_login(admin_login)
             if admin is not None:
                 return admin
             log.warning(f"Could not resolve admin user login {admin_login}, verify your config!")
@@ -99,8 +379,8 @@ class Bot:
         DBManager.init(config["main"]["db"])
 
         # redis
-        redis_options = config.get("redis", {})
-        RedisManager.init(redis_options)
+        self.redis_options = config.get("redis", {})
+        RedisManager.init(self.redis_options)
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.tmi_rate_limits = TMIRateLimits.BASE
@@ -137,7 +417,8 @@ class Bot:
         self.app_token_manager = AppAccessTokenManager(self.twitch_id_api, RedisManager.get())
         self.twitch_helix_api: TwitchHelixAPI = TwitchHelixAPI(RedisManager.get(), self.app_token_manager)
 
-        self.streamer: UserBasics = cfg.load_streamer(config, self.twitch_helix_api)
+    async def init(self, config: cfg.Config, args: argparse.Namespace) -> None:
+        self.streamer: UserBasics = await cfg.load_streamer(config, self.twitch_helix_api)
         self.channel = f"#{self.streamer.login}"
 
         self.streamer_display: str = self.streamer.name
@@ -145,9 +426,9 @@ class Bot:
             # Override the streamer display name
             self.streamer_display = config["web"]["streamer_name"]
 
-        self.bot_user: UserBasics = cfg.load_bot(config, self.twitch_helix_api)
+        self.bot_user: UserBasics = await cfg.load_bot(config, self.twitch_helix_api)
 
-        self.control_hub_user: Optional[UserBasics] = self._load_control_hub(config)
+        self.control_hub_user: Optional[UserBasics] = await self._load_control_hub(config)
         self.control_hub_channel: Optional[str] = None
         if self.control_hub_user:
             self.control_hub_channel = f"#{self.control_hub_user.login}"
@@ -170,38 +451,38 @@ class Bot:
             sql_migration.run()
 
         # Redis migrations
-        redis_migratable = RedisMigratable(redis_options=redis_options, namespace=self.streamer.login)
+        redis_migratable = RedisMigratable(redis_options=self.redis_options, namespace=self.streamer.login)
         redis_migration = Migration(redis_migratable, pajbot.migration_revisions.redis, self)
         redis_migration.run()
 
         # Thread pool executor for async actions
-        self.action_queue = ActionQueue()
+        self.action_queue = AioActionQueue()
 
         # refresh points_rank and num_lines_rank regularly
 
         self.user_ranks_refresh_manager = UserRanksRefreshManager(config)
         rank_refresh_mode = config["main"].get("rank_refresh_mode", "0")
         if rank_refresh_mode == "0":
-            self.user_ranks_refresh_manager.start(self.action_queue)
+            self.user_ranks_refresh_manager.start()
         elif rank_refresh_mode == "1":
-            self.user_ranks_refresh_manager.run_once(self.action_queue)
+            self.user_ranks_refresh_manager.run_once()
         elif rank_refresh_mode == "2":
             log.info("Not refreshing user rank")
         else:
             log.error(f"Invalid rank refresh mode {rank_refresh_mode}, valid options are: 0, 1, or 2")
 
-        self.reactor = irc.client.Reactor()
+        self.reactor = irc.client_aio.AioReactor()
         # SafeDefaultScheduler makes the bot not exit on exception in the main thread
         # e.g. on actions via bot.execute_now, etc.
-        self.reactor.scheduler_class = SafeDefaultScheduler
-        self.reactor.scheduler = SafeDefaultScheduler()
+        # self.reactor.scheduler_class = SafeDefaultScheduler
+        # self.reactor.scheduler = SafeDefaultScheduler()
 
         self.start_time = utils.now()
         ActionParser.bot = self
 
         HandlerManager.init_handlers()
 
-        self.socket_manager = SocketManager(self.streamer.login, self.execute_now)
+        self.socket_manager = SocketManager(self.streamer.login)
         self.stream_manager = StreamManager(self)
         StreamHelper.init_stream_manager(self.stream_manager)
 
@@ -238,7 +519,8 @@ class Bot:
                 user_id=self.bot_user.id,
             )
 
-        self.emote_manager = EmoteManager(self.twitch_helix_api, self.action_queue)
+        self.emote_manager = EmoteManager(self.twitch_helix_api)
+        await self.emote_manager.load_all_emotes()
         self.epm_manager = EpmManager()
         self.ecount_manager = EcountManager()
         self.module_manager = ModuleManager(self.socket_manager, bot=self)
@@ -256,7 +538,7 @@ class Bot:
         self.execute_every(60, self.commit_all)
         self.execute_every(1, self.do_tick)
 
-        admin: Optional[UserBasics] = self._load_admin(config)
+        admin: Optional[UserBasics] = await self._load_admin(config)
 
         if admin is None:
             log.warning("No admin user specified. See the [main] section in the example config for its usage.")
@@ -314,6 +596,10 @@ class Bot:
 
     @property
     def password(self) -> str:
+        if self.bot_token_manager.token is None:
+            log.warning("No bot access token found")
+            return "oauth:UNKNOWN_TOKEN"
+
         return f"oauth:{self.bot_token_manager.token.access_token}"
 
     def start(self) -> None:
@@ -619,17 +905,35 @@ class Bot:
 
         return "No recorded stream FeelsBadMan "
 
-    def execute_now(self, function, *args, **kwargs) -> None:
+    def execute_now[**P](
+        self,
+        function: Callable[P, None] | Callable[P, Awaitable[None]],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> None:
         self.execute_delayed(0, function, *args, **kwargs)
 
-    def execute_at(self, at, function, *args, **kwargs) -> None:
-        self.reactor.scheduler.execute_at(at, lambda: function(*args, **kwargs))
+    def execute_delayed[**P](
+        self,
+        delay: float,
+        function: Callable[P, None] | Callable[P, Awaitable[None]],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> None:
+        loop = asyncio.get_event_loop()
+        loop.create_task(delayed_fn(delay, function, *args, **kwargs))
+        # self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
 
-    def execute_delayed(self, delay, function, *args, **kwargs) -> None:
-        self.reactor.scheduler.execute_after(delay, lambda: function(*args, **kwargs))
-
-    def execute_every(self, period, function, *args, **kwargs) -> None:
-        self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
+    def execute_every[**P](
+        self,
+        period: float,
+        function: Callable[P, None] | Callable[P, Awaitable[None]],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> asyncio.Task:
+        loop = asyncio.get_event_loop()
+        return loop.create_task(repeat_fn(period, function, *args, **kwargs))
+        # self.reactor.scheduler.execute_every(period, lambda: function(*args, **kwargs))
 
     def _has_moderation_actions(self) -> bool:
         """this returns True if the moderation_actions value
@@ -749,6 +1053,7 @@ class Bot:
         else:
             self.untimeout_id(user_id)
 
+    @deprecated("use Response")
     def timeout(self, user: User, duration: int, reason: Optional[str] = None) -> None:
         self.timeout_login(user.login, duration, reason)
 
@@ -766,6 +1071,7 @@ class Bot:
             else:
                 log.error(f"Failed to timeout user with id {user_id}: {e} - {e.response.text}")
 
+    @deprecated("this should use Response instead")
     def timeout_login(self, login: str, duration: int, reason: Optional[str] = None) -> None:
         if self._has_moderation_actions():
             self.thread_locals.moderation_actions.add(login, Timeout(duration, reason))
@@ -776,6 +1082,7 @@ class Bot:
                 return
             self._timeout(user_id, duration, reason)
 
+    @deprecated("this should use Response instead")
     def timeout_warn(self, user: User, duration: int, reason: Optional[str] = None) -> tuple[int, str]:
         from pajbot.modules import WarningModule
 
@@ -785,6 +1092,7 @@ class Bot:
         self.timeout(user, duration, reason)
         return (duration, punishment)
 
+    @deprecated("this should use Response instead")
     def delete_message(self, msg_id: str, channel_id: Optional[str] = None) -> None:
         if channel_id is None:
             channel_id = self.streamer.id
@@ -803,6 +1111,7 @@ class Bot:
             else:
                 log.error(f"Failed to delete message: {e} - {e.response.text}")
 
+    @deprecated("this should use Response instead")
     def delete_or_timeout(
         self,
         user: User,
@@ -812,6 +1121,8 @@ class Bot:
         reason: Optional[str] = None,
         disable_warnings: bool = False,
     ) -> None:
+        log.warning("Called delete_or_timeout not good")
+        print_traceback()
         if moderation_action not in ("Delete", "Timeout"):
             raise ValueError("moderation_action must only equal Delete or Timeout!")
 
@@ -825,7 +1136,35 @@ class Bot:
             else:
                 self.timeout_warn(user, duration, reason)
 
+    def delete_or_timeout2(
+        self,
+        user: User,
+        moderation_action: str,
+        msg_id: str,
+        duration: int,
+        reason: Optional[str] = None,
+        disable_warnings: bool = False,
+    ) -> TimeoutResponse | DeleteMessageResponse:
+        match moderation_action.lower():
+            case "delete":
+                return DeleteMessageResponse(msg_id)
+            case "timeout":
+                if disable_warnings:
+                    return TimeoutResponse(user.id, duration, reason)
+                else:
+                    # TODO: Support warns?
+                    return TimeoutResponse(user.id, duration, reason)
+
+            case unhandled:
+                raise ValueError(
+                    f"moderation_action {unhandled} is supported, it must be either 'delete' or 'timeout'!"
+                )
+
+    @deprecated("this should use Response instead")
     def whisper(self, user: User | UserBasics, message: str) -> None:
+        log.warning("Called whisper!!!!!!!! not good")
+        print_traceback()
+
         if self.whisper_output_mode == WhisperOutputMode.NORMAL:
             try:
                 self.twitch_helix_api.send_whisper(self.bot_user.id, user.id, message, self.bot_token_manager)
@@ -855,6 +1194,7 @@ class Bot:
         elif self.whisper_output_mode == WhisperOutputMode.DISABLED:
             log.debug(f'Whisper "{message}" to user "{user}" was not sent (due to config setting)')
 
+    @deprecated("Use Response")
     def whisper_login(self, login: str, message: str) -> None:
         user = self.twitch_helix_api.get_user_basics_by_login(login)
         if user is None:
@@ -863,6 +1203,7 @@ class Bot:
 
         self.whisper(user, message)
 
+    @deprecated("Use Response")
     def send_message_to_user(
         self, user: User, message: str, event, method: str = "say", check_msg: bool = False
     ) -> None:
@@ -891,6 +1232,7 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
+    @deprecated("this should use Response instead")
     def send_message(self, message: str, method: str = "say", check_msg: bool = False) -> None:
         """
         Keyword arguments:
@@ -910,6 +1252,7 @@ class Bot:
         else:
             log.warning("Unknown send_message method: %s", method)
 
+    @deprecated("this should use Response instead")
     def reply(self, msg_id: str, message: str, channel: Optional[str] = None) -> None:
         if self.silent:
             return
@@ -926,6 +1269,7 @@ class Bot:
 
         self.irc.send_raw(message[:CHARACTER_LIMIT])
 
+    @deprecated("this should use Response instead")
     def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
             log.warning("message=None passed to Bot::say()")
@@ -953,6 +1297,7 @@ class Bot:
         if not self.is_bad_message(message):
             self.say(message, channel)
 
+    @deprecated("use Response")
     def me(self, message: str, channel: Optional[str] = None) -> None:
         self.say("/me " + message[: CHARACTER_LIMIT - 4], channel=channel)
 
@@ -1102,6 +1447,7 @@ class Bot:
         self.on_pubmsg(chatconn, event)
 
     def on_pubmsg(self, chatconn, event):
+        log.info("ON PUBMSG XD")
         tags = {tag["key"]: tag["value"] if tag["value"] is not None else "" for tag in event.tags}
 
         id = tags["user-id"]
@@ -1144,10 +1490,6 @@ class Bot:
             source = User.from_basics(db_session, UserBasics(id, login, name))
 
             with new_message_processing_scope(self):
-                res = HandlerManager.trigger("on_pubmsg", source=source, message=event.arguments[0], tags=tags)
-                if res is False:
-                    return False
-
                 self.parse_message(event.arguments[0], source, event, tags=tags)
 
     def on_pubnotice(self, chatconn, event):
@@ -1248,9 +1590,7 @@ class Bot:
         except Exception:
             log.exception("Exception caught while trying to say quit phrase")
 
-        self.socket_manager.quit()
-
-        sys.exit(0)
+        # sys.exit(0)
 
     def apply_filter(self, resp, f: SubstitutionFilter) -> Any:
         available_filters: dict[str, Callable[[Any, list[str]], Any]] = {

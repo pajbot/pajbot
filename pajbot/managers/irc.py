@@ -98,7 +98,7 @@ class IRCManager:
         )
         self.conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
 
-        self.ping_task = ScheduleManager.execute_every(30, lambda: self.bot.execute_now(self._send_ping))
+        self.ping_task = ScheduleManager.execute_every(30, lambda: self._send_ping)
 
     def _send_ping(self):
         if self.conn is not None:

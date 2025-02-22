@@ -3,9 +3,13 @@ import logging
 import math
 
 from pajbot import utils
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.message_event import MessageEvent
+from pajbot.models.action import MeResponse
 from pajbot.models.command import Command
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 
 import rapidfuzz
@@ -80,6 +84,9 @@ class TriviaModule(BaseModule):
         self.point_bounty = 0
 
     def poll_trivia(self):
+        if self.bot is None:
+            return
+
         if self.question is None and (
             self.last_question is None or utils.now() - self.last_question >= datetime.timedelta(seconds=12)
         ):
@@ -127,6 +134,9 @@ class TriviaModule(BaseModule):
                 self.step_end()
 
     def step_announce(self):
+        if self.bot is None:
+            return
+
         try:
             self.bot.safe_me(
                 f'KKona A new question has begun! In the category "{self.question["category"]["title"]}", the question/hint/clue is "{self.question["question"]}" KKona'
@@ -137,6 +147,9 @@ class TriviaModule(BaseModule):
             pass
 
     def step_hint(self):
+        if self.bot is None:
+            return
+
         # find out what % of the answer should be revealed
         full_hint_reveal = int(math.floor(len(self.question["answer"]) / 2))
         current_hint_reveal = int(math.floor(((self.step) / self.settings["hint_count"]) * full_hint_reveal))
@@ -156,6 +169,9 @@ class TriviaModule(BaseModule):
         self.bot.safe_me(f'OpieOP Here\'s a hint, "{hint_str}" OpieOP')
 
     def step_end(self):
+        if self.bot is None:
+            return
+
         if self.question is not None:
             self.bot.safe_me(
                 f'MingLee No one could answer the trivia! The answer was "{self.question["answer"]}" MingLee'
@@ -186,7 +202,7 @@ class TriviaModule(BaseModule):
         else:
             bot.safe_me("The trivia has started!")
 
-        HandlerManager.add_handler("on_message", self.on_message)
+        HandlerManager.register_on_message(self.on_message)
 
     def command_stop(self, bot, source, **rest):
         if not self.trivia_running:
@@ -200,7 +216,7 @@ class TriviaModule(BaseModule):
 
         bot.safe_me("The trivia has been stopped.")
 
-        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.unregister_on_message(self.on_message)
 
     @staticmethod
     def confirm_answer(user_answer: str, right_answer: str) -> bool:
@@ -219,9 +235,23 @@ class TriviaModule(BaseModule):
         ratio: float = rapidfuzz.fuzz.ratio(right_answer, user_answer)
         return ratio >= 94.0
 
-    def on_message(self, source, message, whisper, **rest):
-        if not message or whisper:
-            return
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if self.bot is None:
+            return HandlerResponse.null()
+
+        if not message or is_whisper:
+            return HandlerResponse.null()
 
         if self.question:
             right_answer = self.question["answer"].lower()
@@ -229,19 +259,18 @@ class TriviaModule(BaseModule):
             correct = TriviaModule.confirm_answer(user_answer, right_answer)
 
             if correct:
+                output_message = f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan"
                 if self.point_bounty > 0:
-                    self.bot.safe_me(
-                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp"
-                    )
+                    output_message = f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan They get {self.point_bounty} points! PogChamp"
                     source.points += self.point_bounty
-                else:
-                    self.bot.safe_me(
-                        f"{source} got the answer right! The answer was {self.question['answer']} FeelsGoodMan"
-                    )
 
                 self.question = None
                 self.step = 0
                 self.last_question = utils.now()
+
+                return HandlerResponse.do_me(output_message)
+
+        return HandlerResponse.null()
 
     def load_commands(self, **options):
         self.commands["trivia"] = Command.multiaction_command(

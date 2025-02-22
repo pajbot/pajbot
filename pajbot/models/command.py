@@ -12,6 +12,8 @@ Commands must stop triggering using an alias when an alias is removed
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
 import datetime
@@ -19,11 +21,23 @@ import json
 import logging
 import re
 
+from pajbot.managers.handler import ResponseMeta
+from pajbot.message_event import MessageEvent
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 import pajbot.utils
 from pajbot.exc import FailedCommand
 from pajbot.managers.db import Base
 from pajbot.managers.schedule import ScheduleManager
-from pajbot.models.action import ActionParser, BaseAction, MessageAction, MultiAction, RawFuncAction, Substitution
+from pajbot.models.action import (
+    ActionParser,
+    AnyResponse,
+    BaseAction,
+    MessageAction,
+    MultiAction,
+    RawFuncAction,
+    RawFuncActionCallback,
+    Substitution,
+)
 from pajbot.models.user import User
 
 from sqlalchemy import Boolean, ForeignKey, Integer, Text
@@ -36,6 +50,16 @@ if TYPE_CHECKING:
     # from pajbot.modules.global_command_cooldown import GlobalCommandCooldown
 
 log = logging.getLogger(__name__)
+
+
+class FailReason(Enum):
+    NoError = 1
+    InternalError = 2
+    Unauthorized = 3
+    GlobalCooldown = 4
+    UserCooldown = 5
+    NotEnoughPoints = 6
+    NotEnoughTokens = 7
 
 
 def parse_command_for_web(alias: str, i_command: Command, command_list: list[WebCommand]) -> None:
@@ -332,7 +356,7 @@ class Command(Base):
         return cmd
 
     @classmethod
-    def raw_command(cls, cb, **options):
+    def raw_command(cls, cb: RawFuncActionCallback, **options) -> Command:
         cmd = cls(**options)
         try:
             cmd.action = RawFuncAction(cb)
@@ -359,7 +383,7 @@ class Command(Base):
         from pajbot.models.action import MultiAction
 
         cmd = cls(**options)
-        cmd.action = MultiAction.ready_built(options.get("commands"), default=default, fallback=fallback)
+        cmd.action = MultiAction.ready_built(options.get("commands", {}), default=default, fallback=fallback)
         return cmd
 
     def load_args(self, level: int, action) -> None:
@@ -397,6 +421,100 @@ class Command(Base):
             return False
 
         return True
+
+    async def run2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        args: Any,
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        if self.action is None:
+            log.warning("This command is not available.")
+            meta.add(__name__, "Command is unavailable")
+            return []
+
+        if not self.can_run_command(source, whisper):
+            meta.add(__name__, "Not allowed to run command")
+            return []
+
+        cd_modifier = 0.2 if source.level >= 500 or source.moderator is True else 1.0
+
+        cur_time = pajbot.utils.now().timestamp()
+        time_since_last_run = (cur_time - self.last_run) / cd_modifier
+
+        if time_since_last_run < self.delay_all and source.level < Command.BYPASS_DELAY_LEVEL:
+            log.debug(f"Command was run {time_since_last_run:.2f} seconds ago, waiting...")
+            meta.add(__name__, "Global CD")
+            return []
+
+        last_run_by_user_f: int | float = 0
+        last_run_by_user_dt = self.last_run_by_user.get(source.id)
+        if last_run_by_user_dt is not None:
+            last_run_by_user_f = last_run_by_user_dt.timestamp()
+        time_since_last_run_user = (cur_time - last_run_by_user_f) / cd_modifier
+
+        if time_since_last_run_user < self.delay_user and source.level < Command.BYPASS_DELAY_LEVEL:
+            meta.add(__name__, "User CD")
+            return []
+
+        if self.cost > 0 and not source.can_afford(self.cost):
+            if self.notify_on_error:
+                bot.whisper(
+                    source,
+                    f"You do not have the required {self.cost} points to execute this command. (You have {source.points} points)",
+                )
+            # User does not have enough points to use the command
+            meta.add(__name__, "not enough points")
+            return []
+
+        if self.tokens_cost > 0 and not source.can_afford_with_tokens(self.tokens_cost):
+            if self.notify_on_error:
+                bot.whisper(
+                    source,
+                    f"You do not have the required {self.tokens_cost} tokens to execute this command. (You have {source.tokens} tokens)",
+                )
+            # User does not have enough tokens to use the command
+            meta.add(__name__, "not enough tokens")
+            return []
+
+        if self.use_global_cd and source.level < Command.BYPASS_DELAY_LEVEL:
+            # Command has chosen to respect the Global command cooldown module
+            global_cd_module = bot.module_manager["global_command_cooldown"]
+            if global_cd_module:
+                # assert isinstance(global_cd_module, GlobalCommandCooldown)
+
+                # The global command cooldown module is enabled
+                if not global_cd_module.run_command():  # type: ignore
+                    # The global command cooldown is currently active, command will be available to run when it has expired
+                    meta.add(__name__, "global cooldown 2")
+                    return []
+
+        args.update(self.extra_args)
+        if self.run_in_thread:
+            # TODO: ??
+            log.debug(f"Running {self} in a thread")
+            ScheduleManager.execute_now(self.run_action, args=[bot, source, message, event, args])
+            raise Exception("not implemented")
+        else:
+            return await self.run_action2(
+                bot,
+                source,
+                message,
+                emote_instances,
+                emote_counts,
+                message_id,
+                event,
+                args,
+                whisper,
+                meta,
+            )
 
     def run(self, bot: Bot, source: User, message: str, event: Any = {}, args: Any = {}, whisper: bool = False) -> bool:
         if self.action is None:
@@ -482,6 +600,52 @@ class Command(Base):
             # TODO: Will this be an issue?
             self.last_run = cur_time_ts
             self.last_run_by_user[source.id] = cur_time
+
+    async def run_action2(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        message_id: str,
+        event: MessageEvent,
+        args: Any,
+        whisper: bool,
+        meta: ResponseMeta,
+    ) -> list[AnyResponse]:
+        # Pre-requisite
+        assert self.action is not None
+
+        cur_time = pajbot.utils.now()
+        cur_time_ts = cur_time.timestamp()
+        with source.spend_currency_context(self.cost, self.tokens_cost):
+            response = await self.action.run2(
+                bot,
+                source,
+                message,
+                emote_instances,
+                emote_counts,
+                message_id,
+                event,
+                args,
+                whisper,
+                meta,
+            )
+            if response is None:
+                log.warning("Failed command, return currency")
+                raise FailedCommand("return currency")
+
+            # Only spend points/tokens, and increment num_uses if the action succeded
+            if self.data is not None:
+                self.data.num_uses += 1
+                self.data.last_date_used = pajbot.utils.now()
+
+            # TODO: Will this be an issue?
+            self.last_run = cur_time_ts
+            self.last_run_by_user[source.id] = cur_time
+
+            return response
 
     def jsonify(self) -> dict[str, Any]:
         payload: dict[str, Any] = {

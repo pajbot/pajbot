@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ContextManager, Optional
+from typing import Any, ContextManager, Optional
 
 import logging
 
 import redis
+import redis.asyncio
 from redis import Redis
 from redis.client import Pipeline
 
-if TYPE_CHECKING:
-    _StrType = str
-    RedisType = Redis[_StrType]
+type _StrType = str
+type RedisType = Redis[_StrType]
 
 log = logging.getLogger(__name__)
+
+type AsyncRedisType = redis.asyncio.Redis[str]
 
 
 class RedisManager:
@@ -23,6 +25,7 @@ class RedisManager:
     """
 
     redis: Optional[RedisType] = None
+    redis_async: Optional[AsyncRedisType] = None
 
     @staticmethod
     def init(options: dict[Any, Any]) -> None:
@@ -36,12 +39,21 @@ class RedisManager:
 
         RedisManager.redis = Redis(**options)
 
+        RedisManager.redis_async = redis.asyncio.Redis(**options)
+
     @staticmethod
     def get() -> RedisType:
         if RedisManager.redis is None:
             raise ValueError("RedisManager.get called before RedisManager.init")
 
         return RedisManager.redis
+
+    @staticmethod
+    def get_async() -> AsyncRedisType:
+        if RedisManager.redis_async is None:
+            raise ValueError("RedisManager.get_async called before RedisManager.init")
+
+        return RedisManager.redis_async
 
     @staticmethod
     def pipeline_context() -> ContextManager[Pipeline[_StrType]]:

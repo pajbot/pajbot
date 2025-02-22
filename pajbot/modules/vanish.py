@@ -7,6 +7,7 @@ import logging
 from pajbot.models.command import Command
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
+from pajbot.response import AnyResponse
 
 if TYPE_CHECKING:
     from pajbot.bot import Bot
@@ -67,12 +68,12 @@ class VanishModule(BaseModule):
         ),
     ]
 
-    def vanish_command(self, bot: Bot, source: User, **rest) -> bool:
+    def vanish_command(self, bot: Bot, source: User, **_) -> AnyResponse | None:
         bot.execute_delayed(0.5, lambda: bot.timeout(source, 1, reason=self.settings["timeout_reason"]))
 
-        return True
+        return None
 
-    def load_commands(self, **options) -> None:
+    def load_commands(self, **_) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.vanish_command,
             delay_all=self.settings["online_global_cd"],

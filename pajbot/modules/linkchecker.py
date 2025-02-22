@@ -7,12 +7,14 @@ import logging
 import urllib.parse
 
 import pajbot.managers
+from pajbot.message_event import MessageEvent
 import pajbot.models
+from pajbot.models.user import User
 import pajbot.utils
 from pajbot.apiwrappers.safebrowsing import SafeBrowsingAPI
 from pajbot.managers.adminlog import AdminLogManager
 from pajbot.managers.db import Base, DBManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 
@@ -246,7 +248,7 @@ class LinkCheckerModule(BaseModule):
         if not bot:
             return
 
-        HandlerManager.add_handler("on_message", self.on_message, priority=150, run_if_propagation_stopped=True)
+        HandlerManager.register_on_message(self.on_message, priority=150)
         HandlerManager.add_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
@@ -262,12 +264,12 @@ class LinkCheckerModule(BaseModule):
         for link in self.db_session.query(WhitelistedLink):
             self.whitelisted_links.append(link)
 
-    def disable(self, bot):
+    def disable(self, bot: Optional[Bot]) -> None:
         if not bot:
             return
 
-        pajbot.managers.handler.HandlerManager.remove_handler("on_message", self.on_message)
-        pajbot.managers.handler.HandlerManager.remove_handler("on_commit", self.on_commit)
+        HandlerManager.unregister_on_message(self.on_message)
+        HandlerManager.remove_handler("on_commit", self.on_commit)
 
         if self.db_session is not None:
             self.db_session.commit()
@@ -282,15 +284,26 @@ class LinkCheckerModule(BaseModule):
 
     super_whitelist = ["pajlada.se", "pajlada.com", "forsen.tv", "pajbot.com"]
 
-    def on_message(self, source, whisper, urls, **rest):
-        if whisper:
-            return
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: Any,
+        emote_counts: Any,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper:
+            return HandlerResponse.null()
 
         if source.level >= self.settings["bypass_level"] or source.moderator is True:
-            return
+            return HandlerResponse.null()
 
         if self.settings["vip_exemption"] and source.vip is True:
-            return
+            return HandlerResponse.null()
 
         if len(urls) > 0:
             do_timeout = False
@@ -320,37 +333,76 @@ class LinkCheckerModule(BaseModule):
 
                     if whitelisted is False:
                         if self.settings["disable_warnings"] is True:
-                            self.bot.timeout(source, self.settings["timeout_length"], reason=ban_reason)
+                            return HandlerResponse.do_timeout(
+                                source.id,
+                                self.settings["timeout_length"],
+                                reason=ban_reason,
+                            )
                         else:
-                            self.bot.timeout_warn(source, self.settings["timeout_length"], reason=ban_reason)
-                        return False
+                            # TODO: enable warn system
+                            return HandlerResponse.do_timeout(
+                                source.id,
+                                self.settings["timeout_length"],
+                                reason=ban_reason,
+                            )
 
-        for url in urls:
-            # Action which will be taken when a bad link is found
-            def action():
-                if self.settings["disable_warnings"] is True:
-                    self.bot.timeout(
-                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
-                    )
-                else:
-                    self.bot.timeout_warn(
-                        source, self.settings["timeout_length"], reason=self.settings["banned_link_timeout_reason"]
-                    )
+            for url in urls:
+                # Action which will be taken when a bad link is found
+                def action():
+                    if self.settings["disable_warnings"] is True:
+                        return HandlerResponse.do_timeout(
+                            source.id,
+                            self.settings["timeout_length"],
+                            reason=self.settings["banned_link_timeout_reason"],
+                        )
+                    else:
+                        # TODO: Enable warning
+                        return HandlerResponse.do_timeout(
+                            source.id,
+                            self.settings["timeout_length"],
+                            reason=self.settings["banned_link_timeout_reason"],
+                        )
 
-            # First we perform a basic check
-            if self.simple_check(url, action) == self.RET_FURTHER_ANALYSIS:
-                # If the basic check returns no relevant data, we queue up a proper check on the URL
-                self.bot.action_queue.submit(self.check_url, url, action)
+                # First we perform a basic check
+                match self.simple_check(url, action):
+                    case self.RET_GOOD_LINK:
+                        pass
+                    case self.RET_BAD_LINK:
+                        if self.settings["disable_warnings"] is True:
+                            return HandlerResponse.do_timeout(
+                                source.id,
+                                self.settings["timeout_length"],
+                                reason=self.settings["banned_link_timeout_reason"],
+                            )
+                        else:
+                            # TODO: Enable warning
+                            return HandlerResponse.do_timeout(
+                                source.id,
+                                self.settings["timeout_length"],
+                                reason=self.settings["banned_link_timeout_reason"],
+                            )
 
-    def on_commit(self, **rest):
+                    case self.RET_FURTHER_ANALYSIS:
+                        # If the basic check returns no relevant data, we queue up a proper check on the URL
+                        # TODO: currently not handled
+                        # self.check_url(url, action)
+                        pass
+
+        return HandlerResponse.null()
+
+    def on_commit(self, **rest) -> bool:
         if self.db_session is not None:
             self.db_session.commit()
+
+        return True
 
     def delete_from_cache(self, url):
         if url in self.cache:
             del self.cache[url]
 
     def cache_url(self, url, safe):
+        assert self.bot is not None
+
         if url in self.cache and self.cache[url] == safe:
             return
 
@@ -368,6 +420,8 @@ class LinkCheckerModule(BaseModule):
             return True
 
     def blacklist_url(self, url, parsed_url=None, level=0):
+        assert self.db_session is not None
+
         if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
             url = "http://" + url
 
@@ -393,6 +447,8 @@ class LinkCheckerModule(BaseModule):
         self.db_session.commit()
 
     def whitelist_url(self, url, parsed_url=None):
+        assert self.db_session is not None
+
         if not (url.lower().startswith("http://") or url.lower().startswith("https://")):
             url = "http://" + url
         if parsed_url is None:
@@ -524,6 +580,9 @@ class LinkCheckerModule(BaseModule):
         return urls
 
     def _check_url(self, url, action):
+        if self.bot is None:
+            return
+
         # XXX: The basic check is currently performed twice on links found in messages. Solve
         res = self.basic_check(url, action)
         if res == self.RET_GOOD_LINK:

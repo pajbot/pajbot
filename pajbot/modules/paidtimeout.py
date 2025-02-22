@@ -7,8 +7,10 @@ import logging
 
 from pajbot import utils
 from pajbot.managers.db import DBManager
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
 from pajbot.models.command import Command, CommandExample
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
 from pajbot.models.user import User
 from pajbot.modules.base import BaseModule, ModuleSetting
 
@@ -198,19 +200,30 @@ class PaidTimeoutModule(BaseModule):
                 )
             )
 
-    def on_message(self, source: User, whisper: bool, **rest) -> bool:
-        if whisper:
-            return True
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper:
+            return HandlerResponse.null()
 
         # If a user types when timed out, we assume he's been unbanned for a good reason and remove his flag.
         source.timed_out = False
 
-        return True
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
         if bot:
-            HandlerManager.add_handler("on_message", self.on_message)
+            HandlerManager.register_on_message(self.on_message)
 
     def disable(self, bot: Optional[Bot]) -> None:
         if bot:
-            HandlerManager.remove_handler("on_message", self.on_message)
+            HandlerManager.unregister_on_message(self.on_message)

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package pajbot;
+
+service Bot {
+  rpc HandleTwitchChatMessage(TwitchChatMessageRequest)
+      returns (TwitchChatMessageReply) {}
+}
+
+message NullAction {
+}
+
+message MessageAction {
+    string message = 1;
+}
+
+message WhisperAction {
+    string target_user_id = 1;
+    string message = 2;
+
+    optional int32 delay = 3;
+}
+
+message AnnounceAction {
+    string message = 1;
+    // TODO: Add color?
+}
+
+message DeleteMessageAction {
+    string target_message_id = 1;
+}
+
+message TimeoutAction {
+    string target_user_id = 1;
+    int32 duration = 2;
+    string reason = 3;
+}
+
+message BanAction {
+    string target_user_id = 1;
+    string reason = 2;
+}
+
+message UnbanAction {
+    string target_user_id = 1;
+}
+
+// The request message
+message TwitchChatMessageRequest {
+  string broadcaster_user_id = 1;
+  string broadcaster_user_login = 2;
+  string broadcaster_user_name = 3;
+
+  string chatter_user_id = 4;
+  string chatter_user_login = 5;
+  string chatter_user_name = 6;
+
+  string event_json = 7;
+}
+
+message Meta {
+    repeated string comments = 1;
+}
+
+message AnyAction {
+    oneof inner {
+        // A message (e.g. "/me forsen" or "hello forsen")
+        MessageAction message = 1;
+
+        // A whisper to a user
+        WhisperAction whisper = 2;
+
+        // An announcement message
+        AnnounceAction announce = 3;
+
+        // A message deletion
+        DeleteMessageAction delete_message = 4;
+
+        // A user timeout
+        TimeoutAction timeout = 5;
+
+        // A user ban
+        BanAction ban = 6;
+
+        // A user unban/untimeout(?)
+        UnbanAction unban = 7;
+    }
+}
+
+message TwitchChatMessageReply {
+    Meta meta = 1;
+
+    repeated AnyAction actions = 2;
+}

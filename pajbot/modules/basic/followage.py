@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import logging
@@ -10,6 +11,7 @@ from pajbot.models.command import Command, CommandExample
 from pajbot.models.user import User
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.response import AnyResponse, reply_to_user
 from pajbot.utils import time_since
 
 from requests import HTTPError
@@ -65,7 +67,7 @@ class FollowAgeModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options: Any) -> None:
+    def load_commands(self, **_: Any) -> None:
         self.commands["followage"] = Command.raw_command(
             self.follow_age,
             delay_all=self.settings["global_cd"],
@@ -164,32 +166,35 @@ class FollowAgeModule(BaseModule):
 
         return from_input, to_input
 
-    def _handle_command(
+    async def _handle_command(
         self,
         bot: Bot,
         source: User,
         message: str,
-        event: Any,
+        message_id: str | None,
+        is_whisper: bool,
         format_cb: Callable[[datetime], str],
         message_method: str,
-    ) -> None:
+    ) -> list[AnyResponse]:
         # user is the user we check the followage for
         # broadcaster is the broadcaster we check the followage against
         user_input, broadcaster_input = self._parse_message(message)
+
+        await asyncio.sleep(5)
 
         with DBManager.create_session_scope(expire_on_commit=False) as db_session:
             if user_input is not None:
                 user = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, user_input)
 
                 if user is None:
-                    bot.execute_now(
-                        bot.send_message_to_user,
+                    return reply_to_user(
+                        message_method,
                         source,
                         f'User "{user_input}" could not be found',
-                        event,
-                        method=self.settings["action_followage"],
+                        message_id,
+                        is_whisper,
+                        check_msg=True,
                     )
-                    return
             else:
                 user = source
 
@@ -198,31 +203,31 @@ class FollowAgeModule(BaseModule):
 
             broadcaster = User.find_or_create_from_user_input(db_session, bot.twitch_helix_api, broadcaster_input)
             if broadcaster is None:
-                bot.execute_now(
-                    bot.send_message_to_user,
+                return reply_to_user(
+                    message_method,
                     source,
-                    f'User "{broadcaster_input}" could not be found',
-                    event,
-                    method=message_method,
+                    f'User "{user_input}" could not be found',
+                    message_id,
+                    is_whisper,
+                    check_msg=True,
                 )
-                return
 
         try:
-            follow_since = bot.twitch_helix_api.get_follow_since(broadcaster.id, user.id, bot.bot_token_manager)
+            follow_since = await bot.twitch_helix_api.get_follow_since(broadcaster.id, user.id, bot.bot_token_manager)
         except HTTPError as e:
             if e.response is None:
                 raise e
 
             if e.response.status_code == 401:
                 log.info(f"Failed to fetch follow since, error 401: {e.response.text}")
-                bot.execute_now(
-                    bot.send_message_to_user,
+                return reply_to_user(
+                    message_method,
                     source,
                     f"Bot does not have permission to check follow age for streamer {broadcaster_input}",
-                    event,
-                    method=message_method,
+                    message_id,
+                    is_whisper,
+                    check_msg=True,
                 )
-                return
             raise e
         is_self = source == user
 
@@ -241,26 +246,49 @@ class FollowAgeModule(BaseModule):
             else:
                 message = f"{user.name} is {suffix}"
 
-        bot.execute_now(bot.send_message_to_user, source, message, event, method=message_method)
+        return reply_to_user(
+            message_method,
+            source,
+            message,
+            message_id,
+            is_whisper,
+            check_msg=False,
+        )
 
-    def follow_age(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
-        bot.action_queue.submit(
-            self._handle_command,
+    async def follow_age(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        message_id: str | None,
+        is_whisper: bool,
+        **_,
+    ) -> list[AnyResponse]:
+        return await self._handle_command(
             bot,
             source,
             message,
-            event,
+            message_id,
+            is_whisper,
             self._format_for_follow_age,
             self.settings["action_followage"],
         )
 
-    def follow_since(self, bot: Bot, source: User, message: str, event: Any, **rest: Any) -> None:
-        bot.action_queue.submit(
-            self._handle_command,
+    async def follow_since(
+        self,
+        bot: Bot,
+        source: User,
+        message: str,
+        message_id: str | None,
+        is_whisper: bool,
+        **_,
+    ) -> list[AnyResponse]:
+        return await self._handle_command(
             bot,
             source,
             message,
-            event,
+            message_id,
+            is_whisper,
             self._format_for_follow_since,
             self.settings["action_followsince"],
         )

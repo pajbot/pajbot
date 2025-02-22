@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import logging
 import random
@@ -8,9 +8,9 @@ import random
 from pajbot.models.command import Command, CommandExample
 from pajbot.modules import BaseModule, ModuleSetting
 from pajbot.modules.basic import BasicCommandsModule
+from pajbot.response import AnyResponse, TimeoutResponse, reply_to_user
 
 if TYPE_CHECKING:
-    from pajbot.bot import Bot
     from pajbot.models.user import User
 
 log = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ class SelfTimeoutModule(BaseModule):
         ),
     ]
 
-    def load_commands(self, **options) -> None:
+    def load_commands(self, **_) -> None:
         self.commands[self.settings["command_name"].lower().replace("!", "").replace(" ", "")] = Command.raw_command(
             self.selftimeout,
             sub_only=self.settings["subscribers_only"],
@@ -147,29 +147,42 @@ class SelfTimeoutModule(BaseModule):
         # Could raise an exception here instead too
         return 0
 
-    def selftimeout(self, bot: Bot, source: User, event: Any, **rest) -> bool:
+    async def selftimeout(
+        self,
+        source: User,
+        message_id: str | None,
+        is_whisper: bool,
+        **_,
+    ) -> list[AnyResponse]:
         if self.settings["subscribers_only"] and not source.subscriber:
-            return True
+            return []
 
         if self.settings["vip_only"] and not source.vip:
-            return True
+            return []
 
         if source.moderator is True:
-            return True
+            return []
 
         random_value = random.randint(self.settings["low_value"], self.settings["high_value"])
         standard_response = f"You got a {random_value}"
 
         if random_value == 0 and self.settings["zero_response"] != "":
-            bot.send_message_to_user(
-                source, f"{standard_response}. {self.settings['zero_response']}", event, method="reply"
+            return reply_to_user(
+                "reply",
+                source,
+                f"{standard_response}. {self.settings['zero_response']}",
+                message_id,
+                is_whisper,
+                False,
             )
-        else:
-            timeout_length = self.seconds_conversion(random_value)
 
-            # Check if timeout value is over Twitch's maximum
-            timeout_length = min(timeout_length, 1209600)
+        timeout_length = self.seconds_conversion(random_value)
 
-            bot.timeout(source, timeout_length, f"{standard_response}!")
+        # Check if timeout value is over Twitch's maximum
+        timeout_length = min(timeout_length, 1209600)
 
-        return True
+        return TimeoutResponse.one(
+            source.id,
+            timeout_length,
+            f"{standard_response}!",
+        )

@@ -37,12 +37,12 @@ def load_streamer_id_or_login(config: Config) -> Union[tuple[str, None], tuple[N
     raise KeyError("Missing streamer_id key from config")
 
 
-def load_streamer(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
+async def load_streamer(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
     streamer_id, streamer_login = load_streamer_id_or_login(config)
     if streamer_id is not None:
-        return twitch_helix_api.require_user_basics_by_id(streamer_id)
+        return await twitch_helix_api.require_user_basics_by_id(streamer_id)
     if streamer_login is not None:
-        return twitch_helix_api.require_user_basics_by_login(streamer_login)
+        return await twitch_helix_api.require_user_basics_by_login(streamer_login)
     raise ValueError("Bad config, missing streamer id or login")
 
 
@@ -65,12 +65,12 @@ def load_bot_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, 
     raise KeyError("Missing bot_id key from config")
 
 
-def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
+async def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
     bot_id, bot_login = load_bot_id_or_login(config)
     if bot_id is not None:
-        return twitch_helix_api.require_user_basics_by_id(bot_id)
+        return await twitch_helix_api.require_user_basics_by_id(bot_id)
     if bot_login is not None:
-        return twitch_helix_api.require_user_basics_by_login(bot_login)
+        return await twitch_helix_api.require_user_basics_by_login(bot_login)
     raise ValueError("Bad config, missing bot id or login")
 
 

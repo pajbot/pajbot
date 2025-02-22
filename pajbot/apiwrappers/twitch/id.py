@@ -1,14 +1,18 @@
 from pajbot.apiwrappers.authentication.access_token import AppAccessToken, UserAccessToken
+from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.base import BaseAPI
 
 
 class TwitchIDAPI(BaseAPI):
-    def __init__(self, client_credentials):
+    def __init__(self, client_credentials: ClientCredentials) -> None:
         super().__init__(base_url="https://id.twitch.tv")
         self.client_credentials = client_credentials
 
-    def get_app_access_token(self, scope=[]):
-        response = self.post(
+    def get_client_credentials(self) -> ClientCredentials:
+        return self.client_credentials
+
+    async def get_app_access_token(self, scope: list[str] = []) -> AppAccessToken:
+        response = await self._post(
             "/oauth2/token",
             {
                 "client_id": self.client_credentials.client_id,
@@ -27,8 +31,8 @@ class TwitchIDAPI(BaseAPI):
 
         return AppAccessToken.from_api_response(response)
 
-    def get_user_access_token(self, code):
-        response = self.post(
+    async def get_user_access_token(self, code: str) -> UserAccessToken:
+        response = await self._post(
             "/oauth2/token",
             {
                 "client_id": self.client_credentials.client_id,
@@ -52,8 +56,8 @@ class TwitchIDAPI(BaseAPI):
 
         return UserAccessToken.from_api_response(response)
 
-    def refresh_user_access_token(self, refresh_token):
-        response = self.post(
+    async def refresh_user_access_token(self, refresh_token):
+        response = await self._post(
             "/oauth2/token",
             {
                 "client_id": self.client_credentials.client_id,

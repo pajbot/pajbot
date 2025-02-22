@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import logging
 
-from pajbot.managers.handler import HandlerManager
+from pajbot.managers.handler import HandlerManager, HandlerResponse, ResponseMeta
+from pajbot.message_event import MessageEvent
 from pajbot.models.emote import Emote, EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.modules import BaseModule
 from pajbot.modules.base import ModuleSetting
 from pajbot.modules.clr_overlay import CLROverlayModule
@@ -59,9 +61,6 @@ class EmoteComboModule(BaseModule):
         self.emote_count: int = 0
         self.current_emote: Optional[Emote] = None
 
-        # Override the parent module type since we 100% know it
-        self.parent_module: Optional[CLROverlayModule] = None
-
     def on_loaded(self) -> None:
         self.allowlisted_emotes = set(
             self.settings["emote_allowlist"].strip().split(" ") if self.settings["emote_allowlist"] else []
@@ -77,8 +76,11 @@ class EmoteComboModule(BaseModule):
         if len(self.blocklisted_emotes) > 0:
             return emote_code not in self.blocklisted_emotes
 
-        if not self.parent_module:
+        if self.parent_module is None:
             return True
+
+        # Override the parent module type since we 100% know it
+        assert isinstance(self.parent_module, CLROverlayModule)
 
         return self.parent_module.is_emote_allowed(emote_code)
 
@@ -100,24 +102,33 @@ class EmoteComboModule(BaseModule):
         self.emote_count = 0
         self.current_emote = None
 
-    def on_message(
-        self, emote_instances: list[EmoteInstance], emote_counts: EmoteInstanceCountMap, whisper: bool, **rest: Any
-    ) -> bool:
-        if whisper:
-            return True
+    async def on_message(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        if is_whisper:
+            return HandlerResponse.null()
 
         # Check if the message contains exactly one unique emote
         num_unique_emotes = len(emote_counts)
         if num_unique_emotes != 1:
             self.reset()
-            return True
+            return HandlerResponse.null()
 
         new_emote = emote_instances[0].emote
         new_emote_code = new_emote.code
 
         if self.is_emote_allowed(new_emote_code) is False:
             self.reset()
-            return True
+            return HandlerResponse.null()
 
         # if there is currently a combo...
         if self.current_emote is not None:
@@ -132,10 +143,10 @@ class EmoteComboModule(BaseModule):
             self.current_emote = new_emote
 
         self.inc_emote_count()
-        return True
+        return HandlerResponse.null()
 
     def enable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.add_handler("on_message", self.on_message)
+        HandlerManager.register_on_message(self.on_message)
 
     def disable(self, bot: Optional[Bot]) -> None:
-        HandlerManager.remove_handler("on_message", self.on_message)
+        HandlerManager.unregister_on_message(self.on_message)

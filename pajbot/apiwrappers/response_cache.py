@@ -1,53 +1,58 @@
-from typing import Any, Callable, Union
+import datetime
+from typing import Any, Callable
 
 import json
 import logging
 from abc import ABC, abstractmethod
+from typing_extensions import Awaitable
 
 from pajbot import utils
+from pajbot.managers.redis import RedisType
 from pajbot.models.emote import Emote
 
 log = logging.getLogger(__name__)
 
 
 class BaseJsonSerializer(ABC):
-    def serialize(self, fetch_result):
+    def serialize(self, fetch_result: Any) -> Any:
         if fetch_result is not None:
             fetch_result = self.safe_serialize(fetch_result)
 
         return json.dumps(fetch_result)
 
     @abstractmethod
-    def safe_serialize(self, fetch_result):
+    def safe_serialize(self, fetch_result: Any) -> Any:
         pass
 
-    def deserialize(self, cache_result):
+    def deserialize(self, cache_result: str) -> Any:
         cache_result = json.loads(cache_result)
         if cache_result is not None:
             cache_result = self.safe_deserialize(cache_result)
         return cache_result
 
     @abstractmethod
-    def safe_deserialize(self, cache_result):
+    def safe_deserialize(self, cache_result: Any) -> Any:
         pass
 
 
 class JsonSerializer(BaseJsonSerializer):
-    def safe_serialize(self, fetch_result):
+    def safe_serialize(self, fetch_result: Any) -> Any:
         return fetch_result
 
-    def safe_deserialize(self, cache_result):
+    def safe_deserialize(self, cache_result: Any) -> Any:
         return cache_result
 
 
 class DateTimeSerializer(BaseJsonSerializer):
     # 'null' <=> None
     # '123456' <=> datetime.datetime (milliseconds since UTC epoch)
-    def safe_serialize(self, fetch_result):
+    def safe_serialize(self, fetch_result: datetime.datetime | None) -> float:
+        if fetch_result is None:
+            return 0
         return fetch_result.timestamp() * 1000
 
-    def safe_deserialize(self, cache_result):
-        return utils.datetime_from_utc_milliseconds(cache_result)
+    def safe_deserialize(self, cache_result: float) -> datetime.datetime:
+        return utils.datetime_from_utc_milliseconds(int(cache_result))
 
 
 class ClassInstanceSerializer(BaseJsonSerializer):
@@ -85,24 +90,26 @@ class TwitchChannelEmotesSerializer(BaseJsonSerializer):
 
 
 class APIResponseCache:
-    def __init__(self, redis):
+    def __init__(self, redis: RedisType) -> None:
         self.redis = redis
 
-    def cache_fetch_fn(
+    async def cache_fetch_fn[T, **P](
         self,
         redis_key: str,
-        fetch_fn: Callable[[], Any],
-        serializer: Any = JsonSerializer(),
-        expiry: Union[int, Callable[[Any], int]] = 120,
-        force_fetch: bool = False,
-    ) -> Any:
+        expiry: int | Callable[..., int],
+        force_fetch: bool,
+        serializer: BaseJsonSerializer,
+        fetch_fn: Callable[P, Awaitable[T]],
+        *fetch_args: P.args,
+        **fetch_kwargs: P.kwargs,
+    ) -> T:
         if not force_fetch:
             cache_result = self.redis.get(redis_key)
             if cache_result is not None:
                 return serializer.deserialize(cache_result)
 
         log.debug("Cache Miss: %s", redis_key)
-        fetch_result = fetch_fn()
+        fetch_result = await fetch_fn(*fetch_args, **fetch_kwargs)
 
         if callable(expiry):
             # then expiry is a lambda that computes the expiry based upon the fetch result
@@ -114,18 +121,24 @@ class APIResponseCache:
             self.redis.setex(redis_key, expiry, serializer.serialize(fetch_result))
         return fetch_result
 
-    def cache_bulk_fetch_fn(
-        self, input_data, redis_key_fn, fetch_fn, serializer=JsonSerializer(), expiry=120, force_fetch=False
-    ):
+    async def cache_bulk_fetch_fn[T, T2](
+        self,
+        input_data: list[T],
+        redis_key_fn: Callable[[T], str],
+        fetch_fn: Callable[[list[T]], Awaitable[list[T2]]],
+        serializer: BaseJsonSerializer = JsonSerializer(),
+        expiry: int | Callable[[Any], int] = 120,
+        force_fetch: bool = False,
+    ) -> list[T2]:
         # results contains the wanted results, already in the correct list index (e.g. if we had a cache
         # hit for the third element (index 2),
         # then the cache result for the third element will be in this list, at index 2)
-        results = []
+        results: list[T2] = []
 
         # to_fetch contains is a list of tuples (idx, input_entry) of input entries (with their index)
         # that did not have a cache hit, and that need to be fetched. After successful fetch, the result
         # should be inserted into `results` at `idx`.
-        to_fetch = []
+        to_fetch: list[tuple[int, T]] = []
 
         # redis MGET (Multi-GET) to check all at once quickly
         if not force_fetch:
@@ -137,7 +150,7 @@ class APIResponseCache:
                     to_fetch.append((idx, input_data[idx]))
         else:
             # yields a list zipping [(0, first_element), (1, second_element)] which is what we need in to_fetch
-            to_fetch = enumerate(input_data)
+            to_fetch = list(enumerate(input_data))
 
         # https://stackoverflow.com/a/19343/4464702
         # unzip [(0, 'first'), (1, 'second'), (4, 'fourtf')] to
@@ -149,7 +162,7 @@ class APIResponseCache:
         # not a tuple with two empty lists.
         if len(to_fetch) > 0:
             to_fetch_indexes, to_fetch_values = tuple(zip(*to_fetch))
-            fetch_results = fetch_fn(to_fetch_values)
+            fetch_results = await fetch_fn(list(to_fetch_values))
             for idx, fetch_result in zip(to_fetch_indexes, fetch_results):
                 results.insert(idx, fetch_result)
 

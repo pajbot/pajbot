@@ -376,7 +376,7 @@ class User(Base):
         return User._create(db_session, basics.id, basics.login, basics.name)
 
     @staticmethod
-    def find_or_create_from_login(db_session, twitch_helix_api: TwitchHelixAPI, login: str) -> Optional[User]:
+    async def find_or_create_from_login(db_session, twitch_helix_api: TwitchHelixAPI, login: str) -> Optional[User]:
         user_from_db = (
             db_session.query(User).filter_by(login=login).order_by(User.login_last_updated.desc()).one_or_none()
         )
@@ -384,7 +384,7 @@ class User(Base):
             return user_from_db
 
         # no user in DB! Query Helix API for user basics, then create user/update existing user and return.
-        basics = twitch_helix_api.get_user_basics_by_login(login)
+        basics = await twitch_helix_api.get_user_basics_by_login(login)
         if basics is None:
             return None
 

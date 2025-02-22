@@ -1,6 +1,8 @@
+import asyncio
+from typing import Any
 from pajbot.apiwrappers.authentication.client_credentials import ClientCredentials
 from pajbot.apiwrappers.authentication.token_manager import AccessTokenManager
-from pajbot.apiwrappers.base import BaseAPI
+from pajbot.apiwrappers.base import AnyEndpoint, BaseAPI
 
 from requests import HTTPError, Response
 
@@ -16,7 +18,17 @@ class BaseTwitchAPI(BaseAPI):
     # Implements the recommended retry routine described in
     # https://dev.twitch.tv/docs/authentication/#refresh-in-response-to-server-rejection-for-bad-authentication
     # (refreshes the auth header and retries if authorization fails)
-    def request(self, method, endpoint, params, headers, authorization=None, json=None):
+    async def request(
+        self,
+        method: str,
+        endpoint: AnyEndpoint,
+        params: Any,
+        headers: Any,
+        authorization=None,
+        json=None,
+    ) -> Response:
+        loop = asyncio.get_event_loop()
+
         # authorization can be:
         #   - None (-> default will be assigned)
         #   - False (-> No Authorization)
@@ -50,7 +62,8 @@ class BaseTwitchAPI(BaseAPI):
             headers = {**headers, **auth_headers}
 
         try:
-            return super().request(method, endpoint, params, headers, json)
+            response = await super()._request(method, endpoint, params, headers, json)
+            return response
         except HTTPError as e:
             if e.response is None:
                 raise e
@@ -66,27 +79,50 @@ class BaseTwitchAPI(BaseAPI):
                 # refresh...
                 authorization.refresh()
                 # then retry once.
-                return super().request(method, endpoint, params, headers, json)
+                response = await super()._request(method, endpoint, params, headers, json)
+                return response
             else:
                 raise e
 
-    def get(self, endpoint, params=None, headers=None, authorization=None):
-        return self.request("GET", endpoint, params, headers, authorization).json()
+    async def get(
+        self,
+        endpoint: AnyEndpoint,
+        params=None,
+        headers=None,
+        authorization=None,
+    ) -> dict[str, Any]:
+        response = await self.request("GET", endpoint, params, headers, authorization)
+        return response.json()
 
-    def get_binary(self, endpoint, params=None, headers=None, authorization=None):
-        return self.request("GET", endpoint, params, headers, authorization).content
+    async def get_binary(
+        self,
+        endpoint,
+        params=None,
+        headers=None,
+        authorization=None,
+    ):
+        response = await self.request("GET", endpoint, params, headers, authorization)
+        return response.content
 
-    def post(self, endpoint, params=None, headers=None, authorization=None, json=None):
-        return self.request("POST", endpoint, params, headers, authorization, json).json()
+    async def post(
+        self,
+        endpoint,
+        params=None,
+        headers=None,
+        authorization=None,
+        json=None,
+    ):
+        response = await self.request("POST", endpoint, params, headers, authorization, json)
+        return response.json()
 
-    def post_204(self, endpoint, params=None, headers=None, authorization=None, json=None) -> Response:
+    async def post_204(self, endpoint, params=None, headers=None, authorization=None, json=None) -> Response:
         """
         Send a POST request to an endpoint where we expect no content from it, so no parsing
         is done on the response.
 
         This method returns the response object
         """
-        return self.request("POST", endpoint, params, headers, authorization, json)
+        return await self.request("POST", endpoint, params, headers, authorization, json)
 
     def put(self, endpoint, params=None, headers=None, authorization=None, json=None):
         return self.request("PUT", endpoint, params, headers, authorization, json).json()

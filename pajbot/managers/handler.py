@@ -1,11 +1,45 @@
-from typing import Any, Callable
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Any, Callable, ParamSpec, Protocol
 
 import logging
 import operator
+from typing_extensions import TypeVar
 
+from pajbot.message_event import MessageEvent
+from pajbot.response import (
+    HandlerResponse,
+    ResponseMeta,
+)
+from pajbot.models.emote import EmoteInstance, EmoteInstanceCountMap
+from pajbot.models.user import User
 from pajbot.utils import find
 
 log = logging.getLogger("pajbot")
+
+T = TypeVar("T")
+P = ParamSpec("P")
+
+
+class OnMessageProtocol(Protocol):
+    async def __call__(
+        self,
+        source: User,
+        message: str,
+        emote_instances: list[EmoteInstance],
+        emote_counts: EmoteInstanceCountMap,
+        is_whisper: bool,
+        urls: list[str],
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse: ...
+
+
+@dataclass
+class Handler[T]:
+    fn: T
+    priority: int
 
 
 class HandlerManager:
@@ -14,15 +48,57 @@ class HandlerManager:
 
     handlers: dict[str, list[tuple[Callable[..., bool], int, bool]]] = {}
 
+    on_message: list[Handler[OnMessageProtocol]] = []
+
+    @staticmethod
+    def _add(handlers: list[Handler[T]], handler: Handler[T]) -> None:
+        handlers.append(handler)
+        handlers.sort(key=lambda x: x.priority, reverse=True)
+
+    @staticmethod
+    def _remove(handlers: list[Handler[T]], handler_fn: T) -> None:
+        handler = find(lambda h: h.fn == handler_fn, handlers)
+        if handler is not None:
+            handlers.remove(handler)
+
+    @staticmethod
+    def register_on_message(handler_fn: OnMessageProtocol, priority: int = 100) -> None:
+        HandlerManager._add(HandlerManager.on_message, Handler(handler_fn, priority))
+
+    @staticmethod
+    def unregister_on_message(handler_fn: OnMessageProtocol) -> None:
+        HandlerManager._remove(HandlerManager.on_message, handler_fn)
+
+    @staticmethod
+    async def trigger_on_message(
+        source: User,
+        message: str,
+        emote_instances: Any,
+        emote_counts: Any,
+        is_whisper: bool,
+        urls: Any,
+        msg_id: str | None,
+        event: MessageEvent,
+        meta: ResponseMeta,
+    ) -> HandlerResponse:
+        final_response = HandlerResponse()
+        for handler in HandlerManager.on_message:
+            res = await handler.fn(
+                source, message, emote_instances, emote_counts, is_whisper, urls, msg_id, event, meta
+            )
+
+            if res.actions:
+                print(res.actions)
+            final_response.override(res)
+
+            if res.stop:
+                break
+
+        return final_response
+
     @staticmethod
     def init_handlers() -> None:
         HandlerManager.handlers = {}
-
-        # on_pubmsg(source, message, tags)
-        HandlerManager.create_handler("on_pubmsg")
-
-        # on_message(source, message, emote_instances, emote_counts, whisper, urls, msg_id, event)
-        HandlerManager.create_handler("on_message")
 
         # on_usernotice(source, message, tags)
         HandlerManager.create_handler("on_usernotice")

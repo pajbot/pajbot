@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, Callable, TypeVar
 
 import logging
@@ -26,3 +27,15 @@ class ActionQueue:
         exc = future.exception()
         if exc is not None:
             log.exception("Logging an uncaught exception (ActionQueue)", exc_info=exc)
+
+
+async def execute_fn(function: Callable[..., _T], *args: Any, **kwargs: Any) -> None:
+    function(*args, **kwargs)
+
+
+# This implementation is functionally identical to using the ThreadPoolExecutor directly,
+# but it adds the callback, to log uncaught exceptions.
+class AioActionQueue:
+    def submit(self, function: Callable[..., _T], *args: Any, **kwargs: Any) -> None:
+        loop = asyncio.get_event_loop()
+        loop.create_task(execute_fn(function, *args, **kwargs))
