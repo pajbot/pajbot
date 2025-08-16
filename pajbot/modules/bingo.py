@@ -78,7 +78,7 @@ class BingoModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="default_points",
-            label="Default points rewarded for a bingo",
+            label="Default points awarded for a bingo",
             type="number",
             required=True,
             placeholder="",
