@@ -101,10 +101,6 @@ class EightBallModule(BaseModule):
             "haHAA",
             "FeelsBirthdayMan",
             "LUL",
-            "MiniK",
-            "KappaClaus",
-            "KappaHD",
-            "MaxLOL",
         ]
 
     def eightball_command(self, bot, source, message, **rest):
