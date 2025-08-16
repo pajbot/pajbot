@@ -100,7 +100,7 @@ class PointLotteryModule(BaseModule):
 
         bot.me(
             "A lottery has begun. Type !pointlottery join {tickets} or !pointlottery {tickets} to join the lottery! "
-            "The more tickets you buy, the more chances to win you have! "
+            "The more tickets you buy, the more chances you have to win! "
             "1 ticket costs 1 point"
         )
 

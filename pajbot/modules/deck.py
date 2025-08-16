@@ -203,8 +203,8 @@ class DeckModule(BaseModule):
                 bot.decks.remove_deck(deck)
                 bot.whisper(source, "Successfully removed the deck.")
             except:
-                log.exception("An exception occured while attempting to remove the deck")
-                bot.whisper(source, "An error occured while removing your deck.")
+                log.exception("An exception occurred while attempting to remove the deck")
+                bot.whisper(source, "An error occurred while removing your deck.")
                 return False
             return True
         else:

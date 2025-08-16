@@ -2,7 +2,7 @@
 {% set active_page = 'home' %}
 {% block title %}Login Error{% endblock %}
 {% block body %}
-<h4>An error occured while trying to log you in. <img class="emote" src="/static/images/sad.png" alt="FeelsBadMan" /></h4>
+<h4>An error occurred while trying to log you in. <img class="emote" src="/static/images/sad.png" alt="FeelsBadMan" /></h4>
 {% if detail_msg is not none %}
 <p>Here's what went wrong: {{ detail_msg }}</p>
 {% endif %}

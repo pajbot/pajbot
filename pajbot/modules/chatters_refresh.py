@@ -23,7 +23,7 @@ class ChattersRefreshModule(BaseModule):
     SETTINGS = [
         ModuleSetting(
             key="base_points_pleb",
-            label="Award this points amount every 10 minutes to non-subscribers",
+            label="Award this amount of points every 10 minutes to non-subscribers",
             type="number",
             required=True,
             placeholder="",
@@ -32,7 +32,7 @@ class ChattersRefreshModule(BaseModule):
         ),
         ModuleSetting(
             key="base_points_sub",
-            label="Award this points amount every 10 minutes to subscribers",
+            label="Award this amount of points every 10 minutes to subscribers",
             type="number",
             required=True,
             placeholder="",

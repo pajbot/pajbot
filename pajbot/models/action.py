@@ -55,7 +55,7 @@ class ActionParser:
 
             Dispatch = NormalDispatch
         except:
-            log.exception("Something went wrong while attemting to import Dispatch, this should never happen")
+            log.exception("Something went wrong while attempting to import Dispatch, this should never happen")
             sys.exit(1)
 
         data: dict[str, str] = {}

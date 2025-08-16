@@ -88,7 +88,7 @@ class LastfmModule(BaseModule):
             self.song,
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            description="Check what that is playing on the stream",
+            description="Check what is currently playing on stream",
             examples=[
                 CommandExample(
                     None,
