@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Dev: Fixed various typos. (#2796)
+
 ## v1.69
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
