@@ -229,14 +229,14 @@ class BaseModule:
 
     def get_phrase(self, key: str, **arguments: Any) -> str:
         if key not in self.settings:
-            log.error("{} is not in this modules settings.")
+            log.error("{} is not in this module's settings.")
             return "KeyError in get_phrase"
 
         try:
             return self.settings[key].format(**arguments)
         except (IndexError, ValueError, KeyError):
             log.warning(
-                f'An error occured when formatting phrase "{self.settings[key]}". Arguments: ({arguments}) Will fall back to default phrase.'
+                f'An error occurred when formatting phrase "{self.settings[key]}". Arguments: ({arguments}) Will fall back to default phrase.'
             )
 
         try:

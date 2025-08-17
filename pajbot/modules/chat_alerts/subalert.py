@@ -87,7 +87,7 @@ class SubAlertModule(BaseModule):
         ),
         ModuleSetting(
             key="gift_upgrade",
-            label="Updgraded gift sub chat message. Leave empty to disable | Available arguments: {username}",
+            label="Upgraded gift sub chat message. Leave empty to disable | Available arguments: {username}",
             type="text",
             required=True,
             placeholder="Thank you for upgrading your gift sub {username}! PogChamp <3",

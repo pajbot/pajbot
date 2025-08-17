@@ -46,8 +46,8 @@ class RaffleModule(BaseModule):
             label="Start message | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
-            default=".me A raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
+            placeholder=".me A raffle has begun for {points} points. Type !join to join the raffle! The raffle will end in {length} seconds",
+            default=".me A raffle has begun for {points} points. Type !join to join the raffle! The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -64,8 +64,8 @@ class RaffleModule(BaseModule):
             label="Start message (multi) | Available arguments: {length}, {points}",
             type="text",
             required=True,
-            placeholder=".me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
-            default=".me A multi-raffle has begun for {points} points. type !join to join the raffle! The raffle will end in {length} seconds",
+            placeholder=".me A multi-raffle has begun for {points} points. Type !join to join the raffle! The raffle will end in {length} seconds",
+            default=".me A multi-raffle has begun for {points} points. Type !join to join the raffle! The raffle will end in {length} seconds",
             constraints={"min_str_len": 10, "max_str_len": 400},
         ),
         ModuleSetting(
@@ -116,7 +116,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_max_points",
-            label="Max points for a multi raffle",
+            label="Max points for a multi-raffle",
             type="number",
             required=True,
             placeholder="",
@@ -125,7 +125,7 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_max_length",
-            label="Max length for a multi raffle in seconds",
+            label="Max length for a multi-raffle in seconds",
             type="number",
             required=True,
             placeholder="",
@@ -134,14 +134,14 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_allow_negative_raffles",
-            label="Allow negative multi raffles",
+            label="Allow negative multi-raffles",
             type="boolean",
             required=True,
             default=True,
         ),
         ModuleSetting(
             key="multi_max_negative_points",
-            label="Max negative points for a multi raffle",
+            label="Max negative points for a multi-raffle",
             type="number",
             required=True,
             placeholder="",
@@ -150,14 +150,14 @@ class RaffleModule(BaseModule):
         ),
         ModuleSetting(
             key="multi_raffle_on_sub",
-            label="Start a multi raffle when someone subscribes",
+            label="Start a multi-raffle when someone subscribes",
             type="boolean",
             required=True,
             default=False,
         ),
         ModuleSetting(
             key="default_raffle_type",
-            label="Default raffle (What raffle type !raffle should invoke)",
+            label="Default raffle (Which raffle type !raffle should invoke)",
             type="options",
             required=True,
             default="Single Raffle",

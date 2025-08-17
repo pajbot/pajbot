@@ -16,8 +16,8 @@ log = logging.getLogger(__name__)
 
 def load_streamer_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str]]:
     """
-    Load either the streamer Twitch User ID or Twitch User Login from the config
-    The Twitch User ID is read from streamer_id, and the Twitch User Login us read from streamer
+    Load either the streamer's Twitch User ID or Twitch User Login from the config
+    The Twitch User ID is read from streamer_id, and the Twitch User Login is read from streamer
     To support old configs, we can also parse the Twitch User Login from target, but this should not be used in new configs.
 
     If none of the values are present, throw an exception
@@ -49,7 +49,7 @@ def load_streamer(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasic
 def load_bot_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str]]:
     """
     Load either the bot Twitch User ID or Twitch User Login from the config
-    The Twitch User ID is read from bot_id, and the Twitch User Login us read from nickname
+    The Twitch User ID is read from bot_id, and the Twitch User Login is read from nickname
 
     If neither of the values are present, throw an exception
     """
@@ -77,7 +77,7 @@ def load_bot(config: Config, twitch_helix_api: TwitchHelixAPI) -> UserBasics:
 def load_control_hub_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the control hub Twitch User ID or Twitch User Login from the config
-    The Twitch User ID is read from control_hub_id, and the Twitch User Login us read from control_hub
+    The Twitch User ID is read from control_hub_id, and the Twitch User Login is read from control_hub
 
     If neither of the values are present, throw an exception
     """
@@ -96,7 +96,7 @@ def load_control_hub_id_or_login(config: Config) -> Union[tuple[str, None], tupl
 def load_admin_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None, str], tuple[None, None]]:
     """
     Load either the admin Twitch User ID or Twitch User Login from the config
-    The Twitch User ID is read from admin_id, and the Twitch User Login us read from admin
+    The Twitch User ID is read from admin_id, and the Twitch User Login is read from admin
 
     If neither of the values are present, throw an exception
     """

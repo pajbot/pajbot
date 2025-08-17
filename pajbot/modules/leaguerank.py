@@ -61,7 +61,7 @@ class LeagueRankModule(BaseModule):
             self.league_rank,
             delay_all=self.settings["online_global_cd"],
             delay_user=self.settings["online_user_cd"],
-            description="Check streamer's or other players League of Legends rank in chat.",
+            description="Check streamer's or other player's League of Legends rank in chat.",
             examples=[
                 CommandExample(
                     None,
@@ -129,7 +129,7 @@ class LeagueRankModule(BaseModule):
             if region not in region_list:
                 bot.whisper(
                     source,
-                    f"Region is not valid. Please enter a valid region, region is optional and the default region is {def_region.upper()}",
+                    f"Region is not valid. Please enter a valid region. Region is optional and the default region is {def_region.upper()}",
                 )
                 return False
         else:
@@ -150,7 +150,7 @@ class LeagueRankModule(BaseModule):
             if e.response.status_code == 429:
                 bot.say(f"Too many requests. Try again in {e.response.headers['Retry-After']} seconds")
             elif e.response.status_code == 404:
-                bot.say("The summoner not found. Use a valid summoner name (remove spaces) and region FailFish")
+                bot.say("The Summoner was not found. Use a valid summoner name (remove spaces) and region FailFish")
             return False
 
         try:

@@ -70,7 +70,7 @@ class FollowAgeModule(BaseModule):
             self.follow_age,
             delay_all=self.settings["global_cd"],
             delay_user=self.settings["user_cd"],
-            description="Check your or someone elses followage for a channel",
+            description="Check your or someone else's followage for a channel",
             can_execute_with_whisper=True,
             examples=[
                 CommandExample(
@@ -81,14 +81,14 @@ class FollowAgeModule(BaseModule):
                 ).parse(),
                 CommandExample(
                     None,
-                    "Check someone elses followage",
+                    "Check someone else's followage",
                     chat="user:!followage NightNacht\n"
                     "bot:pajlada, NightNacht has been following Karl_Kons for 5 months and 4 days",
                     description="Check how long any user has been following the current streamer (Karl_Kons in this case)",
                 ).parse(),
                 CommandExample(
                     None,
-                    "Check someones followage for a certain streamer",
+                    "Check someone's followage for a certain streamer",
                     chat="user:!followage NightNacht forsen\n"
                     "bot:pajlada, NightNacht has been following forsen for 1 year and 4 months",
                     description="Check how long NightNacht has been following forsen",

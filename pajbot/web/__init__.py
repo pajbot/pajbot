@@ -106,7 +106,7 @@ def init(config_path: str) -> None:
     try:
         download_logo(twitch_helix_api, app.streamer)
     except:
-        log.exception("Error downloading the streamers profile picture")
+        log.exception("Error downloading the streamer's profile picture")
 
     subscriber_badge_version = config["web"].get("subscriber_badge_version", "0")
 
@@ -115,7 +115,7 @@ def init(config_path: str) -> None:
         try:
             download_sub_badge(twitch_helix_api, app.streamer, subscriber_badge_version)
         except:
-            log.exception("Error downloading the streamers subscriber badge")
+            log.exception("Error downloading the streamer's subscriber badge")
 
     SocketClientManager.init(app.streamer.login)
 

@@ -269,7 +269,7 @@ class AdminCommandsModule(BaseModule):
                 ).parse()
             ],
         )
-        self.commands["level"] = Command.raw_command(self.level, level=1000, description="Set a users level")
+        self.commands["level"] = Command.raw_command(self.level, level=1000, description="Set a user's level")
 
         self.commands["silence"] = Command.raw_command(self.cmd_silence, level=500, description="Silence the bot")
         self.commands["mute"] = self.commands["silence"]
