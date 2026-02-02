@@ -675,11 +675,11 @@ class ReplyAction(MessageAction):
 
             return ScheduleManager.execute_now(
                 urlfetch_msg,
-                args=[],
+                args=[extra["msg_id"]],
                 kwargs={
                     "args": [],
                     "kwargs": {"channel": event.target},
-                    "method": bot.say,
+                    "method": bot.reply,
                     "bot": bot,
                     "extra": extra,
                     "message": resp,
