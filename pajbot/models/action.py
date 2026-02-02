@@ -677,9 +677,9 @@ class ReplyAction(MessageAction):
                 urlfetch_msg,
                 args=[],
                 kwargs={
-                    "args": [],
+                    "args": [extra["msg_id"]],
                     "kwargs": {"channel": event.target},
-                    "method": bot.say,
+                    "method": bot.reply,
                     "bot": bot,
                     "extra": extra,
                     "message": resp,
