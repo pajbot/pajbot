@@ -3,6 +3,20 @@ from __future__ import annotations
 from enum import Enum
 
 
+class ChatOutputMode(Enum):
+    IRC = 0
+    HELIX = 1
+
+    @staticmethod
+    def from_config_value(config_value: str) -> ChatOutputMode:
+        try:
+            return ChatOutputMode[config_value.upper()]
+        except KeyError:
+            raise ValueError(
+                f'chat_output_mode config option "{config_value}" was not recognized. Must be `irc` or `helix`'
+            )
+
+
 class WhisperOutputMode(Enum):
     DISABLED = 0
     NORMAL = 1

@@ -736,6 +736,48 @@ class TwitchHelixAPI(BaseTwitchAPI):
             force_fetch=force_fetch,
         )
 
+    def send_chat_message(
+        self,
+        broadcaster_id: str,
+        sender_id: str,
+        message: str,
+        authorization,
+        reply_parent_message_id: Optional[str] = None,
+    ) -> None:
+        """Sends a chat message through the Helix Send Chat Message endpoint.
+        broadcaster_id, sender_id and message are required fields. sender_id must match the granted chat sender.
+        reply_parent_message_id is optional and will send a threaded reply when provided.
+        An exception is raised if message delivery fails."""
+        payload: dict[str, Optional[str]] = {
+            "broadcaster_id": broadcaster_id,
+            "sender_id": sender_id,
+            "message": message,
+            "reply_parent_message_id": reply_parent_message_id,
+        }
+        payload = {key: value for key, value in payload.items() if value is not None}
+
+        response = self.post(
+            "/chat/messages",
+            authorization=authorization,
+            json=payload,
+        )
+
+        message_data = response.get("data", [])
+        if len(message_data) <= 0:
+            raise ValueError("Helix Send Chat Message response did not contain any message status")
+
+        first_entry = message_data[0]
+        if first_entry.get("is_sent", False):
+            return
+
+        drop_reason = first_entry.get("drop_reason")
+        if drop_reason is None:
+            raise ValueError("Helix rejected chat message with no drop reason")
+
+        code = drop_reason.get("code", "unknown_code")
+        drop_reason_message = drop_reason.get("message", "No details provided")
+        raise ValueError(f"Helix rejected chat message ({code}): {drop_reason_message}")
+
     def send_chat_announcement(self, channel_id: str, bot_id: str, message: str, authorization) -> None:
         """Posts the message and colour provided in order to post an announcement.
         channel_id, bot_id and message are all required fields. bot_id must match the user ID
