@@ -41,6 +41,8 @@ def init(app):
         "channel:moderate",
         "chat:edit",
         "chat:read",
+        "user:write:chat",  # For sending messages via Helix chat/messages
+        "user:bot",  # Grant bot account permission for app-token chat send
         "whispers:read",
         "whispers:edit",
         "channel:read:subscriptions",
@@ -57,6 +59,7 @@ def init(app):
     streamer_scopes = [
         "channel:read:subscriptions",
         "channel:manage:broadcast",
+        "channel:bot",  # Grant broadcaster permission for app-token chat send
         "channel:read:vips",  # For polling the list of VIPs in the channel
         "moderation:read",  # For polling the list of moderators in the channel
     ]

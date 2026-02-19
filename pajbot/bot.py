@@ -46,7 +46,7 @@ from pajbot.models.stream import StreamManager
 from pajbot.models.timer import TimerManager
 from pajbot.models.user import User, UserBasics
 from pajbot.streamhelper import StreamHelper
-from pajbot.tmi import CHARACTER_LIMIT, TMIRateLimits, WhisperOutputMode
+from pajbot.tmi import CHARACTER_LIMIT, ChatOutputMode, TMIRateLimits, WhisperOutputMode
 
 import irc.client
 import requests
@@ -104,6 +104,10 @@ class Bot:
         utils.wait_for_redis_data_loaded(RedisManager.get())
 
         self.tmi_rate_limits = TMIRateLimits.BASE
+
+        self.chat_output_mode = ChatOutputMode.from_config_value(
+            config["main"].get("chat_output_mode", "helix")
+        )
 
         self.whisper_output_mode = WhisperOutputMode.from_config_value(
             config["main"].get("whisper_output_mode", "normal")
@@ -578,7 +582,70 @@ class Bot:
         if channel is None:
             channel = self.channel
 
+        if self.chat_output_mode == ChatOutputMode.HELIX:
+            if self._send_chat_message_via_helix(channel, message):
+                return
+
         self.irc.privmsg(channel, message)
+
+    def _get_channel_id_for_chat_message(self, channel: str) -> Optional[str]:
+        if channel == self.channel:
+            return self.streamer.id
+
+        if (
+            self.control_hub_channel is not None
+            and self.control_hub_user is not None
+            and channel == self.control_hub_channel
+        ):
+            return self.control_hub_user.id
+
+        channel_login = channel.lstrip("#")
+        if not channel_login:
+            return None
+
+        return self.twitch_helix_api.get_user_id(channel_login)
+
+    def _send_chat_message_via_helix(
+        self,
+        channel: str,
+        message: str,
+        reply_parent_message_id: Optional[str] = None,
+    ) -> bool:
+        message = message[:CHARACTER_LIMIT]
+        channel_id = self._get_channel_id_for_chat_message(channel)
+        if channel_id is None:
+            log.error(
+                f"Failed to send message via Helix, unable to resolve channel ID from channel '{channel}'"
+            )
+            return False
+
+        try:
+            self.twitch_helix_api.send_chat_message(
+                channel_id,
+                self.bot_user.id,
+                message,
+                self.app_token_manager,
+                reply_parent_message_id=reply_parent_message_id,
+            )
+            return True
+        except HTTPError as e:
+            if e.response is None:
+                raise e
+
+            if e.response.status_code == 401:
+                log.error(f"Failed to send message via Helix, unauthorized: {e} - {e.response.text}")
+            elif e.response.status_code == 403:
+                log.error(
+                    "Failed to send message via Helix, forbidden. "
+                    "Re-auth the bot and streamer via /bot_login and /streamer_login: "
+                    f"{e} - {e.response.text}"
+                )
+            else:
+                log.error(f"Failed to send message via Helix: {e} - {e.response.text}")
+            return False
+        except ValueError as e:
+            log.error(f"Failed to send message via Helix: {e}")
+            return False
 
     def c_uptime(self) -> str:
         return utils.time_ago(self.start_time)
@@ -922,9 +989,14 @@ class Bot:
             channel = self.channel
 
         message = utils.clean_up_message(message)
-        message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
+        message = message[:CHARACTER_LIMIT]
 
-        self.irc.send_raw(message[:CHARACTER_LIMIT])
+        if self.chat_output_mode == ChatOutputMode.HELIX:
+            if self._send_chat_message_via_helix(channel, message, reply_parent_message_id=msg_id):
+                return
+
+        raw_message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
+        self.irc.send_raw(raw_message)
 
     def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
