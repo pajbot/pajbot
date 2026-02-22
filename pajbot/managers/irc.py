@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+import functools
 import logging
 import socket
 import ssl
@@ -88,13 +89,15 @@ class IRCManager:
         self.conn = Connection(self.bot.reactor)
         with self.bot.reactor.mutex:
             self.bot.reactor.connections.append(self.conn)
+        context = ssl.create_default_context()
+        wrapper = functools.partial(context.wrap_socket, server_hostname="irc.chat.twitch.tv")
         self.conn.connect(
             "irc.chat.twitch.tv",
             6697,
             self.bot.bot_user.login,
             self.bot.password,
             self.bot.bot_user.login,
-            connect_factory=Factory(wrapper=ssl.wrap_socket),
+            connect_factory=Factory(wrapper=wrapper),
         )
         self.conn.cap("REQ", "twitch.tv/commands", "twitch.tv/tags")
 
