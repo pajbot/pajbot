@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
- - Documentation: Fixed example nginx config's http2 support for Nginx v1.26+. (#2804)
+- Documentation: Fixed example nginx config's http2 support for Nginx v1.26+. (#2804)
 
 ## v1.70
 
