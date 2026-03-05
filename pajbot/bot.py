@@ -1109,6 +1109,7 @@ class Bot:
             urls=urls,
             msg_id=msg_id,
             event=event,
+            tags=tags,
         )
         if res is False:
             return False
