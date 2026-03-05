@@ -316,7 +316,16 @@ class Bot:
 
     @property
     def password(self) -> str:
-        return f"oauth:{self.bot_token_manager.token.access_token}"
+        try:
+            bot_user_access_token = self.bot_token_manager.token.access_token
+            return f"oauth:{bot_user_access_token}"
+        except HTTPError as e:
+            if e.response is None:
+                raise e
+
+            log.debug(f"error getting bot user access token: {e.response.text}")
+
+            raise e
 
     def start(self) -> None:
         """Start the IRC client."""
