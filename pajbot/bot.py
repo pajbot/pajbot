@@ -106,7 +106,7 @@ class Bot:
         self.tmi_rate_limits = TMIRateLimits.BASE
 
         self.chat_output_mode = ChatOutputMode.from_config_value(
-            config["main"].get("chat_output_mode", "helix")
+            config["main"].get("chat_output_mode", "irc")
         )
 
         self.whisper_output_mode = WhisperOutputMode.from_config_value(
