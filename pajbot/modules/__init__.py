@@ -81,6 +81,7 @@ from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wide_emote_limit import WideEmoteLimitModule
 from pajbot.modules.wolfram import WolframModule
+from pajbot.modules.no_threading import NoThreadingModule
 
 available_modules = [
     AbCommandModule,
@@ -157,4 +158,5 @@ available_modules = [
     WinDuelsQuestModule,
     WinRaffleQuestModule,
     WolframModule,
+    NoThreadingModule,
 ]
