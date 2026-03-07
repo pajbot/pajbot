@@ -4,6 +4,10 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+## v1.71
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
 The supported Python versions are now 3.10, 3.11, 3.12, and 3.13.
 
 - Major: Allow sending chat messages using Twitch's Helix API instead of IRC. (#2801)  
