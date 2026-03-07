@@ -1,3 +1,4 @@
+# mypy: disable-error-code="method-assign"
 import pytest
 
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI

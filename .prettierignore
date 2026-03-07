@@ -42,3 +42,5 @@ venv*/
 /static/scripts/range.js
 /static/scripts/clr.queue.js
 /static/css/range.css
+
+/web/static/gen/*
