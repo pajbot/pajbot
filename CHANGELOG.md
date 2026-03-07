@@ -4,6 +4,8 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Major: Allow sending chat messages using Twitch's Helix API instead of IRC. (#2801)  
+  Before enabling this feature, the bot owner **must** re-authenticate the bot with the `/bot_login` endpoint and the streamer **must** re-authenticate with the `/streamer_login` endpoint.
 - Documentation: Fixed example nginx config's http2 support for Nginx v1.26+. (#2804)
 - Dev: Fixed ssl context creation, adding support for Python 3.12+. (#2803)
 
