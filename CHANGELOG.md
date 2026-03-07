@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-The supported Python versions are now 3.10, 3.11, 3.12, and 3.13.
+The supported Python versions are now 3.10, 3.11, 3.12, 3.13, and 3.14.
 
 - Major: Allow sending chat messages using Twitch's Helix API instead of IRC. (#2801)  
   Before enabling this feature, the bot owner **must** re-authenticate the bot with the `/bot_login` endpoint and the streamer **must** re-authenticate with the `/streamer_login` endpoint.
