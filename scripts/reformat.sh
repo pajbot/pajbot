@@ -40,7 +40,7 @@ black $BLACK_OPTIONS . --exclude=venv
 npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
 
 # Run linter
-flake8
+flake8 pajbot
 
 # Run mypy static typing checker
 mypy pajbot
