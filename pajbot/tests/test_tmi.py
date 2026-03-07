@@ -1,6 +1,6 @@
-import pytest
-
 from pajbot.tmi import ChatOutputMode
+
+import pytest
 
 
 def test_chat_output_mode_parses_valid_values() -> None:

@@ -1,7 +1,7 @@
 # mypy: disable-error-code="method-assign"
-import pytest
-
 from pajbot.apiwrappers.twitch.helix import TwitchHelixAPI
+
+import pytest
 
 
 def test_send_chat_message_posts_expected_payload() -> None:
