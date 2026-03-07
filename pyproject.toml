@@ -1,6 +1,7 @@
 [project]
 name = "pajbot"
 requires-python = ">=3.10"
+version = "1.70"
 
 [tool.black]
 line-length = 120
