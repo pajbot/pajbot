@@ -23,6 +23,8 @@ jobs:
           - "3.13"
           - "3.14"
 
+      fail-fast: false
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,6 +57,8 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.14"
+
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
