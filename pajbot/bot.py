@@ -105,9 +105,7 @@ class Bot:
 
         self.tmi_rate_limits = TMIRateLimits.BASE
 
-        self.chat_output_mode = ChatOutputMode.from_config_value(
-            config["main"].get("chat_output_mode", "irc")
-        )
+        self.chat_output_mode = ChatOutputMode.from_config_value(config["main"].get("chat_output_mode", "irc"))
 
         self.whisper_output_mode = WhisperOutputMode.from_config_value(
             config["main"].get("whisper_output_mode", "normal")
@@ -614,9 +612,7 @@ class Bot:
         message = message[:CHARACTER_LIMIT]
         channel_id = self._get_channel_id_for_chat_message(channel)
         if channel_id is None:
-            log.error(
-                f"Failed to send message via Helix, unable to resolve channel ID from channel '{channel}'"
-            )
+            log.error(f"Failed to send message via Helix, unable to resolve channel ID from channel '{channel}'")
             return False
 
         try:
@@ -997,7 +993,6 @@ class Bot:
         else:
             message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
             self.irc.send_raw(message[:CHARACTER_LIMIT])
-
 
     def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
