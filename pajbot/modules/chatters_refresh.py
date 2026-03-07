@@ -65,7 +65,7 @@ class ChattersRefreshModule(BaseModule):
     @time_method
     def _update_chatters(self, only_last_seen: bool = False) -> None:
         if self.bot is None:
-            log.warn("_update_chatters failed in ChattersRefreshModule because bot is None")
+            log.warning("_update_chatters failed in ChattersRefreshModule because bot is None")
             return
 
         chatters = self.bot.twitch_helix_api.get_all_chatters(

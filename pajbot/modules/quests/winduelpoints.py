@@ -118,7 +118,7 @@ class WinDuelPointsQuestModule(BaseQuest):
 
     def get_limit(self) -> int:
         if self.points_required is None:
-            log.warn("Get limit called in WinDuelPoints before quest is initialized")
+            log.warning("Get limit called in WinDuelPoints before quest is initialized")
             return 1
 
         return self.points_required

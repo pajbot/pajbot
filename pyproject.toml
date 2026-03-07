@@ -1,6 +1,6 @@
 [project]
 name = "pajbot"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [tool.black]
 line-length = 120
