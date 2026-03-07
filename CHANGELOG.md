@@ -2,12 +2,18 @@
 
 ## Unversioned
 
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+- Documentation: Fixed example nginx config's http2 support for Nginx v1.26+. (#2804)
+- Dev: Fixed ssl context creation, adding support for Python 3.12+. (#2803)
+
 ## v1.70
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
 - Bugfix: Fixed the reply output method not working for commands containing one or more `urlfetch` replacements. (#2798)
 - Dev: Fixed various typos. (#2796)
+- Dev: Update dependencies to work with Python 3.13. (#2802)
 
 ## v1.69
 
