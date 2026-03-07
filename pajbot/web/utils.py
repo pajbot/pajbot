@@ -68,7 +68,7 @@ def download_logo(twitch_helix_api: TwitchHelixAPI, streamer: UserBasics) -> Non
     logo_url = twitch_helix_api.get_profile_image_url(streamer.id)
 
     if logo_url is None:
-        log.warn(f"Failed to query Twitch API for the profile image url of streamer {streamer.login}")
+        log.warning(f"Failed to query Twitch API for the profile image url of streamer {streamer.login}")
         return
 
     logo_raw_path = f"static/images/logo_{streamer.login}.png"

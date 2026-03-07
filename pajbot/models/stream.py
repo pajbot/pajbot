@@ -182,7 +182,7 @@ class StreamManager:
 
     def create_stream_chunk(self, status: UserStream) -> None:
         if self.current_stream is None:
-            log.warn("create_stream_chunk called with current_stream being None")
+            log.warning("create_stream_chunk called with current_stream being None")
             return
 
         if self.current_stream_chunk is not None:
