@@ -4,9 +4,12 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+The supported Python versions are now 3.10, 3.11, 3.12, and 3.13.
+
 - Major: Allow sending chat messages using Twitch's Helix API instead of IRC. (#2801)  
   Before enabling this feature, the bot owner **must** re-authenticate the bot with the `/bot_login` endpoint and the streamer **must** re-authenticate with the `/streamer_login` endpoint.
 - Documentation: Fixed example nginx config's http2 support for Nginx v1.26+. (#2804)
+- Dev: Updated the default Python version using `pyenv` from 3.10 to 3.12. (#3806)
 - Dev: Fixed ssl context creation, adding support for Python 3.12+. (#2803)
 - Dev: Only run `flake8` on pajbot package. (#2805)
 
