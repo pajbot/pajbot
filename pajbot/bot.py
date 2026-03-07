@@ -989,14 +989,15 @@ class Bot:
             channel = self.channel
 
         message = utils.clean_up_message(message)
-        message = message[:CHARACTER_LIMIT]
 
         if self.chat_output_mode == ChatOutputMode.HELIX:
+            message = message[:CHARACTER_LIMIT]
             if self._send_chat_message_via_helix(channel, message, reply_parent_message_id=msg_id):
                 return
+        else:
+            message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
+            self.irc.send_raw(message[:CHARACTER_LIMIT])
 
-        raw_message = f"@reply-parent-msg-id={msg_id} PRIVMSG {channel} :{message}"
-        self.irc.send_raw(raw_message)
 
     def say(self, message: str, channel: Optional[str] = None) -> None:
         if message is None:
