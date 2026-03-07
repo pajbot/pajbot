@@ -8,6 +8,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 
 - Bugfix: Fixed the reply output method not working for commands containing one or more `urlfetch` replacements. (#2798)
 - Dev: Fixed various typos. (#2796)
+- Dev: Update dependencies to work with Python 3.13. (#2802)
 
 ## v1.69
 
