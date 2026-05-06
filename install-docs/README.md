@@ -298,4 +298,4 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command timeoffline --reply $(usersource;1:name) has spent $(usersource;1:minutes_in_chat_offline|time_since_minutes) in offline chat.
   ```
 
-- Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
+- Advanced command arguments can be found in [docs/commands.md](../docs/commands.md#commands).
