@@ -34,4 +34,5 @@ To make your command a `.me` command, start the response with `.me` or `/me`
 `--modonly`/`--no-modonly` - allows only moderators to use the command. If a level is also set for a command, but the mod does not meet the level requirement; they will not be able to use the command. Default = no-modonly  
 `--subonly`/`--no-subonly` - allows only subscribers to use the command. Default = no-subonly  
 `--checkmsg`/`--no-checkmsg` - choose whether to check the message against the banphrase api. If enabled, the bot will not post the message if it matches a phrase. Default = no-checkmsg<br/>
+`--use-global-cooldown`/`--no-use-global-cooldown` - choose whether the command should also respect the global command cooldown module when it is enabled.Default = no-use-global-cooldown  
 `--disable`/`--enable` - makes the command either enabled or disabled. Default = enabled
