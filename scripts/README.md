@@ -24,13 +24,15 @@ Draws directly from the official unicode `emoji-test.txt` file and generates a l
 E.g.:
 
 ```bash
+# if you haven't done so already:
+./scripts/venvinstall.sh --dev
 source venv/bin/activate
 
 # generate new file...
 ./scripts/emoji-generate.py > ./pajbot/emoji.py
 
 # and reformat it afterwards.
-black pajbot
+./scripts/reformat.sh
 ```
 
 ## migrate-mysql-to-postgresql
