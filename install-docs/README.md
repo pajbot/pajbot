@@ -49,13 +49,13 @@ We also need the following libraries and build tools:
 sudo apt install libssl-dev libpq-dev build-essential git
 ```
 
-Now, double-check that you have Python 3.9 or newer installed:
+Now, double-check that you have Python 3.10 or newer installed:
 
 ```bash
 python3 --version
 ```
 
-If your system Python version is not 3.9 or above, you must install [pyenv](https://github.com/pyenv/pyenv) following the instructions below.
+If your system Python version is below 3.10, you must install [pyenv](https://github.com/pyenv/pyenv) following the instructions below.
 
 ### Installing pyenv
 
