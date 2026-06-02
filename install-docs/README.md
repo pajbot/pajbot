@@ -49,13 +49,13 @@ We also need the following libraries and build tools:
 sudo apt install libssl-dev libpq-dev build-essential git
 ```
 
-Now, double-check that you have Python 3.9 or newer installed:
+Now, double-check that you have Python 3.10 or newer installed:
 
 ```bash
 python3 --version
 ```
 
-If your system Python version is not 3.9 or above, you must install [pyenv](https://github.com/pyenv/pyenv) following the instructions below.
+If your system Python version is below 3.10, you must install [pyenv](https://github.com/pyenv/pyenv) following the instructions below.
 
 ### Installing pyenv
 
@@ -298,4 +298,4 @@ Congratulations! Your bot should be running by now, but there are some extra ste
   !add command timeoffline --reply $(usersource;1:name) has spent $(usersource;1:minutes_in_chat_offline|time_since_minutes) in offline chat.
   ```
 
-- Advanced command arguments can be found [here.](https://github.com/pajbot/pajbot/blob/1ed503003c7363ebc592d0945d6c31ab1107db30/pajbot/managers/command.py#L450-L464)
+- Advanced command arguments can be found in [docs/commands.md](../docs/commands.md#commands).
