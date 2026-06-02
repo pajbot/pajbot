@@ -4,7 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-- Dev: Updated some documentation. (#2809)
+- Dev: Updated some documentation. (#2809, #2810)
 
 ## v1.71
 
