@@ -1,3 +1,4 @@
+from .benchmark import benchmark
 from .clean_up_message import clean_up_message
 from .datetime_from_utc_milliseconds import datetime_from_utc_milliseconds
 from .dump_threads import dump_threads
@@ -25,6 +26,7 @@ __all__ = [
     "clean_up_message",
     "datetime_from_utc_milliseconds",
     "dump_threads",
+    "benchmark",
     "extend_version_if_possible",
     "extend_version_with_git_data",
     "find",
