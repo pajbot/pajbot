@@ -55,6 +55,7 @@ from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.moderators_refresh import ModeratorsRefreshModule
+from pajbot.modules.no_threading import NoThreadingModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.paiduntimeout import PaidUntimeoutModule
@@ -81,7 +82,6 @@ from pajbot.modules.vip_refresh import VIPRefreshModule
 from pajbot.modules.warning import WarningModule
 from pajbot.modules.wide_emote_limit import WideEmoteLimitModule
 from pajbot.modules.wolfram import WolframModule
-from pajbot.modules.no_threading import NoThreadingModule
 
 available_modules = [
     AbCommandModule,

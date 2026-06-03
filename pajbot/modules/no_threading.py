@@ -55,7 +55,9 @@ class NoThreadingModule(BaseModule):
         ),
     ]
 
-    def on_message(self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, tags, **rest) -> bool:
+    def on_message(
+        self, source: User, message: str, emote_instances: list[EmoteInstance], msg_id: str, tags, **rest
+    ) -> bool:
         if self.bot is None:
             log.warning("Module bot is None")
             return True
