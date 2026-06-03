@@ -55,6 +55,7 @@ from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
 from pajbot.modules.moderators_refresh import ModeratorsRefreshModule
+from pajbot.modules.no_threading import NoThreadingModule
 from pajbot.modules.paidsubmode import PaidSubmodeModule
 from pajbot.modules.paidtimeout import PaidTimeoutModule
 from pajbot.modules.paiduntimeout import PaidUntimeoutModule
@@ -157,4 +158,5 @@ available_modules = [
     WinDuelsQuestModule,
     WinRaffleQuestModule,
     WolframModule,
+    NoThreadingModule,
 ]
