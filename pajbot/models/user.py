@@ -125,7 +125,12 @@ class User(Base):
     last_active: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
     ignored: Mapped[bool]
     banned: Mapped[bool]
+
     timeout_end: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+
+    # Moderator-only applied long timeout
+    long_timeout_end: Mapped[Optional[datetime.datetime]] = mapped_column(UtcDateTime())
+
     vip: Mapped[bool]
     founder: Mapped[bool]
 
@@ -145,6 +150,7 @@ class User(Base):
         self.ignored = False
         self.banned = False
         self.timeout_end = None
+        self.long_timeout_end = None
         self.vip = False
         self.founder = False
         self.login_last_updated = utils.now()
@@ -335,6 +341,7 @@ class User(Base):
             "last_active": self.last_active.isoformat() if self.last_active is not None else None,
             "ignored": self.ignored,
             "banned": self.banned,
+            "long_timeout_end": self.long_timeout_end,
             "timeout_end": self.timeout_end.isoformat() if self.timeout_end is not None else None,
             "vip": self.vip,
             "founder": self.founder,

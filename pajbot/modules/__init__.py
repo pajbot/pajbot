@@ -51,6 +51,7 @@ from pajbot.modules.leaguerank import LeagueRankModule
 from pajbot.modules.linefarming import LineFarmingModule
 from pajbot.modules.linkchecker import LinkCheckerModule
 from pajbot.modules.linktracker import LinkTrackerModule
+from pajbot.modules.longtimeout import LongTimeoutModule
 from pajbot.modules.massping import MassPingProtectionModule
 from pajbot.modules.math import MathModule
 from pajbot.modules.maxmsglength import MaxMsgLengthModule
@@ -91,13 +92,13 @@ available_modules = [
     BanphraseModule,
     BasicCommandsModule,
     BingoModule,
+    CLROverlayModule,
     CaseCheckerModule,
     ChatAlertModule,
     ChattersRefreshModule,
     CheckModModule,
     CheerAlertModule,
     ClipCommandModule,
-    CLROverlayModule,
     DBManageModule,
     DebugModule,
     DeckModule,
@@ -120,6 +121,7 @@ available_modules = [
     LinkCheckerModule,
     LinkTrackerModule,
     LiveAlertModule,
+    LongTimeoutModule,
     MassPingProtectionModule,
     MathModule,
     MaxMsgLengthModule,
@@ -134,8 +136,8 @@ available_modules = [
     PointLotteryModule,
     PointsResetModule,
     PyramidModule,
-    QuestModule,
     QueUpModule,
+    QuestModule,
     RaffleModule,
     RaidAlertModule,
     RepspamModule,
@@ -150,8 +152,8 @@ available_modules = [
     TriviaModule,
     TypeEmoteQuestModule,
     TypeMeMessageQuestModule,
-    VanishModule,
     VIPRefreshModule,
+    VanishModule,
     WarningModule,
     WideEmoteLimitModule,
     WinDuelPointsQuestModule,
