@@ -23,15 +23,13 @@
 def up(cursor, bot):
     # This query selects the "NOT NULL" state of the pleblist_song.user_id column, which we can use
     # to determine whether this database was migrated with the bugged or fixed version of 0004_unify_user_model
-    cursor.execute(
-        """
+    cursor.execute("""
     SELECT attnotnull
     FROM pg_attribute
     WHERE
         attrelid = 'pleblist_song'::regclass
         AND attname = 'user_id'
-    """
-    )
+    """)
     pleblist_song_user_id_column_unnullable = cursor.fetchone()[0]
 
     # If the column is marked NOT NULL, then the database was migrated with the bugged version of 0004_unify_user_model.

@@ -188,18 +188,14 @@ def up(cursor, bot):
     # minutes_in_chat_{online,offline} -> INTERVAL type and renamed to time_in_chat_...
     cursor.execute('ALTER TABLE "user" RENAME COLUMN minutes_in_chat_online TO time_in_chat_online')
     cursor.execute('ALTER TABLE "user" RENAME COLUMN minutes_in_chat_offline TO time_in_chat_offline')
-    cursor.execute(
-        """
+    cursor.execute("""
     ALTER TABLE "user" ALTER COLUMN time_in_chat_online SET DATA TYPE INTERVAL
     USING make_interval(mins := time_in_chat_online)
-    """
-    )
-    cursor.execute(
-        """
+    """)
+    cursor.execute("""
     ALTER TABLE "user" ALTER COLUMN time_in_chat_offline SET DATA TYPE INTERVAL
     USING make_interval(mins := time_in_chat_offline)
-    """
-    )
+    """)
     cursor.execute("ALTER TABLE \"user\" ALTER COLUMN time_in_chat_online SET DEFAULT INTERVAL '0 minutes'")
     cursor.execute("ALTER TABLE \"user\" ALTER COLUMN time_in_chat_offline SET DEFAULT INTERVAL '0 minutes'")
 
@@ -365,8 +361,7 @@ def up(cursor, bot):
 
     # new: login_last_updated (+triggers)
     cursor.execute('ALTER TABLE "user" ADD COLUMN login_last_updated TIMESTAMPTZ NOT NULL DEFAULT now()')
-    cursor.execute(
-        """
+    cursor.execute("""
     CREATE FUNCTION trigger_user_update_login_last_updated()
     RETURNS trigger AS
     $$
@@ -376,15 +371,12 @@ def up(cursor, bot):
     END
     $$
     LANGUAGE plpgsql
-    """
-    )
-    cursor.execute(
-        """
+    """)
+    cursor.execute("""
     CREATE TRIGGER user_login_update
     AFTER UPDATE OF login ON "user"
     FOR EACH ROW EXECUTE PROCEDURE trigger_user_update_login_last_updated()
-    """
-    )
+    """)
 
     with RedisManager.pipeline_context() as redis_pipeline:
         # Overwrite admin logs

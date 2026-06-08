@@ -380,8 +380,7 @@ class EpmManager:
         self.epm: dict[str, int] = {}
 
         redis = RedisManager.get()
-        self.redis_zadd_if_higher = redis.register_script(
-            """
+        self.redis_zadd_if_higher = redis.register_script("""
 local c = tonumber(redis.call('zscore', KEYS[1], ARGV[1]));
 if c then
     if tonumber(KEYS[2]) > c then
@@ -394,8 +393,7 @@ else
     redis.call('zadd', KEYS[1], KEYS[2], ARGV[1])
     return 'OK'
 end
-"""
-        )
+""")
 
     def handle_emotes(self, emote_counts: EmoteInstanceCountMap) -> None:
         # passed dict maps emote code (e.g. "Kappa") to an EmoteInstanceCount instance

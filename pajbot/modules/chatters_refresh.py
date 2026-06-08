@@ -108,8 +108,7 @@ class ChattersRefreshModule(BaseModule):
 
         with DBManager.create_session_scope() as db_session:
             db_session.execute(
-                text(
-                    """
+                text("""
 INSERT INTO "user"(id, login, name, points, time_in_chat_online, time_in_chat_offline, last_seen)
     VALUES (:id, :login, :name, :add_points_pleb, :add_time_in_chat_online, :add_time_in_chat_offline, now())
 ON CONFLICT (id) DO UPDATE SET
@@ -117,8 +116,7 @@ ON CONFLICT (id) DO UPDATE SET
     time_in_chat_online = "user".time_in_chat_online + :add_time_in_chat_online,
     time_in_chat_offline = "user".time_in_chat_offline + :add_time_in_chat_offline,
     last_seen = now()
-            """
-                ),
+            """),
                 update_values,
             )
 

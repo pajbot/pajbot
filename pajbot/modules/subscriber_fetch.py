@@ -64,17 +64,13 @@ class SubscriberFetchModule(BaseModule):
         self.bot.kvi["active_subs"].set(sub_count)
 
         with DBManager.create_session_scope() as db_session:
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 CREATE TEMPORARY TABLE subscribers(
     id TEXT PRIMARY KEY NOT NULL,
     login TEXT NOT NULL,
     name TEXT NOT NULL
 )
-ON COMMIT DROP"""
-                )
-            )
+ON COMMIT DROP"""))
 
             if len(subscribers) > 0:
                 # The precondition check is to prevent an exception,
@@ -89,9 +85,7 @@ ON COMMIT DROP"""
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login
             # if we only had one value for :login)
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 WITH updated_users AS (
     INSERT INTO "user"(id, login, name, subscriber)
         SELECT id, login, name, TRUE FROM subscribers
@@ -106,9 +100,7 @@ SET
     subscriber = FALSE
 WHERE
     id NOT IN (SELECT * FROM updated_users) AND
-    subscriber IS TRUE"""
-                )
-            )
+    subscriber IS TRUE"""))
 
         log.info(f"Successfully updated {len(subscribers)} subscribers")
 

@@ -37,7 +37,7 @@ class Migration:
 
         with self.migratable.create_resource() as resource:
             # NOTE: I don't know how to prove migratable is the same type from start to finish without adding a bunch of ugly ifs
-            current_revision_id = self.migratable.get_current_revision(resource)  # type:ignore
+            current_revision_id = self.migratable.get_current_revision(resource)  # type: ignore
         log.debug("migrate %s: current revision ID is %s", self.migratable.describe_resource(), current_revision_id)
 
         if current_revision_id is not None:
@@ -58,7 +58,7 @@ class Migration:
                 log.debug("migrate %s: running migration %s: %s", self.migratable.describe_resource(), rev.id, rev.name)
                 rev.up_action(resource, self.context)
                 # NOTE: I don't know how to prove migratable is the same type from start to finish without adding a bunch of ugly ifs
-                self.migratable.set_revision(resource, rev.id)  # type:ignore
+                self.migratable.set_revision(resource, rev.id)  # type: ignore
 
     def get_revisions(self) -> list[Revision]:
         package = self.revisions_package

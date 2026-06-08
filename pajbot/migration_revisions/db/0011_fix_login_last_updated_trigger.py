@@ -5,10 +5,8 @@ def up(cursor, bot):
     # In order for changes to the "NEW" row to actually be included in the update, we have to run BEFORE.
     # We just drop it and re-create it properly to fix our previous mistake here.
     cursor.execute('DROP TRIGGER user_login_update ON "user"')
-    cursor.execute(
-        """
+    cursor.execute("""
     CREATE TRIGGER user_login_update
     BEFORE UPDATE OF login ON "user"
     FOR EACH ROW EXECUTE PROCEDURE trigger_user_update_login_last_updated()
-    """
-    )
+    """)
