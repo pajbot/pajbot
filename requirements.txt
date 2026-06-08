@@ -12,7 +12,7 @@ jsmin==3.0.1
 Markdown==3.7
 MarkupSafe==2.1.5
 marshmallow-dataclass==8.7.1
-marshmallow==3.22.0
+marshmallow==3.26.2
 psycopg2==2.9.11
 pylast==5.3.0
 pyOpenSSL==26.0.0 # for twisted.internet.ssl
