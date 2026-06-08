@@ -4,6 +4,7 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+- Minor: Added a long timeout module that can keep users timed out for longer than Twitch's 14d max timeout duration. (#2815)
 - Minor: Added a no-threading module that can time out users when they use Twitch's reply/thread feature. (#2813)
 - Minor: Request the prediction scope for streamers. (#2814)
 - Dev: Updated some documentation. (#2809, #2810)
