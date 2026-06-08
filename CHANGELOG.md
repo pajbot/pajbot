@@ -7,6 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 - Minor: Added a long timeout module that can keep users timed out for longer than Twitch's 14d max timeout duration. (#2815)
 - Minor: Added a no-threading module that can time out users when they use Twitch's reply/thread feature. (#2813)
 - Minor: Request the prediction scope for streamers. (#2814)
+- Dev: Remove dependency on the `cgi` package. (#2827)
 - Dev: Updated some documentation. (#2809, #2810)
 - Dev: Improved error messaging if we failed to get the bot oauth token. (#2811)
 - Dev: Added a benchmark utility to help you check if a function is taking longer than expected. (#2812)
