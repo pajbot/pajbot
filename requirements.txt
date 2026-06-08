@@ -9,7 +9,7 @@ irc==20.5.0
 isodate==0.6.1
 Jinja2==3.1.6
 jsmin==3.0.1
-Markdown==3.7
+Markdown==3.8.1
 MarkupSafe==2.1.5
 marshmallow-dataclass==8.7.1
 marshmallow==3.25.1
