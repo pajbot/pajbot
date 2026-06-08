@@ -22,14 +22,15 @@ if ! command -v npx >/dev/null; then
   exit 1
 fi
 
+MIN_PY_VERSION="py310"
 ISORT_OPTIONS=()
 
 if [ "${1-}" = "--check" ]; then
-  BLACK_OPTIONS="--check --diff"
+  BLACK_OPTIONS="--target-version $MIN_PY_VERSION --check --diff"
   PRETTIER_OPTIONS="--check"
   ISORT_OPTIONS+=("--check")
 else
-  BLACK_OPTIONS=""
+  BLACK_OPTIONS="--target-version $MIN_PY_VERSION"
   PRETTIER_OPTIONS="--write"
 fi
 
