@@ -11,6 +11,7 @@ The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
 - Minor: Added a no-threading module that can time out users when they use Twitch's reply/thread feature. (#2813)
 - Minor: Request the prediction scope for streamers. (#2814)
 - Dev: Remove dependency on the `cgi` package. (#2827)
+- Dev: Requirement files are now sourced from pyproject.toml - installation method stil uses requirements.txt and requirements-dev.txt (they are essentially lockfiles). (#2826)
 - Dev: Updated some documentation. (#2809, #2810)
 - Dev: Improved error messaging if we failed to get the bot oauth token. (#2811)
 - Dev: Added a benchmark utility to help you check if a function is taking longer than expected. (#2812)
