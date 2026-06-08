@@ -7,7 +7,7 @@ Flask==3.0.3
 Flask-Assets2==2.1
 irc==20.5.0
 isodate==0.6.1
-Jinja2==3.1.4
+Jinja2==3.1.6
 jsmin==3.0.1
 Markdown==3.7
 MarkupSafe==2.1.5
