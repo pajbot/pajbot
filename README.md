@@ -7,7 +7,8 @@ Note: pajbot is in **maintenance mode**.
 This means we focus on keeping the project alive by not allowing major overhauls of any pajbot system or any major features.
 Fixing bugs, updating dependencies and ensuring that code interacting with external APIs still function will be our main goal.
 Feature requests will not be accepted unless someone is willing to own the feature, and even then some features that change too much of the architecture won't be allowed.
-Current minimal supported Python version is **3.10**.
+Current minimal supported Python version is **3.11**.
+Supported Python versions are **3.11**, **3.12**, **3.13**, and **3.14**.
 
 ## Python versioning
 

@@ -22,7 +22,7 @@ if ! command -v npx >/dev/null; then
   exit 1
 fi
 
-MIN_PY_VERSION="py310"
+MIN_PY_VERSION="py311"
 ISORT_OPTIONS=()
 
 if [ "${1-}" = "--check" ]; then

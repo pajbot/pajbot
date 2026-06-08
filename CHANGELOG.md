@@ -4,6 +4,9 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
+The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
+
+- Breaking: Changed the minimal supported Python version from 3.10 to 3.11. (#2828)
 - Minor: Added a long timeout module that can keep users timed out for longer than Twitch's 14d max timeout duration. (#2815)
 - Minor: Added a no-threading module that can time out users when they use Twitch's reply/thread feature. (#2813)
 - Minor: Request the prediction scope for streamers. (#2814)
