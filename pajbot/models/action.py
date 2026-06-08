@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, Optional
 
-import cgi
 import collections
 import json
 import logging
@@ -17,6 +16,7 @@ if TYPE_CHECKING:
     from pajbot.models.user import User
 
 from pajbot.managers.schedule import ScheduleManager
+from pajbot.utils import get_content_type_mime_type
 
 log = logging.getLogger(__name__)
 
@@ -529,8 +529,7 @@ def urlfetch_msg(method, message, num_urlfetch_subs, bot, extra={}, args=[], kwa
             value = r.text.strip().replace("\n", "").replace("\r", "")[:400]
         else:
             # An error code was returned, ensure the response is plain text
-            content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+            if get_content_type_mime_type(r) != "text/plain":
                 # The content type is not plain text, return a generic error showing the status code returned
                 value = f"urlfetch error {r.status_code}"
             else:
