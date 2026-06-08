@@ -46,7 +46,7 @@ class SevenTVAPI(BaseAPI):
 
         emotes = []
         for active_emote in api_emotes:
-            (urls, max_width, max_height) = get_emote_urls(active_emote.data.host)
+            urls, max_width, max_height = get_emote_urls(active_emote.data.host)
             emotes.append(
                 Emote(
                     code=active_emote.name,

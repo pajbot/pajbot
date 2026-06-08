@@ -64,17 +64,13 @@ class VIPRefreshModule(BaseModule):
                 return
 
         with DBManager.create_session_scope() as db_session:
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 CREATE TEMPORARY TABLE vips(
     id TEXT PRIMARY KEY NOT NULL,
     login TEXT NOT NULL,
     name TEXT NOT NULL
 )
-ON COMMIT DROP"""
-                )
-            )
+ON COMMIT DROP"""))
 
             if len(vips) > 0:
                 db_session.execute(
@@ -85,9 +81,7 @@ ON COMMIT DROP"""
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login
             # if we only had one value for :login)
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 WITH updated_users AS (
     INSERT INTO "user"(id, login, name, vip)
         SELECT id, login, name, TRUE FROM vips
@@ -102,9 +96,7 @@ SET
     vip = FALSE
 WHERE
     id NOT IN (SELECT * FROM updated_users) AND
-    vip IS TRUE"""
-                )
-            )
+    vip IS TRUE"""))
 
         log.info(f"Successfully updated {len(vips)} VIPs")
 

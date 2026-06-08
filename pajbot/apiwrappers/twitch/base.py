@@ -35,7 +35,7 @@ class BaseTwitchAPI(BaseAPI):
                 "Authorization": f"{self.authorization_header_prefix} {authorization.token.access_token}",
             }
         elif isinstance(authorization, tuple):
-            (client_credentials, access_token) = authorization
+            client_credentials, access_token = authorization
 
             auth_headers = {
                 "Client-ID": client_credentials.client_id,

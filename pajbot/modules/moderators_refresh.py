@@ -77,17 +77,13 @@ class ModeratorsRefreshModule(BaseModule):
             return
 
         with DBManager.create_session_scope() as db_session:
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 CREATE TEMPORARY TABLE moderators(
     id TEXT PRIMARY KEY NOT NULL,
     login TEXT NOT NULL,
     name TEXT NOT NULL
 )
-ON COMMIT DROP"""
-                )
-            )
+ON COMMIT DROP"""))
 
             db_session.execute(
                 text("INSERT INTO moderators(id, login, name) VALUES (:id, :login, :name)"),
@@ -97,9 +93,7 @@ ON COMMIT DROP"""
             # hint to understand this query: "excluded" is a PostgreSQL keyword that referers
             # to the data we tried to insert but failed (so excluded.login would be equal to :login
             # if we only had one value for :login)
-            db_session.execute(
-                text(
-                    """
+            db_session.execute(text("""
 WITH updated_users AS (
     INSERT INTO "user"(id, login, name, moderator)
         SELECT id, login, name, TRUE FROM moderators
@@ -114,9 +108,7 @@ SET
     moderator = FALSE
 WHERE
     id NOT IN (SELECT * FROM updated_users) AND
-    moderator IS TRUE"""
-                )
-            )
+    moderator IS TRUE"""))
 
         log.info(f"Successfully updated {len(moderators)} moderators")
 
