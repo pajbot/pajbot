@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
-import cgi
 import datetime
 import logging
 import random
@@ -550,8 +549,7 @@ class Bot:
             r = requests.get(url, headers={"User-Agent": self.user_agent})
             r.raise_for_status()
 
-            content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+            if utils.get_content_type_mime_type(r) != "text/plain":
                 log.error("privmsg_from_file should be fed with a text/plain URL. Refusing to send.")
                 return
 
@@ -567,8 +565,7 @@ class Bot:
             r = requests.get(url, headers={"User-Agent": self.user_agent})
             r.raise_for_status()
 
-            content_type = r.headers["Content-Type"]
-            if content_type is not None and cgi.parse_header(content_type)[0] != "text/plain":
+            if utils.get_content_type_mime_type(r) != "text/plain":
                 log.error("eval_from_file should be fed with a text/plain URL. Refusing to send.")
                 return
 

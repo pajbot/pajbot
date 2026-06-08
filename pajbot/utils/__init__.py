@@ -5,6 +5,7 @@ from .dump_threads import dump_threads
 from .extend_version_with_git_data import extend_version_if_possible, extend_version_with_git_data
 from .find import find
 from .get_class_that_defined_method import get_class_that_defined_method
+from .get_content_type_mime_type import get_content_type_mime_type
 from .init_logging import init_logging
 from .iterate_in_chunks import iterate_in_chunks
 from .iterate_split_with_index import iterate_split_with_index
@@ -30,6 +31,7 @@ __all__ = [
     "extend_version_if_possible",
     "extend_version_with_git_data",
     "find",
+    "get_content_type_mime_type",
     "get_class_that_defined_method",
     "init_logging",
     "iterate_in_chunks",
