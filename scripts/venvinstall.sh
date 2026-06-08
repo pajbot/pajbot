@@ -35,14 +35,13 @@ fi
 # Install wheel (see https://stackoverflow.com/q/53204916/4464702)
 ./venv/bin/pip install wheel
 
-# Install requirements.txt
-./venv/bin/pip install -r requirements.txt
+INSTALL_DEV="0"
 
 while :; do
     case $1 in
         --dev)
             # Install dev dependencies
-            ./venv/bin/pip install -r requirements-dev.txt
+            INSTALL_DEV="1"
             ;;
 
         --nvim)
@@ -60,3 +59,11 @@ while :; do
 
     shift
 done
+
+if [ "$INSTALL_DEV" = "1" ]; then
+    echo "Installing requirements + dev requirements from requirements-dev.txt"
+    ./venv/bin/pip install -r requirements-dev.txt
+else
+    echo "Installing requirements requirements from requirements.txt"
+    ./venv/bin/pip install -r requirements.txt
+fi
