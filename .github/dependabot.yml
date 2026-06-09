@@ -7,6 +7,9 @@ version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
+    exclude-paths:
+      - "requirements.txt"
+      - "requirements-dev.txt"
     schedule:
       interval: "daily"
   - package-ecosystem: "github-actions"
