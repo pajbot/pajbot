@@ -37,7 +37,7 @@ colorama==0.4.6
     # via pajbot (pyproject.toml)
 constantly==23.10.4
     # via twisted
-cryptography==46.0.7
+cryptography==48.0.0
     # via
     #   autobahn
     #   pyopenssl
