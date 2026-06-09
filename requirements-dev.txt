@@ -186,7 +186,7 @@ pyasn1==0.6.3
     #   service-identity
 pyasn1-modules==0.4.2
     # via service-identity
-pycodestyle==2.12.1
+pycodestyle==2.14.0
     # via flake8
 pycparser==3.0
     # via cffi
