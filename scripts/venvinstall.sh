@@ -3,37 +3,22 @@
 set -e
 
 # Ensure this script is called from the correct folder
+if ! command -v uv >/dev/null; then
+    echo "We now require uv for dependency management."
+    echo "See https://docs.astral.sh/uv/getting-started/installation/ for installation instructions."
+    echo "If you really don't want to do this, you can just run pip install . in the repositories main directory."
+    exit 1
+fi
+
+if [ "$SKIP_PYENV" = "1" ]; then
+    echo "If you want to skip the packaged version, call uv sync --no-managed-python"
+    exit 1
+fi
+
 if [ ! -d scripts ]; then
     echo "This script needs to be called from the root folder, i.e. ./scripts/venvinstall.sh"
     exit 1
 fi
-
-if [ ! -d venv ]; then
-    # Create virtual environment
-    if [ "$SKIP_PYENV" = "1" ]; then
-        echo "Attempting to create virtual environment using system Python"
-        python3 -m venv venv
-        printf "Created virtual environment using system Python: "
-        python3 --version
-    else
-        echo "Attempting to create virtual environment using pyenv's Python"
-        if ! command -v pyenv >/dev/null; then
-            echo "Error: Unable to find pyenv to create the virtual environment with the appropriate Python version."
-            echo "You must install pyenv & put the appropriate shell initialization into your .bashrc or .zshrc to be able to use pyenv."
-            echo "If you want to use your system Python (and your system Python is high enough version), run this script again with the SKIP_PYENV=1 environment variable set."
-            exit 1
-        fi
-        pyenv exec python3 -m venv venv
-        printf "Created virtual environment using pyenv Python: "
-        pyenv exec python3 --version
-    fi
-fi
-
-# Upgrade pip
-./venv/bin/pip install pip --upgrade
-
-# Install wheel (see https://stackoverflow.com/q/53204916/4464702)
-./venv/bin/pip install wheel
 
 INSTALL_DEV="0"
 
@@ -42,11 +27,6 @@ while :; do
         --dev)
             # Install dev dependencies
             INSTALL_DEV="1"
-            ;;
-
-        --nvim)
-            # Install NVIM-specific dev dependencies
-            ./venv/bin/pip install pynvim jedi
             ;;
 
         -?*)
@@ -62,8 +42,8 @@ done
 
 if [ "$INSTALL_DEV" = "1" ]; then
     echo "Installing requirements + dev requirements from requirements-dev.txt"
-    ./venv/bin/pip install -r requirements-dev.txt
+    uv sync --extra-dev
 else
     echo "Installing requirements requirements from requirements.txt"
-    ./venv/bin/pip install -r requirements.txt
+    uv sync
 fi

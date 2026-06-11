@@ -1,6 +1,7 @@
 # Python-specific stuff
 __pycache__
 *.py[cod]
+build/
 *$py.class
 .pytest_cache/
 .mypy_cache/
