@@ -7,13 +7,13 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
 
 - Breaking: Changed the minimal supported Python version from 3.10 to 3.11. (#2828)
-- Breaking: We now expect the virtual environment to be stored under `.venv`, managed with `uv`. (#???)
+- Breaking: We now expect the virtual environment to be stored under `.venv`, managed with `uv`. (#2841)
 - Minor: Added a long timeout module that can keep users timed out for longer than Twitch's 14d max timeout duration. (#2815)
 - Minor: Added a no-threading module that can time out users when they use Twitch's reply/thread feature. (#2813)
 - Minor: Request the prediction scope for streamers. (#2814)
 - Dev: Added some unit tests for \$(randomchoice:...). (#2839)
 - Dev: Remove dependency on the `cgi` package. (#2827)
-- Dev: Requirement files are now sourced from pyproject.toml. `uv` is recommended to install dependencies. (#2826, #???)
+- Dev: Requirement files are now sourced from pyproject.toml. `uv` is recommended to install dependencies. (#2826, #2841)
 - Dev: Updated some documentation. (#2809, #2810)
 - Dev: Improved error messaging if we failed to get the bot oauth token. (#2811)
 - Dev: Added a benchmark utility to help you check if a function is taking longer than expected. (#2812)
