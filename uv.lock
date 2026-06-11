@@ -1041,7 +1041,7 @@ requires-dist = [
     { name = "types-pytz", marker = "extra == 'dev'", specifier = "==2024.2.0.20240913" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = "==4.6.0.20240903" },
     { name = "types-requests", marker = "extra == 'dev'", specifier = "==2.32.0.20240914" },
-    { name = "types-retry", marker = "extra == 'dev'", specifier = "==0.9.9.4" },
+    { name = "types-retry", marker = "extra == 'dev'", specifier = "==0.9.9.20260408" },
     { name = "unidecode", specifier = "==1.3.8" },
     { name = "urlextract", specifier = "==1.9.0" },
     { name = "uwsgi", specifier = "==2.0.31" },
@@ -1849,11 +1849,11 @@ wheels = [
 
 [[package]]
 name = "types-retry"
-version = "0.9.9.4"
+version = "0.9.9.20260408"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f3/c5/7f48799465df1b0bdada78e8c62d34ca8b2b9c9b89613ad8288e3c69e513/types-retry-0.9.9.4.tar.gz", hash = "sha256:e4731dc684b56b875d9746459ad665d3bc281a56b530acdf1c97730167799941", size = 2845, upload-time = "2023-07-20T15:18:01.76Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b4/e9/0e448a0475f86fb36c68a7ca35c6d2ea06b7f599d763514328fe34913eba/types_retry-0.9.9.20260408.tar.gz", hash = "sha256:3f98fa62ec027449383f5c019cceacc784c1dbab4760989ddab421f7b8407d92", size = 7778, upload-time = "2026-04-08T04:32:27.274Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1c/a9/61177f5f708da4a87f08b1bbed268eecd68ea4f53a977cb05800c9988212/types_retry-0.9.9.4-py3-none-any.whl", hash = "sha256:f29760a9fe8b1fefe253e5fe6be7e4c0eba243932c600e0eccffb42a21d17765", size = 2522, upload-time = "2023-07-20T15:18:00.534Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/f5/d6d49f1e99ae6e40fb6a9861e6cb78018cfbeff546fd5e5ab2a3719f3fe1/types_retry-0.9.9.20260408-py3-none-any.whl", hash = "sha256:f1d0677e03235fa04b66332d4ec004211dbf85b08b863e19b7dfcbf604622c50", size = 7618, upload-time = "2026-04-08T04:32:26.482Z" },
 ]
 
 [[package]]
