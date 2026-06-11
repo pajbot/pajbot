@@ -42,7 +42,6 @@ dependencies = [
     "urlextract==1.9.0",
     "Flask-WTF==1.2.1",
     "pytimeparse==1.1.8",
-    "legacy-cgi; python_version >= '3.13'",
 ]
 
 [project.optional-dependencies]
