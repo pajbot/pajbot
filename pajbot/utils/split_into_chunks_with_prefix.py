@@ -1,47 +1,69 @@
-from typing import Any, Optional
+from typing import Optional, TypedDict
+
+
+class ChunkWithPrefix(TypedDict):
+    prefix: str
+    parts: list[str]
+
+
+def _build_message_suffix(
+    current_prefix: Optional[str], prefix: str, part: str, separator: str, *, has_message: bool
+) -> str:
+    needs_prefix = current_prefix != prefix
+    suffix = f"{prefix}{separator}{part}" if needs_prefix else part
+
+    if has_message:
+        suffix = f"{separator}{suffix}"
+
+    return suffix
+
+
+def _append_part_to_message(
+    current_message: str, current_prefix: Optional[str], prefix: str, part: str, separator: str, limit: int
+) -> tuple[str, str]:
+    suffix = _build_message_suffix(
+        current_prefix,
+        prefix,
+        part,
+        separator,
+        has_message=bool(current_message),
+    )
+
+    if len(current_message) + len(suffix) > limit:
+        raise ValueError("Part does not fit in the message limit")
+
+    return current_message + suffix, prefix
 
 
 def split_into_chunks_with_prefix(
-    chunks: list[dict[str, Any]], separator: str = " ", limit: int = 500, default: Optional[str] = None
+    chunks: list[ChunkWithPrefix],
+    separator: str = " ",
+    limit: int = 500,
+    default: Optional[str] = None,
 ) -> list[str]:
-    messages = []
+    messages: list[str] = []
     current_message = ""
-    current_prefix = None
-
-    def try_append(prefix: str, new_part: str, recursive: bool = False) -> None:
-        nonlocal messages
-        nonlocal current_message
-        nonlocal current_prefix
-        needs_prefix = current_prefix != prefix
-        # new_suffix is the thing we want to append to the current_message
-        new_suffix = prefix + separator + new_part if needs_prefix else new_part
-        if len(current_message) > 0:
-            new_suffix = separator + new_suffix
-
-        if len(current_message) + len(new_suffix) <= limit:
-            # fits
-            current_message += new_suffix
-            current_prefix = prefix
-        else:
-            # doesn't fit, start new message
-            if recursive:
-                raise ValueError("Function was given part that could never fit")
-
-            messages.append(current_message)
-            current_message = ""
-            current_prefix = None
-            try_append(prefix, new_part, True)
+    current_prefix: Optional[str] = None
 
     for chunk in chunks:
         prefix = chunk["prefix"]
         parts = chunk["parts"]
         for part in parts:
-            try_append(prefix, part)
+            try:
+                current_message, current_prefix = _append_part_to_message(
+                    current_message, current_prefix, prefix, part, separator, limit
+                )
+            except ValueError as e:
+                if not current_message:
+                    raise ValueError("Function was given part that could never fit") from e
 
-    if len(current_message) > 0:
+                messages.append(current_message)
+                current_message, current_prefix = _append_part_to_message("", None, prefix, part, separator, limit)
+
+    if current_message:
         messages.append(current_message)
 
-    if len(messages) <= 0 and default is not None:
+    if not messages and default is not None:
         messages = [default]
 
     return messages
