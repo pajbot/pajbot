@@ -508,8 +508,12 @@ class Bot:
             log.exception("UNHANDLED ERROR IN get_args_value")
             return ""
 
+    @staticmethod
+    def _parse_randomchoice(key: str) -> list[str]:
+        return RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
+
     def get_randomchoice_value(self, key: str, extra: dict[Any, Any] = {}) -> str:
-        arguments = RANDOMCHOICE_ARGUMENT_REGEX.findall(key)
+        arguments = Bot._parse_randomchoice(key)
         if not arguments:
             return ""
 
