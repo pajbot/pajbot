@@ -31,7 +31,7 @@ dependencies = [
     "regex==2024.9.11",
     "requests==2.33.0",
     "retry==0.9.2",
-    "riotwatcher==3.3.0",
+    "riotwatcher==3.3.1",
     "service-identity==24.1.0",
     "SQLAlchemy==2.0.50",
     "SQLAlchemy-Utc==0.14.0",
