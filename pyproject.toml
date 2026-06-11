@@ -63,7 +63,6 @@ dev = [
     "types-psycopg2==2.9.21.20240819",
     "types-colorama==0.4.15.20240311",
     "types-beautifulsoup4==4.12.0.20240907",
-    "pip-tools==7.5.3",
 ]
 
 [tool.setuptools.packages.find]
@@ -106,3 +105,6 @@ section-order = ["future", "typing", "standard-library", "first-party", "third-p
 
 [tool.ruff.pyupgrade]
 keep-runtime-typing = true
+
+[tool.uv]
+exclude-newer = "1 week"
