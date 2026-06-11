@@ -19,7 +19,7 @@ dependencies = [
     "Jinja2==3.1.6",
     "jsmin==3.0.1",
     "Markdown==3.8.1",
-    "MarkupSafe==2.1.5",
+    "MarkupSafe==3.0.3",
     "marshmallow-dataclass==8.7.1",
     "marshmallow==3.25.1",
     "psycopg2==2.9.11",
