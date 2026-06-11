@@ -21,7 +21,7 @@ dependencies = [
     "Markdown==3.8.1",
     "MarkupSafe==2.1.5",
     "marshmallow-dataclass==8.7.1",
-    "marshmallow==3.25.1",
+    "marshmallow==3.26.2",
     "psycopg2==2.9.11",
     "pylast==5.3.0",
     "pyOpenSSL==26.0.0",
