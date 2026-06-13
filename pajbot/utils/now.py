@@ -11,4 +11,4 @@ def now() -> datetime.datetime:
 
     :return: The datetime object
     """
-    return datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+    return datetime.datetime.now(datetime.timezone.utc)
