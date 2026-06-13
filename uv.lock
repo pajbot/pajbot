@@ -1136,7 +1136,7 @@ requires-dist = [
     { name = "sqlalchemy-utc", specifier = "==0.14.0" },
     { name = "tempora", specifier = "==5.7.0" },
     { name = "twisted", specifier = "==26.4.0rc2" },
-    { name = "types-beautifulsoup4", marker = "extra == 'dev'", specifier = "==4.12.0.20240907" },
+    { name = "types-beautifulsoup4", marker = "extra == 'dev'", specifier = "==4.12.0.20250516" },
     { name = "types-colorama", marker = "extra == 'dev'", specifier = "==0.4.15.20240311" },
     { name = "types-cryptography", marker = "extra == 'dev'", specifier = "==3.3.23.2" },
     { name = "types-enum34", marker = "extra == 'dev'", specifier = "==1.1.8" },
@@ -1873,14 +1873,14 @@ wheels = [
 
 [[package]]
 name = "types-beautifulsoup4"
-version = "4.12.0.20240907"
+version = "4.12.0.20250516"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-html5lib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/e3/138900d35df4e673935239f0259f4b984f11db32c99ceb4f6819c47a7cfc/types-beautifulsoup4-4.12.0.20240907.tar.gz", hash = "sha256:8d023b86530922070417a1d4c4d91678ab0ff2439b3b2b2cffa3b628b49ebab1", size = 11525, upload-time = "2024-09-07T02:35:46.914Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/d1/32b410f6d65eda94d3dfb0b3d0ca151f12cb1dc4cef731dcf7cbfd8716ff/types_beautifulsoup4-4.12.0.20250516.tar.gz", hash = "sha256:aa19dd73b33b70d6296adf92da8ab8a0c945c507e6fb7d5db553415cc77b417e", size = 16628, upload-time = "2025-05-16T03:09:09.93Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/ce/bea8ea21414287b7fc0ad2fccdb571ad8e2f438d1a1d486d146e906ea041/types_beautifulsoup4-4.12.0.20240907-py3-none-any.whl", hash = "sha256:32f5ac48514b488f15241afdd7d2f73f0baf3c54e874e23b66708503dd288489", size = 12081, upload-time = "2024-09-07T02:35:45.701Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/79/d84de200a80085b32f12c5820d4fd0addcbe7ba6dce8c1c9d8605e833c8e/types_beautifulsoup4-4.12.0.20250516-py3-none-any.whl", hash = "sha256:5923399d4a1ba9cc8f0096fe334cc732e130269541d66261bb42ab039c0376ee", size = 16879, upload-time = "2025-05-16T03:09:09.051Z" },
 ]
 
 [[package]]
