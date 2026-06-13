@@ -113,6 +113,8 @@ def load_admin_id_or_login(config: Config) -> Union[tuple[str, None], tuple[None
 
 
 def get_boolean(o: ConfigSection, key: str, default_value: bool) -> bool:
-    v = o.get(key, default_value)
+    v = o.get(key)
+    if v is None:
+        return default_value
 
     return v == "1"
