@@ -38,3 +38,6 @@ venv/
 .vim/
 
 /pajbot.egg-info/
+
+coverage.xml
+.coverage
