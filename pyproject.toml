@@ -41,7 +41,7 @@ dependencies = [
     "uWSGI==2.0.31",
     "urlextract==1.9.0",
     "Flask-WTF==1.2.1",
-    "pytimeparse==1.1.8",
+    "pytimeparse @ git+https://github.com/pajbot/pytimeparse.git@39f157dd5254e6a351367945c4608677fd5572d3",
 ]
 
 [project.optional-dependencies]

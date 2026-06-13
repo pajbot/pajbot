@@ -1017,7 +1017,7 @@ requires-dist = [
     { name = "pylast", specifier = "==5.3.0" },
     { name = "pyopenssl", specifier = "==26.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.3" },
-    { name = "pytimeparse", specifier = "==1.1.8" },
+    { name = "pytimeparse", git = "https://github.com/pajbot/pytimeparse.git?rev=39f157dd5254e6a351367945c4608677fd5572d3" },
     { name = "pytz", specifier = "==2024.2" },
     { name = "rapidfuzz", specifier = "==3.14.5" },
     { name = "redis", specifier = "==5.0.8" },
@@ -1209,11 +1209,7 @@ wheels = [
 [[package]]
 name = "pytimeparse"
 version = "1.1.8"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/37/5d/231f5f33c81e09682708fb323f9e4041408d8223e2f0fb9742843328778f/pytimeparse-1.1.8.tar.gz", hash = "sha256:e86136477be924d7e670646a98561957e8ca7308d44841e21f5ddea757556a0a", size = 9403, upload-time = "2018-05-18T17:40:42.76Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1b/b4/afd75551a3b910abd1d922dbd45e49e5deeb4d47dc50209ce489ba9844dd/pytimeparse-1.1.8-py2.py3-none-any.whl", hash = "sha256:04b7be6cc8bd9f5647a6325444926c3ac34ee6bc7e69da4367ba282f076036bd", size = 9969, upload-time = "2018-05-18T17:40:41.28Z" },
-]
+source = { git = "https://github.com/pajbot/pytimeparse.git?rev=39f157dd5254e6a351367945c4608677fd5572d3#39f157dd5254e6a351367945c4608677fd5572d3" }
 
 [[package]]
 name = "pytokens"
