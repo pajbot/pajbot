@@ -41,3 +41,4 @@ venv/
 
 coverage.xml
 .coverage
+junit.xml

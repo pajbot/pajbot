@@ -52,6 +52,13 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Upload test reports to Codecov
+        if: matrix.python-version == '3.14'
+        uses: codecov/codecov-action@v7.0.0
+        with:
+          report_type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   check_format:
     name: "Check format ubuntu-latest, Python ${{ matrix.python-version }}"
     runs-on: ubuntu-latest
