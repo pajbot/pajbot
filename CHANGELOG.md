@@ -13,6 +13,7 @@ The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
 - Minor: Request the prediction scope for streamers. (#2814)
 - Dev: Added some unit tests for \$(randomchoice:...). (#2839)
 - Dev: Added a `test.sh` script that errors if we use something deprecated. (#2855)
+- Dev: Added unit test for `utils.now`. (#2856)
 - Dev: Remove dependency on the `cgi` package. (#2827)
 - Dev: Requirement files are now sourced from pyproject.toml. `uv` is recommended to install dependencies. (#2826, #2841)
 - Dev: Updated some documentation. (#2809, #2810)
