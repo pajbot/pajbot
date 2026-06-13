@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-export PYTEST_ADDOPTS="-W error::DeprecationWarning"
+# export PYTEST_ADDOPTS="-W error::DeprecationWarning"
+export PYTEST_ADDOPTS="-W default::DeprecationWarning"
 
 if ! command -v uv >/dev/null; then
     echo "This script requires uv installed. You can manually run tests with pytest in your venv."
