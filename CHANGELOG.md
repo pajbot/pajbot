@@ -17,6 +17,7 @@ The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
 - Dev: Updated some documentation. (#2809, #2810)
 - Dev: Improved error messaging if we failed to get the bot oauth token. (#2811)
 - Dev: Added a benchmark utility to help you check if a function is taking longer than expected. (#2812)
+- Dev: Mini refactor of `split_into_chunks_with_prefix`. (#2854)
 - Dev: Some minor logging improvements. (#2814)
 
 ## v1.71
