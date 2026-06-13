@@ -44,7 +44,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Run tests
-        run: uv run pytest
+        run: ./scripts/test.sh
 
   check_format:
     name: "Check format ubuntu-latest, Python ${{ matrix.python-version }}"
