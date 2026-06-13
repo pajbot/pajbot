@@ -1,6 +1,5 @@
 from pajbot import config
 
-import pytest
 
 
 def test_get_boolean() -> None:
