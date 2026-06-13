@@ -17,6 +17,7 @@ The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
 - Dev: Remove dependency on the `cgi` package. (#2827)
 - Dev: Requirement files are now sourced from pyproject.toml. `uv` is recommended to install dependencies. (#2826, #2841)
 - Dev: Use our own fork of `pytimeparse` to ensure we don't error to fix Python3.14 deprecation warnings. (#2857)
+- Dev: Add code coverage. (#2858)
 - Dev: Updated some documentation. (#2809, #2810)
 - Dev: Improved error messaging if we failed to get the bot oauth token. (#2811)
 - Dev: Added a benchmark utility to help you check if a function is taking longer than expected. (#2812)

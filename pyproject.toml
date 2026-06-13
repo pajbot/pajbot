@@ -49,6 +49,7 @@ dev = [
     "black==26.5.1",
     "flake8==7.1.1",
     "pytest==9.0.3",
+    "pytest-cov==7.1.0",
     "mypy==1.11.2",
     "isort==5.13.2",
     "types-cryptography==3.3.23.2",

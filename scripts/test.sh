@@ -14,4 +14,4 @@ if [ ! -d scripts ]; then
     exit 1
 fi
 
-uv run pytest pajbot
+uv run --extra dev pytest --cov=pajbot --cov-branch --cov-report=xml pajbot
