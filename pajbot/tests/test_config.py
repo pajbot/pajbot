@@ -1,7 +1,6 @@
 from pajbot import config
 
 
-
 def test_get_boolean() -> None:
     cfg = {"enabled": "1", "disabled": "0"}
 
