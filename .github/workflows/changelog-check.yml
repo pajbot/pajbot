@@ -9,7 +9,7 @@ jobs:
   check-changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Gives an error if there's no change in the changelog (except using label)
       - name: Changelog check
