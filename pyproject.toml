@@ -9,7 +9,7 @@ version = "1.71"
 dependencies = [
     "APScheduler==3.10.4",
     "autobahn==24.4.2",
-    "beautifulsoup4==4.12.3",
+    "beautifulsoup4==4.14.3",
     "colorama==0.4.6",
     "cssmin==0.2.0",
     "Flask==3.1.3",
