@@ -38,7 +38,7 @@ dependencies = [
     "unidecode==1.4.0",
     "uWSGI==2.0.31",
     "urlextract==1.9.0",
-    "Flask-WTF==1.2.1",
+    "flask-wtf==1.3.0",
     "pytimeparse @ git+https://github.com/pajbot/pytimeparse.git@39f157dd5254e6a351367945c4608677fd5572d3",
 ]
 
