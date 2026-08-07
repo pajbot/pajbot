@@ -26,6 +26,8 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 csrf = CSRFProtect(app)
 
+csrf.init_app(app)
+
 app.url_map.strict_slashes = False
 
 log = logging.getLogger(__name__)
