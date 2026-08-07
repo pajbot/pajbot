@@ -63,7 +63,7 @@ dev = [
     "types-retry==0.9.9.4",
     "types-psycopg2==2.9.21.20240819",
     "types-colorama==0.4.15.20240311",
-    "types-beautifulsoup4==4.12.0.20240907",
+    "types-beautifulsoup4==4.12.0.20250516",
 ]
 
 [tool.setuptools.packages.find]
