@@ -34,7 +34,7 @@ dependencies = [
     "SQLAlchemy==2.0.50",
     "SQLAlchemy-Utc==0.14.0",
     "tempora==5.7.0",
-    "Twisted==26.4.0rc2",
+    "twisted==26.4.0",
     "unidecode==1.4.0",
     "uWSGI==2.0.31",
     "urlextract==1.9.0",
