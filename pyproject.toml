@@ -53,13 +53,13 @@ dev = [
     "types-enum34==1.1.8",
     "types-ipaddress==1.0.8",
     "types-markdown==3.10.2.20260712",
+    "types-setuptools>=82.0.0.20260518",
     "types-pytz==2026.3.1.20260727",
     "types-redis==4.6.0.20240903",
     "types-retry==0.9.9.4",
+    "types-psycopg2==2.9.21.20260724",
     "types-colorama==0.4.15.20240311",
     "types-beautifulsoup4==4.12.0.20250516",
-    "types-setuptools>=82.0.0.20260518",
-    "types-psycopg2==2.9.21.20260724",
 ]
 
 [tool.setuptools.packages.find]
