@@ -20,16 +20,26 @@ else
 fi
 
 # reformat/check every python file, except venv
+echo "Checking Python formatting with black"
 uv run black $BLACK_OPTIONS . --exclude=venv
+echo ""
 
 # reformat markdown, js, css
-npx prettier@^1.18.2 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
+echo "Reformatting markdown/js/css with prettier"
+npx --yes prettier@1.19.1 $PRETTIER_OPTIONS '**/*.md' '**/*.js' '**/*.css'
+echo ""
 
 # Run linter
+echo "Linting with flake8"
 uv run flake8 pajbot
+echo ""
 
 # Run mypy static typing checker
+echo "Type-checking with mypy"
 uv run mypy pajbot
+echo ""
 
 # Sort imports
+echo "Sorting imports with isort"
 uv run isort pajbot "${ISORT_OPTIONS[@]}"
+echo ""
