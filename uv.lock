@@ -1254,7 +1254,6 @@ dev = [
     { name = "types-psycopg2" },
     { name = "types-pytz" },
     { name = "types-redis" },
-    { name = "types-requests" },
     { name = "types-retry" },
     { name = "types-setuptools" },
 ]
@@ -1290,7 +1289,7 @@ requires-dist = [
     { name = "rapidfuzz", specifier = "==3.14.5" },
     { name = "redis", specifier = "==5.0.8" },
     { name = "regex", specifier = "==2024.9.11" },
-    { name = "requests", specifier = "==2.33.0" },
+    { name = "requests", specifier = "==2.34.2" },
     { name = "retry", specifier = "==0.9.2" },
     { name = "riotwatcher", specifier = "==3.3.1" },
     { name = "sqlalchemy", specifier = "==2.0.50" },
@@ -1305,7 +1304,6 @@ requires-dist = [
     { name = "types-psycopg2", marker = "extra == 'dev'", specifier = "==2.9.21.20240819" },
     { name = "types-pytz", marker = "extra == 'dev'", specifier = "==2026.3.1.20260727" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = "==4.6.0.20240903" },
-    { name = "types-requests", marker = "extra == 'dev'", specifier = "==2.32.0.20240914" },
     { name = "types-retry", marker = "extra == 'dev'", specifier = "==0.9.9.4" },
     { name = "types-setuptools", marker = "extra == 'dev'", specifier = ">=82.0.0.20260518" },
     { name = "unidecode", specifier = "==1.4.0" },
@@ -1794,7 +1792,7 @@ wheels = [
 
 [[package]]
 name = "requests"
-version = "2.33.0"
+version = "2.34.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
@@ -1802,9 +1800,9 @@ dependencies = [
     { name = "idna" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/34/64/8860370b167a9721e8956ae116825caff829224fbca0ca6e7bf8ddef8430/requests-2.33.0.tar.gz", hash = "sha256:c7ebc5e8b0f21837386ad0e1c8fe8b829fa5f544d8df3b2253bff14ef29d7652", size = 134232, upload-time = "2026-03-25T15:10:41.586Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/5d/c814546c2333ceea4ba42262d8c4d55763003e767fa169adc693bd524478/requests-2.33.0-py3-none-any.whl", hash = "sha256:3324635456fa185245e24865e810cecec7b4caf933d7eb133dcde67d48cee69b", size = 65017, upload-time = "2026-03-25T15:10:40.382Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
 ]
 
 [[package]]
@@ -2213,18 +2211,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9e/d6/1eb493bb75cc0f60cedc4ec53ad581804b518a43fcb0c6b66760a175af6e/types-redis-4.6.0.20240903.tar.gz", hash = "sha256:4bab1a378dbf23c2c95c370dfdb89a8f033957c4fd1a53fee71b529c182fe008", size = 49572, upload-time = "2024-09-03T02:35:10.826Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e5/51/c65f5729c1adb5f5a3f19fce0f500c19196cd1f91c00815fc573ceadc7f5/types_redis-4.6.0.20240903-py3-none-any.whl", hash = "sha256:0e7537e5c085fe96b7d468d5edae0cf667b4ba4b62c6e4a5dfc340bd3b868c23", size = 58719, upload-time = "2024-09-03T02:35:09.306Z" },
-]
-
-[[package]]
-name = "types-requests"
-version = "2.32.0.20240914"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "urllib3" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9b/9e/aea33405c230cc3984c9f1065012d3a2003cef910730c367a0e91e7a4901/types-requests-2.32.0.20240914.tar.gz", hash = "sha256:2850e178db3919d9bf809e434eef65ba49d0e7e33ac92d588f4a5e295fffd405", size = 18030, upload-time = "2024-09-14T02:36:52.45Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/55/ea44dad71b9d92f86198f7448f5ba46ac919355f4f69bb1c0fa1af02b1b4/types_requests-2.32.0.20240914-py3-none-any.whl", hash = "sha256:59c2f673eb55f32a99b2894faf6020e1a9f4a402ad0f192bfee0b64469054310", size = 15838, upload-time = "2024-09-14T02:36:50.645Z" },
 ]
 
 [[package]]
