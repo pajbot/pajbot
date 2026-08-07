@@ -152,14 +152,15 @@ wheels = [
 
 [[package]]
 name = "beautifulsoup4"
-version = "4.12.3"
+version = "4.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "soupsieve" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b3/ca/824b1195773ce6166d388573fc106ce56d4a805bd7427b624e063596ec58/beautifulsoup4-4.12.3.tar.gz", hash = "sha256:74e3d1928edc070d21748185c46e3fb33490f22f52a3addee9aee0f4f7781051", size = 581181, upload-time = "2024-01-17T16:53:17.902Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/65/318323f98dbee45d42dff61d8f047181bc6f2268a9068cfad035a46be5af/beautifulsoup4-4.15.0.tar.gz", hash = "sha256:288e3ca7d54b06f2ac191970bc275c1939cb46d450b255bf6718b04aa37ab4f7", size = 632571, upload-time = "2026-06-07T16:44:20.453Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b1/fe/e8c672695b37eecc5cbf43e1d0638d88d66ba3a44c4d321c796f4e59167f/beautifulsoup4-4.12.3-py3-none-any.whl", hash = "sha256:b80878c9f40111313e55da8ba20bdba06d8fa3969fc68304167741bbf9e082ed", size = 147925, upload-time = "2024-01-17T16:53:12.779Z" },
+    { url = "https://files.pythonhosted.org/packages/88/c6/92fcd42f1ba33e1184263f25bfabf3d27c383410470f169e4b8163bf9c17/beautifulsoup4-4.15.0-py3-none-any.whl", hash = "sha256:d6f88de62e1d4e38ecb1077eb9724cd0eff29d2a08ca16a401e9b9e93f117cf9", size = 109924, upload-time = "2026-06-07T16:44:21.566Z" },
 ]
 
 [[package]]
@@ -1262,7 +1263,7 @@ dev = [
 requires-dist = [
     { name = "apscheduler", specifier = "==3.10.4" },
     { name = "autobahn", extras = ["encryption"], specifier = ">=26.7.1" },
-    { name = "beautifulsoup4", specifier = "==4.12.3" },
+    { name = "beautifulsoup4", specifier = "==4.15.0" },
     { name = "black", marker = "extra == 'dev'", specifier = "==26.5.1" },
     { name = "colorama", specifier = "==0.4.6" },
     { name = "cssmin", specifier = "==0.2.0" },
@@ -1296,7 +1297,7 @@ requires-dist = [
     { name = "sqlalchemy-utc", specifier = "==0.14.0" },
     { name = "tempora", specifier = "==5.7.0" },
     { name = "twisted", specifier = "==26.4.0rc2" },
-    { name = "types-beautifulsoup4", marker = "extra == 'dev'", specifier = "==4.12.0.20240907" },
+    { name = "types-beautifulsoup4", marker = "extra == 'dev'", specifier = "==4.12.0.20250516" },
     { name = "types-colorama", marker = "extra == 'dev'", specifier = "==0.4.15.20240311" },
     { name = "types-enum34", marker = "extra == 'dev'", specifier = "==1.1.8" },
     { name = "types-ipaddress", marker = "extra == 'dev'", specifier = "==1.0.8" },
@@ -2100,14 +2101,14 @@ wheels = [
 
 [[package]]
 name = "types-beautifulsoup4"
-version = "4.12.0.20240907"
+version = "4.12.0.20250516"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-html5lib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/e3/138900d35df4e673935239f0259f4b984f11db32c99ceb4f6819c47a7cfc/types-beautifulsoup4-4.12.0.20240907.tar.gz", hash = "sha256:8d023b86530922070417a1d4c4d91678ab0ff2439b3b2b2cffa3b628b49ebab1", size = 11525, upload-time = "2024-09-07T02:35:46.914Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/d1/32b410f6d65eda94d3dfb0b3d0ca151f12cb1dc4cef731dcf7cbfd8716ff/types_beautifulsoup4-4.12.0.20250516.tar.gz", hash = "sha256:aa19dd73b33b70d6296adf92da8ab8a0c945c507e6fb7d5db553415cc77b417e", size = 16628, upload-time = "2025-05-16T03:09:09.93Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/ce/bea8ea21414287b7fc0ad2fccdb571ad8e2f438d1a1d486d146e906ea041/types_beautifulsoup4-4.12.0.20240907-py3-none-any.whl", hash = "sha256:32f5ac48514b488f15241afdd7d2f73f0baf3c54e874e23b66708503dd288489", size = 12081, upload-time = "2024-09-07T02:35:45.701Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/79/d84de200a80085b32f12c5820d4fd0addcbe7ba6dce8c1c9d8605e833c8e/types_beautifulsoup4-4.12.0.20250516-py3-none-any.whl", hash = "sha256:5923399d4a1ba9cc8f0096fe334cc732e130269541d66261bb42ab039c0376ee", size = 16879, upload-time = "2025-05-16T03:09:09.051Z" },
 ]
 
 [[package]]
