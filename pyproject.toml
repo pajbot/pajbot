@@ -62,7 +62,7 @@ dev = [
     "types-requests==2.32.0.20240914",
     "types-retry==0.9.9.4",
     "types-psycopg2==2.9.21.20240819",
-    "types-colorama==0.4.15.20240311",
+    "types-colorama==0.4.15.20260508",
     "types-beautifulsoup4==4.12.0.20240907",
 ]
 
