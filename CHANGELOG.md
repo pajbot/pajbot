@@ -4,7 +4,13 @@
 
 Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
 
-The supported Python versions are now 3.11, 3.11, 3.12, 3.13, and 3.14.
+The supported Python versions are now 3.11, 3.12, 3.13, and 3.14.
+
+## v1.72
+
+Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` when updating to this version!
+
+The supported Python versions are now 3.11, 3.12, 3.13, and 3.14.
 
 - Breaking: Changed the minimal supported Python version from 3.10 to 3.11. (#2828)
 - Breaking: We now expect the virtual environment to be stored under `.venv`, managed with `uv`. (#2841)
