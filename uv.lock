@@ -1088,12 +1088,12 @@ dev = [
     { name = "types-enum34" },
     { name = "types-ipaddress" },
     { name = "types-markdown" },
-    { name = "types-pkg-resources" },
     { name = "types-psycopg2" },
     { name = "types-pytz" },
     { name = "types-redis" },
     { name = "types-requests" },
     { name = "types-retry" },
+    { name = "types-setuptools" },
 ]
 
 [package.metadata]
@@ -1142,12 +1142,12 @@ requires-dist = [
     { name = "types-enum34", marker = "extra == 'dev'", specifier = "==1.1.8" },
     { name = "types-ipaddress", marker = "extra == 'dev'", specifier = "==1.0.8" },
     { name = "types-markdown", marker = "extra == 'dev'", specifier = "==3.7.0.20240822" },
-    { name = "types-pkg-resources", marker = "extra == 'dev'", specifier = "==0.1.3" },
     { name = "types-psycopg2", marker = "extra == 'dev'", specifier = "==2.9.21.20240819" },
     { name = "types-pytz", marker = "extra == 'dev'", specifier = "==2024.2.0.20240913" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = "==4.6.0.20240903" },
     { name = "types-requests", marker = "extra == 'dev'", specifier = "==2.32.0.20240914" },
     { name = "types-retry", marker = "extra == 'dev'", specifier = "==0.9.9.4" },
+    { name = "types-setuptools", marker = "extra == 'dev'", specifier = ">=82.0.0.20260518" },
     { name = "unidecode", specifier = "==1.3.8" },
     { name = "urlextract", specifier = "==1.9.0" },
     { name = "uwsgi", specifier = "==2.0.31" },
@@ -1950,15 +1950,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/37/5d/2ac1b166d6f251d67c3e5d4b6095e122bafea0e184d54122aa13efc2dd27/types-Markdown-3.7.0.20240822.tar.gz", hash = "sha256:183557c9f4f865bdefd8f5f96a38145c31819271cde111d35557c3bd2069e78d", size = 13187, upload-time = "2024-08-22T02:32:52.183Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/49/25/381b2e70da6f14084b64578a1f251b50f1ccd3197a3353389b5b6189b4db/types_Markdown-3.7.0.20240822-py3-none-any.whl", hash = "sha256:bec91c410aaf2470ffdb103e38438fbcc53689b00133f19e64869eb138432ad7", size = 18976, upload-time = "2024-08-22T02:32:50.803Z" },
-]
-
-[[package]]
-name = "types-pkg-resources"
-version = "0.1.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a4/5c/5e04590a4b9749a33a6b8b93784270a65f8ebdec55a0b7742bb30e2075bb/types-pkg_resources-0.1.3.tar.gz", hash = "sha256:834a9b8d3dbea343562fd99d5d3359a726f6bf9d3733bccd2b4f3096fbab9dae", size = 4204, upload-time = "2021-06-17T15:01:28.046Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/97/a24ffd614ac2962dabbd599afbed00adf6464604a53b96b5f48301518a5f/types_pkg_resources-0.1.3-py2.py3-none-any.whl", hash = "sha256:0cb9972cee992249f93fff1a491bf2dc3ce674e5a1926e27d4f0866f7d9b6d9c", size = 4810, upload-time = "2021-06-17T15:01:26.789Z" },
 ]
 
 [[package]]
