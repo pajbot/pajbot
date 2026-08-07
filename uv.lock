@@ -1034,7 +1034,7 @@ wheels = [
 
 [[package]]
 name = "pajbot"
-version = "1.71"
+version = "1.72"
 source = { editable = "." }
 dependencies = [
     { name = "apscheduler" },

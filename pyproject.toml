@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pajbot"
 requires-python = ">=3.11"
-version = "1.71"
+version = "1.72"
 dependencies = [
     "APScheduler==3.10.4",
     "autobahn==24.4.2",
