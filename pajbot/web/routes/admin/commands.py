@@ -178,6 +178,15 @@ def init(page) -> None:
             db_session.expunge(command)
             db_session.expunge(command.data)
 
-        SocketClientManager.send("command.update", {"command_id": command.id})
+        if not SocketClientManager.send("command.update", {"command_id": command.id}):
+            log.error("Created command %s, but could not notify the bot", command.id)
+            return (
+                render_template(
+                    "admin/create_command_fail.html",
+                    error_message="The command was created, but the bot could not be notified. Please try restarting the bot with !quit in chat.",
+                ),
+                503,
+            )
+
         session["command_created_id"] = command.id
         return redirect("/admin/commands", 303)
