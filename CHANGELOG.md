@@ -7,6 +7,7 @@ Remember to bring your dependencies up to date with `./scripts/venvinstall.sh` w
 The supported Python versions are now 3.11, 3.12, 3.13, and 3.14.
 
 - Bugfix: Actually apply CSRF protection to web forms. (#2875)
+- Bugfix: Provide better error handling if command creation failed, or ran into any non-fatal errors. (#2888)
 - Dev: Clean up and update some dependencies. (#2874)
 
 ## v1.72
