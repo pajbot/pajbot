@@ -48,13 +48,13 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: matrix.python-version == '3.14'
-        uses: codecov/codecov-action@v7.0.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test reports to Codecov
         if: matrix.python-version == '3.14'
-        uses: codecov/codecov-action@v7.0.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
